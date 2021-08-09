@@ -18,3 +18,5 @@ LinkingTo:
     Rcpp
 Imports: 
     Rcpp
+URL: https://github.com/bcjaeger/orsf2
+BugReports: https://github.com/bcjaeger/orsf2/issues
