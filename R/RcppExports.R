@@ -42,6 +42,6 @@ any_cps_valid <- function(x) {
 }
 
 ostree_fit_arma <- function(x, y, mtry = 4L, n_vars_lc = 2L, n_cps = 5L, leaf_min_events = 5L, leaf_min_obs = 10L) {
-    invisible(.Call(`_orsf2_ostree_fit_arma`, x, y, mtry, n_vars_lc, n_cps, leaf_min_events, leaf_min_obs))
+    .Call(`_orsf2_ostree_fit_arma`, x, y, mtry, n_vars_lc, n_cps, leaf_min_events, leaf_min_obs)
 }
 

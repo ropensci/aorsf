@@ -10,6 +10,78 @@ using namespace Rcpp;
 
 
 // [[Rcpp::export]]
+arma::vec leaf_surv(arma::mat& y,
+                    arma::uvec& weights){
+
+  arma::uword n_dead, n_cens, n_risk, n_risk_sub, person, km_counter;
+
+  // use sorted y times to count the number of unique.
+  // also define number at risk as the sum of the weights
+  arma::uword n_unique = 1; // set at 1 to account for the first time
+  n_risk = weights[0]; // see above
+
+  for(person = 1; person < y.n_rows; person++){
+
+    if(y(person-1, 0) != y(person,0)){
+      n_unique++;
+    }
+
+    n_risk += weights[person];
+
+  }
+
+  //Rcout << n_risk << std::endl;
+  //Rcout << n_unique << std::endl;
+
+  // reset for next loop
+  person = 0;
+  km_counter = 0;
+  double km = 1.0;
+  arma::vec kmvec(n_unique);
+
+  do{
+
+    double person_time = y(person, 0);
+    n_dead = 0;
+    n_cens = 0;
+    n_risk_sub = 0;
+
+    while(y(person, 0) == person_time){
+
+      n_risk_sub += weights[person];
+
+      if(y(person, 1) == 1){
+        n_dead += weights[person];
+      } else {
+        n_cens += weights[person];
+      }
+
+      if(person == y.n_rows-1) break;
+      person++;
+
+    }
+
+    //Rcout << "n_risk: " << n_risk << std::endl;
+    //Rcout << "n_dead: " << n_dead << std::endl;
+    //Rcout << "n_risk: " << n_risk << std::endl;
+
+    km = km * (n_risk - n_dead) / n_risk;
+
+    //Rcout << "km: " << km << std::endl;
+
+    kmvec[km_counter] = km;
+
+    n_risk -= n_risk_sub;
+
+    km_counter++;
+
+  } while (km_counter < n_unique);
+
+  return(kmvec);
+
+}
+
+// [[Rcpp::export]]
 arma::mat count_parts(arma::mat& y,
                       arma::uvec& parts,
                       arma::uword& parts_max){
@@ -21,9 +93,6 @@ arma::mat count_parts(arma::mat& y,
 
   // loop through the matrix, once, by row
   for(arma::uword i = 0; i < parts.size(); i++){
-
-    // works as intended if parts = strictly positive
-    // integer values, i.e., 1, 2, 3, ..., max_parts.
 
     // subtract 1 from current value of parts to align
     // with c++ index starting at 0.
@@ -64,15 +133,15 @@ void find_cutpoints(arma::vec& cp,
     cp[i] = R_PosInf;
   }
 
-  if(lc_size > 50){
+  if(lc_size > 100){
 
     // get unique values in the head and tail, using the rough sort:
     // - greater values tend to be at the head of x
     // - smaller values tend to be at the tail of x
     // This is a shallow way to check the number of unique values
     lc_uni = arma::unique(
-      arma::join_cols(lc.head(25),
-                      lc.tail(25))
+      arma::join_cols(lc.head(50),
+                      lc.tail(50))
     );
 
 
@@ -145,7 +214,7 @@ void find_cutpoints(arma::vec& cp,
     arma::vec probs;
 
     if(cp_size >= 3){
-      probs = arma::linspace<arma::vec>(0.10, 0.90, cp_size);
+      probs = arma::linspace<arma::vec>(0.20, 0.80, cp_size);
     } else if (cp_size == 2){
       probs = {0.333, 0.666};
     } else {
@@ -180,18 +249,18 @@ void find_cutpoints(arma::vec& cp,
           n_obs_right++;
         }
 
-        // Rcout << "n_events_left: " << n_events_left << std::endl;
-        // Rcout << "n_events_right: " << n_events_right << std::endl;
-        // Rcout << "n_obs_left: " << n_obs_left << std::endl;
-        // Rcout << "n_obs_right: " << n_obs_right << std::endl;
-
         // check if left node has enough events and observations
-        // (don't forget to make sure the right node has enough as well)
         if(n_events_left >= leaf_min_events &&
            n_events_right >= leaf_min_events &&
            n_obs_left >= leaf_min_obs &&
            n_obs_right >= leaf_min_obs){
           cp[i] = lc_quants[i];
+
+          // Rcout << "n_events_left: " << n_events_left << std::endl;
+          // Rcout << "n_events_right: " << n_events_right << std::endl;
+          // Rcout << "n_obs_left: " << n_obs_left << std::endl;
+          // Rcout << "n_obs_right: " << n_obs_right << std::endl;
+
           break;
         }
 
@@ -758,7 +827,7 @@ bool any_cps_valid(arma::vec& x){
 }
 
 // [[Rcpp::export]]
-void ostree_fit_arma(arma::mat& x,
+List ostree_fit_arma(arma::mat& x,
                      arma::mat& y,
                      const arma::uword& mtry = 4,
                      const arma::uword& n_vars_lc = 2,
@@ -770,8 +839,7 @@ void ostree_fit_arma(arma::mat& x,
   int n_col = x.n_cols;
   double prob_sampled = 1.0/n_obs;
 
-  List tree_nodes;
-  List tree_leaves;
+  List tree_nodes, tree_leaves, new_node;
   int list_counter = 0;
 
   // s is the number of times you might get selected into
@@ -804,6 +872,7 @@ void ostree_fit_arma(arma::mat& x,
 
   // vector of parts to grow (starts with 0 b/c all parts is 0)
   arma::uvec to_grow {0};
+  arma::uword n_to_grow = 1;
 
   arma::uword index;
   arma::uword n_cols_to_sample;
@@ -822,6 +891,8 @@ void ostree_fit_arma(arma::mat& x,
   arma::uvec grow_rows;
   // data to grow the current tree part
   arma::mat x_sub, y_sub;
+  // data to check event/sample size in each part
+  arma::mat events_by_part;
 
   // vectors and matrices for newton raphson
   arma::vec u(mtry);
@@ -837,207 +908,270 @@ void ostree_fit_arma(arma::mat& x,
   // vector to hold cut-points
   arma::vec cp(n_cps);
 
+  arma::uvec dont_grow;
+
   // looping through nodes that need to be split
 
-  for(i = to_grow.begin(); i != to_grow.end(); ++i){
+  do {
 
-    Rcout << "Part: " << *i << std::endl;
+    arma::uvec grow_rows_combined;
 
-    mtry_temp = mtry;
-    n_vars_lc_temp = n_vars_lc;
+    for(i = to_grow.begin(); i != to_grow.end(); ++i){
 
-    u.fill(0);
-    a.fill(0);
-    a2.fill(0);
-    imat.fill(0);
-    cmat.fill(0);
-    cmat2.fill(0);
+      Rcout << "Part: " << *i << std::endl;
 
-    if(to_grow.size() > 1){
+      mtry_temp = mtry;
+      n_vars_lc_temp = n_vars_lc;
 
-      grow_rows = arma::find(parts == *i);
+      u.fill(0);
+      a.fill(0);
+      a2.fill(0);
+      imat.fill(0);
+      cmat.fill(0);
+      cmat2.fill(0);
+      cols_to_sample_bool.fill(0);
 
-    } else {
+      if(to_grow[0] == 0){
 
-      grow_rows = arma::linspace<arma::uvec>(0,
-                                             boot_rows.size()-1,
-                                             boot_rows.size());
-
-    }
-
-    //Rcout << "Grow rows: " << grow_rows.t() << std::endl;
-
-    //Rcout << "data: " << std::endl << x.rows(grow_rows) << std::endl;
-
-    // check for constant columns using just the grow rows
-
-    Rcout << "empty cols_to_sample: " << cols_to_sample_bool.t() << std::endl;
-
-    for(index = 0; index < cols_to_sample_bool.size(); index++){
-
-      for(j = grow_rows.begin(); j != grow_rows.end(); ++j){
-
-        if(x(*j, index) != x(0, index)){
-
-          cols_to_sample_bool[index] = 1;
-          break;
-
-        }
-
-      }
-
-    }
-
-
-    Rcout << "full cols_to_sample: " << cols_to_sample_bool.t() << std::endl;
-
-    n_cols_to_sample = arma::sum(cols_to_sample_bool);
-
-    if(n_cols_to_sample < mtry) mtry_temp = n_cols_to_sample;
-
-    Rcout << "mtry_temp: " << mtry_temp << std::endl;
-
-    // a hack to convert mtry_temp to an int
-    int mtry_temp_int = 0;
-    for(k = 0; k < mtry_temp; k++) mtry_temp_int++;
-
-    if(n_vars_lc_temp > mtry_temp_int) n_vars_lc_temp = mtry_temp_int;
-
-    Rcout << "mtry_temp_int: " << mtry_temp_int << std::endl;
-
-    cols_to_sample_index = arma::find(cols_to_sample_bool);
-
-    grow_cols = Rcpp::RcppArmadillo::sample(cols_to_sample_index,
-                                            mtry_temp_int,
-                                            false);
-
-    Rcout << "cols sampled: " << grow_cols.t() << std::endl;
-
-    x_sub = x(grow_rows, grow_cols);
-    y_sub = y.rows(grow_rows);
-
-    Rcout << "x_sub: " << std::endl << x_sub.head_rows(5) << std::endl;
-
-    Rcout << "y_sub: " << std::endl << y_sub.head_rows(5) << std::endl;
-
-    //Rcout << "weights: " << weights.t() << std::endl;
-
-    Rcout << "u: " << u.t() << std::endl;
-
-    newtraph_cph_one_iter(x_sub, y_sub,
-                          weights, u, a, a2,
-                          imat, cmat, cmat2, 0);
-
-    //Rcout << "imat: " << std::endl << imat << std::endl;
-    cholesky(imat);
-    //Rcout << "imat after cholesky: " << std::endl << imat << std::endl;
-    cholesky_solve(imat, u);
-
-    Rcout << "u after solve: " << u.t() << std::endl;
-
-    arma::vec beta(mtry_temp);
-
-    for(k = 0; k < mtry_temp; k++) beta[k] = u[k];
-
-    Rcout << "beta: " << beta.t() << std::endl;
-
-    lc = x_sub * beta;
-
-    find_cutpoints(cp, lc, y_sub, leaf_min_obs, leaf_min_events);
-
-    // if there is at least one valid cut-point, we can grow
-    // two more nodes from the current node.
-
-    if(any_cps_valid(cp) == true){
-
-      Rcout << "cut points: " << cp.t() << std::endl;
-
-      arma::vec g(lc.size());
-
-      double lrstat_max = 0;
-      double lrstat, cp_max;
-
-      for(k = 0; k < cp.size(); k++){
-
-        g.fill(0);
-
-        if(cp[k] < R_PosInf){
-
-          for(q = 0; q < lc.size(); q++){
-            if(lc[q] > cp[k]) g[q] = 1;
-          }
-
-          Rcout << "size of g: " << arma::sum(g) << std::endl;
-
-          lrstat = log_rank_test(y_sub, g);
-
-          Rcout << lrstat << " with cut-point " << cp[k];
-
-          if(lrstat > lrstat_max){
-            lrstat_max = lrstat;
-            cp_max = cp[k];
-            Rcout << ", a new max!";
-          }
-
-          Rcout << std::endl;
-
-        }
-
-      }
-
-      arma::uword nn_left = parts_max + 1;
-      arma::uword nn_right = parts_max + 2;
-      parts_max = parts_max + 2;
-
-      k = 0;
-
-      for(j = grow_rows.begin(); j != grow_rows.end(); ++j){
-        if(lc[k] <= cp_max){
-          parts[*j] = nn_left;
-        } else {
-          parts[*j] = nn_right;
-        }
-        k++;
-      }
-
-      List new_node = List::create(
-        Named("col_index") = grow_cols,
-        _["beta"] = beta,
-        _["child_left"] = nn_left,
-        _["child_right"] = nn_right,
-        _["cutpoint"] = cp_max
-      );
-
-      if(list_counter == 0){
-
-        //IntegerVector gc(grow_cols.begin(), grow_cols.end());
-
-        tree_nodes = List::create(
-          Named(make_node_name(list_counter)) = new_node
-        );
-
-        list_counter++;
+        grow_rows = arma::linspace<arma::uvec>(0,
+                                               boot_rows.size()-1,
+                                               boot_rows.size());
 
       } else {
 
-        // add this node to the existing list
+        grow_rows = arma::find(parts == *i);
+
+      }
+
+      //Rcout << "Grow rows: " << grow_rows.t() << std::endl;
+      //Rcout << "data: " << std::endl << x.rows(grow_rows) << std::endl;
+      // check for constant columns using just the grow rows
+
+
+      Rcout << "empty cols_to_sample: " << cols_to_sample_bool.t() << std::endl;
+
+      for(index = 0; index < cols_to_sample_bool.size(); index++){
+
+        for(j = grow_rows.begin() + 1; j != grow_rows.end(); ++j){
+
+          if(x(*j, index) != x(0, index)){
+
+            cols_to_sample_bool[index] = 1;
+            //Rcout << "column " << index << " is okay" << std::endl;
+            break;
+
+          }
+
+        }
+
+      }
+
+      Rcout << "full cols_to_sample: " << cols_to_sample_bool.t() << std::endl;
+
+      n_cols_to_sample = arma::sum(cols_to_sample_bool);
+
+      if(n_cols_to_sample < mtry) mtry_temp = n_cols_to_sample;
+
+      Rcout << "mtry_temp: " << mtry_temp << std::endl;
+
+      // a hack to convert mtry_temp to an int
+      int mtry_temp_int = 0;
+
+      for(k = 0; k < mtry_temp; k++) mtry_temp_int++;
+
+      if(n_vars_lc_temp > mtry_temp_int) n_vars_lc_temp = mtry_temp_int;
+
+      Rcout << "mtry_temp_int: " << mtry_temp_int << std::endl;
+
+      cols_to_sample_index = arma::find(cols_to_sample_bool);
+
+      grow_cols = Rcpp::RcppArmadillo::sample(cols_to_sample_index,
+                                              mtry_temp_int,
+                                              false);
+
+      Rcout << "cols sampled: " << grow_cols.t() << std::endl;
+
+      x_sub = x(grow_rows, grow_cols);
+      y_sub = y.rows(grow_rows);
+
+      // Rcout << "x_sub: " << std::endl << x_sub << std::endl;
+      //
+      // Rcout << "y_sub: " << std::endl << y_sub << std::endl;
+
+      //Rcout << "weights: " << weights.t() << std::endl;
+
+      // Rcout << "u: " << u.t() << std::endl;
+
+      newtraph_cph_one_iter(x_sub, y_sub,
+                            weights, u, a, a2,
+                            imat, cmat, cmat2, 0);
+
+      //Rcout << "imat: " << std::endl << imat << std::endl;
+      cholesky(imat);
+      //Rcout << "imat after cholesky: " << std::endl << imat << std::endl;
+      cholesky_solve(imat, u);
+
+      Rcout << "u after solve: " << u.t() << std::endl;
+
+      arma::vec beta(mtry_temp);
+
+      for(k = 0; k < mtry_temp; k++) beta[k] = u[k];
+
+      Rcout << "beta: " << beta.t() << std::endl;
+
+      lc = x_sub * beta;
+
+      find_cutpoints(cp, lc, y_sub, leaf_min_obs, leaf_min_events);
+
+      // if there is at least one valid cut-point, we can grow
+      // two more nodes from the current node.
+
+      if(any_cps_valid(cp) == true){
+
+        grow_rows_combined = arma::join_cols(grow_rows_combined,
+                                             grow_rows);
+
+        Rcout << "cut points: " << cp.t() << std::endl;
+
+        arma::vec g(lc.size());
+
+        double lrstat_max = 0;
+        double lrstat, cp_max;
+
+        for(k = 0; k < cp.size(); k++){
+
+          g.fill(0);
+
+          if(cp[k] < R_PosInf){
+
+            for(q = 0; q < lc.size(); q++){
+              if(lc[q] > cp[k]) g[q] = 1;
+            }
+
+            Rcout << "size of g: " << arma::sum(g) << std::endl;
+
+            lrstat = log_rank_test(y_sub, g);
+
+            Rcout << lrstat << " with cut-point " << cp[k];
+
+            if(lrstat > lrstat_max){
+              lrstat_max = lrstat;
+              cp_max = cp[k];
+              Rcout << ", a new max!";
+            }
+
+            Rcout << std::endl;
+
+          }
+
+        }
+
+        arma::uword nn_left = parts_max + 1;
+        arma::uword nn_right = parts_max + 2;
+        parts_max = parts_max + 2;
+
+        k = 0;
+
+        for(j = grow_rows.begin(); j != grow_rows.end(); ++j){
+          if(lc[k] <= cp_max){
+            parts[*j] = nn_left;
+          } else {
+            parts[*j] = nn_right;
+          }
+          k++;
+        }
+
+        new_node = List::create(
+          Named("col_index") = grow_cols,
+          _["beta"] = beta,
+          _["child_left"] = nn_left,
+          _["child_right"] = nn_right,
+          _["cutpoint"] = cp_max
+        );
+
+        if(list_counter == 0){
+
+          //IntegerVector gc(grow_cols.begin(), grow_cols.end());
+
+          tree_nodes = List::create(
+            Named(make_node_name(list_counter)) = new_node
+          );
+
+          list_counter++;
+
+        } else {
+
+          // add this node to the existing list
+          String nn_name = make_node_name(list_counter);
+          tree_nodes[nn_name] = new_node;
+          list_counter++;
+
+        }
+
+      } else {
+
+        arma::uvec joiner {*i};
+        dont_grow = arma::join_cols(dont_grow, joiner);
+        //Rcout << "dont grow: " << dont_grow.t() << std::endl;
+
+      }
+
+
+    }
+
+    arma::mat y_grown = y_boot.rows(grow_rows_combined);
+    arma::uvec parts_grown = parts(grow_rows_combined);
+
+    events_by_part = count_parts(y_grown,
+                                 parts_grown,
+                                 parts_max);
+
+    Rcout << std::endl;
+    Rcout << "events by part: " << std::endl;
+    Rcout << events_by_part << std::endl;
+
+    Rcout << "max part: " << parts_max << std::endl;
+    Rcout << "true max: " << arma::max(parts) << std::endl;
+
+    arma::uvec to_grow_temp(events_by_part.n_rows);
+
+    n_to_grow = 0;
+
+    for(k = 0; k < events_by_part.n_rows; k++){
+
+      if(events_by_part(k,0) >= 2 * leaf_min_events &&
+         events_by_part(k,1) >= 2 * leaf_min_obs){ // split it
+
+        to_grow_temp(k) = k+1;
+        n_to_grow++;
+
+      } else if (events_by_part(k, 0) > 0 &&
+                 events_by_part(k, 1) > 0) { // a new leaf
+
+        arma::uvec part_index = arma::find(parts == k+1);
+
+
+        new_node = List::create(
+          Named("part_index") = part_index
+        );
+
         String nn_name = make_node_name(list_counter);
+        Rcout << "a new leaf: node_" << list_counter << std::endl;
         tree_nodes[nn_name] = new_node;
         list_counter++;
 
       }
+
     }
 
+    Rcout << "nodes to grow: " << to_grow_temp.t() << std::endl;
+    to_grow = to_grow_temp(arma::find(to_grow_temp));
+    Rcout << "nodes to grow: " << to_grow.t() << std::endl;
 
-  }
+  } while (n_to_grow > 0);
 
-  arma::mat events_by_part = count_parts(y_boot,
-                                         parts,
-                                         parts_max);
+  return(tree_nodes);
 
-  Rcout << std::endl;
-  Rcout << "events by part: " << std::endl;
-  Rcout << events_by_part << std::endl;
 
 
 }

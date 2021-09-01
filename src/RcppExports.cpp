@@ -136,9 +136,10 @@ BEGIN_RCPP
 END_RCPP
 }
 // ostree_fit_arma
-void ostree_fit_arma(arma::mat& x, arma::mat& y, const arma::uword& mtry, const arma::uword& n_vars_lc, const arma::uword& n_cps, const arma::uword& leaf_min_events, const arma::uword& leaf_min_obs);
+List ostree_fit_arma(arma::mat& x, arma::mat& y, const arma::uword& mtry, const arma::uword& n_vars_lc, const arma::uword& n_cps, const arma::uword& leaf_min_events, const arma::uword& leaf_min_obs);
 RcppExport SEXP _orsf2_ostree_fit_arma(SEXP xSEXP, SEXP ySEXP, SEXP mtrySEXP, SEXP n_vars_lcSEXP, SEXP n_cpsSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type x(xSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type y(ySEXP);
@@ -147,8 +148,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::uword& >::type n_cps(n_cpsSEXP);
     Rcpp::traits::input_parameter< const arma::uword& >::type leaf_min_events(leaf_min_eventsSEXP);
     Rcpp::traits::input_parameter< const arma::uword& >::type leaf_min_obs(leaf_min_obsSEXP);
-    ostree_fit_arma(x, y, mtry, n_vars_lc, n_cps, leaf_min_events, leaf_min_obs);
-    return R_NilValue;
+    rcpp_result_gen = Rcpp::wrap(ostree_fit_arma(x, y, mtry, n_vars_lc, n_cps, leaf_min_events, leaf_min_obs));
+    return rcpp_result_gen;
 END_RCPP
 }
 
