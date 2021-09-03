@@ -11,6 +11,30 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// leaf_surv_small
+arma::mat leaf_surv_small(const arma::mat& y, const arma::uvec& weights);
+RcppExport SEXP _orsf2_leaf_surv_small(SEXP ySEXP, SEXP weightsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type weights(weightsSEXP);
+    rcpp_result_gen = Rcpp::wrap(leaf_surv_small(y, weights));
+    return rcpp_result_gen;
+END_RCPP
+}
+// leaf_surv
+arma::mat leaf_surv(arma::mat& y, arma::uvec& weights);
+RcppExport SEXP _orsf2_leaf_surv(SEXP ySEXP, SEXP weightsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type weights(weightsSEXP);
+    rcpp_result_gen = Rcpp::wrap(leaf_surv(y, weights));
+    return rcpp_result_gen;
+END_RCPP
+}
 // count_parts
 arma::mat count_parts(arma::mat& y, arma::uvec& parts, arma::uword& parts_max);
 RcppExport SEXP _orsf2_count_parts(SEXP ySEXP, SEXP partsSEXP, SEXP parts_maxSEXP) {
@@ -136,8 +160,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // ostree_fit_arma
-List ostree_fit_arma(arma::mat& x, arma::mat& y, const arma::uword& mtry, const arma::uword& n_vars_lc, const arma::uword& n_cps, const arma::uword& leaf_min_events, const arma::uword& leaf_min_obs);
-RcppExport SEXP _orsf2_ostree_fit_arma(SEXP xSEXP, SEXP ySEXP, SEXP mtrySEXP, SEXP n_vars_lcSEXP, SEXP n_cpsSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP) {
+List ostree_fit_arma(arma::mat& x, arma::mat& y, const arma::uword& mtry, const arma::uword& n_vars_lc, const arma::uword& n_cps, const arma::uword& leaf_min_events, const arma::uword& leaf_min_obs, const bool verbose);
+RcppExport SEXP _orsf2_ostree_fit_arma(SEXP xSEXP, SEXP ySEXP, SEXP mtrySEXP, SEXP n_vars_lcSEXP, SEXP n_cpsSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -148,12 +172,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::uword& >::type n_cps(n_cpsSEXP);
     Rcpp::traits::input_parameter< const arma::uword& >::type leaf_min_events(leaf_min_eventsSEXP);
     Rcpp::traits::input_parameter< const arma::uword& >::type leaf_min_obs(leaf_min_obsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ostree_fit_arma(x, y, mtry, n_vars_lc, n_cps, leaf_min_events, leaf_min_obs));
+    Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(ostree_fit_arma(x, y, mtry, n_vars_lc, n_cps, leaf_min_events, leaf_min_obs, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_orsf2_leaf_surv_small", (DL_FUNC) &_orsf2_leaf_surv_small, 2},
+    {"_orsf2_leaf_surv", (DL_FUNC) &_orsf2_leaf_surv, 2},
     {"_orsf2_count_parts", (DL_FUNC) &_orsf2_count_parts, 3},
     {"_orsf2_find_cutpoints", (DL_FUNC) &_orsf2_find_cutpoints, 5},
     {"_orsf2_log_rank_test", (DL_FUNC) &_orsf2_log_rank_test, 2},
@@ -164,7 +191,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_newtraph_cph_one_iter", (DL_FUNC) &_orsf2_newtraph_cph_one_iter, 10},
     {"_orsf2_make_node_name", (DL_FUNC) &_orsf2_make_node_name, 1},
     {"_orsf2_any_cps_valid", (DL_FUNC) &_orsf2_any_cps_valid, 1},
-    {"_orsf2_ostree_fit_arma", (DL_FUNC) &_orsf2_ostree_fit_arma, 7},
+    {"_orsf2_ostree_fit_arma", (DL_FUNC) &_orsf2_ostree_fit_arma, 8},
     {NULL, NULL, 0}
 };
 
