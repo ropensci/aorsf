@@ -1021,7 +1021,7 @@ List ostree_fit_arma(arma::mat& x,
   // TODO: Underestimate max nodes and add memory if needed.
   arma::uword max_nodes = 2 * std::ceil(n_obs_wts / leaf_min_events) - 1;
   // node counter tracks progression through the allocated memory
-  arma::uword node_counter = 0;
+  // arma::uword node_counter = 0;
   // beta coefficients for linear combinations
   arma::mat betas(mtry, max_nodes);
   // column indices to pair with beta coefficients
@@ -1332,15 +1332,15 @@ List ostree_fit_arma(arma::mat& x,
         }
 
         for(i = 0; i < mtry_temp; i++){
-          betas(i, node_counter) = beta(i);
-          col_indices(i, node_counter) = cols_node(i);
+          betas(i, *node) = beta(i);
+          col_indices(i, *node) = cols_node(i);
         }
 
-        children_left[node_counter] = nn_left;
-        children_right[node_counter] = nn_right;
-        cutpoints[node_counter] = cp_max;
+        children_left[*node] = nn_left;
+        children_right[*node] = nn_right;
+        cutpoints[*node] = cp_max;
 
-        node_counter++;
+        //node_counter++;
 
 
       } else {
@@ -1363,7 +1363,7 @@ List ostree_fit_arma(arma::mat& x,
 
         leaf_nodes[make_node_name(*node)] = leaf;
 
-        node_counter++;
+        //node_counter++;
 
       }
 
@@ -1410,7 +1410,7 @@ List ostree_fit_arma(arma::mat& x,
         }
 
         leaf_nodes[make_node_name(i+1)] = leaf;
-        node_counter++;
+        //node_counter++;
 
       }
 
@@ -1427,11 +1427,11 @@ List ostree_fit_arma(arma::mat& x,
   return(
     List::create(
       Named("leaves") = leaf_nodes,
-      _["betas"] = betas.cols(arma::span(0, node_counter-1)),
-      _["col_indices"] = col_indices.cols(arma::span(0, node_counter-1)),
-      _["cut_points"] = cutpoints(arma::span(0, node_counter-1)),
-      _["children_left"] = children_left(arma::span(0, node_counter-1)),
-      _["children_right"] = children_right(arma::span(0, node_counter-1)),
+      _["betas"] = betas.cols(arma::span(0, nodes_max)),
+      _["col_indices"] = col_indices.cols(arma::span(0, nodes_max)),
+      _["cut_points"] = cutpoints(arma::span(0, nodes_max)),
+      _["children_left"] = children_left(arma::span(0, nodes_max)),
+      _["children_right"] = children_right(arma::span(0, nodes_max)),
       _["mtry"] = mtry
     )
   );
