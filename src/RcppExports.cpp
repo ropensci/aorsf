@@ -35,16 +35,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// count_parts
-arma::mat count_parts(arma::mat& y, arma::uvec& parts, arma::uword& parts_max);
-RcppExport SEXP _orsf2_count_parts(SEXP ySEXP, SEXP partsSEXP, SEXP parts_maxSEXP) {
+// node_summarize
+arma::mat node_summarize(arma::mat& y, arma::uvec& node_assignments, arma::uvec& weights, arma::uword& nodes_max);
+RcppExport SEXP _orsf2_node_summarize(SEXP ySEXP, SEXP node_assignmentsSEXP, SEXP weightsSEXP, SEXP nodes_maxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::uvec& >::type parts(partsSEXP);
-    Rcpp::traits::input_parameter< arma::uword& >::type parts_max(parts_maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(count_parts(y, parts, parts_max));
+    Rcpp::traits::input_parameter< arma::uvec& >::type node_assignments(node_assignmentsSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type weights(weightsSEXP);
+    Rcpp::traits::input_parameter< arma::uword& >::type nodes_max(nodes_maxSEXP);
+    rcpp_result_gen = Rcpp::wrap(node_summarize(y, node_assignments, weights, nodes_max));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -160,20 +161,83 @@ BEGIN_RCPP
 END_RCPP
 }
 // ostree_fit_arma
-List ostree_fit_arma(arma::mat& x, arma::mat& y, const arma::uword& mtry, const arma::uword& n_vars_lc, const arma::uword& n_cps, const arma::uword& leaf_min_events, const arma::uword& leaf_min_obs, const bool verbose);
-RcppExport SEXP _orsf2_ostree_fit_arma(SEXP xSEXP, SEXP ySEXP, SEXP mtrySEXP, SEXP n_vars_lcSEXP, SEXP n_cpsSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP, SEXP verboseSEXP) {
+List ostree_fit_arma(arma::mat& x, arma::mat& y, const arma::uword& mtry, const arma::uword& n_cps, const arma::uword& leaf_min_events, const arma::uword& leaf_min_obs, const bool& verbose);
+RcppExport SEXP _orsf2_ostree_fit_arma(SEXP xSEXP, SEXP ySEXP, SEXP mtrySEXP, SEXP n_cpsSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type x(xSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type y(ySEXP);
     Rcpp::traits::input_parameter< const arma::uword& >::type mtry(mtrySEXP);
-    Rcpp::traits::input_parameter< const arma::uword& >::type n_vars_lc(n_vars_lcSEXP);
     Rcpp::traits::input_parameter< const arma::uword& >::type n_cps(n_cpsSEXP);
     Rcpp::traits::input_parameter< const arma::uword& >::type leaf_min_events(leaf_min_eventsSEXP);
     Rcpp::traits::input_parameter< const arma::uword& >::type leaf_min_obs(leaf_min_obsSEXP);
-    Rcpp::traits::input_parameter< const bool >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(ostree_fit_arma(x, y, mtry, n_vars_lc, n_cps, leaf_min_events, leaf_min_obs, verbose));
+    Rcpp::traits::input_parameter< const bool& >::type verbose(verboseSEXP);
+    rcpp_result_gen = Rcpp::wrap(ostree_fit_arma(x, y, mtry, n_cps, leaf_min_events, leaf_min_obs, verbose));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ostree_pred_leaf1
+arma::uvec ostree_pred_leaf1(const arma::mat& x_new, const arma::mat& betas, const arma::umat& col_indices, const arma::vec& cut_points, const arma::vec& children_left, const arma::vec& children_right);
+RcppExport SEXP _orsf2_ostree_pred_leaf1(SEXP x_newSEXP, SEXP betasSEXP, SEXP col_indicesSEXP, SEXP cut_pointsSEXP, SEXP children_leftSEXP, SEXP children_rightSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type x_new(x_newSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type betas(betasSEXP);
+    Rcpp::traits::input_parameter< const arma::umat& >::type col_indices(col_indicesSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type cut_points(cut_pointsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type children_left(children_leftSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type children_right(children_rightSEXP);
+    rcpp_result_gen = Rcpp::wrap(ostree_pred_leaf1(x_new, betas, col_indices, cut_points, children_left, children_right));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ostree_pred_leaf2
+arma::uvec ostree_pred_leaf2(const arma::mat& x_new, const arma::mat& betas, const arma::umat& col_indices, const arma::vec& cut_points, const arma::vec& children_left, const arma::vec& children_right);
+RcppExport SEXP _orsf2_ostree_pred_leaf2(SEXP x_newSEXP, SEXP betasSEXP, SEXP col_indicesSEXP, SEXP cut_pointsSEXP, SEXP children_leftSEXP, SEXP children_rightSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type x_new(x_newSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type betas(betasSEXP);
+    Rcpp::traits::input_parameter< const arma::umat& >::type col_indices(col_indicesSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type cut_points(cut_pointsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type children_left(children_leftSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type children_right(children_rightSEXP);
+    rcpp_result_gen = Rcpp::wrap(ostree_pred_leaf2(x_new, betas, col_indices, cut_points, children_left, children_right));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ostree_pred_leaf3
+arma::uvec ostree_pred_leaf3(const arma::mat& x_new, const arma::mat& betas, const arma::umat& col_indices, const arma::vec& cut_points, const arma::vec& children_left, const arma::vec& children_right);
+RcppExport SEXP _orsf2_ostree_pred_leaf3(SEXP x_newSEXP, SEXP betasSEXP, SEXP col_indicesSEXP, SEXP cut_pointsSEXP, SEXP children_leftSEXP, SEXP children_rightSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type x_new(x_newSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type betas(betasSEXP);
+    Rcpp::traits::input_parameter< const arma::umat& >::type col_indices(col_indicesSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type cut_points(cut_pointsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type children_left(children_leftSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type children_right(children_rightSEXP);
+    rcpp_result_gen = Rcpp::wrap(ostree_pred_leaf3(x_new, betas, col_indices, cut_points, children_left, children_right));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ostree_pred_leaf4
+arma::uvec ostree_pred_leaf4(const arma::mat& x_new, const arma::mat& betas, const arma::umat& col_indices, const arma::vec& cut_points, const arma::vec& children_left, const arma::vec& children_right);
+RcppExport SEXP _orsf2_ostree_pred_leaf4(SEXP x_newSEXP, SEXP betasSEXP, SEXP col_indicesSEXP, SEXP cut_pointsSEXP, SEXP children_leftSEXP, SEXP children_rightSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type x_new(x_newSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type betas(betasSEXP);
+    Rcpp::traits::input_parameter< const arma::umat& >::type col_indices(col_indicesSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type cut_points(cut_pointsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type children_left(children_leftSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type children_right(children_rightSEXP);
+    rcpp_result_gen = Rcpp::wrap(ostree_pred_leaf4(x_new, betas, col_indices, cut_points, children_left, children_right));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -181,7 +245,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_leaf_surv_small", (DL_FUNC) &_orsf2_leaf_surv_small, 2},
     {"_orsf2_leaf_surv", (DL_FUNC) &_orsf2_leaf_surv, 2},
-    {"_orsf2_count_parts", (DL_FUNC) &_orsf2_count_parts, 3},
+    {"_orsf2_node_summarize", (DL_FUNC) &_orsf2_node_summarize, 4},
     {"_orsf2_find_cutpoints", (DL_FUNC) &_orsf2_find_cutpoints, 5},
     {"_orsf2_log_rank_test", (DL_FUNC) &_orsf2_log_rank_test, 2},
     {"_orsf2_x_scale", (DL_FUNC) &_orsf2_x_scale, 3},
@@ -191,7 +255,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_newtraph_cph_one_iter", (DL_FUNC) &_orsf2_newtraph_cph_one_iter, 10},
     {"_orsf2_make_node_name", (DL_FUNC) &_orsf2_make_node_name, 1},
     {"_orsf2_any_cps_valid", (DL_FUNC) &_orsf2_any_cps_valid, 1},
-    {"_orsf2_ostree_fit_arma", (DL_FUNC) &_orsf2_ostree_fit_arma, 8},
+    {"_orsf2_ostree_fit_arma", (DL_FUNC) &_orsf2_ostree_fit_arma, 7},
+    {"_orsf2_ostree_pred_leaf1", (DL_FUNC) &_orsf2_ostree_pred_leaf1, 6},
+    {"_orsf2_ostree_pred_leaf2", (DL_FUNC) &_orsf2_ostree_pred_leaf2, 6},
+    {"_orsf2_ostree_pred_leaf3", (DL_FUNC) &_orsf2_ostree_pred_leaf3, 6},
+    {"_orsf2_ostree_pred_leaf4", (DL_FUNC) &_orsf2_ostree_pred_leaf4, 6},
     {NULL, NULL, 0}
 };
 

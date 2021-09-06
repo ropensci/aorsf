@@ -14,38 +14,14 @@
 #'
 #' x_new <- flchain_x[1:10, ]
 #'
-ostree_pred_leaf <- function(tree, x_new){
-
- parts <- rep(0, nrow(x_new))
- N <- tree$nodes
-
- for(nn in seq_along(N)){
-
-  parts_in_node <- parts == names(N)[nn]
-
-  if(any(parts_in_node)){
-
-   i <- which(parts_in_node)
-
-   parts[i] <- ifelse(
-    x_new[i, N[[nn]]$vars] %*% N[[nn]]$vals - N[[nn]]$cutpoint < 0,
-    yes = N[[nn]]$child_left,
-    no = N[[nn]]$child_right
-   )
-
-  }
-
- }
-
- as.character(parts)
-
-}
 
 ostree_predict <- function(tree, x_new, times){
 
 
 
 }
+
+# TODO: throw an error if any(times > max(tree$times))
 
 
 # x_leaves <- data.table(node = ostree_pred_leaf(tree, x_new = x_new))

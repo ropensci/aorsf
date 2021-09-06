@@ -1,5 +1,6 @@
 
 library(survival)
+devtools::load_all()
 
 .pbc <-  pbc[order(pbc$time), ]
 .pbc <- .pbc[complete.cases(.pbc), ]
@@ -8,19 +9,18 @@ library(survival)
 x <- as.matrix(.pbc[, c('trt','age','ascites','edema','bili')])
 y <- Surv(.pbc$time, .pbc$status)
 
+# x <- flchain_x
+# y <- flchain_y
+
 set.seed(1)
 
 tree = ostree_fit_arma(
- x,
- y,
- mtry = 3,
- n_vars_lc = 2,
- n_cps = 3,
- leaf_min_events = 5,
- leaf_min_obs = 10,
- verbose = TRUE
+  x,
+  y,
+  mtry = 4,
+  n_cps = 5,
+  leaf_min_events = 10,
+  leaf_min_obs = 10,
+  verbose = T
 )
 
-tmp = ostree_predict(tree, x)
-
-tmp < tree$node_0$cutpoint
