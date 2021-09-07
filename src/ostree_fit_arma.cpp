@@ -1020,8 +1020,6 @@ List ostree_fit_arma(arma::mat& x,
   // the maximum number of nodes possible given the tree params
   // TODO: Underestimate max nodes and add memory if needed.
   arma::uword max_nodes = 2 * std::ceil(n_obs_wts / leaf_min_events) - 1;
-  // node counter tracks progression through the allocated memory
-  // arma::uword node_counter = 0;
   // beta coefficients for linear combinations
   arma::mat betas(mtry, max_nodes);
   // column indices to pair with beta coefficients
@@ -1340,7 +1338,6 @@ List ostree_fit_arma(arma::mat& x,
         children_right[*node] = nn_right;
         cutpoints[*node] = cp_max;
 
-        //node_counter++;
 
 
       } else {
@@ -1363,7 +1360,6 @@ List ostree_fit_arma(arma::mat& x,
 
         leaf_nodes[make_node_name(*node)] = leaf;
 
-        //node_counter++;
 
       }
 
@@ -1410,7 +1406,6 @@ List ostree_fit_arma(arma::mat& x,
         }
 
         leaf_nodes[make_node_name(i+1)] = leaf;
-        //node_counter++;
 
       }
 
@@ -1443,190 +1438,12 @@ List ostree_fit_arma(arma::mat& x,
 
 
 // [[Rcpp::export]]
-arma::uvec ostree_pred_leaf1(const arma::mat& x_new,
-                             const arma::mat& betas,
-                             const arma::umat& col_indices,
-                             const arma::vec& cut_points,
-                             const arma::vec& children_left,
-                             const arma::vec& children_right){
-
-  // allocate memory for output
-  arma::uvec out(x_new.n_rows);
-  arma::uword i, j, k;
-  arma::uword n_nodes = betas.n_cols;
-  arma::uvec obs_in_node;
-
-  double temp;
-
-  for(i = 0; i < n_nodes; i++){
-
-    //Rcout << "i: " << i << std::endl;
-
-    if(children_left(i) != 0){
-
-      obs_in_node = arma::find(out == i);
-
-      if(obs_in_node.size() > 0){
-
-        for(j = 0; j < obs_in_node.size(); j++){
-
-          //Rcout << " - j: " << j << std::endl;
-          temp = 0;
-
-          for(k = 0; k < betas.n_rows; k++){
-
-            //Rcout << " -- k: " << k << std::endl;
-
-            temp += x_new( obs_in_node(j), col_indices(k, i) ) * betas(k, i);
-
-          }
-
-
-          if(temp <= cut_points[i]) {
-
-            out(obs_in_node(j)) = children_left(i);
-
-          } else {
-
-            out(obs_in_node(j)) = children_right(i);
-
-          }
-
-        }
-
-      }
-
-    }
-
-  }
-
-  return(out);
-
-}
-
-// [[Rcpp::export]]
-arma::uvec ostree_pred_leaf2(const arma::mat& x_new,
-                             const arma::mat& betas,
-                             const arma::umat& col_indices,
-                             const arma::vec& cut_points,
-                             const arma::vec& children_left,
-                             const arma::vec& children_right){
-
-  // allocate memory for output
-  arma::uvec out(x_new.n_rows);
-  arma::uword i, k;
-  arma::uvec::iterator j;
-  arma::uword n_nodes = betas.n_cols;
-  arma::uvec obs_in_node;
-
-  double temp;
-
-  for(i = 0; i < n_nodes; i++){
-
-    //Rcout << "i: " << i << std::endl;
-
-    if(children_left(i) != 0){
-
-      obs_in_node = arma::find(out == i);
-
-      if(obs_in_node.size() > 0){
-
-        for(j = obs_in_node.begin(); j != obs_in_node.end(); ++j){
-
-          //Rcout << " - j: " << j << std::endl;
-          temp = 0;
-
-          for(k = 0; k < betas.n_rows; k++){
-
-            //Rcout << " -- k: " << k << std::endl;
-
-            temp += x_new( *j, col_indices(k, i) ) * betas(k, i);
-
-          }
-
-
-          if(temp <= cut_points[i]) {
-
-            out(*j) = children_left(i);
-
-          } else {
-
-            out(*j) = children_right(i);
-
-          }
-
-        }
-
-      }
-
-    }
-
-  }
-
-  return(out);
-
-}
-
-// [[Rcpp::export]]
-arma::uvec ostree_pred_leaf3(const arma::mat& x_new,
-                             const arma::mat& betas,
-                             const arma::umat& col_indices,
-                             const arma::vec& cut_points,
-                             const arma::vec& children_left,
-                             const arma::vec& children_right){
-
-  // allocate memory for output
-  arma::uvec out(x_new.n_rows);
-  arma::uword i, k;
-  arma::uword n_nodes = betas.n_cols;
-  arma::uvec obs_in_node;
-
-  arma::mat x_node;
-  arma::vec lc;
-
-  for(i = 0; i < n_nodes; i++){
-
-    //Rcout << "i: " << i << std::endl;
-
-    if(children_left(i) != 0){
-
-      obs_in_node = arma::find(out == i);
-
-      if(obs_in_node.size() > 0){
-
-        x_node = x_new(obs_in_node, col_indices.col(i));
-
-        lc = x_node * betas.col(i);
-
-        for(k = 0; k < lc.size(); k++)
-
-          if(lc(k) <= cut_points(i)) {
-
-            out(obs_in_node(k)) = children_left(i);
-
-          } else {
-
-            out(obs_in_node(k)) = children_right(i);
-
-          }
-
-      }
-
-    }
-
-  }
-
-  return(out);
-
-}
-
-// [[Rcpp::export]]
-arma::uvec ostree_pred_leaf4(const arma::mat& x_new,
-                             const arma::mat& betas,
-                             const arma::umat& col_indices,
-                             const arma::vec& cut_points,
-                             const arma::vec& children_left,
-                             const arma::vec& children_right){
+arma::uvec ostree_pred_leaf(const arma::mat& x_new,
+                            const arma::mat& betas,
+                            const arma::umat& col_indices,
+                            const arma::vec& cut_points,
+                            const arma::vec& children_left,
+                            const arma::vec& children_right){
 
   // allocate memory for output
   arma::uvec out(x_new.n_rows);
@@ -1674,6 +1491,96 @@ arma::uvec ostree_pred_leaf4(const arma::mat& x_new,
 
 }
 
+// [[Rcpp::export]]
+arma::mat ostree_pred_surv(const arma::mat&  x_new,
+                      const Rcpp::List& leaf_nodes,
+                      const arma::uvec& leaf_preds,
+                      const arma::vec&  times){
 
+  // preallocate memory for output
+  arma::mat out(x_new.n_rows, times.size());
+
+  arma::uvec leaf_sort = arma::sort_index(leaf_preds);
+
+  //Rcout << leaf_preds(leaf_sort(0)) << std::endl;
+
+  arma::uword person = 0;
+  arma::uword person_ref;
+  arma::uword person_ref_index;
+  arma::uword person_leaf;
+  String person_leaf_name;
+
+  arma::uword i, t;
+
+  double surv_estimate;
+
+  do{
+
+    person_ref = person;
+    person_ref_index = leaf_sort(person);
+    person_leaf = leaf_preds(person_ref_index);
+
+    Rcout << "person: " << person << std::endl;
+    Rcout << "person_ref: " << person_ref << std::endl;
+    Rcout << "person_ref_index: " << person_ref_index << std::endl;
+    Rcout << "person_leaf: " << person_leaf << std::endl;
+
+    person_leaf_name = make_node_name(person_leaf);
+
+    // got to do it this way to avoid making copy of leaf data
+    NumericMatrix leaf_surv_temp = leaf_nodes[person_leaf_name];
+    arma::mat leaf_surv(leaf_surv_temp.begin(), leaf_surv_temp.nrow(),
+                        leaf_surv_temp.ncol(), false);
+
+    Rcout << leaf_surv << std::endl;
+
+    i = 0;
+
+    // times must be in ascending order
+    // (remember to right a check for this in R API)
+    for(t = 0; t < times.size(); t++){
+
+      surv_estimate = 0;
+
+      for(; i < leaf_surv.n_rows; i++){
+        if (leaf_surv(i, 0) > times(t)){
+          if(i == 0)
+            surv_estimate = 1;
+          else
+            surv_estimate = leaf_surv(i-1, 1);
+          break;
+        } else if (leaf_surv(i, 0) == times(t)){
+          surv_estimate = leaf_surv(i, 1);
+          break;
+        }
+      }
+
+      out(person_ref_index, t) = surv_estimate;
+
+    }
+
+    Rcout << "made it to here" << std::endl;
+
+    person++;
+
+    while(person_leaf == leaf_preds(leaf_sort(person))){
+
+      for(i = 0; i < out.n_cols; i++){
+        out(leaf_sort(person), i) = out(person_ref_index, i);
+      }
+
+
+      person++;
+
+      if (person == x_new.n_rows) break;
+
+    }
+
+
+  } while (person < x_new.n_rows);
+
+  return(out);
+
+}
 
 

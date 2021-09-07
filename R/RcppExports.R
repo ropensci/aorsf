@@ -53,19 +53,11 @@ ostree_fit_arma <- function(x, y, mtry = 4L, n_cps = 5L, leaf_min_events = 5L, l
     .Call(`_orsf2_ostree_fit_arma`, x, y, mtry, n_cps, leaf_min_events, leaf_min_obs, verbose)
 }
 
-ostree_pred_leaf1 <- function(x_new, betas, col_indices, cut_points, children_left, children_right) {
-    .Call(`_orsf2_ostree_pred_leaf1`, x_new, betas, col_indices, cut_points, children_left, children_right)
+ostree_pred_leaf <- function(x_new, betas, col_indices, cut_points, children_left, children_right) {
+    .Call(`_orsf2_ostree_pred_leaf`, x_new, betas, col_indices, cut_points, children_left, children_right)
 }
 
-ostree_pred_leaf2 <- function(x_new, betas, col_indices, cut_points, children_left, children_right) {
-    .Call(`_orsf2_ostree_pred_leaf2`, x_new, betas, col_indices, cut_points, children_left, children_right)
-}
-
-ostree_pred_leaf3 <- function(x_new, betas, col_indices, cut_points, children_left, children_right) {
-    .Call(`_orsf2_ostree_pred_leaf3`, x_new, betas, col_indices, cut_points, children_left, children_right)
-}
-
-ostree_pred_leaf4 <- function(x_new, betas, col_indices, cut_points, children_left, children_right) {
-    .Call(`_orsf2_ostree_pred_leaf4`, x_new, betas, col_indices, cut_points, children_left, children_right)
+ostree_pred_surv <- function(x_new, leaf_nodes, leaf_preds, times) {
+    .Call(`_orsf2_ostree_pred_surv`, x_new, leaf_nodes, leaf_preds, times)
 }
 

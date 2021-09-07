@@ -177,9 +177,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// ostree_pred_leaf1
-arma::uvec ostree_pred_leaf1(const arma::mat& x_new, const arma::mat& betas, const arma::umat& col_indices, const arma::vec& cut_points, const arma::vec& children_left, const arma::vec& children_right);
-RcppExport SEXP _orsf2_ostree_pred_leaf1(SEXP x_newSEXP, SEXP betasSEXP, SEXP col_indicesSEXP, SEXP cut_pointsSEXP, SEXP children_leftSEXP, SEXP children_rightSEXP) {
+// ostree_pred_leaf
+arma::uvec ostree_pred_leaf(const arma::mat& x_new, const arma::mat& betas, const arma::umat& col_indices, const arma::vec& cut_points, const arma::vec& children_left, const arma::vec& children_right);
+RcppExport SEXP _orsf2_ostree_pred_leaf(SEXP x_newSEXP, SEXP betasSEXP, SEXP col_indicesSEXP, SEXP cut_pointsSEXP, SEXP children_leftSEXP, SEXP children_rightSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -189,55 +189,21 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type cut_points(cut_pointsSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type children_left(children_leftSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type children_right(children_rightSEXP);
-    rcpp_result_gen = Rcpp::wrap(ostree_pred_leaf1(x_new, betas, col_indices, cut_points, children_left, children_right));
+    rcpp_result_gen = Rcpp::wrap(ostree_pred_leaf(x_new, betas, col_indices, cut_points, children_left, children_right));
     return rcpp_result_gen;
 END_RCPP
 }
-// ostree_pred_leaf2
-arma::uvec ostree_pred_leaf2(const arma::mat& x_new, const arma::mat& betas, const arma::umat& col_indices, const arma::vec& cut_points, const arma::vec& children_left, const arma::vec& children_right);
-RcppExport SEXP _orsf2_ostree_pred_leaf2(SEXP x_newSEXP, SEXP betasSEXP, SEXP col_indicesSEXP, SEXP cut_pointsSEXP, SEXP children_leftSEXP, SEXP children_rightSEXP) {
+// ostree_pred_surv
+arma::mat ostree_pred_surv(const arma::mat& x_new, const Rcpp::List& leaf_nodes, const arma::uvec& leaf_preds, const arma::vec& times);
+RcppExport SEXP _orsf2_ostree_pred_surv(SEXP x_newSEXP, SEXP leaf_nodesSEXP, SEXP leaf_predsSEXP, SEXP timesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type x_new(x_newSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type betas(betasSEXP);
-    Rcpp::traits::input_parameter< const arma::umat& >::type col_indices(col_indicesSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type cut_points(cut_pointsSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type children_left(children_leftSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type children_right(children_rightSEXP);
-    rcpp_result_gen = Rcpp::wrap(ostree_pred_leaf2(x_new, betas, col_indices, cut_points, children_left, children_right));
-    return rcpp_result_gen;
-END_RCPP
-}
-// ostree_pred_leaf3
-arma::uvec ostree_pred_leaf3(const arma::mat& x_new, const arma::mat& betas, const arma::umat& col_indices, const arma::vec& cut_points, const arma::vec& children_left, const arma::vec& children_right);
-RcppExport SEXP _orsf2_ostree_pred_leaf3(SEXP x_newSEXP, SEXP betasSEXP, SEXP col_indicesSEXP, SEXP cut_pointsSEXP, SEXP children_leftSEXP, SEXP children_rightSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type x_new(x_newSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type betas(betasSEXP);
-    Rcpp::traits::input_parameter< const arma::umat& >::type col_indices(col_indicesSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type cut_points(cut_pointsSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type children_left(children_leftSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type children_right(children_rightSEXP);
-    rcpp_result_gen = Rcpp::wrap(ostree_pred_leaf3(x_new, betas, col_indices, cut_points, children_left, children_right));
-    return rcpp_result_gen;
-END_RCPP
-}
-// ostree_pred_leaf4
-arma::uvec ostree_pred_leaf4(const arma::mat& x_new, const arma::mat& betas, const arma::umat& col_indices, const arma::vec& cut_points, const arma::vec& children_left, const arma::vec& children_right);
-RcppExport SEXP _orsf2_ostree_pred_leaf4(SEXP x_newSEXP, SEXP betasSEXP, SEXP col_indicesSEXP, SEXP cut_pointsSEXP, SEXP children_leftSEXP, SEXP children_rightSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type x_new(x_newSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type betas(betasSEXP);
-    Rcpp::traits::input_parameter< const arma::umat& >::type col_indices(col_indicesSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type cut_points(cut_pointsSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type children_left(children_leftSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type children_right(children_rightSEXP);
-    rcpp_result_gen = Rcpp::wrap(ostree_pred_leaf4(x_new, betas, col_indices, cut_points, children_left, children_right));
+    Rcpp::traits::input_parameter< const Rcpp::List& >::type leaf_nodes(leaf_nodesSEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type leaf_preds(leaf_predsSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type times(timesSEXP);
+    rcpp_result_gen = Rcpp::wrap(ostree_pred_surv(x_new, leaf_nodes, leaf_preds, times));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -256,10 +222,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_make_node_name", (DL_FUNC) &_orsf2_make_node_name, 1},
     {"_orsf2_any_cps_valid", (DL_FUNC) &_orsf2_any_cps_valid, 1},
     {"_orsf2_ostree_fit_arma", (DL_FUNC) &_orsf2_ostree_fit_arma, 7},
-    {"_orsf2_ostree_pred_leaf1", (DL_FUNC) &_orsf2_ostree_pred_leaf1, 6},
-    {"_orsf2_ostree_pred_leaf2", (DL_FUNC) &_orsf2_ostree_pred_leaf2, 6},
-    {"_orsf2_ostree_pred_leaf3", (DL_FUNC) &_orsf2_ostree_pred_leaf3, 6},
-    {"_orsf2_ostree_pred_leaf4", (DL_FUNC) &_orsf2_ostree_pred_leaf4, 6},
+    {"_orsf2_ostree_pred_leaf", (DL_FUNC) &_orsf2_ostree_pred_leaf, 6},
+    {"_orsf2_ostree_pred_surv", (DL_FUNC) &_orsf2_ostree_pred_surv, 4},
     {NULL, NULL, 0}
 };
 
