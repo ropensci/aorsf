@@ -1329,12 +1329,11 @@ List ostree_fit(arma::mat& x,
   //each leaf node is a matrix with varying row count
   arma::mat leaf;
 
-  // subset data for the current node
-  arma::mat y_leaf;
-  arma::uvec rows_leaf;
-  arma::uvec weights_leaf;
+  // terms to create new node (nn)
   arma::uword nn_left;
   arma::uword nn_right;
+
+  // label for the new node's name; i.e., node_1, node_2, ...
   String node_name;
 
   // data from nodes that were grown in current iteration
@@ -1635,10 +1634,10 @@ List ostree_fit(arma::mat& x,
 
         // a new leaf
         // use i+1; nodes starts at 1 and i starts at 0
-        rows_leaf    = arma::find(node_assignments == i+1);
-        y_leaf       = y_inbag.rows(rows_leaf);
-        weights_leaf = weights(rows_leaf);
-        leaf     = leaf_surv_small(y_leaf, weights_leaf);
+        rows_node    = arma::find(node_assignments == i+1);
+        y_node       = y_inbag.rows(rows_node);
+        weights_node = weights(rows_node);
+        leaf         = leaf_surv_small(y_node, weights_node);
 
         if(verbose == true){
           Rcout << "created new leaf: node_" << i+1 << std::endl;
