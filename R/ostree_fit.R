@@ -1,6 +1,6 @@
 
 
-ostree_fit <- function(x,
+ostree_fit_legacy <- function(x,
                        y,
                        mtry = 4,
                        n_vars_lc = 2,

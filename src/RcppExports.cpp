@@ -11,6 +11,28 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// x_mean_sd
+arma::mat x_mean_sd(const arma::mat& x);
+RcppExport SEXP _orsf2_x_mean_sd(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(x_mean_sd(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// x_scale
+void x_scale(arma::mat& x, arma::mat& mean_sd);
+RcppExport SEXP _orsf2_x_scale(SEXP xSEXP, SEXP mean_sdSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type mean_sd(mean_sdSEXP);
+    x_scale(x, mean_sd);
+    return R_NilValue;
+END_RCPP
+}
 // leaf_surv_small
 arma::mat leaf_surv_small(const arma::mat& y, const arma::uvec& weights);
 RcppExport SEXP _orsf2_leaf_surv_small(SEXP ySEXP, SEXP weightsSEXP) {
@@ -49,18 +71,47 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// find_cutpoints
-void find_cutpoints(arma::vec& cp, const arma::vec& lc, const arma::mat& y, const arma::uword& leaf_min_obs, const arma::uword& leaf_min_events);
-RcppExport SEXP _orsf2_find_cutpoints(SEXP cpSEXP, SEXP lcSEXP, SEXP ySEXP, SEXP leaf_min_obsSEXP, SEXP leaf_min_eventsSEXP) {
+// find_cutpoints_ctns
+void find_cutpoints_ctns(arma::vec& cp, const arma::vec& lc, const arma::mat& y, const arma::uvec weights, const arma::uword& leaf_min_obs, const arma::uword& leaf_min_events);
+RcppExport SEXP _orsf2_find_cutpoints_ctns(SEXP cpSEXP, SEXP lcSEXP, SEXP ySEXP, SEXP weightsSEXP, SEXP leaf_min_obsSEXP, SEXP leaf_min_eventsSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::vec& >::type cp(cpSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type lc(lcSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::uvec >::type weights(weightsSEXP);
     Rcpp::traits::input_parameter< const arma::uword& >::type leaf_min_obs(leaf_min_obsSEXP);
     Rcpp::traits::input_parameter< const arma::uword& >::type leaf_min_events(leaf_min_eventsSEXP);
-    find_cutpoints(cp, lc, y, leaf_min_obs, leaf_min_events);
+    find_cutpoints_ctns(cp, lc, y, weights, leaf_min_obs, leaf_min_events);
     return R_NilValue;
+END_RCPP
+}
+// find_cutpoints
+void find_cutpoints(arma::vec& cp, const arma::vec& lc, const arma::mat& y, const arma::uvec weights, const arma::uword& leaf_min_obs, const arma::uword& leaf_min_events);
+RcppExport SEXP _orsf2_find_cutpoints(SEXP cpSEXP, SEXP lcSEXP, SEXP ySEXP, SEXP weightsSEXP, SEXP leaf_min_obsSEXP, SEXP leaf_min_eventsSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec& >::type cp(cpSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type lc(lcSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::uvec >::type weights(weightsSEXP);
+    Rcpp::traits::input_parameter< const arma::uword& >::type leaf_min_obs(leaf_min_obsSEXP);
+    Rcpp::traits::input_parameter< const arma::uword& >::type leaf_min_events(leaf_min_eventsSEXP);
+    find_cutpoints(cp, lc, y, weights, leaf_min_obs, leaf_min_events);
+    return R_NilValue;
+END_RCPP
+}
+// log_rank_test_wtd
+double log_rank_test_wtd(arma::mat& y, arma::vec& g, arma::uvec& weights);
+RcppExport SEXP _orsf2_log_rank_test_wtd(SEXP ySEXP, SEXP gSEXP, SEXP weightsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type g(gSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type weights(weightsSEXP);
+    rcpp_result_gen = Rcpp::wrap(log_rank_test_wtd(y, g, weights));
+    return rcpp_result_gen;
 END_RCPP
 }
 // log_rank_test
@@ -75,16 +126,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// x_scale
-NumericMatrix x_scale(NumericMatrix x_mat, IntegerVector x_wts, LogicalVector do_scale);
-RcppExport SEXP _orsf2_x_scale(SEXP x_matSEXP, SEXP x_wtsSEXP, SEXP do_scaleSEXP) {
+// x_scale_old
+NumericMatrix x_scale_old(NumericMatrix x_mat, IntegerVector x_wts, LogicalVector do_scale);
+RcppExport SEXP _orsf2_x_scale_old(SEXP x_matSEXP, SEXP x_wtsSEXP, SEXP do_scaleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type x_mat(x_matSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type x_wts(x_wtsSEXP);
     Rcpp::traits::input_parameter< LogicalVector >::type do_scale(do_scaleSEXP);
-    rcpp_result_gen = Rcpp::wrap(x_scale(x_mat, x_wts, do_scale));
+    rcpp_result_gen = Rcpp::wrap(x_scale_old(x_mat, x_wts, do_scale));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -160,9 +211,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// ostree_fit_arma
-List ostree_fit_arma(arma::mat& x, arma::mat& y, const arma::uword& mtry, const arma::uword& n_cps, const arma::uword& leaf_min_events, const arma::uword& leaf_min_obs, const bool& verbose);
-RcppExport SEXP _orsf2_ostree_fit_arma(SEXP xSEXP, SEXP ySEXP, SEXP mtrySEXP, SEXP n_cpsSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP, SEXP verboseSEXP) {
+// ostree_fit
+List ostree_fit(arma::mat& x, arma::mat& y, const arma::uword& mtry, const arma::uword& n_cps, const arma::uword& leaf_min_events, const arma::uword& leaf_min_obs, const bool& verbose);
+RcppExport SEXP _orsf2_ostree_fit(SEXP xSEXP, SEXP ySEXP, SEXP mtrySEXP, SEXP n_cpsSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -173,7 +224,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::uword& >::type leaf_min_events(leaf_min_eventsSEXP);
     Rcpp::traits::input_parameter< const arma::uword& >::type leaf_min_obs(leaf_min_obsSEXP);
     Rcpp::traits::input_parameter< const bool& >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(ostree_fit_arma(x, y, mtry, n_cps, leaf_min_events, leaf_min_obs, verbose));
+    rcpp_result_gen = Rcpp::wrap(ostree_fit(x, y, mtry, n_cps, leaf_min_events, leaf_min_obs, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -209,19 +260,23 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_orsf2_x_mean_sd", (DL_FUNC) &_orsf2_x_mean_sd, 1},
+    {"_orsf2_x_scale", (DL_FUNC) &_orsf2_x_scale, 2},
     {"_orsf2_leaf_surv_small", (DL_FUNC) &_orsf2_leaf_surv_small, 2},
     {"_orsf2_leaf_surv", (DL_FUNC) &_orsf2_leaf_surv, 2},
     {"_orsf2_node_summarize", (DL_FUNC) &_orsf2_node_summarize, 4},
-    {"_orsf2_find_cutpoints", (DL_FUNC) &_orsf2_find_cutpoints, 5},
+    {"_orsf2_find_cutpoints_ctns", (DL_FUNC) &_orsf2_find_cutpoints_ctns, 6},
+    {"_orsf2_find_cutpoints", (DL_FUNC) &_orsf2_find_cutpoints, 6},
+    {"_orsf2_log_rank_test_wtd", (DL_FUNC) &_orsf2_log_rank_test_wtd, 3},
     {"_orsf2_log_rank_test", (DL_FUNC) &_orsf2_log_rank_test, 2},
-    {"_orsf2_x_scale", (DL_FUNC) &_orsf2_x_scale, 3},
+    {"_orsf2_x_scale_old", (DL_FUNC) &_orsf2_x_scale_old, 3},
     {"_orsf2_cholesky", (DL_FUNC) &_orsf2_cholesky, 1},
     {"_orsf2_cholesky_solve", (DL_FUNC) &_orsf2_cholesky_solve, 2},
     {"_orsf2_cholesky_invert", (DL_FUNC) &_orsf2_cholesky_invert, 1},
     {"_orsf2_newtraph_cph_one_iter", (DL_FUNC) &_orsf2_newtraph_cph_one_iter, 10},
     {"_orsf2_make_node_name", (DL_FUNC) &_orsf2_make_node_name, 1},
     {"_orsf2_any_cps_valid", (DL_FUNC) &_orsf2_any_cps_valid, 1},
-    {"_orsf2_ostree_fit_arma", (DL_FUNC) &_orsf2_ostree_fit_arma, 7},
+    {"_orsf2_ostree_fit", (DL_FUNC) &_orsf2_ostree_fit, 7},
     {"_orsf2_ostree_pred_leaf", (DL_FUNC) &_orsf2_ostree_pred_leaf, 6},
     {"_orsf2_ostree_pred_surv", (DL_FUNC) &_orsf2_ostree_pred_surv, 4},
     {NULL, NULL, 0}

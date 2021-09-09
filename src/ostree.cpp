@@ -7,6 +7,26 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
+arma::mat x_mean_sd(const arma::mat& x){
+
+  // 0 indicates statistic is computed by column
+  arma::mat x_mean = arma::mean(x, 0);
+  arma::mat x_sd = arma::stddev(x, 0, 0);
+  return(arma::join_vert(x_mean, x_sd));
+
+}
+
+// [[Rcpp::export]]
+void x_scale(arma::mat& x,
+             arma::mat& mean_sd){
+
+  for(arma::uword i = 0; i < x.n_cols; i++){
+    x.unsafe_col(i) = (x.unsafe_col(i) - mean_sd(0,i)) / mean_sd(1,i);
+  }
+
+}
+
+// [[Rcpp::export]]
 arma::mat leaf_surv_small(const arma::mat& y,
                           const arma::uvec& weights){
 
@@ -220,10 +240,79 @@ arma::mat node_summarize(arma::mat& y,
 }
 
 
+
+// [[Rcpp::export]]
+void find_cutpoints_ctns(arma::vec& cp,
+                         const arma::vec& lc,
+                         const arma::mat& y,
+                         const arma::uvec weights,
+                         const arma::uword& leaf_min_obs,
+                         const arma::uword& leaf_min_events){
+
+  // sort the lc vector
+  arma::uvec lc_sort = arma::sort_index(lc);
+  // iterate over y and weights; low to high lc and vice versa.
+  arma::uvec::iterator it;
+  // track events and obs to determine cutpoint validity.
+  // keep track of minimal and maximal valid cut-points.
+  double n_events, n_obs, cp_min, cp_max;
+
+  // beginning from lowest values,
+  // cycle up until you have leaf_min_obs and leaf_min_events
+  // designate the value of lc at this spot as the minimal cutpoint
+
+  for (it = lc_sort.begin(); it != lc_sort.end(); ++it){
+
+    n_events += y(*it, 1) * weights(*it);
+    n_obs += weights(*it);
+
+    if(n_events >= leaf_min_events && n_obs >= leaf_min_obs) {
+      cp_min = lc(*it);
+      break;
+    }
+
+  }
+
+  // reset the counters
+  n_events = 0;
+  n_obs = 0;
+
+  // beginning from upper values, do the same.
+
+  for(it = lc_sort.end()-1; it >= lc_sort.begin(); --it){
+
+    n_events += y(*it, 1) * weights(*it);
+    n_obs += weights(*it);
+
+    if(n_events >= leaf_min_events && n_obs >= leaf_min_obs) {
+      cp_max = lc(*it);
+      break;
+    }
+
+
+  }
+
+  // if cp_max is < cp_min, neither cut-point is valid.
+  // Therefore, we won't split the node because we cant.
+
+  if(cp_max > cp_min){
+
+    arma::vec cps_runif = arma::randu<arma::vec>(cp.size());
+
+    for(arma::uword i = 0; i < cp.size(); i++){
+      cp(i) = cps_runif(i) * (cp_max - cp_min) + cp_min;
+    }
+
+  }
+
+
+}
+
 // [[Rcpp::export]]
 void find_cutpoints(arma::vec& cp,
                     const arma::vec& lc,
                     const arma::mat& y,
+                    const arma::uvec weights,
                     const arma::uword& leaf_min_obs,
                     const arma::uword& leaf_min_events){
 
@@ -240,15 +329,12 @@ void find_cutpoints(arma::vec& cp,
     cp[i] = R_PosInf;
   }
 
-  if(lc_size > 20){
+  if(lc_size > 50){
 
-    // get unique values in the head and tail, using the rough sort:
-    // - greater values tend to be at the head of x
-    // - smaller values tend to be at the tail of x
-    // This is a shallow way to check the number of unique values
+    // get unique values in the head and tail
     lc_uni = arma::unique(
-      arma::join_cols(lc.head(10),
-                      lc.tail(10))
+      arma::join_cols(lc.head(25),
+                      lc.tail(25))
     );
 
 
@@ -288,12 +374,18 @@ void find_cutpoints(arma::vec& cp,
 
       for(j = 0; j < lc_size; j++){
 
+
+        // todo: this could be more efficient
         if(lc[j] <= lc_uni[i]){
-          n_events_left += y(j, 1);
-          n_obs_left++;
+
+          n_events_left += y(j, 1) * weights(j);
+          n_obs_left += weights(j);
+
         } else {
-          n_events_right += y(j, 1);
-          n_obs_right++;
+
+          n_events_right += y(j, 1) * weights(j);
+          n_obs_right += weights(j);
+
         }
 
         // Rcout << "n_events_left: " << n_events_left << std::endl;
@@ -318,26 +410,48 @@ void find_cutpoints(arma::vec& cp,
   } else { // if there are k > n_cutpoint unique values
     // assume this is a continuous linear combination vector
 
-    arma::vec probs;
+    if(lc_size > 100){
 
-    if(cp_size >= 3){
-      probs = arma::linspace<arma::vec>(0.20, 0.80, cp_size);
-    } else if (cp_size == 2){
-      probs = {0.333, 0.666};
+      find_cutpoints_ctns(cp,
+                          lc(arma::linspace<arma::uvec>(0, lc_size-1, 100)),
+                          y,
+                          weights,
+                          leaf_min_obs,
+                          leaf_min_events);
+
     } else {
-      probs = {0.50};
+
+      find_cutpoints_ctns(cp,
+                          lc,
+                          y,
+                          weights,
+                          leaf_min_obs,
+                          leaf_min_events);
+
     }
 
-    arma::vec lc_quants;
 
-    if(lc_size >= 100){
-      lc_quants = arma::quantile(
-        lc(arma::linspace<arma::uvec>(0, lc_size-1, 100)),
-        probs
-      );
-    } else {
-      lc_quants = arma::quantile(lc, probs);
-    }
+    // older version of find_cutpoint_ctns
+    // arma::vec probs;
+    //
+    // if(cp_size >= 3){
+    //   probs = arma::linspace<arma::vec>(0.20, 0.80, cp_size);
+    // } else if (cp_size == 2){
+    //   probs = {0.333, 0.666};
+    // } else {
+    //   probs = {0.50};
+    // }
+    //
+    // arma::vec lc_quants;
+    //
+    // if(lc_size >= 100){
+    //   lc_quants = arma::quantile(
+    //     lc(arma::linspace<arma::uvec>(0, lc_size-1, 100)),
+    //     probs
+    //   );
+    // } else {
+    //   lc_quants = arma::quantile(lc, probs);
+    // }
 
 
     // arma::vec lc_quants_true = arma::quantile(lc, probs);
@@ -347,46 +461,170 @@ void find_cutpoints(arma::vec& cp,
     // Rcout << "true q: " << lc_quants_true.t() << std::endl;
 
 
-    //Rcout << "lc: " << lc[i] << std::endl;
-    for(i = 0; i < cp_size; i++){
+    // //Rcout << "lc: " << lc[i] << std::endl;
+    // for(i = 0; i < cp_size; i++){
+    //
+    //   n_events_left = 0;
+    //   n_events_right = 0;
+    //   n_obs_left = 0;
+    //   n_obs_right = 0;
+    //
+    //   for(j = 0; j < lc_size; j++){
+    //
+    //     if(lc[j] <= lc_quants[i]){
+    //       n_events_left += y(j, 1);
+    //       n_obs_left++;
+    //     } else {
+    //       n_events_right += y(j, 1);
+    //       n_obs_right++;
+    //     }
+    //
+    //     // check if left node has enough events and observations
+    //     if(n_events_left >= leaf_min_events &&
+    //        n_events_right >= leaf_min_events &&
+    //        n_obs_left >= leaf_min_obs &&
+    //        n_obs_right >= leaf_min_obs){
+    //       cp[i] = lc_quants[i];
+    //
+    //       // Rcout << "n_events_left: " << n_events_left << std::endl;
+    //       // Rcout << "n_events_right: " << n_events_right << std::endl;
+    //       // Rcout << "n_obs_left: " << n_obs_left << std::endl;
+    //       // Rcout << "n_obs_right: " << n_obs_right << std::endl;
+    //
+    //       break;
+    //     }
+    //
+    //   }
+    //
+    // }
 
-      n_events_left = 0;
-      n_events_right = 0;
-      n_obs_left = 0;
-      n_obs_right = 0;
+  }
 
-      for(j = 0; j < lc_size; j++){
+  //Rcout << cp.t() << std::endl;
 
-        if(lc[j] <= lc_quants[i]){
-          n_events_left += y(j, 1);
-          n_obs_left++;
-        } else {
-          n_events_right += y(j, 1);
-          n_obs_right++;
-        }
+}
 
-        // check if left node has enough events and observations
-        if(n_events_left >= leaf_min_events &&
-           n_events_right >= leaf_min_events &&
-           n_obs_left >= leaf_min_obs &&
-           n_obs_right >= leaf_min_obs){
-          cp[i] = lc_quants[i];
+// [[Rcpp::export]]
+double log_rank_test_wtd(arma::mat& y,
+                         arma::vec& g,
+                         arma::uvec& weights){
 
-          // Rcout << "n_events_left: " << n_events_left << std::endl;
-          // Rcout << "n_events_right: " << n_events_right << std::endl;
-          // Rcout << "n_obs_left: " << n_obs_left << std::endl;
-          // Rcout << "n_obs_right: " << n_obs_right << std::endl;
+  arma::uword n = y.n_rows;
+  double Y = arma::sum(weights);
+  double Y1 = arma::sum(g % weights);
 
-          break;
-        }
+  arma::uword lwr = 0;
+  arma::uword upr = 0;
+  arma::uword count = 1; // starts at 1 to mimic size
+  arma::uword i;
 
-      }
+  for(i=0; i<n; i++){
+
+    if(y(i, 1) == 0){
+
+      upr++;
+      count += weights(i);
+
+    } else {
+
+      break;
 
     }
 
   }
 
-  //Rcout << cp.t() << std::endl;
+  double d = 0;
+  double d1 = 0;
+
+  for(i = lwr; i <= upr; i++){
+    d += y(i, 1) * weights(i);
+    d1 += y(i, 1) * weights(i) * g(i);
+  }
+
+  double e1 = Y1 * d / Y;
+  double e0 = (Y - Y1) * d / Y;
+  double o1 = d1;
+  double o0 = d - d1;
+
+  double V = (Y-Y1) * Y1 * d * (Y-d) / (pow(Y,2) * (Y-1));
+
+  Y -= count;
+
+  for(i = lwr; i <= upr; i++){
+    Y1 -= g(i) * weights(i);
+  }
+
+  lwr=upr+1;
+
+  for( ; ; ){
+
+    // Rcout << "e1: " << e1 << "; ";
+    // Rcout << "e0: " << e0 << "; ";
+    // Rcout << "o1: " << o1 << "; ";
+    // Rcout << "o0: " << o0 << "; ";
+    // Rcout << "Y1: " << Y1 << "; ";
+    // Rcout << "Y: " << Y << "; ";
+    // Rcout << std::endl;
+
+    upr = lwr;
+    count = weights(upr);
+
+
+    while( (y(upr, 1) == 0) & (upr < n-1) ){
+      upr++;
+      count += weights(upr);
+    }
+
+    if(upr==n-1){
+      if( y(upr, 1) == 0 ){
+        break;
+      } else {
+
+        d = 0; d1 = 0;
+
+        for(i = lwr; i <= upr; i++){
+          d += y(i, 1) * weights(i);
+          d1 += y(i, 1) * weights(i) * g(i);
+        }
+
+        e1 += (Y1 * d/Y);
+        e0 += ((Y-Y1) * d/Y);
+        o1 += d1;
+        o0 += d-d1;
+
+        V += (Y-Y1) * Y1 * d * (Y-d) / (pow(Y, 2) * (Y-1));
+        Y -= count;
+
+        for(i = lwr; i <= upr; i++) Y1 -= g(i) * weights(i);
+
+        break;
+      }
+    }
+
+    d = 0; d1 = 0;
+
+    for(i = lwr; i <= upr; i++){
+      d += y(i, 1) * weights(i);
+      d1 += y(i, 1) * weights(i) * g(i);
+    }
+
+    e1 += (Y1*d / Y);
+    e0 += ((Y-Y1) * d/Y);
+    o1 += d1;
+    o0 += d - d1;
+
+    V += (Y-Y1) * Y1 * d * (Y-d) / (pow(Y,2) * (Y-1));
+    Y -= count;
+
+    for(i = lwr; i <= upr; i++) Y1 -= g(i) * weights(i);
+
+    lwr=upr+1;
+
+    if(Y==1) break;
+
+  }
+
+  return pow(o1-e1,2) / V;
 
 }
 
@@ -515,9 +753,9 @@ double log_rank_test(arma::mat& y,
 
 // TODO: write x_scale function (copy from rcpp version)
 // [[Rcpp::export]]
-NumericMatrix x_scale(NumericMatrix x_mat,
-                      IntegerVector x_wts,
-                      LogicalVector do_scale){
+NumericMatrix x_scale_old(NumericMatrix x_mat,
+                          IntegerVector x_wts,
+                          LogicalVector do_scale){
 
   int ncol = x_mat.ncol();
   int nrow = x_mat.nrow();
@@ -943,7 +1181,7 @@ bool any_cps_valid(arma::vec& x){
 }
 
 // [[Rcpp::export]]
-List ostree_fit_arma(arma::mat& x,
+List ostree_fit(arma::mat& x,
                      arma::mat& y,
                      const arma::uword& mtry = 4,
                      const arma::uword& n_cps = 5,
@@ -1249,7 +1487,8 @@ List ostree_fit_arma(arma::mat& x,
 
       lc = x_node * beta;
 
-      find_cutpoints(cp, lc, y_node, leaf_min_obs, leaf_min_events);
+      find_cutpoints(cp, lc, y_node, weights_node,
+                     leaf_min_obs, leaf_min_events);
 
       // if there is at least one valid cut-point, we can grow
       // two more nodes from the current node.
@@ -1288,7 +1527,7 @@ List ostree_fit_arma(arma::mat& x,
                     std::endl;
             }
 
-            lrstat = log_rank_test(y_node, g);
+            lrstat = log_rank_test_wtd(y_node, g, weights_node);
 
             if(verbose == true){
               Rcout << lrstat << " with cut-point " << cp[i];

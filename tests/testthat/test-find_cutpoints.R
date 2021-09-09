@@ -12,6 +12,8 @@ y <- matrix(
  ncol = 2
 )
 
+colnames(y) <- c("time", "status")
+
 cp <- rep(Inf, 3)
 
 # if 0 is the cut-point,
@@ -158,6 +160,10 @@ find_cutpoints(
    leaf_min_obs = 2,
    leaf_min_events = 2
 )
+
+weights <- rep(1, nrow(y))
+
+find_cutpoints_ctns(cp, x_ctns, y, weights, 2, 2)
 
 # # benchmark
 #
