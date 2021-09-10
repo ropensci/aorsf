@@ -229,8 +229,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // ostree_pred_leaf
-arma::uvec ostree_pred_leaf(const arma::mat& x_new, const arma::mat& betas, const arma::umat& col_indices, const arma::vec& cut_points, const arma::vec& children_left, const arma::vec& children_right);
-RcppExport SEXP _orsf2_ostree_pred_leaf(SEXP x_newSEXP, SEXP betasSEXP, SEXP col_indicesSEXP, SEXP cut_pointsSEXP, SEXP children_leftSEXP, SEXP children_rightSEXP) {
+arma::uvec ostree_pred_leaf(const arma::mat& x_new, const arma::mat& betas, const arma::umat& col_indices, const arma::vec& cut_points, const arma::vec& children_left);
+RcppExport SEXP _orsf2_ostree_pred_leaf(SEXP x_newSEXP, SEXP betasSEXP, SEXP col_indicesSEXP, SEXP cut_pointsSEXP, SEXP children_leftSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -239,8 +239,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::umat& >::type col_indices(col_indicesSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type cut_points(cut_pointsSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type children_left(children_leftSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type children_right(children_rightSEXP);
-    rcpp_result_gen = Rcpp::wrap(ostree_pred_leaf(x_new, betas, col_indices, cut_points, children_left, children_right));
+    rcpp_result_gen = Rcpp::wrap(ostree_pred_leaf(x_new, betas, col_indices, cut_points, children_left));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -295,7 +294,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_make_node_name", (DL_FUNC) &_orsf2_make_node_name, 1},
     {"_orsf2_any_cps_valid", (DL_FUNC) &_orsf2_any_cps_valid, 1},
     {"_orsf2_ostree_fit", (DL_FUNC) &_orsf2_ostree_fit, 7},
-    {"_orsf2_ostree_pred_leaf", (DL_FUNC) &_orsf2_ostree_pred_leaf, 6},
+    {"_orsf2_ostree_pred_leaf", (DL_FUNC) &_orsf2_ostree_pred_leaf, 5},
     {"_orsf2_ostree_pred_surv", (DL_FUNC) &_orsf2_ostree_pred_surv, 4},
     {"_orsf2_orsf_fit", (DL_FUNC) &_orsf2_orsf_fit, 8},
     {NULL, NULL, 0}

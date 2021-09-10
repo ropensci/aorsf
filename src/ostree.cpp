@@ -1197,7 +1197,7 @@ List ostree_fit(arma::mat& x,
   // cutpoints for linear combination splitting
   arma::vec cutpoints(max_nodes);
   // child nodes to progress through the tree
-  arma::uvec children_left(max_nodes),  children_right(max_nodes);
+  arma::uvec children_left(max_nodes);
 
   // --------------------------------------------
   // ---- initialize parameters to grow tree ----
@@ -1263,7 +1263,6 @@ List ostree_fit(arma::mat& x,
 
   // terms to create new node (nn)
   arma::uword nn_left;
-  arma::uword nn_right;
 
   // label for the new node's name; i.e., node_1, node_2, ...
   String node_name;
@@ -1488,8 +1487,7 @@ List ostree_fit(arma::mat& x,
         }
 
         nn_left   = nodes_max + 1;
-        nn_right  = nodes_max + 2;
-        nodes_max = nn_right;
+        nodes_max = nodes_max + 2;
 
         i = 0;
 
@@ -1501,7 +1499,7 @@ List ostree_fit(arma::mat& x,
 
           } else {
 
-            node_assignments[*person] = nn_right;
+            node_assignments[*person] = nodes_max;
 
           }
 
@@ -1515,7 +1513,6 @@ List ostree_fit(arma::mat& x,
         }
 
         children_left[*node] = nn_left;
-        children_right[*node] = nn_right;
         cutpoints[*node] = cp_max;
 
 
@@ -1606,7 +1603,6 @@ List ostree_fit(arma::mat& x,
       _["col_indices"] = col_indices.cols(arma::span(0, nodes_max)),
       _["cut_points"] = cutpoints(arma::span(0, nodes_max)),
       _["children_left"] = children_left(arma::span(0, nodes_max)),
-      _["children_right"] = children_right(arma::span(0, nodes_max)),
       _["mtry"] = mtry
     )
   );
@@ -1622,8 +1618,7 @@ arma::uvec ostree_pred_leaf(const arma::mat& x_new,
                             const arma::mat& betas,
                             const arma::umat& col_indices,
                             const arma::vec& cut_points,
-                            const arma::vec& children_left,
-                            const arma::vec& children_right){
+                            const arma::vec& children_left){
 
   // allocate memory for output
   arma::uvec out(x_new.n_rows);
@@ -1655,7 +1650,7 @@ arma::uvec ostree_pred_leaf(const arma::mat& x_new,
 
           } else {
 
-            out(k) = children_right(i);
+            out(k) = children_left(i)+1;
 
           }
 
@@ -1789,4 +1784,8 @@ List orsf_fit(arma::mat& x,
 
 }
 
+arma::mat orsf_predict(List& object,
+                       arma::mat& x_new,
+                       arma::vec& times){
 
+}
