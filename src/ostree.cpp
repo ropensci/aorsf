@@ -430,74 +430,6 @@ void find_cutpoints(arma::vec& cp,
 
     }
 
-
-    // older version of find_cutpoint_ctns
-    // arma::vec probs;
-    //
-    // if(cp_size >= 3){
-    //   probs = arma::linspace<arma::vec>(0.20, 0.80, cp_size);
-    // } else if (cp_size == 2){
-    //   probs = {0.333, 0.666};
-    // } else {
-    //   probs = {0.50};
-    // }
-    //
-    // arma::vec lc_quants;
-    //
-    // if(lc_size >= 100){
-    //   lc_quants = arma::quantile(
-    //     lc(arma::linspace<arma::uvec>(0, lc_size-1, 100)),
-    //     probs
-    //   );
-    // } else {
-    //   lc_quants = arma::quantile(lc, probs);
-    // }
-
-
-    // arma::vec lc_quants_true = arma::quantile(lc, probs);
-    //
-    // Rcout << "approx q: " << lc_quants.t() << std::endl;
-    //
-    // Rcout << "true q: " << lc_quants_true.t() << std::endl;
-
-
-    // //Rcout << "lc: " << lc[i] << std::endl;
-    // for(i = 0; i < cp_size; i++){
-    //
-    //   n_events_left = 0;
-    //   n_events_right = 0;
-    //   n_obs_left = 0;
-    //   n_obs_right = 0;
-    //
-    //   for(j = 0; j < lc_size; j++){
-    //
-    //     if(lc[j] <= lc_quants[i]){
-    //       n_events_left += y(j, 1);
-    //       n_obs_left++;
-    //     } else {
-    //       n_events_right += y(j, 1);
-    //       n_obs_right++;
-    //     }
-    //
-    //     // check if left node has enough events and observations
-    //     if(n_events_left >= leaf_min_events &&
-    //        n_events_right >= leaf_min_events &&
-    //        n_obs_left >= leaf_min_obs &&
-    //        n_obs_right >= leaf_min_obs){
-    //       cp[i] = lc_quants[i];
-    //
-    //       // Rcout << "n_events_left: " << n_events_left << std::endl;
-    //       // Rcout << "n_events_right: " << n_events_right << std::endl;
-    //       // Rcout << "n_obs_left: " << n_obs_left << std::endl;
-    //       // Rcout << "n_obs_right: " << n_obs_right << std::endl;
-    //
-    //       break;
-    //     }
-    //
-    //   }
-    //
-    // }
-
   }
 
   //Rcout << cp.t() << std::endl;
@@ -1182,12 +1114,12 @@ bool any_cps_valid(arma::vec& x){
 
 // [[Rcpp::export]]
 List ostree_fit(arma::mat& x,
-                     arma::mat& y,
-                     const arma::uword& mtry = 4,
-                     const arma::uword& n_cps = 5,
-                     const arma::uword& leaf_min_events = 5,
-                     const arma::uword& leaf_min_obs = 10,
-                     const bool& verbose = false){
+                arma::mat& y,
+                const arma::uword& mtry = 4,
+                const arma::uword& n_cps = 5,
+                const arma::uword& leaf_min_events = 5,
+                const arma::uword& leaf_min_obs = 10,
+                const bool& verbose = false){
 
   int n_obs = x.n_rows;
   int n_col = x.n_cols;
@@ -1459,6 +1391,16 @@ List ostree_fit(arma::mat& x,
       x_node = x_inbag(rows_node, cols_node);
       y_node = y_inbag.rows(rows_node);
       weights_node = weights(rows_node);
+
+      if(verbose == true){
+
+        arma::uword n_obs = arma::sum(weights_node);
+        arma::uword n_events = arma::sum(y_node.col(1) % weights_node);
+
+        Rcout << "No. of observations in node: " << n_obs << std::endl;
+        Rcout << "No. of events in node:       " << n_events << std::endl;
+
+      }
 
       // Rcout << "x_node: " << std::endl << x_node << std::endl;
       //
@@ -1818,6 +1760,32 @@ arma::mat ostree_pred_surv(const arma::mat&  x_new,
   } while (person < x_new.n_rows);
 
   return(out);
+
+}
+
+// [[Rcpp::export]]
+List orsf_fit(arma::mat& x,
+              arma::mat& y,
+              const int& ntree,
+              const arma::uword& mtry = 4,
+              const arma::uword& n_cps = 5,
+              const arma::uword& leaf_min_events = 5,
+              const arma::uword& leaf_min_obs = 10,
+              const bool& verbose = false){
+
+  List forest(ntree);
+
+  for(int tree = 0; tree < ntree; tree++){
+    forest[tree] = ostree_fit(x,
+                              y,
+                              mtry,
+                              n_cps,
+                              leaf_min_events,
+                              leaf_min_obs,
+                              verbose);
+  }
+
+  return(forest);
 
 }
 
