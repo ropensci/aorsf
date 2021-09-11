@@ -297,6 +297,9 @@ void find_cutpoints_ctns(arma::vec& cp,
 
   if(cp_max > cp_min){
 
+    Rcout << "cp_max: " << cp_max << std::endl;
+    Rcout << "cp_min: " << cp_min << std::endl;
+
     arma::vec cps_runif = arma::randu<arma::vec>(cp.size());
 
     for(arma::uword i = 0; i < cp.size(); i++){
@@ -412,10 +415,12 @@ void find_cutpoints(arma::vec& cp,
 
     if(lc_size > 100){
 
+      arma::uvec rows_sample = arma::linspace<arma::uvec>(0, lc_size-1, 100);
+
       find_cutpoints_ctns(cp,
-                          lc(arma::linspace<arma::uvec>(0, lc_size-1, 100)),
-                          y,
-                          weights,
+                          lc(rows_sample),
+                          y.rows(rows_sample),
+                          weights(rows_sample),
                           leaf_min_obs,
                           leaf_min_events);
 
@@ -1313,12 +1318,12 @@ List ostree_fit(arma::mat& x,
       // check for constant columns
       // constant means constant within the rows where events occurred
 
-      if(verbose == true){
-        Rcout <<
-          "empty cols_to_sample: " <<
-            cols_to_sample_01.t() <<
-              std::endl;
-      }
+      // if(verbose == true){
+      //   Rcout <<
+      //     "empty cols_to_sample: " <<
+      //       cols_to_sample_01.t() <<
+      //         std::endl;
+      // }
 
 
 
@@ -1353,12 +1358,12 @@ List ostree_fit(arma::mat& x,
 
       }
 
-      if(verbose == true){
-        Rcout <<
-          "full  cols_to_sample: " <<
-            cols_to_sample_01.t() <<
-              std::endl;
-      }
+      // if(verbose == true){
+      //   Rcout <<
+      //     "full  cols_to_sample: " <<
+      //       cols_to_sample_01.t() <<
+      //         std::endl;
+      // }
 
       n_cols_to_sample = arma::sum(cols_to_sample_01);
 
@@ -1382,9 +1387,9 @@ List ostree_fit(arma::mat& x,
                                               mtry_temp_int,
                                               false);
 
-      if(verbose == true){
-        Rcout << "cols sampled: " << cols_node.t() << std::endl;
-      }
+      // if(verbose == true){
+      //   Rcout << "cols sampled: " << cols_node.t() << std::endl;
+      // }
 
 
       x_node = x_inbag(rows_node, cols_node);
@@ -1457,15 +1462,6 @@ List ostree_fit(arma::mat& x,
               if(lc[j] > cp[i]) g[j] = 1;
             }
 
-            if(verbose == true){
-              Rcout << "number of g == 1: " <<
-                arma::sum(g) <<
-                  std::endl;
-              Rcout <<
-                "number of g == 0: " <<
-                  g.size() - arma::sum(g) <<
-                    std::endl;
-            }
 
             lrstat = log_rank_test_wtd(y_node, g, weights_node);
 
@@ -1477,7 +1473,22 @@ List ostree_fit(arma::mat& x,
             if(lrstat > lrstat_max){
               lrstat_max = lrstat;
               cp_max = cp[i];
-              if(verbose == true) Rcout << ", a new max!";
+              if(verbose == true) Rcout << ", a new max!" << std::endl;
+            } else {
+              if(verbose == true) Rcout << std::endl;
+            }
+
+            if(verbose == true){
+              Rcout <<
+                "number of g == 0: " <<
+                  arma::sum(weights_node) - arma::dot(g, weights_node) <<
+                    "; " << arma::sum(y_node.col(1) % weights_node) -
+                    arma::sum(y_node.col(1) % weights_node % g) <<
+                      " events" << std::endl;
+              Rcout << "number of g == 1: " <<
+                arma::dot(g, weights_node) <<
+                  "; " << arma::sum(y_node.col(1) % weights_node % g) <<
+                    " events" << std::endl << std::endl;
             }
 
             if(verbose == true) Rcout << std::endl;
@@ -1488,6 +1499,11 @@ List ostree_fit(arma::mat& x,
 
         nn_left   = nodes_max + 1;
         nodes_max = nodes_max + 2;
+
+        if(verbose == true){
+          Rcout << "new nodes: " <<
+            nn_left << " and " << nodes_max << std::endl;
+        }
 
         i = 0;
 
@@ -1552,6 +1568,9 @@ List ostree_fit(arma::mat& x,
                                   nodes_max);
 
     if(verbose == true){
+
+      arma::uvec temp = arma::regspace<arma::uvec>(0, 1, node_summary.n_rows);
+
       Rcout << std::endl;
       Rcout << "events by part: " << std::endl;
       Rcout << node_summary << std::endl;
@@ -1613,6 +1632,34 @@ List ostree_fit(arma::mat& x,
 }
 
 
+
+
+// [[Rcpp::export]]
+List orsf_fit(arma::mat& x,
+              arma::mat& y,
+              const int& ntree,
+              const arma::uword& mtry = 4,
+              const arma::uword& n_cps = 5,
+              const arma::uword& leaf_min_events = 5,
+              const arma::uword& leaf_min_obs = 10,
+              const bool& verbose = false){
+
+  List forest(ntree);
+
+  for(int tree = 0; tree < ntree; tree++){
+    forest[tree] = ostree_fit(x,
+                              y,
+                              mtry,
+                              n_cps,
+                              leaf_min_events,
+                              leaf_min_obs,
+                              verbose);
+  }
+
+  return(forest);
+
+}
+
 // [[Rcpp::export]]
 arma::uvec ostree_pred_leaf(const arma::mat& x_new,
                             const arma::mat& betas,
@@ -1668,9 +1715,9 @@ arma::uvec ostree_pred_leaf(const arma::mat& x_new,
 
 // [[Rcpp::export]]
 arma::mat ostree_pred_surv(const arma::mat&  x_new,
-                      const Rcpp::List& leaf_nodes,
-                      const arma::uvec& leaf_preds,
-                      const arma::vec&  times){
+                           const Rcpp::List& leaf_nodes,
+                           const arma::uvec& leaf_preds,
+                           const arma::vec&  times){
 
   // preallocate memory for output
   arma::mat out(x_new.n_rows, times.size());
@@ -1680,7 +1727,6 @@ arma::mat ostree_pred_surv(const arma::mat&  x_new,
   //Rcout << leaf_preds(leaf_sort(0)) << std::endl;
 
   arma::uword person = 0;
-  arma::uword person_ref;
   arma::uword person_ref_index;
   arma::uword person_leaf;
   String person_leaf_name;
@@ -1691,14 +1737,12 @@ arma::mat ostree_pred_surv(const arma::mat&  x_new,
 
   do{
 
-    person_ref = person;
     person_ref_index = leaf_sort(person);
     person_leaf = leaf_preds(person_ref_index);
 
     Rcout << "person: " << person << std::endl;
-    Rcout << "person_ref: " << person_ref << std::endl;
-    Rcout << "person_ref_index: " << person_ref_index << std::endl;
-    Rcout << "person_leaf: " << person_leaf << std::endl;
+    // Rcout << "person_ref_index: " << person_ref_index << std::endl;
+    // Rcout << "person_leaf: " << person_leaf << std::endl;
 
     person_leaf_name = make_node_name(person_leaf);
 
@@ -1707,7 +1751,7 @@ arma::mat ostree_pred_surv(const arma::mat&  x_new,
     arma::mat leaf_surv(leaf_surv_temp.begin(), leaf_surv_temp.nrow(),
                         leaf_surv_temp.ncol(), false);
 
-    Rcout << leaf_surv << std::endl;
+    // Rcout << leaf_surv << std::endl;
 
     i = 0;
 
@@ -1715,77 +1759,61 @@ arma::mat ostree_pred_surv(const arma::mat&  x_new,
     // (remember to right a check for this in R API)
     for(t = 0; t < times.size(); t++){
 
-      surv_estimate = 0;
+      if(times(t) < leaf_surv(leaf_surv.n_rows - 1, 1)){
 
-      for(; i < leaf_surv.n_rows; i++){
-        if (leaf_surv(i, 0) > times(t)){
-          if(i == 0)
-            surv_estimate = 1;
-          else
-            surv_estimate = leaf_surv(i-1, 1);
-          break;
-        } else if (leaf_surv(i, 0) == times(t)){
-          surv_estimate = leaf_surv(i, 1);
-          break;
+        for(; i < leaf_surv.n_rows; i++){
+          if (leaf_surv(i, 0) > times(t)){
+            if(i == 0)
+              surv_estimate = 1;
+            else
+              surv_estimate = leaf_surv(i-1, 1);
+            break;
+          } else if (leaf_surv(i, 0) == times(t)){
+            surv_estimate = leaf_surv(i, 1);
+            break;
+          }
         }
+
+      } else {
+
+        // go here if prediction horizon > max time in current leaf.
+        double surv_slope =
+          (1 - leaf_surv(leaf_surv.n_rows - 1, 1)) /
+          (0 - leaf_surv(leaf_surv.n_rows - 1, 0));
+
+        double time_diff = times(t) - leaf_surv(leaf_surv.n_rows - 1, 0);
+
+        surv_estimate =
+          leaf_surv(leaf_surv.n_rows - 1, 1) + surv_slope * time_diff;
+
+        if(surv_estimate < 0) surv_estimate = 0;
+
       }
 
       out(person_ref_index, t) = surv_estimate;
 
     }
 
-    Rcout << "made it to here" << std::endl;
-
     person++;
 
-    while(person_leaf == leaf_preds(leaf_sort(person))){
+    if(person < x_new.n_rows){
 
-      for(i = 0; i < out.n_cols; i++){
-        out(leaf_sort(person), i) = out(person_ref_index, i);
+      while(person_leaf == leaf_preds(leaf_sort(person))){
+
+        for(i = 0; i < out.n_cols; i++){
+          out(leaf_sort(person), i) = out(person_ref_index, i);
+        }
+
+        person++;
+
+        if (person == x_new.n_rows) break;
+
       }
 
-
-      person++;
-
-      if (person == x_new.n_rows) break;
-
     }
-
 
   } while (person < x_new.n_rows);
 
   return(out);
-
-}
-
-// [[Rcpp::export]]
-List orsf_fit(arma::mat& x,
-              arma::mat& y,
-              const int& ntree,
-              const arma::uword& mtry = 4,
-              const arma::uword& n_cps = 5,
-              const arma::uword& leaf_min_events = 5,
-              const arma::uword& leaf_min_obs = 10,
-              const bool& verbose = false){
-
-  List forest(ntree);
-
-  for(int tree = 0; tree < ntree; tree++){
-    forest[tree] = ostree_fit(x,
-                              y,
-                              mtry,
-                              n_cps,
-                              leaf_min_events,
-                              leaf_min_obs,
-                              verbose);
-  }
-
-  return(forest);
-
-}
-
-arma::mat orsf_predict(List& object,
-                       arma::mat& x_new,
-                       arma::vec& times){
 
 }
