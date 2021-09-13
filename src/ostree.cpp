@@ -26,6 +26,53 @@ void x_scale(arma::mat& x,
 
 }
 
+
+// [[Rcpp::export]]
+arma::mat x_scale_cph(arma::mat& x_mat,
+                      arma::uvec& weights,
+                      LogicalVector& do_scale){
+
+  // set aside memory for outputs
+  // first column holds the mean values
+  // second column holds the scale values
+
+  arma::mat out(x_mat.n_cols, 2);
+  arma::vec means = out.unsafe_col(0);   // Reference to column 1
+  arma::vec scales = out.unsafe_col(1);  // Reference to column 2
+  arma::uword weights_sum = arma::sum(weights);
+
+  for(arma::uword i = 0; i < x_mat.n_cols; i++) {
+
+    if (do_scale(i) == false) {
+
+      scales(i) = 1.0;
+      means(i) = 0.0;
+
+    } else {
+
+      arma::vec x_i = x_mat.unsafe_col(i);
+
+      means(i) = arma::sum( weights % x_i ) / weights_sum;
+
+      x_i -= means(i);
+
+      scales(i) = arma::sum(weights % arma::abs(x_i));
+
+      if(scales(i) > 0)
+        scales(i) = weights_sum / scales(i);
+      else
+        scales(i) = 1.0; // rare case of constant covariate;
+
+      x_i *= scales(i);
+
+    }
+
+  }
+
+  return(out);
+
+}
+
 // [[Rcpp::export]]
 arma::mat leaf_surv_small(const arma::mat& y,
                           const arma::uvec& weights){
@@ -688,68 +735,6 @@ double log_rank_test(arma::mat& y,
 
 }
 
-// TODO: write x_scale function (copy from rcpp version)
-// [[Rcpp::export]]
-NumericMatrix x_scale_old(NumericMatrix x_mat,
-                          IntegerVector x_wts,
-                          LogicalVector do_scale){
-
-  int ncol = x_mat.ncol();
-  int nrow = x_mat.nrow();
-  int i, person;
-  double x_scale_i, x_mean_i;
-  // set aside memory for outputs
-  // first column holds the mean values
-  // second column holds the scale values
-  NumericMatrix out(ncol, 2);
-  NumericMatrix::Column means = out( _ , 0);   // Reference to column 1
-  NumericMatrix::Column scales = out( _ , 1);  // Reference to column 2
-
-  int x_wts_sum = sum(x_wts);
-
-  for(i = 0; i < ncol; i++) {
-
-    if (do_scale[i] == false) {
-
-      scales[i] = 1.0;
-      means[i] = 0.0;
-
-    } else {
-
-      x_mean_i = 0.0;
-
-      for (person = 0; person < nrow; person++){
-        x_mean_i = x_mean_i + x_wts[person] * x_mat(person, i);
-      }
-
-      means[i] = x_mean_i / x_wts_sum;
-
-      for (person = 0; person < nrow; person++){
-        x_mat(person, i) -= means[i];
-      }
-
-      x_scale_i = 0.0;
-
-      for (person = 0; person < nrow; person++){
-        x_scale_i = x_scale_i + x_wts[person] * abs(x_mat(person, i));
-      }
-
-      if(x_scale_i > 0)
-        scales[i] = x_wts_sum / x_scale_i;
-      else
-        scales[i] = 1.0; // rare case of constant covariate;
-
-      for (person = 0; person < nrow; person++){
-        x_mat(person, i) *= scales[i];
-      }
-
-    }
-
-  }
-
-  return(out);
-
-}
 
 // [[Rcpp::export]]
 void cholesky(arma::mat& matrix){
@@ -1092,6 +1077,351 @@ void newtraph_cph_one_iter (const arma::mat& x,
   }
 
   //Rcout << "- u final: " << u.t() << std::endl;
+
+}
+
+// [[Rcpp::export]]
+double newtraph_cph_iter (const arma::mat& x,
+                          const arma::mat& y,
+                          const arma::uvec& weights,
+                          const arma::vec& beta,
+                          arma::vec& XB,
+                          arma::vec& R,
+                          arma::vec& u,
+                          arma::vec& a,
+                          arma::vec& a2,
+                          arma::mat& imat,
+                          arma::mat& cmat,
+                          arma::mat& cmat2,
+                          const arma::uword& method){
+
+  double  wtave;
+  double  temp1, temp2;
+  double  person_time;
+
+  arma::uword deadwt;
+
+  arma::uword i, j, k, ndead;
+
+  arma::uword nrisk = 0;
+
+  arma::uword person = x.n_rows - 1;
+  arma::uword nvar = x.n_cols;
+
+  double x_beta, risk, denom=0, loglik=0, denom2;
+
+  u.fill(0);
+  a.fill(0);
+  a2.fill(0);
+  imat.fill(0);
+  cmat.fill(0);
+  cmat2.fill(0);
+
+  // this loop has a strange break condition to accomodate
+  // the restriction that a uvec (uword) cannot be < 0
+
+  bool break_loop = false;
+
+  XB = x * beta;
+  R = arma::exp(XB) % weights;
+
+  arma::rowvec x_person(x.n_cols);
+  arma::uword weights_person;
+
+  // arma::mat tempmat = x.t() * arma::diagmat(R) * x;
+  // Rcout << tempmat << std::endl;
+
+
+  for( ; ; ){
+
+
+    // Rcout << "- person: "    << person;
+    // Rcout << "; y_status: "  << y(person,1);
+    // Rcout << "; y_time: "    << y(person,0);
+    // Rcout << "; u: "         << u.t();
+    // Rcout << std::endl;
+
+    person_time = y(person, 0); // time of event for current person
+    ndead  = 0 ; // number of deaths at this time point
+    deadwt = 0 ; // sum of weights for the deaths
+    denom2 = 0 ; // sum of weighted risks for the deaths
+
+    // walk through this set of tied times
+    while(y(person, 0) == person_time){
+
+      nrisk++;
+
+      //x_beta = arma::dot(beta, x.row(person));
+      //risk = exp(x_beta) * weights(person);
+
+      x_beta = XB(person);
+      risk = R(person);
+
+      x_person = x.row(person);
+      weights_person = weights[person];
+
+      if (y(person, 1) == 0) {
+
+        denom += risk;
+
+        /* a contains weighted sums of x, cmat sums of squares */
+
+        for (i=0; i<nvar; i++) {
+
+          temp1 = risk * x_person[i];
+
+          a[i] += temp1;
+
+          for (j = 0; j <= i; j++){
+            cmat(j, i) += temp1 * x_person[j];
+          }
+
+        }
+
+      } else {
+
+        ndead++;
+
+        deadwt += weights_person;
+        denom2 += risk;
+        loglik += weights_person * x_beta;
+
+        for (i=0; i<nvar; i++) {
+
+          u[i]  += weights_person * x_person[i];
+          a2[i] += risk * x_person[i];
+
+          for (j=0; j<=i; j++){
+            cmat2(j, i) += risk * x_person[i] * x_person[j];
+          }
+
+        }
+
+      }
+
+      if(person == 0){
+        break_loop = true;
+        break;
+      }
+
+      person--;
+
+      //if(person_time == y(person, 0)) Rcout << "tie!" << std::endl;
+
+      //Rcout << person << std::endl;
+
+    }
+
+    //Rcout << "imat: " << std::endl << imat << std::endl;
+
+    // we need to add to the main terms
+    if (ndead > 0) {
+
+      if (method == 0 || ndead == 1) { // Breslow
+
+        denom  += denom2;
+        loglik -= deadwt * log(denom);
+
+        for (i=0; i<nvar; i++) {
+
+          a[i]  += a2[i];
+          temp2  = a[i] / denom;  // mean
+          u[i]  -=  deadwt * temp2;
+
+          for (j=0; j<=i; j++) {
+            cmat(j, i) += cmat2(j, i);
+            imat(j, i) += deadwt * (cmat(j, i) - temp2 * a[j]) / denom;
+          }
+
+        }
+
+      } else {
+        /* Efron
+         **  If there are 3 deaths we have 3 terms: in the first the
+         **  three deaths are all in, in the second they are 2/3
+         **  in the sums, and in the last 1/3 in the sum.  Let k go
+         **  1 to ndead: we sequentially add a2/ndead and cmat2/ndead
+         **  and efron_wt/ndead to the totals.
+         */
+        wtave = deadwt/ndead;
+
+        for (k=0; k<ndead; k++) {
+
+          denom  += denom2 / ndead;
+          loglik -= wtave * log(denom);
+
+          for (i=0; i<nvar; i++) {
+
+            a[i] += a2[i] / ndead;
+            temp2 = a[i]  / denom;
+            u[i] -= wtave * temp2;
+
+            for (j=0; j<=i; j++) {
+              cmat(j, i) += cmat2(j, i) / ndead;
+              imat(j, i) += wtave * (cmat(j, i) - temp2 * a[j]) / denom;
+            }
+
+          }
+
+        }
+
+      }
+
+      a2.fill(0);
+      cmat2.fill(0);
+
+      // for (i=0; i<nvar; i++) {
+      //
+      //   a2[i]=0;
+      //
+      //   for (j=0; j<nvar; j++) cmat2(j, i)=0;
+      //
+      // }
+
+    }
+
+    if(break_loop) break;
+
+  }
+
+  //Rcout << cmat << std::endl;
+
+  return(loglik);
+
+}
+
+// [[Rcpp::export]]
+List newtraph_cph(const arma::mat& x,
+                  const arma::mat& y,
+                  const arma::uvec& weights,
+                  const arma::mat& x_transforms,
+                  const arma::uword method,
+                  const double& eps,
+                  const arma::uword iter_max,
+                  const bool& rescale){
+
+  arma::uword i, j, iter, nvar = x.n_cols;
+  double ll_new, ll_best, halving = 0;
+
+  arma::vec beta(nvar);
+  arma::vec newbeta(nvar);
+  arma::vec u(nvar);
+  arma::vec a(nvar);
+  arma::vec a2(nvar);
+
+  arma::vec XB(x.n_rows);
+  arma::vec R(x.n_rows);
+
+  arma::mat imat(nvar, nvar);
+  arma::mat cmat(nvar, nvar);
+  arma::mat cmat2(nvar, nvar);
+
+  // do the initial iteration
+  ll_best = newtraph_cph_iter(x, y, weights, beta, XB, R, u, a, a2,
+                              imat, cmat, cmat2, method);
+
+  //Rcout << ll_best << std::endl;
+
+  // update beta
+  cholesky(imat);
+  cholesky_solve(imat, u);
+  newbeta = beta + u;
+
+  if(iter_max <= 1 || std::isinf(ll_best)){
+
+    // beta needs to be set before its rescaled
+    for(i = 0; i < nvar; i++) beta[i] = newbeta[i];
+
+  } else {
+
+    for(iter = 1; iter < iter_max; iter++){
+
+      // do the next iteration
+      ll_new = newtraph_cph_iter(x, y, weights, newbeta, XB, R, u, a, a2,
+                                 imat, cmat, cmat2, method);
+
+      cholesky(imat);
+
+      //Rcout << ll_new << std::endl;
+
+      // check for convergence
+      if(abs(1-ll_best/ll_new) < eps){
+        break;
+      }
+
+
+      if(ll_new < ll_best){ // it's not converging!
+
+        halving++; // get more aggressive when it doesn't work
+
+        // reduce the magnitude by which newbeta modifies beta
+        for (i = 0; i < nvar; i++){
+          newbeta[i] = (newbeta[i] + halving * beta[i]) / (halving + 1.0);
+        }
+
+
+      } else { // it's converging!
+
+        halving = 0;
+        ll_best = ll_new;
+        //Rcout << "log likelihood: " << ll_best << std::endl;
+
+        cholesky_solve(imat, u);
+
+        for (i = 0; i < nvar; i++) {
+
+          beta[i] = newbeta[i];
+          newbeta[i] = newbeta[i] +  u[i];
+
+        }
+
+      }
+
+    }
+
+  }
+
+  // invert imat and return to original scale
+  cholesky_invert(imat);
+
+  beta = newbeta;
+
+  if(rescale == true){
+
+    for (i=0; i < nvar; i++) {
+
+      beta(i) *= x_transforms(i, 1);
+      u(i) /= x_transforms(i, 1);
+      imat(i, i) *= x_transforms(i, 1) * x_transforms(i, 1);
+
+      for (j = 0; j < i; j++) {
+
+        imat(j, i) *= x_transforms(i, 1)*x_transforms(j, 1);
+        imat(i, j) = imat(j, i);
+
+      }
+
+    }
+
+  }
+
+
+  for(i = 0; i < nvar; i++){
+
+    if(std::isinf(beta[i])) beta[i] = 0;
+
+    if(std::isinf(imat(i, i))) imat(i, i) = 1.0;
+
+  }
+
+  arma::vec se = arma::sqrt(imat.diag());
+
+  return(
+    List::create(
+      Named("beta") = beta,
+      _["se"] = se
+    )
+  );
 
 }
 
@@ -1588,7 +1918,7 @@ List ostree_fit(arma::mat& x,
         nodes_to_grow_temp(i) = i + 1;
 
       } else if (node_summary(i, 0) > 0 &&
-                 node_summary(i, 1) > 0) {
+        node_summary(i, 1) > 0) {
 
         // a new leaf
         // use i+1; nodes starts at 1 and i starts at 0
@@ -1779,7 +2109,7 @@ arma::mat ostree_pred_surv(const arma::mat&  x_new,
         // go here if prediction horizon > max time in current leaf.
         double surv_slope =
           (1 - leaf_surv(leaf_surv.n_rows - 1, 1)) /
-          (0 - leaf_surv(leaf_surv.n_rows - 1, 0));
+            (0 - leaf_surv(leaf_surv.n_rows - 1, 0));
 
         double time_diff = times(t) - leaf_surv(leaf_surv.n_rows - 1, 0);
 

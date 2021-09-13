@@ -9,6 +9,10 @@ x_scale <- function(x, mean_sd) {
     invisible(.Call(`_orsf2_x_scale`, x, mean_sd))
 }
 
+x_scale_cph <- function(x_mat, weights, do_scale) {
+    .Call(`_orsf2_x_scale_cph`, x_mat, weights, do_scale)
+}
+
 leaf_surv_small <- function(y, weights) {
     .Call(`_orsf2_leaf_surv_small`, y, weights)
 }
@@ -37,10 +41,6 @@ log_rank_test <- function(y, g) {
     .Call(`_orsf2_log_rank_test`, y, g)
 }
 
-x_scale_old <- function(x_mat, x_wts, do_scale) {
-    .Call(`_orsf2_x_scale_old`, x_mat, x_wts, do_scale)
-}
-
 cholesky <- function(matrix) {
     invisible(.Call(`_orsf2_cholesky`, matrix))
 }
@@ -55,6 +55,14 @@ cholesky_invert <- function(matrix) {
 
 newtraph_cph_one_iter <- function(x, y, weights, u, a, a2, imat, cmat, cmat2, method) {
     invisible(.Call(`_orsf2_newtraph_cph_one_iter`, x, y, weights, u, a, a2, imat, cmat, cmat2, method))
+}
+
+newtraph_cph_iter <- function(x, y, weights, beta, XB, R, u, a, a2, imat, cmat, cmat2, method) {
+    .Call(`_orsf2_newtraph_cph_iter`, x, y, weights, beta, XB, R, u, a, a2, imat, cmat, cmat2, method)
+}
+
+newtraph_cph <- function(x, y, weights, x_transforms, method, eps, iter_max, rescale) {
+    .Call(`_orsf2_newtraph_cph`, x, y, weights, x_transforms, method, eps, iter_max, rescale)
 }
 
 make_node_name <- function(part) {
