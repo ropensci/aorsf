@@ -29,8 +29,7 @@ void x_scale(arma::mat& x,
 
 // [[Rcpp::export]]
 arma::mat x_scale_cph(arma::mat& x_mat,
-                      arma::uvec& weights,
-                      LogicalVector& do_scale){
+                      arma::uvec& weights){
 
   // set aside memory for outputs
   // first column holds the mean values
@@ -43,29 +42,20 @@ arma::mat x_scale_cph(arma::mat& x_mat,
 
   for(arma::uword i = 0; i < x_mat.n_cols; i++) {
 
-    if (do_scale(i) == false) {
+    arma::vec x_i = x_mat.unsafe_col(i);
 
-      scales(i) = 1.0;
-      means(i) = 0.0;
+    means(i) = arma::sum( weights % x_i ) / weights_sum;
 
-    } else {
+    x_i -= means(i);
 
-      arma::vec x_i = x_mat.unsafe_col(i);
+    scales(i) = arma::sum(weights % arma::abs(x_i));
 
-      means(i) = arma::sum( weights % x_i ) / weights_sum;
+    if(scales(i) > 0)
+      scales(i) = weights_sum / scales(i);
+    else
+      scales(i) = 1.0; // rare case of constant covariate;
 
-      x_i -= means(i);
-
-      scales(i) = arma::sum(weights % arma::abs(x_i));
-
-      if(scales(i) > 0)
-        scales(i) = weights_sum / scales(i);
-      else
-        scales(i) = 1.0; // rare case of constant covariate;
-
-      x_i *= scales(i);
-
-    }
+    x_i *= scales(i);
 
   }
 
@@ -460,9 +450,10 @@ void find_cutpoints(arma::vec& cp,
   } else { // if there are k > n_cutpoint unique values
     // assume this is a continuous linear combination vector
 
-    if(lc_size > 100){
+    if(lc_size > leaf_min_obs * 10){
 
-      arma::uvec rows_sample = arma::linspace<arma::uvec>(0, lc_size-1, 100);
+      arma::uvec rows_sample = arma::linspace<arma::uvec>(0, lc_size-1,
+                                                          leaf_min_obs * 10);
 
       find_cutpoints_ctns(cp,
                           lc(rows_sample),
@@ -1095,20 +1086,12 @@ double newtraph_cph_iter (const arma::mat& x,
                           arma::mat& cmat2,
                           const arma::uword& method){
 
-  double  wtave;
-  double  temp1, temp2;
-  double  person_time;
+  // know that if you change these to uword it could break the routine
+  double wtave, temp, person_time, x_beta, risk, denom2, deadwt, ndead;
+  double denom=0, loglik=0;
 
-  arma::uword deadwt;
-
-  arma::uword i, j, k, ndead;
-
-  arma::uword nrisk = 0;
-
-  arma::uword person = x.n_rows - 1;
-  arma::uword nvar = x.n_cols;
-
-  double x_beta, risk, denom=0, loglik=0, denom2;
+  arma::uword i, j, k;
+  arma::uword nrisk = 0, person = x.n_rows - 1, nvar = x.n_cols;
 
   u.fill(0);
   a.fill(0);
@@ -1122,8 +1105,8 @@ double newtraph_cph_iter (const arma::mat& x,
 
   bool break_loop = false;
 
-  XB = x * beta;
-  R = arma::exp(XB) % weights;
+  XB.subvec(0, person) = x * beta;
+  R.subvec(0, person) = arma::exp(XB.subvec(0, person)) % weights;
 
   arma::rowvec x_person(x.n_cols);
   arma::uword weights_person;
@@ -1141,7 +1124,7 @@ double newtraph_cph_iter (const arma::mat& x,
     // Rcout << "; u: "         << u.t();
     // Rcout << std::endl;
 
-    person_time = y(person, 0); // time of event for current person
+    person_time = y.at(person, 0); // time of event for current person
     ndead  = 0 ; // number of deaths at this time point
     deadwt = 0 ; // sum of weights for the deaths
     denom2 = 0 ; // sum of weighted risks for the deaths
@@ -1154,13 +1137,13 @@ double newtraph_cph_iter (const arma::mat& x,
       //x_beta = arma::dot(beta, x.row(person));
       //risk = exp(x_beta) * weights(person);
 
-      x_beta = XB(person);
-      risk = R(person);
+      x_beta = XB.at(person);
+      risk = R.at(person);
 
       x_person = x.row(person);
-      weights_person = weights[person];
+      weights_person = weights.at(person);
 
-      if (y(person, 1) == 0) {
+      if (y.at(person, 1) == 0) {
 
         denom += risk;
 
@@ -1168,12 +1151,12 @@ double newtraph_cph_iter (const arma::mat& x,
 
         for (i=0; i<nvar; i++) {
 
-          temp1 = risk * x_person[i];
+          temp = risk * x_person[i];
 
-          a[i] += temp1;
+          a[i] += temp;
 
           for (j = 0; j <= i; j++){
-            cmat(j, i) += temp1 * x_person[j];
+            cmat.at(j, i) += temp * x_person[j];
           }
 
         }
@@ -1192,7 +1175,7 @@ double newtraph_cph_iter (const arma::mat& x,
           a2[i] += risk * x_person[i];
 
           for (j=0; j<=i; j++){
-            cmat2(j, i) += risk * x_person[i] * x_person[j];
+            cmat2.at(j, i) += risk * x_person[i] * x_person[j];
           }
 
         }
@@ -1225,12 +1208,12 @@ double newtraph_cph_iter (const arma::mat& x,
         for (i=0; i<nvar; i++) {
 
           a[i]  += a2[i];
-          temp2  = a[i] / denom;  // mean
-          u[i]  -=  deadwt * temp2;
+          temp  = a[i] / denom;  // mean
+          u[i]  -=  deadwt * temp;
 
           for (j=0; j<=i; j++) {
-            cmat(j, i) += cmat2(j, i);
-            imat(j, i) += deadwt * (cmat(j, i) - temp2 * a[j]) / denom;
+            cmat.at(j, i) += cmat2.at(j, i);
+            imat.at(j, i) += deadwt * (cmat.at(j, i) - temp * a[j]) / denom;
           }
 
         }
@@ -1253,12 +1236,12 @@ double newtraph_cph_iter (const arma::mat& x,
           for (i=0; i<nvar; i++) {
 
             a[i] += a2[i] / ndead;
-            temp2 = a[i]  / denom;
-            u[i] -= wtave * temp2;
+            temp = a[i]  / denom;
+            u[i] -= wtave * temp;
 
             for (j=0; j<=i; j++) {
-              cmat(j, i) += cmat2(j, i) / ndead;
-              imat(j, i) += wtave * (cmat(j, i) - temp2 * a[j]) / denom;
+              cmat.at(j, i) += cmat2.at(j, i) / ndead;
+              imat.at(j, i) += wtave * (cmat.at(j, i) - temp * a[j]) / denom;
             }
 
           }
@@ -1269,14 +1252,6 @@ double newtraph_cph_iter (const arma::mat& x,
 
       a2.fill(0);
       cmat2.fill(0);
-
-      // for (i=0; i<nvar; i++) {
-      //
-      //   a2[i]=0;
-      //
-      //   for (j=0; j<nvar; j++) cmat2(j, i)=0;
-      //
-      // }
 
     }
 
@@ -1291,14 +1266,14 @@ double newtraph_cph_iter (const arma::mat& x,
 }
 
 // [[Rcpp::export]]
-List newtraph_cph(const arma::mat& x,
-                  const arma::mat& y,
-                  const arma::uvec& weights,
-                  const arma::mat& x_transforms,
-                  const arma::uword method,
-                  const double& eps,
-                  const arma::uword iter_max,
-                  const bool& rescale){
+arma::mat newtraph_cph(const arma::mat& x,
+                       const arma::mat& y,
+                       const arma::uvec& weights,
+                       const arma::mat& x_transforms,
+                       const arma::uword method,
+                       const double& eps,
+                       const arma::uword iter_max,
+                       const bool rescale){
 
   arma::uword i, j, iter, nvar = x.n_cols;
   double ll_new, ll_best, halving = 0;
@@ -1327,12 +1302,7 @@ List newtraph_cph(const arma::mat& x,
   cholesky_solve(imat, u);
   newbeta = beta + u;
 
-  if(iter_max <= 1 || std::isinf(ll_best)){
-
-    // beta needs to be set before its rescaled
-    for(i = 0; i < nvar; i++) beta[i] = newbeta[i];
-
-  } else {
+  if(iter_max > 1 && !std::isinf(ll_best)){
 
     for(iter = 1; iter < iter_max; iter++){
 
@@ -1390,14 +1360,14 @@ List newtraph_cph(const arma::mat& x,
 
     for (i=0; i < nvar; i++) {
 
-      beta(i) *= x_transforms(i, 1);
-      u(i) /= x_transforms(i, 1);
-      imat(i, i) *= x_transforms(i, 1) * x_transforms(i, 1);
+      beta.at(i) *= x_transforms.at(i, 1);
+      u.at(i) /= x_transforms.at(i, 1);
+      imat.at(i, i) *= x_transforms.at(i, 1) * x_transforms.at(i, 1);
 
       for (j = 0; j < i; j++) {
 
-        imat(j, i) *= x_transforms(i, 1)*x_transforms(j, 1);
-        imat(i, j) = imat(j, i);
+        imat.at(j, i) *= x_transforms.at(i, 1) * x_transforms.at(j, 1);
+        imat.at(i, j) = imat.at(j, i);
 
       }
 
@@ -1410,18 +1380,25 @@ List newtraph_cph(const arma::mat& x,
 
     if(std::isinf(beta[i])) beta[i] = 0;
 
-    if(std::isinf(imat(i, i))) imat(i, i) = 1.0;
+    if(std::isinf(imat.at(i, i))) imat.at(i, i) = 1.0;
 
   }
 
   arma::vec se = arma::sqrt(imat.diag());
 
-  return(
-    List::create(
-      Named("beta") = beta,
-      _["se"] = se
-    )
-  );
+  arma::vec pv(nvar);
+
+  for(i = 0; i < nvar; i++){
+    pv[i] = R::pchisq(pow(beta[i]/se[i], 2), 1, false, false);
+  }
+
+  arma::mat out(nvar, 3);
+
+  out.col(0) = beta;
+  out.col(1) = se;
+  out.col(2) = pv;
+
+  return(out);
 
 }
 
@@ -1505,7 +1482,6 @@ List ostree_fit(arma::mat& x,
   arma::mat y_inbag = y.rows(rows_inbag);
   arma::mat x_inbag = x.rows(rows_inbag);
 
-
   if(verbose == true){
 
     Rcout << "N obs in bootstrap aggregate (in-bag) sample: " <<
@@ -1574,6 +1550,7 @@ List ostree_fit(arma::mat& x,
   // columns to sample
   arma::uvec cols_to_sample;
 
+  arma::mat x_transforms;
   // vectors and matrices for newton raphson
   arma::vec u(mtry);
   arma::vec a(mtry);
@@ -1581,6 +1558,8 @@ List ostree_fit(arma::mat& x,
   arma::mat imat(mtry, mtry);
   arma::mat cmat(mtry, mtry);
   arma::mat cmat2(mtry, mtry);
+  arma::mat cph_fit;
+
 
   // vectors from solving newton raphson (first iter)
   arma::vec beta, lc, lc_temp;
@@ -1744,17 +1723,35 @@ List ostree_fit(arma::mat& x,
 
       // Rcout << "u: " << u.t() << std::endl;
 
-      newtraph_cph_one_iter(x_node, y_node, weights_node,
-                            u, a, a2, imat, cmat, cmat2, 0);
+      x_transforms = x_scale_cph(x_node, weights_node);
 
-      //Rcout << "imat: " << std::endl << imat << std::endl;
-      cholesky(imat);
-      //Rcout << "imat after cholesky: " << std::endl << imat << std::endl;
-      cholesky_solve(imat, u);
+      cph_fit = newtraph_cph(x_node,
+                             y_node,
+                             weights_node,
+                             x_transforms,
+                             1,      // efron ties
+                             1e-4,   // epsilon for convergence
+                             3,      // max iterations
+                             true);  // rescale coefficients
 
-      arma::vec beta(mtry_temp);
+      // unscale the x matrix
+      for(i = 0; i < x_node.n_cols; i++){
+        x_node.col(i) /= x_transforms(i,1) + x_transforms(i,0);
+      }
 
-      for(i = 0; i < mtry_temp; i++) beta[i] = u[i];
+      beta = cph_fit.col(0);
+
+      // newtraph_cph_one_iter(x_node, y_node, weights_node,
+      //                       u, a, a2, imat, cmat, cmat2, 0);
+      //
+      // //Rcout << "imat: " << std::endl << imat << std::endl;
+      // cholesky(imat);
+      // //Rcout << "imat after cholesky: " << std::endl << imat << std::endl;
+      // cholesky_solve(imat, u);
+      //
+      // arma::vec beta(mtry_temp);
+      //
+      // for(i = 0; i < mtry_temp; i++) beta[i] = u[i];
 
       if(verbose == true){
         Rcout << "beta: " << beta.t() << std::endl;

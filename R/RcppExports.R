@@ -9,8 +9,8 @@ x_scale <- function(x, mean_sd) {
     invisible(.Call(`_orsf2_x_scale`, x, mean_sd))
 }
 
-x_scale_cph <- function(x_mat, weights, do_scale) {
-    .Call(`_orsf2_x_scale_cph`, x_mat, weights, do_scale)
+x_scale_cph <- function(x_mat, weights) {
+    .Call(`_orsf2_x_scale_cph`, x_mat, weights)
 }
 
 leaf_surv_small <- function(y, weights) {

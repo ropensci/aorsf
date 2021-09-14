@@ -34,15 +34,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // x_scale_cph
-arma::mat x_scale_cph(arma::mat& x_mat, arma::uvec& weights, LogicalVector& do_scale);
-RcppExport SEXP _orsf2_x_scale_cph(SEXP x_matSEXP, SEXP weightsSEXP, SEXP do_scaleSEXP) {
+arma::mat x_scale_cph(arma::mat& x_mat, arma::uvec& weights);
+RcppExport SEXP _orsf2_x_scale_cph(SEXP x_matSEXP, SEXP weightsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type x_mat(x_matSEXP);
     Rcpp::traits::input_parameter< arma::uvec& >::type weights(weightsSEXP);
-    Rcpp::traits::input_parameter< LogicalVector& >::type do_scale(do_scaleSEXP);
-    rcpp_result_gen = Rcpp::wrap(x_scale_cph(x_mat, weights, do_scale));
+    rcpp_result_gen = Rcpp::wrap(x_scale_cph(x_mat, weights));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -213,7 +212,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // newtraph_cph
-List newtraph_cph(const arma::mat& x, const arma::mat& y, const arma::uvec& weights, const arma::mat& x_transforms, const arma::uword method, const double& eps, const arma::uword iter_max, const bool& rescale);
+arma::mat newtraph_cph(const arma::mat& x, const arma::mat& y, const arma::uvec& weights, const arma::mat& x_transforms, const arma::uword method, const double& eps, const arma::uword iter_max, const bool rescale);
 RcppExport SEXP _orsf2_newtraph_cph(SEXP xSEXP, SEXP ySEXP, SEXP weightsSEXP, SEXP x_transformsSEXP, SEXP methodSEXP, SEXP epsSEXP, SEXP iter_maxSEXP, SEXP rescaleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -225,7 +224,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::uword >::type method(methodSEXP);
     Rcpp::traits::input_parameter< const double& >::type eps(epsSEXP);
     Rcpp::traits::input_parameter< const arma::uword >::type iter_max(iter_maxSEXP);
-    Rcpp::traits::input_parameter< const bool& >::type rescale(rescaleSEXP);
+    Rcpp::traits::input_parameter< const bool >::type rescale(rescaleSEXP);
     rcpp_result_gen = Rcpp::wrap(newtraph_cph(x, y, weights, x_transforms, method, eps, iter_max, rescale));
     return rcpp_result_gen;
 END_RCPP
@@ -320,7 +319,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_x_mean_sd", (DL_FUNC) &_orsf2_x_mean_sd, 1},
     {"_orsf2_x_scale", (DL_FUNC) &_orsf2_x_scale, 2},
-    {"_orsf2_x_scale_cph", (DL_FUNC) &_orsf2_x_scale_cph, 3},
+    {"_orsf2_x_scale_cph", (DL_FUNC) &_orsf2_x_scale_cph, 2},
     {"_orsf2_leaf_surv_small", (DL_FUNC) &_orsf2_leaf_surv_small, 2},
     {"_orsf2_leaf_surv", (DL_FUNC) &_orsf2_leaf_surv, 2},
     {"_orsf2_node_summarize", (DL_FUNC) &_orsf2_node_summarize, 4},
