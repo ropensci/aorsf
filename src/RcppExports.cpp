@@ -212,7 +212,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // newtraph_cph
-arma::mat newtraph_cph(const arma::mat& x, const arma::mat& y, const arma::uvec& weights, const arma::mat& x_transforms, const arma::uword method, const double& eps, const arma::uword iter_max, const bool rescale);
+arma::mat newtraph_cph(const arma::mat& x, const arma::mat& y, const arma::uvec& weights, const arma::mat& x_transforms, const arma::uword& method, const double& eps, const arma::uword& iter_max, const bool& rescale);
 RcppExport SEXP _orsf2_newtraph_cph(SEXP xSEXP, SEXP ySEXP, SEXP weightsSEXP, SEXP x_transformsSEXP, SEXP methodSEXP, SEXP epsSEXP, SEXP iter_maxSEXP, SEXP rescaleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -221,10 +221,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type y(ySEXP);
     Rcpp::traits::input_parameter< const arma::uvec& >::type weights(weightsSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type x_transforms(x_transformsSEXP);
-    Rcpp::traits::input_parameter< const arma::uword >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< const arma::uword& >::type method(methodSEXP);
     Rcpp::traits::input_parameter< const double& >::type eps(epsSEXP);
-    Rcpp::traits::input_parameter< const arma::uword >::type iter_max(iter_maxSEXP);
-    Rcpp::traits::input_parameter< const bool >::type rescale(rescaleSEXP);
+    Rcpp::traits::input_parameter< const arma::uword& >::type iter_max(iter_maxSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type rescale(rescaleSEXP);
     rcpp_result_gen = Rcpp::wrap(newtraph_cph(x, y, weights, x_transforms, method, eps, iter_max, rescale));
     return rcpp_result_gen;
 END_RCPP
@@ -252,8 +252,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // ostree_fit
-List ostree_fit(arma::mat& x, arma::mat& y, const arma::uword& mtry, const arma::uword& n_cps, const arma::uword& leaf_min_events, const arma::uword& leaf_min_obs);
-RcppExport SEXP _orsf2_ostree_fit(SEXP xSEXP, SEXP ySEXP, SEXP mtrySEXP, SEXP n_cpsSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP) {
+List ostree_fit(arma::mat& x, arma::mat& y, const arma::uword& mtry, const arma::uword& n_cps, const arma::uword& leaf_min_events, const arma::uword& leaf_min_obs, const arma::uword& cph_method, const double& cph_eps, const arma::uword& cph_iter_max, const double& cph_prune_thresh);
+RcppExport SEXP _orsf2_ostree_fit(SEXP xSEXP, SEXP ySEXP, SEXP mtrySEXP, SEXP n_cpsSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP, SEXP cph_methodSEXP, SEXP cph_epsSEXP, SEXP cph_iter_maxSEXP, SEXP cph_prune_threshSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -263,7 +263,11 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::uword& >::type n_cps(n_cpsSEXP);
     Rcpp::traits::input_parameter< const arma::uword& >::type leaf_min_events(leaf_min_eventsSEXP);
     Rcpp::traits::input_parameter< const arma::uword& >::type leaf_min_obs(leaf_min_obsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ostree_fit(x, y, mtry, n_cps, leaf_min_events, leaf_min_obs));
+    Rcpp::traits::input_parameter< const arma::uword& >::type cph_method(cph_methodSEXP);
+    Rcpp::traits::input_parameter< const double& >::type cph_eps(cph_epsSEXP);
+    Rcpp::traits::input_parameter< const arma::uword& >::type cph_iter_max(cph_iter_maxSEXP);
+    Rcpp::traits::input_parameter< const double& >::type cph_prune_thresh(cph_prune_threshSEXP);
+    rcpp_result_gen = Rcpp::wrap(ostree_fit(x, y, mtry, n_cps, leaf_min_events, leaf_min_obs, cph_method, cph_eps, cph_iter_max, cph_prune_thresh));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -333,7 +337,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_newtraph_cph", (DL_FUNC) &_orsf2_newtraph_cph, 8},
     {"_orsf2_make_node_name", (DL_FUNC) &_orsf2_make_node_name, 1},
     {"_orsf2_any_cps_valid", (DL_FUNC) &_orsf2_any_cps_valid, 1},
-    {"_orsf2_ostree_fit", (DL_FUNC) &_orsf2_ostree_fit, 6},
+    {"_orsf2_ostree_fit", (DL_FUNC) &_orsf2_ostree_fit, 10},
     {"_orsf2_orsf_fit", (DL_FUNC) &_orsf2_orsf_fit, 7},
     {"_orsf2_ostree_pred_leaf", (DL_FUNC) &_orsf2_ostree_pred_leaf, 5},
     {"_orsf2_ostree_pred_surv", (DL_FUNC) &_orsf2_ostree_pred_surv, 4},

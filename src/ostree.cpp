@@ -1109,8 +1109,8 @@ double newtraph_cph_iter (const arma::mat& x,
 
   bool break_loop = false;
 
-  XB.subvec(0, person) = x * beta;
-  R.subvec(0, person) = arma::exp(XB.subvec(0, person)) % weights;
+  XB(arma::span(0, person)) = x * beta;
+  R(arma::span(0, person)) = arma::exp(XB.subvec(0, person)) % weights;
 
   arma::rowvec x_person(x.n_cols);
   arma::uword weights_person;
@@ -1274,10 +1274,10 @@ arma::mat newtraph_cph(const arma::mat& x,
                        const arma::mat& y,
                        const arma::uvec& weights,
                        const arma::mat& x_transforms,
-                       const arma::uword method,
+                       const arma::uword& method,
                        const double& eps,
-                       const arma::uword iter_max,
-                       const bool rescale){
+                       const arma::uword& iter_max,
+                       const bool& rescale){
 
   arma::uword i, j, iter, nvar = x.n_cols;
   double ll_new, ll_best, halving = 0;
@@ -1406,7 +1406,6 @@ arma::mat newtraph_cph(const arma::mat& x,
 
 }
 
-
 // [[Rcpp::export]]
 String make_node_name(const arma::uword& part){
 
@@ -1434,7 +1433,11 @@ List ostree_fit(arma::mat& x,
                 const arma::uword& mtry = 4,
                 const arma::uword& n_cps = 5,
                 const arma::uword& leaf_min_events = 5,
-                const arma::uword& leaf_min_obs = 10){
+                const arma::uword& leaf_min_obs = 10,
+                const arma::uword& cph_method = 1,
+                const double& cph_eps = 1e-2,
+                const arma::uword& cph_iter_max = 5,
+                const double& cph_prune_thresh = 0.15){
 
   int n_obs = x.n_rows;
   int n_col = x.n_cols;
@@ -1553,14 +1556,9 @@ List ostree_fit(arma::mat& x,
   // columns to sample
   arma::uvec cols_to_sample;
 
+  // scaling parameters to make x_node easy for newtraph_cph_fit
   arma::mat x_transforms;
-  // vectors and matrices for newton raphson
-  arma::vec u(mtry);
-  arma::vec a(mtry);
-  arma::vec a2(mtry);
-  arma::mat imat(mtry, mtry);
-  arma::mat cmat(mtry, mtry);
-  arma::mat cmat2(mtry, mtry);
+  // betas, standard errors, and p-values from newtraph_cph_fit
   arma::mat cph_fit;
 
 
@@ -1607,12 +1605,6 @@ List ostree_fit(arma::mat& x,
 
       mtry_temp = mtry;
 
-      u.fill(0);
-      a.fill(0);
-      a2.fill(0);
-      imat.fill(0);
-      cmat.fill(0);
-      cmat2.fill(0);
       cols_to_sample_01.fill(0);
 
       if(nodes_to_grow[0] == 0){
@@ -1742,10 +1734,10 @@ List ostree_fit(arma::mat& x,
                              y_node,
                              weights_node,
                              x_transforms,
-                             1,      // efron ties
-                             1e-4,   // epsilon for convergence
-                             3,      // max iterations
-                             true);  // rescale coefficients
+                             cph_method,    // ties
+                             cph_eps,       // epsilon for convergence
+                             cph_iter_max,  // max iterations
+                             true);         // rescale coefficients
 
 
 
@@ -1760,7 +1752,20 @@ List ostree_fit(arma::mat& x,
         Rcout << x_node.head_rows(10) << std::endl;
       }
 
-      beta = cph_fit.col(0);
+      if(verbose){
+        Rcout << "beta before prune: " << cph_fit.col(0).t()  << std::endl;
+        Rcout << "pvalues for prune: " << cph_fit.col(2).t()  << std::endl;
+      }
+
+      for(i = 0; i < cph_fit.n_rows; i++){
+        if(cph_fit.at(i, 2) > cph_prune_thresh){
+          cph_fit.at(i, 0) = 0.0;
+        }
+      }
+
+      if(verbose){
+        Rcout << "beta after prune: " << cph_fit.col(0).t() << std::endl;
+      }
 
       // newtraph_cph_one_iter(x_node, y_node, weights_node,
       //                       u, a, a2, imat, cmat, cmat2, 0);
@@ -1774,11 +1779,7 @@ List ostree_fit(arma::mat& x,
       //
       // for(i = 0; i < mtry_temp; i++) beta[i] = u[i];
 
-      if(verbose == true){
-        Rcout << "beta: " << beta.t() << std::endl;
-      }
-
-      lc = x_node * beta;
+      lc = x_node * cph_fit.col(0);
 
       find_cutpoints(cp, lc, y_node, weights_node,
                      leaf_min_obs, leaf_min_events);
@@ -1872,7 +1873,7 @@ List ostree_fit(arma::mat& x,
         }
 
         for(i = 0; i < mtry_temp; i++){
-          betas(i, *node) = beta(i);
+          betas(i, *node) = cph_fit.at(i, 0);
           col_indices(i, *node) = cols_node(i);
         }
 
@@ -1980,8 +1981,6 @@ List ostree_fit(arma::mat& x,
 }
 
 
-
-
 // [[Rcpp::export]]
 List orsf_fit(arma::mat& x,
               arma::mat& y,
@@ -2005,6 +2004,7 @@ List orsf_fit(arma::mat& x,
   return(forest);
 
 }
+
 
 // [[Rcpp::export]]
 arma::uvec ostree_pred_leaf(const arma::mat& x_new,
@@ -2105,7 +2105,7 @@ arma::mat ostree_pred_surv(const arma::mat&  x_new,
     // (remember to right a check for this in R API)
     for(t = 0; t < times.size(); t++){
 
-      if(times(t) < leaf_surv(leaf_surv.n_rows - 1, 1)){
+      if(times(t) < leaf_surv(leaf_surv.n_rows - 1, 0)){
 
         for(; i < leaf_surv.n_rows; i++){
           if (leaf_surv(i, 0) > times(t)){
@@ -2123,16 +2123,8 @@ arma::mat ostree_pred_surv(const arma::mat&  x_new,
       } else {
 
         // go here if prediction horizon > max time in current leaf.
-        double surv_slope =
-          (1 - leaf_surv(leaf_surv.n_rows - 1, 1)) /
-            (0 - leaf_surv(leaf_surv.n_rows - 1, 0));
+        surv_estimate = leaf_surv(leaf_surv.n_rows - 1, 1);
 
-        double time_diff = times(t) - leaf_surv(leaf_surv.n_rows - 1, 0);
-
-        surv_estimate =
-          leaf_surv(leaf_surv.n_rows - 1, 1) + surv_slope * time_diff;
-
-        if(surv_estimate < 0) surv_estimate = 0;
 
       }
 

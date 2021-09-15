@@ -73,8 +73,8 @@ any_cps_valid <- function(x) {
     .Call(`_orsf2_any_cps_valid`, x)
 }
 
-ostree_fit <- function(x, y, mtry = 4L, n_cps = 5L, leaf_min_events = 5L, leaf_min_obs = 10L) {
-    .Call(`_orsf2_ostree_fit`, x, y, mtry, n_cps, leaf_min_events, leaf_min_obs)
+ostree_fit <- function(x, y, mtry = 4L, n_cps = 5L, leaf_min_events = 5L, leaf_min_obs = 10L, cph_method = 1L, cph_eps = 1e-2, cph_iter_max = 5L, cph_prune_thresh = 0.15) {
+    .Call(`_orsf2_ostree_fit`, x, y, mtry, n_cps, leaf_min_events, leaf_min_obs, cph_method, cph_eps, cph_iter_max, cph_prune_thresh)
 }
 
 orsf_fit <- function(x, y, ntree, mtry = 4L, n_cps = 5L, leaf_min_events = 5L, leaf_min_obs = 10L) {
