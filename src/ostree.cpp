@@ -6,6 +6,8 @@
 
 using namespace Rcpp;
 
+const bool verbose = false;
+
 // [[Rcpp::export]]
 arma::mat x_mean_sd(const arma::mat& x){
 
@@ -334,8 +336,10 @@ void find_cutpoints_ctns(arma::vec& cp,
 
   if(cp_max > cp_min){
 
-    Rcout << "cp_max: " << cp_max << std::endl;
-    Rcout << "cp_min: " << cp_min << std::endl;
+    if(verbose == true){
+      Rcout << "cp_max: " << cp_max << std::endl;
+      Rcout << "cp_min: " << cp_min << std::endl;
+    }
 
     arma::vec cps_runif = arma::randu<arma::vec>(cp.size());
 
@@ -1430,8 +1434,7 @@ List ostree_fit(arma::mat& x,
                 const arma::uword& mtry = 4,
                 const arma::uword& n_cps = 5,
                 const arma::uword& leaf_min_events = 5,
-                const arma::uword& leaf_min_obs = 10,
-                const bool& verbose = false){
+                const arma::uword& leaf_min_obs = 10){
 
   int n_obs = x.n_rows;
   int n_col = x.n_cols;
@@ -1723,7 +1726,17 @@ List ostree_fit(arma::mat& x,
 
       // Rcout << "u: " << u.t() << std::endl;
 
+      if(verbose){
+        Rcout << "x unscaled: " << std::endl;
+        Rcout << x_node.head_rows(10) << std::endl;
+      }
+
       x_transforms = x_scale_cph(x_node, weights_node);
+
+      if(verbose){
+        Rcout << "x scaled: " << std::endl;
+        Rcout << x_node.head_rows(10) << std::endl;
+      }
 
       cph_fit = newtraph_cph(x_node,
                              y_node,
@@ -1734,9 +1747,17 @@ List ostree_fit(arma::mat& x,
                              3,      // max iterations
                              true);  // rescale coefficients
 
+
+
       // unscale the x matrix
-      for(i = 0; i < x_node.n_cols; i++){
-        x_node.col(i) /= x_transforms(i,1) + x_transforms(i,0);
+      for(i = 0; i < x_transforms.n_rows; i++){
+        x_node.col(i) /= x_transforms(i,1);
+        x_node.col(i) += x_transforms(i,0);
+      }
+
+      if(verbose){
+        Rcout << "x unscaled again: " << std::endl;
+        Rcout << x_node.head_rows(10) << std::endl;
       }
 
       beta = cph_fit.col(0);
@@ -1968,8 +1989,7 @@ List orsf_fit(arma::mat& x,
               const arma::uword& mtry = 4,
               const arma::uword& n_cps = 5,
               const arma::uword& leaf_min_events = 5,
-              const arma::uword& leaf_min_obs = 10,
-              const bool& verbose = false){
+              const arma::uword& leaf_min_obs = 10){
 
   List forest(ntree);
 
@@ -1979,8 +1999,7 @@ List orsf_fit(arma::mat& x,
                               mtry,
                               n_cps,
                               leaf_min_events,
-                              leaf_min_obs,
-                              verbose);
+                              leaf_min_obs);
   }
 
   return(forest);
@@ -2067,7 +2086,7 @@ arma::mat ostree_pred_surv(const arma::mat&  x_new,
     person_ref_index = leaf_sort(person);
     person_leaf = leaf_preds(person_ref_index);
 
-    Rcout << "person: " << person << std::endl;
+    //Rcout << "person: " << person << std::endl;
     // Rcout << "person_ref_index: " << person_ref_index << std::endl;
     // Rcout << "person_leaf: " << person_leaf << std::endl;
 
