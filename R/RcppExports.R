@@ -105,11 +105,3 @@ ostree_predict_ <- function(betas, col_indices, cut_points, children_left, leaf_
     .Call(`_orsf2_ostree_predict_`, betas, col_indices, cut_points, children_left, leaf_nodes, x_new, x_transforms, times, risk)
 }
 
-which <- function(x) {
-    .Call(`_orsf2_which`, x)
-}
-
-ostree_fit_cpp <- function(x_, y_, cox_fit, mtry = 4L, n_vars_lc = 2L, n_cps = 5L, grow_min_event = 10L, grow_min_obs = 20L) {
-    .Call(`_orsf2_ostree_fit_cpp`, x_, y_, cox_fit, mtry, n_vars_lc, n_cps, grow_min_event, grow_min_obs)
-}
-

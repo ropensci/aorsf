@@ -385,35 +385,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// which
-IntegerVector which(LogicalVector x);
-RcppExport SEXP _orsf2_which(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< LogicalVector >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(which(x));
-    return rcpp_result_gen;
-END_RCPP
-}
-// ostree_fit_cpp
-List ostree_fit_cpp(NumericMatrix x_, NumericMatrix y_, Function cox_fit, int mtry, int n_vars_lc, int n_cps, int grow_min_event, int grow_min_obs);
-RcppExport SEXP _orsf2_ostree_fit_cpp(SEXP x_SEXP, SEXP y_SEXP, SEXP cox_fitSEXP, SEXP mtrySEXP, SEXP n_vars_lcSEXP, SEXP n_cpsSEXP, SEXP grow_min_eventSEXP, SEXP grow_min_obsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type x_(x_SEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type y_(y_SEXP);
-    Rcpp::traits::input_parameter< Function >::type cox_fit(cox_fitSEXP);
-    Rcpp::traits::input_parameter< int >::type mtry(mtrySEXP);
-    Rcpp::traits::input_parameter< int >::type n_vars_lc(n_vars_lcSEXP);
-    Rcpp::traits::input_parameter< int >::type n_cps(n_cpsSEXP);
-    Rcpp::traits::input_parameter< int >::type grow_min_event(grow_min_eventSEXP);
-    Rcpp::traits::input_parameter< int >::type grow_min_obs(grow_min_obsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ostree_fit_cpp(x_, y_, cox_fit, mtry, n_vars_lc, n_cps, grow_min_event, grow_min_obs));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_x_scale_wtd", (DL_FUNC) &_orsf2_x_scale_wtd, 2},
@@ -442,8 +413,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_ostree_fit_dev", (DL_FUNC) &_orsf2_ostree_fit_dev, 11},
     {"_orsf2_orsf_fit_dev", (DL_FUNC) &_orsf2_orsf_fit_dev, 7},
     {"_orsf2_ostree_predict_", (DL_FUNC) &_orsf2_ostree_predict_, 9},
-    {"_orsf2_which", (DL_FUNC) &_orsf2_which, 1},
-    {"_orsf2_ostree_fit_cpp", (DL_FUNC) &_orsf2_ostree_fit_cpp, 8},
     {NULL, NULL, 0}
 };
 
