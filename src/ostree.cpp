@@ -8,29 +8,12 @@ using namespace Rcpp;
 
 const bool verbose = false;
 
-// [[Rcpp::export]]
-arma::mat x_mean_sd(const arma::mat& x){
-
-  // 0 indicates statistic is computed by column
-  arma::mat x_mean = arma::mean(x, 0);
-  arma::mat x_sd = arma::stddev(x, 0, 0);
-  return(arma::join_vert(x_mean, x_sd));
-
-}
+// ----------------------------------------------------------------------------
+// --------------------------- shared functions -------------------------------
+// ----------------------------------------------------------------------------
 
 // [[Rcpp::export]]
-void x_scale(arma::mat& x,
-             arma::mat& mean_sd){
-
-  for(arma::uword i = 0; i < x.n_cols; i++){
-    x.unsafe_col(i) = (x.unsafe_col(i) - mean_sd(0,i)) / mean_sd(1,i);
-  }
-
-}
-
-
-// [[Rcpp::export]]
-arma::mat x_scale_cph(arma::mat& x_mat,
+arma::mat x_scale_wtd(arma::mat& x_mat,
                       arma::uvec& weights){
 
   // set aside memory for outputs
@@ -46,23 +29,77 @@ arma::mat x_scale_cph(arma::mat& x_mat,
 
     arma::vec x_i = x_mat.unsafe_col(i);
 
-    means(i) = arma::sum( weights % x_i ) / weights_sum;
+    means.at(i) = arma::sum( weights % x_i ) / weights_sum;
 
-    x_i -= means(i);
+    x_i -= means.at(i);
 
-    scales(i) = arma::sum(weights % arma::abs(x_i));
+    scales.at(i) = arma::sum(weights % arma::abs(x_i));
 
     if(scales(i) > 0)
-      scales(i) = weights_sum / scales(i);
+      scales.at(i) = weights_sum / scales.at(i);
     else
-      scales(i) = 1.0; // rare case of constant covariate;
+      scales.at(i) = 1.0; // rare case of constant covariate;
 
-    x_i *= scales(i);
+    x_i *= scales.at(i);
 
   }
 
   return(out);
 
+}
+
+// [[Rcpp::export]]
+arma::mat x_scale_unwtd(arma::mat& x_mat){
+
+  // set aside memory for outputs
+  // first column holds the mean values
+  // second column holds the scale values
+
+  arma::mat out(x_mat.n_cols, 2);
+  arma::vec means = out.unsafe_col(0);   // Reference to column 1
+  arma::vec scales = out.unsafe_col(1);  // Reference to column 2
+
+  for(arma::uword i = 0; i < x_mat.n_cols; i++) {
+
+    arma::vec x_i = x_mat.unsafe_col(i);
+
+    means.at(i) = arma::mean( x_i );
+
+    x_i -= means.at(i);
+
+    scales.at(i) = arma::sum(arma::abs(x_i));
+
+    if(scales.at(i) > 0)
+      scales.at(i) = x_mat.n_rows / scales.at(i);
+    else
+      scales.at(i) = 1.0; // rare case of constant covariate;
+
+    x_i *= scales.at(i);
+
+  }
+
+  return(out);
+
+}
+
+// [[Rcpp::export]]
+void x_new_scale_cph(arma::mat& x_new,
+                     arma::mat& x_transforms){
+  // scale new data for compatibility with scaled cutpoints in orsf
+  for(arma::uword i = 0; i < x_transforms.n_rows; i++){
+    x_new.col(i) -= x_transforms.at(i, 0);
+    x_new.col(i) *= x_transforms.at(i, 1);
+  }
+}
+
+// [[Rcpp::export]]
+void x_new_unscale_cph(arma::mat& x_new,
+                       arma::mat& x_transforms){
+  // scale new data for compatibility with scaled cutpoints in orsf
+  for(arma::uword i = 0; i < x_transforms.n_rows; i++){
+    x_new.col(i) /= x_transforms.at(i, 1);
+    x_new.col(i) += x_transforms.at(i, 0);
+  }
 }
 
 // [[Rcpp::export]]
@@ -278,8 +315,6 @@ arma::mat node_summarize(arma::mat& y,
 
 }
 
-
-
 // [[Rcpp::export]]
 void find_cutpoints_ctns(arma::vec& cp,
                          const arma::vec& lc,
@@ -371,6 +406,11 @@ void find_cutpoints(arma::vec& cp,
 
   for(i = 0; i < cp_size; i++){
     cp[i] = R_PosInf;
+  }
+
+  if(verbose){
+    Rcout << "head of lc: " << lc.head(5).t();
+    Rcout << "tail of lc: " << lc.tail(5).t();
   }
 
   if(lc_size > 50){
@@ -502,7 +542,7 @@ double log_rank_test_wtd(arma::mat& y,
     if(y(i, 1) == 0){
 
       upr++;
-      count += weights(i);
+      count += weights.at(i);
 
     } else {
 
@@ -516,8 +556,8 @@ double log_rank_test_wtd(arma::mat& y,
   double d1 = 0;
 
   for(i = lwr; i <= upr; i++){
-    d += y(i, 1) * weights(i);
-    d1 += y(i, 1) * weights(i) * g(i);
+    d += y.at(i, 1) * weights.at(i);
+    d1 += y.at(i, 1) * weights.at(i) * g.at(i);
   }
 
   double e1 = Y1 * d / Y;
@@ -530,7 +570,7 @@ double log_rank_test_wtd(arma::mat& y,
   Y -= count;
 
   for(i = lwr; i <= upr; i++){
-    Y1 -= g(i) * weights(i);
+    Y1 -= g.at(i) * weights.at(i);
   }
 
   lwr=upr+1;
@@ -546,24 +586,24 @@ double log_rank_test_wtd(arma::mat& y,
     // Rcout << std::endl;
 
     upr = lwr;
-    count = weights(upr);
+    count = weights.at(upr);
 
 
-    while( (y(upr, 1) == 0) & (upr < n-1) ){
+    while( (y.at(upr, 1) == 0) & (upr < n-1) ){
       upr++;
-      count += weights(upr);
+      count += weights.at(upr);
     }
 
     if(upr==n-1){
-      if( y(upr, 1) == 0 ){
+      if( y.at(upr, 1) == 0 ){
         break;
       } else {
 
         d = 0; d1 = 0;
 
         for(i = lwr; i <= upr; i++){
-          d += y(i, 1) * weights(i);
-          d1 += y(i, 1) * weights(i) * g(i);
+          d += y.at(i, 1) * weights.at(i);
+          d1 += y.at(i, 1) * weights.at(i) * g.at(i);
         }
 
         e1 += (Y1 * d/Y);
@@ -574,7 +614,7 @@ double log_rank_test_wtd(arma::mat& y,
         V += (Y-Y1) * Y1 * d * (Y-d) / (pow(Y, 2) * (Y-1));
         Y -= count;
 
-        for(i = lwr; i <= upr; i++) Y1 -= g(i) * weights(i);
+        for(i = lwr; i <= upr; i++) Y1 -= g.at(i) * weights.at(i);
 
         break;
       }
@@ -583,8 +623,8 @@ double log_rank_test_wtd(arma::mat& y,
     d = 0; d1 = 0;
 
     for(i = lwr; i <= upr; i++){
-      d += y(i, 1) * weights(i);
-      d1 += y(i, 1) * weights(i) * g(i);
+      d += y.at(i, 1) * weights.at(i);
+      d1 += y.at(i, 1) * weights.at(i) * g.at(i);
     }
 
     e1 += (Y1*d / Y);
@@ -595,7 +635,7 @@ double log_rank_test_wtd(arma::mat& y,
     V += (Y-Y1) * Y1 * d * (Y-d) / (pow(Y,2) * (Y-1));
     Y -= count;
 
-    for(i = lwr; i <= upr; i++) Y1 -= g(i) * weights(i);
+    for(i = lwr; i <= upr; i++) Y1 -= g.at(i) * weights.at(i);
 
     lwr=upr+1;
 
@@ -1299,12 +1339,16 @@ arma::mat newtraph_cph(const arma::mat& x,
   ll_best = newtraph_cph_iter(x, y, weights, beta, XB, R, u, a, a2,
                               imat, cmat, cmat2, method);
 
-  //Rcout << ll_best << std::endl;
+
+  if(verbose) Rcout << std::endl <<
+    "initial log-likelihood: " << ll_best << std::endl;
 
   // update beta
   cholesky(imat);
   cholesky_solve(imat, u);
   newbeta = beta + u;
+
+  if(verbose) Rcout << "initial beta: " << newbeta.t() << std::endl;
 
   if(iter_max > 1 && !std::isinf(ll_best)){
 
@@ -1313,6 +1357,13 @@ arma::mat newtraph_cph(const arma::mat& x,
       // do the next iteration
       ll_new = newtraph_cph_iter(x, y, weights, newbeta, XB, R, u, a, a2,
                                  imat, cmat, cmat2, method);
+
+      if(verbose)
+        Rcout << "iter " << iter << " log-likelihood: " << ll_new << std::endl;
+
+      if(std::isinf(ll_new)){
+        break;
+      }
 
       cholesky(imat);
 
@@ -1427,7 +1478,169 @@ bool any_cps_valid(arma::vec& x){
 
 }
 
-// comment here to see if change sticks in brnach
+// [[Rcpp::export]]
+arma::uvec ostree_pred_leaf(const arma::mat& x_new,
+                            const arma::mat& betas,
+                            const arma::umat& col_indices,
+                            const arma::vec& cut_points,
+                            const arma::vec& children_left){
+
+  // allocate memory for output
+  arma::uvec out(x_new.n_rows);
+  arma::uword i, j, k;
+  arma::uword n_nodes = betas.n_cols;
+  arma::uvec obs_in_node;
+
+  arma::vec lc;
+
+  for(i = 0; i < n_nodes; i++){
+
+    //Rcout << "i: " << i << std::endl;
+
+    if(children_left(i) != 0){
+
+      obs_in_node = arma::find(out == i);
+
+      if(obs_in_node.size() > 0){
+
+        lc = x_new(obs_in_node, col_indices.col(i)) * betas.col(i);
+
+        for(j = 0; j < lc.size(); j++){
+
+          k = obs_in_node(j);
+
+          if(lc(j) <= cut_points(i)) {
+
+            out(k) = children_left(i);
+
+          } else {
+
+            out(k) = children_left(i)+1;
+
+          }
+
+        }
+
+        if(verbose){
+
+          arma::uvec in_left = arma::find(out == children_left(i));
+          arma::uvec in_right = arma::find(out == children_left(i)+1);
+
+          Rcout << "N to left node: " << in_left.size() << std::endl;
+          Rcout << "N to right node: " << in_right.size() << std::endl;
+
+        }
+
+      }
+
+    }
+
+  }
+
+  return(out);
+
+}
+
+// [[Rcpp::export]]
+arma::mat ostree_pred_surv(const arma::mat&  x_new,
+                           const Rcpp::List& leaf_nodes,
+                           const arma::uvec& leaf_preds,
+                           const arma::vec&  times){
+
+  // preallocate memory for output
+  arma::mat out(x_new.n_rows, times.size());
+
+  arma::uvec leaf_sort = arma::sort_index(leaf_preds);
+
+  //Rcout << leaf_preds(leaf_sort(0)) << std::endl;
+
+  arma::uword person = 0;
+  arma::uword person_ref_index;
+  arma::uword person_leaf;
+  String person_leaf_name;
+
+  arma::uword i, t;
+
+  double surv_estimate;
+
+  do{
+
+    person_ref_index = leaf_sort(person);
+    person_leaf = leaf_preds(person_ref_index);
+
+    //Rcout << "person: " << person << std::endl;
+    // Rcout << "person_ref_index: " << person_ref_index << std::endl;
+    // Rcout << "person_leaf: " << person_leaf << std::endl;
+
+    person_leaf_name = make_node_name(person_leaf);
+
+    // got to do it this way to avoid making copy of leaf data
+    NumericMatrix leaf_surv_temp = leaf_nodes[person_leaf_name];
+    arma::mat leaf_surv(leaf_surv_temp.begin(), leaf_surv_temp.nrow(),
+                        leaf_surv_temp.ncol(), false);
+
+    // Rcout << leaf_surv << std::endl;
+
+    i = 0;
+
+    // times must be in ascending order
+    // (remember to right a check for this in R API)
+    for(t = 0; t < times.size(); t++){
+
+      if(times(t) < leaf_surv(leaf_surv.n_rows - 1, 0)){
+
+        for(; i < leaf_surv.n_rows; i++){
+          if (leaf_surv(i, 0) > times(t)){
+            if(i == 0)
+              surv_estimate = 1;
+            else
+              surv_estimate = leaf_surv(i-1, 1);
+            break;
+          } else if (leaf_surv(i, 0) == times(t)){
+            surv_estimate = leaf_surv(i, 1);
+            break;
+          }
+        }
+
+      } else {
+
+        // go here if prediction horizon > max time in current leaf.
+        surv_estimate = leaf_surv(leaf_surv.n_rows - 1, 1);
+
+
+      }
+
+      out(person_ref_index, t) = surv_estimate;
+
+    }
+
+    person++;
+
+    if(person < x_new.n_rows){
+
+      while(person_leaf == leaf_preds(leaf_sort(person))){
+
+        for(i = 0; i < out.n_cols; i++){
+          out(leaf_sort(person), i) = out(person_ref_index, i);
+        }
+
+        person++;
+
+        if (person == x_new.n_rows) break;
+
+      }
+
+    }
+
+  } while (person < x_new.n_rows);
+
+  return(out);
+
+}
+
+// ----------------------------------------------------------------------------
+// --------------------------- legacy functions -------------------------------
+// ----------------------------------------------------------------------------
 
 // [[Rcpp::export]]
 List ostree_fit(arma::mat& x,
@@ -1725,7 +1938,7 @@ List ostree_fit(arma::mat& x,
         Rcout << x_node.head_rows(10) << std::endl;
       }
 
-      x_transforms = x_scale_cph(x_node, weights_node);
+      x_transforms = x_scale_wtd(x_node, weights_node);
 
       if(verbose){
         Rcout << "x scaled: " << std::endl;
@@ -1968,7 +2181,7 @@ List ostree_fit(arma::mat& x,
 
   return(
     List::create(
-      Named("leaves") = leaf_nodes,
+      Named("leaf_nodes") = leaf_nodes,
       _["betas"] = betas.cols(arma::span(0, nodes_max)),
       _["col_indices"] = col_indices.cols(arma::span(0, nodes_max)),
       _["cut_points"] = cutpoints(arma::span(0, nodes_max)),
@@ -1981,7 +2194,6 @@ List ostree_fit(arma::mat& x,
 
 
 }
-
 
 // [[Rcpp::export]]
 List orsf_fit(arma::mat& x,
@@ -2007,153 +2219,624 @@ List orsf_fit(arma::mat& x,
 
 }
 
+// ----------------------------------------------------------------------------
+// ----------------------------- dev functions --------------------------------
+// ----------------------------------------------------------------------------
 
 // [[Rcpp::export]]
-arma::uvec ostree_pred_leaf(const arma::mat& x_new,
-                            const arma::mat& betas,
-                            const arma::umat& col_indices,
-                            const arma::vec& cut_points,
-                            const arma::vec& children_left){
+List ostree_fit_dev(arma::mat& x_inbag,
+                    arma::mat& y_inbag,
+                    const arma::uvec& weights,
+                    const arma::uword& mtry = 4,
+                    const arma::uword& n_cps = 5,
+                    const arma::uword& leaf_min_events = 5,
+                    const arma::uword& leaf_min_obs = 10,
+                    const arma::uword& cph_method = 1,
+                    const double& cph_eps = 1e-2,
+                    const arma::uword& cph_iter_max = 5,
+                    const double& cph_prune_thresh = 0.15){
 
-  // allocate memory for output
-  arma::uvec out(x_new.n_rows);
-  arma::uword i, j, k;
-  arma::uword n_nodes = betas.n_cols;
-  arma::uvec obs_in_node;
 
-  arma::vec lc;
+  // ----------------------------------------
+  // ---- preallocate memory for outputs ----
+  // ----------------------------------------
 
-  for(i = 0; i < n_nodes; i++){
+  // the maximum number of nodes possible given the tree params
+  // TODO: Underestimate max nodes and add memory if needed.
+  arma::uword max_nodes = 2 * std::ceil(x_inbag.n_rows / leaf_min_events) - 1;
+  // beta coefficients for linear combinations
+  arma::mat betas(mtry, max_nodes);
+  // column indices to pair with beta coefficients
+  arma::umat col_indices(mtry, max_nodes);
+  // cutpoints for linear combination splitting
+  arma::vec cutpoints(max_nodes);
+  // child nodes to progress through the tree
+  arma::uvec children_left(max_nodes);
 
-    //Rcout << "i: " << i << std::endl;
+  // --------------------------------------------
+  // ---- initialize parameters to grow tree ----
+  // --------------------------------------------
 
-    if(children_left(i) != 0){
+  // the nodes vector keeps track of which node each observation is in.
+  // everyone starts at node 0, the root of the tree;
+  arma::uvec node_assignments( x_inbag.n_rows );
 
-      obs_in_node = arma::find(out == i);
+  // nodes_max indicates the current highest value of nodes;
+  // this determines what new nodes will be labeled as.
+  arma::uword nodes_max = 0;
 
-      if(obs_in_node.size() > 0){
+  // nodes_to_grow
+  // - indicates nodes with enough obs and events to be split
+  // - updates after every iteration
+  // - iterations end if this vector is empty.
+  arma::uvec nodes_to_grow {0};
 
-        lc = x_new(obs_in_node, col_indices.col(i)) * betas.col(i);
+  // sub-matrices containing just the rows in the current node
+  // used to count events in nodes and make probs in leaf nodes
+  arma::mat y_node, x_node;
+  // weights will also be subsetted here.
+  arma::uvec weights_node;
+  // vectors to make x_node, y_node, and weights_node
+  arma::uvec rows_node, cols_node;
 
-        for(j = 0; j < lc.size(); j++){
+  // iterators for the main loop
+  arma::uword i, j;
+  arma::uvec::iterator node, person;
 
-          k = obs_in_node(j);
+  // dealing with sampling of columns
+  arma::uword n_cols_to_sample;
+  // columns to be sampled
+  arma::uvec cols_to_sample_01(x_inbag.n_cols);
+  // if the number of cols to sample is < mtry,
+  // we will set mtry_temp = n_cols_to_sample
+  arma::uword mtry_temp;
+  // columns to sample
+  arma::uvec cols_to_sample;
 
-          if(lc(j) <= cut_points(i)) {
+  // scaling parameters to make x_node easy for newtraph_cph_fit
+  arma::mat x_transforms;
+  // betas, standard errors, and p-values from newtraph_cph_fit
+  arma::mat cph_fit;
 
-            out(k) = children_left(i);
 
-          } else {
+  // vectors from solving newton raphson (first iter)
+  arma::vec beta, lc, lc_temp;
 
-            out(k) = children_left(i)+1;
+  // vector to hold cut-points
+  arma::vec cp(n_cps);
 
-          }
+  // data to check event/sample size in each part
+  arma::mat node_summary;
 
-        }
+  // container for leaf node data
+  List leaf_nodes;
+  //each leaf node is a matrix with varying row count
+  arma::mat leaf;
 
+  // terms to create new node (nn)
+  arma::uword nn_left;
+
+  // label for the new node's name; i.e., node_1, node_2, ...
+  String node_name;
+
+  // data from nodes that were grown in current iteration
+  arma::mat y_grown;
+  arma::uvec nodes_grown;
+  arma::uvec weights_grown;
+
+  // ----------------------
+  // ---- main do loop ----
+  // ----------------------
+
+  do { // looping through nodes that need to be split
+
+    arma::uvec rows_node_combined;
+
+    for(node = nodes_to_grow.begin(); node != nodes_to_grow.end(); ++node){
+
+      if(verbose == true){
+        Rcout << std::endl <<
+          "---- Growing node " << *node << " ----" <<
+            std::endl << std::endl;
       }
 
-    }
+      mtry_temp = mtry;
 
-  }
+      cols_to_sample_01.fill(0);
 
-  return(out);
+      if(nodes_to_grow[0] == 0){
 
-}
-
-// [[Rcpp::export]]
-arma::mat ostree_pred_surv(const arma::mat&  x_new,
-                           const Rcpp::List& leaf_nodes,
-                           const arma::uvec& leaf_preds,
-                           const arma::vec&  times){
-
-  // preallocate memory for output
-  arma::mat out(x_new.n_rows, times.size());
-
-  arma::uvec leaf_sort = arma::sort_index(leaf_preds);
-
-  //Rcout << leaf_preds(leaf_sort(0)) << std::endl;
-
-  arma::uword person = 0;
-  arma::uword person_ref_index;
-  arma::uword person_leaf;
-  String person_leaf_name;
-
-  arma::uword i, t;
-
-  double surv_estimate;
-
-  do{
-
-    person_ref_index = leaf_sort(person);
-    person_leaf = leaf_preds(person_ref_index);
-
-    //Rcout << "person: " << person << std::endl;
-    // Rcout << "person_ref_index: " << person_ref_index << std::endl;
-    // Rcout << "person_leaf: " << person_leaf << std::endl;
-
-    person_leaf_name = make_node_name(person_leaf);
-
-    // got to do it this way to avoid making copy of leaf data
-    NumericMatrix leaf_surv_temp = leaf_nodes[person_leaf_name];
-    arma::mat leaf_surv(leaf_surv_temp.begin(), leaf_surv_temp.nrow(),
-                        leaf_surv_temp.ncol(), false);
-
-    // Rcout << leaf_surv << std::endl;
-
-    i = 0;
-
-    // times must be in ascending order
-    // (remember to right a check for this in R API)
-    for(t = 0; t < times.size(); t++){
-
-      if(times(t) < leaf_surv(leaf_surv.n_rows - 1, 0)){
-
-        for(; i < leaf_surv.n_rows; i++){
-          if (leaf_surv(i, 0) > times(t)){
-            if(i == 0)
-              surv_estimate = 1;
-            else
-              surv_estimate = leaf_surv(i-1, 1);
-            break;
-          } else if (leaf_surv(i, 0) == times(t)){
-            surv_estimate = leaf_surv(i, 1);
-            break;
-          }
-        }
+        rows_node = arma::linspace<arma::uvec>(0,
+                                               x_inbag.n_rows-1,
+                                               x_inbag.n_rows);
 
       } else {
 
-        // go here if prediction horizon > max time in current leaf.
-        surv_estimate = leaf_surv(leaf_surv.n_rows - 1, 1);
-
+        rows_node = arma::find(node_assignments == *node);
 
       }
 
-      out(person_ref_index, t) = surv_estimate;
+      // check for constant columns
+      // constant means constant within the rows where events occurred
 
-    }
+      // if(verbose == true){
+      //   Rcout <<
+      //     "empty cols_to_sample: " <<
+      //       cols_to_sample_01.t() <<
+      //         std::endl;
+      // }
 
-    person++;
 
-    if(person < x_new.n_rows){
 
-      while(person_leaf == leaf_preds(leaf_sort(person))){
+      for(j = 0; j < cols_to_sample_01.size(); j++){
 
-        for(i = 0; i < out.n_cols; i++){
-          out(leaf_sort(person), i) = out(person_ref_index, i);
+        double reference = R_PosInf;
+
+        for(person = rows_node.begin()+1; person != rows_node.end(); ++person){
+
+          if(y_inbag(*person, 1) == 1){
+
+            if (reference < R_PosInf){
+
+              if(x_inbag(*person, j) != reference){
+
+                cols_to_sample_01[j] = 1;
+                //Rcout << "column " << k << " is okay" << std::endl;
+                break;
+
+              }
+
+            } else {
+
+              reference = x_inbag(*person, j);
+
+            }
+
+
+          }
+
         }
 
-        person++;
+      }
 
-        if (person == x_new.n_rows) break;
+      // if(verbose == true){
+      //   Rcout <<
+      //     "full  cols_to_sample: " <<
+      //       cols_to_sample_01.t() <<
+      //         std::endl;
+      // }
+
+      n_cols_to_sample = arma::sum(cols_to_sample_01);
+
+      if(n_cols_to_sample < mtry) mtry_temp = n_cols_to_sample;
+
+      if(verbose == true && mtry_temp < mtry){
+        Rcout << "mtry_temp: " << mtry_temp << std::endl;
+      }
+
+
+      // a hack to convert mtry_temp to an int
+      int mtry_temp_int = 0;
+
+      for(i = 0; i < mtry_temp; i++) mtry_temp_int++;
+
+      //Rcout << "mtry_temp_int: " << mtry_temp_int << std::endl;
+
+      cols_to_sample = arma::find(cols_to_sample_01);
+
+      cols_node = Rcpp::RcppArmadillo::sample(cols_to_sample,
+                                              mtry_temp_int,
+                                              false);
+
+      // if(verbose == true){
+      //   Rcout << "cols sampled: " << cols_node.t() << std::endl;
+      // }
+
+
+      x_node = x_inbag(rows_node, cols_node);
+      y_node = y_inbag.rows(rows_node);
+      weights_node = weights(rows_node);
+
+      if(verbose == true){
+
+        arma::uword n_obs = arma::sum(weights_node);
+        arma::uword n_events = arma::sum(y_node.col(1) % weights_node);
+
+        Rcout << "No. of observations in node: " << n_obs << std::endl;
+        Rcout << "No. of events in node:       " << n_events << std::endl;
+
+      }
+
+      // Rcout << "x_node: " << std::endl << x_node << std::endl;
+      //
+      // Rcout << "y_node: " << std::endl << y_node << std::endl;
+
+      //Rcout << "weights: " << weights.t() << std::endl;
+
+      // Rcout << "u: " << u.t() << std::endl;
+
+      cph_fit = newtraph_cph(x_node,
+                             y_node,
+                             weights_node,
+                             x_transforms,
+                             cph_method,    // ties
+                             cph_eps,       // epsilon for convergence
+                             cph_iter_max,  // max iterations
+                             false);         // rescale coefficients
+
+      if(verbose){
+        Rcout << "beta before prune: " << cph_fit.col(0).t()  << std::endl;
+        Rcout << "pvalues for prune: " << cph_fit.col(2).t()  << std::endl;
+      }
+
+      for(i = 0; i < cph_fit.n_rows; i++){
+        if(cph_fit.at(i, 2) > cph_prune_thresh){
+          cph_fit.at(i, 0) = 0.0;
+        }
+      }
+
+      if(verbose){
+        Rcout << "beta after prune: " << cph_fit.col(0).t() << std::endl;
+      }
+
+      // newtraph_cph_one_iter(x_node, y_node, weights_node,
+      //                       u, a, a2, imat, cmat, cmat2, 0);
+      //
+      // //Rcout << "imat: " << std::endl << imat << std::endl;
+      // cholesky(imat);
+      // //Rcout << "imat after cholesky: " << std::endl << imat << std::endl;
+      // cholesky_solve(imat, u);
+      //
+      // arma::vec beta(mtry_temp);
+      //
+      // for(i = 0; i < mtry_temp; i++) beta[i] = u[i];
+
+      lc = x_node * cph_fit.col(0);
+
+      find_cutpoints(cp, lc, y_node, weights_node,
+                     leaf_min_obs, leaf_min_events);
+
+      // if there is at least one valid cut-point, we can grow
+      // two more nodes from the current node.
+
+      if(any_cps_valid(cp) == true){
+
+        rows_node_combined = arma::join_cols(rows_node_combined,
+                                             rows_node);
+
+        if(verbose == true){
+          Rcout << "cut points: " << cp.t() << std::endl;
+        }
+
+        arma::vec g(lc.size());
+
+        double lrstat_max = 0;
+        double lrstat, cp_max;
+
+        for(i = 0; i < cp.size(); i++){
+
+          g.fill(0);
+
+          if(cp[i] < R_PosInf){
+
+            for(j = 0; j < lc.size(); j++){
+              if(lc[j] > cp[i]) g[j] = 1;
+            }
+
+
+            lrstat = log_rank_test_wtd(y_node, g, weights_node);
+
+            if(verbose == true){
+              Rcout << lrstat << " with cut-point " << cp[i];
+            }
+
+
+            if(lrstat > lrstat_max){
+              lrstat_max = lrstat;
+              cp_max = cp[i];
+              if(verbose == true) Rcout << ", a new max!" << std::endl;
+            } else {
+              if(verbose == true) Rcout << std::endl;
+            }
+
+            if(verbose == true){
+              Rcout <<
+                "number of g == 0: " <<
+                  arma::sum(weights_node) - arma::dot(g, weights_node) <<
+                    "; " << arma::sum(y_node.col(1) % weights_node) -
+                    arma::sum(y_node.col(1) % weights_node % g) <<
+                      " events" << std::endl;
+              Rcout << "number of g == 1: " <<
+                arma::dot(g, weights_node) <<
+                  "; " << arma::sum(y_node.col(1) % weights_node % g) <<
+                    " events" << std::endl << std::endl;
+            }
+
+            if(verbose == true) Rcout << std::endl;
+
+          }
+
+        }
+
+        nn_left   = nodes_max + 1;
+        nodes_max = nodes_max + 2;
+
+        if(verbose == true){
+          Rcout << "new nodes: " <<
+            nn_left << " and " << nodes_max << std::endl;
+        }
+
+        i = 0;
+
+        for(person = rows_node.begin(); person != rows_node.end(); ++person){
+
+          if(lc[i] <= cp_max){
+
+            node_assignments[*person] = nn_left;
+
+          } else {
+
+            node_assignments[*person] = nodes_max;
+
+          }
+
+          i++;
+
+        }
+
+        for(i = 0; i < mtry_temp; i++){
+          betas(i, *node) = cph_fit.at(i, 0);
+          col_indices(i, *node) = cols_node(i);
+        }
+
+        children_left[*node] = nn_left;
+        cutpoints[*node] = cp_max;
+
+
+
+      } else {
+
+        // some nodes can make the loop go a longer time because they
+        // technically have enough obs and events to be split but
+        // its hard to find a cut-point that can meet minimum number
+        // of obs and events in the two nodes that would be created
+        // from the split. So we blacklist nodes that do that.
+
+        if(verbose == true){
+          Rcout << "dont grow: " << *node << std::endl;
+        }
+
+        leaf = leaf_surv_small(y_node, weights_node);
+
+        if(verbose == true){
+          Rcout << "creating a new leaf: node_" << *node << std::endl;
+        }
+
+        leaf_nodes[make_node_name(*node)] = leaf;
+
 
       }
 
     }
 
-  } while (person < x_new.n_rows);
+    y_grown       = y_inbag.rows(rows_node_combined);
+    nodes_grown   = node_assignments(rows_node_combined);
+    weights_grown = weights(rows_node_combined);
+
+    node_summary = node_summarize(y_grown,
+                                  nodes_grown,
+                                  weights_grown,
+                                  nodes_max);
+
+    if(verbose == true){
+
+      arma::uvec temp = arma::regspace<arma::uvec>(0, 1, node_summary.n_rows);
+
+      Rcout << std::endl;
+      Rcout << "events by part: " << std::endl;
+      Rcout << node_summary << std::endl;
+    }
+
+    arma::uvec nodes_to_grow_temp(node_summary.n_rows);
+
+    for(i = 0; i < node_summary.n_rows; i++){
+
+      if(node_summary(i, 0) >= 2 * leaf_min_events &&
+         node_summary(i, 1) >= 2 * leaf_min_obs){
+        // split it
+
+        // use i+1; the ith row of node_summary is the i+1 node
+        nodes_to_grow_temp(i) = i + 1;
+
+      } else if (node_summary(i, 0) > 0 &&
+        node_summary(i, 1) > 0) {
+
+        // a new leaf
+        // use i+1; nodes starts at 1 and i starts at 0
+        rows_node    = arma::find(node_assignments == i+1);
+        y_node       = y_inbag.rows(rows_node);
+        weights_node = weights(rows_node);
+        leaf         = leaf_surv_small(y_node, weights_node);
+
+        if(verbose == true){
+          Rcout << "created new leaf: node_" << i+1 << std::endl;
+        }
+
+        leaf_nodes[make_node_name(i+1)] = leaf;
+
+      }
+
+    }
+
+    nodes_to_grow = nodes_to_grow_temp(arma::find(nodes_to_grow_temp));
+
+    if(verbose == true){
+      Rcout << "nodes to grow: " << nodes_to_grow.t() << std::endl;
+    }
+
+  } while (nodes_to_grow.size() > 0);
+
+  return(
+    List::create(
+      Named("leaf_nodes") = leaf_nodes,
+      _["betas"] = betas.cols(arma::span(0, nodes_max)),
+      _["col_indices"] = col_indices.cols(arma::span(0, nodes_max)),
+      _["cut_points"] = cutpoints(arma::span(0, nodes_max)),
+      _["children_left"] = children_left(arma::span(0, nodes_max)),
+      _["mtry"] = mtry
+    )
+  );
+
+
+
+
+}
+
+
+// [[Rcpp::export]]
+List orsf_fit_dev(arma::mat& x,
+                  arma::mat& y,
+                  const int& ntree,
+                  const arma::uword& mtry = 4,
+                  const arma::uword& n_cps = 5,
+                  const arma::uword& leaf_min_events = 5,
+                  const arma::uword& leaf_min_obs = 10){
+
+  int n_obs = x.n_rows;
+  int n_col = x.n_cols;
+
+  arma::mat x_transforms = x_scale_unwtd(x);
+
+  double prob_sampled = 1.0/n_obs;
+
+  if(verbose == true){
+    Rcout << std::endl << "N obs total: " << n_obs << std::endl;
+    Rcout << "N columns total: " << n_col << std::endl << std::endl;
+  }
+
+  // ----------------------------------------------------
+  // ---- sample weights to mimic a bootstrap sample ----
+  // ----------------------------------------------------
+
+  // s is the number of times you might get selected into
+  // a bootstrap sample. Realistically this won't be >10,
+  // but it could technically be as big as n_obs...should I
+  // change it to be seq(0, n_obs)?
+  IntegerVector s = seq(0, 10);
+
+  // compute probability of being selected into the bootstrap
+  // 0 times, 1, times, ..., 9 times, or 10 times.
+  NumericVector probs = dbinom(s, n_obs, prob_sampled, false);
+
+  // the weights will be positive integers indicating number of
+  // times selected into the bootstrap sample. rows_inbag will
+  // indicate which rows have a weight value > 0.
+  arma::uvec weights, rows_inbag;
+
+  // describe
+  arma::mat y_inbag, x_inbag;
+
+  // container for decision trees
+  List forest(ntree);
+
+
+  for(int tree = 0; tree < ntree; tree++){
+
+    // sampling with replacement
+    weights = as<arma::uvec>(sample(s, n_obs, true, probs));
+
+    if(verbose == true){
+
+      Rcout << "weight vector (first 7): " << std::endl <<
+        weights.head(7).t() << std::endl;
+
+      Rcout << "weight vector (last 7): " << std::endl <<
+        weights.tail(7).t() << std::endl;
+
+    }
+
+    // vector indicating which rows are in the bootstrap sample
+    // note: obs i is in the sample if weights[i] > 0
+    rows_inbag = arma::find(weights);
+
+    // drop the zero's from weights (weights only contain in-bag data now)
+    weights = weights(rows_inbag);
+    y_inbag = y.rows(rows_inbag);
+    x_inbag = x.rows(rows_inbag);
+
+    if(verbose == true){
+
+      Rcout << "N obs in bootstrap aggregate (in-bag) sample: " <<
+        rows_inbag.size() << std::endl;
+
+      Rcout << "max times one obs sampled: " <<
+        arma::max(weights) << std::endl;
+
+      Rcout << "sum of bootstrap weights: " << arma::sum(weights) << std::endl;
+
+    }
+
+    forest[tree] = ostree_fit_dev(x_inbag,
+                                  y_inbag,
+                                  weights,
+                                  mtry,
+                                  n_cps,
+                                  leaf_min_events,
+                                  leaf_min_obs);
+  }
+
+  List out = List::create(
+    Named("forest") = forest ,
+    _["x_transforms"] = x_transforms
+  );
 
   return(out);
 
 }
+
+
+
+
+// [[Rcpp::export]]
+arma::mat ostree_predict_(const arma::mat& betas,
+                          const arma::umat& col_indices,
+                          const arma::vec& cut_points,
+                          const arma::vec& children_left,
+                          const List& leaf_nodes,
+                          arma::mat& x_new,
+                          const arma::mat& x_transforms,
+                          const arma::vec times,
+                          bool risk = true){
+
+
+  // scale the x matrix
+  for(arma::uword i = 0; i < x_transforms.n_rows; i++){
+    x_new.col(i) -= x_transforms(i, 0);
+    x_new.col(i) *= x_transforms(i, 1);
+  }
+
+  if(verbose) Rcout << "scaled x_new: " <<
+    std::endl << x_new.head_rows(10) << std::endl;
+
+  arma::uvec leaf_preds = ostree_pred_leaf(x_new,
+                                           betas,
+                                           col_indices,
+                                           cut_points,
+                                           children_left);
+
+ arma::mat out = ostree_pred_surv(x_new,
+                                  leaf_nodes,
+                                  leaf_preds,
+                                  times);
+
+ if(risk) return(1-out); else return(out);
+
+
+}
+
+
+
+
+
+
+

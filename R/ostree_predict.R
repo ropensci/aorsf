@@ -4,7 +4,7 @@
 
 #' Title
 #'
-#' @param tree
+#' @param object
 #' @param x_new
 #'
 #' @return
@@ -15,18 +15,19 @@
 #' x_new <- flchain_x[1:10, ]
 #'
 
+# TODO: throw an error if any(times > max(object$times))
 
-ostree_predict <- function(tree, x_new, times){
+ostree_predict <- function(object, x_new, x_transforms, times){
 
- leaf_nodes = ostree_pred_leaf(x_new,
-                               tree$betas,
-                               tree$col_indices,
-                               tree$cut_points,
-                               tree$children_left)
-
- 1-ostree_pred_surv(x_new, tree$leaves, leaf_nodes, times)
-
+ ostree_predict_(object$betas,
+                 object$col_indices,
+                 object$cut_points,
+                 object$children_left,
+                 object$leaf_nodes,
+                 x_new[, ], # prevent modification in place
+                 x_transforms,
+                 times)
 
 }
 
-# TODO: throw an error if any(times > max(tree$times))
+
