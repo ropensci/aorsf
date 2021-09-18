@@ -776,11 +776,11 @@ void cholesky(arma::mat& matrix){
 
   for(i = 0; i < n; i++){
 
-    if(matrix(i,i) > eps) eps = matrix(i,i);
+    if(matrix.at(i,i) > eps) eps = matrix.at(i,i);
 
     // copy upper right values to bottom left
     for(j = (i+1); j<n; j++){
-      matrix(j,i) = matrix(i,j);
+      matrix.at(j,i) = matrix.at(i,j);
     }
   }
 
@@ -791,23 +791,23 @@ void cholesky(arma::mat& matrix){
 
   for (i = 0; i < n; i++) {
 
-    pivot = matrix(i, i);
+    pivot = matrix.at(i, i);
 
     if (pivot == std::numeric_limits<double>::infinity() || pivot < eps) {
 
-      matrix(i, i) = 0;
+      matrix.at(i, i) = 0;
 
     } else {
 
       for(j = (i+1); j < n; j++){
 
-        temp = matrix(j,i) / pivot;
-        matrix(j,i) = temp;
-        matrix(j,j) -= temp*temp*pivot;
+        temp = matrix.at(j,i) / pivot;
+        matrix.at(j,i) = temp;
+        matrix.at(j,j) -= temp*temp*pivot;
 
         for(k = (j+1); k < n; k++){
 
-          matrix(k, j) -= temp * matrix(k, i);
+          matrix.at(k, j) -= temp * matrix.at(k, i);
 
         }
 
@@ -837,7 +837,7 @@ void cholesky_solve(arma::mat& matrix,
 
       // Rcout << " " << j << std::endl;
 
-      temp -= y[j] * matrix(i, j);
+      temp -= y[j] * matrix.at(i, j);
       y[i] = temp;
 
     }
@@ -852,17 +852,17 @@ void cholesky_solve(arma::mat& matrix,
     // Rcout << i << std::endl;
     ii = i-1;
 
-    if (matrix(ii, ii) == 0){
+    if (matrix.at(ii, ii) == 0){
 
       y[ii] =0;
 
     } else {
 
-      temp = y[ii] / matrix(ii, ii);
+      temp = y[ii] / matrix.at(ii, ii);
 
       for (j = ii+1; j < n; j++){
         // Rcout << " " << j << std::endl;
-        temp -= y[j] * matrix(j, ii);
+        temp -= y[j] * matrix.at(j, ii);
       }
 
       y[ii] = temp;
@@ -937,6 +937,16 @@ void cholesky_invert(arma::mat& matrix){
 }
 
 
+// these terms are defined globally; avoids re-defining them over and over;
+arma::uword i,j,k, iter, nrisk, person, weights_person, nvar;
+
+// special note: dont change these doubles to uword;
+//               it is likely to break the routine
+double wtave, temp, person_time, x_beta,
+       risk, denom2, deadwt, ndead, denom, loglik;
+
+bool break_loop;
+
 // [[Rcpp::export]]
 double newtraph_cph_iter (const arma::mat& x,
                           const arma::mat& y,
@@ -950,12 +960,13 @@ double newtraph_cph_iter (const arma::mat& x,
                           arma::mat& cmat2,
                           const arma::uword& method){
 
-  // know that if you change these to uword it could break the routine
-  double wtave, temp, person_time, x_beta, risk, denom2, deadwt, ndead;
-  double denom=0, loglik=0;
+  denom=0;
 
-  arma::uword i, j, k;
-  arma::uword nrisk = 0, person = x.n_rows - 1, nvar = x.n_cols;
+  loglik=0;
+
+  nrisk = 0;
+
+  person = x.n_rows - 1;
 
   u.fill(0);
   a.fill(0);
@@ -967,12 +978,10 @@ double newtraph_cph_iter (const arma::mat& x,
   // this loop has a strange break condition to accomodate
   // the restriction that a uvec (uword) cannot be < 0
 
-  bool break_loop = false;
+  break_loop = false;
 
   // XB(arma::span(0, person)) = x * beta;
   // R(arma::span(0, person)) = arma::exp(XB.subvec(0, person)) % weights;
-
-  arma::uword weights_person;
 
   // arma::mat tempmat = x.t() * arma::diagmat(R) * x;
   // Rcout << tempmat << std::endl;
@@ -1003,14 +1012,9 @@ double newtraph_cph_iter (const arma::mat& x,
         x_beta += beta.at(i) * x.at(person, i);
       }
 
-      //x_beta = arma::dot(beta, x.row(person));
-      risk = exp(x_beta) * weights.at(person);
-
-      //x_beta = XB.at(person);
-      //risk = R.at(person);
-
-      //x_person = x.row(person);
       weights_person = weights.at(person);
+
+      risk = exp(x_beta) * weights_person;
 
       if (y.at(person, 1) == 0) {
 
@@ -1144,7 +1148,7 @@ arma::mat newtraph_cph(const arma::mat& x,
                        const arma::uword& iter_max,
                        const bool& rescale){
 
-  arma::uword i, j, iter, nvar = x.n_cols;
+  nvar = x.n_cols;
   double ll_new, ll_best, halving = 0;
 
   arma::vec beta(nvar);
