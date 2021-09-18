@@ -947,17 +947,19 @@ double wtave, temp, person_time, x_beta,
 
 bool break_loop;
 
+arma::vec newbeta;
+arma::vec u;
+arma::vec a;
+arma::vec a2;
+arma::mat imat;
+arma::mat cmat;
+arma::mat cmat2;
+
 // [[Rcpp::export]]
 double newtraph_cph_iter (const arma::mat& x,
                           const arma::mat& y,
                           const arma::uvec& weights,
                           const arma::vec& beta,
-                          arma::vec& u,
-                          arma::vec& a,
-                          arma::vec& a2,
-                          arma::mat& imat,
-                          arma::mat& cmat,
-                          arma::mat& cmat2,
                           const arma::uword& method){
 
   denom=0;
@@ -1138,6 +1140,7 @@ double newtraph_cph_iter (const arma::mat& x,
 
 }
 
+
 // [[Rcpp::export]]
 arma::mat newtraph_cph(const arma::mat& x,
                        const arma::mat& y,
@@ -1152,18 +1155,30 @@ arma::mat newtraph_cph(const arma::mat& x,
   double ll_new, ll_best, halving = 0;
 
   arma::vec beta(nvar);
-  arma::vec newbeta(nvar);
-  arma::vec u(nvar);
-  arma::vec a(nvar);
-  arma::vec a2(nvar);
 
-  arma::mat imat(nvar, nvar);
-  arma::mat cmat(nvar, nvar);
-  arma::mat cmat2(nvar, nvar);
+  newbeta.set_size(nvar);
+  newbeta.fill(0);
+
+  u.set_size(nvar);
+  u.fill(0);
+
+  a.set_size(nvar);
+  a.fill(0);
+
+  a2.set_size(nvar);
+  a2.fill(0);
+
+  imat.set_size(nvar, nvar);
+  imat.fill(0);
+
+  cmat.set_size(nvar, nvar);
+  cmat.fill(0);
+
+  cmat2.set_size(nvar, nvar);
+  cmat2.fill(0);
 
   // do the initial iteration
-  ll_best = newtraph_cph_iter(x, y, weights, beta, u, a, a2,
-                              imat, cmat, cmat2, method);
+  ll_best = newtraph_cph_iter(x, y, weights, beta, method);
 
 
   if(verbose) Rcout << std::endl <<
@@ -1181,8 +1196,7 @@ arma::mat newtraph_cph(const arma::mat& x,
     for(iter = 1; iter < iter_max; iter++){
 
       // do the next iteration
-      ll_new = newtraph_cph_iter(x, y, weights, newbeta, u, a, a2,
-                                 imat, cmat, cmat2, method);
+      ll_new = newtraph_cph_iter(x, y, weights, newbeta, method);
 
       if(verbose)
         Rcout << "iter " << iter << " log-likelihood:  " << ll_new << std::endl;
