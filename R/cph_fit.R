@@ -3,7 +3,6 @@
 cph_fit <- function(x,
                     y,
                     weights,
-                    x_transforms,
                     method = 1,
                     eps = 1e-09,
                     iter_max = 20,

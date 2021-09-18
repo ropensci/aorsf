@@ -181,8 +181,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // newtraph_cph_iter
-double newtraph_cph_iter(const arma::mat& x, const arma::mat& y, const arma::uvec& weights, const arma::vec& beta, arma::vec& XB, arma::vec& R, arma::vec& u, arma::vec& a, arma::vec& a2, arma::mat& imat, arma::mat& cmat, arma::mat& cmat2, const arma::uword& method);
-RcppExport SEXP _orsf2_newtraph_cph_iter(SEXP xSEXP, SEXP ySEXP, SEXP weightsSEXP, SEXP betaSEXP, SEXP XBSEXP, SEXP RSEXP, SEXP uSEXP, SEXP aSEXP, SEXP a2SEXP, SEXP imatSEXP, SEXP cmatSEXP, SEXP cmat2SEXP, SEXP methodSEXP) {
+double newtraph_cph_iter(const arma::mat& x, const arma::mat& y, const arma::uvec& weights, const arma::vec& beta, arma::vec& u, arma::vec& a, arma::vec& a2, arma::mat& imat, arma::mat& cmat, arma::mat& cmat2, const arma::uword& method);
+RcppExport SEXP _orsf2_newtraph_cph_iter(SEXP xSEXP, SEXP ySEXP, SEXP weightsSEXP, SEXP betaSEXP, SEXP uSEXP, SEXP aSEXP, SEXP a2SEXP, SEXP imatSEXP, SEXP cmatSEXP, SEXP cmat2SEXP, SEXP methodSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -190,8 +190,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type y(ySEXP);
     Rcpp::traits::input_parameter< const arma::uvec& >::type weights(weightsSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type beta(betaSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type XB(XBSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type R(RSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type u(uSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type a(aSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type a2(a2SEXP);
@@ -199,7 +197,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat& >::type cmat(cmatSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type cmat2(cmat2SEXP);
     Rcpp::traits::input_parameter< const arma::uword& >::type method(methodSEXP);
-    rcpp_result_gen = Rcpp::wrap(newtraph_cph_iter(x, y, weights, beta, XB, R, u, a, a2, imat, cmat, cmat2, method));
+    rcpp_result_gen = Rcpp::wrap(newtraph_cph_iter(x, y, weights, beta, u, a, a2, imat, cmat, cmat2, method));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -351,7 +349,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_cholesky", (DL_FUNC) &_orsf2_cholesky, 1},
     {"_orsf2_cholesky_solve", (DL_FUNC) &_orsf2_cholesky_solve, 2},
     {"_orsf2_cholesky_invert", (DL_FUNC) &_orsf2_cholesky_invert, 1},
-    {"_orsf2_newtraph_cph_iter", (DL_FUNC) &_orsf2_newtraph_cph_iter, 13},
+    {"_orsf2_newtraph_cph_iter", (DL_FUNC) &_orsf2_newtraph_cph_iter, 11},
     {"_orsf2_newtraph_cph", (DL_FUNC) &_orsf2_newtraph_cph, 8},
     {"_orsf2_make_node_name", (DL_FUNC) &_orsf2_make_node_name, 1},
     {"_orsf2_any_cps_valid", (DL_FUNC) &_orsf2_any_cps_valid, 1},

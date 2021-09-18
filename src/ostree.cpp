@@ -942,8 +942,6 @@ double newtraph_cph_iter (const arma::mat& x,
                           const arma::mat& y,
                           const arma::uvec& weights,
                           const arma::vec& beta,
-                          arma::vec& XB,
-                          arma::vec& R,
                           arma::vec& u,
                           arma::vec& a,
                           arma::vec& a2,
@@ -971,10 +969,9 @@ double newtraph_cph_iter (const arma::mat& x,
 
   bool break_loop = false;
 
-  XB(arma::span(0, person)) = x * beta;
-  R(arma::span(0, person)) = arma::exp(XB.subvec(0, person)) % weights;
+  // XB(arma::span(0, person)) = x * beta;
+  // R(arma::span(0, person)) = arma::exp(XB.subvec(0, person)) % weights;
 
-  arma::rowvec x_person(x.n_cols);
   arma::uword weights_person;
 
   // arma::mat tempmat = x.t() * arma::diagmat(R) * x;
@@ -1000,13 +997,19 @@ double newtraph_cph_iter (const arma::mat& x,
 
       nrisk++;
 
+      x_beta = 0;
+
+      for(i = 0; i < nvar; i++){
+        x_beta += beta.at(i) * x.at(person, i);
+      }
+
       //x_beta = arma::dot(beta, x.row(person));
-      //risk = exp(x_beta) * weights(person);
+      risk = exp(x_beta) * weights.at(person);
 
-      x_beta = XB.at(person);
-      risk = R.at(person);
+      //x_beta = XB.at(person);
+      //risk = R.at(person);
 
-      x_person = x.row(person);
+      //x_person = x.row(person);
       weights_person = weights.at(person);
 
       if (y.at(person, 1) == 0) {
@@ -1017,12 +1020,12 @@ double newtraph_cph_iter (const arma::mat& x,
 
         for (i=0; i<nvar; i++) {
 
-          temp = risk * x_person[i];
+          temp = risk * x.at(person, i);
 
           a[i] += temp;
 
           for (j = 0; j <= i; j++){
-            cmat.at(j, i) += temp * x_person[j];
+            cmat.at(j, i) += temp * x.at(person, j);
           }
 
         }
@@ -1037,11 +1040,11 @@ double newtraph_cph_iter (const arma::mat& x,
 
         for (i=0; i<nvar; i++) {
 
-          u[i]  += weights_person * x_person[i];
-          a2[i] += risk * x_person[i];
+          u[i]  += weights_person * x.at(person, i);
+          a2[i] += risk * x.at(person, i);
 
           for (j=0; j<=i; j++){
-            cmat2.at(j, i) += risk * x_person[i] * x_person[j];
+            cmat2.at(j, i) += risk * x.at(person, i) * x.at(person, j);
           }
 
         }
@@ -1150,15 +1153,12 @@ arma::mat newtraph_cph(const arma::mat& x,
   arma::vec a(nvar);
   arma::vec a2(nvar);
 
-  arma::vec XB(x.n_rows);
-  arma::vec R(x.n_rows);
-
   arma::mat imat(nvar, nvar);
   arma::mat cmat(nvar, nvar);
   arma::mat cmat2(nvar, nvar);
 
   // do the initial iteration
-  ll_best = newtraph_cph_iter(x, y, weights, beta, XB, R, u, a, a2,
+  ll_best = newtraph_cph_iter(x, y, weights, beta, u, a, a2,
                               imat, cmat, cmat2, method);
 
 
@@ -1177,7 +1177,7 @@ arma::mat newtraph_cph(const arma::mat& x,
     for(iter = 1; iter < iter_max; iter++){
 
       // do the next iteration
-      ll_new = newtraph_cph_iter(x, y, weights, newbeta, XB, R, u, a, a2,
+      ll_new = newtraph_cph_iter(x, y, weights, newbeta, u, a, a2,
                                  imat, cmat, cmat2, method);
 
       if(verbose)
