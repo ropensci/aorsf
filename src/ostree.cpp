@@ -6,7 +6,7 @@
 
 using namespace Rcpp;
 
-const bool verbose = true;
+const bool verbose = false;
 
 // ----------------------------------------------------------------------------
 // --------------------------- shared functions -------------------------------
@@ -938,177 +938,6 @@ void cholesky_invert(arma::mat& matrix){
 
 
 // [[Rcpp::export]]
-void newtraph_cph_one_iter (const arma::mat& x,
-                            const arma::mat& y,
-                            const arma::uvec& weights,
-                            arma::vec& u,
-                            arma::vec& a,
-                            arma::vec& a2,
-                            arma::mat& imat,
-                            arma::mat& cmat,
-                            arma::mat& cmat2,
-                            int method){
-
-
-  double  wtave;
-  double  temp1, temp2;
-  double  person_time;
-
-  arma::uword deadwt;
-
-  arma::uword i, j, k, ndead, denom2;
-
-  arma::uword nrisk = 0;
-  arma::uword denom = 0;
-
-  arma::uword person = x.n_rows - 1;
-  arma::uword nvar = x.n_cols;
-
-  bool break_loop = false;
-  // this loop has a strange break condition to accomodate
-  // the restriction that a uvec (uword) cannot be < 0
-  for ( ; ; ){
-
-    // Rcout << "- person: "    << person;
-    // Rcout << "; y_status: "  << y(person,1);
-    // Rcout << "; y_time: "    << y(person,0);
-    // Rcout << "; u: "         << u.t();
-    // Rcout << std::endl;
-
-    person_time = y(person, 0); // time of event for current person
-    ndead  = 0 ; // number of deaths at this time point
-    deadwt = 0 ; // sum of weights for the deaths
-    denom2 = 0 ; // sum of weighted risks for the deaths
-
-    // walk through this set of tied times
-    while(y(person, 0) == person_time){
-
-      nrisk++;
-
-      if (y(person, 1) == 0) {
-
-        denom += weights[person];
-
-        /* a contains weighted sums of x, cmat sums of squares */
-
-        for (i=0; i<nvar; i++) {
-
-          temp1 = weights[person] * x(person, i);
-
-          a[i] += temp1;
-
-          for (j=0; j<=i; j++){
-            cmat(j, i) += temp1 * x(person, j);
-          }
-
-
-        }
-
-      } else {
-
-        ndead++;
-
-        deadwt += weights[person];
-        denom2 += weights[person];
-
-        for (i=0; i<nvar; i++) {
-
-          temp1 = weights[person] * x(person, i);
-
-          u[i]  += temp1;
-          a2[i] += temp1;
-
-          for (j=0; j<=i; j++){
-            cmat2(j, i) += temp1 * x(person, j);
-          }
-
-        }
-
-      }
-
-      if(person == 0){
-        break_loop = true;
-        break;
-      }
-      person--;
-
-    }
-
-    //Rcout << "; ndead: "         << ndead;
-    //Rcout << std::endl;
-
-    //Rcout << "imat: " << std::endl << imat << std::endl;
-
-    // we need to add to the main terms
-    if (ndead > 0) {
-
-      if (method == 0 || ndead == 1) { // Breslow
-
-        denom  += denom2;
-
-        for (i=0; i<nvar; i++) {
-
-          a[i]  += a2[i];
-          temp2  = a[i] / denom;
-          u[i]  -=  deadwt * temp2;
-
-          for (j=0; j<=i; j++) {
-            cmat(j, i) += cmat2(j, i);
-            imat(j, i) += deadwt * (cmat(j, i) - temp2 * a[j]) / denom;
-          }
-
-        }
-
-      } else {
-        /* Efron
-         **  If there are 3 deaths we have 3 terms: in the first the
-         **  three deaths are all in, in the second they are 2/3
-         **  in the sums, and in the last 1/3 in the sum.  Let k go
-         **  1 to ndead: we sequentially add a2/ndead and cmat2/ndead
-         **  and efron_wt/ndead to the totals.
-         */
-        wtave = deadwt/ndead;
-
-        for (k=0; k<ndead; k++) {
-
-          denom  += denom2 / ndead;
-
-          for (i=0; i<nvar; i++) {
-
-            a[i] += a2[i] / ndead;
-            temp2 = a[i]  / denom;
-            u[i] -= wtave * temp2;
-
-            for (j=0; j<=i; j++) {
-              cmat(j, i) += cmat2(j, i) / ndead;
-              imat(j, i) += wtave * (cmat(j, i) - temp2 * a[j]) / denom;
-            }
-
-          }
-
-        }
-
-      }
-
-      for (i=0; i<nvar; i++) {
-
-        a2[i]=0;
-        for (j=0; j<nvar; j++) cmat2(j,i)=0;
-
-      }
-
-    }
-
-    if(break_loop == true) break;
-    if(person == 0) break_loop = true;
-
-  }
-
-  //Rcout << "- u final: " << u.t() << std::endl;
-
-}
-
-// [[Rcpp::export]]
 double newtraph_cph_iter (const arma::mat& x,
                           const arma::mat& y,
                           const arma::uvec& weights,
@@ -1167,7 +996,7 @@ double newtraph_cph_iter (const arma::mat& x,
     denom2 = 0 ; // sum of weighted risks for the deaths
 
     // walk through this set of tied times
-    while(y(person, 0) == person_time){
+    while(y.at(person, 0) == person_time){
 
       nrisk++;
 

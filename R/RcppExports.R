@@ -57,10 +57,6 @@ cholesky_invert <- function(matrix) {
     invisible(.Call(`_orsf2_cholesky_invert`, matrix))
 }
 
-newtraph_cph_one_iter <- function(x, y, weights, u, a, a2, imat, cmat, cmat2, method) {
-    invisible(.Call(`_orsf2_newtraph_cph_one_iter`, x, y, weights, u, a, a2, imat, cmat, cmat2, method))
-}
-
 newtraph_cph_iter <- function(x, y, weights, beta, XB, R, u, a, a2, imat, cmat, cmat2, method) {
     .Call(`_orsf2_newtraph_cph_iter`, x, y, weights, beta, XB, R, u, a, a2, imat, cmat, cmat2, method)
 }
