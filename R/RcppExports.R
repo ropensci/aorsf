@@ -85,20 +85,12 @@ ostree_pred_surv <- function(x_new, leaf_nodes, leaf_preds, times) {
     .Call(`_orsf2_ostree_pred_surv`, x_new, leaf_nodes, leaf_preds, times)
 }
 
-ostree_fit <- function(x, y, mtry = 4L, n_cps = 5L, leaf_min_events = 5L, leaf_min_obs = 10L, cph_method = 1L, cph_eps = 1e-2, cph_iter_max = 5L, cph_prune_thresh = 0.15) {
-    .Call(`_orsf2_ostree_fit`, x, y, mtry, n_cps, leaf_min_events, leaf_min_obs, cph_method, cph_eps, cph_iter_max, cph_prune_thresh)
+ostree_fit <- function(x_inbag, y_inbag, weights, nsplit = 5L, mtry = 4L, leaf_min_events = 5L, leaf_min_obs = 10L, cph_method = 1L, cph_eps = 1e-2, cph_iter_max = 5L, cph_prune_thresh = 0.15, cph_rescale = TRUE) {
+    .Call(`_orsf2_ostree_fit`, x_inbag, y_inbag, weights, nsplit, mtry, leaf_min_events, leaf_min_obs, cph_method, cph_eps, cph_iter_max, cph_prune_thresh, cph_rescale)
 }
 
-orsf_fit <- function(x, y, ntree, mtry = 4L, n_cps = 5L, leaf_min_events = 5L, leaf_min_obs = 10L) {
-    .Call(`_orsf2_orsf_fit`, x, y, ntree, mtry, n_cps, leaf_min_events, leaf_min_obs)
-}
-
-ostree_fit_dev <- function(x_inbag, y_inbag, weights, mtry = 4L, n_cps = 5L, leaf_min_events = 5L, leaf_min_obs = 10L, cph_method = 1L, cph_eps = 1e-2, cph_iter_max = 5L, cph_prune_thresh = 0.15) {
-    .Call(`_orsf2_ostree_fit_dev`, x_inbag, y_inbag, weights, mtry, n_cps, leaf_min_events, leaf_min_obs, cph_method, cph_eps, cph_iter_max, cph_prune_thresh)
-}
-
-orsf_fit_dev <- function(x, y, ntree, mtry = 4L, n_cps = 5L, leaf_min_events = 5L, leaf_min_obs = 10L) {
-    .Call(`_orsf2_orsf_fit_dev`, x, y, ntree, mtry, n_cps, leaf_min_events, leaf_min_obs)
+orsf_fit <- function(x, y, ntree, nsplit = 5L, mtry = 4L, leaf_min_events = 5L, leaf_min_obs = 10L, cph_method = 1L, cph_eps = 1e-2, cph_iter_max = 5L, cph_prune_thresh = 0.15, cph_rescale = TRUE) {
+    .Call(`_orsf2_orsf_fit`, x, y, ntree, nsplit, mtry, leaf_min_events, leaf_min_obs, cph_method, cph_eps, cph_iter_max, cph_prune_thresh, cph_rescale)
 }
 
 ostree_predict_ <- function(betas, col_indices, cut_points, children_left, leaf_nodes, x_new, x_transforms, times, risk = TRUE) {

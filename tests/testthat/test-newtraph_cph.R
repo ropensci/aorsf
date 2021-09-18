@@ -29,7 +29,7 @@ run_cph_test <- function(x, y, method){
 
  xx <- x[]
 
- x_transforms = x_scale_cph(xx, wts)
+ x_transforms = x_scale_wtd(xx, wts)
 
  bcj = newtraph_cph(xx,
                     y,
@@ -117,7 +117,7 @@ test_that(
 #
 #   orsf2 = {
 #     xx = x
-#     x_transforms = x_scale_cph(xx, wts, doscale)
+#     x_transforms = x_scale_wtd(xx, wts, doscale)
 #     newtraph_cph(xx, y, wts, x_transforms, 1, 1e-8,
 #                  iter_max = 3, rescale = TRUE)
 #   }
