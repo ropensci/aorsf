@@ -29,12 +29,9 @@ run_cph_test <- function(x, y, method){
 
  xx <- x[]
 
- x_transforms = x_scale_wtd(xx, wts)
-
  bcj = newtraph_cph(xx,
                     y,
                     wts,
-                    x_transforms,
                     method = method,
                     eps = 1e-8,
                     iter_max = 20,
@@ -90,35 +87,31 @@ test_that(
 # .pbc <- .pbc[complete.cases(.pbc), ]
 # .pbc$status[.pbc$status > 0] <- .pbc$status[.pbc$status > 0] - 1
 #
-# x <- as.matrix(.pbc[, c(5), drop = FALSE])
+# x <- as.matrix(.pbc[, -c(1,2,3,6), drop = FALSE])
 # y <- Surv(.pbc$time, .pbc$status)
 #
 #
 # wts <- sample(c(1,2,3), nrow(x), replace = TRUE)
 #
-# doscale <- rep(TRUE, ncol(x))
-#
 # microbenchmark::microbenchmark(
 #
 #   survival = coxph.fit(x = x,
-#                      y = y,
-#                      strata = NULL,
-#                      offset = NULL,
-#                      init = rep(0, ncol(x)),
-#                      control = coxph.control(eps = 1e-8,
-#                                              iter.max = 3),
-#                      weights = wts,
-#                      method = 1,
-#                      rownames = NULL,
-#                      resid = FALSE,
-#                      nocenter = c(0)),
+#                        y = y,
+#                        strata = NULL,
+#                        offset = NULL,
+#                        init = rep(0, ncol(x)),
+#                        control = coxph.control(eps = 1e-8,
+#                                                iter.max = 10),
+#                        weights = wts,
+#                        method = 'efron',
+#                        rownames = NULL,
+#                        resid = FALSE,
+#                        nocenter = c(0)),
 #
 #
 #
 #   orsf2 = {
-#     xx = x
-#     x_transforms = x_scale_wtd(xx, wts, doscale)
-#     newtraph_cph(xx, y, wts, x_transforms, 1, 1e-8,
-#                  iter_max = 3, rescale = TRUE)
+#     newtraph_cph(x[, ,drop=F], y, wts, 1, 1e-8,
+#                  iter_max = 10, rescale = TRUE)
 #   }
 # )
