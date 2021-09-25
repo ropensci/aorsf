@@ -25,10 +25,6 @@ leaf_surv <- function(y, weights) {
     .Call(`_orsf2_leaf_surv`, y, weights)
 }
 
-node_summarize <- function(y, node_assignments, weights, nodes_max) {
-    .Call(`_orsf2_node_summarize`, y, node_assignments, weights, nodes_max)
-}
-
 find_cutpoints_ctns <- function(cp, lc, y, weights, leaf_min_obs, leaf_min_events) {
     invisible(.Call(`_orsf2_find_cutpoints_ctns`, cp, lc, y, weights, leaf_min_obs, leaf_min_events))
 }
@@ -43,6 +39,10 @@ log_rank_test_wtd <- function(y, g, weights) {
 
 log_rank_test <- function(y, g) {
     .Call(`_orsf2_log_rank_test`, y, g)
+}
+
+node_summarize <- function(y, node_assignments, weights, nodes_max) {
+    .Call(`_orsf2_node_summarize`, y, node_assignments, weights, nodes_max)
 }
 
 cholesky <- function(matrix) {

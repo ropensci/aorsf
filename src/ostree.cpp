@@ -6,10 +6,16 @@
 
 using namespace Rcpp;
 
+// these terms are defined globally; avoids re-defining them over and over;
 const bool verbose = false;
 
+arma::uword i,j,k;
+
+
+
+
 // ----------------------------------------------------------------------------
-// --------------------------- shared functions -------------------------------
+// --------------------------- scaling functions ------------------------------
 // ----------------------------------------------------------------------------
 
 // [[Rcpp::export]]
@@ -23,9 +29,10 @@ arma::mat x_scale_wtd(arma::mat& x_mat,
   arma::mat out(x_mat.n_cols, 2);
   arma::vec means = out.unsafe_col(0);   // Reference to column 1
   arma::vec scales = out.unsafe_col(1);  // Reference to column 2
+
   arma::uword weights_sum = arma::sum(weights);
 
-  for(arma::uword i = 0; i < x_mat.n_cols; i++) {
+  for(i = 0; i < x_mat.n_cols; i++) {
 
     arma::vec x_i = x_mat.unsafe_col(i);
 
@@ -59,7 +66,7 @@ arma::mat x_scale_unwtd(arma::mat& x_mat){
   arma::vec means = out.unsafe_col(0);   // Reference to column 1
   arma::vec scales = out.unsafe_col(1);  // Reference to column 2
 
-  for(arma::uword i = 0; i < x_mat.n_cols; i++) {
+  for(i = 0; i < x_mat.n_cols; i++) {
 
     arma::vec x_i = x_mat.unsafe_col(i);
 
@@ -86,7 +93,7 @@ arma::mat x_scale_unwtd(arma::mat& x_mat){
 void x_new_scale_cph(arma::mat& x_new,
                      arma::mat& x_transforms){
   // scale new data for compatibility with scaled cutpoints in orsf
-  for(arma::uword i = 0; i < x_transforms.n_rows; i++){
+  for(i = 0; i < x_transforms.n_rows; i++){
     x_new.col(i) -= x_transforms.at(i, 0);
     x_new.col(i) *= x_transforms.at(i, 1);
   }
@@ -96,11 +103,15 @@ void x_new_scale_cph(arma::mat& x_new,
 void x_new_unscale_cph(arma::mat& x_new,
                        arma::mat& x_transforms){
   // scale new data for compatibility with scaled cutpoints in orsf
-  for(arma::uword i = 0; i < x_transforms.n_rows; i++){
+  for(i = 0; i < x_transforms.n_rows; i++){
     x_new.col(i) /= x_transforms.at(i, 1);
     x_new.col(i) += x_transforms.at(i, 0);
   }
 }
+
+// ----------------------------------------------------------------------------
+// -------------------------- leaf_surv functions -----------------------------
+// ----------------------------------------------------------------------------
 
 // [[Rcpp::export]]
 arma::mat leaf_surv_small(const arma::mat& y,
@@ -278,35 +289,9 @@ arma::mat leaf_surv(arma::mat& y,
 
 }
 
-// [[Rcpp::export]]
-arma::mat node_summarize(arma::mat& y,
-                         arma::uvec& node_assignments,
-                         arma::uvec& weights,
-                         arma::uword& nodes_max){
-
-
-  // allocate memory for output
-  arma::mat out(nodes_max, 2);
-  arma::uword row_index;
-
-  // loop through the matrix, once, by row
-  for(arma::uword i = 0; i < node_assignments.size(); i++){
-
-    // subtract 1 from current value of nodes to align
-    // with index starting at 0.
-    row_index = node_assignments.at(i) - 1;
-
-    // add the current event value from i'th row of Y
-    // to the current bucket in the output, which
-    // is determined by the current value of nodes
-    out(row_index, 0) += y.at(i, 1) * weights.at(i);
-    out(row_index, 1) += weights.at(i);
-
-  }
-
-  return(out);
-
-}
+// ----------------------------------------------------------------------------
+// -------------------------- cutpoint functions ------------------------------
+// ----------------------------------------------------------------------------
 
 // [[Rcpp::export]]
 void find_cutpoints_ctns(arma::vec& cp,
@@ -516,6 +501,11 @@ void find_cutpoints(arma::vec& cp,
 
 }
 
+
+// ----------------------------------------------------------------------------
+// ------------------------ log-rank test functions ---------------------------
+// ----------------------------------------------------------------------------
+
 // [[Rcpp::export]]
 double log_rank_test_wtd(arma::mat& y,
                          arma::vec& g,
@@ -651,7 +641,6 @@ double log_rank_test(arma::mat& y,
   arma::uword lwr = 0;
   arma::uword upr = 0;
   arma::uword count = 1; // starts at 1 to mimic size
-  arma::uword i;
 
   for(i=0; i<n; i++){
 
@@ -763,6 +752,43 @@ double log_rank_test(arma::mat& y,
 
 }
 
+// ----------------------------------------------------------------------------
+// ---------------------------- node functions --------------------------------
+// ----------------------------------------------------------------------------
+
+// [[Rcpp::export]]
+arma::mat node_summarize(arma::mat& y,
+                         arma::uvec& node_assignments,
+                         arma::uvec& weights,
+                         arma::uword& nodes_max){
+
+
+  // allocate memory for output
+  arma::mat out(nodes_max, 2);
+  arma::uword row_index;
+
+  // loop through the matrix, once, by row
+  for(arma::uword i = 0; i < node_assignments.size(); i++){
+
+    // subtract 1 from current value of nodes to align
+    // with index starting at 0.
+    row_index = node_assignments.at(i) - 1;
+
+    // add the current event value from i'th row of Y
+    // to the current bucket in the output, which
+    // is determined by the current value of nodes
+    out(row_index, 0) += y.at(i, 1) * weights.at(i);
+    out(row_index, 1) += weights.at(i);
+
+  }
+
+  return(out);
+
+}
+
+// ----------------------------------------------------------------------------
+// ---------------------------- cholesky functions ----------------------------
+// ----------------------------------------------------------------------------
 
 // [[Rcpp::export]]
 void cholesky(arma::mat& matrix){
@@ -937,23 +963,20 @@ void cholesky_invert(arma::mat& matrix){
 }
 
 
-// these terms are defined globally; avoids re-defining them over and over;
-arma::uword i,j,k, iter, nrisk, person, weights_person, nvar;
 
 // special note: dont change these doubles to uword;
 //               it is likely to break the routine
-double wtave, temp, person_time, x_beta,
+double weight_avg, temp, person_time, x_beta,
        risk, denom2, deadwt, ndead, denom, loglik;
+
+arma::uword iter, nrisk, person, weights_person, nvar;
 
 bool break_loop;
 
-arma::vec newbeta;
-arma::vec u;
-arma::vec a;
-arma::vec a2;
-arma::mat imat;
-arma::mat cmat;
-arma::mat cmat2;
+arma::vec newbeta, u, a, a2;
+arma::mat imat, cmat, cmat2;
+
+arma::vec XB, Risk;
 
 // [[Rcpp::export]]
 double newtraph_cph_iter (const arma::mat& x,
@@ -962,9 +985,9 @@ double newtraph_cph_iter (const arma::mat& x,
                           const arma::vec& beta,
                           const arma::uword& method){
 
-  denom=0;
+  denom = 0;
 
-  loglik=0;
+  loglik = 0;
 
   nrisk = 0;
 
@@ -982,8 +1005,8 @@ double newtraph_cph_iter (const arma::mat& x,
 
   break_loop = false;
 
-  // XB(arma::span(0, person)) = x * beta;
-  // R(arma::span(0, person)) = arma::exp(XB.subvec(0, person)) % weights;
+  XB(arma::span(0, person)) = x * beta;
+  Risk(arma::span(0, person)) = arma::exp(XB) % weights;
 
   // arma::mat tempmat = x.t() * arma::diagmat(R) * x;
   // Rcout << tempmat << std::endl;
@@ -1008,15 +1031,18 @@ double newtraph_cph_iter (const arma::mat& x,
 
       nrisk++;
 
-      x_beta = 0;
+      x_beta = XB.at(person);
+      risk = Risk.at(person);
 
-      for(i = 0; i < nvar; i++){
-        x_beta += beta.at(i) * x.at(person, i);
-      }
+      // x_beta = 0;
+      //
+      // for(i = 0; i < nvar; i++){
+      //   x_beta += beta.at(i) * x.at(person, i);
+      // }
 
       weights_person = weights.at(person);
 
-      risk = exp(x_beta) * weights_person;
+      //risk = exp(x_beta) * weights_person;
 
       if (y.at(person, 1) == 0) {
 
@@ -1064,13 +1090,7 @@ double newtraph_cph_iter (const arma::mat& x,
 
       person--;
 
-      //if(person_time == y(person, 0)) Rcout << "tie!" << std::endl;
-
-      //Rcout << person << std::endl;
-
     }
-
-    //Rcout << "imat: " << std::endl << imat << std::endl;
 
     // we need to add to the main terms
     if (ndead > 0) {
@@ -1101,22 +1121,22 @@ double newtraph_cph_iter (const arma::mat& x,
          **  1 to ndead: we sequentially add a2/ndead and cmat2/ndead
          **  and efron_wt/ndead to the totals.
          */
-        wtave = deadwt/ndead;
+        weight_avg = deadwt/ndead;
 
         for (k=0; k<ndead; k++) {
 
           denom  += denom2 / ndead;
-          loglik -= wtave * log(denom);
+          loglik -= weight_avg * log(denom);
 
           for (i=0; i<nvar; i++) {
 
             a[i] += a2[i] / ndead;
             temp = a[i]  / denom;
-            u[i] -= wtave * temp;
+            u[i] -= weight_avg * temp;
 
             for (j=0; j<=i; j++) {
               cmat.at(j, i) += cmat2.at(j, i) / ndead;
-              imat.at(j, i) += wtave * (cmat.at(j, i) - temp * a[j]) / denom;
+              imat.at(j, i) += weight_avg * (cmat.at(j, i) - temp * a[j]) / denom;
             }
 
           }
@@ -1152,9 +1172,16 @@ arma::mat newtraph_cph(const arma::mat& x,
                        const bool& rescale){
 
   nvar = x.n_cols;
+
   double ll_new, ll_best, halving = 0;
 
   arma::vec beta(nvar);
+
+  XB.set_size(x.n_rows);
+  XB.fill(0);
+
+  Risk.set_size(x.n_rows);
+  Risk.fill(0);
 
   newbeta.set_size(nvar);
   newbeta.fill(0);

@@ -80,20 +80,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// node_summarize
-arma::mat node_summarize(arma::mat& y, arma::uvec& node_assignments, arma::uvec& weights, arma::uword& nodes_max);
-RcppExport SEXP _orsf2_node_summarize(SEXP ySEXP, SEXP node_assignmentsSEXP, SEXP weightsSEXP, SEXP nodes_maxSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::uvec& >::type node_assignments(node_assignmentsSEXP);
-    Rcpp::traits::input_parameter< arma::uvec& >::type weights(weightsSEXP);
-    Rcpp::traits::input_parameter< arma::uword& >::type nodes_max(nodes_maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(node_summarize(y, node_assignments, weights, nodes_max));
-    return rcpp_result_gen;
-END_RCPP
-}
 // find_cutpoints_ctns
 void find_cutpoints_ctns(arma::vec& cp, const arma::vec& lc, const arma::mat& y, const arma::uvec weights, const arma::uword& leaf_min_obs, const arma::uword& leaf_min_events);
 RcppExport SEXP _orsf2_find_cutpoints_ctns(SEXP cpSEXP, SEXP lcSEXP, SEXP ySEXP, SEXP weightsSEXP, SEXP leaf_min_obsSEXP, SEXP leaf_min_eventsSEXP) {
@@ -146,6 +132,20 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat& >::type y(ySEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type g(gSEXP);
     rcpp_result_gen = Rcpp::wrap(log_rank_test(y, g));
+    return rcpp_result_gen;
+END_RCPP
+}
+// node_summarize
+arma::mat node_summarize(arma::mat& y, arma::uvec& node_assignments, arma::uvec& weights, arma::uword& nodes_max);
+RcppExport SEXP _orsf2_node_summarize(SEXP ySEXP, SEXP node_assignmentsSEXP, SEXP weightsSEXP, SEXP nodes_maxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type node_assignments(node_assignmentsSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type weights(weightsSEXP);
+    Rcpp::traits::input_parameter< arma::uword& >::type nodes_max(nodes_maxSEXP);
+    rcpp_result_gen = Rcpp::wrap(node_summarize(y, node_assignments, weights, nodes_max));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -335,11 +335,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_x_new_unscale_cph", (DL_FUNC) &_orsf2_x_new_unscale_cph, 2},
     {"_orsf2_leaf_surv_small", (DL_FUNC) &_orsf2_leaf_surv_small, 2},
     {"_orsf2_leaf_surv", (DL_FUNC) &_orsf2_leaf_surv, 2},
-    {"_orsf2_node_summarize", (DL_FUNC) &_orsf2_node_summarize, 4},
     {"_orsf2_find_cutpoints_ctns", (DL_FUNC) &_orsf2_find_cutpoints_ctns, 6},
     {"_orsf2_find_cutpoints", (DL_FUNC) &_orsf2_find_cutpoints, 6},
     {"_orsf2_log_rank_test_wtd", (DL_FUNC) &_orsf2_log_rank_test_wtd, 3},
     {"_orsf2_log_rank_test", (DL_FUNC) &_orsf2_log_rank_test, 2},
+    {"_orsf2_node_summarize", (DL_FUNC) &_orsf2_node_summarize, 4},
     {"_orsf2_cholesky", (DL_FUNC) &_orsf2_cholesky, 1},
     {"_orsf2_cholesky_solve", (DL_FUNC) &_orsf2_cholesky_solve, 2},
     {"_orsf2_cholesky_invert", (DL_FUNC) &_orsf2_cholesky_invert, 1},
