@@ -11,13 +11,24 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// x_scale_wtd
-arma::mat x_scale_wtd();
-RcppExport SEXP _orsf2_x_scale_wtd() {
+// make_node_name
+String make_node_name(const arma::uword& part);
+RcppExport SEXP _orsf2_make_node_name(SEXP partSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(x_scale_wtd());
+    Rcpp::traits::input_parameter< const arma::uword& >::type part(partSEXP);
+    rcpp_result_gen = Rcpp::wrap(make_node_name(part));
+    return rcpp_result_gen;
+END_RCPP
+}
+// leaf_surv_small
+arma::mat leaf_surv_small();
+RcppExport SEXP _orsf2_leaf_surv_small() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(leaf_surv_small());
     return rcpp_result_gen;
 END_RCPP
 }
@@ -49,54 +60,89 @@ BEGIN_RCPP
 END_RCPP
 }
 // newtraph_cph_iter
-double newtraph_cph_iter(const arma::uword& method, const arma::vec& beta);
-RcppExport SEXP _orsf2_newtraph_cph_iter(SEXP methodSEXP, SEXP betaSEXP) {
+double newtraph_cph_iter(const arma::vec& beta);
+RcppExport SEXP _orsf2_newtraph_cph_iter(SEXP betaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::uword& >::type method(methodSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type beta(betaSEXP);
-    rcpp_result_gen = Rcpp::wrap(newtraph_cph_iter(method, beta));
+    rcpp_result_gen = Rcpp::wrap(newtraph_cph_iter(beta));
     return rcpp_result_gen;
 END_RCPP
 }
 // newtraph_cph_init
-double newtraph_cph_init(const arma::uword& method);
-RcppExport SEXP _orsf2_newtraph_cph_init(SEXP methodSEXP) {
+double newtraph_cph_init();
+RcppExport SEXP _orsf2_newtraph_cph_init() {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::uword& >::type method(methodSEXP);
-    rcpp_result_gen = Rcpp::wrap(newtraph_cph_init(method));
+    rcpp_result_gen = Rcpp::wrap(newtraph_cph_init());
     return rcpp_result_gen;
 END_RCPP
 }
 // newtraph_cph
-arma::mat newtraph_cph(NumericMatrix& x, NumericMatrix& y, NumericVector& weights, const arma::uword& method, const double& eps, const arma::uword& iter_max, const bool& rescale);
-RcppExport SEXP _orsf2_newtraph_cph(SEXP xSEXP, SEXP ySEXP, SEXP weightsSEXP, SEXP methodSEXP, SEXP epsSEXP, SEXP iter_maxSEXP, SEXP rescaleSEXP) {
+arma::vec newtraph_cph();
+RcppExport SEXP _orsf2_newtraph_cph() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(newtraph_cph());
+    return rcpp_result_gen;
+END_RCPP
+}
+// lrt_multi
+double lrt_multi();
+RcppExport SEXP _orsf2_lrt_multi() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(lrt_multi());
+    return rcpp_result_gen;
+END_RCPP
+}
+// ostree_fit
+List ostree_fit();
+RcppExport SEXP _orsf2_ostree_fit() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(ostree_fit());
+    return rcpp_result_gen;
+END_RCPP
+}
+// orsf_fit
+List orsf_fit(NumericMatrix& x, NumericMatrix& y, const int& n_split_, const int& mtry_, const double& leaf_min_events_, const double& leaf_min_obs_, const int& cph_method_, const double& cph_eps_, const int& cph_iter_max_, const double& cph_pval_max_);
+RcppExport SEXP _orsf2_orsf_fit(SEXP xSEXP, SEXP ySEXP, SEXP n_split_SEXP, SEXP mtry_SEXP, SEXP leaf_min_events_SEXP, SEXP leaf_min_obs_SEXP, SEXP cph_method_SEXP, SEXP cph_eps_SEXP, SEXP cph_iter_max_SEXP, SEXP cph_pval_max_SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix& >::type x(xSEXP);
     Rcpp::traits::input_parameter< NumericMatrix& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< NumericVector& >::type weights(weightsSEXP);
-    Rcpp::traits::input_parameter< const arma::uword& >::type method(methodSEXP);
-    Rcpp::traits::input_parameter< const double& >::type eps(epsSEXP);
-    Rcpp::traits::input_parameter< const arma::uword& >::type iter_max(iter_maxSEXP);
-    Rcpp::traits::input_parameter< const bool& >::type rescale(rescaleSEXP);
-    rcpp_result_gen = Rcpp::wrap(newtraph_cph(x, y, weights, method, eps, iter_max, rescale));
+    Rcpp::traits::input_parameter< const int& >::type n_split_(n_split_SEXP);
+    Rcpp::traits::input_parameter< const int& >::type mtry_(mtry_SEXP);
+    Rcpp::traits::input_parameter< const double& >::type leaf_min_events_(leaf_min_events_SEXP);
+    Rcpp::traits::input_parameter< const double& >::type leaf_min_obs_(leaf_min_obs_SEXP);
+    Rcpp::traits::input_parameter< const int& >::type cph_method_(cph_method_SEXP);
+    Rcpp::traits::input_parameter< const double& >::type cph_eps_(cph_eps_SEXP);
+    Rcpp::traits::input_parameter< const int& >::type cph_iter_max_(cph_iter_max_SEXP);
+    Rcpp::traits::input_parameter< const double& >::type cph_pval_max_(cph_pval_max_SEXP);
+    rcpp_result_gen = Rcpp::wrap(orsf_fit(x, y, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_orsf2_x_scale_wtd", (DL_FUNC) &_orsf2_x_scale_wtd, 0},
+    {"_orsf2_make_node_name", (DL_FUNC) &_orsf2_make_node_name, 1},
+    {"_orsf2_leaf_surv_small", (DL_FUNC) &_orsf2_leaf_surv_small, 0},
     {"_orsf2_cholesky", (DL_FUNC) &_orsf2_cholesky, 0},
     {"_orsf2_cholesky_solve", (DL_FUNC) &_orsf2_cholesky_solve, 0},
     {"_orsf2_cholesky_invert", (DL_FUNC) &_orsf2_cholesky_invert, 0},
-    {"_orsf2_newtraph_cph_iter", (DL_FUNC) &_orsf2_newtraph_cph_iter, 2},
-    {"_orsf2_newtraph_cph_init", (DL_FUNC) &_orsf2_newtraph_cph_init, 1},
-    {"_orsf2_newtraph_cph", (DL_FUNC) &_orsf2_newtraph_cph, 7},
+    {"_orsf2_newtraph_cph_iter", (DL_FUNC) &_orsf2_newtraph_cph_iter, 1},
+    {"_orsf2_newtraph_cph_init", (DL_FUNC) &_orsf2_newtraph_cph_init, 0},
+    {"_orsf2_newtraph_cph", (DL_FUNC) &_orsf2_newtraph_cph, 0},
+    {"_orsf2_lrt_multi", (DL_FUNC) &_orsf2_lrt_multi, 0},
+    {"_orsf2_ostree_fit", (DL_FUNC) &_orsf2_ostree_fit, 0},
+    {"_orsf2_orsf_fit", (DL_FUNC) &_orsf2_orsf_fit, 10},
     {NULL, NULL, 0}
 };
 

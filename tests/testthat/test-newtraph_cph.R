@@ -27,7 +27,7 @@ run_cph_test <- function(x, y, method){
          ties = if(method == 0) 'breslow' else 'efron')
    )$coefficients[,'Pr(>|z|)']
 
- xx <- x[]
+ xx <- x[, , drop = FALSE]
 
  bcj = newtraph_cph(xx,
                     y,
