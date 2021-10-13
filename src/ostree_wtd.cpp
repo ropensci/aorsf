@@ -105,6 +105,7 @@ arma::uvec
 // armadillo iterators for unsigned integer vectors
 arma::uvec::iterator
   iit,
+  iit_last,
   iit_best,
   jit,
   node;
@@ -1033,6 +1034,8 @@ double lrt_multi(){
   // sort XB- we need to iterate over the sorted indices
   iit_vals = arma::sort_index(XB, "ascend");
 
+  Rcout << "sorted XB: " << XB(iit_vals).t() << std::endl;
+
   // unsafe columns point to specific cols in y_node.
   // this makes the code more readable and doesn't copy data
   arma::vec status = y_node.unsafe_col(1);
@@ -1075,6 +1078,11 @@ double lrt_multi(){
       temp2 = 0;
     }
 
+    Rcout << "XB sort: " << XB[*iit];
+    Rcout << "; Next XB sort" << XB[*jit] << std::endl;
+    Rcout << "n_events: " << n_events << std::endl;
+    Rcout << "n_risk: " << n_risk << std::endl << std::endl;
+
     if( n_events >= leaf_min_events &&
         n_risk   >= leaf_min_obs &&
         XB(*iit) != XB(*jit) ) {
@@ -1114,6 +1122,7 @@ double lrt_multi(){
 
     temp1 += status(*iit) * w_node(*iit);
     temp2 += w_node(*iit);
+    group[*iit] = 1;
 
     if(XB(*iit) != XB(*jit)){
       n_events += temp1;
@@ -1127,7 +1136,7 @@ double lrt_multi(){
         XB(*iit) != XB(*jit) ) {
 
       if(verbose){
-        Rcout << "lower cutpoint: " << XB(*iit) << std::endl;
+        Rcout << "upper cutpoint: " << XB(*iit) << std::endl;
         Rcout << " - n_events: " << n_events    << std::endl;
         Rcout << " - n_risk:   " << n_risk      << std::endl;
       }
@@ -1186,7 +1195,7 @@ double lrt_multi(){
   // but the value of n_split is > 5? We will just check out
   // the 5 valid cutpoints.
 
-  // adjust p to indicate steps taken in the outer loop.
+  // adjust k to indicate steps taken in the outer loop.
   k -= j;
 
   if(k > n_split){
@@ -1195,98 +1204,185 @@ double lrt_multi(){
     jit_vals = arma::linspace<arma::uvec>(0, k, k);
   }
 
+  // // assume n_split >= 3
+  // arma::uword step_size = 1;
+  // jit_vals.resize(n_split);
+  //
+  // if(k > n_split){
+  //   step_size = arma::round( k / (n_split-1) );
+  // }
+  //
+  // jit_vals[0] = 0;
+  // jit_vals[jit_vals.size()-1] = k;
+  // j = 0;
+  // k = 1;
+  //
+  // iit_last = iit_best;
+  //
+  // for(; iit >= iit_vals.begin(); ){
+  //
+  //   if(k == jit_vals.size()-1) { break; } else { --iit; }
+  //
+  //   ++j;
+  //
+  //   if(XB[*iit] != XB[*iit_last] && j >= step_size){
+  //     iit_last = iit;
+  //     jit_vals[k] = j;
+  //     j = 0;
+  //     ++k;
+  //   }
+  //
+  //
+  // }
+  //
+  //
+  // iit = iit_best;
+  // j = 0;
+
+
+  iit = iit_best;
   j = 0;
+  arma::vec tmpvec(jit_vals.size());
+  k = 0;
+
+  for(jit = jit_vals.begin(); jit != jit_vals.end(); ++jit){
+
+    for( ; j < *jit; j++){
+      --iit;
+    }
+
+    tmpvec(k) = XB(*iit);
+    ++k;
+
+  }
+
+
+  iit = iit_best;
+  j=0;
+  k=0;
+
 
   if(verbose){
 
-    Rcout << "cut-points chosen:" << XB(jit_vals).t();
+    Rcout << "cut-points chosen: ";
+
+    Rcout << tmpvec.t();
+
     Rcout << "----------------------------------------" << std::endl <<
       std::endl << std::endl;
 
   }
 
+  bool do_lrt = true;
+
   // begin outer loop - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   for(jit = jit_vals.begin(); jit != jit_vals.end(); ++jit){
 
-    // drop down one spot on XB
-    // Rcout << "iit points to" << *iit << std::endl;
-    // Rcout << "jit points to" << *jit << std::endl;
-
-    for( ; j < *jit; j++){
-      group[*iit] = 1;
+    for( ; j < *jit ; j++){
+      group(*iit) = 1;
       --iit;
     }
 
-    n_risk=0;
-    g_risk=0;
+    if(jit == jit_vals.begin() || jit == jit_vals.end()-1){
 
-    observed=0;
-    expected=0;
+      do_lrt = true;
 
-    V=0;
+    } else {
 
-    break_loop = false;
+      if(tmpvec(k) == tmpvec(k+1)){
 
-    i = y_node.n_rows-1;
+        do_lrt = false;
 
-    // begin inner loop  - - - - - - - - - - - - -  - - - - - - - - - - - - - -
-    for (; ;){
+      } else {
 
-      temp1 = time[i];
-
-      n_events = 0;
-
-      for ( ; time[i] == temp1; i--) {
-
-        n_risk += w_node[i];
-        n_events += status[i] * w_node[i];
-        g_risk += group[i] * w_node[i];
-        observed += status[i] * group[i] * w_node[i];
-
-        if(i == 0){
-          break_loop = true;
-          break;
+        while(XB(*iit) == XB(*(iit-1))){
+          group(*iit) = 1;
+          --iit;
         }
 
+        do_lrt = true;
+
       }
 
-      // should only do these calculations if n_events > 0,
-      // but turns out its faster to multiply by 0 than
-      // it is to check whether n_events is > 0
+    }
 
-      temp2 = g_risk / n_risk;
-      expected += n_events * temp2;
+    ++k;
 
-      // update variance if n_risk > 1 (if n_risk == 1, variance is 0)
-      // definitely check if n_risk is > 1 b/c otherwise divide by 0
-      if (n_risk > 1){
-        temp1 = n_events * temp2 * (n_risk-n_events) / (n_risk-1);
-        V += temp1 * (1 - temp2);
+
+    if(do_lrt){
+
+      n_risk=0;
+      g_risk=0;
+
+      observed=0;
+      expected=0;
+
+      V=0;
+
+      break_loop = false;
+
+      i = y_node.n_rows-1;
+
+      Rcout << group.t() << std::endl;
+
+      // begin inner loop  - - - - - - - - - - - - -  - - - - - - - - - - - - - -
+      for (; ;){
+
+        temp1 = time[i];
+
+        n_events = 0;
+
+        for ( ; time[i] == temp1; i--) {
+
+          n_risk += w_node[i];
+          n_events += status[i] * w_node[i];
+          g_risk += group[i] * w_node[i];
+          observed += status[i] * group[i] * w_node[i];
+
+          if(i == 0){
+            break_loop = true;
+            break;
+          }
+
+        }
+
+        // should only do these calculations if n_events > 0,
+        // but turns out its faster to multiply by 0 than
+        // it is to check whether n_events is > 0
+
+        temp2 = g_risk / n_risk;
+        expected += n_events * temp2;
+
+        // update variance if n_risk > 1 (if n_risk == 1, variance is 0)
+        // definitely check if n_risk is > 1 b/c otherwise divide by 0
+        if (n_risk > 1){
+          temp1 = n_events * temp2 * (n_risk-n_events) / (n_risk-1);
+          V += temp1 * (1 - temp2);
+        }
+
+        if(break_loop) break;
+
+      }
+      // end inner loop  - - - - - - - - - - - - -  - - - - - - - - - - - - - - -
+
+      stat_current = pow(expected-observed, 2) / V;
+
+      if(verbose){
+
+        Rcout << "-------- log-rank test results --------" << std::endl;
+        Rcout << "cutpoint: " << XB[*iit]                  << std::endl;
+        Rcout << "lrt stat: " << stat_current              << std::endl;
+        Rcout << "---------------------------------------" << std::endl <<
+          std::endl << std::endl;
+
       }
 
-      if(break_loop) break;
+      if(stat_current > stat_best){
+        iit_best = iit;
+        stat_best = stat_current;
+      }
 
     }
-    // end inner loop  - - - - - - - - - - - - -  - - - - - - - - - - - - - - -
-
-    stat_current = pow(expected-observed, 2) / V;
-
-    if(verbose){
-
-      Rcout << "-------- log-rank test results --------" << std::endl;
-      Rcout << "cutpoint: " << XB[*iit]                  << std::endl;
-      Rcout << "lrt stat: " << stat_current              << std::endl;
-      Rcout << "---------------------------------------" << std::endl <<
-        std::endl << std::endl;
-
-    }
-
-    if(stat_current > stat_best){
-      iit_best = iit;
-      stat_best = stat_current;
-    }
-
-
     // end outer loop  - - - - - - - - - - - - -  - - - - - - - - - - - - - - -
 
   }
