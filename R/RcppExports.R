@@ -5,8 +5,8 @@ make_node_name <- function(part) {
     .Call(`_orsf2_make_node_name`, part)
 }
 
-leaf_surv_small <- function() {
-    .Call(`_orsf2_leaf_surv_small`)
+leaf_surv_small <- function(y, w) {
+    .Call(`_orsf2_leaf_surv_small`, y, w)
 }
 
 cholesky <- function() {

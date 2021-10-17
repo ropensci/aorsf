@@ -23,12 +23,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // leaf_surv_small
-arma::mat leaf_surv_small();
-RcppExport SEXP _orsf2_leaf_surv_small() {
+arma::mat leaf_surv_small(const arma::mat& y, const arma::vec& w);
+RcppExport SEXP _orsf2_leaf_surv_small(SEXP ySEXP, SEXP wSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(leaf_surv_small());
+    Rcpp::traits::input_parameter< const arma::mat& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
+    rcpp_result_gen = Rcpp::wrap(leaf_surv_small(y, w));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -133,7 +135,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_make_node_name", (DL_FUNC) &_orsf2_make_node_name, 1},
-    {"_orsf2_leaf_surv_small", (DL_FUNC) &_orsf2_leaf_surv_small, 0},
+    {"_orsf2_leaf_surv_small", (DL_FUNC) &_orsf2_leaf_surv_small, 2},
     {"_orsf2_cholesky", (DL_FUNC) &_orsf2_cholesky, 0},
     {"_orsf2_cholesky_solve", (DL_FUNC) &_orsf2_cholesky_solve, 0},
     {"_orsf2_cholesky_invert", (DL_FUNC) &_orsf2_cholesky_invert, 0},
