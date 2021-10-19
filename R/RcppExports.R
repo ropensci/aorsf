@@ -5,6 +5,10 @@ make_node_name <- function(part) {
     .Call(`_orsf2_make_node_name`, part)
 }
 
+x_node_scale <- function() {
+    invisible(.Call(`_orsf2_x_node_scale`))
+}
+
 leaf_surv_small <- function(y, w) {
     .Call(`_orsf2_leaf_surv_small`, y, w)
 }
@@ -35,6 +39,10 @@ newtraph_cph <- function() {
 
 lrt_multi <- function() {
     .Call(`_orsf2_lrt_multi`)
+}
+
+ostree_pred_leaf <- function(x_new) {
+    .Call(`_orsf2_ostree_pred_leaf`, x_new)
 }
 
 ostree_fit <- function() {

@@ -22,6 +22,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// x_node_scale
+void x_node_scale();
+RcppExport SEXP _orsf2_x_node_scale() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    x_node_scale();
+    return R_NilValue;
+END_RCPP
+}
 // leaf_surv_small
 arma::mat leaf_surv_small(const arma::mat& y, const arma::vec& w);
 RcppExport SEXP _orsf2_leaf_surv_small(SEXP ySEXP, SEXP wSEXP) {
@@ -102,6 +111,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// ostree_pred_leaf
+arma::uvec ostree_pred_leaf(arma::mat& x_new);
+RcppExport SEXP _orsf2_ostree_pred_leaf(SEXP x_newSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type x_new(x_newSEXP);
+    rcpp_result_gen = Rcpp::wrap(ostree_pred_leaf(x_new));
+    return rcpp_result_gen;
+END_RCPP
+}
 // ostree_fit
 List ostree_fit();
 RcppExport SEXP _orsf2_ostree_fit() {
@@ -135,6 +155,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_make_node_name", (DL_FUNC) &_orsf2_make_node_name, 1},
+    {"_orsf2_x_node_scale", (DL_FUNC) &_orsf2_x_node_scale, 0},
     {"_orsf2_leaf_surv_small", (DL_FUNC) &_orsf2_leaf_surv_small, 2},
     {"_orsf2_cholesky", (DL_FUNC) &_orsf2_cholesky, 0},
     {"_orsf2_cholesky_solve", (DL_FUNC) &_orsf2_cholesky_solve, 0},
@@ -143,6 +164,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_newtraph_cph_init", (DL_FUNC) &_orsf2_newtraph_cph_init, 0},
     {"_orsf2_newtraph_cph", (DL_FUNC) &_orsf2_newtraph_cph, 0},
     {"_orsf2_lrt_multi", (DL_FUNC) &_orsf2_lrt_multi, 0},
+    {"_orsf2_ostree_pred_leaf", (DL_FUNC) &_orsf2_ostree_pred_leaf, 1},
     {"_orsf2_ostree_fit", (DL_FUNC) &_orsf2_ostree_fit, 0},
     {"_orsf2_orsf_fit", (DL_FUNC) &_orsf2_orsf_fit, 10},
     {NULL, NULL, 0}
