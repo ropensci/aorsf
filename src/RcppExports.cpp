@@ -112,14 +112,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // ostree_pred_leaf
-arma::uvec ostree_pred_leaf(arma::mat& x_new);
-RcppExport SEXP _orsf2_ostree_pred_leaf(SEXP x_newSEXP) {
+void ostree_pred_leaf();
+RcppExport SEXP _orsf2_ostree_pred_leaf() {
 BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat& >::type x_new(x_newSEXP);
-    rcpp_result_gen = Rcpp::wrap(ostree_pred_leaf(x_new));
-    return rcpp_result_gen;
+    ostree_pred_leaf();
+    return R_NilValue;
 END_RCPP
 }
 // ostree_fit
@@ -164,7 +162,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_newtraph_cph_init", (DL_FUNC) &_orsf2_newtraph_cph_init, 0},
     {"_orsf2_newtraph_cph", (DL_FUNC) &_orsf2_newtraph_cph, 0},
     {"_orsf2_lrt_multi", (DL_FUNC) &_orsf2_lrt_multi, 0},
-    {"_orsf2_ostree_pred_leaf", (DL_FUNC) &_orsf2_ostree_pred_leaf, 1},
+    {"_orsf2_ostree_pred_leaf", (DL_FUNC) &_orsf2_ostree_pred_leaf, 0},
     {"_orsf2_ostree_fit", (DL_FUNC) &_orsf2_ostree_fit, 0},
     {"_orsf2_orsf_fit", (DL_FUNC) &_orsf2_orsf_fit, 10},
     {NULL, NULL, 0}

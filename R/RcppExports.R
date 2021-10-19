@@ -41,8 +41,8 @@ lrt_multi <- function() {
     .Call(`_orsf2_lrt_multi`)
 }
 
-ostree_pred_leaf <- function(x_new) {
-    .Call(`_orsf2_ostree_pred_leaf`, x_new)
+ostree_pred_leaf <- function() {
+    invisible(.Call(`_orsf2_ostree_pred_leaf`))
 }
 
 ostree_fit <- function() {
