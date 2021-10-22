@@ -10,7 +10,7 @@ x_node_scale <- function() {
 }
 
 leaf_surv_small <- function(y, w) {
-    .Call(`_orsf2_leaf_surv_small`, y, w)
+    invisible(.Call(`_orsf2_leaf_surv_small`, y, w))
 }
 
 cholesky <- function() {
@@ -41,15 +41,19 @@ lrt_multi <- function() {
     .Call(`_orsf2_lrt_multi`)
 }
 
-ostree_pred_leaf <- function() {
-    invisible(.Call(`_orsf2_ostree_pred_leaf`))
+oobag_pred_leaf <- function() {
+    invisible(.Call(`_orsf2_oobag_pred_leaf`))
+}
+
+oobag_pred_surv <- function() {
+    invisible(.Call(`_orsf2_oobag_pred_surv`))
 }
 
 ostree_fit <- function() {
     .Call(`_orsf2_ostree_fit`)
 }
 
-orsf_fit <- function(x, y, n_split_ = 5L, mtry_ = 4L, leaf_min_events_ = 5, leaf_min_obs_ = 10, cph_method_ = 1L, cph_eps_ = 1e-8, cph_iter_max_ = 7L, cph_pval_max_ = 0.95) {
-    .Call(`_orsf2_orsf_fit`, x, y, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_)
+orsf_fit <- function(x, y, n_split_ = 5L, mtry_ = 4L, leaf_min_events_ = 5, leaf_min_obs_ = 10, cph_method_ = 1L, cph_eps_ = 1e-8, cph_iter_max_ = 7L, cph_pval_max_ = 0.95, oobag_pred = FALSE) {
+    .Call(`_orsf2_orsf_fit`, x, y, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, oobag_pred)
 }
 
