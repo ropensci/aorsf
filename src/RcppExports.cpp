@@ -31,6 +31,15 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// x_input_scale
+void x_input_scale();
+RcppExport SEXP _orsf2_x_input_scale() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    x_input_scale();
+    return R_NilValue;
+END_RCPP
+}
 // leaf_surv_small
 void leaf_surv_small(const arma::mat& y, const arma::vec& w);
 RcppExport SEXP _orsf2_leaf_surv_small(SEXP ySEXP, SEXP wSEXP) {
@@ -139,13 +148,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // orsf_fit
-List orsf_fit(NumericMatrix& x, NumericMatrix& y, const int& n_split_, const int& mtry_, const double& leaf_min_events_, const double& leaf_min_obs_, const int& cph_method_, const double& cph_eps_, const int& cph_iter_max_, const double& cph_pval_max_, const bool& oobag_pred);
-RcppExport SEXP _orsf2_orsf_fit(SEXP xSEXP, SEXP ySEXP, SEXP n_split_SEXP, SEXP mtry_SEXP, SEXP leaf_min_events_SEXP, SEXP leaf_min_obs_SEXP, SEXP cph_method_SEXP, SEXP cph_eps_SEXP, SEXP cph_iter_max_SEXP, SEXP cph_pval_max_SEXP, SEXP oobag_predSEXP) {
+List orsf_fit(NumericMatrix& x, NumericMatrix& y, const int& n_tree, const int& n_split_, const int& mtry_, const double& leaf_min_events_, const double& leaf_min_obs_, const int& cph_method_, const double& cph_eps_, const int& cph_iter_max_, const double& cph_pval_max_, const bool& oobag_pred_, const bool& scale_fast_);
+RcppExport SEXP _orsf2_orsf_fit(SEXP xSEXP, SEXP ySEXP, SEXP n_treeSEXP, SEXP n_split_SEXP, SEXP mtry_SEXP, SEXP leaf_min_events_SEXP, SEXP leaf_min_obs_SEXP, SEXP cph_method_SEXP, SEXP cph_eps_SEXP, SEXP cph_iter_max_SEXP, SEXP cph_pval_max_SEXP, SEXP oobag_pred_SEXP, SEXP scale_fast_SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix& >::type x(xSEXP);
     Rcpp::traits::input_parameter< NumericMatrix& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const int& >::type n_tree(n_treeSEXP);
     Rcpp::traits::input_parameter< const int& >::type n_split_(n_split_SEXP);
     Rcpp::traits::input_parameter< const int& >::type mtry_(mtry_SEXP);
     Rcpp::traits::input_parameter< const double& >::type leaf_min_events_(leaf_min_events_SEXP);
@@ -154,8 +164,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const double& >::type cph_eps_(cph_eps_SEXP);
     Rcpp::traits::input_parameter< const int& >::type cph_iter_max_(cph_iter_max_SEXP);
     Rcpp::traits::input_parameter< const double& >::type cph_pval_max_(cph_pval_max_SEXP);
-    Rcpp::traits::input_parameter< const bool& >::type oobag_pred(oobag_predSEXP);
-    rcpp_result_gen = Rcpp::wrap(orsf_fit(x, y, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, oobag_pred));
+    Rcpp::traits::input_parameter< const bool& >::type oobag_pred_(oobag_pred_SEXP);
+    Rcpp::traits::input_parameter< const bool& >::type scale_fast_(scale_fast_SEXP);
+    rcpp_result_gen = Rcpp::wrap(orsf_fit(x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, oobag_pred_, scale_fast_));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -163,6 +174,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_make_node_name", (DL_FUNC) &_orsf2_make_node_name, 1},
     {"_orsf2_x_node_scale", (DL_FUNC) &_orsf2_x_node_scale, 0},
+    {"_orsf2_x_input_scale", (DL_FUNC) &_orsf2_x_input_scale, 0},
     {"_orsf2_leaf_surv_small", (DL_FUNC) &_orsf2_leaf_surv_small, 2},
     {"_orsf2_cholesky", (DL_FUNC) &_orsf2_cholesky, 0},
     {"_orsf2_cholesky_solve", (DL_FUNC) &_orsf2_cholesky_solve, 0},
@@ -174,7 +186,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_oobag_pred_leaf", (DL_FUNC) &_orsf2_oobag_pred_leaf, 0},
     {"_orsf2_oobag_pred_surv", (DL_FUNC) &_orsf2_oobag_pred_surv, 0},
     {"_orsf2_ostree_fit", (DL_FUNC) &_orsf2_ostree_fit, 0},
-    {"_orsf2_orsf_fit", (DL_FUNC) &_orsf2_orsf_fit, 11},
+    {"_orsf2_orsf_fit", (DL_FUNC) &_orsf2_orsf_fit, 13},
     {NULL, NULL, 0}
 };
 
