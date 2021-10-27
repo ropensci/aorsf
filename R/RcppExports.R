@@ -61,3 +61,11 @@ orsf_fit <- function(x, y, n_tree = 2L, n_split_ = 5L, mtry_ = 4L, leaf_min_even
     .Call(`_orsf2_orsf_fit`, x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, oobag_pred_)
 }
 
+ostree_fit_new <- function() {
+    .Call(`_orsf2_ostree_fit_new`)
+}
+
+orsf_fit_new <- function(x, y, n_tree = 2L, n_split_ = 5L, mtry_ = 4L, leaf_min_events_ = 5, leaf_min_obs_ = 10, cph_method_ = 1L, cph_eps_ = 1e-8, cph_iter_max_ = 7L, cph_pval_max_ = 0.95, oobag_pred_ = FALSE) {
+    .Call(`_orsf2_orsf_fit_new`, x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, oobag_pred_)
+}
+
