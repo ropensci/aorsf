@@ -11,17 +11,6 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// make_node_name
-String make_node_name(const arma::uword& part);
-RcppExport SEXP _orsf2_make_node_name(SEXP partSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::uword& >::type part(partSEXP);
-    rcpp_result_gen = Rcpp::wrap(make_node_name(part));
-    return rcpp_result_gen;
-END_RCPP
-}
 // x_node_scale
 void x_node_scale();
 RcppExport SEXP _orsf2_x_node_scale() {
@@ -128,12 +117,21 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// oobag_pred_surv
-void oobag_pred_surv();
-RcppExport SEXP _orsf2_oobag_pred_surv() {
+// oobag_pred_surv_uni
+void oobag_pred_surv_uni();
+RcppExport SEXP _orsf2_oobag_pred_surv_uni() {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    oobag_pred_surv();
+    oobag_pred_surv_uni();
+    return R_NilValue;
+END_RCPP
+}
+// x_new_pred_surv_uni
+void x_new_pred_surv_uni();
+RcppExport SEXP _orsf2_x_new_pred_surv_uni() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    x_new_pred_surv_uni();
     return R_NilValue;
 END_RCPP
 }
@@ -201,21 +199,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// ostree_pred
-arma::uvec ostree_pred(const List tree, const arma::mat& x_new);
-RcppExport SEXP _orsf2_ostree_pred(SEXP treeSEXP, SEXP x_newSEXP) {
+// orsf_pred_uni
+arma::mat orsf_pred_uni(List forest, NumericMatrix& x_new, double time_dbl, bool return_risk);
+RcppExport SEXP _orsf2_orsf_pred_uni(SEXP forestSEXP, SEXP x_newSEXP, SEXP time_dblSEXP, SEXP return_riskSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const List >::type tree(treeSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type x_new(x_newSEXP);
-    rcpp_result_gen = Rcpp::wrap(ostree_pred(tree, x_new));
+    Rcpp::traits::input_parameter< List >::type forest(forestSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type x_new(x_newSEXP);
+    Rcpp::traits::input_parameter< double >::type time_dbl(time_dblSEXP);
+    Rcpp::traits::input_parameter< bool >::type return_risk(return_riskSEXP);
+    rcpp_result_gen = Rcpp::wrap(orsf_pred_uni(forest, x_new, time_dbl, return_risk));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_orsf2_make_node_name", (DL_FUNC) &_orsf2_make_node_name, 1},
     {"_orsf2_x_node_scale", (DL_FUNC) &_orsf2_x_node_scale, 0},
     {"_orsf2_x_input_scale", (DL_FUNC) &_orsf2_x_input_scale, 0},
     {"_orsf2_leaf_surv_small", (DL_FUNC) &_orsf2_leaf_surv_small, 2},
@@ -227,12 +226,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_newtraph_cph", (DL_FUNC) &_orsf2_newtraph_cph, 0},
     {"_orsf2_lrt_multi", (DL_FUNC) &_orsf2_lrt_multi, 0},
     {"_orsf2_oobag_pred_leaf", (DL_FUNC) &_orsf2_oobag_pred_leaf, 0},
-    {"_orsf2_oobag_pred_surv", (DL_FUNC) &_orsf2_oobag_pred_surv, 0},
+    {"_orsf2_oobag_pred_surv_uni", (DL_FUNC) &_orsf2_oobag_pred_surv_uni, 0},
+    {"_orsf2_x_new_pred_surv_uni", (DL_FUNC) &_orsf2_x_new_pred_surv_uni, 0},
     {"_orsf2_ostree_fit", (DL_FUNC) &_orsf2_ostree_fit, 0},
     {"_orsf2_orsf_fit", (DL_FUNC) &_orsf2_orsf_fit, 12},
     {"_orsf2_ostree_fit_new", (DL_FUNC) &_orsf2_ostree_fit_new, 0},
     {"_orsf2_orsf_fit_new", (DL_FUNC) &_orsf2_orsf_fit_new, 12},
-    {"_orsf2_ostree_pred", (DL_FUNC) &_orsf2_ostree_pred, 2},
+    {"_orsf2_orsf_pred_uni", (DL_FUNC) &_orsf2_orsf_pred_uni, 4},
     {NULL, NULL, 0}
 };
 

@@ -56,7 +56,7 @@ int
   mtry_int;
 
 // armadillo unsigned integers
-arma::uword
+uword
   i,
   j,
   k,
@@ -88,7 +88,7 @@ bool
   oobag_pred;
 
 // armadillo vectors (doubles)
-arma::vec
+vec
   vec_temp,
   time_unique,
   node_assignments,
@@ -111,7 +111,7 @@ arma::vec
   Risk;
 
 // armadillo unsigned integer vectors
-arma::uvec
+uvec
   iit_vals,
   jit_vals,
   rows_inbag,
@@ -130,15 +130,19 @@ arma::uvec
   leaf_oobag;
 
 // armadillo iterators for unsigned integer vectors
-arma::uvec::iterator
+uvec::iterator
   iit,
   iit_last,
   iit_best,
   jit,
   node;
 
+ivec
+  i_leaf_node_index,
+  i_children_left;
+
 // armadillo matrices (doubles)
-arma::mat
+mat
   x_input,
   x_transforms,
   y_input,
@@ -158,20 +162,14 @@ arma::mat
   betas,
   leaf_nodes;
 
-arma::umat
+umat
   col_indices;
 
+imat
+  i_col_indices;
 
+List ostree;
 
-// [[Rcpp::export]]
-String make_node_name(const arma::uword& part){
-
-  std::ostringstream oss;
-  oss << "node_" << part;
-  String out = oss.str();
-  return out;
-
-}
 
 // ----------------------------------------------------------------------------
 // ---------------------------- scaling functions -----------------------------
@@ -185,18 +183,18 @@ void x_node_scale(){
   // second column holds the scale values
 
   x_transforms.zeros(n_vars, 2);
-  arma::vec means  = x_transforms.unsafe_col(0);   // Reference to column 1
-  arma::vec scales = x_transforms.unsafe_col(1);   // Reference to column 2
+  vec means  = x_transforms.unsafe_col(0);   // Reference to column 1
+  vec scales = x_transforms.unsafe_col(1);   // Reference to column 2
 
-  w_node_sum = arma::sum(w_node);
+  w_node_sum = sum(w_node);
 
   for(i = 0; i < n_vars; i++) {
 
-    means.at(i) = arma::sum( w_node % x_node.col(i) ) / w_node_sum;
+    means.at(i) = sum( w_node % x_node.col(i) ) / w_node_sum;
 
     x_node.col(i) -= means.at(i);
 
-    scales.at(i) = arma::sum(w_node % arma::abs(x_node.col(i)));
+    scales.at(i) = sum(w_node % abs(x_node.col(i)));
 
     if(scales(i) > 0)
       scales.at(i) = w_node_sum / scales.at(i);
@@ -217,16 +215,16 @@ void x_input_scale(){
   // second column holds the scale values
 
   x_transforms.zeros(n_vars, 2);
-  arma::vec means  = x_transforms.unsafe_col(0);   // Reference to column 1
-  arma::vec scales = x_transforms.unsafe_col(1);   // Reference to column 2
+  vec means  = x_transforms.unsafe_col(0);   // Reference to column 1
+  vec scales = x_transforms.unsafe_col(1);   // Reference to column 2
 
   for(i = 0; i < n_vars; i++) {
 
-    means.at(i) = arma::mean( x_input.col(i) );
+    means.at(i) = mean( x_input.col(i) );
 
     x_input.col(i) -= means.at(i);
 
-    scales.at(i) = arma::sum(arma::abs(x_input.col(i)));
+    scales.at(i) = sum(abs(x_input.col(i)));
 
     if(scales(i) > 0)
       scales.at(i) = x_input.n_rows / scales.at(i);
@@ -282,7 +280,7 @@ void leaf_surv_small(const arma::mat& y,
   }
 
   // drop the extra zeros from time_unique
-  time_unique = time_unique(arma::span(0, n_slots - 1));
+  time_unique = time_unique(span(0, n_slots - 1));
 
   // reset for next loop
   person = 0; j = 0; temp1 = 1.0;
@@ -330,7 +328,7 @@ void leaf_surv_small(const arma::mat& y,
 
   leaf_node_index(leaf_node_index_counter) = leaf_node_counter;
   leaf_node_index_counter++;
-  // return(arma::join_horiz(time_unique, vec_temp));
+  // return(join_horiz(time_unique, vec_temp));
 
 }
 
@@ -517,7 +515,7 @@ double newtraph_cph_iter(const arma::vec& beta){
   break_loop = false;
 
   XB = x_node * beta;
-  Risk = arma::exp(XB) % w_node;
+  Risk = exp(XB) % w_node;
 
   for( ; ; ){
 
@@ -968,12 +966,12 @@ double lrt_multi(){
   stat_best = 0;
 
   // sort XB- we need to iterate over the sorted indices
-  iit_vals = arma::sort_index(XB, "ascend");
+  iit_vals = sort_index(XB, "ascend");
 
   // unsafe columns point to specific cols in y_node.
   // this makes the code more readable and doesn't copy data
-  arma::vec status = y_node.unsafe_col(1);
-  arma::vec time = y_node.unsafe_col(0);
+  vec status = y_node.unsafe_col(1);
+  vec time = y_node.unsafe_col(0);
 
   // first determine the lowest value of XB that will
   // be a valid cut-point to split a node. A valid cut-point
@@ -1144,11 +1142,11 @@ double lrt_multi(){
 
   if(k > n_split){
 
-    jit_vals = arma::linspace<arma::uvec>(0, k, n_split);
+    jit_vals = linspace<uvec>(0, k, n_split);
 
   } else {
 
-    jit_vals = arma::linspace<arma::uvec>(0, k, k);
+    jit_vals = linspace<uvec>(0, k, k);
 
   }
 
@@ -1243,8 +1241,8 @@ double lrt_multi(){
       i = y_node.n_rows-1;
 
       if(verbose > 1){
-        Rcout << "sum(group==1): " << arma::sum(group) << ";  ";
-        Rcout << "sum(group==1 * w_node): " << arma::sum(group % w_node);
+        Rcout << "sum(group==1): " << sum(group) << ";  ";
+        Rcout << "sum(group==1 * w_node): " << sum(group % w_node);
         Rcout << std::endl;
         if(verbose > 1){
           Rcout << "group:" << std::endl;
@@ -1356,24 +1354,24 @@ void ostree_size_buffer(){
     Rcout << "number of slots added: " << n_slots      << std::endl;
   }
 
-  betas = arma::join_horiz(
+  betas = join_horiz(
     betas,
-    arma::mat(betas.n_rows, n_slots)
+    mat(betas.n_rows, n_slots)
   );
 
-  col_indices = arma::join_horiz(
+  col_indices = join_horiz(
     col_indices,
-    arma::umat(col_indices.n_rows, n_slots)
+    umat(col_indices.n_rows, n_slots)
   );
 
-  children_left = arma::join_vert(
+  children_left = join_vert(
     children_left,
-    arma::uvec(n_slots)
+    uvec(n_slots)
   );
 
-  cutpoints = arma::join_vert(
+  cutpoints = join_vert(
     cutpoints,
-    arma::vec(n_slots)
+    vec(n_slots)
   );
 
   if(verbose > 1){
@@ -1396,7 +1394,7 @@ void oobag_pred_leaf(){
 
     if(children_left(i) != 0){
 
-      obs_in_node = arma::find(leaf_oobag == i);
+      obs_in_node = find(leaf_oobag == i);
 
       if(obs_in_node.size() > 0){
 
@@ -1422,8 +1420,8 @@ void oobag_pred_leaf(){
 
         if(verbose > 0){
 
-          arma::uvec in_left = arma::find(leaf_oobag == children_left(i));
-          arma::uvec in_right = arma::find(leaf_oobag == children_left(i)+1);
+          uvec in_left = find(leaf_oobag == children_left(i));
+          uvec in_right = find(leaf_oobag == children_left(i)+1);
 
           Rcout << "N to node_" << children_left(i) << ": ";
           Rcout << in_left.size() << "; ";
@@ -1441,12 +1439,12 @@ void oobag_pred_leaf(){
 }
 
 // [[Rcpp::export]]
-void oobag_pred_surv(){
+void oobag_pred_surv_uni(){
 
   // allocate memory for output
   // surv_oobag.zeros(x_oobag.n_rows);
 
-  iit_vals = arma::sort_index(leaf_oobag, "ascend");
+  iit_vals = sort_index(leaf_oobag, "ascend");
   iit = iit_vals.begin();
   j = 0;
   k = 0;
@@ -1517,6 +1515,76 @@ void oobag_pred_surv(){
 
 }
 
+// [[Rcpp::export]]
+void x_new_pred_surv_uni(){
+
+  vec_temp.fill(0);
+
+  iit_vals = sort_index(leaf_oobag, "ascend");
+  iit = iit_vals.begin();
+  j = 0;
+  k = 0;
+
+  do {
+
+    person_leaf = leaf_oobag(*iit);
+    leaf_surv   = leaf_nodes.rows(j, leaf_node_index(k)-1);
+
+    j = leaf_node_index(k);
+    k++;
+
+    if(verbose > 0){
+      Rcout << "leaf_surv:" << std::endl << leaf_surv << std::endl;
+    }
+
+    i = 0;
+
+    if(time_oobag < leaf_surv(leaf_surv.n_rows - 1, 0)){
+
+      for(; i < leaf_surv.n_rows; i++){
+        if (leaf_surv(i, 0) > time_oobag){
+          if(i == 0)
+            temp1 = 1;
+          else
+            temp1 = leaf_surv(i-1, 1);
+          break;
+        } else if (leaf_surv(i, 0) == time_oobag){
+          temp1 = leaf_surv(i, 1);
+          break;
+        }
+      }
+
+    } else {
+
+      // go here if prediction horizon > max time in current leaf.
+      temp1 = leaf_surv(leaf_surv.n_rows - 1, 1);
+
+    }
+
+    vec_temp(*iit) += temp1;
+    ++iit;
+
+    if(iit < iit_vals.end()){
+
+      while(person_leaf == leaf_oobag(*iit)){
+
+        vec_temp(*iit) += temp1;
+        ++iit;
+
+        if (iit == iit_vals.end()) break;
+
+      }
+
+    }
+
+  } while (iit < iit_vals.end());
+
+  if(verbose > 0){
+    Rcout << "pred_surv:" << std::endl << vec_temp.t() << std::endl;
+  }
+
+}
+
 
 // [[Rcpp::export]]
 List ostree_fit(){
@@ -1561,14 +1629,14 @@ List ostree_fit(){
 
         // when growing the first node, there is no need to find
         // which rows are in the node.
-        rows_node = arma::linspace<arma::uvec>(0,
+        rows_node = linspace<uvec>(0,
                                                x_inbag.n_rows-1,
                                                x_inbag.n_rows);
 
       } else {
 
         // identify which rows are in the current node.
-        rows_node = arma::find(node_assignments == *node);
+        rows_node = find(node_assignments == *node);
 
       }
 
@@ -1577,8 +1645,8 @@ List ostree_fit(){
 
       if(verbose > 0){
 
-        n_risk = arma::sum(w_node);
-        n_events = arma::sum(y_node.col(1) % w_node);
+        n_risk = sum(w_node);
+        n_events = sum(y_node.col(1) % w_node);
         Rcout << "-------- Growing node " << *node << " --------" << std::endl;
         Rcout << "No. of observations in node: " << n_risk        << std::endl;
         Rcout << "No. of events in node:       " << n_events      << std::endl;
@@ -1630,11 +1698,11 @@ List ostree_fit(){
 
       }
 
-      n_cols_to_sample = arma::sum(cols_to_sample_01);
+      n_cols_to_sample = sum(cols_to_sample_01);
 
       if(n_cols_to_sample > 1){
 
-        n_events = arma::sum(y_node.col(1));
+        n_events = sum(y_node.col(1));
 
         if(n_cols_to_sample < mtry){
 
@@ -1664,7 +1732,7 @@ List ostree_fit(){
 
         if(mtry_int > 1){
 
-          cols_to_sample = arma::find(cols_to_sample_01);
+          cols_to_sample = find(cols_to_sample_01);
 
           cols_node = Rcpp::RcppArmadillo::sample(cols_to_sample,
                                                   mtry_int,
@@ -1678,7 +1746,7 @@ List ostree_fit(){
 
           if(verbose > 0){
 
-            arma::uword temp_uword_1 = min(arma::uvec {x_node.n_rows, 5});
+            uword temp_uword_1 = min(uvec {x_node.n_rows, 5});
             Rcout << "x node scaled: " << std::endl;
             Rcout << x_node.submat(0, 0, temp_uword_1-1, x_node.n_cols-1);
             Rcout << std::endl;
@@ -1695,11 +1763,11 @@ List ostree_fit(){
           }
 
 
-          if(arma::any(beta_cph)){
+          if(any(beta_cph)){
 
             if(verbose > 0){
 
-              arma::uword temp_uword_1 = min(arma::uvec {x_node.n_rows, 5});
+              uword temp_uword_1 = min(uvec {x_node.n_rows, 5});
               Rcout << "x node unscaled: " << std::endl;
               Rcout << x_node.submat(0, 0, temp_uword_1-1, x_node.n_cols-1);
               Rcout << std::endl;
@@ -1717,7 +1785,7 @@ List ostree_fit(){
 
       if(!std::isinf(cutpoint)){
 
-        rows_node_combined = arma::join_cols(rows_node_combined,
+        rows_node_combined = join_cols(rows_node_combined,
                                              rows_node);
 
         nn_left   = nodes_max_true + 1;
@@ -1757,8 +1825,8 @@ List ostree_fit(){
 
         if(verbose > 0){
           Rcout << "-------- creating a new leaf --------" << std::endl;
-          Rcout << "n_obs:    "  << arma::sum(w_node)      << std::endl;
-          Rcout << "n_events: "  << arma::sum(w_node % y_node.col(1));
+          Rcout << "n_obs:    "  << sum(w_node)      << std::endl;
+          Rcout << "n_events: "  << sum(w_node % y_node.col(1));
           Rcout << std::endl;
           Rcout << "------------------------------------"  << std::endl;
           Rcout << std::endl << std::endl;
@@ -1781,14 +1849,14 @@ List ostree_fit(){
 
     if(verbose > 0){
 
-      vec_temp = arma::regspace<arma::vec>(1, 1, node_sums.n_rows);
+      vec_temp = regspace<vec>(1, 1, node_sums.n_rows);
 
-      arma::umat node_sums_temp = arma::conv_to<arma::umat>::from(
-        arma::join_horiz(vec_temp, node_sums)
+      umat node_sums_temp = conv_to<umat>::from(
+        join_horiz(vec_temp, node_sums)
       );
 
       Rcout << "node_sums: " << std::endl;
-      Rcout << arma::round(node_sums_temp) << std::endl;
+      Rcout << round(node_sums_temp) << std::endl;
 
     }
 
@@ -1807,7 +1875,7 @@ List ostree_fit(){
         // a new leaf
 
         // use i+1; nodes starts at 1 and i starts at 0
-        rows_leaf = arma::find(node_assignments == i+1);
+        rows_leaf = find(node_assignments == i+1);
 
         leaf_surv_small(y_inbag.rows(rows_leaf),
                         w_inbag(rows_leaf));
@@ -1816,11 +1884,11 @@ List ostree_fit(){
         if(verbose > 0){
           Rcout << "-------- creating a new leaf --------" << std::endl;
           Rcout << "name: node_" << i+1                    << std::endl;
-          Rcout << "n_obs:    "  << arma::sum(w_inbag(rows_leaf));
+          Rcout << "n_obs:    "  << sum(w_inbag(rows_leaf));
           Rcout << std::endl;
           Rcout << "n_events: ";
           vec_temp = y_inbag.col(1);
-          Rcout << arma::sum(w_inbag(rows_leaf) % vec_temp(rows_leaf));
+          Rcout << sum(w_inbag(rows_leaf) % vec_temp(rows_leaf));
           Rcout << std::endl;
           Rcout << "------------------------------------";
           Rcout << std::endl << std::endl << std::endl;
@@ -1832,18 +1900,18 @@ List ostree_fit(){
 
     }
 
-    nodes_to_grow = nodes_to_grow(arma::find(nodes_to_grow));
+    nodes_to_grow = nodes_to_grow(find(nodes_to_grow));
 
   } while (nodes_to_grow.size() > 0);
 
   return(
     List::create(
-      _["leaf_nodes"] = leaf_nodes.rows(arma::span(0, leaf_node_counter-1)),
-      _["leaf_node_index"] = leaf_node_index.rows(arma::span(0, leaf_node_index_counter-1)),
-      _["betas"] = betas.cols(arma::span(0, nodes_max_true)),
-      _["col_indices"] = col_indices.cols(arma::span(0, nodes_max_true)),
-      _["cut_points"] = cutpoints(arma::span(0, nodes_max_true)),
-      _["children_left"] = children_left(arma::span(0, nodes_max_true))
+      _["leaf_nodes"] = leaf_nodes.rows(span(0, leaf_node_counter-1)),
+      _["leaf_node_index"] = leaf_node_index.rows(span(0, leaf_node_index_counter-1)),
+      _["betas"] = betas.cols(span(0, nodes_max_true)),
+      _["col_indices"] = col_indices.cols(span(0, nodes_max_true)),
+      _["cut_points"] = cutpoints(span(0, nodes_max_true)),
+      _["children_left"] = children_left(span(0, nodes_max_true))
     )
   );
 
@@ -1866,8 +1934,8 @@ List orsf_fit(NumericMatrix&   x,
 
 
   // convert inputs into arma objects
-  x_input = arma::mat(x.begin(), x.nrow(), x.ncol(), false);
-  y_input = arma::mat(y.begin(), y.nrow(), y.ncol(), false);
+  x_input = mat(x.begin(), x.nrow(), x.ncol(), false);
+  y_input = mat(y.begin(), y.nrow(), y.ncol(), false);
 
   // these change later in ostree_fit()
   n_rows = x_input.n_rows;
@@ -1892,7 +1960,7 @@ List orsf_fit(NumericMatrix&   x,
   oobag_pred       = oobag_pred_;
   temp1            = 1.0 / n_rows;
 
-  if(oobag_pred){ time_oobag = arma::median(y_input.col(0)); }
+  if(oobag_pred){ time_oobag = median(y_input.col(0)); }
 
   if(verbose > 0){
     Rcout << "------------ input variables ------------" << std::endl;
@@ -1953,16 +2021,16 @@ List orsf_fit(NumericMatrix&   x,
     // ---- initialize parameters to grow tree ----
     // --------------------------------------------
 
-    w_inbag    = as<arma::vec>(sample(s, n_rows, true, probs));
-    rows_inbag = arma::find(w_inbag != 0);
-    rows_oobag = arma::find(w_inbag == 0);
+    w_inbag    = as<vec>(sample(s, n_rows, true, probs));
+    rows_inbag = find(w_inbag != 0);
+    rows_oobag = find(w_inbag == 0);
     w_inbag    = w_inbag(rows_inbag);
 
     if(verbose > 0){
 
       Rcout << "------------ boot weights ------------" << std::endl;
       Rcout << "pr(inbag): " << 1-pow(1-temp1,n_rows)   << std::endl;
-      Rcout << "total: "     << arma::sum(w_inbag)      << std::endl;
+      Rcout << "total: "     << sum(w_inbag)      << std::endl;
       Rcout << "N > 0: "     << rows_inbag.size()       << std::endl;
       Rcout << "--------------------------------------" <<
         std::endl << std::endl << std::endl;
@@ -1980,7 +2048,7 @@ List orsf_fit(NumericMatrix&   x,
 
     if(verbose > 0){
 
-      arma::uword temp_uword_1, temp_uword_2;
+      uword temp_uword_1, temp_uword_2;
 
       if(x_inbag.n_rows < 5)
         temp_uword_1 = x_inbag.n_rows-1;
@@ -2005,7 +2073,7 @@ List orsf_fit(NumericMatrix&   x,
 
       denom_oobag(rows_oobag) += 1;
       oobag_pred_leaf();
-      oobag_pred_surv();
+      oobag_pred_surv_uni();
 
     }
 
@@ -2067,14 +2135,14 @@ List ostree_fit_new(){
 
         // when growing the first node, there is no need to find
         // which rows are in the node.
-        rows_node = arma::linspace<arma::uvec>(0,
+        rows_node = linspace<uvec>(0,
                                                x_inbag.n_rows-1,
                                                x_inbag.n_rows);
 
       } else {
 
         // identify which rows are in the current node.
-        rows_node = arma::find(node_assignments == *node);
+        rows_node = find(node_assignments == *node);
 
       }
 
@@ -2083,8 +2151,8 @@ List ostree_fit_new(){
 
       if(verbose > 0){
 
-        n_risk = arma::sum(w_node);
-        n_events = arma::sum(y_node.col(1) % w_node);
+        n_risk = sum(w_node);
+        n_events = sum(y_node.col(1) % w_node);
         Rcout << "-------- Growing node " << *node << " --------" << std::endl;
         Rcout << "No. of observations in node: " << n_risk        << std::endl;
         Rcout << "No. of events in node:       " << n_events      << std::endl;
@@ -2136,11 +2204,11 @@ List ostree_fit_new(){
 
       }
 
-      n_cols_to_sample = arma::sum(cols_to_sample_01);
+      n_cols_to_sample = sum(cols_to_sample_01);
 
       if(n_cols_to_sample > 1){
 
-        n_events_total = arma::sum(y_node.col(1) % w_node);
+        n_events_total = sum(y_node.col(1) % w_node);
 
         if(n_cols_to_sample < mtry){
 
@@ -2170,7 +2238,7 @@ List ostree_fit_new(){
 
         if(mtry_int > 1){
 
-          cols_to_sample = arma::find(cols_to_sample_01);
+          cols_to_sample = find(cols_to_sample_01);
 
           cols_node = Rcpp::RcppArmadillo::sample(cols_to_sample,
                                                   mtry_int,
@@ -2184,7 +2252,7 @@ List ostree_fit_new(){
 
           if(verbose > 0){
 
-            arma::uword temp_uword_1 = min(arma::uvec {x_node.n_rows, 5});
+            uword temp_uword_1 = min(uvec {x_node.n_rows, 5});
             Rcout << "x node scaled: " << std::endl;
             Rcout << x_node.submat(0, 0, temp_uword_1-1, x_node.n_cols-1);
             Rcout << std::endl;
@@ -2199,11 +2267,11 @@ List ostree_fit_new(){
           }
 
 
-          if(arma::any(beta_cph)){
+          if(any(beta_cph)){
 
             if(verbose > 0){
 
-              arma::uword temp_uword_1 = min(arma::uvec {x_node.n_rows, 5});
+              uword temp_uword_1 = min(uvec {x_node.n_rows, 5});
               Rcout << "x node unscaled: " << std::endl;
               Rcout << x_node.submat(0, 0, temp_uword_1-1, x_node.n_cols-1);
               Rcout << std::endl;
@@ -2255,22 +2323,22 @@ List ostree_fit_new(){
         if(n_events_left >= 2 * leaf_min_events &&
            n_risk_left >= 2 * leaf_min_obs){
 
-          nodes_to_grow_next = arma::join_cols(nodes_to_grow_next,
-                                               arma::uvec{nn_left});
+          nodes_to_grow_next = join_cols(nodes_to_grow_next,
+                                               uvec{nn_left});
 
         } else {
 
-          rows_leaf = arma::find(group==0);
+          rows_leaf = find(group==0);
           leaf_surv_small(y_node.rows(rows_leaf), w_node(rows_leaf));
 
           if(verbose > 0){
             Rcout << "-------- creating a new leaf --------" << std::endl;
             Rcout << "name: node_" << nn_left                << std::endl;
-            Rcout << "n_obs:    "  << arma::sum(w_node(rows_leaf));
+            Rcout << "n_obs:    "  << sum(w_node(rows_leaf));
             Rcout << std::endl;
             Rcout << "n_events: ";
             vec_temp = y_node.col(1);
-            Rcout << arma::sum(w_node(rows_leaf) % vec_temp(rows_leaf));
+            Rcout << sum(w_node(rows_leaf) % vec_temp(rows_leaf));
             Rcout << std::endl;
             Rcout << "------------------------------------";
             Rcout << std::endl << std::endl << std::endl;
@@ -2281,22 +2349,22 @@ List ostree_fit_new(){
         if(n_events_right >= 2 * leaf_min_events &&
            n_risk_right   >= 2 * leaf_min_obs){
 
-          nodes_to_grow_next = arma::join_cols(nodes_to_grow_next,
-                                               arma::uvec{nodes_max_true});
+          nodes_to_grow_next = join_cols(nodes_to_grow_next,
+                                               uvec{nodes_max_true});
 
         } else {
 
-          rows_leaf = arma::find(group);
+          rows_leaf = find(group);
           leaf_surv_small(y_node.rows(rows_leaf), w_node(rows_leaf));
 
           if(verbose > 0){
             Rcout << "-------- creating a new leaf --------" << std::endl;
             Rcout << "name: node_" << nodes_max_true               << std::endl;
-            Rcout << "n_obs:    "  << arma::sum(w_node(rows_leaf));
+            Rcout << "n_obs:    "  << sum(w_node(rows_leaf));
             Rcout << std::endl;
             Rcout << "n_events: ";
             vec_temp = y_node.col(1);
-            Rcout << arma::sum(w_node(rows_leaf) % vec_temp(rows_leaf));
+            Rcout << sum(w_node(rows_leaf) % vec_temp(rows_leaf));
             Rcout << std::endl;
             Rcout << "------------------------------------";
             Rcout << std::endl << std::endl << std::endl;
@@ -2320,8 +2388,8 @@ List ostree_fit_new(){
         if(verbose > 0){
           Rcout << "-------- creating a new leaf --------" << std::endl;
           Rcout << "name: node_" << *node                  << std::endl;
-          Rcout << "n_obs:    "  << arma::sum(w_node)      << std::endl;
-          Rcout << "n_events: "  << arma::sum(w_node % y_node.col(1));
+          Rcout << "n_obs:    "  << sum(w_node)      << std::endl;
+          Rcout << "n_events: "  << sum(w_node % y_node.col(1));
           Rcout                                            << std::endl;
           Rcout << "Couldn't find a cutpoint??"            << std::endl;
           Rcout << "------------------------------------"  << std::endl;
@@ -2340,12 +2408,12 @@ List ostree_fit_new(){
 
   return(
     List::create(
-      _["leaf_nodes"] = leaf_nodes.rows(arma::span(0, leaf_node_counter-1)),
-      _["leaf_node_index"] = arma::conv_to<arma::imat>::from(leaf_node_index.rows(arma::span(0, leaf_node_index_counter-1))),
-      _["betas"] = betas.cols(arma::span(0, nodes_max_true)),
-      _["col_indices"] = arma::conv_to<arma::imat>::from(col_indices.cols(arma::span(0, nodes_max_true))),
-      _["cut_points"] = cutpoints(arma::span(0, nodes_max_true)),
-      _["children_left"] = children_left(arma::span(0, nodes_max_true))
+      _["leaf_nodes"] = leaf_nodes.rows(span(0, leaf_node_counter-1)),
+      _["leaf_node_index"] = conv_to<imat>::from(leaf_node_index.rows(span(0, leaf_node_index_counter-1))),
+      _["betas"] = betas.cols(span(0, nodes_max_true)),
+      _["col_indices"] = conv_to<imat>::from(col_indices.cols(span(0, nodes_max_true))),
+      _["cut_points"] = cutpoints(span(0, nodes_max_true)),
+      _["children_left"] = children_left(span(0, nodes_max_true))
     )
   );
 
@@ -2354,22 +2422,22 @@ List ostree_fit_new(){
 
 // [[Rcpp::export]]
 List orsf_fit_new(NumericMatrix&   x,
-              NumericMatrix&   y,
-              const int&       n_tree = 2,
-              const int&       n_split_ = 5,
-              const int&       mtry_ = 4,
-              const double&    leaf_min_events_ = 5,
-              const double&    leaf_min_obs_ = 10,
-              const int&       cph_method_ = 1,
-              const double&    cph_eps_ = 1e-8,
-              const int&       cph_iter_max_ = 7,
-              const double&    cph_pval_max_ = 0.95,
-              const bool&      oobag_pred_ = false){
+                  NumericMatrix&   y,
+                  const int&       n_tree = 2,
+                  const int&       n_split_ = 5,
+                  const int&       mtry_ = 4,
+                  const double&    leaf_min_events_ = 5,
+                  const double&    leaf_min_obs_ = 10,
+                  const int&       cph_method_ = 1,
+                  const double&    cph_eps_ = 1e-8,
+                  const int&       cph_iter_max_ = 7,
+                  const double&    cph_pval_max_ = 0.95,
+                  const bool&      oobag_pred_ = false){
 
 
   // convert inputs into arma objects
-  x_input = arma::mat(x.begin(), x.nrow(), x.ncol(), false);
-  y_input = arma::mat(y.begin(), y.nrow(), y.ncol(), false);
+  x_input = mat(x.begin(), x.nrow(), x.ncol(), false);
+  y_input = mat(y.begin(), y.nrow(), y.ncol(), false);
 
   // these change later in ostree_fit()
   n_rows = x_input.n_rows;
@@ -2394,7 +2462,7 @@ List orsf_fit_new(NumericMatrix&   x,
   oobag_pred       = oobag_pred_;
   temp1            = 1.0 / n_rows;
 
-  if(oobag_pred){ time_oobag = arma::median(y_input.col(0)); }
+  if(oobag_pred){ time_oobag = median(y_input.col(0)); }
 
   if(verbose > 0){
     Rcout << "------------ input variables ------------" << std::endl;
@@ -2455,16 +2523,16 @@ List orsf_fit_new(NumericMatrix&   x,
     // ---- initialize parameters to grow tree ----
     // --------------------------------------------
 
-    w_inbag    = as<arma::vec>(sample(s, n_rows, true, probs));
-    rows_inbag = arma::find(w_inbag != 0);
-    rows_oobag = arma::find(w_inbag == 0);
+    w_inbag    = as<vec>(sample(s, n_rows, true, probs));
+    rows_inbag = find(w_inbag != 0);
+    rows_oobag = find(w_inbag == 0);
     w_inbag    = w_inbag(rows_inbag);
 
     if(verbose > 0){
 
       Rcout << "------------ boot weights ------------" << std::endl;
       Rcout << "pr(inbag): " << 1-pow(1-temp1,n_rows)   << std::endl;
-      Rcout << "total: "     << arma::sum(w_inbag)      << std::endl;
+      Rcout << "total: "     << sum(w_inbag)      << std::endl;
       Rcout << "N > 0: "     << rows_inbag.size()       << std::endl;
       Rcout << "--------------------------------------" <<
         std::endl << std::endl << std::endl;
@@ -2482,7 +2550,7 @@ List orsf_fit_new(NumericMatrix&   x,
 
     if(verbose > 0){
 
-      arma::uword temp_uword_1, temp_uword_2;
+      uword temp_uword_1, temp_uword_2;
 
       if(x_inbag.n_rows < 5)
         temp_uword_1 = x_inbag.n_rows-1;
@@ -2507,7 +2575,7 @@ List orsf_fit_new(NumericMatrix&   x,
 
       denom_oobag(rows_oobag) += 1;
       oobag_pred_leaf();
-      oobag_pred_surv();
+      oobag_pred_surv_uni();
 
     }
 
@@ -2525,62 +2593,78 @@ List orsf_fit_new(NumericMatrix&   x,
 }
 
 
-// [[Rcpp::export]]
-arma::uvec ostree_pred(const List tree,
-                       const arma::mat& x_new){
+void oobag_mem_xfer(){
 
-  // allocate memory for output
-  arma::uvec out(x_new.n_rows);
+  NumericMatrix leaf_nodes_      = ostree["leaf_nodes"];
+  NumericMatrix betas_           = ostree["betas"];
+  NumericVector cutpoints_       = ostree["cut_points"];
+  IntegerMatrix col_indices_     = ostree["col_indices"];
+  IntegerVector leaf_node_index_ = ostree["leaf_node_index"];
+  IntegerVector children_left_   = ostree["children_left"];
 
-  arma::vec lc;
+  leaf_nodes = mat(leaf_nodes_.begin(),
+                   leaf_nodes_.nrow(),
+                   leaf_nodes_.ncol(),
+                   false);
 
-  for(i = 0; i < betas.n_cols; i++){
+  betas = mat(betas_.begin(),
+              betas_.nrow(),
+              betas_.ncol(),
+              false);
 
-    if(children_left(i) != 0){
+  cutpoints = vec(cutpoints_.begin(), cutpoints_.length(), false);
 
-      obs_in_node = arma::find(out == i);
+  i_col_indices = imat(col_indices_.begin(),
+                       col_indices_.nrow(),
+                       col_indices_.ncol(),
+                       false);
 
-      if(obs_in_node.size() > 0){
+  i_leaf_node_index = ivec(leaf_node_index_.begin(),
+                           leaf_node_index_.length(),
+                           false);
 
-        XB = x_oobag(obs_in_node, col_indices.col(i)) * betas.col(i);
+  i_children_left = ivec(children_left_.begin(),
+                         children_left_.length(),
+                         false);
 
-        jit = obs_in_node.begin();
-
-        for(j = 0; j < XB.size(); j++){
-
-          if(XB(j) <= cutpoints(i)) {
-
-            out(*jit) = children_left(i);
-
-          } else {
-
-            out(*jit) = children_left(i)+1;
-
-          }
-
-          jit++;
-
-        }
-
-        if(verbose > 0){
-
-          arma::uvec in_left = arma::find(out == children_left(i));
-          arma::uvec in_right = arma::find(out == children_left(i)+1);
-
-          Rcout << "N to node_" << children_left(i) << ": ";
-          Rcout << in_left.size() << "; ";
-          Rcout << "N to node_" << children_left(i)+1 << ": ";
-          Rcout << in_right.size() << std::endl;
-
-        }
-
-      }
-
-    }
-
-  }
-
-  return(out);
+  col_indices = conv_to<umat>::from(i_col_indices);
+  leaf_node_index = conv_to<uvec>::from(i_leaf_node_index);
+  children_left = conv_to<uvec>::from(i_children_left);
 
 }
+
+
+// [[Rcpp::export]]
+arma::mat orsf_pred_uni(List forest,
+                        NumericMatrix& x_new,
+                        double time_dbl,
+                        bool return_risk = true){
+
+  x_oobag = mat(x_new.begin(), x_new.nrow(), x_new.ncol(), false);
+  time_oobag = time_dbl;
+
+  // memory for outputs
+  leaf_oobag.set_size(x_oobag.n_rows);
+  vec_temp.set_size(x_oobag.n_rows);
+
+  int tree;
+
+  for(tree = 0; tree < forest.length(); ++tree){
+    ostree = forest[tree];
+    oobag_mem_xfer();
+    oobag_pred_leaf();
+    x_new_pred_surv_uni();
+  }
+
+  temp1 = tree + 1;
+
+  if(return_risk){
+    return(1 - (vec_temp / temp1));
+  } else{
+    return(vec_temp / temp1);
+  }
+
+}
+
+
 
