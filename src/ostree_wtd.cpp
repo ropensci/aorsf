@@ -5,6 +5,7 @@
 // [[Rcpp::depends(RcppArmadillo)]]
 
 using namespace Rcpp;
+using namespace arma;
 
 // ----------------------------------------------------------------------------
 // ---------------------------- global parameters -----------------------------
@@ -51,7 +52,7 @@ double
   cph_pval_max;
 
 int
-  verbose=0,
+  verbose=1,
   mtry_int;
 
 // armadillo unsigned integers
@@ -151,7 +152,7 @@ arma::mat
   node_sums,
   leaf,
   leaf_surv,
-  imat,
+  vmat,
   cmat,
   cmat2,
   betas,
@@ -346,11 +347,11 @@ void cholesky(){
 
   for(i = 0; i < n_vars; i++){
 
-    if(imat.at(i,i) > eps_chol) eps_chol = imat.at(i,i);
+    if(vmat.at(i,i) > eps_chol) eps_chol = vmat.at(i,i);
 
     // copy upper right values to bottom left
     for(j = (i+1); j<n_vars; j++){
-      imat.at(j,i) = imat.at(i,j);
+      vmat.at(j,i) = vmat.at(i,j);
     }
   }
 
@@ -361,19 +362,19 @@ void cholesky(){
 
   for (i = 0; i < n_vars; i++) {
 
-    pivot = imat.at(i, i);
+    pivot = vmat.at(i, i);
 
     if (pivot < R_PosInf && pivot > eps_chol) {
 
       for(j = (i+1); j < n_vars; j++){
 
-        temp1 = imat.at(j,i) / pivot;
-        imat.at(j,i) = temp1;
-        imat.at(j,j) -= temp1*temp1*pivot;
+        temp1 = vmat.at(j,i) / pivot;
+        vmat.at(j,i) = temp1;
+        vmat.at(j,j) -= temp1*temp1*pivot;
 
         for(k = (j+1); k < n_vars; k++){
 
-          imat.at(k, j) -= temp1 * imat.at(k, i);
+          vmat.at(k, j) -= temp1 * vmat.at(k, i);
 
         }
 
@@ -381,7 +382,7 @@ void cholesky(){
 
     } else {
 
-      imat.at(i, i) = 0;
+      vmat.at(i, i) = 0;
 
     }
 
@@ -398,7 +399,7 @@ void cholesky_solve(){
 
     for (j = 0; j < i; j++){
 
-      temp1 -= u[j] * imat.at(i, j);
+      temp1 -= u[j] * vmat.at(i, j);
       u[i] = temp1;
 
     }
@@ -408,16 +409,16 @@ void cholesky_solve(){
 
   for (i = n_vars; i >= 1; i--){
 
-    if (imat.at(i-1, i-1) == 0){
+    if (vmat.at(i-1, i-1) == 0){
 
       u[i-1] = 0;
 
     } else {
 
-      temp1 = u[i-1] / imat.at(i-1, i-1);
+      temp1 = u[i-1] / vmat.at(i-1, i-1);
 
       for (j = i; j < n_vars; j++){
-        temp1 -= u[j] * imat.at(j, i-1);
+        temp1 -= u[j] * vmat.at(j, i-1);
       }
 
       u[i-1] = temp1;
@@ -437,16 +438,16 @@ void cholesky_invert(){
    */
   for (i=0; i<n_vars; i++){
 
-    if (imat.at(i,i) >0) {
+    if (vmat.at(i,i) >0) {
 
-      imat.at(i,i) = 1.0 / imat.at(i,i);
+      vmat.at(i,i) = 1.0 / vmat.at(i,i);
 
       for (j=(i+1); j<n_vars; j++) {
 
-        imat.at(j, i) = -imat.at(j, i);
+        vmat.at(j, i) = -vmat.at(j, i);
 
         for (k=0; k<i; k++){
-          imat.at(j, k) += imat.at(j, i) * imat.at(i, k);
+          vmat.at(j, k) += vmat.at(j, i) * vmat.at(i, k);
         }
 
       }
@@ -458,25 +459,25 @@ void cholesky_invert(){
   /*
    ** lower triangle now contains inverse of cholesky
    ** calculate F'DF (inverse of cholesky decomp process) to get inverse
-   **   of original imat
+   **   of original vmat
    */
   for (i=0; i<n_vars; i++) {
 
-    if (imat.at(i, i) == 0) {
+    if (vmat.at(i, i) == 0) {
 
-      for (j=0; j<i; j++) imat.at(i, j) = 0;
-      for (j=i; j<n_vars; j++) imat.at(j, i) = 0;
+      for (j=0; j<i; j++) vmat.at(i, j) = 0;
+      for (j=i; j<n_vars; j++) vmat.at(j, i) = 0;
 
     } else {
 
       for (j=(i+1); j<n_vars; j++) {
 
-        temp1 = imat.at(j, i) * imat.at(j, j);
+        temp1 = vmat.at(j, i) * vmat.at(j, j);
 
-        if (j!=i) imat.at(i, j) = temp1;
+        if (j!=i) vmat.at(i, j) = temp1;
 
         for (k=i; k<j; k++){
-          imat.at(i, k) += temp1*imat.at(j, k);
+          vmat.at(i, k) += temp1*vmat.at(j, k);
         }
 
       }
@@ -506,7 +507,7 @@ double newtraph_cph_iter(const arma::vec& beta){
   u.fill(0);
   a.fill(0);
   a2.fill(0);
-  imat.fill(0);
+  vmat.fill(0);
   cmat.fill(0);
   cmat2.fill(0);
 
@@ -607,7 +608,7 @@ double newtraph_cph_iter(const arma::vec& beta){
 
           for (j=0; j<=i; j++) {
             cmat.at(j, i) += cmat2.at(j, i);
-            imat.at(j, i) += weight_events * (cmat.at(j, i) - temp1 * a[j]) / denom;
+            vmat.at(j, i) += weight_events * (cmat.at(j, i) - temp1 * a[j]) / denom;
           }
 
         }
@@ -635,7 +636,7 @@ double newtraph_cph_iter(const arma::vec& beta){
 
             for (j=0; j<=i; j++) {
               cmat.at(j, i) += cmat2.at(j, i) / n_events;
-              imat.at(j, i) += weight_avg * (cmat.at(j, i) - temp1 * a[j]) / denom;
+              vmat.at(j, i) += weight_avg * (cmat.at(j, i) - temp1 * a[j]) / denom;
             }
 
           }
@@ -669,7 +670,7 @@ double newtraph_cph_init(){
   u.fill(0);
   a.fill(0);
   a2.fill(0);
-  imat.fill(0);
+  vmat.fill(0);
   cmat.fill(0);
   cmat2.fill(0);
 
@@ -759,7 +760,7 @@ double newtraph_cph_init(){
 
           for (j=0; j<=i; j++) {
             cmat.at(j, i) += cmat2.at(j, i);
-            imat.at(j, i) += denom_events * (cmat.at(j, i) - temp1 * a[j]) / denom;
+            vmat.at(j, i) += denom_events * (cmat.at(j, i) - temp1 * a[j]) / denom;
           }
 
         }
@@ -787,7 +788,7 @@ double newtraph_cph_init(){
 
             for (j=0; j<=i; j++) {
               cmat.at(j, i) += cmat2.at(j, i) / n_events;
-              imat.at(j, i) += weight_avg * (cmat.at(j, i) - temp1 * a[j]) / denom;
+              vmat.at(j, i) += weight_avg * (cmat.at(j, i) - temp1 * a[j]) / denom;
             }
 
           }
@@ -821,7 +822,7 @@ arma::vec newtraph_cph(){
   u.set_size(n_vars);
   a.set_size(n_vars);
   a2.set_size(n_vars);
-  imat.set_size(n_vars, n_vars);
+  vmat.set_size(n_vars, n_vars);
   cmat.set_size(n_vars, n_vars);
   cmat2.set_size(n_vars, n_vars);
 
@@ -839,7 +840,7 @@ arma::vec newtraph_cph(){
 
     for(iter = 1; iter < cph_iter_max; iter++){
 
-      if(verbose > 0){
+      if(verbose > 1){
 
         Rcout << "--------- Newt-Raph algo; iter " << iter;
         Rcout << " ---------"  << std::endl;
@@ -898,7 +899,7 @@ arma::vec newtraph_cph(){
 
   }
 
-  // invert imat
+  // invert vmat
   cholesky_invert();
 
   for (i=0; i < n_vars; i++) {
@@ -907,29 +908,29 @@ arma::vec newtraph_cph(){
 
     if(std::isinf(beta_current[i])) beta_current[i] = 0;
 
-    if(std::isinf(imat.at(i, i))) imat.at(i, i) = 1.0;
+    if(std::isinf(vmat.at(i, i))) vmat.at(i, i) = 1.0;
 
-    if(verbose > 0) Rcout << "scaled beta: " << beta_current[i] << "; ";
+    if(verbose > 1) Rcout << "scaled beta: " << beta_current[i] << "; ";
 
     beta_current.at(i) *= x_transforms.at(i, 1);
 
-    imat.at(i, i) *= x_transforms.at(i, 1) * x_transforms.at(i, 1);
+    vmat.at(i, i) *= x_transforms.at(i, 1) * x_transforms.at(i, 1);
 
-    if(verbose > 0) Rcout << "un-scaled beta: " << beta_current[i] << std::endl;
+    if(verbose > 1) Rcout << "un-scaled beta: " << beta_current[i] << std::endl;
 
-    temp1 = R::pchisq(pow(beta_current[i], 2) / imat.at(i, i),
+    temp1 = R::pchisq(pow(beta_current[i], 2) / vmat.at(i, i),
                       1, false, false);
 
     if(temp1 > cph_pval_max){
       beta_current[i] = 0;
-      if(verbose > 0){
+      if(verbose > 1){
         Rcout<<"dropping coef "<<i<<" to 0; p = "<<temp1<<std::endl;
       }
     }
 
   }
 
-  if(verbose > 0) Rcout << std::endl;
+  if(verbose > 1) Rcout << std::endl;
 
   return(beta_current);
 
@@ -982,7 +983,7 @@ double lrt_multi(){
   n_events = 0;
   n_risk = 0;
 
-  if(verbose > 0){
+  if(verbose > 1){
     Rcout << "----- finding cut-point boundaries -----" << std::endl;
   }
 
@@ -1014,7 +1015,7 @@ double lrt_multi(){
       if( n_events >= leaf_min_events &&
           n_risk   >= leaf_min_obs) {
 
-        if(verbose > 0){
+        if(verbose > 1){
           Rcout << std::endl;
           Rcout << "lower cutpoint: "         << XB(*iit) << std::endl;
           Rcout << " - n_events, left node: " << n_events << std::endl;
@@ -1030,7 +1031,7 @@ double lrt_multi(){
 
   }
 
-  if(verbose > 0){
+  if(verbose > 1){
     if(iit >= iit_vals.end()-1) {
       Rcout << "Could not find a valid lower cut-point" << std::endl;
     }
@@ -1078,7 +1079,7 @@ double lrt_multi(){
 
         --iit;
 
-        if(verbose > 0){
+        if(verbose > 1){
           Rcout << std::endl;
           Rcout << "upper cutpoint: " << XB(*iit) << std::endl;
           Rcout << " - n_events, right node: " << n_events    << std::endl;
@@ -1113,21 +1114,21 @@ double lrt_multi(){
   // telling us where we are after taking p steps from the end
   // of the XB vec. Returning the infinite cp is a red flag.
 
-  if(verbose > 0){
+  if(verbose > 1){
     Rcout << "j: " << j << std::endl;
     Rcout << "k: " << k << std::endl;
   }
 
   if (j > k){
 
-    if(verbose > 0) {
+    if(verbose > 1) {
       Rcout << "Could not find a cut-point for this XB" << std::endl;
     }
 
     return(R_PosInf);
   }
 
-  if(verbose > 0){
+  if(verbose > 1){
 
     Rcout << "----- initializing log-rank test cutpoints -----" << std::endl;
     Rcout << "n potential cutpoints: " << k-j << std::endl;
@@ -1162,7 +1163,7 @@ double lrt_multi(){
   if(j == 0) jit_vals(jit_vals.size()-1)++;
 
 
-  if(verbose > 0){
+  if(verbose > 1){
 
     Rcout << "cut-points chosen: ";
 
@@ -1182,7 +1183,7 @@ double lrt_multi(){
   for(jit = jit_vals.begin(); jit != jit_vals.end(); ++jit){
 
 
-    if(verbose > 0){
+    if(verbose > 1){
       Rcout << "jit points to " << *jit << std::endl;
     }
 
@@ -1241,12 +1242,16 @@ double lrt_multi(){
 
       i = y_node.n_rows-1;
 
-      if(verbose > 0){
+      if(verbose > 1){
         Rcout << "sum(group==1): " << arma::sum(group) << ";  ";
-        Rcout << "sum(group==1) * w_node: " << arma::sum(group % w_node);
+        Rcout << "sum(group==1 * w_node): " << arma::sum(group % w_node);
         Rcout << std::endl;
-        Rcout << "group:" << std::endl << group(iit_vals).t() << std::endl;
+        if(verbose > 1){
+          Rcout << "group:" << std::endl;
+          Rcout << group(iit_vals).t() << std::endl;
+        }
       }
+
 
       // begin inner loop  - - - - - - - - - - - - -  - - - - - - - - - - - - -
       for (; ;){
@@ -1290,7 +1295,7 @@ double lrt_multi(){
 
       stat_current = pow(expected-observed, 2) / V;
 
-      if(verbose > 0){
+      if(verbose > 1){
 
         Rcout << "-------- log-rank test results --------" << std::endl;
         Rcout << "cutpoint: " << XB(*iit)                  << std::endl;
@@ -1318,7 +1323,7 @@ double lrt_multi(){
 
   if(stat_best < 3.841459) return(R_PosInf);
 
-  if(verbose > 0){
+  if(verbose > 1){
     Rcout << "Best LRT stat: " << stat_best << std::endl;
   }
 
@@ -1345,7 +1350,7 @@ void ostree_size_buffer(){
 
   n_slots = (nodes_max_true+1) - betas.n_cols + 10;
 
-  if(verbose > 0){
+  if(verbose > 1){
     Rcout << "---------- buffering outputs ----------" << std::endl;
     Rcout << "ncol of betas before:  " << betas.n_cols << std::endl;
     Rcout << "number of slots added: " << n_slots      << std::endl;
@@ -1371,7 +1376,7 @@ void ostree_size_buffer(){
     arma::vec(n_slots)
   );
 
-  if(verbose > 0){
+  if(verbose > 1){
 
     Rcout << "ncol of betas after:  " << betas.n_cols  << std::endl;
     Rcout << "-------------------------------------"   << std::endl;
@@ -2240,25 +2245,10 @@ List ostree_fit_new(){
         }
 
         i=0;
-        // n_events_left = 0;
-        // n_risk_left = 0;
-        // n_events_right = 0;
-        // n_risk_right = 0;
-
 
         for(iit = rows_node.begin(); iit != rows_node.end(); ++iit, ++i){
 
           node_assignments[*iit] = nn_left + group[i];
-
-          // if(group(i) == 0){
-          //   node_assignments(*iit) = nn_left;
-          //   // n_events_left += y_node(i, 1) * w_node(i);
-          //   // n_risk_left += w_node(i);
-          // } else {
-          //   node_assignments(*iit) = nodes_max_true;
-          //   // n_events_right += y_node(i, 1) * w_node(i);
-          //   // n_risk_right += w_node(i);
-          // }
 
         }
 
@@ -2351,9 +2341,9 @@ List ostree_fit_new(){
   return(
     List::create(
       _["leaf_nodes"] = leaf_nodes.rows(arma::span(0, leaf_node_counter-1)),
-      _["leaf_node_index"] = leaf_node_index.rows(arma::span(0, leaf_node_index_counter-1)),
+      _["leaf_node_index"] = arma::conv_to<arma::imat>::from(leaf_node_index.rows(arma::span(0, leaf_node_index_counter-1))),
       _["betas"] = betas.cols(arma::span(0, nodes_max_true)),
-      _["col_indices"] = col_indices.cols(arma::span(0, nodes_max_true)),
+      _["col_indices"] = arma::conv_to<arma::imat>::from(col_indices.cols(arma::span(0, nodes_max_true))),
       _["cut_points"] = cutpoints(arma::span(0, nodes_max_true)),
       _["children_left"] = children_left(arma::span(0, nodes_max_true))
     )
@@ -2535,5 +2525,62 @@ List orsf_fit_new(NumericMatrix&   x,
 }
 
 
+// [[Rcpp::export]]
+arma::uvec ostree_pred(const List tree,
+                       const arma::mat& x_new){
 
+  // allocate memory for output
+  arma::uvec out(x_new.n_rows);
+
+  arma::vec lc;
+
+  for(i = 0; i < betas.n_cols; i++){
+
+    if(children_left(i) != 0){
+
+      obs_in_node = arma::find(out == i);
+
+      if(obs_in_node.size() > 0){
+
+        XB = x_oobag(obs_in_node, col_indices.col(i)) * betas.col(i);
+
+        jit = obs_in_node.begin();
+
+        for(j = 0; j < XB.size(); j++){
+
+          if(XB(j) <= cutpoints(i)) {
+
+            out(*jit) = children_left(i);
+
+          } else {
+
+            out(*jit) = children_left(i)+1;
+
+          }
+
+          jit++;
+
+        }
+
+        if(verbose > 0){
+
+          arma::uvec in_left = arma::find(out == children_left(i));
+          arma::uvec in_right = arma::find(out == children_left(i)+1);
+
+          Rcout << "N to node_" << children_left(i) << ": ";
+          Rcout << in_left.size() << "; ";
+          Rcout << "N to node_" << children_left(i)+1 << ": ";
+          Rcout << in_right.size() << std::endl;
+
+        }
+
+      }
+
+    }
+
+  }
+
+  return(out);
+
+}
 

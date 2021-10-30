@@ -69,3 +69,7 @@ orsf_fit_new <- function(x, y, n_tree = 2L, n_split_ = 5L, mtry_ = 4L, leaf_min_
     .Call(`_orsf2_orsf_fit_new`, x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, oobag_pred_)
 }
 
+ostree_pred <- function(tree, x_new) {
+    .Call(`_orsf2_ostree_pred`, tree, x_new)
+}
+
