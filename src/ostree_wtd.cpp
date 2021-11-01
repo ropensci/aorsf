@@ -1457,7 +1457,7 @@ void oobag_pred_surv_uni(){
     j = leaf_node_index(k);
     k++;
 
-    if(verbose > 0){
+    if(verbose > 1){
       Rcout << "leaf_surv:" << std::endl << leaf_surv << std::endl;
     }
 
@@ -1518,8 +1518,6 @@ void oobag_pred_surv_uni(){
 // [[Rcpp::export]]
 void x_new_pred_surv_uni(){
 
-  vec_temp.fill(0);
-
   iit_vals = sort_index(leaf_oobag, "ascend");
   iit = iit_vals.begin();
   j = 0;
@@ -1533,7 +1531,7 @@ void x_new_pred_surv_uni(){
     j = leaf_node_index(k);
     k++;
 
-    if(verbose > 0){
+    if(verbose > 1){
       Rcout << "leaf_surv:" << std::endl << leaf_surv << std::endl;
     }
 
@@ -1579,7 +1577,7 @@ void x_new_pred_surv_uni(){
 
   } while (iit < iit_vals.end());
 
-  if(verbose > 0){
+  if(verbose > 1){
     Rcout << "pred_surv:" << std::endl << vec_temp.t() << std::endl;
   }
 
@@ -1630,8 +1628,8 @@ List ostree_fit(){
         // when growing the first node, there is no need to find
         // which rows are in the node.
         rows_node = linspace<uvec>(0,
-                                               x_inbag.n_rows-1,
-                                               x_inbag.n_rows);
+                                   x_inbag.n_rows-1,
+                                   x_inbag.n_rows);
 
       } else {
 
@@ -1958,7 +1956,6 @@ List orsf_fit(NumericMatrix&   x,
   cph_iter_max     = cph_iter_max_;
   cph_pval_max     = cph_pval_max_;
   oobag_pred       = oobag_pred_;
-  temp1            = 1.0 / n_rows;
 
   if(oobag_pred){ time_oobag = median(y_input.col(0)); }
 
@@ -1987,7 +1984,7 @@ List orsf_fit(NumericMatrix&   x,
 
   // compute probability of being selected into the bootstrap
   // 0 times, 1, times, ..., 9 times, or 10 times.
-  NumericVector probs = dbinom(s, n_rows, temp1, false);
+  NumericVector probs = dbinom(s, n_rows, 1.0 / n_rows, false);
 
   // ---------------------------------------------
   // ---- preallocate memory for tree outputs ----
@@ -2029,7 +2026,7 @@ List orsf_fit(NumericMatrix&   x,
     if(verbose > 0){
 
       Rcout << "------------ boot weights ------------" << std::endl;
-      Rcout << "pr(inbag): " << 1-pow(1-temp1,n_rows)   << std::endl;
+      Rcout << "pr(inbag): " << 1-pow(1-1.0 / n_rows,n_rows)   << std::endl;
       Rcout << "total: "     << sum(w_inbag)      << std::endl;
       Rcout << "N > 0: "     << rows_inbag.size()       << std::endl;
       Rcout << "--------------------------------------" <<
@@ -2136,8 +2133,8 @@ List ostree_fit_new(){
         // when growing the first node, there is no need to find
         // which rows are in the node.
         rows_node = linspace<uvec>(0,
-                                               x_inbag.n_rows-1,
-                                               x_inbag.n_rows);
+                                   x_inbag.n_rows-1,
+                                   x_inbag.n_rows);
 
       } else {
 
@@ -2645,7 +2642,7 @@ arma::mat orsf_pred_uni(List forest,
 
   // memory for outputs
   leaf_oobag.set_size(x_oobag.n_rows);
-  vec_temp.set_size(x_oobag.n_rows);
+  vec_temp.zeros(x_oobag.n_rows);
 
   int tree;
 
