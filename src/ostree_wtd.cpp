@@ -208,37 +208,6 @@ void x_node_scale(){
 
 }
 
-// [[Rcpp::export]]
-void x_input_scale(){
-
-  // set aside memory for outputs
-  // first column holds the mean values
-  // second column holds the scale values
-
-  x_transforms.zeros(n_vars, 2);
-  vec means  = x_transforms.unsafe_col(0);   // Reference to column 1
-  vec scales = x_transforms.unsafe_col(1);   // Reference to column 2
-
-  for(i = 0; i < n_vars; i++) {
-
-    means.at(i) = mean( x_input.col(i) );
-
-    x_input.col(i) -= means.at(i);
-
-    scales.at(i) = sum(abs(x_input.col(i)));
-
-    if(scales(i) > 0)
-      scales.at(i) = x_input.n_rows / scales.at(i);
-    else
-      scales.at(i) = 1.0; // rare case of constant covariate;
-
-    x_input.col(i) *= scales.at(i);
-
-  }
-
-}
-
-
 // ----------------------------------------------------------------------------
 // -------------------------- leaf_surv functions -----------------------------
 // ----------------------------------------------------------------------------
