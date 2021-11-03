@@ -143,6 +143,7 @@ ivec
 
 // armadillo matrices (doubles)
 mat
+  mat_temp,
   x_input,
   x_transforms,
   y_input,
@@ -261,9 +262,17 @@ void leaf_surv_small(const arma::mat& y,
     person++;
   }
 
+
   // now person should correspond to the first event time
   time_unique(0) = y.at(person, 0);  // see above
   temp2          = y.at(person, 0);
+
+  if(verbose){
+    mat_temp = join_horiz(y, w_node);
+    Rcout << "leaf_surv y: " << std::endl << mat_temp << std::endl;
+    Rcout << "leaf_surv person init: " << person << std::endl;
+    Rcout << "leaf_surv n_risk init: " << n_risk << std::endl;
+  }
 
   for( ; person < y.n_rows; person++){
 
