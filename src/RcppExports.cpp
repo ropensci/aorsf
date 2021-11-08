@@ -11,35 +11,6 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// x_node_scale
-void x_node_scale();
-RcppExport SEXP _orsf2_x_node_scale() {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    x_node_scale();
-    return R_NilValue;
-END_RCPP
-}
-// x_input_scale
-void x_input_scale();
-RcppExport SEXP _orsf2_x_input_scale() {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    x_input_scale();
-    return R_NilValue;
-END_RCPP
-}
-// leaf_surv_small
-void leaf_surv_small(const arma::mat& y, const arma::vec& w);
-RcppExport SEXP _orsf2_leaf_surv_small(SEXP ySEXP, SEXP wSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
-    leaf_surv_small(y, w);
-    return R_NilValue;
-END_RCPP
-}
 // cholesky
 void cholesky();
 RcppExport SEXP _orsf2_cholesky() {
@@ -95,6 +66,23 @@ BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     rcpp_result_gen = Rcpp::wrap(newtraph_cph());
+    return rcpp_result_gen;
+END_RCPP
+}
+// newtraph_cph_testthat
+arma::vec newtraph_cph_testthat(NumericMatrix& x_in, NumericMatrix& y_in, NumericVector& w_in, int method, double eps, double pval_max, int iter_max);
+RcppExport SEXP _orsf2_newtraph_cph_testthat(SEXP x_inSEXP, SEXP y_inSEXP, SEXP w_inSEXP, SEXP methodSEXP, SEXP epsSEXP, SEXP pval_maxSEXP, SEXP iter_maxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix& >::type x_in(x_inSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type y_in(y_inSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type w_in(w_inSEXP);
+    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    Rcpp::traits::input_parameter< double >::type pval_max(pval_maxSEXP);
+    Rcpp::traits::input_parameter< int >::type iter_max(iter_maxSEXP);
+    rcpp_result_gen = Rcpp::wrap(newtraph_cph_testthat(x_in, y_in, w_in, method, eps, pval_max, iter_max));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -167,38 +155,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// ostree_fit_new
-List ostree_fit_new();
-RcppExport SEXP _orsf2_ostree_fit_new() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(ostree_fit_new());
-    return rcpp_result_gen;
-END_RCPP
-}
-// orsf_fit_new
-List orsf_fit_new(NumericMatrix& x, NumericMatrix& y, const int& n_tree, const int& n_split_, const int& mtry_, const double& leaf_min_events_, const double& leaf_min_obs_, const int& cph_method_, const double& cph_eps_, const int& cph_iter_max_, const double& cph_pval_max_, const bool& oobag_pred_);
-RcppExport SEXP _orsf2_orsf_fit_new(SEXP xSEXP, SEXP ySEXP, SEXP n_treeSEXP, SEXP n_split_SEXP, SEXP mtry_SEXP, SEXP leaf_min_events_SEXP, SEXP leaf_min_obs_SEXP, SEXP cph_method_SEXP, SEXP cph_eps_SEXP, SEXP cph_iter_max_SEXP, SEXP cph_pval_max_SEXP, SEXP oobag_pred_SEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const int& >::type n_tree(n_treeSEXP);
-    Rcpp::traits::input_parameter< const int& >::type n_split_(n_split_SEXP);
-    Rcpp::traits::input_parameter< const int& >::type mtry_(mtry_SEXP);
-    Rcpp::traits::input_parameter< const double& >::type leaf_min_events_(leaf_min_events_SEXP);
-    Rcpp::traits::input_parameter< const double& >::type leaf_min_obs_(leaf_min_obs_SEXP);
-    Rcpp::traits::input_parameter< const int& >::type cph_method_(cph_method_SEXP);
-    Rcpp::traits::input_parameter< const double& >::type cph_eps_(cph_eps_SEXP);
-    Rcpp::traits::input_parameter< const int& >::type cph_iter_max_(cph_iter_max_SEXP);
-    Rcpp::traits::input_parameter< const double& >::type cph_pval_max_(cph_pval_max_SEXP);
-    Rcpp::traits::input_parameter< const bool& >::type oobag_pred_(oobag_pred_SEXP);
-    rcpp_result_gen = Rcpp::wrap(orsf_fit_new(x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, oobag_pred_));
-    return rcpp_result_gen;
-END_RCPP
-}
 // orsf_pred_uni
 arma::mat orsf_pred_uni(List forest, NumericMatrix& x_new, double time_dbl, bool return_risk);
 RcppExport SEXP _orsf2_orsf_pred_uni(SEXP forestSEXP, SEXP x_newSEXP, SEXP time_dblSEXP, SEXP return_riskSEXP) {
@@ -215,23 +171,19 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_orsf2_x_node_scale", (DL_FUNC) &_orsf2_x_node_scale, 0},
-    {"_orsf2_x_input_scale", (DL_FUNC) &_orsf2_x_input_scale, 0},
-    {"_orsf2_leaf_surv_small", (DL_FUNC) &_orsf2_leaf_surv_small, 2},
     {"_orsf2_cholesky", (DL_FUNC) &_orsf2_cholesky, 0},
     {"_orsf2_cholesky_solve", (DL_FUNC) &_orsf2_cholesky_solve, 0},
     {"_orsf2_cholesky_invert", (DL_FUNC) &_orsf2_cholesky_invert, 0},
     {"_orsf2_newtraph_cph_iter", (DL_FUNC) &_orsf2_newtraph_cph_iter, 1},
     {"_orsf2_newtraph_cph_init", (DL_FUNC) &_orsf2_newtraph_cph_init, 0},
     {"_orsf2_newtraph_cph", (DL_FUNC) &_orsf2_newtraph_cph, 0},
+    {"_orsf2_newtraph_cph_testthat", (DL_FUNC) &_orsf2_newtraph_cph_testthat, 7},
     {"_orsf2_lrt_multi", (DL_FUNC) &_orsf2_lrt_multi, 0},
     {"_orsf2_oobag_pred_leaf", (DL_FUNC) &_orsf2_oobag_pred_leaf, 0},
     {"_orsf2_oobag_pred_surv_uni", (DL_FUNC) &_orsf2_oobag_pred_surv_uni, 0},
     {"_orsf2_x_new_pred_surv_uni", (DL_FUNC) &_orsf2_x_new_pred_surv_uni, 0},
     {"_orsf2_ostree_fit", (DL_FUNC) &_orsf2_ostree_fit, 0},
     {"_orsf2_orsf_fit", (DL_FUNC) &_orsf2_orsf_fit, 12},
-    {"_orsf2_ostree_fit_new", (DL_FUNC) &_orsf2_ostree_fit_new, 0},
-    {"_orsf2_orsf_fit_new", (DL_FUNC) &_orsf2_orsf_fit_new, 12},
     {"_orsf2_orsf_pred_uni", (DL_FUNC) &_orsf2_orsf_pred_uni, 4},
     {NULL, NULL, 0}
 };
