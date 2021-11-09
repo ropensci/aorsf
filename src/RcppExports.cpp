@@ -11,6 +11,18 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// leaf_kaplan_testthat
+arma::mat leaf_kaplan_testthat(const arma::mat& y, const arma::vec& w);
+RcppExport SEXP _orsf2_leaf_kaplan_testthat(SEXP ySEXP, SEXP wSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
+    rcpp_result_gen = Rcpp::wrap(leaf_kaplan_testthat(y, w));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cholesky
 void cholesky();
 RcppExport SEXP _orsf2_cholesky() {
@@ -171,6 +183,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_orsf2_leaf_kaplan_testthat", (DL_FUNC) &_orsf2_leaf_kaplan_testthat, 2},
     {"_orsf2_cholesky", (DL_FUNC) &_orsf2_cholesky, 0},
     {"_orsf2_cholesky_solve", (DL_FUNC) &_orsf2_cholesky_solve, 0},
     {"_orsf2_cholesky_invert", (DL_FUNC) &_orsf2_cholesky_invert, 0},

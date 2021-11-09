@@ -52,7 +52,7 @@ double
  cph_pval_max;
 
 int
- verbose=0,
+ verbose=1,
   mtry_int;
 
 // armadillo unsigned integers
@@ -215,8 +215,8 @@ void x_node_scale(){
 // ----------------------------------------------------------------------------
 
 
-void leaf_kaplan(const arma::mat& y,
-                 const arma::vec& w){
+void leaf_kaplan_old(const arma::mat& y,
+                     const arma::vec& w){
 
  leaf_indices(leaf_node_index_counter, 1) = leaf_node_counter;
 
@@ -314,6 +314,164 @@ void leaf_kaplan(const arma::mat& y,
 
 
 }
+
+void leaf_kaplan(const arma::mat& y,
+                 const arma::vec& w){
+
+ leaf_indices(leaf_node_index_counter, 1) = leaf_node_counter;
+ i = leaf_node_counter;
+
+ // find the first unique event time
+ person = 0;
+
+ while(y.at(person, 1) == 0){
+  person++;
+ }
+
+ // now person corresponds to the first event time
+ leaf_nodes.at(i, 0) = y.at(person, 0);  // see above
+ temp2 = y.at(person, 0);
+
+ i++;
+
+ // find the rest of the unique event times
+ for( ; person < y.n_rows; person++){
+
+  if(temp2 != y.at(person, 0) && y.at(person, 1) == 1){
+
+   leaf_nodes.at(i, 0) = y.at(person,0);
+   temp2 = y.at(person, 0);
+   i++;
+
+  }
+
+ }
+
+
+ // reset for kaplan meier loop
+ n_risk = sum(w);
+ person = 0;
+ temp1 = 1.0;
+
+ do {
+
+  n_events   = 0;
+  n_risk_sub = 0;
+  temp2      = y.at(person, 0);
+
+  while(y.at(person, 0) == temp2){
+
+   n_risk_sub += w.at(person);
+   n_events += y.at(person, 1) * w.at(person);
+
+   if(person == y.n_rows-1) break;
+
+   person++;
+
+  }
+
+  // only do km if a death was observed
+
+  if(n_events > 0){
+
+   temp1 = temp1 * (n_risk - n_events) / n_risk;
+   leaf_nodes.at(leaf_node_counter, 1) = temp1;
+   leaf_node_counter++;
+
+  }
+
+  n_risk -= n_risk_sub;
+
+ } while (leaf_node_counter < i);
+
+
+ leaf_indices(leaf_node_index_counter, 2) = leaf_node_counter-1;
+ leaf_node_index_counter++;
+
+}
+
+// [[Rcpp::export]]
+arma::mat leaf_kaplan_testthat(const arma::mat& y,
+                               const arma::vec& w){
+
+
+ leaf_nodes.set_size(y.n_rows, 2);
+ leaf_node_counter = 0;
+
+ // find the first unique event time
+ person = 0;
+
+ while(y.at(person, 1) == 0){
+  person++;
+ }
+
+ // now person corresponds to the first event time
+ leaf_nodes.at(leaf_node_counter, 0) = y.at(person, 0);  // see above
+ temp2 = y.at(person, 0);
+
+ leaf_node_counter++;
+
+ // find the rest of the unique event times
+ for( ; person < y.n_rows; person++){
+
+  if(temp2 != y.at(person, 0) && y.at(person, 1) == 1){
+
+   leaf_nodes.at(leaf_node_counter, 0) = y.at(person,0);
+   temp2 = y.at(person, 0);
+   leaf_node_counter++;
+
+  }
+
+ }
+
+
+ // reset for kaplan meier loop
+ n_slots = leaf_node_counter;
+ n_risk = sum(w);
+ person = 0;
+ temp1 = 1.0;
+ leaf_node_counter = 0;
+
+
+ do {
+
+  n_events   = 0;
+  n_risk_sub = 0;
+  temp2      = y.at(person, 0);
+
+  while(y.at(person, 0) == temp2){
+
+   n_risk_sub += w.at(person);
+   n_events += y.at(person, 1) * w.at(person);
+
+   if(person == y.n_rows-1) break;
+
+   person++;
+
+  }
+
+  // only do km if a death was observed
+
+  if(n_events > 0){
+
+   temp1 = temp1 * (n_risk - n_events) / n_risk;
+   leaf_nodes.at(leaf_node_counter, 1) = temp1;
+   leaf_node_counter++;
+
+  }
+
+  n_risk -= n_risk_sub;
+
+ } while (leaf_node_counter < n_slots);
+
+ leaf_nodes.resize(leaf_node_counter, 2);
+
+ return(leaf_nodes);
+
+}
+
+
+
 
 // ----------------------------------------------------------------------------
 // ---------------------------- cholesky functions ----------------------------
@@ -1397,6 +1555,7 @@ void ostree_size_buffer(){
 // [[Rcpp::export]]
 void oobag_pred_leaf(){
 
+
  // reset values
  leaf_oobag.fill(0);
 
@@ -1446,6 +1605,8 @@ void oobag_pred_leaf(){
 
  }
 
+
+
 }
 
 // [[Rcpp::export]]
@@ -1454,10 +1615,16 @@ void oobag_pred_surv_uni(){
  // allocate memory for output
  // surv_oobag.zeros(x_oobag.n_rows);
 
+ Rcout << leaf_oobag.t() << std::endl;
+
+ Rcout << "here we go" << std::endl;
+
  iit_vals = sort_index(leaf_oobag, "ascend");
  iit = iit_vals.begin();
 
  do {
+
+  Rcout << "still goin: " << *iit << " ";
 
   person_leaf = leaf_oobag(*iit);
 
@@ -1466,6 +1633,10 @@ void oobag_pred_surv_uni(){
     break;
    }
   }
+
+  Rcout << "strong" << std::endl;
+
+  Rcout << leaf_indices.row(i) << std::endl;
 
   leaf_surv = leaf_nodes.rows(leaf_indices(i, 1),
                               leaf_indices(i, 2));

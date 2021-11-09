@@ -13,7 +13,21 @@ x <- as.matrix(.pbc[, c('trt','age','ascites','hepato',
                         'albumin','copper','alk.phos',
                         'ast','trig','platelet','protime',
                         'stage')])
+
 y <- Surv(.pbc$time, .pbc$status)
+
+set.seed(1)
+
+tmp <- orsf_fit(x,
+                y,
+                n_tree = 1,
+                mtry_ = 3,
+                leaf_min_events_ = 3,
+                leaf_min_obs_ = 15,
+                oobag_pred_ = TRUE,
+                cph_iter_max_ = 10,
+                cph_pval_max_ = .8)
+
 
 res <- list()
 
@@ -29,7 +43,8 @@ for(i in 1:100){
                  leaf_min_events_ = 3,
                  leaf_min_obs_ = 15,
                  oobag_pred_ = TRUE,
-                 cph_pval_max_ = 1/2)
+                 cph_iter_max_ = 10,
+                 cph_pval_max_ = .8)
 
  print(Score(list(new = 1-new$surv_oobag),
              formula = Surv(time, status) ~ 1,
