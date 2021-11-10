@@ -52,7 +52,7 @@ double
  cph_pval_max;
 
 int
- verbose=1,
+ verbose=0,
   mtry_int;
 
 // armadillo unsigned integers
@@ -68,7 +68,6 @@ uword
  person_ref_index,
  n_vars,
  n_rows,
- n_slots,
  cph_method,
  cph_iter_max,
  n_split,
@@ -90,7 +89,6 @@ bool
 // armadillo vectors (doubles)
 vec
  vec_temp,
- time_unique,
  node_assignments,
  nodes_grown,
  surv_oobag,
@@ -101,7 +99,6 @@ vec
  cutpoints,
  w_input,
  w_inbag,
- w_grown,
  w_node,
  group,
  u,
@@ -287,6 +284,10 @@ void leaf_kaplan(const arma::mat& y,
  leaf_indices(leaf_node_index_counter, 2) = leaf_node_counter-1;
  leaf_node_index_counter++;
 
+ if(leaf_node_index_counter >= leaf_indices.n_rows){
+  leaf_indices.insert_rows(leaf_indices.n_rows, 10);
+ }
+
 }
 
 // [[Rcpp::export]]
@@ -325,7 +326,7 @@ arma::mat leaf_kaplan_testthat(const arma::mat& y,
 
 
  // reset for kaplan meier loop
- n_slots = leaf_node_counter;
+ i = leaf_node_counter;
  n_risk = sum(w);
  person = 0;
  temp1 = 1.0;
@@ -361,7 +362,7 @@ arma::mat leaf_kaplan_testthat(const arma::mat& y,
 
   n_risk -= n_risk_sub;
 
- } while (leaf_node_counter < n_slots);
+ } while (leaf_node_counter < i);
 
  leaf_nodes.resize(leaf_node_counter, 2);
 
@@ -1413,41 +1414,22 @@ double lrt_multi(){
 
 void ostree_size_buffer(){
 
- n_slots = (nodes_max_true+1) - betas.n_cols + 10;
-
  if(verbose > 1){
   Rcout << "---------- buffering outputs ----------" << std::endl;
-  Rcout << "ncol of betas before:  " << betas.n_cols << std::endl;
-  Rcout << "number of slots added: " << n_slots      << std::endl;
+  Rcout << "betas before:  " << std::endl << betas.t() << std::endl;
  }
 
- betas = join_horiz(
-  betas,
-  mat(betas.n_rows, n_slots)
- );
-
- col_indices = join_horiz(
-  col_indices,
-  umat(col_indices.n_rows, n_slots)
- );
-
- children_left = join_vert(
-  children_left,
-  uvec(n_slots)
- );
-
- cutpoints = join_vert(
-  cutpoints,
-  vec(n_slots)
- );
+ betas.insert_cols(betas.n_cols, 10);
+ col_indices.insert_cols(col_indices.n_cols, 10);
+ children_left.insert_rows(children_left.size(), 10);
+ cutpoints.insert_rows(cutpoints.size(), 10);
 
  if(verbose > 1){
-
-  Rcout << "ncol of betas after:  " << betas.n_cols  << std::endl;
-  Rcout << "-------------------------------------"   << std::endl;
+  Rcout << "betas after:  " << std::endl << betas.t() << std::endl;
+  Rcout << "---------------------------------------";
   Rcout << std::endl << std::endl;
-
  }
+
 
 }
 
@@ -1466,7 +1448,22 @@ void oobag_pred_leaf(){
 
    if(obs_in_node.size() > 0){
 
-    XB = x_oobag(obs_in_node, col_indices.col(i)) * betas.col(i);
+    XB.zeros(obs_in_node.size());
+
+    uvec col_indices_i = col_indices.unsafe_col(i);
+
+    j = 0;
+    jit = col_indices_i.begin();
+
+    for(; jit < col_indices_i.end(); ++jit, ++j){
+
+     vec x_j = x_oobag.unsafe_col(*jit);
+
+     XB += x_j(obs_in_node) * betas(j, i);
+
+    }
+
+    // XB = x_oobag(obs_in_node, col_indices.col(i)) * betas.col(i);
 
     jit = obs_in_node.begin();
 
@@ -1514,16 +1511,10 @@ void oobag_pred_surv_uni(){
  // allocate memory for output
  // surv_oobag.zeros(x_oobag.n_rows);
 
- Rcout << leaf_oobag.t() << std::endl;
-
- Rcout << "here we go" << std::endl;
-
  iit_vals = sort_index(leaf_oobag, "ascend");
  iit = iit_vals.begin();
 
  do {
-
-  Rcout << "still goin: " << *iit << " ";
 
   person_leaf = leaf_oobag(*iit);
 
@@ -1532,10 +1523,6 @@ void oobag_pred_surv_uni(){
     break;
    }
   }
-
-  Rcout << "strong" << std::endl;
-
-  Rcout << leaf_indices.row(i) << std::endl;
 
   leaf_surv = leaf_nodes.rows(leaf_indices(i, 1),
                               leaf_indices(i, 2));
@@ -1712,8 +1699,6 @@ List ostree_fit(){
   }
 
   for(node = nodes_to_grow.begin(); node != nodes_to_grow.end(); ++node){
-
-   if(*node >= betas.n_cols) ostree_size_buffer();
 
    if(nodes_to_grow[0] == 0){
 
@@ -1939,6 +1924,7 @@ List ostree_fit(){
 
     } else {
 
+
      rows_leaf = find(group==1);
      leaf_indices(leaf_node_index_counter, 0) = nodes_max_true;
      leaf_kaplan(y_node.rows(rows_leaf), w_node(rows_leaf));
@@ -1958,6 +1944,7 @@ List ostree_fit(){
 
     }
 
+    if(nodes_max_true >= betas.n_cols) ostree_size_buffer();
 
     for(i = 0; i < n_cols_to_sample; i++){
      betas.at(i, *node) = beta_cph[i];
@@ -1982,8 +1969,6 @@ List ostree_fit(){
      Rcout << "------------------------------------"  << std::endl;
      Rcout << std::endl << std::endl;
     }
-
-    // leaf_nodes[make_node_name(*node)] = leaf;
 
    }
 
@@ -2093,7 +2078,7 @@ List orsf_fit(NumericMatrix&   x,
  }
 
  // guessing the number of nodes needed to grow a tree
- nodes_max_guess = std::ceil(n_rows / leaf_min_events);
+ nodes_max_guess = std::ceil(0.5 * n_rows / leaf_min_events);
 
  betas.zeros(mtry, nodes_max_guess);
  col_indices.zeros(mtry, nodes_max_guess);

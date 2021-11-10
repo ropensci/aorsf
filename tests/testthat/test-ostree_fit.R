@@ -18,15 +18,19 @@ y <- Surv(.pbc$time, .pbc$status)
 
 set.seed(1)
 
-tmp <- orsf_fit(x,
+microbenchmark::microbenchmark(
+ tmp = orsf_fit(x,
                 y,
-                n_tree = 1,
+                n_tree = 50,
                 mtry_ = 3,
-                leaf_min_events_ = 3,
-                leaf_min_obs_ = 15,
+                leaf_min_events_ = 5,
+                leaf_min_obs_ = 50,
                 oobag_pred_ = TRUE,
                 cph_iter_max_ = 10,
                 cph_pval_max_ = .8)
+)
+
+
 
 
 res <- list()
