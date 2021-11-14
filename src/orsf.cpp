@@ -89,6 +89,7 @@ bool
 // armadillo vectors (doubles)
 vec
  vec_temp,
+ times_oobag,
  node_assignments,
  nodes_grown,
  surv_oobag,
@@ -124,7 +125,7 @@ uvec
  nodes_to_grow_next,
  obs_in_node,
  children_left,
- leaf_oobag;
+ leaf_preds;
 
 // armadillo iterators for unsigned integer vectors
 uvec::iterator
@@ -158,7 +159,8 @@ mat
  cmat,
  cmat2,
  betas,
- leaf_nodes;
+ leaf_nodes,
+ surv_preds;
 
 umat
  col_indices,
@@ -290,7 +292,6 @@ void leaf_kaplan(const arma::mat& y,
 
 }
 
-// [[Rcpp::export]]
 arma::mat leaf_kaplan_testthat(const arma::mat& y,
                                const arma::vec& w){
 
@@ -377,7 +378,6 @@ arma::mat leaf_kaplan_testthat(const arma::mat& y,
 // ---------------------------- cholesky functions ----------------------------
 // ----------------------------------------------------------------------------
 
-// [[Rcpp::export]]
 void cholesky(){
 
  double eps_chol = 0;
@@ -429,7 +429,6 @@ void cholesky(){
 
 }
 
-// [[Rcpp::export]]
 void cholesky_solve(){
 
  for (i = 0; i < n_vars; i++) {
@@ -468,7 +467,6 @@ void cholesky_solve(){
 
 }
 
-// [[Rcpp::export]]
 void cholesky_invert(){
 
  /*
@@ -532,7 +530,6 @@ void cholesky_invert(){
 // ------------------- Newton Raphson algo for Cox PH model -------------------
 // ----------------------------------------------------------------------------
 
-// [[Rcpp::export]]
 double newtraph_cph_iter(const arma::vec& beta){
 
  denom = 0;
@@ -697,7 +694,6 @@ double newtraph_cph_iter(const arma::vec& beta){
 
 }
 
-// [[Rcpp::export]]
 double newtraph_cph_init(){
 
  denom = 0;
@@ -718,7 +714,7 @@ double newtraph_cph_init(){
 
  break_loop = false;
 
- x_beta = 0.0;
+ // x_beta = 0.0;
 
  for( ; ; ){
 
@@ -757,7 +753,7 @@ double newtraph_cph_init(){
     n_events++;
 
     denom_events += risk;
-    loglik += risk * x_beta;
+    // loglik += risk * x_beta;
 
     for (i=0; i<n_vars; i++) {
 
@@ -849,7 +845,6 @@ double newtraph_cph_init(){
 
 }
 
-// [[Rcpp::export]]
 arma::vec newtraph_cph(){
 
  beta_current.zeros(n_vars);
@@ -1007,7 +1002,6 @@ arma::vec newtraph_cph_testthat(NumericMatrix& x_in,
 // // ---------------------------- node functions --------------------------------
 // // ----------------------------------------------------------------------------
 
-// [[Rcpp::export]]
 double lrt_multi(){
 
  // about this function - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1036,8 +1030,7 @@ double lrt_multi(){
  // sort XB- we need to iterate over the sorted indices
  iit_vals = sort_index(XB, "ascend");
 
- // unsafe columns point to specific cols in y_node.
- // this makes the code more readable and doesn't copy data
+ // unsafe columns point to cols in y_node.
  vec status = y_node.unsafe_col(1);
  vec time = y_node.unsafe_col(0);
 
@@ -1160,7 +1153,7 @@ double lrt_multi(){
 
  }
 
- // number of steps taken (?)
+ // number of steps taken
  k = iit + 1 - iit_vals.begin();
 
  if(verbose > 1){
@@ -1433,18 +1426,17 @@ void ostree_size_buffer(){
 
 }
 
-// [[Rcpp::export]]
 void oobag_pred_leaf(){
 
 
  // reset values
- leaf_oobag.fill(0);
+ leaf_preds.fill(0);
 
  for(i = 0; i < betas.n_cols; i++){
 
   if(children_left(i) != 0){
 
-   obs_in_node = find(leaf_oobag == i);
+   obs_in_node = find(leaf_preds == i);
 
    if(obs_in_node.size() > 0){
 
@@ -1467,26 +1459,24 @@ void oobag_pred_leaf(){
 
     jit = obs_in_node.begin();
 
-    for(j = 0; j < XB.size(); j++){
+    for(j = 0; j < XB.size(); ++j, ++jit){
 
      if(XB(j) <= cutpoints(i)) {
 
-      leaf_oobag(*jit) = children_left(i);
+      leaf_preds(*jit) = children_left(i);
 
      } else {
 
-      leaf_oobag(*jit) = children_left(i)+1;
+      leaf_preds(*jit) = children_left(i)+1;
 
      }
-
-     jit++;
 
     }
 
     if(verbose > 0){
 
-     uvec in_left = find(leaf_oobag == children_left(i));
-     uvec in_right = find(leaf_oobag == children_left(i)+1);
+     uvec in_left = find(leaf_preds == children_left(i));
+     uvec in_right = find(leaf_preds == children_left(i)+1);
 
      Rcout << "N to node_" << children_left(i) << ": ";
      Rcout << in_left.size() << "; ";
@@ -1505,18 +1495,17 @@ void oobag_pred_leaf(){
 
 }
 
-// [[Rcpp::export]]
 void oobag_pred_surv_uni(){
 
  // allocate memory for output
  // surv_oobag.zeros(x_oobag.n_rows);
 
- iit_vals = sort_index(leaf_oobag, "ascend");
+ iit_vals = sort_index(leaf_preds, "ascend");
  iit = iit_vals.begin();
 
  do {
 
-  person_leaf = leaf_oobag(*iit);
+  person_leaf = leaf_preds(*iit);
 
   for(i = 0; i < leaf_indices.n_rows; i++){
    if(leaf_indices.at(i, 0) == person_leaf){
@@ -1564,7 +1553,7 @@ void oobag_pred_surv_uni(){
 
   if(iit < iit_vals.end()){
 
-   while(person_leaf == leaf_oobag(*iit)){
+   while(person_leaf == leaf_preds(*iit)){
 
     temp2 = temp1 - surv_oobag(rows_oobag(*iit));
     surv_oobag(rows_oobag(*iit)) += temp2 / denom_oobag(rows_oobag(*iit));
@@ -1585,16 +1574,101 @@ void oobag_pred_surv_uni(){
 
 }
 
+void x_new_pred_surv_multi(){
 
-// [[Rcpp::export]]
-void x_new_pred_surv_uni(){
+ // allocate memory for output
+ // surv_oobag.zeros(x_oobag.n_rows);
 
- iit_vals = sort_index(leaf_oobag, "ascend");
+ vec_temp.set_size(times_oobag.size());
+ iit_vals = sort_index(leaf_preds, "ascend");
  iit = iit_vals.begin();
 
  do {
 
-  person_leaf = leaf_oobag(*iit);
+  person_leaf = leaf_preds(*iit);
+
+  for(i = 0; i < leaf_indices.n_rows; i++){
+   if(leaf_indices.at(i, 0) == person_leaf){
+    break;
+   }
+  }
+
+  leaf_surv = leaf_nodes.rows(leaf_indices(i, 1),
+                              leaf_indices(i, 2));
+
+  if(verbose > 1){
+   Rcout << "leaf_surv:" << std::endl << leaf_surv << std::endl;
+  }
+
+  i = 0;
+
+  for(j = 0; j < times_oobag.size(); j++){
+
+   time_oobag = times_oobag(j);
+
+   if(time_oobag < leaf_surv(leaf_surv.n_rows - 1, 0)){
+
+    for(; i < leaf_surv.n_rows; i++){
+
+     if (leaf_surv(i, 0) > time_oobag){
+
+      if(i == 0)
+       temp1 = 1;
+      else
+       temp1 = leaf_surv(i-1, 1);
+
+      break;
+
+     } else if (leaf_surv(i, 0) == time_oobag){
+
+      temp1 = leaf_surv(i, 1);
+      break;
+
+     }
+
+    }
+
+   } else {
+
+    // go here if prediction horizon > max time in current leaf.
+    temp1 = leaf_surv(leaf_surv.n_rows - 1, 1);
+
+   }
+
+   vec_temp(j) = temp1;
+
+  }
+
+
+
+  surv_preds.row(*iit) += vec_temp.t();
+  ++iit;
+
+  if(iit < iit_vals.end()){
+
+   while(person_leaf == leaf_preds(*iit)){
+
+    surv_preds.row(*iit) += vec_temp.t();
+    ++iit;
+
+    if (iit == iit_vals.end()) break;
+
+   }
+
+  }
+
+ } while (iit < iit_vals.end());
+
+}
+
+void x_new_pred_surv_uni(){
+
+ iit_vals = sort_index(leaf_preds, "ascend");
+ iit = iit_vals.begin();
+
+ do {
+
+  person_leaf = leaf_preds(*iit);
 
   for(i = 0; i < leaf_indices.n_rows; i++){
    if(leaf_indices.at(i, 0) == person_leaf){
@@ -1638,7 +1712,7 @@ void x_new_pred_surv_uni(){
 
   if(iit < iit_vals.end()){
 
-   while(person_leaf == leaf_oobag(*iit)){
+   while(person_leaf == leaf_preds(*iit)){
 
     vec_temp(*iit) += temp1;
     ++iit;
@@ -1657,12 +1731,6 @@ void x_new_pred_surv_uni(){
 
 }
 
-
-
-
-
-
-// [[Rcpp::export]]
 List ostree_fit(){
 
  betas.fill(0);
@@ -2002,7 +2070,7 @@ List orsf_fit(NumericMatrix&   x,
               const double&    leaf_min_obs_ = 10,
               const int&       cph_method_ = 1,
               const double&    cph_eps_ = 1e-8,
-              const int&       cph_iter_max_ = 7,
+              const int&       cph_iter_max_ = 1,
               const double&    cph_pval_max_ = 0.95,
               const bool&      oobag_pred_ = false){
 
@@ -2116,7 +2184,7 @@ List orsf_fit(NumericMatrix&   x,
   if(oobag_pred){
    x_oobag = x_input.rows(rows_oobag);
    y_oobag = y_input.rows(rows_oobag);
-   leaf_oobag.set_size(rows_oobag.size());
+   leaf_preds.set_size(rows_oobag.size());
   }
 
   if(verbose > 0){
@@ -2207,7 +2275,7 @@ void oobag_mem_xfer(){
 
 
 // [[Rcpp::export]]
-arma::mat orsf_pred_uni(List forest,
+arma::mat orsf_pred_uni(List& forest,
                         NumericMatrix& x_new,
                         double time_dbl,
                         bool return_risk = true){
@@ -2216,7 +2284,7 @@ arma::mat orsf_pred_uni(List forest,
  time_oobag = time_dbl;
 
  // memory for outputs
- leaf_oobag.set_size(x_oobag.n_rows);
+ leaf_preds.set_size(x_oobag.n_rows);
  vec_temp.zeros(x_oobag.n_rows);
 
  int tree;
@@ -2234,6 +2302,39 @@ arma::mat orsf_pred_uni(List forest,
   return(1 - (vec_temp / temp1));
  } else{
   return(vec_temp / temp1);
+ }
+
+}
+
+// [[Rcpp::export]]
+arma::mat orsf_pred_multi(List& forest,
+                          NumericMatrix& x_new,
+                          NumericVector& time_vec,
+                          bool return_risk = true){
+
+ x_oobag = mat(x_new.begin(), x_new.nrow(), x_new.ncol(), false);
+ times_oobag = vec(time_vec.begin(), time_vec.length(), false);
+
+ // memory for outputs
+ leaf_preds.set_size(x_oobag.n_rows);
+
+ surv_preds.zeros(x_oobag.n_rows, times_oobag.size());
+
+ int tree = 0;
+
+ for(; tree < forest.length(); ++tree){
+  ostree = forest[tree];
+  oobag_mem_xfer();
+  oobag_pred_leaf();
+  x_new_pred_surv_multi();
+ }
+
+ temp1 = tree + 1;
+
+ if(return_risk){
+  return(1 - (surv_preds / temp1));
+ } else{
+  return(surv_preds / temp1);
  }
 
 }

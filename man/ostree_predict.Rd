@@ -4,7 +4,7 @@
 \alias{ostree_predict}
 \title{Title}
 \usage{
-ostree_predict(tree, x_new, times)
+ostree_predict(object, x_new, x_transforms, times)
 }
 \arguments{
 \item{x_new}{}

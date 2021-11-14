@@ -4,9 +4,9 @@
 \name{orsf2-package}
 \alias{orsf2}
 \alias{orsf2-package}
-\title{orsf2: What the Package Does (One Line, Title Case)}
+\title{orsf2: Accelerated Oblique Random Survival Forests}
 \description{
-What the package does (one paragraph).
+Oblique random survival forests incorporate linear combinations of input variables into the recursive partitioning algorithm used to grow decision trees. The algorithm used to grow survival trees is the same as in random survival forests from Ishwaran, 2008 <doi:10.1214/08-AOAS169>. A Newton Raphson scoring algorithm based on the Cox proportional hazard model is used to identify linear combinations of input variables. Relative to obliqueRSF, the predecessor of aorsf, decision trees are grown about 500 times faster.
 }
 \seealso{
 Useful links:
@@ -17,7 +17,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: First Last \email{first.last@example.com} (\href{https://orcid.org/YOUR-ORCID-ID}{ORCID})
+\strong{Maintainer}: Byron Jaeger \email{bjaeger@wakehealth.edu} (\href{https://orcid.org/0000-0001-7399-2299}{ORCID})
 
 }
 \keyword{internal}
