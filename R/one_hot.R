@@ -1,32 +1,3 @@
-#' One hot encoding
-#'
-#' A faster implementation of [stats::model.frame] with less options.
-#'
-#' @param data a data frame
-#'
-#' @return a `data.table` with one-hot encoded factors.
-#'
-#' @note One-hot-encoding converts an unordered categorical vector
-#'   (i.e. a factor) to multiple binarized vectors where each binary
-#'   vector of 1s and 0s indicates the presence of a class (i.e. level)
-#'   of the of the original vector.
-#'
-#' @examples
-#' n <- 10
-#'
-#' data <- data.frame(
-#'   V1 = seq(n),
-#'   V2 = factor(sample(letters[1:3], n, replace = TRUE)),
-#'   V3 = seq(n) / 10,
-#'   V4 = factor(sample(letters[5:6], n, replace = TRUE))
-#' )
-#'
-#' data$V1[1] <- NA
-#' data$V3[c(6,7)] <- NA
-#' data$V2[1:2] <- NA
-#' data$V4[2] <- NA
-#'
-#' one_hot(data)
 
 one_hot <- function (data, fi, names_x_data){
 
@@ -36,7 +7,7 @@ one_hot <- function (data, fi, names_x_data){
 
   if(fi$ordr[i]){
 
-   data[[ fi$cols[i] ]] <- as.integer(data[[ fi$cols[i] ]])
+   data[[ fi$cols[i] ]] <- as.integer( data[[ fi$cols[i] ]] )
 
   } else {
 

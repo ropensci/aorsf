@@ -1,6 +1,4 @@
 
-library(survival)
-
 # method = 0 for breslow, 1 for efron
 
 set.seed(32987) # random tests could break by chance
@@ -9,23 +7,23 @@ run_cph_test <- function(x, y, method, pval_max = 1/2){
 
  wts <- sample(seq(1:2), size = nrow(x), replace = TRUE)
 
- tt = coxph.fit(x = x,
-                y = y,
-                strata = NULL,
-                offset = NULL,
-                init = rep(0, ncol(x)),
-                control = coxph.control(iter.max = 20, eps = 1e-8),
-                weights = wts,
-                method = if(method == 0) 'breslow' else 'efron',
-                rownames = NULL,
-                resid = FALSE,
-                nocenter = c(0))
+ tt = survival::coxph.fit(x = x,
+                          y = y,
+                          strata = NULL,
+                          offset = NULL,
+                          init = rep(0, ncol(x)),
+                          control = survival::coxph.control(iter.max = 20, eps = 1e-8),
+                          weights = wts,
+                          method = if(method == 0) 'breslow' else 'efron',
+                          rownames = NULL,
+                          resid = FALSE,
+                          nocenter = c(0))
 
- tt_inf <- summary(
-   coxph(y~x,
-         weights = wts,
-         ties = if(method == 0) 'breslow' else 'efron')
-   )$coefficients[,'Pr(>|z|)']
+ tt_fit <- survival::coxph(y~x,
+                           weights = wts,
+                           ties = if(method == 0) 'breslow' else 'efron')
+
+ tt_inf <- summary(tt_fit)$coefficients[,'Pr(>|z|)']
 
  xx <- x[, , drop = FALSE]
 
@@ -52,13 +50,10 @@ run_cph_test <- function(x, y, method, pval_max = 1/2){
 
 # pbc data ----------------------------------------------------------------
 
+.pbc <- pbc_orsf[order(pbc_orsf$time), ]
 
-.pbc <-  pbc[order(pbc$time), ]
-.pbc <- .pbc[complete.cases(.pbc), ]
-.pbc$status[.pbc$status > 0] <- .pbc$status[.pbc$status > 0] - 1
-
-x <- as.matrix(.pbc[, -c(1,2,3,6), drop = FALSE])
-y <- Surv(.pbc$time, .pbc$status)
+x <- as.matrix(.pbc[, c('trt','age','ascites','hepato','bili')])
+y <- survival::Surv(.pbc$time, .pbc$status)
 
 test_that(
  desc = 'similar answers for pbc data',

@@ -2,7 +2,5 @@
 
 S3method(predict,aorsf)
 export(orsf)
-export(ostree_predict)
-import(data.table)
 importFrom(Rcpp,sourceCpp)
 useDynLib(orsf2, .registration = TRUE)

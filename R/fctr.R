@@ -25,7 +25,6 @@ fctr_info <- function(data, .names, fctr_sep = '_'){
 
  fctr_check(data, .names)
 
-
  fctrs <- vector(mode = 'character')
  ordrd <- vector(mode = 'logical')
 

@@ -292,6 +292,7 @@ void leaf_kaplan(const arma::mat& y,
 
 }
 
+// [[Rcpp::export]]
 arma::mat leaf_kaplan_testthat(const arma::mat& y,
                                const arma::vec& w){
 
@@ -1861,6 +1862,7 @@ List ostree_fit(){
 
     }
 
+    // make sure there are at least 2 events per predictor variable.
     while(n_events_total / mtry_int < 2 && mtry_int > 1){
      --mtry_int;
     }

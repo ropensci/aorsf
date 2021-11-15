@@ -1,16 +1,35 @@
 
 
-#' Title
+#' Prediction with oblique RSF
 #'
-#' @param object
-#' @param new_data
-#' @param times
+#' @param object (_aorsf_) an oblique random survival forest (RSF; see [orsf]).
 #'
-#' @return
+#' @param new_data (_data.frame_) data to compute predictions for. Must have
+#'   the same columns with equivalent types as the data used to train `object`.
+#'   Also, factors in `new_data` must not have levels that were not in the
+#'   data used to train `object`. Last, missing data are not supported.
+#'
+#' @param times (_double_) a single time or a vector of times for oblique RSF
+#'   predictions. All `times` values must not exceed the maximum follow-up
+#'   time in the oblique RSF's training data. Also, `times` must be entered
+#'   in ascending order.
+#'
+#' @param risk (_logical_) if `TRUE`, predicted risk is returned. If `FALSE`,
+#'   predicted survival (i.e., 1-risk) is returned.
+#'
+#' @param ... not used.
+#'
+#' @return a `matrix` of predictions. Column `j` of the matrix corresponds
+#'   to value `j` in `times`. Row `i` of the matrix corresponds to row `i`
+#'   in `new_data`.
+#'
 #' @export
 #'
 #' @examples
-predict.aorsf <- function(object, new_data, times, risk = TRUE){
+#'
+#' # (will add example)
+#'
+predict.aorsf <- function(object, new_data, times, risk = TRUE, ...){
 
  Call <- match.call()
 
@@ -36,10 +55,18 @@ predict.aorsf <- function(object, new_data, times, risk = TRUE){
                       label_new = deparse(Call$new_data),
                       label_ref = 'training data')
 
+ check_new_data_types(new_data,
+                      ref_names = object$names_x,
+                      ref_types = object$types_x,
+                      label_new = deparse(Call$new_data),
+                      label_ref = 'training data')
+
  check_new_data_fctrs(new_data  = new_data,
                       names_x   = object$names_x,
                       fi_ref    = object$fctr_info,
                       label_new = deparse(Call$new_data))
+
+
 
  if(!all(order(times) == seq(length(times)))){
   stop("times must be entered in ascending order, e.g.,",
@@ -112,6 +139,40 @@ check_new_data_names <- function(new_data,
 
  if(any_error){
   stop(out_msg, call. = FALSE)
+ }
+
+}
+
+check_new_data_types <- function(new_data,
+                                 ref_names,
+                                 ref_types,
+                                 label_new,
+                                 label_ref){
+
+ var_types <- vector(mode = 'character', length = length(ref_names))
+
+ for(i in seq_along(ref_names)){
+  var_types[i] <- class(new_data[[ ref_names[i] ]])[1]
+ }
+
+ bad_types <- which(var_types != ref_types)
+
+ if(!is_empty(bad_types)){
+
+  vars_to_list <- ref_names[bad_types]
+  types_to_list <- var_types[bad_types]
+
+  meat <- paste0('<', vars_to_list, '> has type <',
+                 types_to_list, '>', " in ", label_new,
+                 "; type <", ref_types[bad_types], "> in ",
+                 label_ref, collapse = '\n')
+
+  msg <- paste("some variables in ", label_new,
+               " have different type in ",
+               label_ref, ":\n", meat)
+
+  stop(msg, call. = FALSE)
+
  }
 
 }

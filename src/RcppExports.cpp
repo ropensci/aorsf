@@ -11,6 +11,18 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// leaf_kaplan_testthat
+arma::mat leaf_kaplan_testthat(const arma::mat& y, const arma::vec& w);
+RcppExport SEXP _orsf2_leaf_kaplan_testthat(SEXP ySEXP, SEXP wSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
+    rcpp_result_gen = Rcpp::wrap(leaf_kaplan_testthat(y, w));
+    return rcpp_result_gen;
+END_RCPP
+}
 // newtraph_cph_testthat
 arma::vec newtraph_cph_testthat(NumericMatrix& x_in, NumericMatrix& y_in, NumericVector& w_in, int method, double eps, double pval_max, int iter_max);
 RcppExport SEXP _orsf2_newtraph_cph_testthat(SEXP x_inSEXP, SEXP y_inSEXP, SEXP w_inSEXP, SEXP methodSEXP, SEXP epsSEXP, SEXP pval_maxSEXP, SEXP iter_maxSEXP) {
@@ -77,17 +89,4 @@ BEGIN_RCPP
     rcpp_result_gen = Rcpp::wrap(orsf_pred_multi(forest, x_new, time_vec, return_risk));
     return rcpp_result_gen;
 END_RCPP
-}
-
-static const R_CallMethodDef CallEntries[] = {
-    {"_orsf2_newtraph_cph_testthat", (DL_FUNC) &_orsf2_newtraph_cph_testthat, 7},
-    {"_orsf2_orsf_fit", (DL_FUNC) &_orsf2_orsf_fit, 12},
-    {"_orsf2_orsf_pred_uni", (DL_FUNC) &_orsf2_orsf_pred_uni, 4},
-    {"_orsf2_orsf_pred_multi", (DL_FUNC) &_orsf2_orsf_pred_multi, 4},
-    {NULL, NULL, 0}
-};
-
-RcppExport void R_init_orsf2(DllInfo *dll) {
-    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
-    R_useDynamicSymbols(dll, FALSE);
 }

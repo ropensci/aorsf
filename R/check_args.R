@@ -331,9 +331,13 @@ check_call <- function(call, expected){
 }
 
 
-check_var_types <- function(data, valid_types){
+check_var_types <- function(data, .names, valid_types){
 
- var_types <- purrr::map_chr(data, ~ class(.x)[1])
+ var_types <- vector(mode = 'character', length = length(.names))
+
+ for(i in seq_along(.names)){
+  var_types[i] <- class(data[[ .names[i] ]])[1]
+ }
 
  good_vars <- var_types %in% valid_types
 
@@ -341,19 +345,21 @@ check_var_types <- function(data, valid_types){
 
   bad_vars <- which(!good_vars)
 
-  vars_to_list <- names(var_types)[bad_vars]
-  types_to_list <- var_types[vars_to_list]
+  vars_to_list <- .names[bad_vars]
+  types_to_list <- var_types[bad_vars]
 
   meat <- paste0('<', vars_to_list, '> has type <',
                  types_to_list, '>', collapse = '\n')
 
   msg <- paste("some variables have unsupported type:\n",
-               meat, '\n supported types are', list_things(valid_types)
-  )
+               meat, '\n supported types are',
+               paste_collapse(valid_types, last = ' and '))
 
   stop(msg, call. = FALSE)
 
  }
+
+ var_types
 
 }
 

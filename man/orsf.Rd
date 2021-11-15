@@ -2,7 +2,7 @@
 % Please edit documentation in R/orsf_fit.R
 \name{orsf}
 \alias{orsf}
-\title{Title}
+\title{Fit oblique RSF}
 \usage{
 orsf(
   data,
@@ -12,7 +12,7 @@ orsf(
   mtry = NULL,
   leaf_min_events = 1,
   leaf_min_obs = 15,
-  cph_method = "breslow",
+  cph_method = "efron",
   cph_eps = 1e-05,
   cph_iter_max = 1,
   cph_pval_max = 1,
@@ -20,19 +20,66 @@ orsf(
 )
 }
 \arguments{
-\item{formula}{a formula object, with the response on the left of a ~
-operator, and the terms on the right. See details.}
+\item{data}{(\emph{data.frame}) that will be used to grow the forest.}
 
-\item{oobag_pred}{}
+\item{formula}{(\emph{formula}) a formula object, with the response on the left
+of a \code{~} operator, and the terms on the right. See details.}
+
+\item{n_tree}{(\emph{integer}) the number of trees to grow}
+
+\item{n_split}{(\emph{integer}) the number of cut-points assessed when splitting
+a node in decision trees.}
+
+\item{mtry}{(\emph{integer}) Number of variables randomly selected as candidates
+for splitting a node. The default is the smallest integer greater than
+the square root of the number of features. See details.}
+
+\item{leaf_min_events}{(\emph{integer}) minimum number of events in a
+leaf node.}
+
+\item{leaf_min_obs}{(\emph{integer}) minimum number of observations in a
+leaf node.}
+
+\item{cph_method}{(\emph{character}) a character string specifying the method
+for tie handling. If there are no tied death times all the methods are
+equivalent. Valid options are 'breslow' and 'efron'.}
+
+\item{cph_eps}{(\emph{double}) When using Newton Raphson scoring to identify
+linear combinations of inputs, iteration continues in the algorithm
+until the relative change in  the log partial likelihood is less than
+\code{eps}, or the absolute change is less than \code{sqrt(eps)}. Must be positive.}
+
+\item{cph_iter_max}{(\emph{integer}) When using Newton Raphson scoring to identify
+linear combinations of inputs, iteration continues until convergence
+(see \code{cph_eps} above) or the number of attempted iterations is equal to
+\code{cph_iter_max}.}
+
+\item{cph_pval_max}{(\emph{double})}
+
+\item{oobag_pred}{(\emph{logical}) if \code{TRUE} out-of-bag predictions are returned
+in the \code{aorsf} object.}
 }
 \value{
-
+an accelerated oblique RSF object (\code{aorsf})
 }
 \description{
-Title
+The oblique random survival forest (RSF) is an extension of the RSF
+algorithm developed by Ishwaran et al and maintained in the
+\code{RandomForestSRC} package. The only difference between oblique
+RSF and Ishwaran's RSF is that oblique RSFs use linear combinations
+of input variables instead of using the input variable as-is when
+growing new nodes in survival decision trees. For more details on
+the oblique RSF, see Jaeger et al, 2019.
 }
 \details{
-\emph{formula} The response in \code{formula} can be a survival
+This function is based on and highly similar to the \code{ORSF} function
+in the \code{obliqueRSF} R package. The primary difference is that this
+function runs about 100 times faster because it uses a simplified
+Newton Raphson scoring algorithm to identify linear combinations of
+inputs rather than performing penalized regression using routines in
+\code{glmnet}.
+
+\emph{formula}: The response in \code{formula} can be a survival
 object as returned by the \link[survival:Surv]{survival::Surv} function,
 but can also just be the time and status variables.
 For example, \code{Surv(time, status) ~ .} works just like
@@ -40,4 +87,23 @@ For example, \code{Surv(time, status) ~ .} works just like
 input is putting the variables in the wrong order, i.e.,
 writing \code{status + time ~ .} will make \code{orsf} assume your
 \code{status} variable is actually the \code{time} variable.
+
+\emph{mtry}: The \code{mtry} parameter may be decreased while fitting an oblique
+RSF. Currently oblique RSF's are fitted by a Newton Raphson scoring
+algorithm that becomes unstable when the number of covariates is
+greater than or equal to the number of events. During the ORSF
+algorithm, mtry may be reduced temporarily to ensure there are at
+least 2 events per predictor variable.
+}
+\examples{
+
+fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 10)
+
+
+}
+\references{
+Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI,
+Mcclure LA, Howard G, Simon N. Oblique random survival forests.
+\emph{The Annals of Applied Statistics}. 2019 Sep;13(3):1847-83.
+DOI: 10.1214/19-AOAS1261
 }

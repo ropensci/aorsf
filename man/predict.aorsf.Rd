@@ -2,16 +2,38 @@
 % Please edit documentation in R/orsf_predict.R
 \name{predict.aorsf}
 \alias{predict.aorsf}
-\title{Title}
+\title{Prediction with oblique RSF}
 \usage{
-\method{predict}{aorsf}(object, new_data, times, risk = TRUE)
+\method{predict}{aorsf}(object, new_data, times, risk = TRUE, ...)
 }
 \arguments{
-\item{times}{}
+\item{object}{(\emph{aorsf}) an oblique random survival forest (RSF; see \link{orsf}).}
+
+\item{new_data}{(\emph{data.frame}) data to compute predictions for. Must have
+the same columns with equivalent types as the data used to train \code{object}.
+Also, factors in \code{new_data} must not have levels that were not in the
+data used to train \code{object}. Last, missing data are not supported.}
+
+\item{times}{(\emph{double}) a single time or a vector of times for oblique RSF
+predictions. All \code{times} values must not exceed the maximum follow-up
+time in the oblique RSF's training data. Also, \code{times} must be entered
+in ascending order.}
+
+\item{risk}{(\emph{logical}) if \code{TRUE}, predicted risk is returned. If \code{FALSE},
+predicted survival (i.e., 1-risk) is returned.}
+
+\item{...}{not used.}
 }
 \value{
-
+a \code{matrix} of predictions. Column \code{j} of the matrix corresponds
+to value \code{j} in \code{times}. Row \code{i} of the matrix corresponds to row \code{i}
+in \code{new_data}.
 }
 \description{
-Title
+Prediction with oblique RSF
+}
+\examples{
+
+# (will add example)
+
 }
