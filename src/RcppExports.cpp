@@ -90,3 +90,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_orsf2_leaf_kaplan_testthat", (DL_FUNC) &_orsf2_leaf_kaplan_testthat, 2},
+    {"_orsf2_newtraph_cph_testthat", (DL_FUNC) &_orsf2_newtraph_cph_testthat, 7},
+    {"_orsf2_orsf_fit", (DL_FUNC) &_orsf2_orsf_fit, 12},
+    {"_orsf2_orsf_pred_uni", (DL_FUNC) &_orsf2_orsf_pred_uni, 4},
+    {"_orsf2_orsf_pred_multi", (DL_FUNC) &_orsf2_orsf_pred_multi, 4},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_orsf2(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
+}

@@ -96,7 +96,7 @@ orsf <- function(data,
                  mtry = NULL,
                  leaf_min_events = 1,
                  leaf_min_obs = 15,
-                 cph_method = 'efron',
+                 cph_method = 'breslow',
                  cph_eps = 1e-5,
                  cph_iter_max = 1,
                  cph_pval_max = 1,
@@ -248,6 +248,7 @@ orsf <- function(data,
 
  x_sort <- x[sorted, ]
  y_sort <- y[sorted, ]
+
 
  orsf_out <- orsf_fit(x                = x_sort,
                       y                = y_sort,
