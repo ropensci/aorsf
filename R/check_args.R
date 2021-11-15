@@ -330,3 +330,31 @@ check_call <- function(call, expected){
 
 }
 
+
+check_var_types <- function(data, valid_types){
+
+ var_types <- purrr::map_chr(data, ~ class(.x)[1])
+
+ good_vars <- var_types %in% valid_types
+
+ if(!all(good_vars)){
+
+  bad_vars <- which(!good_vars)
+
+  vars_to_list <- names(var_types)[bad_vars]
+  types_to_list <- var_types[vars_to_list]
+
+  meat <- paste0('<', vars_to_list, '> has type <',
+                 types_to_list, '>', collapse = '\n')
+
+  msg <- paste("some variables have unsupported type:\n",
+               meat, '\n supported types are', list_things(valid_types)
+  )
+
+  stop(msg, call. = FALSE)
+
+ }
+
+}
+
+

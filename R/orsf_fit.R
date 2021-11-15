@@ -145,6 +145,7 @@ orsf <- function(data,
        call. = FALSE)
  }
 
+ fctr_check(data, names_x_data)
  fi <- fctr_info(data, names_x_data)
  y  <- as.matrix(data[, names_y_data])
  x  <- as.matrix(one_hot(data, fi, names_x_data))

@@ -31,10 +31,15 @@ predict.aorsf <- function(object, new_data, times, risk = TRUE){
   )
  )
 
- check_new_data(new_data,
-                object$names_x,
-                label_new = deparse(Call$new_data),
-                label_ref = 'training data')
+ check_new_data_names(new_data  = new_data,
+                      ref_names = object$names_x,
+                      label_new = deparse(Call$new_data),
+                      label_ref = 'training data')
+
+ check_new_data_fctrs(new_data  = new_data,
+                      names_x   = object$names_x,
+                      fi_ref    = object$fctr_info,
+                      label_new = deparse(Call$new_data))
 
  if(!all(order(times) == seq(length(times)))){
   stop("times must be entered in ascending order, e.g.,",
@@ -57,12 +62,12 @@ predict.aorsf <- function(object, new_data, times, risk = TRUE){
 }
 
 
-check_new_data <- function(new_data,
-                           ref_names,
-                           label_new,
-                           label_ref,
-                           check_new_in_ref = FALSE,
-                           check_ref_in_new = TRUE){
+check_new_data_names <- function(new_data,
+                                 ref_names,
+                                 label_new,
+                                 label_ref,
+                                 check_new_in_ref = FALSE,
+                                 check_ref_in_new = TRUE){
 
  new_names <- names(new_data)
 
@@ -111,4 +116,45 @@ check_new_data <- function(new_data,
 
 }
 
+check_new_data_fctrs <- function(new_data,
+                                 names_x,
+                                 fi_ref,
+                                 label_new){
+
+ fctr_check(new_data, names_x)
+
+ fi_new <- fctr_info(new_data, names_x)
+
+ for(fi_col in fi_ref$cols){
+  fctr_check_levels(ref = fi_ref$lvls[[fi_col]],
+                    new = fi_new$lvls[[fi_col]],
+                    name = fi_col,
+                    label_ref = "training data",
+                    label_new = label_new)
+ }
+
+}
+
+fctr_check_levels <- function(ref,
+                              new,
+                              name,
+                              label_ref,
+                              label_new){
+
+ list_new  <- !(new %in% ref)
+
+ if(any(list_new)){
+
+  out_msg <- paste0(
+   "variable ", name, " in ", label_new,
+   " has levels not contained in ", label_ref, ": ",
+   paste_collapse(new[list_new], last = ' and ')
+  )
+
+  stop(out_msg, call. = FALSE)
+
+ }
+
+
+}
 

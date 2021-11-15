@@ -21,48 +21,44 @@ fctr_check <- function(data, .names){
 }
 
 
-fctr_names <- function(data, .names){
-
- fctrs <- vector(mode = 'character')
-
- for( .name in .names ){
-  if(is.factor(data[[.name]]) & !is.ordered(data[[.name]])){
-   fctrs <- c(fctrs, .name)
-  }
- }
-
- fctrs
-
-}
-
-
 fctr_info <- function(data, .names, fctr_sep = '_'){
 
  fctr_check(data, .names)
 
- fctr_info <- vector(mode = 'list', length = 3L)
- names(fctr_info) <- c('cols', 'lvls', 'keys')
 
- fctr_names <- fctr_names(data, .names)
+ fctrs <- vector(mode = 'character')
+ ordrd <- vector(mode = 'logical')
+
+ for( .name in .names ){
+  if(is.factor(data[[.name]])){
+   fctrs <- c(fctrs, .name)
+   ordrd <- c(ordrd, is.ordered(data[[.name]]))
+  }
+ }
+
+ fctr_info <- vector(mode = 'list', length = 4L)
+ names(fctr_info) <- c('cols', 'lvls', 'keys', 'ordr')
 
  # dont waste time if there aren't any factors
- if(is_empty(fctr_names)) return(fctr_info)
+ if(is_empty(fctrs)) return(fctr_info)
 
- fctr_count <- length(fctr_names)
+ fctr_info$cols <- fctrs
+ fctr_info$ordr <- ordrd
+ fctr_info$lvls <- vector(mode = 'list', length = length(fctrs))
+ fctr_info$keys <- vector(mode = 'list', length = length(fctrs))
 
- fctr_info$cols <- fctr_names
- fctr_info$lvls <- vector(mode = 'list', length = fctr_count)
- fctr_info$keys <- vector(mode = 'list', length = fctr_count)
+ names(fctr_info$lvls) <- fctrs
+ names(fctr_info$keys) <- fctrs
 
- names(fctr_info$lvls) <- fctr_names
- names(fctr_info$keys) <- fctr_names
+ for( i in seq_along(fctrs) ){
 
- for( fctr in fctr_names ){
+  fctr <- fctrs[i]
 
-   lvls <- levels(data[[fctr]])
-   fctr_info$lvls[[fctr]] <- lvls
+  lvls <- levels(data[[fctr]])
+  fctr_info$lvls[[fctr]] <- lvls
+
+  if(!fctr_info$ordr[i])
    fctr_info$keys[[fctr]] <- paste(fctr, lvls, sep = fctr_sep)
-
 
  }
 
