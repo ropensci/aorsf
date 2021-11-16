@@ -9,7 +9,11 @@ newtraph_cph_testthat <- function(x_in, y_in, w_in, method, eps, pval_max, iter_
     .Call(`_orsf2_newtraph_cph_testthat`, x_in, y_in, w_in, method, eps, pval_max, iter_max)
 }
 
-orsf_fit <- function(x, y, n_tree = 2L, n_split_ = 5L, mtry_ = 4L, leaf_min_events_ = 5, leaf_min_obs_ = 10, cph_method_ = 1L, cph_eps_ = 1e-8, cph_iter_max_ = 1L, cph_pval_max_ = 0.95, oobag_pred_ = FALSE) {
+lrt_multi_testthat <- function(y_node_, w_node_, XB_, n_split_, leaf_min_events_, leaf_min_obs_) {
+    .Call(`_orsf2_lrt_multi_testthat`, y_node_, w_node_, XB_, n_split_, leaf_min_events_, leaf_min_obs_)
+}
+
+orsf_fit <- function(x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, oobag_pred_) {
     .Call(`_orsf2_orsf_fit`, x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, oobag_pred_)
 }
 

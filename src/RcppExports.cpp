@@ -40,6 +40,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// lrt_multi_testthat
+List lrt_multi_testthat(NumericMatrix& y_node_, NumericVector& w_node_, NumericVector& XB_, int n_split_, int leaf_min_events_, int leaf_min_obs_);
+RcppExport SEXP _orsf2_lrt_multi_testthat(SEXP y_node_SEXP, SEXP w_node_SEXP, SEXP XB_SEXP, SEXP n_split_SEXP, SEXP leaf_min_events_SEXP, SEXP leaf_min_obs_SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix& >::type y_node_(y_node_SEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type w_node_(w_node_SEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type XB_(XB_SEXP);
+    Rcpp::traits::input_parameter< int >::type n_split_(n_split_SEXP);
+    Rcpp::traits::input_parameter< int >::type leaf_min_events_(leaf_min_events_SEXP);
+    Rcpp::traits::input_parameter< int >::type leaf_min_obs_(leaf_min_obs_SEXP);
+    rcpp_result_gen = Rcpp::wrap(lrt_multi_testthat(y_node_, w_node_, XB_, n_split_, leaf_min_events_, leaf_min_obs_));
+    return rcpp_result_gen;
+END_RCPP
+}
 // orsf_fit
 List orsf_fit(NumericMatrix& x, NumericMatrix& y, const int& n_tree, const int& n_split_, const int& mtry_, const double& leaf_min_events_, const double& leaf_min_obs_, const int& cph_method_, const double& cph_eps_, const int& cph_iter_max_, const double& cph_pval_max_, const bool& oobag_pred_);
 RcppExport SEXP _orsf2_orsf_fit(SEXP xSEXP, SEXP ySEXP, SEXP n_treeSEXP, SEXP n_split_SEXP, SEXP mtry_SEXP, SEXP leaf_min_events_SEXP, SEXP leaf_min_obs_SEXP, SEXP cph_method_SEXP, SEXP cph_eps_SEXP, SEXP cph_iter_max_SEXP, SEXP cph_pval_max_SEXP, SEXP oobag_pred_SEXP) {
@@ -94,6 +110,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_orsf2_leaf_kaplan_testthat", (DL_FUNC) &_orsf2_leaf_kaplan_testthat, 2},
     {"_orsf2_newtraph_cph_testthat", (DL_FUNC) &_orsf2_newtraph_cph_testthat, 7},
+    {"_orsf2_lrt_multi_testthat", (DL_FUNC) &_orsf2_lrt_multi_testthat, 6},
     {"_orsf2_orsf_fit", (DL_FUNC) &_orsf2_orsf_fit, 12},
     {"_orsf2_orsf_pred_uni", (DL_FUNC) &_orsf2_orsf_pred_uni, 4},
     {"_orsf2_orsf_pred_multi", (DL_FUNC) &_orsf2_orsf_pred_multi, 4},
