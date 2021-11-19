@@ -157,8 +157,8 @@ orsf <- function(data,
    'cph_pval_max' = list(
     type = 'numeric',
     length = 1,
-    lwr = 1,
-    integer = TRUE
+    lwr = 0,
+    upr = 1
    ),
    'oobag_pred' = list(
     type = 'logical',

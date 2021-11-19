@@ -52,7 +52,7 @@ double
  cph_pval_max;
 
 int
- verbose=2,
+ verbose=0,
   mtry_int;
 
 // armadillo unsigned integers
@@ -875,7 +875,7 @@ arma::vec newtraph_cph(){
 
   for(iter = 1; iter < cph_iter_max; iter++){
 
-   if(verbose > 1){
+   if(verbose > 0){
 
     Rcout << "--------- Newt-Raph algo; iter " << iter;
     Rcout << " ---------"  << std::endl;
@@ -890,9 +890,11 @@ arma::vec newtraph_cph(){
    // do the next iteration
    stat_current = newtraph_cph_iter(beta_new);
 
-   //Rcpp::Rcout << "stat_current: " << stat_current << std::endl;
-
    cholesky();
+
+   // don't go trying to fix this, just use the last
+   // set of valid coefficients
+   if(std::isinf(stat_current)) break;
 
    // check for convergence
    // break the loop if the new ll is ~ same as old best ll
@@ -941,17 +943,21 @@ arma::vec newtraph_cph(){
 
   beta_current[i] = beta_new[i];
 
-  if(std::isinf(beta_current[i])) beta_current[i] = 0;
+  if(std::isinf(beta_current[i]) || std::isnan(beta_current[i])){
+   beta_current[i] = 0;
+  }
 
-  if(std::isinf(vmat.at(i, i))) vmat.at(i, i) = 1.0;
+  if(std::isinf(vmat.at(i, i)) || std::isnan(vmat.at(i, i))){
+   vmat.at(i, i) = 1.0;
+  }
 
-  if(verbose > 1) Rcout << "scaled beta: " << beta_current[i] << "; ";
+  if(verbose > 0) Rcout << "scaled beta: " << beta_current[i] << "; ";
 
   beta_current.at(i) *= x_transforms.at(i, 1);
 
   vmat.at(i, i) *= x_transforms.at(i, 1) * x_transforms.at(i, 1);
 
-  if(verbose > 1) Rcout << "un-scaled beta: " << beta_current[i] << std::endl;
+  if(verbose > 0) Rcout << "un-scaled beta: " << beta_current[i] << std::endl;
 
   temp1 = R::pchisq(pow(beta_current[i], 2) / vmat.at(i, i),
                     1, false, false);
@@ -1855,46 +1861,51 @@ void ostree_size_buffer(){
 
 void oobag_pred_leaf(){
 
-
  // reset values
  leaf_preds.fill(0);
 
  for(i = 0; i < betas.n_cols; i++){
 
-  if(children_left(i) != 0){
+  if(children_left[i] != 0){
 
    obs_in_node = find(leaf_preds == i);
 
    if(obs_in_node.size() > 0){
 
+    // Fastest sub-matrix multiplication i can think of.
+    // Matrix product = linear combination of columns
+    // (this is faster b/c armadillo is great at making
+    //  pointers to the columns of an arma mat)
     XB.zeros(obs_in_node.size());
 
     uvec col_indices_i = col_indices.unsafe_col(i);
 
     j = 0;
+
     jit = col_indices_i.begin();
 
     for(; jit < col_indices_i.end(); ++jit, ++j){
 
      vec x_j = x_oobag.unsafe_col(*jit);
 
-     XB += x_j(obs_in_node) * betas(j, i);
+     XB += x_j(obs_in_node) * betas.at(j, i);
 
     }
 
+    // this is slower but more clear matrix multiplication
     // XB = x_oobag(obs_in_node, col_indices.col(i)) * betas.col(i);
 
     jit = obs_in_node.begin();
 
     for(j = 0; j < XB.size(); ++j, ++jit){
 
-     if(XB(j) <= cutpoints(i)) {
+     if(XB[j] <= cutpoints[i]) {
 
-      leaf_preds(*jit) = children_left(i);
+      leaf_preds[*jit] = children_left[i];
 
      } else {
 
-      leaf_preds(*jit) = children_left(i)+1;
+      leaf_preds[*jit] = children_left[i]+1;
 
      }
 
@@ -1934,12 +1945,14 @@ void oobag_pred_surv_uni(){
 
   person_leaf = leaf_preds(*iit);
 
+  // find the first leaf in the surv mat equal to this leaf
   for(i = 0; i < leaf_indices.n_rows; i++){
    if(leaf_indices.at(i, 0) == person_leaf){
     break;
    }
   }
 
+  // get submat view for this leaf
   leaf_surv = leaf_nodes.rows(leaf_indices(i, 1),
                               leaf_indices(i, 2));
 
@@ -2001,7 +2014,7 @@ void oobag_pred_surv_uni(){
 
 }
 
-void x_new_pred_surv_multi(){
+void new_pred_surv_multi(){
 
  // allocate memory for output
  // surv_oobag.zeros(x_oobag.n_rows);
@@ -2088,7 +2101,7 @@ void x_new_pred_surv_multi(){
 
 }
 
-void x_new_pred_surv_uni(){
+void new_pred_surv_uni(){
 
  iit_vals = sort_index(leaf_preds, "ascend");
  iit = iit_vals.begin();
@@ -2288,8 +2301,8 @@ List ostree_fit(){
 
     }
 
-    // make sure there are at least 2 events per predictor variable.
-    while(n_events_total / mtry_int < 2 && mtry_int > 1){
+    // make sure there are at least 3 event per predictor variable.
+    while(n_events_total / mtry_int < 3 && mtry_int > 1){
      --mtry_int;
     }
 
@@ -2669,6 +2682,9 @@ List orsf_fit(NumericMatrix& x,
 
 void oobag_mem_xfer(){
 
+ // leaf_node_index is copied
+ // children_left is copied
+
  NumericMatrix leaf_nodes_      = ostree["leaf_nodes"];
  NumericMatrix betas_           = ostree["betas"];
  NumericVector cutpoints_       = ostree["cut_points"];
@@ -2688,23 +2704,44 @@ void oobag_mem_xfer(){
 
  cutpoints = vec(cutpoints_.begin(), cutpoints_.length(), false);
 
- i_col_indices = imat(col_indices_.begin(),
-                      col_indices_.nrow(),
-                      col_indices_.ncol(),
-                      false);
+ col_indices = conv_to<umat>::from(
+  imat(col_indices_.begin(),
+       col_indices_.nrow(),
+       col_indices_.ncol(),
+       false)
+ );
 
- i_leaf_indices = imat(leaf_indices_.begin(),
-                       leaf_indices_.nrow(),
-                       leaf_indices_.ncol(),
-                       false);
+ leaf_indices = conv_to<umat>::from(
+  imat(leaf_indices_.begin(),
+       leaf_indices_.nrow(),
+       leaf_indices_.ncol(),
+       false)
+ );
 
- i_children_left = ivec(children_left_.begin(),
-                        children_left_.length(),
-                        false);
+ children_left = conv_to<uvec>::from(
+  ivec(children_left_.begin(),
+       children_left_.length(),
+       false)
+ );
 
- col_indices = conv_to<umat>::from(i_col_indices);
- leaf_indices = conv_to<umat>::from(i_leaf_indices);
- children_left = conv_to<uvec>::from(i_children_left);
+
+ // i_col_indices = imat(col_indices_.begin(),
+ //                      col_indices_.nrow(),
+ //                      col_indices_.ncol(),
+ //                      false);
+ //
+ // i_leaf_indices = imat(leaf_indices_.begin(),
+ //                       leaf_indices_.nrow(),
+ //                       leaf_indices_.ncol(),
+ //                       false);
+ //
+ // i_children_left = ivec(children_left_.begin(),
+ //                        children_left_.length(),
+ //                        false);
+ //
+ // col_indices = conv_to<umat>::from(i_col_indices);
+ // leaf_indices = conv_to<umat>::from(i_leaf_indices);
+ // children_left = conv_to<uvec>::from(i_children_left);
 
 }
 
@@ -2728,14 +2765,14 @@ arma::mat orsf_pred_uni(List& forest,
   ostree = forest[tree];
   oobag_mem_xfer();
   oobag_pred_leaf();
-  x_new_pred_surv_uni();
+  new_pred_surv_uni();
  }
 
  temp1 = tree + 1;
 
  if(return_risk){
   return(1 - (vec_temp / temp1));
- } else{
+ } else {
   return(vec_temp / temp1);
  }
 
@@ -2761,7 +2798,7 @@ arma::mat orsf_pred_multi(List& forest,
   ostree = forest[tree];
   oobag_mem_xfer();
   oobag_pred_leaf();
-  x_new_pred_surv_multi();
+  new_pred_surv_multi();
  }
 
  temp1 = tree + 1;
