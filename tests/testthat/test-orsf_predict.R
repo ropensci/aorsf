@@ -12,24 +12,80 @@ aorsf = orsf(formula = time + status  ~ . - id,
 
 new_data <- pbc_orsf[-train, ]
 
+p1 <- predict(aorsf, new_data = new_data, times = 1000)
+
 test_that(
  desc = 'predictions are bounded',
  code = {
-  p <- predict(aorsf, new_data = new_data, times = 1000)
-  expect_true(all(p < 1) && all(p > 0))
+  expect_true(all(p1 < 1) && all(p1 > 0))
  })
+
+p2 <- predict(aorsf, new_data = new_data, times = 1000, risk = FALSE)
+
+test_that(
+ desc = 'risk is inverse of survival',
+ code = {expect_true(all(p1 == 1 - p2))}
+)
 
 bad_data <- new_data
 bad_data$trt <- factor(bad_data$trt)
 
 test_that(
- desc = 'malicious data types are detected',
+ desc = 'unexpected data types are detected',
  code = {
   expect_error(
-   object = predict(aorsf, bad_data),
+   object = predict(aorsf, bad_data, times = 1000),
    regexp = "\\<trt\\>"
   )
  }
 )
 
 bad_data <- new_data
+bad_data$sex <- factor(bad_data$sex, levels = c("m", "f", "new_level"))
+
+test_that(
+ desc = 'unexpected factor levels are detected',
+ code = {
+  expect_error(
+   object = predict(aorsf, bad_data, times = 1000),
+   regexp = "new_level"
+  )
+ }
+)
+
+
+bad_data <- new_data
+bad_data$sex <- NULL
+bad_data$trt <- NULL
+
+test_that(
+ desc = 'missing columns are detected',
+ code = {
+  expect_error(
+   object = predict(aorsf, bad_data, times = 1000),
+   regexp = "trt and sex"
+  )
+ }
+)
+
+new_col_order <- sample(names(new_data),
+                        size = ncol(new_data),
+                        replace = F)
+
+new_data_reordered <- new_data[, new_col_order]
+
+p2 <- predict(aorsf, new_data_reordered, times = 1000)
+
+test_that(
+ desc = 'predictions dont require cols in same order as training data',
+ code = {
+  expect_true(
+   all(p1 == p2)
+  )
+ }
+)
+
+
+
+
+

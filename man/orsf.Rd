@@ -2,7 +2,7 @@
 % Please edit documentation in R/orsf_fit.R
 \name{orsf}
 \alias{orsf}
-\title{Fit oblique RSF}
+\title{Oblique Random Survival Forest (ORSF)}
 \usage{
 orsf(
   data,
@@ -12,7 +12,7 @@ orsf(
   mtry = NULL,
   leaf_min_events = 1,
   leaf_min_obs = 15,
-  cph_method = "efron",
+  cph_method = "breslow",
   cph_eps = 1e-05,
   cph_iter_max = 1,
   cph_pval_max = 1,
@@ -72,6 +72,8 @@ growing new nodes in survival decision trees. For more details on
 the oblique RSF, see Jaeger et al, 2019.
 }
 \details{
+\if{html}{\figure{tree_axis_v_oblique.png}{options: width=100\%}}
+
 This function is based on and highly similar to the \code{ORSF} function
 in the \code{obliqueRSF} R package. The primary difference is that this
 function runs about 100 times faster because it uses a simplified

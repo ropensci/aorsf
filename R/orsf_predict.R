@@ -50,12 +50,22 @@ predict.aorsf <- function(object, new_data, times, risk = TRUE, ...){
   )
  )
 
+ if(any(times > get_max_time(object))){
+
+  stop("prediction times should ",
+       "be <= max follow-up time ",
+       "observed in training data: ",
+       get_max_time(object),
+       call. = FALSE)
+
+ }
+
  check_new_data_names(new_data  = new_data,
                       ref_names = object$names_x,
                       label_new = deparse(Call$new_data),
                       label_ref = 'training data')
 
- check_new_data_types(new_data,
+ check_new_data_types(new_data  = new_data,
                       ref_names = object$names_x,
                       ref_types = object$types_x,
                       label_new = deparse(Call$new_data),
@@ -65,8 +75,6 @@ predict.aorsf <- function(object, new_data, times, risk = TRUE, ...){
                       names_x   = object$names_x,
                       fi_ref    = object$fctr_info,
                       label_new = deparse(Call$new_data))
-
-
 
  if(!all(order(times) == seq(length(times)))){
   stop("times must be entered in ascending order, e.g.,",
@@ -81,7 +89,9 @@ predict.aorsf <- function(object, new_data, times, risk = TRUE, ...){
  )
 
  if(length(times) == 1){
+
   return(orsf_pred_uni(object$forest, x_new, times, risk))
+
  }
 
  orsf_pred_multi(object$forest, x_new, times, risk)

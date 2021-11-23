@@ -1,7 +1,7 @@
 
 
 
-#' Fit oblique RSF
+#' Oblique Random Survival Forest (ORSF)
 #'
 #' The oblique random survival forest (RSF) is an extension of the RSF
 #'   algorithm developed by Ishwaran et al and maintained in the
@@ -10,6 +10,9 @@
 #'   of input variables instead of using the input variable as-is when
 #'   growing new nodes in survival decision trees. For more details on
 #'   the oblique RSF, see Jaeger et al, 2019.
+#'
+#' \if{html}{\figure{tree_axis_v_oblique.png}{options: width=100\%}}
+#'
 #'
 #' This function is based on and highly similar to the `ORSF` function
 #'   in the `obliqueRSF` R package. The primary difference is that this

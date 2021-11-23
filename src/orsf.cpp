@@ -1,6 +1,5 @@
 #include <RcppArmadillo.h>
 #include <RcppArmadilloExtensions/sample.h>
-#include <Rcpp.h>
 
 // [[Rcpp::depends(RcppArmadillo)]]
 
@@ -135,10 +134,6 @@ uvec::iterator
  jit,
  node;
 
-ivec
- i_leaf_node_index,
- i_children_left;
-
 // armadillo matrices (doubles)
 mat
  mat_temp,
@@ -166,9 +161,6 @@ umat
  col_indices,
  leaf_indices;
 
-imat
- i_col_indices,
- i_leaf_indices;
 
 List ostree;
 
@@ -983,7 +975,7 @@ arma::vec newtraph_cph_testthat(NumericMatrix& x_in,
                                 NumericMatrix& y_in,
                                 NumericVector& w_in,
                                 int method,
-                                double eps,
+                                double cph_eps_,
                                 double pval_max,
                                 int iter_max){
 
@@ -993,7 +985,7 @@ arma::vec newtraph_cph_testthat(NumericMatrix& x_in,
  w_node = vec(w_in.begin(), w_in.length(), false);
 
  cph_method = method;
- cph_eps = eps;
+ cph_eps = cph_eps_;
  cph_iter_max = iter_max;
  n_vars = x_node.n_cols;
  cph_pval_max = pval_max;
@@ -1038,8 +1030,8 @@ double lrt_multi(){
  iit_vals = sort_index(XB, "ascend");
 
  // unsafe columns point to cols in y_node.
- vec status = y_node.unsafe_col(1);
- vec time = y_node.unsafe_col(0);
+ vec y_status = y_node.unsafe_col(1);
+ vec y_time = y_node.unsafe_col(0);
 
  // first determine the lowest value of XB that will
  // be a valid cut-point to split a node. A valid cut-point
@@ -1057,7 +1049,7 @@ double lrt_multi(){
 
  for(iit = iit_vals.begin(); iit < iit_vals.end()-1; ++iit){
 
-  n_events += status(*iit) * w_node(*iit);
+  n_events += y_status(*iit) * w_node(*iit);
   n_risk += w_node(*iit);
 
   // If we want to make the current value of XB a cut-point, we need
@@ -1115,7 +1107,7 @@ double lrt_multi(){
 
  for(iit = iit_vals.end()-1; iit >= iit_vals.begin()+1; --iit){
 
-  n_events += status(*iit) * w_node(*iit);
+  n_events += y_status(*iit) * w_node(*iit);
   n_risk   += w_node(*iit);
   group(*iit) = 1;
 
@@ -1201,11 +1193,8 @@ double lrt_multi(){
 
  }
 
- // what happens if there are only 5 potential cut-points
- // but the value of n_split is > 5? We will just check out
- // the 5 valid cutpoints.
 
- // adjust k to indicate steps taken in the outer loop.
+ // adjust k to indicate the number of valid cut-points
  k -= j;
 
  if(k > n_split){
@@ -1214,20 +1203,25 @@ double lrt_multi(){
 
  } else {
 
+ // what happens if there are only 5 potential cut-points
+ // but the value of n_split is > 5? We will just check out
+ // the 5 valid cutpoints.
   jit_vals = linspace<uvec>(0, k, k);
 
  }
 
  vec_temp.resize( jit_vals.size() );
 
+ // protection from going out of bounds with jit_vals(k) below
  if(j == 0) jit_vals(jit_vals.size()-1)--;
 
+ // put the indices of potential cut-points into vec_temp
  for(k = 0; k < vec_temp.size(); k++){
   vec_temp(k) = XB(*(iit_best - jit_vals(k)));
  }
 
+ // back to how it was!
  if(j == 0) jit_vals(jit_vals.size()-1)++;
-
 
  if(verbose > 1){
 
@@ -1253,6 +1247,7 @@ double lrt_multi(){
    Rcout << "jit points to " << *jit << std::endl;
   }
 
+  // switch group values from 0 to 1 until you get to the next cut-point
   for( ; j < *jit; j++){
    group(*iit) = 1;
    --iit;
@@ -1265,17 +1260,17 @@ double lrt_multi(){
 
   } else {
 
-   if( vec_temp(k) == vec_temp(k+1) ||
-       vec_temp(k) == vec_temp(0)   ||
+   if( vec_temp[k] == vec_temp[k+1] ||
+       vec_temp[k] == vec_temp[0]   ||
        *jit <= 1){
 
        do_lrt = false;
 
    } else {
 
-    while(XB(*iit) == XB(*(iit - 1))){
+    while( XB[*iit] == XB[*(iit - 1)] ){
 
-     group(*iit) = 1;
+     group[*iit] = 1;
      --iit;
      ++j;
 
@@ -1322,16 +1317,16 @@ double lrt_multi(){
    // begin inner loop  - - - - - - - - - - - - -  - - - - - - - - - - - - -
    for (; ;){
 
-    temp1 = time[i];
+    temp1 = y_time[i];
 
     n_events = 0;
 
-    for ( ; time[i] == temp1; i--) {
+    for ( ; y_time[i] == temp1; i--) {
 
      n_risk += w_node[i];
-     n_events += status[i] * w_node[i];
+     n_events += y_status[i] * w_node[i];
      g_risk += group[i] * w_node[i];
-     observed += status[i] * group[i] * w_node[i];
+     observed += y_status[i] * group[i] * w_node[i];
 
      if(i == 0){
       break_loop = true;
@@ -1456,8 +1451,8 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
  iit_vals = sort_index(XB, "ascend");
 
  // unsafe columns point to cols in y_node.
- vec status = y_node.unsafe_col(1);
- vec time = y_node.unsafe_col(0);
+ vec y_status = y_node.unsafe_col(1);
+ vec y_time = y_node.unsafe_col(0);
 
  // first determine the lowest value of XB that will
  // be a valid cut-point to split a node. A valid cut-point
@@ -1475,7 +1470,7 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
 
  for(iit = iit_vals.begin(); iit < iit_vals.end()-1; ++iit){
 
-  n_events += status(*iit) * w_node(*iit);
+  n_events += y_status(*iit) * w_node(*iit);
   n_risk += w_node(*iit);
 
   // If we want to make the current value of XB a cut-point, we need
@@ -1533,7 +1528,7 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
 
  for(iit = iit_vals.end()-1; iit >= iit_vals.begin()+1; --iit){
 
-  n_events += status(*iit) * w_node(*iit);
+  n_events += y_status(*iit) * w_node(*iit);
   n_risk   += w_node(*iit);
   group(*iit) = 1;
 
@@ -1742,16 +1737,16 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
    // begin inner loop  - - - - - - - - - - - - -  - - - - - - - - - - - - -
    for (; ;){
 
-    temp1 = time[i];
+    temp1 = y_time[i];
 
     n_events = 0;
 
-    for ( ; time[i] == temp1; i--) {
+    for ( ; y_time[i] == temp1; i--) {
 
      n_risk += w_node[i];
-     n_events += status[i] * w_node[i];
+     n_events += y_status[i] * w_node[i];
      g_risk += group[i] * w_node[i];
-     observed += status[i] * group[i] * w_node[i];
+     observed += y_status[i] * group[i] * w_node[i];
 
      if(i == 0){
       break_loop = true;
@@ -2489,12 +2484,25 @@ List ostree_fit(){
 
  return(
   List::create(
+
    _["leaf_nodes"] = leaf_nodes.rows(span(0, leaf_node_counter-1)),
-   _["leaf_node_index"] = leaf_indices.rows(span(0, leaf_node_index_counter-1)),
+
+   _["leaf_node_index"] = conv_to<imat>::from(
+    leaf_indices.rows(span(0, leaf_node_index_counter-1))
+   ),
+
    _["betas"] = betas.cols(span(0, nodes_max_true)),
-   _["col_indices"] = conv_to<imat>::from(col_indices.cols(span(0, nodes_max_true))),
+
+   _["col_indices"] = conv_to<imat>::from(
+    col_indices.cols(span(0, nodes_max_true))
+   ),
+
    _["cut_points"] = cutpoints(span(0, nodes_max_true)),
-   _["children_left"] = children_left(span(0, nodes_max_true))
+
+   _["children_left"] = conv_to<ivec>::from(
+    children_left(span(0, nodes_max_true))
+   )
+
   )
  );
 
@@ -2682,8 +2690,7 @@ List orsf_fit(NumericMatrix& x,
 
 void oobag_mem_xfer(){
 
- // leaf_node_index is copied
- // children_left is copied
+ // no data copied according to tracemem.
 
  NumericMatrix leaf_nodes_      = ostree["leaf_nodes"];
  NumericMatrix betas_           = ostree["betas"];
@@ -2723,25 +2730,6 @@ void oobag_mem_xfer(){
        children_left_.length(),
        false)
  );
-
-
- // i_col_indices = imat(col_indices_.begin(),
- //                      col_indices_.nrow(),
- //                      col_indices_.ncol(),
- //                      false);
- //
- // i_leaf_indices = imat(leaf_indices_.begin(),
- //                       leaf_indices_.nrow(),
- //                       leaf_indices_.ncol(),
- //                       false);
- //
- // i_children_left = ivec(children_left_.begin(),
- //                        children_left_.length(),
- //                        false);
- //
- // col_indices = conv_to<umat>::from(i_col_indices);
- // leaf_indices = conv_to<umat>::from(i_leaf_indices);
- // children_left = conv_to<uvec>::from(i_children_left);
 
 }
 

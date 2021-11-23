@@ -24,8 +24,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // newtraph_cph_testthat
-arma::vec newtraph_cph_testthat(NumericMatrix& x_in, NumericMatrix& y_in, NumericVector& w_in, int method, double eps, double pval_max, int iter_max);
-RcppExport SEXP _orsf2_newtraph_cph_testthat(SEXP x_inSEXP, SEXP y_inSEXP, SEXP w_inSEXP, SEXP methodSEXP, SEXP epsSEXP, SEXP pval_maxSEXP, SEXP iter_maxSEXP) {
+arma::vec newtraph_cph_testthat(NumericMatrix& x_in, NumericMatrix& y_in, NumericVector& w_in, int method, double cph_eps_, double pval_max, int iter_max);
+RcppExport SEXP _orsf2_newtraph_cph_testthat(SEXP x_inSEXP, SEXP y_inSEXP, SEXP w_inSEXP, SEXP methodSEXP, SEXP cph_eps_SEXP, SEXP pval_maxSEXP, SEXP iter_maxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -33,10 +33,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix& >::type y_in(y_inSEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type w_in(w_inSEXP);
     Rcpp::traits::input_parameter< int >::type method(methodSEXP);
-    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    Rcpp::traits::input_parameter< double >::type cph_eps_(cph_eps_SEXP);
     Rcpp::traits::input_parameter< double >::type pval_max(pval_maxSEXP);
     Rcpp::traits::input_parameter< int >::type iter_max(iter_maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(newtraph_cph_testthat(x_in, y_in, w_in, method, eps, pval_max, iter_max));
+    rcpp_result_gen = Rcpp::wrap(newtraph_cph_testthat(x_in, y_in, w_in, method, cph_eps_, pval_max, iter_max));
     return rcpp_result_gen;
 END_RCPP
 }

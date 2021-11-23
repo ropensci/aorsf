@@ -5,8 +5,8 @@ leaf_kaplan_testthat <- function(y, w) {
     .Call(`_orsf2_leaf_kaplan_testthat`, y, w)
 }
 
-newtraph_cph_testthat <- function(x_in, y_in, w_in, method, eps, pval_max, iter_max) {
-    .Call(`_orsf2_newtraph_cph_testthat`, x_in, y_in, w_in, method, eps, pval_max, iter_max)
+newtraph_cph_testthat <- function(x_in, y_in, w_in, method, cph_eps_, pval_max, iter_max) {
+    .Call(`_orsf2_newtraph_cph_testthat`, x_in, y_in, w_in, method, cph_eps_, pval_max, iter_max)
 }
 
 lrt_multi_testthat <- function(y_node_, w_node_, XB_, n_split_, leaf_min_events_, leaf_min_obs_) {

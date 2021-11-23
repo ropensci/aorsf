@@ -3,7 +3,7 @@
 
 set.seed(32987) # random tests could break by chance
 
-run_cph_test <- function(x, y, method, pval_max = 1/2){
+run_cph_test <- function(x, y, method, pval_max = 1){
 
  wts <- sample(seq(1:2), size = nrow(x), replace = TRUE)
 
@@ -31,7 +31,7 @@ run_cph_test <- function(x, y, method, pval_max = 1/2){
                              y,
                              wts,
                              method = method,
-                             eps = 1e-8,
+                             cph_eps_ = 1e-8,
                              iter_max = 20,
                              pval_max = pval_max)
 
@@ -58,12 +58,34 @@ y <- survival::Surv(.pbc$time, .pbc$status)
 test_that(
  desc = 'similar answers for pbc data',
  code = {
-  expect_true( run_cph_test(x, y, method = 0) < 1e-5 )
-  expect_true( run_cph_test(x, y, method = 1) < 1e-5 )
+  expect_true( run_cph_test(x, y, method = 0) < 1e-2 )
+  expect_true( run_cph_test(x, y, method = 1) < 1e-2 )
  }
 )
 
 # flchain data ------------------------------------------------------------
+
+data("flchain", package = 'survival')
+
+df <- na.omit(flchain)
+
+df$chapter <- NULL
+
+time <- 'futime'
+status <- 'death'
+
+df_nomiss <- na.omit(df)
+
+df_sorted <- df_nomiss[order(df_nomiss[[time]]),]
+
+df_x <- df_sorted
+df_x[[time]] <- NULL
+df_x[[status]] <- NULL
+
+flchain_x <- model.matrix(~.-1, data = df_x)
+
+flchain_y <- Surv(time = df_sorted[[time]],
+                  event = df_sorted[[status]])
 
 x <- flchain_x[, c('age', 'sexF','sample.yr', 'kappa', 'lambda')]
 y <- flchain_y
@@ -71,7 +93,7 @@ y <- flchain_y
 test_that(
  desc = 'similar answers for flchain data',
  code = {
-  expect_true( run_cph_test(x, y, method = 0) < 1e-5 )
-  expect_true( run_cph_test(x, y, method = 1) < 1e-5 )
+  expect_true( run_cph_test(x, y, method = 0) < 1e-2 )
+  expect_true( run_cph_test(x, y, method = 1) < 1e-2 )
  }
 )
