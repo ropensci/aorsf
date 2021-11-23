@@ -13,7 +13,7 @@ Description: Oblique random survival forests incorporate linear combinations
   in random survival forests from Ishwaran, 2008 <doi:10.1214/08-AOAS169>. 
   A Newton Raphson scoring algorithm based on the Cox proportional hazard 
   model is used to identify linear combinations of input variables. Relative
-  to obliqueRSF, the predecessor of aorsf, decision trees are grown about
+  to obliqueRSF, the predecessor of aorsf,, decision trees are grown about
   500 times faster.
 License: MIT + file LICENSE
 Encoding: UTF-8
