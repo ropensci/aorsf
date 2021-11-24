@@ -1,6 +1,5 @@
 
 
-
 #' Oblique Random Survival Forest (ORSF)
 #'
 #' The oblique random survival forest (RSF) is an extension of the RSF
