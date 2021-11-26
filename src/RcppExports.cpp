@@ -11,6 +11,18 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// lt
+bool lt(double a, double b);
+RcppExport SEXP _orsf2_lt(SEXP aSEXP, SEXP bSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type a(aSEXP);
+    Rcpp::traits::input_parameter< double >::type b(bSEXP);
+    rcpp_result_gen = Rcpp::wrap(lt(a, b));
+    return rcpp_result_gen;
+END_RCPP
+}
 // leaf_kaplan_testthat
 arma::mat leaf_kaplan_testthat(const arma::mat& y, const arma::vec& w);
 RcppExport SEXP _orsf2_leaf_kaplan_testthat(SEXP ySEXP, SEXP wSEXP) {
@@ -23,8 +35,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cholesky_testthat
+arma::vec cholesky_testthat(NumericMatrix& vmat_, NumericVector& u_);
+RcppExport SEXP _orsf2_cholesky_testthat(SEXP vmat_SEXP, SEXP u_SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix& >::type vmat_(vmat_SEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type u_(u_SEXP);
+    rcpp_result_gen = Rcpp::wrap(cholesky_testthat(vmat_, u_));
+    return rcpp_result_gen;
+END_RCPP
+}
 // newtraph_cph_testthat
-arma::vec newtraph_cph_testthat(NumericMatrix& x_in, NumericMatrix& y_in, NumericVector& w_in, int method, double cph_eps_, double pval_max, int iter_max);
+List newtraph_cph_testthat(NumericMatrix& x_in, NumericMatrix& y_in, NumericVector& w_in, int method, double cph_eps_, double pval_max, int iter_max);
 RcppExport SEXP _orsf2_newtraph_cph_testthat(SEXP x_inSEXP, SEXP y_inSEXP, SEXP w_inSEXP, SEXP methodSEXP, SEXP cph_eps_SEXP, SEXP pval_maxSEXP, SEXP iter_maxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -108,7 +132,9 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_orsf2_lt", (DL_FUNC) &_orsf2_lt, 2},
     {"_orsf2_leaf_kaplan_testthat", (DL_FUNC) &_orsf2_leaf_kaplan_testthat, 2},
+    {"_orsf2_cholesky_testthat", (DL_FUNC) &_orsf2_cholesky_testthat, 2},
     {"_orsf2_newtraph_cph_testthat", (DL_FUNC) &_orsf2_newtraph_cph_testthat, 7},
     {"_orsf2_lrt_multi_testthat", (DL_FUNC) &_orsf2_lrt_multi_testthat, 6},
     {"_orsf2_orsf_fit", (DL_FUNC) &_orsf2_orsf_fit, 12},
