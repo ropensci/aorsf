@@ -3,4 +3,4 @@
 S3method(predict,aorsf)
 export(orsf)
 importFrom(Rcpp,sourceCpp)
-useDynLib(orsf2, .registration = TRUE)
+useDynLib(aorsf, .registration = TRUE)

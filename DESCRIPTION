@@ -1,4 +1,4 @@
-Package: orsf2
+Package: aorsf
 Title: Accelerated Oblique Random Survival Forests
 Version: 0.0.1
 Authors@R: 
@@ -25,8 +25,8 @@ LinkingTo:
     RcppArmadillo
 Imports: 
     Rcpp
-URL: https://github.com/bcjaeger/orsf2
-BugReports: https://github.com/bcjaeger/orsf2/issues
+URL: https://github.com/bcjaeger/aorsf
+BugReports: https://github.com/bcjaeger/aorsf/issues
 Depends: 
     R (>= 2.10)
 Suggests: 

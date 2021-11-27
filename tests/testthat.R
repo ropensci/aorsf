@@ -1,4 +1,4 @@
 library(testthat)
-library(orsf2)
+library(aorsf)
 
-test_check("orsf2")
+test_check("aorsf")

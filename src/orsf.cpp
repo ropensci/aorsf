@@ -909,7 +909,7 @@ arma::vec newtraph_cph(){
 
    // check for convergence
    // break the loop if the new ll is ~ same as old best ll
-   if(abs(1 - stat_best / stat_current) < cph_eps){
+   if(fabs(1 - stat_best / stat_current) < cph_eps){
     break;
    }
 
@@ -990,7 +990,7 @@ arma::vec newtraph_cph(){
 
 
 // [[Rcpp::export]]
-List newtraph_cph_testthat(NumericMatrix& x_in,
+arma::vec newtraph_cph_testthat(NumericMatrix& x_in,
                            NumericMatrix& y_in,
                            NumericVector& w_in,
                            int method,
@@ -1013,146 +1013,7 @@ List newtraph_cph_testthat(NumericMatrix& x_in,
 
  x_node_scale();
 
- beta_current.zeros(n_vars);
- beta_new.zeros(n_vars);
-
- // these are filled with initial values later
- XB.set_size(x_node.n_rows);
- Risk.set_size(x_node.n_rows);
- u.set_size(n_vars);
- a.set_size(n_vars);
- a2.set_size(n_vars);
- vmat.set_size(n_vars, n_vars);
- cmat.set_size(n_vars, n_vars);
- cmat2.set_size(n_vars, n_vars);
-
- halving = 0;
-
- // do the initial iteration
- stat_best = newtraph_cph_init();
-
- ll_init = stat_best;
-
- // update beta_current
- cholesky();
- cholesky_solve();
- beta_new = beta_current + u;
-
- beta_1 = beta_new;
-
- if(cph_iter_max > 1 && stat_best < R_PosInf){
-
-  for(iter = 1; iter < cph_iter_max; iter++){
-
-   if(verbose > 0){
-
-    Rcout << "--------- Newt-Raph algo; iter " << iter;
-    Rcout << " ---------"  << std::endl;
-    Rcout << "beta: "      << beta_new.t();
-    Rcout << "loglik:    " << stat_best;
-    Rcout                  << std::endl;
-    Rcout << "------------------------------------------";
-    Rcout << std::endl << std::endl << std::endl;
-
-   }
-
-   // do the next iteration
-   stat_current = newtraph_cph_iter(beta_new);
-   if(iter == 1) ll_second = stat_current;
-
-   cholesky();
-
-   // don't go trying to fix this, just use the last
-   // set of valid coefficients
-   if(std::isinf(stat_current)) break;
-
-   // check for convergence
-   // break the loop if the new ll is ~ same as old best ll
-   if(abs(1 - stat_best / stat_current) < cph_eps){
-    break;
-   }
-
-   Rcout << stat_current - stat_best << std::endl;
-
-   if(stat_current - stat_best < 0){ // it's not converging!
-
-    halving++; // get more aggressive when it doesn't work
-
-    // reduce the magnitude by which beta_new modifies beta_current
-    for (i = 0; i < n_vars; i++){
-     beta_new[i] = (beta_new[i]+halving*beta_current[i]) / (halving+1.0);
-    }
-
-    // yeah its not technically the best but I need to do this for
-    // more reasonable output when verbose = true; I should remove
-    // this line when verbosity is taken out.
-    stat_best = stat_current;
-
-   } else { // it's converging!
-
-    halving = 0;
-    stat_best = stat_current;
-
-    cholesky_solve();
-
-    for (i = 0; i < n_vars; i++) {
-
-     beta_current[i] = beta_new[i];
-     beta_new[i] = beta_new[i] +  u[i];
-
-    }
-
-   }
-
-   beta_2 = beta_new;
-
-  }
-
- }
-
- // invert vmat
- cholesky_invert();
-
- for (i=0; i < n_vars; i++) {
-
-  beta_current[i] = beta_new[i];
-
-  if(std::isinf(beta_current[i]) || std::isnan(beta_current[i])){
-   beta_current[i] = 0;
-  }
-
-  if(std::isinf(vmat.at(i, i)) || std::isnan(vmat.at(i, i))){
-   vmat.at(i, i) = 1.0;
-  }
-
-  if(verbose > 0) Rcout << "scaled beta: " << beta_current[i] << "; ";
-
-  beta_current.at(i) *= x_transforms.at(i, 1);
-
-  vmat.at(i, i) *= x_transforms.at(i, 1) * x_transforms.at(i, 1);
-
-  if(verbose > 0) Rcout << "un-scaled beta: " << beta_current[i] << std::endl;
-
-  temp1 = R::pchisq(pow(beta_current[i], 2) / vmat.at(i, i),
-                    1, false, false);
-
-  if(temp1 > cph_pval_max){
-   beta_current[i] = 0;
-   if(verbose > 1){
-    Rcout<<"dropping coef "<<i<<" to 0; p = "<<temp1<<std::endl;
-   }
-  }
-
- }
-
- if(verbose > 1) Rcout << std::endl;
-
- List out = List::create(_["ll_init"] = ll_init,
-                         _["ll_second"] = ll_second,
-                         _["beta_1"] = beta_1,
-                         _["beta_2"] = beta_2,
-                         _["ll_final"] = stat_best,
-                         _["coefficients"] = beta_current);
+ vec out = newtraph_cph();
 
  return(out);
 

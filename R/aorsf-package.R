@@ -5,6 +5,6 @@
 # roxygen namespace tags. Modify with care!
 ## usethis namespace: start
 #' @importFrom Rcpp sourceCpp
-#' @useDynLib orsf2, .registration = TRUE
+#' @useDynLib aorsf, .registration = TRUE
 ## usethis namespace: end
 NULL
