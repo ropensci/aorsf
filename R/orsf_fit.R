@@ -102,6 +102,7 @@ orsf <- function(data,
                  cph_eps = 1e-5,
                  cph_iter_max = 1,
                  cph_pval_max = 1,
+                 do_scale = TRUE,
                  oobag_pred = FALSE,
                  oobag_eval_every = n_tree){
 
@@ -162,6 +163,10 @@ orsf <- function(data,
     length = 1,
     lwr = 0,
     upr = 1
+   ),
+   'do_scale' = list(
+    type = 'logical',
+    length = 1
    ),
    'oobag_pred' = list(
     type = 'logical',
@@ -273,6 +278,7 @@ orsf <- function(data,
                       cph_eps_          = cph_eps,
                       cph_iter_max_     = cph_iter_max,
                       cph_pval_max_     = cph_pval_max,
+                      do_scale_         = do_scale,
                       oobag_pred_       = oobag_pred,
                       oobag_eval_every_ = oobag_eval_every)
 

@@ -87,7 +87,8 @@ String
 
 bool
  break_loop, // a delayed break statement
- oobag_pred;
+ oobag_pred,
+ do_scale;
 
 // armadillo vectors (doubles)
 vec
@@ -962,9 +963,10 @@ arma::vec newtraph_cph(){
 
   if(verbose > 0) Rcout << "scaled beta: " << beta_current[i] << "; ";
 
-  beta_current.at(i) *= x_transforms.at(i, 1);
-
-  vmat.at(i, i) *= x_transforms.at(i, 1) * x_transforms.at(i, 1);
+  if(do_scale){
+   beta_current.at(i) *= x_transforms.at(i, 1);
+   vmat.at(i, i) *= x_transforms.at(i, 1) * x_transforms.at(i, 1);
+  }
 
   if(verbose > 0) Rcout << "un-scaled beta: " << beta_current[i] << std::endl;
 
@@ -2396,7 +2398,7 @@ List ostree_fit(){
 
      n_vars = x_node.n_cols;
 
-     x_node_scale();
+     if(do_scale) x_node_scale();
 
      if(verbose > 0){
 
@@ -2409,10 +2411,14 @@ List ostree_fit(){
 
      beta_cph = newtraph_cph();
 
-     for(i = 0; i < x_transforms.n_rows; i++){
-      x_node.col(i) /= x_transforms(i,1);
-      x_node.col(i) += x_transforms(i,0);
+     if(do_scale){
+      for(i = 0; i < x_transforms.n_rows; i++){
+       x_node.col(i) /= x_transforms(i,1);
+       x_node.col(i) += x_transforms(i,0);
+      }
      }
+
+
 
 
      if(any(beta_cph)){
@@ -2596,6 +2602,7 @@ List orsf_fit(NumericMatrix& x,
               const double&  cph_eps_,
               const int&     cph_iter_max_,
               const double&  cph_pval_max_,
+              const bool&    do_scale_,
               const bool&    oobag_pred_,
               const int&     oobag_eval_every_){
 
@@ -2624,10 +2631,13 @@ List orsf_fit(NumericMatrix& x,
  cph_eps            = cph_eps_;
  cph_iter_max       = cph_iter_max_;
  cph_pval_max       = cph_pval_max_;
+ do_scale           = do_scale_;
  oobag_pred         = oobag_pred_;
  oobag_eval_every   = oobag_eval_every_;
  oobag_eval_counter = 0;
  temp1              = 1.0 / n_rows;
+
+ if(cph_iter_max > 1) do_scale = true;
 
  if(oobag_pred){
   time_oobag = median(y_input.col(0));
