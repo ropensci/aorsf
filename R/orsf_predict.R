@@ -61,19 +61,19 @@ predict.aorsf <- function(object, new_data, times, risk = TRUE, ...){
  }
 
  check_new_data_names(new_data  = new_data,
-                      ref_names = object$names_x,
+                      ref_names = get_names_x(object),
                       label_new = deparse(Call$new_data),
                       label_ref = 'training data')
 
  check_new_data_types(new_data  = new_data,
-                      ref_names = object$names_x,
-                      ref_types = object$types_x,
+                      ref_names = get_names_x(object),
+                      ref_types = get_types_x(object),
                       label_new = deparse(Call$new_data),
                       label_ref = 'training data')
 
  check_new_data_fctrs(new_data  = new_data,
-                      names_x   = object$names_x,
-                      fi_ref    = object$fctr_info,
+                      names_x   = get_names_x(object),
+                      fi_ref    = get_fctr_info(object),
                       label_new = deparse(Call$new_data))
 
  if(!all(order(times) == seq(length(times)))){
@@ -84,8 +84,8 @@ predict.aorsf <- function(object, new_data, times, risk = TRUE, ...){
 
  x_new <- as.matrix(
   one_hot(data = new_data,
-          fi = object$fctr_info,
-          names_x_data = object$names_x)
+          fi = get_fctr_info(object),
+          names_x_data = get_names_x(object))
  )
 
  if(length(times) == 1){

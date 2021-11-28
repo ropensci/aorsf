@@ -27,13 +27,17 @@ y <- flchain_y
 ymat <- as.matrix(y)
 
 set.seed(329)
+
 weights <- sample(1:5, length(y), replace = TRUE)
 
-bcj <- leaf_kaplan_testthat(ymat, weights)
+rows <- sort(sample(nrow(ymat), 20))
+
+bcj <- leaf_kaplan_testthat(ymat[rows, ], weights[rows])
+
 
 # run this code locally to creat kap below
-kap <- survival::survfit(survival::Surv(ymat[,1], ymat[,2]) ~ 1,
-                         weights = weights)
+kap <- survival::survfit(survival::Surv(ymat[rows,1], ymat[rows,2]) ~ 1,
+                         weights = weights[rows])
 
 kap <- data.frame(n.event = kap$n.event,
                   time = kap$time,
@@ -48,12 +52,12 @@ test_that(
 
 test_that(
  desc = 'leaf_kaplan has same time values as survfit',
- code = {expect_lt(max(abs(kap$time) - bcj[,1]), expected = 1e-10)}
+ code = {expect_equal(kap$time, bcj[,1])}
 )
 
 test_that(
  desc = 'leaf_kaplan has same surv values as survfit',
- code = {expect_lt(max(abs(kap$surv) - bcj[,2]), expected = 1e-10)}
+ code = {expect_equal(kap$surv, bcj[,2])}
 )
 
 

@@ -102,7 +102,8 @@ orsf <- function(data,
                  cph_eps = 1e-5,
                  cph_iter_max = 1,
                  cph_pval_max = 1,
-                 oobag_pred = FALSE){
+                 oobag_pred = FALSE,
+                 oobag_eval_every = n_tree){
 
  # Run checks
  Call <- match.call()
@@ -165,6 +166,12 @@ orsf <- function(data,
    'oobag_pred' = list(
     type = 'logical',
     length = 1
+   ),
+   'oobag_eval_every' = list(
+    type = 'numeric',
+    integer = TRUE,
+    lwr = 1,
+    upr = n_tree
    )
   )
  )
@@ -246,36 +253,49 @@ orsf <- function(data,
 
  }
 
- sorted <- order(y[, 1])
+ # older version: sorted <- order(y[, 1])
+ sorted <- order(y[, 1], -y[, 2])
 
  x_sort <- x[sorted, ]
  y_sort <- y[sorted, ]
 
 
- orsf_out <- orsf_fit(x                = x_sort,
-                      y                = y_sort,
-                      n_tree           = n_tree,
-                      n_split_         = n_split,
-                      mtry_            = mtry,
-                      leaf_min_events_ = leaf_min_events,
-                      leaf_min_obs_    = leaf_min_obs,
-                      cph_method_      = switch(tolower(cph_method),
-                                                'breslow' = 0,
-                                                'efron'   = 1),
-                      cph_eps_         = cph_eps,
-                      cph_iter_max_    = cph_iter_max,
-                      cph_pval_max_    = cph_pval_max,
-                      oobag_pred_      = oobag_pred)
+ orsf_out <- orsf_fit(x                 = x_sort,
+                      y                 = y_sort,
+                      n_tree            = n_tree,
+                      n_split_          = n_split,
+                      mtry_             = mtry,
+                      leaf_min_events_  = leaf_min_events,
+                      leaf_min_obs_     = leaf_min_obs,
+                      cph_method_       = switch(tolower(cph_method),
+                                                 'breslow' = 0,
+                                                 'efron'   = 1),
+                      cph_eps_          = cph_eps,
+                      cph_iter_max_     = cph_iter_max,
+                      cph_pval_max_     = cph_pval_max,
+                      oobag_pred_       = oobag_pred,
+                      oobag_eval_every_ = oobag_eval_every)
 
- orsf_out$fctr_info <- fi
- orsf_out$names_x <- names_x_data
- orsf_out$types_x <- types_x_data
+ n_leaves_mean <- mean(
+  sapply(orsf_out$forest, function(t) sum(t$children_left==0))
+ )
 
  class(orsf_out) <- "aorsf"
 
- attr(orsf_out, 'max_time') = y_sort[nrow(y_sort), 1]
+ attr(orsf_out, 'mtry')            <- mtry
+ attr(orsf_out, 'n_obs')           <- nrow(y_sort)
+ attr(orsf_out, 'n_tree')          <- n_tree
+ attr(orsf_out, "names_x")         <- names_x_data
+ attr(orsf_out, "types_x")         <- types_x_data
+ attr(orsf_out, 'n_events')        <- sum(y_sort[,2])
+ attr(orsf_out, 'max_time')        <- y_sort[nrow(y_sort), 1]
+ attr(orsf_out, "fctr_info")       <- fi
+ attr(orsf_out, 'n_leaves_mean')   <- n_leaves_mean
+ attr(orsf_out, 'n_split')         <- n_split
+ attr(orsf_out, 'leaf_min_events') <- leaf_min_events
+ attr(orsf_out, 'leaf_min_obs')    <- leaf_min_obs
 
- return(orsf_out)
+ orsf_out
 
 
 }

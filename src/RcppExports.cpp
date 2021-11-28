@@ -11,21 +11,9 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// lt
-bool lt(double a, double b);
-RcppExport SEXP _orsf2_lt(SEXP aSEXP, SEXP bSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type a(aSEXP);
-    Rcpp::traits::input_parameter< double >::type b(bSEXP);
-    rcpp_result_gen = Rcpp::wrap(lt(a, b));
-    return rcpp_result_gen;
-END_RCPP
-}
 // leaf_kaplan_testthat
 arma::mat leaf_kaplan_testthat(const arma::mat& y, const arma::vec& w);
-RcppExport SEXP _orsf2_leaf_kaplan_testthat(SEXP ySEXP, SEXP wSEXP) {
+RcppExport SEXP _aorsf_leaf_kaplan_testthat(SEXP ySEXP, SEXP wSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -37,7 +25,7 @@ END_RCPP
 }
 // cholesky_testthat
 arma::vec cholesky_testthat(NumericMatrix& vmat_, NumericVector& u_);
-RcppExport SEXP _orsf2_cholesky_testthat(SEXP vmat_SEXP, SEXP u_SEXP) {
+RcppExport SEXP _aorsf_cholesky_testthat(SEXP vmat_SEXP, SEXP u_SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -49,7 +37,7 @@ END_RCPP
 }
 // newtraph_cph_testthat
 arma::vec newtraph_cph_testthat(NumericMatrix& x_in, NumericMatrix& y_in, NumericVector& w_in, int method, double cph_eps_, double pval_max, int iter_max);
-RcppExport SEXP _orsf2_newtraph_cph_testthat(SEXP x_inSEXP, SEXP y_inSEXP, SEXP w_inSEXP, SEXP methodSEXP, SEXP cph_eps_SEXP, SEXP pval_maxSEXP, SEXP iter_maxSEXP) {
+RcppExport SEXP _aorsf_newtraph_cph_testthat(SEXP x_inSEXP, SEXP y_inSEXP, SEXP w_inSEXP, SEXP methodSEXP, SEXP cph_eps_SEXP, SEXP pval_maxSEXP, SEXP iter_maxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -66,7 +54,7 @@ END_RCPP
 }
 // lrt_multi_testthat
 List lrt_multi_testthat(NumericMatrix& y_node_, NumericVector& w_node_, NumericVector& XB_, int n_split_, int leaf_min_events_, int leaf_min_obs_);
-RcppExport SEXP _orsf2_lrt_multi_testthat(SEXP y_node_SEXP, SEXP w_node_SEXP, SEXP XB_SEXP, SEXP n_split_SEXP, SEXP leaf_min_events_SEXP, SEXP leaf_min_obs_SEXP) {
+RcppExport SEXP _aorsf_lrt_multi_testthat(SEXP y_node_SEXP, SEXP w_node_SEXP, SEXP XB_SEXP, SEXP n_split_SEXP, SEXP leaf_min_events_SEXP, SEXP leaf_min_obs_SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -81,8 +69,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // orsf_fit
-List orsf_fit(NumericMatrix& x, NumericMatrix& y, const int& n_tree, const int& n_split_, const int& mtry_, const double& leaf_min_events_, const double& leaf_min_obs_, const int& cph_method_, const double& cph_eps_, const int& cph_iter_max_, const double& cph_pval_max_, const bool& oobag_pred_);
-RcppExport SEXP _orsf2_orsf_fit(SEXP xSEXP, SEXP ySEXP, SEXP n_treeSEXP, SEXP n_split_SEXP, SEXP mtry_SEXP, SEXP leaf_min_events_SEXP, SEXP leaf_min_obs_SEXP, SEXP cph_method_SEXP, SEXP cph_eps_SEXP, SEXP cph_iter_max_SEXP, SEXP cph_pval_max_SEXP, SEXP oobag_pred_SEXP) {
+List orsf_fit(NumericMatrix& x, NumericMatrix& y, const int& n_tree, const int& n_split_, const int& mtry_, const double& leaf_min_events_, const double& leaf_min_obs_, const int& cph_method_, const double& cph_eps_, const int& cph_iter_max_, const double& cph_pval_max_, const bool& oobag_pred_, const int& oobag_eval_every_);
+RcppExport SEXP _aorsf_orsf_fit(SEXP xSEXP, SEXP ySEXP, SEXP n_treeSEXP, SEXP n_split_SEXP, SEXP mtry_SEXP, SEXP leaf_min_events_SEXP, SEXP leaf_min_obs_SEXP, SEXP cph_method_SEXP, SEXP cph_eps_SEXP, SEXP cph_iter_max_SEXP, SEXP cph_pval_max_SEXP, SEXP oobag_pred_SEXP, SEXP oobag_eval_every_SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -98,13 +86,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int& >::type cph_iter_max_(cph_iter_max_SEXP);
     Rcpp::traits::input_parameter< const double& >::type cph_pval_max_(cph_pval_max_SEXP);
     Rcpp::traits::input_parameter< const bool& >::type oobag_pred_(oobag_pred_SEXP);
-    rcpp_result_gen = Rcpp::wrap(orsf_fit(x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, oobag_pred_));
+    Rcpp::traits::input_parameter< const int& >::type oobag_eval_every_(oobag_eval_every_SEXP);
+    rcpp_result_gen = Rcpp::wrap(orsf_fit(x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, oobag_pred_, oobag_eval_every_));
     return rcpp_result_gen;
 END_RCPP
 }
 // orsf_pred_uni
 arma::mat orsf_pred_uni(List& forest, NumericMatrix& x_new, double time_dbl, bool return_risk);
-RcppExport SEXP _orsf2_orsf_pred_uni(SEXP forestSEXP, SEXP x_newSEXP, SEXP time_dblSEXP, SEXP return_riskSEXP) {
+RcppExport SEXP _aorsf_orsf_pred_uni(SEXP forestSEXP, SEXP x_newSEXP, SEXP time_dblSEXP, SEXP return_riskSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -118,7 +107,7 @@ END_RCPP
 }
 // orsf_pred_multi
 arma::mat orsf_pred_multi(List& forest, NumericMatrix& x_new, NumericVector& time_vec, bool return_risk);
-RcppExport SEXP _orsf2_orsf_pred_multi(SEXP forestSEXP, SEXP x_newSEXP, SEXP time_vecSEXP, SEXP return_riskSEXP) {
+RcppExport SEXP _aorsf_orsf_pred_multi(SEXP forestSEXP, SEXP x_newSEXP, SEXP time_vecSEXP, SEXP return_riskSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -132,18 +121,17 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_orsf2_lt", (DL_FUNC) &_orsf2_lt, 2},
-    {"_orsf2_leaf_kaplan_testthat", (DL_FUNC) &_orsf2_leaf_kaplan_testthat, 2},
-    {"_orsf2_cholesky_testthat", (DL_FUNC) &_orsf2_cholesky_testthat, 2},
-    {"_orsf2_newtraph_cph_testthat", (DL_FUNC) &_orsf2_newtraph_cph_testthat, 7},
-    {"_orsf2_lrt_multi_testthat", (DL_FUNC) &_orsf2_lrt_multi_testthat, 6},
-    {"_orsf2_orsf_fit", (DL_FUNC) &_orsf2_orsf_fit, 12},
-    {"_orsf2_orsf_pred_uni", (DL_FUNC) &_orsf2_orsf_pred_uni, 4},
-    {"_orsf2_orsf_pred_multi", (DL_FUNC) &_orsf2_orsf_pred_multi, 4},
+    {"_aorsf_leaf_kaplan_testthat", (DL_FUNC) &_aorsf_leaf_kaplan_testthat, 2},
+    {"_aorsf_cholesky_testthat", (DL_FUNC) &_aorsf_cholesky_testthat, 2},
+    {"_aorsf_newtraph_cph_testthat", (DL_FUNC) &_aorsf_newtraph_cph_testthat, 7},
+    {"_aorsf_lrt_multi_testthat", (DL_FUNC) &_aorsf_lrt_multi_testthat, 6},
+    {"_aorsf_orsf_fit", (DL_FUNC) &_aorsf_orsf_fit, 13},
+    {"_aorsf_orsf_pred_uni", (DL_FUNC) &_aorsf_orsf_pred_uni, 4},
+    {"_aorsf_orsf_pred_multi", (DL_FUNC) &_aorsf_orsf_pred_multi, 4},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_orsf2(DllInfo *dll) {
+RcppExport void R_init_aorsf(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

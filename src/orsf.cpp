@@ -54,7 +54,8 @@ double
 
 int
  verbose=0,
-  mtry_int;
+  mtry_int,
+  oobag_eval_every;
 
 // armadillo unsigned integers
 uword
@@ -77,7 +78,8 @@ uword
  n_cols_to_sample,
  nn_left,
  leaf_node_counter,
- leaf_node_index_counter;
+ leaf_node_index_counter,
+ oobag_eval_counter;
 
 String
  node_name,
@@ -91,6 +93,7 @@ bool
 vec
  vec_temp,
  times_oobag,
+ cstat_oobag,
  node_assignments,
  nodes_grown,
  surv_oobag,
@@ -165,11 +168,6 @@ umat
 
 
 List ostree;
-
-//[[Rcpp::export]]
-bool lt(double a, double b){
- return(a < b);
-}
 
 // ----------------------------------------------------------------------------
 // ---------------------------- scaling functions -----------------------------
@@ -991,12 +989,12 @@ arma::vec newtraph_cph(){
 
 // [[Rcpp::export]]
 arma::vec newtraph_cph_testthat(NumericMatrix& x_in,
-                           NumericMatrix& y_in,
-                           NumericVector& w_in,
-                           int method,
-                           double cph_eps_,
-                           double pval_max,
-                           int iter_max){
+                                NumericMatrix& y_in,
+                                NumericVector& w_in,
+                                int method,
+                                double cph_eps_,
+                                double pval_max,
+                                int iter_max){
 
 
  x_node = mat(x_in.begin(), x_in.nrow(), x_in.ncol(), false);
@@ -2031,6 +2029,47 @@ void oobag_pred_surv_uni(){
 
 }
 
+
+double oobag_c_harrell(){
+
+ vec time = y_input.unsafe_col(0);
+ vec status = y_input.unsafe_col(1);
+ iit_vals = find(status == 1);
+
+ k = y_input.n_rows;
+
+ double total=0, concordant=0;
+
+ for (iit = iit_vals.begin(); iit < iit_vals.end(); ++iit) {
+
+  for(j = *iit + 1; j < k; ++j){
+
+   if (time[j] > time[i]) { // ties not counted
+
+    total++;
+
+    // since surv_oobag is survival prob (not risk),
+    // flip the less than to a greater than.
+    if (surv_oobag[j] > surv_oobag[*iit]){
+
+     concordant++;
+
+    } else if (surv_oobag[j] == surv_oobag[*iit]){
+
+     concordant+= 0.5;
+
+    }
+
+   }
+
+  }
+
+ }
+
+ return(concordant / total);
+
+}
+
 void new_pred_surv_multi(){
 
  // allocate memory for output
@@ -2157,10 +2196,24 @@ void new_pred_surv_uni(){
     }
    }
 
+  } else if (time_oobag == leaf_surv(leaf_surv.n_rows - 1, 0)){
+
+   temp1 = leaf_surv(leaf_surv.n_rows - 1, 1);
+
   } else {
 
    // go here if prediction horizon > max time in current leaf.
    temp1 = leaf_surv(leaf_surv.n_rows - 1, 1);
+
+   // --- EXPERIMENTAL ADD-ON --- //
+   // if you are predicting beyond the max time in a node,
+   // then determine how much further out you are and assume
+   // the survival probability decays at the same rate.
+
+   // temp2 = (1.0 - temp1) *
+   //  (time_oobag - leaf_surv(leaf_surv.n_rows - 1, 0)) / time_oobag;
+   //
+   // temp1 = temp1 * (1.0-temp2);
 
   }
 
@@ -2543,7 +2596,8 @@ List orsf_fit(NumericMatrix& x,
               const double&  cph_eps_,
               const int&     cph_iter_max_,
               const double&  cph_pval_max_,
-              const bool&    oobag_pred_){
+              const bool&    oobag_pred_,
+              const int&     oobag_eval_every_){
 
 
  // convert inputs into arma objects
@@ -2562,18 +2616,23 @@ List orsf_fit(NumericMatrix& x,
   Rcout << std::endl << std::endl << std::endl;
  }
 
- n_split          = n_split_;
- mtry             = mtry_;
- leaf_min_events  = leaf_min_events_;
- leaf_min_obs     = leaf_min_obs_;
- cph_method       = cph_method_;
- cph_eps          = cph_eps_;
- cph_iter_max     = cph_iter_max_;
- cph_pval_max     = cph_pval_max_;
- oobag_pred       = oobag_pred_;
- temp1            = 1.0 / n_rows;
+ n_split            = n_split_;
+ mtry               = mtry_;
+ leaf_min_events    = leaf_min_events_;
+ leaf_min_obs       = leaf_min_obs_;
+ cph_method         = cph_method_;
+ cph_eps            = cph_eps_;
+ cph_iter_max       = cph_iter_max_;
+ cph_pval_max       = cph_pval_max_;
+ oobag_pred         = oobag_pred_;
+ oobag_eval_every   = oobag_eval_every_;
+ oobag_eval_counter = 0;
+ temp1              = 1.0 / n_rows;
 
- if(oobag_pred){ time_oobag = median(y_input.col(0)); }
+ if(oobag_pred){
+  time_oobag = median(y_input.col(0));
+  cstat_oobag.set_size(std::floor(n_tree / oobag_eval_every));
+ }
 
  if(verbose > 0){
   Rcout << "------------ input variables ------------" << std::endl;
@@ -2606,8 +2665,6 @@ List orsf_fit(NumericMatrix& x,
  // ---- preallocate memory for tree outputs ----
  // ---------------------------------------------
 
-
-
  cols_to_sample_01.zeros(n_vars);
  leaf_nodes.zeros(n_rows, 2);
 
@@ -2634,7 +2691,7 @@ List orsf_fit(NumericMatrix& x,
 
  List forest(n_tree);
 
- for(int tree = 0; tree < n_tree; tree++){
+ for(int tree = 0; tree < n_tree; ){
 
   // --------------------------------------------
   // ---- initialize parameters to grow tree ----
@@ -2688,11 +2745,23 @@ List orsf_fit(NumericMatrix& x,
 
   forest[tree] = ostree_fit();
 
+  // add 1 to tree here instead of end of loop
+  // (more convenient to compute tree % oobag_eval_every)
+  tree++;
+
   if(oobag_pred){
 
    denom_oobag(rows_oobag) += 1;
    oobag_pred_leaf();
    oobag_pred_surv_uni();
+
+   if(tree % oobag_eval_every == 0){
+
+    cstat_oobag[oobag_eval_counter] = oobag_c_harrell();
+    oobag_eval_counter++;
+
+   }
+
 
   }
 
@@ -2702,13 +2771,12 @@ List orsf_fit(NumericMatrix& x,
   List::create(
    _["forest"] = forest,
    _["surv_oobag"] = surv_oobag,
-   _["mtry"] = mtry
+   _["eval_oobag"] = List::create(_["c_harrell"] = cstat_oobag)
   )
  );
 
 
 }
-
 
 void oobag_mem_xfer(){
 
@@ -2821,5 +2889,13 @@ arma::mat orsf_pred_multi(List& forest,
 
 }
 
+
+// arma::mat orsf_partial(List& forest,
+//                        NumericMatrix& x_new,
+//                        IntegerVector& x_cols,
+//                        NumericMatrix& x_vals,
+//                        NumericVector& time_vec){
+//
+// }
 
 
