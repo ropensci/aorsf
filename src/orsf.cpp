@@ -88,7 +88,7 @@ String
 bool
  break_loop, // a delayed break statement
  oobag_pred,
- do_scale;
+ cph_do_scale;
 
 // armadillo vectors (doubles)
 vec
@@ -963,7 +963,7 @@ arma::vec newtraph_cph(){
 
   if(verbose > 0) Rcout << "scaled beta: " << beta_current[i] << "; ";
 
-  if(do_scale){
+  if(cph_do_scale){
    beta_current.at(i) *= x_transforms.at(i, 1);
    vmat.at(i, i) *= x_transforms.at(i, 1) * x_transforms.at(i, 1);
   }
@@ -1003,13 +1003,13 @@ arma::vec newtraph_cph_testthat(NumericMatrix& x_in,
  y_node = mat(y_in.begin(), y_in.nrow(), y_in.ncol(), false);
  w_node = vec(w_in.begin(), w_in.length(), false);
 
+ cph_do_scale = true;
+
  cph_method = method;
  cph_eps = cph_eps_;
  cph_iter_max = iter_max;
  n_vars = x_node.n_cols;
  cph_pval_max = pval_max;
-
- vec beta_1, beta_2;
 
  x_node_scale();
 
@@ -1851,30 +1851,6 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
 }
 
 
-// ----------------------------------------------------------------------------
-// --------------------------- ostree functions -------------------------------
-// ----------------------------------------------------------------------------
-
-void ostree_size_buffer(){
-
- if(verbose > 1){
-  Rcout << "---------- buffering outputs ----------" << std::endl;
-  Rcout << "betas before:  " << std::endl << betas.t() << std::endl;
- }
-
- betas.insert_cols(betas.n_cols, 10);
- col_indices.insert_cols(col_indices.n_cols, 10);
- children_left.insert_rows(children_left.size(), 10);
- cutpoints.insert_rows(cutpoints.size(), 10);
-
- if(verbose > 1){
-  Rcout << "betas after:  " << std::endl << betas.t() << std::endl;
-  Rcout << "---------------------------------------";
-  Rcout << std::endl << std::endl;
- }
-
-
-}
 
 void oobag_pred_leaf(){
 
@@ -2030,7 +2006,6 @@ void oobag_pred_surv_uni(){
  }
 
 }
-
 
 double oobag_c_harrell(){
 
@@ -2243,6 +2218,76 @@ void new_pred_surv_uni(){
 
 }
 
+// ----------------------------------------------------------------------------
+// --------------------------- ostree functions -------------------------------
+// ----------------------------------------------------------------------------
+
+void ostree_size_buffer(){
+
+ if(verbose > 1){
+  Rcout << "---------- buffering outputs ----------" << std::endl;
+  Rcout << "betas before:  " << std::endl << betas.t() << std::endl;
+ }
+
+ betas.insert_cols(betas.n_cols, 10);
+ col_indices.insert_cols(col_indices.n_cols, 10);
+ children_left.insert_rows(children_left.size(), 10);
+ cutpoints.insert_rows(cutpoints.size(), 10);
+
+ if(verbose > 1){
+  Rcout << "betas after:  " << std::endl << betas.t() << std::endl;
+  Rcout << "---------------------------------------";
+  Rcout << std::endl << std::endl;
+ }
+
+
+}
+
+void ostree_mem_xfer(){
+
+ // no data copied according to tracemem.
+
+ NumericMatrix leaf_nodes_      = ostree["leaf_nodes"];
+ NumericMatrix betas_           = ostree["betas"];
+ NumericVector cutpoints_       = ostree["cut_points"];
+ IntegerMatrix col_indices_     = ostree["col_indices"];
+ IntegerMatrix leaf_indices_    = ostree["leaf_node_index"];
+ IntegerVector children_left_   = ostree["children_left"];
+
+ leaf_nodes = mat(leaf_nodes_.begin(),
+                  leaf_nodes_.nrow(),
+                  leaf_nodes_.ncol(),
+                  false);
+
+ betas = mat(betas_.begin(),
+             betas_.nrow(),
+             betas_.ncol(),
+             false);
+
+ cutpoints = vec(cutpoints_.begin(), cutpoints_.length(), false);
+
+ col_indices = conv_to<umat>::from(
+  imat(col_indices_.begin(),
+       col_indices_.nrow(),
+       col_indices_.ncol(),
+       false)
+ );
+
+ leaf_indices = conv_to<umat>::from(
+  imat(leaf_indices_.begin(),
+       leaf_indices_.nrow(),
+       leaf_indices_.ncol(),
+       false)
+ );
+
+ children_left = conv_to<uvec>::from(
+  ivec(children_left_.begin(),
+       children_left_.length(),
+       false)
+ );
+
+}
+
 List ostree_fit(){
 
  betas.fill(0);
@@ -2398,7 +2443,7 @@ List ostree_fit(){
 
      n_vars = x_node.n_cols;
 
-     if(do_scale) x_node_scale();
+     if(cph_do_scale) x_node_scale();
 
      if(verbose > 0){
 
@@ -2411,7 +2456,7 @@ List ostree_fit(){
 
      beta_cph = newtraph_cph();
 
-     if(do_scale){
+     if(cph_do_scale){
       for(i = 0; i < x_transforms.n_rows; i++){
        x_node.col(i) /= x_transforms(i,1);
        x_node.col(i) += x_transforms(i,0);
@@ -2590,6 +2635,10 @@ List ostree_fit(){
 
 }
 
+// ----------------------------------------------------------------------------
+// ---------------------------- orsf functions --------------------------------
+// ----------------------------------------------------------------------------
+
 // [[Rcpp::export]]
 List orsf_fit(NumericMatrix& x,
               NumericMatrix& y,
@@ -2602,7 +2651,7 @@ List orsf_fit(NumericMatrix& x,
               const double&  cph_eps_,
               const int&     cph_iter_max_,
               const double&  cph_pval_max_,
-              const bool&    do_scale_,
+              const bool&    cph_do_scale_,
               const bool&    oobag_pred_,
               const int&     oobag_eval_every_){
 
@@ -2631,13 +2680,13 @@ List orsf_fit(NumericMatrix& x,
  cph_eps            = cph_eps_;
  cph_iter_max       = cph_iter_max_;
  cph_pval_max       = cph_pval_max_;
- do_scale           = do_scale_;
+ cph_do_scale       = cph_do_scale_;
  oobag_pred         = oobag_pred_;
  oobag_eval_every   = oobag_eval_every_;
  oobag_eval_counter = 0;
  temp1              = 1.0 / n_rows;
 
- if(cph_iter_max > 1) do_scale = true;
+ if(cph_iter_max > 1) cph_do_scale = true;
 
  if(oobag_pred){
   time_oobag = median(y_input.col(0));
@@ -2788,50 +2837,6 @@ List orsf_fit(NumericMatrix& x,
 
 }
 
-void oobag_mem_xfer(){
-
- // no data copied according to tracemem.
-
- NumericMatrix leaf_nodes_      = ostree["leaf_nodes"];
- NumericMatrix betas_           = ostree["betas"];
- NumericVector cutpoints_       = ostree["cut_points"];
- IntegerMatrix col_indices_     = ostree["col_indices"];
- IntegerMatrix leaf_indices_    = ostree["leaf_node_index"];
- IntegerVector children_left_   = ostree["children_left"];
-
- leaf_nodes = mat(leaf_nodes_.begin(),
-                  leaf_nodes_.nrow(),
-                  leaf_nodes_.ncol(),
-                  false);
-
- betas = mat(betas_.begin(),
-             betas_.nrow(),
-             betas_.ncol(),
-             false);
-
- cutpoints = vec(cutpoints_.begin(), cutpoints_.length(), false);
-
- col_indices = conv_to<umat>::from(
-  imat(col_indices_.begin(),
-       col_indices_.nrow(),
-       col_indices_.ncol(),
-       false)
- );
-
- leaf_indices = conv_to<umat>::from(
-  imat(leaf_indices_.begin(),
-       leaf_indices_.nrow(),
-       leaf_indices_.ncol(),
-       false)
- );
-
- children_left = conv_to<uvec>::from(
-  ivec(children_left_.begin(),
-       children_left_.length(),
-       false)
- );
-
-}
 
 
 // [[Rcpp::export]]
@@ -2851,7 +2856,7 @@ arma::mat orsf_pred_uni(List& forest,
 
  for(tree = 0; tree < forest.length(); ++tree){
   ostree = forest[tree];
-  oobag_mem_xfer();
+  ostree_mem_xfer();
   oobag_pred_leaf();
   new_pred_surv_uni();
  }
@@ -2884,7 +2889,7 @@ arma::mat orsf_pred_multi(List& forest,
 
  for(; tree < forest.length(); ++tree){
   ostree = forest[tree];
-  oobag_mem_xfer();
+  ostree_mem_xfer();
   oobag_pred_leaf();
   new_pred_surv_multi();
  }

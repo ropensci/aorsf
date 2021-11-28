@@ -17,8 +17,8 @@ lrt_multi_testthat <- function(y_node_, w_node_, XB_, n_split_, leaf_min_events_
     .Call(`_aorsf_lrt_multi_testthat`, y_node_, w_node_, XB_, n_split_, leaf_min_events_, leaf_min_obs_)
 }
 
-orsf_fit <- function(x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, do_scale_, oobag_pred_, oobag_eval_every_) {
-    .Call(`_aorsf_orsf_fit`, x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, do_scale_, oobag_pred_, oobag_eval_every_)
+orsf_fit <- function(x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, cph_do_scale_, oobag_pred_, oobag_eval_every_) {
+    .Call(`_aorsf_orsf_fit`, x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, cph_do_scale_, oobag_pred_, oobag_eval_every_)
 }
 
 orsf_pred_uni <- function(forest, x_new, time_dbl, return_risk = TRUE) {
