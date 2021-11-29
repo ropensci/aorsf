@@ -1019,9 +1019,9 @@ arma::vec newtraph_cph_testthat(NumericMatrix& x_in,
 
 }
 
-// // ----------------------------------------------------------------------------
-// // ---------------------------- node functions --------------------------------
-// // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ---------------------------- node functions --------------------------------
+// ----------------------------------------------------------------------------
 
 double lrt_multi(){
 
@@ -1850,8 +1850,6 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
 
 }
 
-
-
 void oobag_pred_leaf(){
 
  // reset values
@@ -1861,7 +1859,12 @@ void oobag_pred_leaf(){
 
   if(children_left[i] != 0){
 
-   obs_in_node = find(leaf_preds == i);
+   if(i == 0){
+    obs_in_node = regspace<uvec>(0, 1, leaf_preds.size()-1);
+   } else {
+    obs_in_node = find(leaf_preds == i);
+   }
+
 
    if(obs_in_node.size() > 0){
 
@@ -2914,3 +2917,22 @@ arma::mat orsf_pred_multi(List& forest,
 // }
 
 
+// [[Rcpp::export]]
+arma::uvec oobag_pred_leaf_testthat(List& tree,
+                                   NumericMatrix& x_oobag_){
+
+
+ x_oobag = mat(x_oobag_.begin(),
+               x_oobag_.nrow(),
+               x_oobag_.ncol(),
+               false);
+
+ leaf_preds.set_size(x_oobag.n_rows);
+
+ ostree = tree;
+ ostree_mem_xfer();
+ oobag_pred_leaf();
+
+ return(leaf_preds);
+
+}

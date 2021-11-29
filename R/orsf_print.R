@@ -28,15 +28,15 @@ print.aorsf <- function(x, ...){
 
 
  cat('---------- Oblique random survival forest\n',
-     paste0('          N observations: ', info_n_obs),
-     paste0('                N events: ', info_n_events),
-     paste0('                 N trees: ', info_n_tree),
+     paste0('          N observations: ', info_n_obs          ),
+     paste0('                N events: ', info_n_events       ),
+     paste0('                 N trees: ', info_n_tree         ),
      paste0('      N predictors total: ', length(info_names_x)),
-     paste0('   N predictors per node: ', length(info_names_x)),
-     paste0(' Average leaves per tree: ', info_n_leaves_mean),
-     paste0('Min observations in leaf: ', info_leaf_min_obs),
+     paste0('   N predictors per node: ', info_mtry           ),
+     paste0(' Average leaves per tree: ', info_n_leaves_mean  ),
+     paste0('Min observations in leaf: ', info_leaf_min_obs   ),
      paste0('      Min events in leaf: ', info_leaf_min_events),
-     paste0('         OOB C-statistic: ', info_oobag_c),
+     paste0('         OOB C-statistic: ', info_oobag_c        ),
      '\n-----------------------------------------',
      sep = '\n')
 

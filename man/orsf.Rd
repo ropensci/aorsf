@@ -16,7 +16,9 @@ orsf(
   cph_eps = 1e-05,
   cph_iter_max = 1,
   cph_pval_max = 1,
-  oobag_pred = FALSE
+  cph_do_scale = TRUE,
+  oobag_pred = FALSE,
+  oobag_eval_every = n_tree
 )
 }
 \arguments{
@@ -54,10 +56,26 @@ linear combinations of inputs, iteration continues until convergence
 (see \code{cph_eps} above) or the number of attempted iterations is equal to
 \code{cph_iter_max}.}
 
-\item{cph_pval_max}{(\emph{double})}
+\item{cph_pval_max}{(\emph{double}) The maximum p-value allowed for a regression
+coefficient to remain non-zero. If the p-value for a given coefficient
+is above the maximum, the coefficient is set to zero and the variable
+no longer plays a role in the linear combination of inputs. Setting
+\code{cph_pval_max} to 1 ensures that every predict gets a non-zero
+coefficient in the linear combination of inputs.}
+
+\item{cph_do_scale}{(\emph{logical}) if \code{TRUE}, values of predictors will be
+scaled prior to running Newton Raphson scoring. Setting to \code{FALSE} will
+reduce computation time but will also make the regression extremely
+unstable. Therefore, \code{orsf} will only let you set this input to \code{FALSE}
+if you also set \code{cph_iter_max} to 1.}
 
 \item{oobag_pred}{(\emph{logical}) if \code{TRUE} out-of-bag predictions are returned
 in the \code{aorsf} object.}
+
+\item{oobag_eval_every}{(\emph{integer}) The out-of-bag performance of the
+ensemble will be checked every \code{oobag_eval_every} trees. So, if
+\code{oobag_eval_every = 10}, then out-of-bag performance is checked
+after growing the 10th tree, the 20th tree, and so on.}
 }
 \value{
 an accelerated oblique RSF object (\code{aorsf})
@@ -72,14 +90,37 @@ growing new nodes in survival decision trees. For more details on
 the oblique RSF, see Jaeger et al, 2019.
 }
 \details{
-\if{html}{\figure{tree_axis_v_oblique.png}{options: width=100\%}}
-
 This function is based on and highly similar to the \code{ORSF} function
 in the \code{obliqueRSF} R package. The primary difference is that this
-function runs about 100 times faster because it uses a simplified
+function runs about 200 times faster because it uses a simplified
 Newton Raphson scoring algorithm to identify linear combinations of
 inputs rather than performing penalized regression using routines in
-\code{glmnet}.
+\code{glmnet}.The modified Newton Raphson scoring algorithm that this
+function applies is an adaptation of the C++ routine developed by
+Terry M. Therneau that fits Cox proportional hazards models
+(see \code{\link[survival:coxph]{survival::coxph()}}).
+
+\strong{What is an oblique decision tree?}
+
+Decision trees are developed by splitting a set of training data into two
+new subsets, with the goal of having more similarity within the new subsets
+than between them. This splitting process is repeated on the resulting
+subsets of data until a stopping criterion is met. When the new subsets of
+data are formed based on a single predictor, the decision tree is said to
+be axis-based because the splits of the data appear perpendicular to the
+axis of the predictor. When linear combinations of variables are used
+instead of a single variable, the tree is oblique because the splits of
+the data are neither parallel nor at a right angle to the axis
+
+\emph{Figure} : Decision trees for classification with axis-based splitting
+(left) and oblique splitting (right). Cases are orange squares; controls
+are purple circles. Both trees partition the predictor space defined by
+variables X1 and X2, but the oblique splits do a better job of separating
+the two classes.
+
+\if{html}{\figure{tree_axis_v_oblique.png}{options: width=95\%}}
+
+\strong{Some comments on inputs}
 
 \emph{formula}: The response in \code{formula} can be a survival
 object as returned by the \link[survival:Surv]{survival::Surv} function,

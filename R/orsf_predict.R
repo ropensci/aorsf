@@ -31,56 +31,7 @@
 #'
 predict.aorsf <- function(object, new_data, times, risk = TRUE, ...){
 
- Call <- match.call()
-
- check_call(
-  Call,
-  expected = list(
-   'new_data' = list(
-    class = 'data.frame'
-   ),
-   'times' = list(
-    type = 'numeric',
-    lwr = 0
-   ),
-   'risk' = list(
-    type = 'logical',
-    length = 1
-   )
-  )
- )
-
- if(any(times > get_max_time(object))){
-
-  stop("prediction times should ",
-       "be <= max follow-up time ",
-       "observed in training data: ",
-       get_max_time(object),
-       call. = FALSE)
-
- }
-
- check_new_data_names(new_data  = new_data,
-                      ref_names = get_names_x(object),
-                      label_new = deparse(Call$new_data),
-                      label_ref = 'training data')
-
- check_new_data_types(new_data  = new_data,
-                      ref_names = get_names_x(object),
-                      ref_types = get_types_x(object),
-                      label_new = deparse(Call$new_data),
-                      label_ref = 'training data')
-
- check_new_data_fctrs(new_data  = new_data,
-                      names_x   = get_names_x(object),
-                      fi_ref    = get_fctr_info(object),
-                      label_new = deparse(Call$new_data))
-
- if(!all(order(times) == seq(length(times)))){
-  stop("times must be entered in ascending order, e.g.,",
-       "times = c(5, 10) instead of times = c(10, 5)",
-       call. = FALSE)
- }
+ check_predict(object, new_data, times, risk)
 
  x_new <- as.matrix(
   one_hot(data = new_data,
@@ -226,6 +177,61 @@ fctr_check_levels <- function(ref,
 
  }
 
+
+}
+
+check_predict <- function(object, new_data, times, risk = TRUE){
+
+ Call <- match.call()
+
+ check_call(
+  Call,
+  expected = list(
+   'new_data' = list(
+    class = 'data.frame'
+   ),
+   'times' = list(
+    type = 'numeric',
+    lwr = 0
+   ),
+   'risk' = list(
+    type = 'logical',
+    length = 1
+   )
+  )
+ )
+
+ if(any(times > get_max_time(object))){
+
+  stop("prediction times should ",
+       "be <= max follow-up time ",
+       "observed in training data: ",
+       get_max_time(object),
+       call. = FALSE)
+
+ }
+
+ check_new_data_names(new_data  = new_data,
+                      ref_names = get_names_x(object),
+                      label_new = deparse(Call$new_data),
+                      label_ref = 'training data')
+
+ check_new_data_types(new_data  = new_data,
+                      ref_names = get_names_x(object),
+                      ref_types = get_types_x(object),
+                      label_new = deparse(Call$new_data),
+                      label_ref = 'training data')
+
+ check_new_data_fctrs(new_data  = new_data,
+                      names_x   = get_names_x(object),
+                      fi_ref    = get_fctr_info(object),
+                      label_new = deparse(Call$new_data))
+
+ if(!all(order(times) == seq(length(times)))){
+  stop("times must be entered in ascending order, e.g.,",
+       "times = c(5, 10) instead of times = c(10, 5)",
+       call. = FALSE)
+ }
 
 }
 

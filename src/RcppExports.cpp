@@ -120,6 +120,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// oobag_pred_leaf_testthat
+arma::uvec oobag_pred_leaf_testthat(List& tree, NumericMatrix& x_oobag_);
+RcppExport SEXP _aorsf_oobag_pred_leaf_testthat(SEXP treeSEXP, SEXP x_oobag_SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List& >::type tree(treeSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type x_oobag_(x_oobag_SEXP);
+    rcpp_result_gen = Rcpp::wrap(oobag_pred_leaf_testthat(tree, x_oobag_));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_leaf_kaplan_testthat", (DL_FUNC) &_aorsf_leaf_kaplan_testthat, 2},
@@ -129,6 +141,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_orsf_fit", (DL_FUNC) &_aorsf_orsf_fit, 14},
     {"_aorsf_orsf_pred_uni", (DL_FUNC) &_aorsf_orsf_pred_uni, 4},
     {"_aorsf_orsf_pred_multi", (DL_FUNC) &_aorsf_orsf_pred_multi, 4},
+    {"_aorsf_oobag_pred_leaf_testthat", (DL_FUNC) &_aorsf_oobag_pred_leaf_testthat, 2},
     {NULL, NULL, 0}
 };
 

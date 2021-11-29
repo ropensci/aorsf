@@ -29,3 +29,7 @@ orsf_pred_multi <- function(forest, x_new, time_vec, return_risk = TRUE) {
     .Call(`_aorsf_orsf_pred_multi`, forest, x_new, time_vec, return_risk)
 }
 
+oobag_pred_leaf_testthat <- function(tree, x_oobag_) {
+    .Call(`_aorsf_oobag_pred_leaf_testthat`, tree, x_oobag_)
+}
+

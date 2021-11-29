@@ -10,16 +10,6 @@
 #'   growing new nodes in survival decision trees. For more details on
 #'   the oblique RSF, see Jaeger et al, 2019.
 #'
-#' \if{html}{\figure{tree_axis_v_oblique.png}{options: width=100\%}}
-#'
-#'
-#' This function is based on and highly similar to the `ORSF` function
-#'   in the `obliqueRSF` R package. The primary difference is that this
-#'   function runs about 100 times faster because it uses a simplified
-#'   Newton Raphson scoring algorithm to identify linear combinations of
-#'   inputs rather than performing penalized regression using routines in
-#'   `glmnet`.
-#'
 #' @param data (_data.frame_) that will be used to grow the forest.
 #'
 #' @param formula (_formula_) a formula object, with the response on the left
@@ -54,14 +44,64 @@
 #'   (see `cph_eps` above) or the number of attempted iterations is equal to
 #'   `cph_iter_max`.
 #'
-#' @param cph_pval_max (_double_)
+#' @param cph_pval_max (_double_) The maximum p-value allowed for a regression
+#'   coefficient to remain non-zero. If the p-value for a given coefficient
+#'   is above the maximum, the coefficient is set to zero and the variable
+#'   no longer plays a role in the linear combination of inputs. Setting
+#'   `cph_pval_max` to 1 ensures that every predict gets a non-zero
+#'   coefficient in the linear combination of inputs.
+#'
+#' @param cph_do_scale (_logical_) if `TRUE`, values of predictors will be
+#'   scaled prior to running Newton Raphson scoring. Setting to `FALSE` will
+#'   reduce computation time but will also make the regression extremely
+#'   unstable. Therefore, `orsf` will only let you set this input to `FALSE`
+#'   if you also set `cph_iter_max` to 1.
 #'
 #' @param oobag_pred (_logical_) if `TRUE` out-of-bag predictions are returned
 #'   in the `aorsf` object.
 #'
+#' @param oobag_eval_every (_integer_) The out-of-bag performance of the
+#'   ensemble will be checked every `oobag_eval_every` trees. So, if
+#'   `oobag_eval_every = 10`, then out-of-bag performance is checked
+#'   after growing the 10th tree, the 20th tree, and so on.
+#'
 #' @return an accelerated oblique RSF object (`aorsf`)
 #'
 #' @details
+#'
+#' This function is based on and highly similar to the `ORSF` function
+#'   in the `obliqueRSF` R package. The primary difference is that this
+#'   function runs about 200 times faster because it uses a simplified
+#'   Newton Raphson scoring algorithm to identify linear combinations of
+#'   inputs rather than performing penalized regression using routines in
+#'   `glmnet`.The modified Newton Raphson scoring algorithm that this
+#'   function applies is an adaptation of the C++ routine developed by
+#'   Terry M. Therneau that fits Cox proportional hazards models
+#'   (see [survival::coxph()]).
+#'
+#'
+#' __What is an oblique decision tree?__
+#'
+#' Decision trees are developed by splitting a set of training data into two
+#'  new subsets, with the goal of having more similarity within the new subsets
+#'  than between them. This splitting process is repeated on the resulting
+#'  subsets of data until a stopping criterion is met. When the new subsets of
+#'  data are formed based on a single predictor, the decision tree is said to
+#'  be axis-based because the splits of the data appear perpendicular to the
+#'  axis of the predictor. When linear combinations of variables are used
+#'  instead of a single variable, the tree is oblique because the splits of
+#'  the data are neither parallel nor at a right angle to the axis
+#'
+#'
+#' _Figure_ : Decision trees for classification with axis-based splitting
+#'  (left) and oblique splitting (right). Cases are orange squares; controls
+#'  are purple circles. Both trees partition the predictor space defined by
+#'  variables X1 and X2, but the oblique splits do a better job of separating
+#'  the two classes.
+#'
+#' \if{html}{\figure{tree_axis_v_oblique.png}{options: width=95\%}}
+#'
+#' __Some comments on inputs__
 #'
 #' _formula_: The response in `formula` can be a survival
 #'   object as returned by the [survival::Surv] function,
