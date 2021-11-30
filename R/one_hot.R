@@ -1,53 +1,59 @@
 
-one_hot <- function (data, fi, names_x_data){
+one_hot <- function (x_data, fi, names_x_data){
 
  # Will use these original names to help re-order the output
 
  for(i in seq_along(fi$cols)){
 
-  if(fi$ordr[i]){
+  if(fi$cols[i] %in% names(x_data)){
 
-   data[[ fi$cols[i] ]] <- as.integer( data[[ fi$cols[i] ]] )
+   if(fi$ordr[i]){
 
-  } else {
+    x_data[[ fi$cols[i] ]] <- as.integer( x_data[[ fi$cols[i] ]] )
 
-   # make a matrix for each factor
-   mat <- matrix(0,
-                 nrow = nrow(data),
-                 ncol = length(fi$lvls[[i]])
-   )
+   } else {
 
-   colnames(mat) <- fi$keys[[i]]
+    # make a matrix for each factor
+    mat <- matrix(0,
+                  nrow = nrow(x_data),
+                  ncol = length(fi$lvls[[i]])
+    )
 
-   # missing values of the factor become missing rows
-   mat[is.na(data[[fi$cols[i]]]), ] <- NA_integer_
+    colnames(mat) <- fi$keys[[i]]
 
-   # we will one-hot encode the matrix and then bind it to data,
-   # replacing the original factor column. Go through the matrix
-   # column by column, where each column corresponds to a level
-   # of the current factor (indexed by i). Flip the values
-   # of the j'th column to 1 whenever the current factor's value
-   # is the j'th level.
+    # missing values of the factor become missing rows
+    mat[is.na(x_data[[fi$cols[i]]]), ] <- NA_integer_
 
-   for (j in seq(ncol(mat))) {
+    # we will one-hot encode the matrix and then bind it to data,
+    # replacing the original factor column. Go through the matrix
+    # column by column, where each column corresponds to a level
+    # of the current factor (indexed by i). Flip the values
+    # of the j'th column to 1 whenever the current factor's value
+    # is the j'th level.
 
-    # find which rows to turn into 1's. These should be the
-    # indices in the currect factor where it's value is equal
-    # to the j'th level.
-    hot_rows <- which( data[[fi$cols[i]]] == fi$lvls[[i]][j] )
+    for (j in seq(ncol(mat))) {
 
-    # after finding the rows, flip the values from 0 to 1
-    if(!is_empty(hot_rows)){
-     mat[hot_rows , j] <- 1
+     # find which rows to turn into 1's. These should be the
+     # indices in the currect factor where it's value is equal
+     # to the j'th level.
+     hot_rows <- which( x_data[[fi$cols[i]]] == fi$lvls[[i]][j] )
+
+     # after finding the rows, flip the values from 0 to 1
+     if(!is_empty(hot_rows)){
+      mat[hot_rows , j] <- 1
+     }
+
     }
+
+    # data[[fi$cols[i]]] <- NULL
+
+    x_data <- cbind(x_data, mat)
 
    }
 
-   # data[[fi$cols[i]]] <- NULL
-
-   data <- cbind(data, mat)
-
   }
+
+
 
  }
 
@@ -55,19 +61,24 @@ one_hot <- function (data, fi, names_x_data){
 
  for (i in seq_along(fi$cols)){
 
-  if(!fi$ordr[i]){
-   OH_names <- insert_vals(
-    vec = OH_names,
-    where = which(fi$cols[i] == OH_names),
-    what = fi$keys[[i]][-1]
-   )
+  if(fi$cols[i] %in% names_x_data){
+   if(!fi$ordr[i]){
+    OH_names <- insert_vals(
+     vec = OH_names,
+     where = which(fi$cols[i] == OH_names),
+     what = fi$keys[[i]][-1]
+    )
+   }
   }
 
  }
 
- data[ , OH_names]
+ x_data[ , OH_names, drop = FALSE]
 
 }
+
+
+
 
 insert_vals <- function(vec, where, what){
 
@@ -89,3 +100,4 @@ insert_vals <- function(vec, where, what){
  c(vec_left, what, vec_right)
 
 }
+

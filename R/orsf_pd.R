@@ -18,7 +18,8 @@ orsf_pd_summary <- function(object,
                             pd_data,
                             pd_spec,
                             times,
-                            probs = c(0.025, 0.975),
+                            prob_values = c(0.025, 0.50, 0.975),
+                            prob_labels = c('lwr', 'est', 'upr'),
                             risk = TRUE){
 
  check_predict(object, pd_data, times, risk)
@@ -26,32 +27,31 @@ orsf_pd_summary <- function(object,
  pd_grid <- expand.grid(pd_spec)
 
  x_new <- as.matrix(
-  one_hot(data = new_data,
+  one_hot(x_data = pd_data,
           fi = get_fctr_info(object),
           names_x_data = get_names_x(object))
  )
 
- # pd_mean <- pd_lwr <- pd_upr <- rep(NA_real_, nrow(pd_grid))
- #
- # for(i in seq(nrow(pd_grid))){
- #
- #  for(j in seq(ncol(pd_grid))){
- #   pd_data[, names(pd_grid)[j]] <- pd_grid[i, j]
- #  }
- #
- #  pd_vals <- predict(object,
- #                     new_data = pd_data,
- #                     times = times,
- #                     risk = risk)
- #
- #  pd_quant <- quantile(pd_vals, probs = probs)
- #
- #  pd_mean[i] <- mean(pd_vals)
- #  pd_lwr[i] <- pd_quant[1]
- #  pd_upr[i] <- pd_quant[2]
- #
- # }
- #
- # cbind(pd_grid, mean = pd_mean, lwr = pd_lwr, upr = pd_upr)
+ pd_grid_new <- one_hot(x_data = pd_grid,
+                        fi = get_fctr_info(object),
+                        names_x_data = names(pd_grid))
+
+ x_cols <- match(names(pd_grid_new), colnames(x_new))
+
+ if(length(times) == 1){
+
+  pd_vals <- orsf_pd_smry_uni(forest      = object$forest,
+                              x_new_      = x_new,
+                              x_cols_     = x_cols-1,
+                              x_vals_     = as.matrix(pd_grid_new),
+                              probs_      = prob_values,
+                              time_dbl    = times,
+                              return_risk = risk)
+
+  rownames(pd_vals) <- c('mean', prob_labels)
+
+  return(cbind(pd_grid, t(pd_vals)))
+
+ }
 
 }

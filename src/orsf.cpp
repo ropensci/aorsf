@@ -142,7 +142,6 @@ uvec::iterator
 
 // armadillo matrices (doubles)
 mat
- mat_temp,
  x_input,
  x_transforms,
  y_input,
@@ -2908,13 +2907,70 @@ arma::mat orsf_pred_multi(List& forest,
 }
 
 
-// arma::mat orsf_partial(List& forest,
-//                        NumericMatrix& x_new,
-//                        IntegerVector& x_cols,
-//                        NumericMatrix& x_vals,
-//                        NumericVector& time_vec){
-//
-// }
+// [[Rcpp::export]]
+arma::mat orsf_pd_smry_uni(List&          forest,
+                           NumericMatrix& x_new_,
+                           IntegerVector& x_cols_,
+                           NumericMatrix& x_vals_,
+                           NumericVector& probs_,
+                           const double   time_dbl,
+                           const bool     return_risk){
+
+
+ int tree;
+
+ uword pd_i;
+
+ time_oobag = time_dbl;
+
+ x_oobag = mat(x_new_.begin(), x_new_.nrow(), x_new_.ncol(), false);
+
+ mat x_vals = mat(x_vals_.begin(), x_vals_.nrow(), x_vals_.ncol(), false);
+
+ uvec x_cols = conv_to<uvec>::from(
+  ivec(x_cols_.begin(), x_cols_.length(), false)
+ );
+
+ vec probs = vec(probs_.begin(), probs_.length(), false);
+
+ mat output_quantiles(probs.size(), x_vals.n_rows);
+ mat output_means(1, x_vals.n_rows);
+
+ leaf_preds.set_size(x_oobag.n_rows);
+ vec_temp.set_size(x_oobag.n_rows);
+
+ for(pd_i = 0; pd_i < x_vals.n_rows; pd_i++){
+
+  j = 0;
+
+  vec_temp.fill(0);
+
+  for(jit = x_cols.begin(); jit < x_cols.end(); ++jit, ++j){
+
+   x_oobag.col(*jit).fill(x_vals(pd_i, j));
+
+  }
+
+  for(tree = 0; tree < forest.length(); ++tree){
+   ostree = forest[tree];
+   ostree_mem_xfer();
+   oobag_pred_leaf();
+   new_pred_surv_uni();
+  }
+
+  vec_temp /= (forest.length());
+
+  if(return_risk){ vec_temp = 1 - vec_temp; }
+
+  output_means.col(pd_i) = mean(vec_temp);
+  output_quantiles.col(pd_i) = quantile(vec_temp, probs);
+
+
+ }
+
+ return(join_vert(output_means, output_quantiles));
+
+}
 
 
 // [[Rcpp::export]]

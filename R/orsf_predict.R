@@ -34,7 +34,7 @@ predict.aorsf <- function(object, new_data, times, risk = TRUE, ...){
  check_predict(object, new_data, times, risk)
 
  x_new <- as.matrix(
-  one_hot(data = new_data,
+  one_hot(x_data = new_data,
           fi = get_fctr_info(object),
           names_x_data = get_names_x(object))
  )
