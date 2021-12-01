@@ -41,14 +41,17 @@ orsf_pd_summary <- function(object,
 
  if(length(times) == 1){
 
-  pd_vals <- orsf_pd_smry_uni(forest      = object$forest,
-                              x_new_      = x_new,
-                              x_cols_     = x_cols-1,
-                              x_vals_     = as.matrix(pd_grid_new),
-                              probs_      = prob_values,
-                              time_dbl    = times,
-                              oobag       = oobag,
-                              return_risk = risk)
+  pd_fun <- switch(as.character(oobag),
+                   'FALSE' = new_pd_smry_uni,
+                   'TRUE' = oob_pd_smry_uni)
+
+  pd_vals <- pd_fun(forest      = object$forest,
+                    x_new_      = x_new,
+                    x_cols_     = x_cols-1,
+                    x_vals_     = as.matrix(pd_grid_new),
+                    probs_      = prob_values,
+                    time_dbl    = times,
+                    return_risk = risk)
 
   rownames(pd_vals) <- c('mean', prob_labels)
 
