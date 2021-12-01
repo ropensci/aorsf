@@ -2913,6 +2913,7 @@ arma::mat orsf_pd_smry_uni(List&          forest,
                            NumericMatrix& x_vals_,
                            NumericVector& probs_,
                            const double   time_dbl,
+                           const bool     oobag,
                            const bool     return_risk){
 
 
@@ -2921,8 +2922,6 @@ arma::mat orsf_pd_smry_uni(List&          forest,
  uword pd_i;
 
  time_oobag = time_dbl;
-
- x_oobag = mat(x_new_.begin(), x_new_.nrow(), x_new_.ncol(), false);
 
  mat x_vals = mat(x_vals_.begin(), x_vals_.nrow(), x_vals_.ncol(), false);
 
@@ -2935,34 +2934,96 @@ arma::mat orsf_pd_smry_uni(List&          forest,
  mat output_quantiles(probs.size(), x_vals.n_rows);
  mat output_means(1, x_vals.n_rows);
 
- leaf_preds.set_size(x_oobag.n_rows);
- vec_temp.set_size(x_oobag.n_rows);
+ if(oobag){
+
+  x_input = mat(x_new_.begin(), x_new_.nrow(), x_new_.ncol(), false);
+  denom_oobag.zeros(x_input.n_rows);
+  surv_oobag.zeros(x_input.n_rows);
+
+ } else {
+
+  x_oobag = mat(x_new_.begin(), x_new_.nrow(), x_new_.ncol(), false);
+  leaf_preds.set_size(x_oobag.n_rows);
+  vec_temp.set_size(x_oobag.n_rows);
+
+ }
 
  for(pd_i = 0; pd_i < x_vals.n_rows; pd_i++){
 
   j = 0;
 
-  vec_temp.fill(0);
+  if(!oobag){
 
-  for(jit = x_cols.begin(); jit < x_cols.end(); ++jit, ++j){
+   vec_temp.fill(0);
 
-   x_oobag.col(*jit).fill(x_vals(pd_i, j));
+   for(jit = x_cols.begin(); jit < x_cols.end(); ++jit, ++j){
+
+    x_oobag.col(*jit).fill(x_vals(pd_i, j));
+
+   }
+
+  } else {
+
+   for(jit = x_cols.begin(); jit < x_cols.end(); ++jit, ++j){
+
+    x_input.col(*jit).fill(x_vals(pd_i, j));
+
+   }
 
   }
 
   for(tree = 0; tree < forest.length(); ++tree){
+
    ostree = forest[tree];
+
+   if(oobag){
+
+    IntegerMatrix rows_oobag_ = ostree["rows_oobag"];
+
+    rows_oobag = conv_to<uvec>::from(
+     ivec(rows_oobag_.begin(), rows_oobag_.length(), false)
+    );
+
+    x_oobag = x_input.rows(rows_oobag);
+    leaf_preds.set_size(x_oobag.n_rows);
+    denom_oobag(rows_oobag) += 1;
+
+   }
+
    ostree_mem_xfer();
    oobag_pred_leaf();
-   new_pred_surv_uni();
+
+   if(oobag){
+
+    oobag_pred_surv_uni();
+
+   } else {
+
+    new_pred_surv_uni();
+
+   }
+
+
   }
 
-  vec_temp /= (forest.length());
+  if(oobag){
 
-  if(return_risk){ vec_temp = 1 - vec_temp; }
+   if(return_risk){ surv_oobag = 1 - surv_oobag; }
 
-  output_means.col(pd_i) = mean(vec_temp);
-  output_quantiles.col(pd_i) = quantile(vec_temp, probs);
+   output_means.col(pd_i) = mean(surv_oobag);
+   output_quantiles.col(pd_i) = quantile(surv_oobag, probs);
+
+  } else {
+
+   vec_temp /= (forest.length());
+
+   if(return_risk){ vec_temp = 1 - vec_temp; }
+
+   output_means.col(pd_i) = mean(vec_temp);
+   output_quantiles.col(pd_i) = quantile(vec_temp, probs);
+
+  }
+
 
 
  }

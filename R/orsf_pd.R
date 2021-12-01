@@ -20,6 +20,7 @@ orsf_pd_summary <- function(object,
                             times,
                             prob_values = c(0.025, 0.50, 0.975),
                             prob_labels = c('lwr', 'est', 'upr'),
+                            oobag = TRUE,
                             risk = TRUE){
 
  check_predict(object, pd_data, times, risk)
@@ -46,6 +47,7 @@ orsf_pd_summary <- function(object,
                               x_vals_     = as.matrix(pd_grid_new),
                               probs_      = prob_values,
                               time_dbl    = times,
+                              oobag       = oobag,
                               return_risk = risk)
 
   rownames(pd_vals) <- c('mean', prob_labels)

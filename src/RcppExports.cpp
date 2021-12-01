@@ -121,8 +121,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // orsf_pd_smry_uni
-arma::mat orsf_pd_smry_uni(List& forest, NumericMatrix& x_new_, IntegerVector& x_cols_, NumericMatrix& x_vals_, NumericVector& probs_, const double time_dbl, const bool return_risk);
-RcppExport SEXP _aorsf_orsf_pd_smry_uni(SEXP forestSEXP, SEXP x_new_SEXP, SEXP x_cols_SEXP, SEXP x_vals_SEXP, SEXP probs_SEXP, SEXP time_dblSEXP, SEXP return_riskSEXP) {
+arma::mat orsf_pd_smry_uni(List& forest, NumericMatrix& x_new_, IntegerVector& x_cols_, NumericMatrix& x_vals_, NumericVector& probs_, const double time_dbl, const bool oobag, const bool return_risk);
+RcppExport SEXP _aorsf_orsf_pd_smry_uni(SEXP forestSEXP, SEXP x_new_SEXP, SEXP x_cols_SEXP, SEXP x_vals_SEXP, SEXP probs_SEXP, SEXP time_dblSEXP, SEXP oobagSEXP, SEXP return_riskSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -132,8 +132,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix& >::type x_vals_(x_vals_SEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type probs_(probs_SEXP);
     Rcpp::traits::input_parameter< const double >::type time_dbl(time_dblSEXP);
+    Rcpp::traits::input_parameter< const bool >::type oobag(oobagSEXP);
     Rcpp::traits::input_parameter< const bool >::type return_risk(return_riskSEXP);
-    rcpp_result_gen = Rcpp::wrap(orsf_pd_smry_uni(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk));
+    rcpp_result_gen = Rcpp::wrap(orsf_pd_smry_uni(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, oobag, return_risk));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -158,7 +159,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_orsf_fit", (DL_FUNC) &_aorsf_orsf_fit, 14},
     {"_aorsf_orsf_pred_uni", (DL_FUNC) &_aorsf_orsf_pred_uni, 4},
     {"_aorsf_orsf_pred_multi", (DL_FUNC) &_aorsf_orsf_pred_multi, 4},
-    {"_aorsf_orsf_pd_smry_uni", (DL_FUNC) &_aorsf_orsf_pd_smry_uni, 7},
+    {"_aorsf_orsf_pd_smry_uni", (DL_FUNC) &_aorsf_orsf_pd_smry_uni, 8},
     {"_aorsf_oobag_pred_leaf_testthat", (DL_FUNC) &_aorsf_oobag_pred_leaf_testthat, 2},
     {NULL, NULL, 0}
 };
