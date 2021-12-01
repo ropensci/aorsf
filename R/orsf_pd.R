@@ -23,6 +23,9 @@ orsf_pd_summary <- function(object,
                             oobag = TRUE,
                             risk = TRUE){
 
+ # TODO: fast way to do this when going through variables sequentially
+ # instead of using expand.grid?
+
  check_predict(object, pd_data, times, risk)
 
  pd_grid <- expand.grid(pd_spec)
@@ -37,26 +40,25 @@ orsf_pd_summary <- function(object,
                         fi = get_fctr_info(object),
                         names_x_data = names(pd_grid))
 
+
  x_cols <- match(names(pd_grid_new), colnames(x_new))
 
- if(length(times) == 1){
+ pd_fun <- switch(paste(length(times) == 1, oobag, sep = "_"),
+                  'TRUE_FALSE' = new_pd_smry_uni,
+                  'TRUE_TRUE' = oob_pd_smry_uni,
+                  'FALSE_FALSE' = stop("Not ready yet"),
+                  'FALSE_TRUE' = stop("Not ready yet"))
 
-  pd_fun <- switch(as.character(oobag),
-                   'FALSE' = new_pd_smry_uni,
-                   'TRUE' = oob_pd_smry_uni)
+ pd_vals <- pd_fun(forest      = object$forest,
+                   x_new_      = x_new,
+                   x_cols_     = x_cols-1,
+                   x_vals_     = as.matrix(pd_grid_new),
+                   probs_      = prob_values,
+                   time_dbl    = times,
+                   return_risk = risk)
 
-  pd_vals <- pd_fun(forest      = object$forest,
-                    x_new_      = x_new,
-                    x_cols_     = x_cols-1,
-                    x_vals_     = as.matrix(pd_grid_new),
-                    probs_      = prob_values,
-                    time_dbl    = times,
-                    return_risk = risk)
+ rownames(pd_vals) <- c('mean', prob_labels)
 
-  rownames(pd_vals) <- c('mean', prob_labels)
-
-  return(cbind(pd_grid, t(pd_vals)))
-
- }
+ return(cbind(pd_grid, t(pd_vals)))
 
 }

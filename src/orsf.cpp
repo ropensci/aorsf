@@ -1847,84 +1847,7 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
 
 }
 
-void oobag_pred_leaf(){
 
- // reset values
- leaf_preds.fill(0);
-
- for(i = 0; i < betas.n_cols; i++){
-
-  if(children_left[i] != 0){
-
-   if(i == 0){
-    obs_in_node = regspace<uvec>(0, 1, leaf_preds.size()-1);
-   } else {
-    obs_in_node = find(leaf_preds == i);
-   }
-
-
-   if(obs_in_node.size() > 0){
-
-    // Fastest sub-matrix multiplication i can think of.
-    // Matrix product = linear combination of columns
-    // (this is faster b/c armadillo is great at making
-    //  pointers to the columns of an arma mat)
-    XB.zeros(obs_in_node.size());
-
-    uvec col_indices_i = col_indices.unsafe_col(i);
-
-    j = 0;
-
-    jit = col_indices_i.begin();
-
-    for(; jit < col_indices_i.end(); ++jit, ++j){
-
-     vec x_j = x_oobag.unsafe_col(*jit);
-
-     XB += x_j(obs_in_node) * betas.at(j, i);
-
-    }
-
-    // this is slower but more clear matrix multiplication
-    // XB = x_oobag(obs_in_node, col_indices.col(i)) * betas.col(i);
-
-    jit = obs_in_node.begin();
-
-    for(j = 0; j < XB.size(); ++j, ++jit){
-
-     if(XB[j] <= cutpoints[i]) {
-
-      leaf_preds[*jit] = children_left[i];
-
-     } else {
-
-      leaf_preds[*jit] = children_left[i]+1;
-
-     }
-
-    }
-
-    if(verbose > 0){
-
-     uvec in_left = find(leaf_preds == children_left(i));
-     uvec in_right = find(leaf_preds == children_left(i)+1);
-
-     Rcout << "N to node_" << children_left(i) << ": ";
-     Rcout << in_left.size() << "; ";
-     Rcout << "N to node_" << children_left(i)+1 << ": ";
-     Rcout << in_right.size() << std::endl;
-
-    }
-
-   }
-
-  }
-
- }
-
-
-
-}
 
 void oobag_pred_surv_uni(){
 
@@ -2282,6 +2205,105 @@ void ostree_mem_xfer(){
        children_left_.length(),
        false)
  );
+
+}
+
+void ostree_pred_leaf(){
+
+ // reset values
+ leaf_preds.fill(0);
+
+ for(i = 0; i < betas.n_cols; i++){
+
+  if(children_left[i] != 0){
+
+   if(i == 0){
+    obs_in_node = regspace<uvec>(0, 1, leaf_preds.size()-1);
+   } else {
+    obs_in_node = find(leaf_preds == i);
+   }
+
+
+   if(obs_in_node.size() > 0){
+
+    // Fastest sub-matrix multiplication i can think of.
+    // Matrix product = linear combination of columns
+    // (this is faster b/c armadillo is great at making
+    //  pointers to the columns of an arma mat)
+    XB.zeros(obs_in_node.size());
+
+    uvec col_indices_i = col_indices.unsafe_col(i);
+
+    j = 0;
+
+    jit = col_indices_i.begin();
+
+    for(; jit < col_indices_i.end(); ++jit, ++j){
+
+     vec x_j = x_oobag.unsafe_col(*jit);
+
+     XB += x_j(obs_in_node) * betas.at(j, i);
+
+    }
+
+    // this is slower but more clear matrix multiplication
+    // XB = x_oobag(obs_in_node, col_indices.col(i)) * betas.col(i);
+
+    jit = obs_in_node.begin();
+
+    for(j = 0; j < XB.size(); ++j, ++jit){
+
+     if(XB[j] <= cutpoints[i]) {
+
+      leaf_preds[*jit] = children_left[i];
+
+     } else {
+
+      leaf_preds[*jit] = children_left[i]+1;
+
+     }
+
+    }
+
+    if(verbose > 0){
+
+     uvec in_left = find(leaf_preds == children_left(i));
+     uvec in_right = find(leaf_preds == children_left(i)+1);
+
+     Rcout << "N to node_" << children_left(i) << ": ";
+     Rcout << in_left.size() << "; ";
+     Rcout << "N to node_" << children_left(i)+1 << ": ";
+     Rcout << in_right.size() << std::endl;
+
+    }
+
+   }
+
+  }
+
+ }
+
+
+
+}
+
+// [[Rcpp::export]]
+arma::uvec ostree_pred_leaf_testthat(List& tree,
+                                     NumericMatrix& x_oobag_){
+
+
+ x_oobag = mat(x_oobag_.begin(),
+               x_oobag_.nrow(),
+               x_oobag_.ncol(),
+               false);
+
+ leaf_preds.set_size(x_oobag.n_rows);
+
+ ostree = tree;
+ ostree_mem_xfer();
+ ostree_pred_leaf();
+
+ return(leaf_preds);
 
 }
 
@@ -2652,6 +2674,7 @@ List orsf_fit(NumericMatrix& x,
               const double&  cph_pval_max_,
               const bool&    cph_do_scale_,
               const bool&    oobag_pred_,
+              const double&  oobag_time_,
               const int&     oobag_eval_every_){
 
 
@@ -2688,7 +2711,8 @@ List orsf_fit(NumericMatrix& x,
  if(cph_iter_max > 1) cph_do_scale = true;
 
  if(oobag_pred){
-  time_oobag = median(y_input.col(0));
+  time_oobag = oobag_time_;
+  if(time_oobag == 0) time_oobag = median(y_input.col(0));
   cstat_oobag.set_size(std::floor(n_tree / oobag_eval_every));
  }
 
@@ -2809,7 +2833,7 @@ List orsf_fit(NumericMatrix& x,
   if(oobag_pred){
 
    denom_oobag(rows_oobag) += 1;
-   oobag_pred_leaf();
+   ostree_pred_leaf();
    oobag_pred_surv_uni();
 
    if(tree % oobag_eval_every == 0){
@@ -2828,6 +2852,7 @@ List orsf_fit(NumericMatrix& x,
   List::create(
    _["forest"] = forest,
    _["surv_oobag"] = surv_oobag,
+   _["time_oobag"] = time_oobag,
    _["eval_oobag"] = List::create(_["c_harrell"] = cstat_oobag)
   )
  );
@@ -2855,7 +2880,7 @@ arma::mat orsf_pred_uni(List& forest,
  for(tree = 0; tree < forest.length(); ++tree){
   ostree = forest[tree];
   ostree_mem_xfer();
-  oobag_pred_leaf();
+  ostree_pred_leaf();
   new_pred_surv_uni();
  }
 
@@ -2888,7 +2913,7 @@ arma::mat orsf_pred_multi(List& forest,
  for(; tree < forest.length(); ++tree){
   ostree = forest[tree];
   ostree_mem_xfer();
-  oobag_pred_leaf();
+  ostree_pred_leaf();
   new_pred_surv_multi();
  }
 
@@ -2949,7 +2974,7 @@ arma::mat new_pd_smry_uni(List&          forest,
   for(tree = 0; tree < forest.length(); ++tree){
    ostree = forest[tree];
    ostree_mem_xfer();
-   oobag_pred_leaf();
+   ostree_pred_leaf();
    new_pred_surv_uni();
   }
 
@@ -3019,7 +3044,9 @@ arma::mat oob_pd_smry_uni(List&          forest,
    IntegerMatrix rows_oobag_ = ostree["rows_oobag"];
 
    rows_oobag = conv_to<uvec>::from(
-    ivec(rows_oobag_.begin(), rows_oobag_.length(), false)
+    ivec(rows_oobag_.begin(),
+         rows_oobag_.length(),
+         false)
    );
 
    x_oobag = x_input.rows(rows_oobag);
@@ -3027,7 +3054,7 @@ arma::mat oob_pd_smry_uni(List&          forest,
    denom_oobag(rows_oobag) += 1;
 
    ostree_mem_xfer();
-   oobag_pred_leaf();
+   ostree_pred_leaf();
    oobag_pred_surv_uni();
 
 
@@ -3047,22 +3074,4 @@ arma::mat oob_pd_smry_uni(List&          forest,
 }
 
 
-// [[Rcpp::export]]
-arma::uvec oobag_pred_leaf_testthat(List& tree,
-                                   NumericMatrix& x_oobag_){
 
-
- x_oobag = mat(x_oobag_.begin(),
-               x_oobag_.nrow(),
-               x_oobag_.ncol(),
-               false);
-
- leaf_preds.set_size(x_oobag.n_rows);
-
- ostree = tree;
- ostree_mem_xfer();
- oobag_pred_leaf();
-
- return(leaf_preds);
-
-}

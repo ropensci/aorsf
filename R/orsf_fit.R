@@ -131,7 +131,7 @@
 #' fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 10)
 #'
 #'
-orsf <- function(data,
+orsf <- function(data_train,
                  formula,
                  n_tree = 500,
                  n_split = 5,
@@ -144,7 +144,9 @@ orsf <- function(data,
                  cph_pval_max = 1,
                  cph_do_scale = TRUE,
                  oobag_pred = FALSE,
-                 oobag_eval_every = n_tree){
+                 oobag_time = NULL,
+                 oobag_eval_every = n_tree,
+                 attach_data = TRUE){
 
  # Run checks
  Call <- match.call()
@@ -152,7 +154,7 @@ orsf <- function(data,
  check_call(
   Call,
   expected = list(
-   'data' = list(
+   'data_train' = list(
     class = 'data.frame'
    ),
    'formula' = list(
@@ -212,16 +214,25 @@ orsf <- function(data,
     type = 'logical',
     length = 1
    ),
+   oobag_time = list(
+    type = 'numeric',
+    length = 1,
+    lwr = 0
+   ),
    'oobag_eval_every' = list(
     type = 'numeric',
     integer = TRUE,
     lwr = 1,
     upr = n_tree
+   ),
+   'attach_data' = list(
+    type = 'logical',
+    length = 1
    )
   )
  )
 
- formula_terms <- stats::terms(formula, data=data)
+ formula_terms <- stats::terms(formula, data=data_train)
 
  if(attr(formula_terms, 'response') == 0)
   stop("formula must have a response", call. = FALSE)
@@ -237,30 +248,30 @@ orsf <- function(data,
 
  names_x_data <- attr(formula_terms, 'term.labels')
 
- names_not_found <- setdiff(c(names_y_data, names_x_data), names(data))
+ names_not_found <- setdiff(c(names_y_data, names_x_data), names(data_train))
 
  if(!is_empty(names_not_found)){
   msg <- paste0(
-   "variables in formula were not found in ", deparse(Call$data),
-   " data: ",
+   "variables in formula were not found in ", deparse(Call$data_train),
+   " data_train: ",
    paste_collapse(names_not_found, last = ' and ')
   )
   stop(msg, call. = FALSE)
  }
 
- if(any(is.na(data[, c(names_y_data, names_x_data)]))){
+ if(any(is.na(data_train[, c(names_y_data, names_x_data)]))){
   stop("Please remove missing values from ",
-       deparse(Call$data),
+       deparse(Call$data_train),
        " or impute them",
        call. = FALSE)
  }
 
- fctr_check(data, names_x_data)
- fi <- fctr_info(data, names_x_data)
- y  <- as.matrix(data[, names_y_data])
- x  <- as.matrix(one_hot(data, fi, names_x_data))
+ fctr_check(data_train, names_x_data)
+ fi <- fctr_info(data_train, names_x_data)
+ y  <- as.matrix(data_train[, names_y_data])
+ x  <- as.matrix(one_hot(data_train, fi, names_x_data))
 
- types_x_data <- check_var_types(data,
+ types_x_data <- check_var_types(data_train,
                                  names_x_data,
                                  valid_types = c('numeric',
                                                  'integer',
@@ -268,15 +279,15 @@ orsf <- function(data,
                                                  'ordered'))
 
  check_arg_uni(arg_value = y[,2],
-               arg_name = paste0(deparse(Call$data), '$', names_y_data[2]),
+               arg_name = paste0(deparse(Call$data_train), '$', names_y_data[2]),
                expected_uni = c(0,1))
 
  check_arg_is(arg_value = y[,1],
-              arg_name = paste0(deparse(Call$data), '$', names_y_data[1]),
+              arg_name = paste0(deparse(Call$data_train), '$', names_y_data[1]),
               expected_class = 'numeric')
 
  check_arg_gt(arg_value = y[,1],
-              arg_name = paste0(deparse(Call$data), '$', names_y_data[1]),
+              arg_name = paste0(deparse(Call$data_train), '$', names_y_data[1]),
               bound = 0)
 
  if(is.null(mtry)){
@@ -298,12 +309,28 @@ orsf <- function(data,
 
  }
 
+ if(!is.null(oobag_time)){
+  if(oobag_time == 0)
+
+   stop("Out of bag prediction time (oobag_time) must be > 0",
+        call. = FALSE)
+
+ } else {
+
+  oobag_time <- 0
+
+ }
+
+
  # older version: sorted <- order(y[, 1])
  sorted <- order(y[, 1], -y[, 2])
 
+ unsorted <- vector(mode = 'integer', length = length(sorted))
+
+ for(i in seq_along(unsorted)) unsorted[ sorted[i] ] <- i
+
  x_sort <- x[sorted, ]
  y_sort <- y[sorted, ]
-
 
  orsf_out <- orsf_fit(x                 = x_sort,
                       y                 = y_sort,
@@ -320,11 +347,15 @@ orsf <- function(data,
                       cph_pval_max_     = cph_pval_max,
                       cph_do_scale_     = cph_do_scale,
                       oobag_pred_       = oobag_pred,
+                      oobag_time_       = oobag_time,
                       oobag_eval_every_ = oobag_eval_every)
 
- n_leaves_mean <- mean(
-  sapply(orsf_out$forest, function(t) sum(t$children_left==0))
- )
+ orsf_out$data_train <- if(attach_data) data_train else NULL
+
+ if(oobag_pred) orsf_out$surv_oobag <- orsf_out$surv_oobag[unsorted, , drop = FALSE]
+
+ n_leaves_mean <-
+  mean(sapply(orsf_out$forest, function(t) nrow(t$leaf_node_index)))
 
  class(orsf_out) <- "aorsf"
 
