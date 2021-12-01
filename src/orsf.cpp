@@ -147,9 +147,7 @@ mat
  y_input,
  x_inbag,
  y_inbag,
- y_grown,
  x_oobag,
- y_oobag,
  x_node,
  y_node,
  node_sums,
@@ -2629,7 +2627,9 @@ List ostree_fit(){
 
    _["children_left"] = conv_to<ivec>::from(
     children_left(span(0, nodes_max_true))
-   )
+   ),
+
+   _["rows_oobag"] = conv_to<ivec>::from(rows_oobag)
 
   )
  );
@@ -2779,7 +2779,6 @@ List orsf_fit(NumericMatrix& x,
 
   if(oobag_pred){
    x_oobag = x_input.rows(rows_oobag);
-   y_oobag = y_input.rows(rows_oobag);
    leaf_preds.set_size(rows_oobag.size());
   }
 
