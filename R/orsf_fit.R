@@ -279,15 +279,18 @@ orsf <- function(data_train,
                                                  'ordered'))
 
  check_arg_uni(arg_value = y[,2],
-               arg_name = paste0(deparse(Call$data_train), '$', names_y_data[2]),
+               arg_name = paste0(deparse(Call$data_train),
+                                 '$', names_y_data[2]),
                expected_uni = c(0,1))
 
  check_arg_is(arg_value = y[,1],
-              arg_name = paste0(deparse(Call$data_train), '$', names_y_data[1]),
+              arg_name = paste0(deparse(Call$data_train),
+                                '$', names_y_data[1]),
               expected_class = 'numeric')
 
  check_arg_gt(arg_value = y[,1],
-              arg_name = paste0(deparse(Call$data_train), '$', names_y_data[1]),
+              arg_name = paste0(deparse(Call$data_train),
+                                '$', names_y_data[1]),
               bound = 0)
 
  if(is.null(mtry)){
@@ -317,17 +320,12 @@ orsf <- function(data_train,
 
  } else {
 
+  # sneaky way to tell orsf.cpp to make up its own oobag_time
   oobag_time <- 0
 
  }
 
-
- # older version: sorted <- order(y[, 1])
  sorted <- order(y[, 1], -y[, 2])
-
- unsorted <- vector(mode = 'integer', length = length(sorted))
-
- for(i in seq_along(unsorted)) unsorted[ sorted[i] ] <- i
 
  x_sort <- x[sorted, ]
  y_sort <- y[sorted, ]
@@ -352,7 +350,15 @@ orsf <- function(data_train,
 
  orsf_out$data_train <- if(attach_data) data_train else NULL
 
- if(oobag_pred) orsf_out$surv_oobag <- orsf_out$surv_oobag[unsorted, , drop = FALSE]
+ if(oobag_pred){
+
+  # put the oob predictions into the same order as the training data.
+  unsorted <- vector(mode = 'integer', length = length(sorted))
+  for(i in seq_along(unsorted)) unsorted[ sorted[i] ] <- i
+
+  orsf_out$surv_oobag <- orsf_out$surv_oobag[unsorted, , drop = FALSE]
+
+ }
 
  n_leaves_mean <-
   mean(sapply(orsf_out$forest, function(t) nrow(t$leaf_node_index)))

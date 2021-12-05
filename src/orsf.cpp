@@ -1222,9 +1222,9 @@ double lrt_multi(){
 
  } else {
 
- // what happens if there are only 5 potential cut-points
- // but the value of n_split is > 5? We will just check out
- // the 5 valid cutpoints.
+  // what happens if there are only 5 potential cut-points
+  // but the value of n_split is > 5? We will just check out
+  // the 5 valid cutpoints.
   jit_vals = linspace<uvec>(0, k, k);
 
  }
@@ -1429,7 +1429,7 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
                         int n_split_,
                         int leaf_min_events_,
                         int leaf_min_obs_
-                        ){
+){
 
  y_node = mat(y_node_.begin(), y_node_.nrow(), y_node_.ncol(), false);
  w_node = vec(w_node_.begin(), w_node_.length(), false);
@@ -2884,12 +2884,12 @@ arma::mat orsf_pred_uni(List& forest,
   new_pred_surv_uni();
  }
 
- temp1 = tree + 1;
+ vec_temp /= forest.length();
 
  if(return_risk){
-  return(1 - (vec_temp / temp1));
+  return(1 - vec_temp);
  } else {
-  return(vec_temp / temp1);
+  return(vec_temp);
  }
 
 }
@@ -2928,13 +2928,13 @@ arma::mat orsf_pred_multi(List& forest,
 }
 
 // [[Rcpp::export]]
-arma::mat new_pd_smry_uni(List&          forest,
-                          NumericMatrix& x_new_,
-                          IntegerVector& x_cols_,
-                          NumericMatrix& x_vals_,
-                          NumericVector& probs_,
-                          const double   time_dbl,
-                          const bool     return_risk){
+arma::mat pd_new_smry(List&          forest,
+                      NumericMatrix& x_new_,
+                      IntegerVector& x_cols_,
+                      NumericMatrix& x_vals_,
+                      NumericVector& probs_,
+                      const double   time_dbl,
+                      const bool     return_risk){
 
 
  int tree;
@@ -2995,13 +2995,13 @@ arma::mat new_pd_smry_uni(List&          forest,
 
 
 // [[Rcpp::export]]
-arma::mat oob_pd_smry_uni(List&          forest,
-                          NumericMatrix& x_new_,
-                          IntegerVector& x_cols_,
-                          NumericMatrix& x_vals_,
-                          NumericVector& probs_,
-                          const double   time_dbl,
-                          const bool     return_risk){
+arma::mat pd_oob_smry(List&          forest,
+                      NumericMatrix& x_new_,
+                      IntegerVector& x_cols_,
+                      NumericMatrix& x_vals_,
+                      NumericVector& probs_,
+                      const double   time_dbl,
+                      const bool     return_risk){
 
 
  int tree;
@@ -3070,6 +3070,159 @@ arma::mat oob_pd_smry_uni(List&          forest,
 
 
  return(join_vert(output_means, output_quantiles));
+
+}
+
+// [[Rcpp::export]]
+arma::mat pd_new_ice(List&          forest,
+                     NumericMatrix& x_new_,
+                     IntegerVector& x_cols_,
+                     NumericMatrix& x_vals_,
+                     NumericVector& probs_,
+                     const double   time_dbl,
+                     const bool     return_risk){
+
+
+ int tree;
+
+ uword pd_i;
+
+ time_oobag = time_dbl;
+
+ x_oobag = mat(x_new_.begin(), x_new_.nrow(), x_new_.ncol(), false);
+
+ mat x_vals = mat(x_vals_.begin(), x_vals_.nrow(), x_vals_.ncol(), false);
+
+ uvec x_cols = conv_to<uvec>::from(
+  ivec(x_cols_.begin(), x_cols_.length(), false)
+ );
+
+ vec probs = vec(probs_.begin(), probs_.length(), false);
+
+ mat output_ice(x_vals.n_rows * x_oobag.n_rows, 2);
+ vec output_ids = output_ice.unsafe_col(0);
+ vec output_pds = output_ice.unsafe_col(1);
+
+ uvec pd_rows = regspace<uvec>(0, 1, x_oobag.n_rows - 1);
+
+ leaf_preds.set_size(x_oobag.n_rows);
+ vec_temp.set_size(x_oobag.n_rows);
+
+ for(pd_i = 0; pd_i < x_vals.n_rows; pd_i++){
+
+  j = 0;
+
+  vec_temp.fill(0);
+
+  for(jit = x_cols.begin(); jit < x_cols.end(); ++jit, ++j){
+
+   x_oobag.col(*jit).fill(x_vals(pd_i, j));
+
+  }
+
+  for(tree = 0; tree < forest.length(); ++tree){
+   ostree = forest[tree];
+   ostree_mem_xfer();
+   ostree_pred_leaf();
+   new_pred_surv_uni();
+  }
+
+  vec_temp /= (forest.length());
+
+  if(return_risk){ vec_temp = 1 - vec_temp; }
+
+  output_ids(pd_rows).fill(pd_i+1);
+  output_pds(pd_rows) = vec_temp;
+  pd_rows += x_oobag.n_rows;
+
+
+ }
+
+ return(output_ice);
+
+}
+
+// [[Rcpp::export]]
+arma::mat pd_oob_ice(List&          forest,
+                     NumericMatrix& x_new_,
+                     IntegerVector& x_cols_,
+                     NumericMatrix& x_vals_,
+                     NumericVector& probs_,
+                     const double   time_dbl,
+                     const bool     return_risk){
+
+
+ int tree;
+
+ uword pd_i;
+
+ time_oobag = time_dbl;
+
+ mat x_vals = mat(x_vals_.begin(), x_vals_.nrow(), x_vals_.ncol(), false);
+
+ uvec x_cols = conv_to<uvec>::from(
+  ivec(x_cols_.begin(), x_cols_.length(), false)
+ );
+
+ vec probs = vec(probs_.begin(), probs_.length(), false);
+
+
+ x_input = mat(x_new_.begin(), x_new_.nrow(), x_new_.ncol(), false);
+
+ mat output_ice(x_vals.n_rows * x_input.n_rows, 2);
+ vec output_ids = output_ice.unsafe_col(0);
+ vec output_pds = output_ice.unsafe_col(1);
+
+ uvec pd_rows = regspace<uvec>(0, 1, x_input.n_rows - 1);
+
+ denom_oobag.set_size(x_input.n_rows);
+ surv_oobag.set_size(x_input.n_rows);
+
+ for(pd_i = 0; pd_i < x_vals.n_rows; pd_i++){
+
+  j = 0;
+  denom_oobag.fill(0);
+  surv_oobag.fill(0);
+
+  for(jit = x_cols.begin(); jit < x_cols.end(); ++jit, ++j){
+
+   x_input.col(*jit).fill(x_vals(pd_i, j));
+
+  }
+
+  for(tree = 0; tree < forest.length(); ++tree){
+
+   ostree = forest[tree];
+
+   IntegerMatrix rows_oobag_ = ostree["rows_oobag"];
+
+   rows_oobag = conv_to<uvec>::from(
+    ivec(rows_oobag_.begin(),
+         rows_oobag_.length(),
+         false)
+   );
+
+   x_oobag = x_input.rows(rows_oobag);
+   leaf_preds.set_size(x_oobag.n_rows);
+   denom_oobag(rows_oobag) += 1;
+
+   ostree_mem_xfer();
+   ostree_pred_leaf();
+   oobag_pred_surv_uni();
+
+
+  }
+
+  if(return_risk){ surv_oobag = 1 - surv_oobag; }
+
+  output_ids(pd_rows).fill(pd_i+1);
+  output_pds(pd_rows) = surv_oobag;
+  pd_rows += x_input.n_rows;
+
+
+ }
+
+ return(output_ice);
 
 }
 

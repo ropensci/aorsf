@@ -33,11 +33,19 @@ orsf_pred_multi <- function(forest, x_new, time_vec, return_risk = TRUE) {
     .Call(`_aorsf_orsf_pred_multi`, forest, x_new, time_vec, return_risk)
 }
 
-new_pd_smry_uni <- function(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk) {
-    .Call(`_aorsf_new_pd_smry_uni`, forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk)
+pd_new_smry <- function(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk) {
+    .Call(`_aorsf_pd_new_smry`, forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk)
 }
 
-oob_pd_smry_uni <- function(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk) {
-    .Call(`_aorsf_oob_pd_smry_uni`, forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk)
+pd_oob_smry <- function(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk) {
+    .Call(`_aorsf_pd_oob_smry`, forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk)
+}
+
+pd_new_ice <- function(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk) {
+    .Call(`_aorsf_pd_new_ice`, forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk)
+}
+
+pd_oob_ice <- function(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk) {
+    .Call(`_aorsf_pd_oob_ice`, forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk)
 }
 

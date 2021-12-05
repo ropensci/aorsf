@@ -133,9 +133,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// new_pd_smry_uni
-arma::mat new_pd_smry_uni(List& forest, NumericMatrix& x_new_, IntegerVector& x_cols_, NumericMatrix& x_vals_, NumericVector& probs_, const double time_dbl, const bool return_risk);
-RcppExport SEXP _aorsf_new_pd_smry_uni(SEXP forestSEXP, SEXP x_new_SEXP, SEXP x_cols_SEXP, SEXP x_vals_SEXP, SEXP probs_SEXP, SEXP time_dblSEXP, SEXP return_riskSEXP) {
+// pd_new_smry
+arma::mat pd_new_smry(List& forest, NumericMatrix& x_new_, IntegerVector& x_cols_, NumericMatrix& x_vals_, NumericVector& probs_, const double time_dbl, const bool return_risk);
+RcppExport SEXP _aorsf_pd_new_smry(SEXP forestSEXP, SEXP x_new_SEXP, SEXP x_cols_SEXP, SEXP x_vals_SEXP, SEXP probs_SEXP, SEXP time_dblSEXP, SEXP return_riskSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -146,13 +146,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector& >::type probs_(probs_SEXP);
     Rcpp::traits::input_parameter< const double >::type time_dbl(time_dblSEXP);
     Rcpp::traits::input_parameter< const bool >::type return_risk(return_riskSEXP);
-    rcpp_result_gen = Rcpp::wrap(new_pd_smry_uni(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk));
+    rcpp_result_gen = Rcpp::wrap(pd_new_smry(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk));
     return rcpp_result_gen;
 END_RCPP
 }
-// oob_pd_smry_uni
-arma::mat oob_pd_smry_uni(List& forest, NumericMatrix& x_new_, IntegerVector& x_cols_, NumericMatrix& x_vals_, NumericVector& probs_, const double time_dbl, const bool return_risk);
-RcppExport SEXP _aorsf_oob_pd_smry_uni(SEXP forestSEXP, SEXP x_new_SEXP, SEXP x_cols_SEXP, SEXP x_vals_SEXP, SEXP probs_SEXP, SEXP time_dblSEXP, SEXP return_riskSEXP) {
+// pd_oob_smry
+arma::mat pd_oob_smry(List& forest, NumericMatrix& x_new_, IntegerVector& x_cols_, NumericMatrix& x_vals_, NumericVector& probs_, const double time_dbl, const bool return_risk);
+RcppExport SEXP _aorsf_pd_oob_smry(SEXP forestSEXP, SEXP x_new_SEXP, SEXP x_cols_SEXP, SEXP x_vals_SEXP, SEXP probs_SEXP, SEXP time_dblSEXP, SEXP return_riskSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -163,7 +163,41 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericVector& >::type probs_(probs_SEXP);
     Rcpp::traits::input_parameter< const double >::type time_dbl(time_dblSEXP);
     Rcpp::traits::input_parameter< const bool >::type return_risk(return_riskSEXP);
-    rcpp_result_gen = Rcpp::wrap(oob_pd_smry_uni(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk));
+    rcpp_result_gen = Rcpp::wrap(pd_oob_smry(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk));
+    return rcpp_result_gen;
+END_RCPP
+}
+// pd_new_ice
+arma::mat pd_new_ice(List& forest, NumericMatrix& x_new_, IntegerVector& x_cols_, NumericMatrix& x_vals_, NumericVector& probs_, const double time_dbl, const bool return_risk);
+RcppExport SEXP _aorsf_pd_new_ice(SEXP forestSEXP, SEXP x_new_SEXP, SEXP x_cols_SEXP, SEXP x_vals_SEXP, SEXP probs_SEXP, SEXP time_dblSEXP, SEXP return_riskSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List& >::type forest(forestSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type x_new_(x_new_SEXP);
+    Rcpp::traits::input_parameter< IntegerVector& >::type x_cols_(x_cols_SEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type x_vals_(x_vals_SEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type probs_(probs_SEXP);
+    Rcpp::traits::input_parameter< const double >::type time_dbl(time_dblSEXP);
+    Rcpp::traits::input_parameter< const bool >::type return_risk(return_riskSEXP);
+    rcpp_result_gen = Rcpp::wrap(pd_new_ice(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk));
+    return rcpp_result_gen;
+END_RCPP
+}
+// pd_oob_ice
+arma::mat pd_oob_ice(List& forest, NumericMatrix& x_new_, IntegerVector& x_cols_, NumericMatrix& x_vals_, NumericVector& probs_, const double time_dbl, const bool return_risk);
+RcppExport SEXP _aorsf_pd_oob_ice(SEXP forestSEXP, SEXP x_new_SEXP, SEXP x_cols_SEXP, SEXP x_vals_SEXP, SEXP probs_SEXP, SEXP time_dblSEXP, SEXP return_riskSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List& >::type forest(forestSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type x_new_(x_new_SEXP);
+    Rcpp::traits::input_parameter< IntegerVector& >::type x_cols_(x_cols_SEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type x_vals_(x_vals_SEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type probs_(probs_SEXP);
+    Rcpp::traits::input_parameter< const double >::type time_dbl(time_dblSEXP);
+    Rcpp::traits::input_parameter< const bool >::type return_risk(return_riskSEXP);
+    rcpp_result_gen = Rcpp::wrap(pd_oob_ice(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -177,8 +211,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_orsf_fit", (DL_FUNC) &_aorsf_orsf_fit, 15},
     {"_aorsf_orsf_pred_uni", (DL_FUNC) &_aorsf_orsf_pred_uni, 4},
     {"_aorsf_orsf_pred_multi", (DL_FUNC) &_aorsf_orsf_pred_multi, 4},
-    {"_aorsf_new_pd_smry_uni", (DL_FUNC) &_aorsf_new_pd_smry_uni, 7},
-    {"_aorsf_oob_pd_smry_uni", (DL_FUNC) &_aorsf_oob_pd_smry_uni, 7},
+    {"_aorsf_pd_new_smry", (DL_FUNC) &_aorsf_pd_new_smry, 7},
+    {"_aorsf_pd_oob_smry", (DL_FUNC) &_aorsf_pd_oob_smry, 7},
+    {"_aorsf_pd_new_ice", (DL_FUNC) &_aorsf_pd_new_ice, 7},
+    {"_aorsf_pd_oob_ice", (DL_FUNC) &_aorsf_pd_oob_ice, 7},
     {NULL, NULL, 0}
 };
 
