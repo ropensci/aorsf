@@ -3,10 +3,20 @@
 fctr_check <- function(data, .names){
 
  chrs <- c()
+
  for( .name in .names ){
+
   if(is.character(data[[.name]])){
    chrs <- c(chrs, .name)
   }
+
+  if(is.factor(data[[.name]])){
+   if(length(levels(data[[.name]])) == nrow(data)){
+    stop("factor variable ", .name, " has as many levels as there ",
+         "are rows in the training data. Is ", .name, "an id variable?")
+   }
+  }
+
  }
 
  if(is_empty(chrs)) return(NULL)
@@ -17,6 +27,7 @@ fctr_check <- function(data, .names){
   "character variables in data should be converted to factors.\n",
   "Here are the character variables I detected: ", chrs, call.= FALSE
  )
+
 
 }
 
