@@ -33,9 +33,22 @@ orsf_pd_summary <- function(object,
    'expand_grid' = list(
     type = 'logical',
     length = 1
+   ),
+   prob_values = list(
+    type = 'numeric',
+    lwr = 0,
+    upr = 1
+   ),
+   prob_labels = list(
+    type = 'character'
    )
   )
  )
+
+ if(length(prob_values) != length(prob_labels)){
+  stop("prob_values and prob_labels must have the same length.",
+       call. = FALSE)
+ }
 
  orsf_pd_(object = object,
           pd_data = pd_data,
@@ -53,12 +66,10 @@ orsf_pd_summary <- function(object,
 #' @rdname orsf_pd_summary
 #' @export
 orsf_pd_ice <- function(object,
-                        pd_data,
+                        pd_data = NULL,
                         pd_spec,
                         times,
                         expand_grid = TRUE,
-                        prob_values = c(0.025, 0.50, 0.975),
-                        prob_labels = c('lwr', 'est', 'upr'),
                         oobag = TRUE,
                         risk = TRUE){
 
@@ -103,9 +114,15 @@ orsf_pd_ <- function(object,
 
  if(length(times) > 1){
   stop("orsf_pd functions only allow 1 prediction time,",
-       " but your times input has length ", length(times),
-       "; (you use for-loops to compute pd for multiple times)")
+       " but your times input has length ", length(times), ".",
+       call. = FALSE)
  }
+
+ if(is.null(pd_data)) pd_data <- object$data_train
+
+ if(is.null(pd_data)) stop("training data were not found in object. ",
+                           "did you use attach_data = FALSE when ",
+                           "running orsf()?", call. = FALSE)
 
  check_predict(object, pd_data, times, risk)
 
@@ -135,15 +152,7 @@ orsf_pd_ <- function(object,
 
  if(is_empty(pd_spec)){
 
-  if(deparse(Call$pd_spec) != 'pd_spec'){
-   stop("your input for pd_spec, ",
-        deparse(Call$pd_spec),
-        ", is an empty list.",
-        call. = FALSE)
-  } else {
-   stop("your input for pd_spec is an empty list",
-        call. = FALSE)
-  }
+   stop("pd_spec is empty", call. = FALSE)
 
  }
 
