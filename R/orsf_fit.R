@@ -146,6 +146,7 @@ orsf <- function(data_train,
                  oobag_pred = FALSE,
                  oobag_time = NULL,
                  oobag_eval_every = n_tree,
+                 importance = FALSE,
                  attach_data = TRUE){
 
  # Run checks
@@ -231,6 +232,8 @@ orsf <- function(data_train,
    )
   )
  )
+
+ if(importance && !oobag_pred) oobag_pred <- TRUE # Should I add a warning?
 
  formula_terms <- stats::terms(formula, data=data_train)
 
@@ -346,9 +349,14 @@ orsf <- function(data_train,
                       cph_do_scale_     = cph_do_scale,
                       oobag_pred_       = oobag_pred,
                       oobag_time_       = oobag_time,
-                      oobag_eval_every_ = oobag_eval_every)
+                      oobag_eval_every_ = oobag_eval_every,
+                      oobag_importance_ = importance)
 
  orsf_out$data_train <- if(attach_data) data_train else NULL
+
+ if(importance){
+  rownames(orsf_out$importance) <- colnames(x)
+ }
 
  names_x_numeric <- grep(pattern = "^integer$|^numeric$",
                          x = types_x_data)

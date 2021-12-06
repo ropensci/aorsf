@@ -88,6 +88,7 @@ String
 bool
  break_loop, // a delayed break statement
  oobag_pred,
+ oobag_importance,
  cph_do_scale;
 
 // armadillo vectors (doubles)
@@ -2675,7 +2676,8 @@ List orsf_fit(NumericMatrix& x,
               const bool&    cph_do_scale_,
               const bool&    oobag_pred_,
               const double&  oobag_time_,
-              const int&     oobag_eval_every_){
+              const int&     oobag_eval_every_,
+              const bool&    oobag_importance_ = true){
 
 
  // convert inputs into arma objects
@@ -2706,6 +2708,7 @@ List orsf_fit(NumericMatrix& x,
  oobag_pred         = oobag_pred_;
  oobag_eval_every   = oobag_eval_every_;
  oobag_eval_counter = 0;
+ oobag_importance   = oobag_importance_;
  temp1              = 1.0 / n_rows;
 
  if(cph_iter_max > 1) cph_do_scale = true;
@@ -2773,7 +2776,9 @@ List orsf_fit(NumericMatrix& x,
 
  List forest(n_tree);
 
- for(int tree = 0; tree < n_tree; ){
+ int tree;
+
+ for(tree = 0; tree < n_tree; ){
 
   // --------------------------------------------
   // ---- initialize parameters to grow tree ----
@@ -2843,17 +2848,73 @@ List orsf_fit(NumericMatrix& x,
 
    }
 
-
   }
 
  }
+
+
+
+ vec vimp;
+
+ if(oobag_importance){
+
+  vimp.set_size(x_input.n_cols);
+  uvec betas_to_flip;
+  oobag_eval_counter--;
+
+  for(uword variable = 0; variable < x_input.n_cols; ++variable){
+
+   surv_oobag.fill(0);
+   denom_oobag.fill(0);
+
+   for(tree = 0; tree < n_tree; ++tree){
+
+    ostree = forest[tree];
+
+    IntegerMatrix rows_oobag_ = ostree["rows_oobag"];
+
+    rows_oobag = conv_to<uvec>::from(
+     ivec(rows_oobag_.begin(),
+          rows_oobag_.length(),
+          false)
+    );
+
+    x_oobag = x_input.rows(rows_oobag);
+
+    ostree_mem_xfer();
+
+    betas_to_flip = find(col_indices == variable);
+
+    betas.elem( betas_to_flip ) *= (-1);
+
+    denom_oobag(rows_oobag) += 1;
+
+    leaf_preds.set_size(rows_oobag.size());
+
+    ostree_pred_leaf();
+
+    oobag_pred_surv_uni();
+
+    betas.elem( betas_to_flip ) *= (-1);
+
+   }
+
+   vimp(variable) = cstat_oobag[oobag_eval_counter] - oobag_c_harrell();
+
+  }
+
+
+
+ }
+
 
  return(
   List::create(
    _["forest"] = forest,
    _["surv_oobag"] = surv_oobag,
    _["time_oobag"] = time_oobag,
-   _["eval_oobag"] = List::create(_["c_harrell"] = cstat_oobag)
+   _["eval_oobag"] = List::create(_["c_harrell"] = cstat_oobag),
+   _["importance"] = vimp
   )
  );
 

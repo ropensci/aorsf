@@ -21,8 +21,8 @@ ostree_pred_leaf_testthat <- function(tree, x_oobag_) {
     .Call(`_aorsf_ostree_pred_leaf_testthat`, tree, x_oobag_)
 }
 
-orsf_fit <- function(x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, cph_do_scale_, oobag_pred_, oobag_time_, oobag_eval_every_) {
-    .Call(`_aorsf_orsf_fit`, x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, cph_do_scale_, oobag_pred_, oobag_time_, oobag_eval_every_)
+orsf_fit <- function(x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, cph_do_scale_, oobag_pred_, oobag_time_, oobag_eval_every_, oobag_importance_ = TRUE) {
+    .Call(`_aorsf_orsf_fit`, x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, cph_do_scale_, oobag_pred_, oobag_time_, oobag_eval_every_, oobag_importance_)
 }
 
 orsf_pred_uni <- function(forest, x_new, time_dbl, return_risk = TRUE) {
