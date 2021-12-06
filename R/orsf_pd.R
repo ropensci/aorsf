@@ -92,8 +92,8 @@ orsf_pd_ice <- function(object,
           times = times,
           type_output = 'ice',
           type_input = if(expand_grid) 'grid' else 'loop',
-          prob_values = prob_values,
-          prob_labels = prob_labels,
+          prob_values = c(0.025, 0.50, 0.975),
+          prob_labels = c('lwr', 'est', 'upr'),
           oobag = oobag,
           risk = risk)
 
@@ -131,14 +131,6 @@ orsf_pd_ <- function(object,
  check_call(
   Call,
   expected = list(
-   'prob_values' = list(
-    type = 'numeric',
-    lwr = 0,
-    upr = 1
-   ),
-   'prob_labels' = list(
-    type = 'character'
-   ),
    'oobag' = list(
     type = 'logical',
     length = 1
@@ -165,6 +157,59 @@ orsf_pd_ <- function(object,
   stop("some variables in pd_spec are not in object's training data: ",
        paste_collapse(bad_names, last = ' and '),
        call. = FALSE)
+
+ }
+
+ numeric_bounds <- get_numeric_bounds(object)
+ numeric_names <- intersect(colnames(numeric_bounds), names(pd_spec))
+
+ if(!is_empty(numeric_names)){
+
+  for(.name in numeric_names){
+
+   vals_above_stop <- which(pd_spec[[.name]] > numeric_bounds['90%', .name])
+   vals_below_stop <- which(pd_spec[[.name]] < numeric_bounds['10%', .name])
+
+   boundary_error <- FALSE
+   vals_above_list <- vals_below_list <- " "
+
+   if(!is_empty(vals_above_stop)){
+    vals_above_list <- paste_collapse(
+     table.glue::table_value(pd_spec[[.name]][vals_above_stop]),
+     last = ' and '
+    )
+
+    boundary_error <- TRUE
+    vals_above_list <-
+     paste0(" (",vals_above_list," > ", numeric_bounds['90%', .name],") ")
+
+   }
+
+   if(!is_empty(vals_below_stop)){
+
+    vals_below_list <- paste_collapse(
+     table.glue::table_value(pd_spec[[.name]][vals_below_stop]),
+     last = ' and '
+    )
+
+    boundary_error <- TRUE
+
+    vals_below_list <-
+       paste0(" (",vals_below_list," < ", numeric_bounds['10%', .name],") ")
+
+   }
+
+   if(boundary_error)
+    stop("Some values for ",
+         .name,
+         " in pd_spec are above",
+         vals_above_list,
+         "or below",
+         vals_below_list,
+         "90th or 10th percentiles in training data",
+         call. = FALSE)
+
+  }
 
  }
 

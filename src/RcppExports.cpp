@@ -11,18 +11,6 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// quantile_arma
-arma::vec quantile_arma(const arma::vec& x, const arma::vec& probs);
-RcppExport SEXP _aorsf_quantile_arma(SEXP xSEXP, SEXP probsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::vec& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type probs(probsSEXP);
-    rcpp_result_gen = Rcpp::wrap(quantile_arma(x, probs));
-    return rcpp_result_gen;
-END_RCPP
-}
 // leaf_kaplan_testthat
 arma::mat leaf_kaplan_testthat(const arma::mat& y, const arma::vec& w);
 RcppExport SEXP _aorsf_leaf_kaplan_testthat(SEXP ySEXP, SEXP wSEXP) {
@@ -215,7 +203,6 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_aorsf_quantile_arma", (DL_FUNC) &_aorsf_quantile_arma, 2},
     {"_aorsf_leaf_kaplan_testthat", (DL_FUNC) &_aorsf_leaf_kaplan_testthat, 2},
     {"_aorsf_cholesky_testthat", (DL_FUNC) &_aorsf_cholesky_testthat, 2},
     {"_aorsf_newtraph_cph_testthat", (DL_FUNC) &_aorsf_newtraph_cph_testthat, 7},

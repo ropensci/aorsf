@@ -350,6 +350,16 @@ orsf <- function(data_train,
 
  orsf_out$data_train <- if(attach_data) data_train else NULL
 
+ names_x_numeric <- grep(pattern = "^integer$|^numeric$",
+                         x = types_x_data)
+
+ numeric_bounds <- NULL
+
+ if(!is_empty(names_x_numeric)){
+  numeric_bounds <- sapply(data_train[, names_x_data[names_x_numeric] ],
+                           quantile, probs = c(0.10, 0.20, 0.80, 0.90))
+ }
+
  if(oobag_pred){
 
   # put the oob predictions into the same order as the training data.
@@ -377,6 +387,7 @@ orsf <- function(data_train,
  attr(orsf_out, 'n_split')         <- n_split
  attr(orsf_out, 'leaf_min_events') <- leaf_min_events
  attr(orsf_out, 'leaf_min_obs')    <- leaf_min_obs
+ attr(orsf_out, 'numeric_bounds')  <- numeric_bounds
 
  orsf_out
 
