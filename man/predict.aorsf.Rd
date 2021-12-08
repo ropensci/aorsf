@@ -34,6 +34,14 @@ Prediction with oblique RSF
 }
 \examples{
 
-# (will add example)
+train <- seq(1, nrow(pbc_orsf), by = 2)
+test <- seq(2, nrow(pbc_orsf), by = 2)
+
+fit <- orsf(pbc_orsf[train, ], Surv(time, status) ~ . - id)
+
+predict(fit,
+        new_data = pbc_orsf[test, ],
+        times = c(500, 1500, 2500))
+
 
 }

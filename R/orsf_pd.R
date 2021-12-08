@@ -3,24 +3,67 @@
 
 #' Title
 #'
-#' @param object
-#' @param pd_data
-#' @param pd_spec
-#' @param times
-#' @param probs
-#' @param risk
+#' @inheritParams predict.aorsf
 #'
-#' @return
+#' @param object (_aorsf_) An accelerated oblique random survival forest model.
+#'
+#' @param pd_data (_data frame_) that will be used to compute partial
+#'   dependence. If `NULL`, then the training data of `object` will be
+#'   used. If the training data were not attached to `object`
+#'   (see `attach_data` input in [orsf]), an error will be triggered.
+#'
+#' @param pd_spec (_named list_). Each item in the list should be a vector
+#'   of values that will be used as points in the partial dependence function.
+#'   The name of each item in the list should indicate which variable will be
+#'   modified to take the corresponding values.
+#'
+#' @param expand_grid (_logical_) if `TRUE`, partial dependence will be
+#'   computed at all possible combinations of inputs in `pd_spec`. If
+#'   `FALSE`, partial dependence will be computed for each variable
+#'   in `pd_spec`, separately.
+#'
+#' @param prob_values (_numeric_) a vector of values between 0 and 1,
+#'   indicating what quantiles will be used to summarize the partial
+#'   dependence values at each set of inputs.
+#'
+#' @param prob_labels (_character_) a vector of labels with the same length
+#'   as `prob_values`, with each label indicating what the corresponding
+#'   value in `prob_values` should be labelled as in summarized outputs.
+#'
+#' @param oobag (_logical_) if `TRUE`, then partial dependence will be
+#'   computed using the out of bag training data. You should set
+#'   `oobag = TRUE` if you are computing partial dependence using the
+#'   training data for `object`.
+#'
+#' @return a `data.frame` containing summarized or observation
+#'   level partial dependence values.
+#'
 #' @export
 #'
 #' @examples
+#'
+#' fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+#'
+#' orsf_pd_summary(fit, pd_spec = list(bili = c(1,2,3)), times = 1000)
+#'
+#' pd_spec <- list(bili = seq(1, 6, length.out = 20))
+#' data_ice <- orsf_pd_ice(fit, pd_spec = pd_spec, times = 1000)
+#'
+#' library(ggplot2)
+#' ggplot(data_ice) +
+#'  aes(x = bili, y = pred, group = key) +
+#'  geom_line(alpha = 0.4, color = 'grey') +
+#'  geom_smooth(aes(group = 1), color = 'black', se = FALSE) +
+#'  theme_bw() +
+#'  theme(panel.grid = element_blank())
+
 orsf_pd_summary <- function(object,
                             pd_data = NULL,
                             pd_spec,
                             times,
                             expand_grid = TRUE,
                             prob_values = c(0.025, 0.50, 0.975),
-                            prob_labels = c('lwr', 'est', 'upr'),
+                            prob_labels = c('lwr', 'median', 'upr'),
                             oobag = TRUE,
                             risk = TRUE){
 
@@ -93,7 +136,7 @@ orsf_pd_ice <- function(object,
           type_output = 'ice',
           type_input = if(expand_grid) 'grid' else 'loop',
           prob_values = c(0.025, 0.50, 0.975),
-          prob_labels = c('lwr', 'est', 'upr'),
+          prob_labels = c('lwr', 'median', 'upr'),
           oobag = oobag,
           risk = risk)
 
@@ -286,7 +329,7 @@ pd_grid <- function(object,
   colnames(pd_vals) <- c('key', 'pred')
   pd_spec$key <- seq(nrow(pd_spec))
   output <- merge(pd_spec, pd_vals, by = 'key')
-  output$key <- NULL
+  output$key <- rep(seq(nrow(x_new)), times = nrow(pd_spec))
 
  }
 
@@ -348,7 +391,7 @@ pd_loop <- function(object,
    colnames(pd_vals) <- c('key', 'pred')
    pd_bind$key <- seq(nrow(pd_bind))
    output[[i]] <- merge(pd_bind, pd_vals, by = 'key')
-   output[[i]]$key <- NULL
+   output[[i]]$key <- seq(nrow(output[[i]]))
 
   }
 

@@ -27,9 +27,25 @@
 #'
 #' @examples
 #'
-#' # (will add example)
+#' train <- seq(1, nrow(pbc_orsf), by = 2)
+#' test <- seq(2, nrow(pbc_orsf), by = 2)
+#'
+#' fit <- orsf(pbc_orsf[train, ], Surv(time, status) ~ . - id)
+#'
+#' preds <- predict(fit,
+#'                  new_data = pbc_orsf[test, ],
+#'                  times = c(500, 1500, 2500))
+#'
+#' head(preds)
+#'
 #'
 predict.aorsf <- function(object, new_data, times, risk = TRUE, ...){
+
+ if(missing(new_data))
+  stop("argument 'new_data' is missing, with no default")
+
+ if(missing(times))
+  stop("argument 'times' is missing, with no default")
 
  check_predict(object, new_data, times, risk)
 

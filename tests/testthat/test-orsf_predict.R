@@ -13,6 +13,16 @@ aorsf = orsf(formula = time + status  ~ . - id,
 new_data <- pbc_orsf[-train, ]
 
 p1 <- predict(aorsf, new_data = new_data, times = 1000)
+p2 <- predict(aorsf, new_data = new_data, times = 2000)
+
+p_multi <- predict(aorsf, new_data = new_data, times = c(1000, 2000))
+
+test_that(
+ desc = 'multi-time preds are same as uni-time',
+ code = {
+  expect_equal(cbind(p1, p2), p_multi)
+ }
+)
 
 test_that(
  desc = 'predictions are bounded',

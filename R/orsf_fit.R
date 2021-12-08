@@ -10,7 +10,7 @@
 #'   growing new nodes in survival decision trees. For more details on
 #'   the oblique RSF, see Jaeger et al, 2019.
 #'
-#' @param data (_data.frame_) that will be used to grow the forest.
+#' @param data_train (_data.frame_) that will be used to grow the forest.
 #'
 #' @param formula (_formula_) a formula object, with the response on the left
 #'   of a `~` operator, and the terms on the right. See details.
@@ -60,10 +60,24 @@
 #' @param oobag_pred (_logical_) if `TRUE` out-of-bag predictions are returned
 #'   in the `aorsf` object.
 #'
+#' @param oobag_time (_numeric_) A numeric value indicating what time
+#'   should be used for out-of-bag predictions.
+#'
 #' @param oobag_eval_every (_integer_) The out-of-bag performance of the
 #'   ensemble will be checked every `oobag_eval_every` trees. So, if
 #'   `oobag_eval_every = 10`, then out-of-bag performance is checked
 #'   after growing the 10th tree, the 20th tree, and so on.
+#'
+#' @param importance (_logical_) if `TRUE`, variable importance will be
+#'   computed using _negation_ importance. With negation importance,
+#'   all coefficients for a given variable are multiplied by -1 and
+#'   then the out-of-bag error for the forest is re-computed. The greater
+#'   the degradation of the forest's error, the more important the variable.
+#'
+#' @param attach_data (_logical_) if `TRUE`, a copy of the training
+#'   data will be attached to the output. This is helpful if you
+#'   plan on using functions like [orsf_pd_summary] to interpret the fitted
+#'   forest using its training data.
 #'
 #' @return an accelerated oblique RSF object (`aorsf`)
 #'
@@ -128,7 +142,7 @@
 #'
 #' @examples
 #'
-#' fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 10)
+#' fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 #'
 #'
 orsf <- function(data_train,
@@ -365,7 +379,7 @@ orsf <- function(data_train,
 
  if(!is_empty(names_x_numeric)){
   numeric_bounds <- sapply(data_train[, names_x_data[names_x_numeric] ],
-                           quantile, probs = c(0.10, 0.20, 0.80, 0.90))
+                           stats::quantile, probs = c(0.10, 0.20, 0.80, 0.90))
  }
 
  if(oobag_pred){

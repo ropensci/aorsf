@@ -45,7 +45,7 @@ for( tr in seq(10) ){
  test_that(
   desc = 'check pred_leaf with R script',
   code = {
-   expect_equal(as.numeric(ostree_pred_leaf_testthat(tree = tree, x_oobag_ = x)),
+   expect_equal(as.numeric(ostree_pred_leaf_testthat(tree = tree, x_pred_ = x)),
                 as.numeric(leaf_assigned))
   }
  )

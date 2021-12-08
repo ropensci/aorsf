@@ -23,6 +23,8 @@ double
  denom_events,
  denom,
  cph_eps,
+ // the n_ variables could be integers but it
+ // is safer and faster when they are doubles
  n_events,
  n_events_total,
  n_events_right,
@@ -38,7 +40,7 @@ double
  stat_current,
  stat_best,
  w_node_person,
- x_beta,
+ xb,
  risk,
  loglik,
  cutpoint,
@@ -81,10 +83,6 @@ uword
  leaf_node_index_counter,
  oobag_eval_counter;
 
-String
- node_name,
- person_leaf_name;
-
 bool
  break_loop, // a delayed break statement
  oobag_pred,
@@ -98,8 +96,8 @@ vec
  cstat_oobag,
  node_assignments,
  nodes_grown,
- surv_oobag,
- denom_oobag,
+ surv_pred,
+ denom_pred,
  beta_current,
  beta_new,
  beta_cph,
@@ -131,12 +129,11 @@ uvec
  nodes_to_grow_next,
  obs_in_node,
  children_left,
- leaf_preds;
+ leaf_pred;
 
 // armadillo iterators for unsigned integer vectors
 uvec::iterator
  iit,
- iit_last,
  iit_best,
  jit,
  node;
@@ -148,16 +145,14 @@ mat
  y_input,
  x_inbag,
  y_inbag,
- x_oobag,
  x_node,
  y_node,
- node_sums,
- leaf,
- leaf_surv,
+ x_pred,
  vmat,
  cmat,
  cmat2,
  betas,
+ leaf_node,
  leaf_nodes,
  surv_preds;
 
@@ -576,18 +571,18 @@ double newtraph_cph_iter(const arma::vec& beta){
 
    n_risk++;
 
-   x_beta = XB.at(person);
+   xb = XB.at(person);
    risk = Risk.at(person);
 
-   // x_beta = 0;
+   // xb = 0;
    //
    // for(i = 0; i < n_vars; i++){
-   //   x_beta += beta.at(i) * x_node.at(person, i);
+   //   xb += beta.at(i) * x_node.at(person, i);
    // }
 
    w_node_person = w_node.at(person);
 
-   // risk = exp(x_beta) * w_node_person;
+   // risk = exp(xb) * w_node_person;
 
    if (y_node.at(person, 1) == 0) {
 
@@ -613,7 +608,7 @@ double newtraph_cph_iter(const arma::vec& beta){
 
     weight_events += w_node_person;
     denom_events += risk;
-    loglik += w_node_person * x_beta;
+    loglik += w_node_person * xb;
 
     for (i=0; i<n_vars; i++) {
 
@@ -723,7 +718,7 @@ double newtraph_cph_init(){
 
  break_loop = false;
 
- // x_beta = 0.0;
+ // xb = 0.0;
 
  for( ; ; ){
 
@@ -762,7 +757,7 @@ double newtraph_cph_init(){
     n_events++;
 
     denom_events += risk;
-    // loglik += risk * x_beta;
+    // loglik += risk * xb;
 
     for (i=0; i<n_vars; i++) {
 
@@ -1069,21 +1064,21 @@ double lrt_multi(){
 
  for(iit = iit_vals.begin(); iit < iit_vals.end()-1; ++iit){
 
-  n_events += y_status(*iit) * w_node(*iit);
-  n_risk += w_node(*iit);
+  n_events += y_status[*iit] * w_node[*iit];
+  n_risk += w_node[*iit];
 
   // If we want to make the current value of XB a cut-point, we need
   // to make sure the next value of XB isn't equal to this current value.
   // Otherwise, we will have the same value of XB in both groups!
 
   if(verbose > 1){
-   Rcout << XB(*iit)     << " ---- ";
-   Rcout << XB(*(iit+1)) << " ---- ";
+   Rcout << XB[*iit]     << " ---- ";
+   Rcout << XB[*(iit+1)] << " ---- ";
    Rcout << n_events     << " ---- ";
    Rcout << n_risk       << std::endl;
   }
 
-  if(XB(*iit) != XB(*(iit+1))){
+  if(XB[*iit] != XB[*(iit+1)]){
 
    if(verbose > 1){
     Rcout << "********* New cut-point here ********" << std::endl;
@@ -1095,7 +1090,7 @@ double lrt_multi(){
 
     if(verbose > 1){
      Rcout << std::endl;
-     Rcout << "lower cutpoint: "         << XB(*iit) << std::endl;
+     Rcout << "lower cutpoint: "         << XB[*iit] << std::endl;
      Rcout << " - n_events, left node: " << n_events << std::endl;
      Rcout << " - n_risk, left node:   " << n_risk   << std::endl;
      Rcout << std::endl;
@@ -1127,18 +1122,18 @@ double lrt_multi(){
 
  for(iit = iit_vals.end()-1; iit >= iit_vals.begin()+1; --iit){
 
-  n_events += y_status(*iit) * w_node(*iit);
-  n_risk   += w_node(*iit);
-  group(*iit) = 1;
+  n_events += y_status[*iit] * w_node[*iit];
+  n_risk   += w_node[*iit];
+  group[*iit] = 1;
 
   if(verbose > 1){
-   Rcout << XB(*iit)     << " ---- ";
+   Rcout << XB[*iit]     << " ---- ";
    Rcout << XB(*(iit-1)) << " ---- ";
    Rcout << n_events     << " ---- ";
    Rcout << n_risk       << std::endl;
   }
 
-  if(XB(*iit) != XB(*(iit-1))){
+  if ( XB[*iit] != XB[*(iit-1)] ) {
 
    if(verbose > 1){
     Rcout << "********* New cut-point here ********" << std::endl;
@@ -1159,7 +1154,7 @@ double lrt_multi(){
 
     if(verbose > 1){
      Rcout << std::endl;
-     Rcout << "upper cutpoint: " << XB(*iit) << std::endl;
+     Rcout << "upper cutpoint: " << XB[*iit] << std::endl;
      Rcout << " - n_events, right node: " << n_events    << std::endl;
      Rcout << " - n_risk, right node:   " << n_risk      << std::endl;
     }
@@ -1237,7 +1232,7 @@ double lrt_multi(){
 
  // put the indices of potential cut-points into vec_temp
  for(k = 0; k < vec_temp.size(); k++){
-  vec_temp(k) = XB(*(iit_best - jit_vals(k)));
+  vec_temp[k] = XB(*(iit_best - jit_vals[k]));
  }
 
  // back to how it was!
@@ -1269,7 +1264,7 @@ double lrt_multi(){
 
   // switch group values from 0 to 1 until you get to the next cut-point
   for( ; j < *jit; j++){
-   group(*iit) = 1;
+   group[*iit] = 1;
    --iit;
   }
 
@@ -1296,7 +1291,7 @@ double lrt_multi(){
 
      if(verbose > 1){
       Rcout << "cutpoint dropped down one spot: ";
-      Rcout << XB(*iit) << std::endl;
+      Rcout << XB[*iit] << std::endl;
      }
 
     }
@@ -1379,7 +1374,7 @@ double lrt_multi(){
    if(verbose > 1){
 
     Rcout << "-------- log-rank test results --------" << std::endl;
-    Rcout << "cutpoint: " << XB(*iit)                  << std::endl;
+    Rcout << "cutpoint: " << XB[*iit]                  << std::endl;
     Rcout << "lrt stat: " << stat_current              << std::endl;
     Rcout << "---------------------------------------" << std::endl <<
      std::endl << std::endl;
@@ -1415,11 +1410,11 @@ double lrt_multi(){
 
 
  while(iit <= iit_best){
-  group(*iit) = 0;
+  group[*iit] = 0;
   ++iit;
  }
 
- return(XB(*iit_best));
+ return(XB[*iit_best]);
 
 }
 
@@ -1852,12 +1847,12 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
 
 void oobag_pred_surv_uni(){
 
- iit_vals = sort_index(leaf_preds, "ascend");
+ iit_vals = sort_index(leaf_pred, "ascend");
  iit = iit_vals.begin();
 
  do {
 
-  person_leaf = leaf_preds(*iit);
+  person_leaf = leaf_pred[*iit];
 
   // find the first leaf in the surv mat equal to this leaf
   for(i = 0; i < leaf_indices.n_rows; i++){
@@ -1867,26 +1862,26 @@ void oobag_pred_surv_uni(){
   }
 
   // get submat view for this leaf
-  leaf_surv = leaf_nodes.rows(leaf_indices(i, 1),
+  leaf_node = leaf_nodes.rows(leaf_indices(i, 1),
                               leaf_indices(i, 2));
 
   if(verbose > 1){
-   Rcout << "leaf_surv:" << std::endl << leaf_surv << std::endl;
+   Rcout << "leaf_node:" << std::endl << leaf_node << std::endl;
   }
 
   i = 0;
 
-  if(time_oobag < leaf_surv(leaf_surv.n_rows - 1, 0)){
+  if(time_oobag < leaf_node.at(leaf_node.n_rows - 1, 0)){
 
-   for(; i < leaf_surv.n_rows; i++){
-    if (leaf_surv(i, 0) > time_oobag){
+   for(; i < leaf_node.n_rows; i++){
+    if (leaf_node.at(i, 0) > time_oobag){
      if(i == 0)
       temp1 = 1;
      else
-      temp1 = leaf_surv(i-1, 1);
+      temp1 = leaf_node.at(i-1, 1);
      break;
-    } else if (leaf_surv(i, 0) == time_oobag){
-     temp1 = leaf_surv(i, 1);
+    } else if (leaf_node.at(i, 0) == time_oobag){
+     temp1 = leaf_node.at(i, 1);
      break;
     }
    }
@@ -1894,23 +1889,23 @@ void oobag_pred_surv_uni(){
   } else {
 
    // go here if prediction horizon > max time in current leaf.
-   temp1 = leaf_surv(leaf_surv.n_rows - 1, 1);
+   temp1 = leaf_node.at(leaf_node.n_rows - 1, 1);
 
   }
 
   // running mean: mean_k = mean_{k-1} + (new val - old val) / k
   // compute new val - old val
   // be careful, every oob row has a different denom!
-  temp2 = temp1 - surv_oobag(rows_oobag(*iit));
-  surv_oobag(rows_oobag(*iit)) += temp2 / denom_oobag(rows_oobag(*iit));
+  temp2 = temp1 - surv_pred[rows_oobag[*iit]];
+  surv_pred[rows_oobag[*iit]] += temp2 / denom_pred[rows_oobag[*iit]];
   ++iit;
 
   if(iit < iit_vals.end()){
 
-   while(person_leaf == leaf_preds(*iit)){
+   while(person_leaf == leaf_pred(*iit)){
 
-    temp2 = temp1 - surv_oobag(rows_oobag(*iit));
-    surv_oobag(rows_oobag(*iit)) += temp2 / denom_oobag(rows_oobag(*iit));
+    temp2 = temp1 - surv_pred[rows_oobag[*iit]];
+    surv_pred[rows_oobag[*iit]] += temp2 / denom_pred[rows_oobag[*iit]];
 
     ++iit;
 
@@ -1923,7 +1918,7 @@ void oobag_pred_surv_uni(){
  } while (iit < iit_vals.end());
 
  if(verbose > 0){
-  Rcout << "surv_oobag:" << std::endl << surv_oobag.t() << std::endl;
+  Rcout << "surv_pred:" << std::endl << surv_pred.t() << std::endl;
  }
 
 }
@@ -1946,13 +1941,13 @@ double oobag_c_harrell(){
 
     total++;
 
-    // since surv_oobag is survival prob (not risk),
+    // since surv_pred is survival prob (not risk),
     // flip the less than to a greater than.
-    if (surv_oobag[j] > surv_oobag[*iit]){
+    if (surv_pred[j] > surv_pred[*iit]){
 
      concordant++;
 
-    } else if (surv_oobag[j] == surv_oobag[*iit]){
+    } else if (surv_pred[j] == surv_pred[*iit]){
 
      concordant+= 0.5;
 
@@ -1971,15 +1966,15 @@ double oobag_c_harrell(){
 void new_pred_surv_multi(){
 
  // allocate memory for output
- // surv_oobag.zeros(x_oobag.n_rows);
+ // surv_pred.zeros(x_pred.n_rows);
 
  vec_temp.set_size(times_oobag.size());
- iit_vals = sort_index(leaf_preds, "ascend");
+ iit_vals = sort_index(leaf_pred, "ascend");
  iit = iit_vals.begin();
 
  do {
 
-  person_leaf = leaf_preds(*iit);
+  person_leaf = leaf_pred(*iit);
 
   for(i = 0; i < leaf_indices.n_rows; i++){
    if(leaf_indices.at(i, 0) == person_leaf){
@@ -1987,11 +1982,11 @@ void new_pred_surv_multi(){
    }
   }
 
-  leaf_surv = leaf_nodes.rows(leaf_indices(i, 1),
+  leaf_node = leaf_nodes.rows(leaf_indices(i, 1),
                               leaf_indices(i, 2));
 
   if(verbose > 1){
-   Rcout << "leaf_surv:" << std::endl << leaf_surv << std::endl;
+   Rcout << "leaf_node:" << std::endl << leaf_node << std::endl;
   }
 
   i = 0;
@@ -2000,22 +1995,22 @@ void new_pred_surv_multi(){
 
    time_oobag = times_oobag(j);
 
-   if(time_oobag < leaf_surv(leaf_surv.n_rows - 1, 0)){
+   if(time_oobag < leaf_node(leaf_node.n_rows - 1, 0)){
 
-    for(; i < leaf_surv.n_rows; i++){
+    for(; i < leaf_node.n_rows; i++){
 
-     if (leaf_surv(i, 0) > time_oobag){
+     if (leaf_node(i, 0) > time_oobag){
 
       if(i == 0)
        temp1 = 1;
       else
-       temp1 = leaf_surv(i-1, 1);
+       temp1 = leaf_node(i-1, 1);
 
       break;
 
-     } else if (leaf_surv(i, 0) == time_oobag){
+     } else if (leaf_node(i, 0) == time_oobag){
 
-      temp1 = leaf_surv(i, 1);
+      temp1 = leaf_node(i, 1);
       break;
 
      }
@@ -2025,7 +2020,7 @@ void new_pred_surv_multi(){
    } else {
 
     // go here if prediction horizon > max time in current leaf.
-    temp1 = leaf_surv(leaf_surv.n_rows - 1, 1);
+    temp1 = leaf_node(leaf_node.n_rows - 1, 1);
 
    }
 
@@ -2040,7 +2035,7 @@ void new_pred_surv_multi(){
 
   if(iit < iit_vals.end()){
 
-   while(person_leaf == leaf_preds(*iit)){
+   while(person_leaf == leaf_pred(*iit)){
 
     surv_preds.row(*iit) += vec_temp.t();
     ++iit;
@@ -2057,12 +2052,12 @@ void new_pred_surv_multi(){
 
 void new_pred_surv_uni(){
 
- iit_vals = sort_index(leaf_preds, "ascend");
+ iit_vals = sort_index(leaf_pred, "ascend");
  iit = iit_vals.begin();
 
  do {
 
-  person_leaf = leaf_preds(*iit);
+  person_leaf = leaf_pred(*iit);
 
   for(i = 0; i < leaf_indices.n_rows; i++){
    if(leaf_indices.at(i, 0) == person_leaf){
@@ -2070,38 +2065,38 @@ void new_pred_surv_uni(){
    }
   }
 
-  leaf_surv = leaf_nodes.rows(leaf_indices(i, 1),
+  leaf_node = leaf_nodes.rows(leaf_indices(i, 1),
                               leaf_indices(i, 2));
 
   if(verbose > 1){
-   Rcout << "leaf_surv:" << std::endl << leaf_surv << std::endl;
+   Rcout << "leaf_node:" << std::endl << leaf_node << std::endl;
   }
 
   i = 0;
 
-  if(time_oobag < leaf_surv(leaf_surv.n_rows - 1, 0)){
+  if(time_oobag < leaf_node(leaf_node.n_rows - 1, 0)){
 
-   for(; i < leaf_surv.n_rows; i++){
-    if (leaf_surv(i, 0) > time_oobag){
+   for(; i < leaf_node.n_rows; i++){
+    if (leaf_node(i, 0) > time_oobag){
      if(i == 0)
       temp1 = 1;
      else
-      temp1 = leaf_surv(i-1, 1);
+      temp1 = leaf_node(i-1, 1);
      break;
-    } else if (leaf_surv(i, 0) == time_oobag){
-     temp1 = leaf_surv(i, 1);
+    } else if (leaf_node(i, 0) == time_oobag){
+     temp1 = leaf_node(i, 1);
      break;
     }
    }
 
-  } else if (time_oobag == leaf_surv(leaf_surv.n_rows - 1, 0)){
+  } else if (time_oobag == leaf_node(leaf_node.n_rows - 1, 0)){
 
-   temp1 = leaf_surv(leaf_surv.n_rows - 1, 1);
+   temp1 = leaf_node(leaf_node.n_rows - 1, 1);
 
   } else {
 
    // go here if prediction horizon > max time in current leaf.
-   temp1 = leaf_surv(leaf_surv.n_rows - 1, 1);
+   temp1 = leaf_node(leaf_node.n_rows - 1, 1);
 
    // --- EXPERIMENTAL ADD-ON --- //
    // if you are predicting beyond the max time in a node,
@@ -2109,7 +2104,7 @@ void new_pred_surv_uni(){
    // the survival probability decays at the same rate.
 
    // temp2 = (1.0 - temp1) *
-   //  (time_oobag - leaf_surv(leaf_surv.n_rows - 1, 0)) / time_oobag;
+   //  (time_oobag - leaf_node(leaf_node.n_rows - 1, 0)) / time_oobag;
    //
    // temp1 = temp1 * (1.0-temp2);
 
@@ -2120,7 +2115,7 @@ void new_pred_surv_uni(){
 
   if(iit < iit_vals.end()){
 
-   while(person_leaf == leaf_preds(*iit)){
+   while(person_leaf == leaf_pred(*iit)){
 
     vec_temp(*iit) += temp1;
     ++iit;
@@ -2212,16 +2207,16 @@ void ostree_mem_xfer(){
 void ostree_pred_leaf(){
 
  // reset values
- leaf_preds.fill(0);
+ leaf_pred.fill(0);
 
  for(i = 0; i < betas.n_cols; i++){
 
   if(children_left[i] != 0){
 
    if(i == 0){
-    obs_in_node = regspace<uvec>(0, 1, leaf_preds.size()-1);
+    obs_in_node = regspace<uvec>(0, 1, leaf_pred.size()-1);
    } else {
-    obs_in_node = find(leaf_preds == i);
+    obs_in_node = find(leaf_pred == i);
    }
 
 
@@ -2241,14 +2236,14 @@ void ostree_pred_leaf(){
 
     for(; jit < col_indices_i.end(); ++jit, ++j){
 
-     vec x_j = x_oobag.unsafe_col(*jit);
+     vec x_j = x_pred.unsafe_col(*jit);
 
      XB += x_j(obs_in_node) * betas.at(j, i);
 
     }
 
     // this is slower but more clear matrix multiplication
-    // XB = x_oobag(obs_in_node, col_indices.col(i)) * betas.col(i);
+    // XB = x_pred(obs_in_node, col_indices.col(i)) * betas.col(i);
 
     jit = obs_in_node.begin();
 
@@ -2256,11 +2251,11 @@ void ostree_pred_leaf(){
 
      if(XB[j] <= cutpoints[i]) {
 
-      leaf_preds[*jit] = children_left[i];
+      leaf_pred[*jit] = children_left[i];
 
      } else {
 
-      leaf_preds[*jit] = children_left[i]+1;
+      leaf_pred[*jit] = children_left[i]+1;
 
      }
 
@@ -2268,8 +2263,8 @@ void ostree_pred_leaf(){
 
     if(verbose > 0){
 
-     uvec in_left = find(leaf_preds == children_left(i));
-     uvec in_right = find(leaf_preds == children_left(i)+1);
+     uvec in_left = find(leaf_pred == children_left(i));
+     uvec in_right = find(leaf_pred == children_left(i)+1);
 
      Rcout << "N to node_" << children_left(i) << ": ";
      Rcout << in_left.size() << "; ";
@@ -2290,21 +2285,21 @@ void ostree_pred_leaf(){
 
 // [[Rcpp::export]]
 arma::uvec ostree_pred_leaf_testthat(List& tree,
-                                     NumericMatrix& x_oobag_){
+                                     NumericMatrix& x_pred_){
 
 
- x_oobag = mat(x_oobag_.begin(),
-               x_oobag_.nrow(),
-               x_oobag_.ncol(),
+ x_pred = mat(x_pred_.begin(),
+               x_pred_.nrow(),
+               x_pred_.ncol(),
                false);
 
- leaf_preds.set_size(x_oobag.n_rows);
+ leaf_pred.set_size(x_pred.n_rows);
 
  ostree = tree;
  ostree_mem_xfer();
  ostree_pred_leaf();
 
- return(leaf_preds);
+ return(leaf_pred);
 
 }
 
@@ -2717,6 +2712,8 @@ List orsf_fit(NumericMatrix& x,
   time_oobag = oobag_time_;
   if(time_oobag == 0) time_oobag = median(y_input.col(0));
   cstat_oobag.set_size(std::floor(n_tree / oobag_eval_every));
+ } else {
+  cstat_oobag.set_size(0);
  }
 
  if(verbose > 0){
@@ -2755,13 +2752,13 @@ List orsf_fit(NumericMatrix& x,
 
  if(oobag_pred){
 
-  surv_oobag.zeros(n_rows);
-  denom_oobag.zeros(n_rows);
+  surv_pred.zeros(n_rows);
+  denom_pred.zeros(n_rows);
 
  } else {
 
-  surv_oobag.set_size(0);
-  denom_oobag.set_size(0);
+  surv_pred.set_size(0);
+  denom_pred.set_size(0);
 
  }
 
@@ -2804,8 +2801,8 @@ List orsf_fit(NumericMatrix& x,
   y_inbag = y_input.rows(rows_inbag);
 
   if(oobag_pred){
-   x_oobag = x_input.rows(rows_oobag);
-   leaf_preds.set_size(rows_oobag.size());
+   x_pred = x_input.rows(rows_oobag);
+   leaf_pred.set_size(rows_oobag.size());
   }
 
   if(verbose > 0){
@@ -2837,7 +2834,7 @@ List orsf_fit(NumericMatrix& x,
 
   if(oobag_pred){
 
-   denom_oobag(rows_oobag) += 1;
+   denom_pred(rows_oobag) += 1;
    ostree_pred_leaf();
    oobag_pred_surv_uni();
 
@@ -2864,8 +2861,8 @@ List orsf_fit(NumericMatrix& x,
 
   for(uword variable = 0; variable < x_input.n_cols; ++variable){
 
-   surv_oobag.fill(0);
-   denom_oobag.fill(0);
+   surv_pred.fill(0);
+   denom_pred.fill(0);
 
    for(tree = 0; tree < n_tree; ++tree){
 
@@ -2879,7 +2876,7 @@ List orsf_fit(NumericMatrix& x,
           false)
     );
 
-    x_oobag = x_input.rows(rows_oobag);
+    x_pred = x_input.rows(rows_oobag);
 
     ostree_mem_xfer();
 
@@ -2887,9 +2884,9 @@ List orsf_fit(NumericMatrix& x,
 
     betas.elem( betas_to_flip ) *= (-1);
 
-    denom_oobag(rows_oobag) += 1;
+    denom_pred(rows_oobag) += 1;
 
-    leaf_preds.set_size(rows_oobag.size());
+    leaf_pred.set_size(rows_oobag.size());
 
     ostree_pred_leaf();
 
@@ -2911,7 +2908,7 @@ List orsf_fit(NumericMatrix& x,
  return(
   List::create(
    _["forest"] = forest,
-   _["surv_oobag"] = surv_oobag,
+   _["surv_oobag"] = surv_pred,
    _["time_oobag"] = time_oobag,
    _["eval_oobag"] = List::create(_["c_harrell"] = cstat_oobag),
    _["importance"] = vimp
@@ -2929,12 +2926,12 @@ arma::mat orsf_pred_uni(List& forest,
                         double time_dbl,
                         bool return_risk = true){
 
- x_oobag = mat(x_new.begin(), x_new.nrow(), x_new.ncol(), false);
+ x_pred = mat(x_new.begin(), x_new.nrow(), x_new.ncol(), false);
  time_oobag = time_dbl;
 
  // memory for outputs
- leaf_preds.set_size(x_oobag.n_rows);
- vec_temp.zeros(x_oobag.n_rows);
+ leaf_pred.set_size(x_pred.n_rows);
+ vec_temp.zeros(x_pred.n_rows);
 
  int tree;
 
@@ -2961,13 +2958,13 @@ arma::mat orsf_pred_multi(List& forest,
                           NumericVector& time_vec,
                           bool return_risk = true){
 
- x_oobag = mat(x_new.begin(), x_new.nrow(), x_new.ncol(), false);
+ x_pred = mat(x_new.begin(), x_new.nrow(), x_new.ncol(), false);
  times_oobag = vec(time_vec.begin(), time_vec.length(), false);
 
  // memory for outputs
- leaf_preds.set_size(x_oobag.n_rows);
+ leaf_pred.set_size(x_pred.n_rows);
 
- surv_preds.zeros(x_oobag.n_rows, times_oobag.size());
+ surv_preds.zeros(x_pred.n_rows, times_oobag.size());
 
  int tree = 0;
 
@@ -2978,12 +2975,10 @@ arma::mat orsf_pred_multi(List& forest,
   new_pred_surv_multi();
  }
 
- temp1 = tree + 1;
-
  if(return_risk){
-  return(1 - (surv_preds / temp1));
- } else{
-  return(surv_preds / temp1);
+  return(1 - (surv_preds / tree) );
+ } else {
+  return(surv_preds / tree);
  }
 
 }
@@ -3004,7 +2999,7 @@ arma::mat pd_new_smry(List&          forest,
 
  time_oobag = time_dbl;
 
- x_oobag = mat(x_new_.begin(), x_new_.nrow(), x_new_.ncol(), false);
+ x_pred = mat(x_new_.begin(), x_new_.nrow(), x_new_.ncol(), false);
 
  mat x_vals = mat(x_vals_.begin(), x_vals_.nrow(), x_vals_.ncol(), false);
 
@@ -3017,8 +3012,8 @@ arma::mat pd_new_smry(List&          forest,
  mat output_quantiles(probs.size(), x_vals.n_rows);
  mat output_means(1, x_vals.n_rows);
 
- leaf_preds.set_size(x_oobag.n_rows);
- vec_temp.set_size(x_oobag.n_rows);
+ leaf_pred.set_size(x_pred.n_rows);
+ vec_temp.set_size(x_pred.n_rows);
 
  for(pd_i = 0; pd_i < x_vals.n_rows; pd_i++){
 
@@ -3028,7 +3023,7 @@ arma::mat pd_new_smry(List&          forest,
 
   for(jit = x_cols.begin(); jit < x_cols.end(); ++jit, ++j){
 
-   x_oobag.col(*jit).fill(x_vals(pd_i, j));
+   x_pred.col(*jit).fill(x_vals(pd_i, j));
 
   }
 
@@ -3083,14 +3078,14 @@ arma::mat pd_oob_smry(List&          forest,
  mat output_means(1, x_vals.n_rows);
 
  x_input = mat(x_new_.begin(), x_new_.nrow(), x_new_.ncol(), false);
- denom_oobag.set_size(x_input.n_rows);
- surv_oobag.set_size(x_input.n_rows);
+ denom_pred.set_size(x_input.n_rows);
+ surv_pred.set_size(x_input.n_rows);
 
  for(pd_i = 0; pd_i < x_vals.n_rows; pd_i++){
 
   j = 0;
-  denom_oobag.fill(0);
-  surv_oobag.fill(0);
+  denom_pred.fill(0);
+  surv_pred.fill(0);
 
   for(jit = x_cols.begin(); jit < x_cols.end(); ++jit, ++j){
 
@@ -3110,9 +3105,9 @@ arma::mat pd_oob_smry(List&          forest,
          false)
    );
 
-   x_oobag = x_input.rows(rows_oobag);
-   leaf_preds.set_size(x_oobag.n_rows);
-   denom_oobag(rows_oobag) += 1;
+   x_pred = x_input.rows(rows_oobag);
+   leaf_pred.set_size(x_pred.n_rows);
+   denom_pred(rows_oobag) += 1;
 
    ostree_mem_xfer();
    ostree_pred_leaf();
@@ -3121,10 +3116,10 @@ arma::mat pd_oob_smry(List&          forest,
 
   }
 
-  if(return_risk){ surv_oobag = 1 - surv_oobag; }
+  if(return_risk){ surv_pred = 1 - surv_pred; }
 
-  output_means.col(pd_i) = mean(surv_oobag);
-  output_quantiles.col(pd_i) = quantile(surv_oobag, probs);
+  output_means.col(pd_i) = mean(surv_pred);
+  output_quantiles.col(pd_i) = quantile(surv_pred, probs);
 
 
  }
@@ -3150,7 +3145,7 @@ arma::mat pd_new_ice(List&          forest,
 
  time_oobag = time_dbl;
 
- x_oobag = mat(x_new_.begin(), x_new_.nrow(), x_new_.ncol(), false);
+ x_pred = mat(x_new_.begin(), x_new_.nrow(), x_new_.ncol(), false);
 
  mat x_vals = mat(x_vals_.begin(), x_vals_.nrow(), x_vals_.ncol(), false);
 
@@ -3160,14 +3155,14 @@ arma::mat pd_new_ice(List&          forest,
 
  vec probs = vec(probs_.begin(), probs_.length(), false);
 
- mat output_ice(x_vals.n_rows * x_oobag.n_rows, 2);
+ mat output_ice(x_vals.n_rows * x_pred.n_rows, 2);
  vec output_ids = output_ice.unsafe_col(0);
  vec output_pds = output_ice.unsafe_col(1);
 
- uvec pd_rows = regspace<uvec>(0, 1, x_oobag.n_rows - 1);
+ uvec pd_rows = regspace<uvec>(0, 1, x_pred.n_rows - 1);
 
- leaf_preds.set_size(x_oobag.n_rows);
- vec_temp.set_size(x_oobag.n_rows);
+ leaf_pred.set_size(x_pred.n_rows);
+ vec_temp.set_size(x_pred.n_rows);
 
  for(pd_i = 0; pd_i < x_vals.n_rows; pd_i++){
 
@@ -3177,7 +3172,7 @@ arma::mat pd_new_ice(List&          forest,
 
   for(jit = x_cols.begin(); jit < x_cols.end(); ++jit, ++j){
 
-   x_oobag.col(*jit).fill(x_vals(pd_i, j));
+   x_pred.col(*jit).fill(x_vals(pd_i, j));
 
   }
 
@@ -3194,7 +3189,7 @@ arma::mat pd_new_ice(List&          forest,
 
   output_ids(pd_rows).fill(pd_i+1);
   output_pds(pd_rows) = vec_temp;
-  pd_rows += x_oobag.n_rows;
+  pd_rows += x_pred.n_rows;
 
 
  }
@@ -3236,14 +3231,14 @@ arma::mat pd_oob_ice(List&          forest,
 
  uvec pd_rows = regspace<uvec>(0, 1, x_input.n_rows - 1);
 
- denom_oobag.set_size(x_input.n_rows);
- surv_oobag.set_size(x_input.n_rows);
+ denom_pred.set_size(x_input.n_rows);
+ surv_pred.set_size(x_input.n_rows);
 
  for(pd_i = 0; pd_i < x_vals.n_rows; pd_i++){
 
   j = 0;
-  denom_oobag.fill(0);
-  surv_oobag.fill(0);
+  denom_pred.fill(0);
+  surv_pred.fill(0);
 
   for(jit = x_cols.begin(); jit < x_cols.end(); ++jit, ++j){
 
@@ -3263,9 +3258,9 @@ arma::mat pd_oob_ice(List&          forest,
          false)
    );
 
-   x_oobag = x_input.rows(rows_oobag);
-   leaf_preds.set_size(x_oobag.n_rows);
-   denom_oobag(rows_oobag) += 1;
+   x_pred = x_input.rows(rows_oobag);
+   leaf_pred.set_size(x_pred.n_rows);
+   denom_pred(rows_oobag) += 1;
 
    ostree_mem_xfer();
    ostree_pred_leaf();
@@ -3274,10 +3269,10 @@ arma::mat pd_oob_ice(List&          forest,
 
   }
 
-  if(return_risk){ surv_oobag = 1 - surv_oobag; }
+  if(return_risk){ surv_pred = 1 - surv_pred; }
 
   output_ids(pd_rows).fill(pd_i+1);
-  output_pds(pd_rows) = surv_oobag;
+  output_pds(pd_rows) = surv_pred;
   pd_rows += x_input.n_rows;
 
 

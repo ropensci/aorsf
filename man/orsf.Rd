@@ -5,7 +5,7 @@
 \title{Oblique Random Survival Forest (ORSF)}
 \usage{
 orsf(
-  data,
+  data_train,
   formula,
   n_tree = 500,
   n_split = 5,
@@ -18,11 +18,14 @@ orsf(
   cph_pval_max = 1,
   cph_do_scale = TRUE,
   oobag_pred = FALSE,
-  oobag_eval_every = n_tree
+  oobag_time = NULL,
+  oobag_eval_every = n_tree,
+  importance = FALSE,
+  attach_data = TRUE
 )
 }
 \arguments{
-\item{data}{(\emph{data.frame}) that will be used to grow the forest.}
+\item{data_train}{(\emph{data.frame}) that will be used to grow the forest.}
 
 \item{formula}{(\emph{formula}) a formula object, with the response on the left
 of a \code{~} operator, and the terms on the right. See details.}
@@ -72,10 +75,24 @@ if you also set \code{cph_iter_max} to 1.}
 \item{oobag_pred}{(\emph{logical}) if \code{TRUE} out-of-bag predictions are returned
 in the \code{aorsf} object.}
 
+\item{oobag_time}{(\emph{numeric}) A numeric value indicating what time
+should be used for out-of-bag predictions.}
+
 \item{oobag_eval_every}{(\emph{integer}) The out-of-bag performance of the
 ensemble will be checked every \code{oobag_eval_every} trees. So, if
 \code{oobag_eval_every = 10}, then out-of-bag performance is checked
 after growing the 10th tree, the 20th tree, and so on.}
+
+\item{importance}{(\emph{logical}) if \code{TRUE}, variable importance will be
+computed using \emph{negation} importance. With negation importance,
+all coefficients for a given variable are multiplied by -1 and
+then the out-of-bag error for the forest is re-computed. The greater
+the degradation of the forest's error, the more important the variable.}
+
+\item{attach_data}{(\emph{logical}) if \code{TRUE}, a copy of the training
+data will be attached to the output. This is helpful if you
+plan on using functions like \link{orsf_pd_summary} to interpret the fitted
+forest using its training data.}
 }
 \value{
 an accelerated oblique RSF object (\code{aorsf})
@@ -140,7 +157,7 @@ least 2 events per predictor variable.
 }
 \examples{
 
-fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 10)
+fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 
 
 }

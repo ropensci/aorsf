@@ -69,14 +69,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // ostree_pred_leaf_testthat
-arma::uvec ostree_pred_leaf_testthat(List& tree, NumericMatrix& x_oobag_);
-RcppExport SEXP _aorsf_ostree_pred_leaf_testthat(SEXP treeSEXP, SEXP x_oobag_SEXP) {
+arma::uvec ostree_pred_leaf_testthat(List& tree, NumericMatrix& x_pred_);
+RcppExport SEXP _aorsf_ostree_pred_leaf_testthat(SEXP treeSEXP, SEXP x_pred_SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List& >::type tree(treeSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix& >::type x_oobag_(x_oobag_SEXP);
-    rcpp_result_gen = Rcpp::wrap(ostree_pred_leaf_testthat(tree, x_oobag_));
+    Rcpp::traits::input_parameter< NumericMatrix& >::type x_pred_(x_pred_SEXP);
+    rcpp_result_gen = Rcpp::wrap(ostree_pred_leaf_testthat(tree, x_pred_));
     return rcpp_result_gen;
 END_RCPP
 }
