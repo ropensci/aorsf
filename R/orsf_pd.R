@@ -44,14 +44,17 @@
 #'
 #' fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 #'
-#' orsf_pd_summary(fit, pd_spec = list(bili = c(1,2,3)), times = 1000)
+#' orsf_pd_summary(fit, pd_spec = list(bili = c(1,2,3,4,5,6)), times = 1000)
 #'
+#' # more points for a plot
 #' pd_spec <- list(bili = seq(1, 6, length.out = 20))
 #' data_ice <- orsf_pd_ice(fit, pd_spec = pd_spec, times = 1000)
 #'
+#' head(data_ice)
+#'
 #' library(ggplot2)
 #' ggplot(data_ice) +
-#'  aes(x = bili, y = pred, group = key) +
+#'  aes(x = bili, y = pred, group = id_row) +
 #'  geom_line(alpha = 0.4, color = 'grey') +
 #'  geom_smooth(aes(group = 1), color = 'black', se = FALSE) +
 #'  theme_bw() +
@@ -316,24 +319,27 @@ pd_grid <- function(object,
                            time_dbl    = times,
                            return_risk = risk)
 
-
  if(type_output == 'smry'){
 
   rownames(pd_vals) <- c('mean', prob_labels)
   output <- cbind(pd_spec, t(pd_vals))
+  .names <- names(output)
 
  }
 
  if(type_output == 'ice'){
 
-  colnames(pd_vals) <- c('key', 'pred')
-  pd_spec$key <- seq(nrow(pd_spec))
-  output <- merge(pd_spec, pd_vals, by = 'key')
-  output$key <- rep(seq(nrow(x_new)), times = nrow(pd_spec))
+  colnames(pd_vals) <- c('id_variable', 'pred')
+  pd_spec$id_variable <- seq(nrow(pd_spec))
+  output <- merge(pd_spec, pd_vals, by = 'id_variable')
+  output$id_row <- rep(seq(nrow(x_new)), times = nrow(pd_spec))
+
+  ids <- c('id_variable', 'id_row')
+  .names <- c(ids, setdiff(names(output), ids))
 
  }
 
- output
+ as.data.table(output[, .names])
 
 }
 
@@ -357,11 +363,23 @@ pd_loop <- function(object,
 
   pd_new  <- as.data.frame(pd_spec[i])
   pd_name <- names(pd_spec)[i]
-  pd_bind <- data.frame(name = pd_name, value = as.character(pd_spec[[i]]))
 
-  if(pd_name %in% fi$cols) pd_new <- one_hot(pd_new,
-                                             fi = fi,
-                                             names_x_data = pd_name)
+  pd_bind <- data.frame(name = pd_name,
+                        value = rep(NA_real_, length(pd_spec[[i]])),
+                        level = rep(NA_character_, length(pd_spec[[i]])))
+
+  if(pd_name %in% fi$cols) {
+
+   pd_bind$level <- as.character(pd_spec[[i]])
+
+   pd_new <- one_hot(pd_new,
+                     fi = fi,
+                     names_x_data = pd_name)
+  } else {
+
+   pd_bind$value <- pd_spec[[i]]
+
+  }
 
   x_cols <- match(names(pd_new), colnames(x_new))
 
@@ -388,93 +406,27 @@ pd_loop <- function(object,
 
   if(type_output == 'ice'){
 
-   colnames(pd_vals) <- c('key', 'pred')
-   pd_bind$key <- seq(nrow(pd_bind))
-   output[[i]] <- merge(pd_bind, pd_vals, by = 'key')
-   output[[i]]$key <- seq(nrow(output[[i]]))
+   colnames(pd_vals) <- c('id_variable', 'pred')
+   pd_bind$id_variable <- seq(nrow(pd_bind))
+   output[[i]] <- merge(pd_bind, pd_vals, by = 'id_variable')
+   output[[i]]$id_row <- seq(nrow(output[[i]]))
 
   }
 
  }
 
- Reduce(rbind, output)
+ output <- rbindlist(output)
+
+ if(type_output == 'ice'){
+
+  ids <- c('id_variable', 'id_row')
+  .names <- c(ids, setdiff(names(output), ids))
+  setcolorder(output, neworder = .names)
+
+ }
+
+
+ output
 
 }
-
-# pd_ice_grid <- function(object, x_new, pd_spec, times,
-#                         pd_fun_predict, prob_values, prob_labels,
-#                         oobag, risk){
-#
-#  pd_grid <- expand.grid(pd_spec, stringsAsFactors = TRUE)
-#
-#  pd_grid_new <- one_hot(x_data = pd_grid,
-#                         fi = get_fctr_info(object),
-#                         names_x_data = names(pd_grid))
-#
-#  x_cols <- match(names(pd_grid_new), colnames(x_new))
-#
-#  pd_vals <- pd_fun_predict(forest      = object$forest,
-#                            x_new_      = x_new,
-#                            x_cols_     = x_cols-1,
-#                            x_vals_     = as.matrix(pd_grid_new),
-#                            probs_      = prob_values,
-#                            time_dbl    = times,
-#                            return_risk = risk)
-#
-#  browser()
-#
-#  rownames(pd_vals) <- c('mean', prob_labels)
-#
-#  return(cbind(pd_grid, t(pd_vals)))
-#
-# }
-#
-#
-# pd_ice_loop <- function(object, x_new, pd_spec, times,
-#                         pd_fun_predict, prob_values, prob_labels,
-#                         oobag, risk){
-#
-#  fi <- get_fctr_info(object)
-#
-#  output <- vector(mode = 'list', length = length(pd_spec))
-#
-#  for(i in seq_along(pd_spec)){
-#
-#   pd_new  <- as.data.frame(pd_spec[i])
-#   pd_name <- names(pd_spec)[i]
-#   pd_bind <- data.frame(name = pd_name, value = as.character(pd_spec[[i]]))
-#
-#   if(pd_name %in% fi$cols) pd_new <- one_hot(pd_new,
-#                                              fi = fi,
-#                                              names_x_data = pd_name)
-#
-#   x_cols <- match(names(pd_new), colnames(x_new))
-#
-#   x_vals <- x_new[, x_cols]
-#
-#
-#   pd_vals <- pd_fun_predict(forest      = object$forest,
-#                             x_new_      = x_new,
-#                             x_cols_     = x_cols-1,
-#                             x_vals_     = as.matrix(pd_new),
-#                             probs_      = prob_values,
-#                             time_dbl    = times,
-#                             return_risk = risk)
-#
-#   browser()
-#
-#   # pd_fun_predict modifies x_new by reference, so reset it.
-#   x_new[, x_cols] <- x_vals
-#
-#   rownames(pd_vals) <- c('mean', prob_labels)
-#
-#   output[[i]] <- cbind(pd_bind, t(pd_vals))
-#
-#
-#  }
-#
-#  Reduce(rbind, output)
-#
-# }
-
 

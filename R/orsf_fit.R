@@ -295,17 +295,30 @@ orsf <- function(data_train,
                                                  'factor',
                                                  'ordered'))
 
- check_arg_uni(arg_value = y[,2],
+ names_x_numeric <- grep(pattern = "^integer$|^numeric$",
+                         x = types_x_data)
+
+ numeric_bounds <- NULL
+
+ if(!is_empty(names_x_numeric)){
+  numeric_bounds <- sapply(data_train[, names_x_data[names_x_numeric] ],
+                           FUN = stats::quantile,
+                           probs = c(0.10, 0.25, 0.50, 0.75, 0.90))
+ }
+
+
+
+ check_arg_uni(arg_value = y[, 2],
                arg_name = paste0(deparse(Call$data_train),
                                  '$', names_y_data[2]),
                expected_uni = c(0,1))
 
- check_arg_is(arg_value = y[,1],
+ check_arg_is(arg_value = y[, 1],
               arg_name = paste0(deparse(Call$data_train),
                                 '$', names_y_data[1]),
               expected_class = 'numeric')
 
- check_arg_gt(arg_value = y[,1],
+ check_arg_gt(arg_value = y[, 1],
               arg_name = paste0(deparse(Call$data_train),
                                 '$', names_y_data[1]),
               bound = 0)
@@ -347,6 +360,7 @@ orsf <- function(data_train,
  x_sort <- x[sorted, ]
  y_sort <- y[sorted, ]
 
+
  orsf_out <- orsf_fit(x                 = x_sort,
                       y                 = y_sort,
                       n_tree            = n_tree,
@@ -370,17 +384,10 @@ orsf <- function(data_train,
 
  if(importance){
   rownames(orsf_out$importance) <- colnames(x)
+  orsf_out$importance <-
+   rev(orsf_out$importance[order(orsf_out$importance), , drop=TRUE])
  }
 
- names_x_numeric <- grep(pattern = "^integer$|^numeric$",
-                         x = types_x_data)
-
- numeric_bounds <- NULL
-
- if(!is_empty(names_x_numeric)){
-  numeric_bounds <- sapply(data_train[, names_x_data[names_x_numeric] ],
-                           stats::quantile, probs = c(0.10, 0.20, 0.80, 0.90))
- }
 
  if(oobag_pred){
 
@@ -400,6 +407,7 @@ orsf <- function(data_train,
  attr(orsf_out, 'mtry')            <- mtry
  attr(orsf_out, 'n_obs')           <- nrow(y_sort)
  attr(orsf_out, 'n_tree')          <- n_tree
+ attr(orsf_out, 'names_y')         <- names_y_data
  attr(orsf_out, "names_x")         <- names_x_data
  attr(orsf_out, "types_x")         <- types_x_data
  attr(orsf_out, 'n_events')        <- sum(y_sort[,2])

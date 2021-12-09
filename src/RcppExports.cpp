@@ -106,6 +106,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// orsf_oob_vi
+arma::vec orsf_oob_vi(NumericMatrix& x, List& forest, double cstat, const double& time_pred_);
+RcppExport SEXP _aorsf_orsf_oob_vi(SEXP xSEXP, SEXP forestSEXP, SEXP cstatSEXP, SEXP time_pred_SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< List& >::type forest(forestSEXP);
+    Rcpp::traits::input_parameter< double >::type cstat(cstatSEXP);
+    Rcpp::traits::input_parameter< const double& >::type time_pred_(time_pred_SEXP);
+    rcpp_result_gen = Rcpp::wrap(orsf_oob_vi(x, forest, cstat, time_pred_));
+    return rcpp_result_gen;
+END_RCPP
+}
 // orsf_pred_uni
 arma::mat orsf_pred_uni(List& forest, NumericMatrix& x_new, double time_dbl, bool return_risk);
 RcppExport SEXP _aorsf_orsf_pred_uni(SEXP forestSEXP, SEXP x_newSEXP, SEXP time_dblSEXP, SEXP return_riskSEXP) {
@@ -210,6 +224,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_lrt_multi_testthat", (DL_FUNC) &_aorsf_lrt_multi_testthat, 6},
     {"_aorsf_ostree_pred_leaf_testthat", (DL_FUNC) &_aorsf_ostree_pred_leaf_testthat, 2},
     {"_aorsf_orsf_fit", (DL_FUNC) &_aorsf_orsf_fit, 16},
+    {"_aorsf_orsf_oob_vi", (DL_FUNC) &_aorsf_orsf_oob_vi, 4},
     {"_aorsf_orsf_pred_uni", (DL_FUNC) &_aorsf_orsf_pred_uni, 4},
     {"_aorsf_orsf_pred_multi", (DL_FUNC) &_aorsf_orsf_pred_multi, 4},
     {"_aorsf_pd_new_smry", (DL_FUNC) &_aorsf_pd_new_smry, 7},

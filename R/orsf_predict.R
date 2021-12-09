@@ -42,10 +42,10 @@
 predict.aorsf <- function(object, new_data, times, risk = TRUE, ...){
 
  if(missing(new_data))
-  stop("argument 'new_data' is missing, with no default")
+  stop("argument 'new_data' is missing, with no default", call. = FALSE)
 
  if(missing(times))
-  stop("argument 'times' is missing, with no default")
+  stop("argument 'times' is missing, with no default", call. = FALSE)
 
  check_predict(object, new_data, times, risk)
 

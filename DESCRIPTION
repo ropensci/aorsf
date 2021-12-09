@@ -25,7 +25,8 @@ LinkingTo:
     RcppArmadillo
 Imports: 
     table.glue,
-    Rcpp
+    Rcpp,
+    data.table
 URL: https://github.com/bcjaeger/aorsf
 BugReports: https://github.com/bcjaeger/aorsf/issues
 Depends: 

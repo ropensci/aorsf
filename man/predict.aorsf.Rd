@@ -39,9 +39,11 @@ test <- seq(2, nrow(pbc_orsf), by = 2)
 
 fit <- orsf(pbc_orsf[train, ], Surv(time, status) ~ . - id)
 
-predict(fit,
-        new_data = pbc_orsf[test, ],
-        times = c(500, 1500, 2500))
+preds <- predict(fit,
+                 new_data = pbc_orsf[test, ],
+                 times = c(500, 1500, 2500))
+
+head(preds)
 
 
 }

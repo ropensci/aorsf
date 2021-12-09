@@ -49,13 +49,14 @@ double
  V,
  leaf_min_obs,
  leaf_min_events,
- time_oobag,
+ time_pred,
  cph_pval_max,
  ll_second,
  ll_init;
 
 int
  verbose=0,
+  tree,
   mtry_int,
   oobag_eval_every;
 
@@ -92,7 +93,7 @@ bool
 // armadillo vectors (doubles)
 vec
  vec_temp,
- times_oobag,
+ times_pred,
  cstat_oobag,
  node_assignments,
  nodes_grown,
@@ -1854,7 +1855,7 @@ void oobag_pred_surv_uni(){
 
   person_leaf = leaf_pred[*iit];
 
-  // find the first leaf in the surv mat equal to this leaf
+  // find the current leaf
   for(i = 0; i < leaf_indices.n_rows; i++){
    if(leaf_indices.at(i, 0) == person_leaf){
     break;
@@ -1871,16 +1872,16 @@ void oobag_pred_surv_uni(){
 
   i = 0;
 
-  if(time_oobag < leaf_node.at(leaf_node.n_rows - 1, 0)){
+  if(time_pred < leaf_node.at(leaf_node.n_rows - 1, 0)){
 
    for(; i < leaf_node.n_rows; i++){
-    if (leaf_node.at(i, 0) > time_oobag){
+    if (leaf_node.at(i, 0) > time_pred){
      if(i == 0)
       temp1 = 1;
      else
       temp1 = leaf_node.at(i-1, 1);
      break;
-    } else if (leaf_node.at(i, 0) == time_oobag){
+    } else if (leaf_node.at(i, 0) == time_pred){
      temp1 = leaf_node.at(i, 1);
      break;
     }
@@ -1968,7 +1969,7 @@ void new_pred_surv_multi(){
  // allocate memory for output
  // surv_pred.zeros(x_pred.n_rows);
 
- vec_temp.set_size(times_oobag.size());
+ surv_pred.set_size(times_pred.size());
  iit_vals = sort_index(leaf_pred, "ascend");
  iit = iit_vals.begin();
 
@@ -1991,15 +1992,15 @@ void new_pred_surv_multi(){
 
   i = 0;
 
-  for(j = 0; j < times_oobag.size(); j++){
+  for(j = 0; j < times_pred.size(); j++){
 
-   time_oobag = times_oobag(j);
+   time_pred = times_pred(j);
 
-   if(time_oobag < leaf_node(leaf_node.n_rows - 1, 0)){
+   if(time_pred < leaf_node(leaf_node.n_rows - 1, 0)){
 
     for(; i < leaf_node.n_rows; i++){
 
-     if (leaf_node(i, 0) > time_oobag){
+     if (leaf_node(i, 0) > time_pred){
 
       if(i == 0)
        temp1 = 1;
@@ -2008,7 +2009,7 @@ void new_pred_surv_multi(){
 
       break;
 
-     } else if (leaf_node(i, 0) == time_oobag){
+     } else if (leaf_node(i, 0) == time_pred){
 
       temp1 = leaf_node(i, 1);
       break;
@@ -2024,20 +2025,20 @@ void new_pred_surv_multi(){
 
    }
 
-   vec_temp(j) = temp1;
+   surv_pred(j) = temp1;
 
   }
 
 
 
-  surv_preds.row(*iit) += vec_temp.t();
+  surv_preds.row(*iit) += surv_pred.t();
   ++iit;
 
   if(iit < iit_vals.end()){
 
    while(person_leaf == leaf_pred(*iit)){
 
-    surv_preds.row(*iit) += vec_temp.t();
+    surv_preds.row(*iit) += surv_pred.t();
     ++iit;
 
     if (iit == iit_vals.end()) break;
@@ -2074,22 +2075,22 @@ void new_pred_surv_uni(){
 
   i = 0;
 
-  if(time_oobag < leaf_node(leaf_node.n_rows - 1, 0)){
+  if(time_pred < leaf_node(leaf_node.n_rows - 1, 0)){
 
    for(; i < leaf_node.n_rows; i++){
-    if (leaf_node(i, 0) > time_oobag){
+    if (leaf_node(i, 0) > time_pred){
      if(i == 0)
       temp1 = 1;
      else
       temp1 = leaf_node(i-1, 1);
      break;
-    } else if (leaf_node(i, 0) == time_oobag){
+    } else if (leaf_node(i, 0) == time_pred){
      temp1 = leaf_node(i, 1);
      break;
     }
    }
 
-  } else if (time_oobag == leaf_node(leaf_node.n_rows - 1, 0)){
+  } else if (time_pred == leaf_node(leaf_node.n_rows - 1, 0)){
 
    temp1 = leaf_node(leaf_node.n_rows - 1, 1);
 
@@ -2104,20 +2105,20 @@ void new_pred_surv_uni(){
    // the survival probability decays at the same rate.
 
    // temp2 = (1.0 - temp1) *
-   //  (time_oobag - leaf_node(leaf_node.n_rows - 1, 0)) / time_oobag;
+   //  (time_pred - leaf_node(leaf_node.n_rows - 1, 0)) / time_pred;
    //
    // temp1 = temp1 * (1.0-temp2);
 
   }
 
-  vec_temp(*iit) += temp1;
+  surv_pred(*iit) += temp1;
   ++iit;
 
   if(iit < iit_vals.end()){
 
    while(person_leaf == leaf_pred(*iit)){
 
-    vec_temp(*iit) += temp1;
+    surv_pred(*iit) += temp1;
     ++iit;
 
     if (iit == iit_vals.end()) break;
@@ -2129,7 +2130,7 @@ void new_pred_surv_uni(){
  } while (iit < iit_vals.end());
 
  if(verbose > 1){
-  Rcout << "pred_surv:" << std::endl << vec_temp.t() << std::endl;
+  Rcout << "pred_surv:" << std::endl << surv_pred.t() << std::endl;
  }
 
 }
@@ -2709,8 +2710,8 @@ List orsf_fit(NumericMatrix& x,
  if(cph_iter_max > 1) cph_do_scale = true;
 
  if(oobag_pred){
-  time_oobag = oobag_time_;
-  if(time_oobag == 0) time_oobag = median(y_input.col(0));
+  time_pred = oobag_time_;
+  if(time_pred == 0) time_pred = median(y_input.col(0));
   cstat_oobag.set_size(std::floor(n_tree / oobag_eval_every));
  } else {
   cstat_oobag.set_size(0);
@@ -2772,8 +2773,6 @@ List orsf_fit(NumericMatrix& x,
  leaf_indices.zeros(nodes_max_guess, 3);
 
  List forest(n_tree);
-
- int tree;
 
  for(tree = 0; tree < n_tree; ){
 
@@ -2849,8 +2848,6 @@ List orsf_fit(NumericMatrix& x,
 
  }
 
-
-
  vec vimp;
 
  if(oobag_importance){
@@ -2909,7 +2906,7 @@ List orsf_fit(NumericMatrix& x,
   List::create(
    _["forest"] = forest,
    _["surv_oobag"] = surv_pred,
-   _["time_oobag"] = time_oobag,
+   _["time_pred"] = time_pred,
    _["eval_oobag"] = List::create(_["c_harrell"] = cstat_oobag),
    _["importance"] = vimp
   )
@@ -2918,22 +2915,78 @@ List orsf_fit(NumericMatrix& x,
 
 }
 
+// [[Rcpp::export]]
+arma::vec orsf_oob_vi(NumericMatrix& x,
+                      List& forest,
+                      double cstat,
+                      const double& time_pred_){
 
+ x_input = mat(x.begin(), x.nrow(), x.ncol(), false);
+
+ time_pred = time_pred_;
+
+ vec vimp(x_input.n_cols);
+
+ uvec betas_to_flip;
+ uword variable;
+
+ for(variable = 0; variable < x_input.n_cols; ++variable){
+
+  surv_pred.fill(0);
+  denom_pred.fill(0);
+
+  for(tree = 0; tree < forest.length(); ++tree){
+
+   ostree = forest[tree];
+
+   IntegerMatrix rows_oobag_ = ostree["rows_oobag"];
+
+   rows_oobag = conv_to<uvec>::from(
+    ivec(rows_oobag_.begin(),
+         rows_oobag_.length(),
+         false)
+   );
+
+   x_pred = x_input.rows(rows_oobag);
+
+   ostree_mem_xfer();
+
+   betas_to_flip = find(col_indices == variable);
+
+   betas.elem( betas_to_flip ) *= (-1);
+
+   denom_pred(rows_oobag) += 1;
+
+   leaf_pred.set_size(rows_oobag.size());
+
+   ostree_pred_leaf();
+
+   oobag_pred_surv_uni();
+
+   betas.elem( betas_to_flip ) *= (-1);
+
+  }
+
+  vimp(variable) = cstat - oobag_c_harrell();
+
+ }
+
+ return(vimp);
+
+}
 
 // [[Rcpp::export]]
 arma::mat orsf_pred_uni(List& forest,
                         NumericMatrix& x_new,
                         double time_dbl,
-                        bool return_risk = true){
+                        bool return_risk){
 
  x_pred = mat(x_new.begin(), x_new.nrow(), x_new.ncol(), false);
- time_oobag = time_dbl;
+ time_pred = time_dbl;
 
  // memory for outputs
  leaf_pred.set_size(x_pred.n_rows);
- vec_temp.zeros(x_pred.n_rows);
-
- int tree;
+ surv_pred.zeros(x_pred.n_rows);
 
  for(tree = 0; tree < forest.length(); ++tree){
   ostree = forest[tree];
@@ -2942,12 +2995,12 @@ arma::mat orsf_pred_uni(List& forest,
   new_pred_surv_uni();
  }
 
- vec_temp /= forest.length();
+ surv_pred /= tree;
 
  if(return_risk){
-  return(1 - vec_temp);
+  return(1 - surv_pred);
  } else {
-  return(vec_temp);
+  return(surv_pred);
  }
 
 }
@@ -2956,19 +3009,19 @@ arma::mat orsf_pred_uni(List& forest,
 arma::mat orsf_pred_multi(List& forest,
                           NumericMatrix& x_new,
                           NumericVector& time_vec,
-                          bool return_risk = true){
+                          bool return_risk){
 
  x_pred = mat(x_new.begin(), x_new.nrow(), x_new.ncol(), false);
- times_oobag = vec(time_vec.begin(), time_vec.length(), false);
+ times_pred = vec(time_vec.begin(), time_vec.length(), false);
 
  // memory for outputs
+ // initial values don't matter for leaf_pred,
+ // but do matter for surv_preds
  leaf_pred.set_size(x_pred.n_rows);
 
- surv_preds.zeros(x_pred.n_rows, times_oobag.size());
+ surv_preds.zeros(x_pred.n_rows, times_pred.size());
 
- int tree = 0;
-
- for(; tree < forest.length(); ++tree){
+ for(tree = 0; tree < forest.length(); ++tree){
   ostree = forest[tree];
   ostree_mem_xfer();
   ostree_pred_leaf();
@@ -2993,11 +3046,9 @@ arma::mat pd_new_smry(List&          forest,
                       const bool     return_risk){
 
 
- int tree;
-
  uword pd_i;
 
- time_oobag = time_dbl;
+ time_pred = time_dbl;
 
  x_pred = mat(x_new_.begin(), x_new_.nrow(), x_new_.ncol(), false);
 
@@ -3013,13 +3064,13 @@ arma::mat pd_new_smry(List&          forest,
  mat output_means(1, x_vals.n_rows);
 
  leaf_pred.set_size(x_pred.n_rows);
- vec_temp.set_size(x_pred.n_rows);
+ surv_pred.set_size(x_pred.n_rows);
 
  for(pd_i = 0; pd_i < x_vals.n_rows; pd_i++){
 
   j = 0;
 
-  vec_temp.fill(0);
+  surv_pred.fill(0);
 
   for(jit = x_cols.begin(); jit < x_cols.end(); ++jit, ++j){
 
@@ -3034,12 +3085,12 @@ arma::mat pd_new_smry(List&          forest,
    new_pred_surv_uni();
   }
 
-  vec_temp /= (forest.length());
+  surv_pred /= tree;
 
-  if(return_risk){ vec_temp = 1 - vec_temp; }
+  if(return_risk){ surv_pred = 1 - surv_pred; }
 
-  output_means.col(pd_i) = mean(vec_temp);
-  output_quantiles.col(pd_i) = quantile(vec_temp, probs);
+  output_means.col(pd_i) = mean(surv_pred);
+  output_quantiles.col(pd_i) = quantile(surv_pred, probs);
 
 
  }
@@ -3060,11 +3111,9 @@ arma::mat pd_oob_smry(List&          forest,
                       const bool     return_risk){
 
 
- int tree;
-
  uword pd_i;
 
- time_oobag = time_dbl;
+ time_pred = time_dbl;
 
  mat x_vals = mat(x_vals_.begin(), x_vals_.nrow(), x_vals_.ncol(), false);
 
@@ -3139,11 +3188,9 @@ arma::mat pd_new_ice(List&          forest,
                      const bool     return_risk){
 
 
- int tree;
-
  uword pd_i;
 
- time_oobag = time_dbl;
+ time_pred = time_dbl;
 
  x_pred = mat(x_new_.begin(), x_new_.nrow(), x_new_.ncol(), false);
 
@@ -3162,13 +3209,13 @@ arma::mat pd_new_ice(List&          forest,
  uvec pd_rows = regspace<uvec>(0, 1, x_pred.n_rows - 1);
 
  leaf_pred.set_size(x_pred.n_rows);
- vec_temp.set_size(x_pred.n_rows);
+ surv_pred.set_size(x_pred.n_rows);
 
  for(pd_i = 0; pd_i < x_vals.n_rows; pd_i++){
 
   j = 0;
 
-  vec_temp.fill(0);
+  surv_pred.fill(0);
 
   for(jit = x_cols.begin(); jit < x_cols.end(); ++jit, ++j){
 
@@ -3183,12 +3230,12 @@ arma::mat pd_new_ice(List&          forest,
    new_pred_surv_uni();
   }
 
-  vec_temp /= (forest.length());
+  surv_pred /= tree;
 
-  if(return_risk){ vec_temp = 1 - vec_temp; }
+  if(return_risk){ surv_pred = 1 - surv_pred; }
 
   output_ids(pd_rows).fill(pd_i+1);
-  output_pds(pd_rows) = vec_temp;
+  output_pds(pd_rows) = surv_pred;
   pd_rows += x_pred.n_rows;
 
 
@@ -3208,11 +3255,9 @@ arma::mat pd_oob_ice(List&          forest,
                      const bool     return_risk){
 
 
- int tree;
-
  uword pd_i;
 
- time_oobag = time_dbl;
+ time_pred = time_dbl;
 
  mat x_vals = mat(x_vals_.begin(), x_vals_.nrow(), x_vals_.ncol(), false);
 

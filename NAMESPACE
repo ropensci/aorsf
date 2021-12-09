@@ -2,8 +2,11 @@
 
 S3method(predict,aorsf)
 S3method(print,aorsf)
+S3method(summary,aorsf)
 export(orsf)
 export(orsf_pd_ice)
 export(orsf_pd_summary)
+export(orsf_vi)
+import(data.table)
 importFrom(Rcpp,sourceCpp)
 useDynLib(aorsf, .registration = TRUE)

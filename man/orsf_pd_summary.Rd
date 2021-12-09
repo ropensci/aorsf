@@ -77,14 +77,17 @@ Title
 
 fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 
-orsf_pd_summary(fit, pd_spec = list(bili = c(1,2,3)), times = 1000)
+orsf_pd_summary(fit, pd_spec = list(bili = c(1,2,3,4,5,6)), times = 1000)
 
+# more points for a plot
 pd_spec <- list(bili = seq(1, 6, length.out = 20))
 data_ice <- orsf_pd_ice(fit, pd_spec = pd_spec, times = 1000)
 
+head(data_ice)
+
 library(ggplot2)
 ggplot(data_ice) +
- aes(x = bili, y = pred, group = key) +
+ aes(x = bili, y = pred, group = id_row) +
  geom_line(alpha = 0.4, color = 'grey') +
  geom_smooth(aes(group = 1), color = 'black', se = FALSE) +
  theme_bw() +

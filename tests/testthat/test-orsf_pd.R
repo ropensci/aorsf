@@ -16,7 +16,6 @@ object <- orsf(formula = Surv(time, status) ~ . - id,
                oobag_time = 2500,
                leaf_min_obs = 10)
 
-# TODO: Divide by forest.length instead of tree + 1 in predictions
 
 pd_reference <- partial(object,
                         pred.var = "bili",
@@ -34,7 +33,26 @@ pd_bcj <- orsf_pd_ice(object,
                       pd_data = pbc_orsf,
                       pd_spec = pd_spec,
                       times = 1000,
+                      expand_grid = TRUE,
                       oobag = FALSE)
+
+pd_smry <- orsf_pd_summary(object,
+                           pd_data = pbc_orsf,
+                           pd_spec = pd_spec,
+                           times = 1000,
+                           oobag = FALSE)
+
+pd_bcj_check <- pd_bcj[, .(bili_mean = mean(pred),
+                           bili_median = median(pred)),
+                       by = bili]
+
+test_that(
+ desc = "pd_smry matches pd_ice",
+ code = {
+  expect_equal(pd_bcj_check$bili_mean, pd_smry$mean)
+  expect_equal(pd_bcj_check$bili_median, pd_smry$median)
+ }
+)
 
 test_that(
  "c fun matches R wrapper with pdp package",

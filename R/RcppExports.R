@@ -25,11 +25,15 @@ orsf_fit <- function(x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_o
     .Call(`_aorsf_orsf_fit`, x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, cph_do_scale_, oobag_pred_, oobag_time_, oobag_eval_every_, oobag_importance_)
 }
 
-orsf_pred_uni <- function(forest, x_new, time_dbl, return_risk = TRUE) {
+orsf_oob_vi <- function(x, forest, cstat, time_pred_) {
+    .Call(`_aorsf_orsf_oob_vi`, x, forest, cstat, time_pred_)
+}
+
+orsf_pred_uni <- function(forest, x_new, time_dbl, return_risk) {
     .Call(`_aorsf_orsf_pred_uni`, forest, x_new, time_dbl, return_risk)
 }
 
-orsf_pred_multi <- function(forest, x_new, time_vec, return_risk = TRUE) {
+orsf_pred_multi <- function(forest, x_new, time_vec, return_risk) {
     .Call(`_aorsf_orsf_pred_multi`, forest, x_new, time_vec, return_risk)
 }
 
