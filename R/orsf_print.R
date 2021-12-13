@@ -45,3 +45,31 @@ print.aorsf <- function(x, ...){
 
 }
 
+print.aorsf_summary <- function(x, ...){
+
+ .dots <- list(...)
+
+ if(is.null(.dots$topn))       .dots$topn <- 5
+ if(is.null(.dots$nrows))      .dots$nrows <- 100
+ if(is.null(.dots$class))      .dots$class <- TRUE
+ if(is.null(.dots$row.names))  .dots$row.names <- TRUE
+ if(is.null(.dots$col.names))  .dots$col.names <- "auto"
+ if(is.null(.dots$print.keys)) .dots$print.keys <- TRUE
+ if(is.null(.dots$digits))     .dots$digits <- 3
+
+ .dots$x <- x$data_inputs
+
+ banner_input_length <-
+  max(vapply(
+   utils::capture.output(do.call(print, .dots)),
+   nchar,
+   integer(1)
+  ))
+
+ banner_input <- paste(
+  rep("-", times = banner_input_length - nchar("-- Input data ")),
+  collapse = ''
+ )
+
+
+}

@@ -6,6 +6,15 @@
 #'
 #' @return the `object` with variable importance attached.
 #'
+#' @details
+#'
+#' The method used to compute variable importance with ORSF is called
+#'  'negation importance'. Each variable is assessed separately by
+#'  multiplying the variable's coefficients by -1 and then determining
+#'  how much the model's performance changes. The worse the model's
+#'  performance after negating all coefficients for a given variable,
+#'  the more important the variable.
+#'
 #' @export
 #'
 #' @examples
@@ -27,9 +36,11 @@ orsf_vi <- function(object){
        call. = FALSE)
  }
 
+ if(has_vi(object)) return(object$importance)
+
  cstat <- last_value(object$eval_oobag$c_harrell[, 1, drop=TRUE])
 
- y <- object$data_train[, get_names_y(object)]
+ y <- as.matrix(object$data_train[, get_names_y(object)])
 
  sorted <- order(y[, 1], -y[, 2])
 
@@ -40,6 +51,7 @@ orsf_vi <- function(object){
  )
 
  out <- orsf_oob_vi(x = x[sorted, ],
+                    y = y[sorted, ],
                     cstat = cstat,
                     forest = object$forest,
                     time_pred_ = object$time_pred)

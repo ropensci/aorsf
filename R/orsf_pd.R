@@ -63,12 +63,13 @@
 orsf_pd_summary <- function(object,
                             pd_data = NULL,
                             pd_spec,
-                            times,
+                            times = NULL,
                             expand_grid = TRUE,
                             prob_values = c(0.025, 0.50, 0.975),
                             prob_labels = c('lwr', 'median', 'upr'),
                             oobag = TRUE,
-                            risk = TRUE){
+                            risk = TRUE,
+                            boundary_checks = TRUE){
 
  check_call(
   match.call(),
@@ -87,6 +88,14 @@ orsf_pd_summary <- function(object,
    ),
    prob_labels = list(
     type = 'character'
+   ),
+   'oobag' = list(
+    type = 'logical',
+    length = 1
+   ),
+   'risk' = list(
+    type = 'logical',
+    length = 1
    )
   )
  )
@@ -105,7 +114,8 @@ orsf_pd_summary <- function(object,
           prob_values = prob_values,
           prob_labels = prob_labels,
           oobag = oobag,
-          risk = risk)
+          risk = risk,
+          boundary_checks = boundary_checks)
 
 }
 
@@ -114,10 +124,11 @@ orsf_pd_summary <- function(object,
 orsf_pd_ice <- function(object,
                         pd_data = NULL,
                         pd_spec,
-                        times,
+                        times = NULL,
                         expand_grid = TRUE,
                         oobag = TRUE,
-                        risk = TRUE){
+                        risk = TRUE,
+                        boundary_checks = TRUE){
 
  check_call(
   match.call(),
@@ -126,6 +137,14 @@ orsf_pd_ice <- function(object,
     class = 'aorsf'
    ),
    'expand_grid' = list(
+    type = 'logical',
+    length = 1
+   ),
+   'oobag' = list(
+    type = 'logical',
+    length = 1
+   ),
+   'risk' = list(
     type = 'logical',
     length = 1
    )
@@ -141,7 +160,8 @@ orsf_pd_ice <- function(object,
           prob_values = c(0.025, 0.50, 0.975),
           prob_labels = c('lwr', 'median', 'upr'),
           oobag = oobag,
-          risk = risk)
+          risk = risk,
+          boundary_checks = boundary_checks)
 
 }
 
@@ -155,8 +175,15 @@ orsf_pd_ <- function(object,
                      prob_values,
                      prob_labels,
                      oobag,
-                     risk){
+                     risk,
+                     boundary_checks){
 
+ if(is.null(times)) times <- object$time_pred
+
+ if(is.null(times))
+  stop("times was not specified and could not be found in object. ",
+       "did you use oobag_pred = FALSE when running orsf()?",
+       call. = FALSE)
 
  if(length(times) > 1){
   stop("orsf_pd functions only allow 1 prediction time,",
@@ -170,27 +197,19 @@ orsf_pd_ <- function(object,
                            "did you use attach_data = FALSE when ",
                            "running orsf()?", call. = FALSE)
 
+
+
  check_predict(object, pd_data, times, risk)
-
- Call <- match.call()
-
- check_call(
-  Call,
-  expected = list(
-   'oobag' = list(
-    type = 'logical',
-    length = 1
-   ),
-   'risk' = list(
-    type = 'logical',
-    length = 1
-   )
-  )
- )
 
  if(is_empty(pd_spec)){
 
    stop("pd_spec is empty", call. = FALSE)
+
+ }
+
+ if(is_empty(names(pd_spec))){
+
+  stop("pd_spec is unnamed", call. = FALSE)
 
  }
 
@@ -209,7 +228,7 @@ orsf_pd_ <- function(object,
  numeric_bounds <- get_numeric_bounds(object)
  numeric_names <- intersect(colnames(numeric_bounds), names(pd_spec))
 
- if(!is_empty(numeric_names)){
+ if(!is_empty(numeric_names) && boundary_checks){
 
   for(.name in numeric_names){
 
@@ -267,6 +286,8 @@ orsf_pd_ <- function(object,
  )
 
 
+ if(is.data.frame(pd_spec)) type_input <- 'grid'
+
  pd_fun_structure <- switch(type_input,
                             'grid' = pd_grid,
                             'loop' = pd_loop)
@@ -303,7 +324,28 @@ pd_grid <- function(object,
                     oobag,
                     risk){
 
- pd_spec <- expand.grid(pd_spec, stringsAsFactors = TRUE)
+ if(!is.data.frame(pd_spec))
+  pd_spec <- expand.grid(pd_spec, stringsAsFactors = TRUE)
+
+ fi_ref <- get_fctr_info(object)
+
+ for(i in seq_along(fi_ref$cols)){
+
+  ii <- fi_ref$cols[i]
+
+  if(is.character(pd_spec[[ii]]) && !fi_ref$ordr[i]){
+
+   pd_spec[[ii]] <- factor(pd_spec[[ii]],
+                           levels = fi_ref$lvls[[ii]])
+
+  }
+
+ }
+
+ check_new_data_fctrs(new_data  = pd_spec,
+                      names_x   = get_names_x(object),
+                      fi_ref    = fi_ref,
+                      label_new = "pd_spec")
 
  pd_spec_new <- one_hot(x_data = pd_spec,
                         fi = get_fctr_info(object),

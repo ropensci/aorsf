@@ -9,14 +9,14 @@
 #'
 #' @examples
 #'
-#' fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+#' object <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 #'
-#' summary(fit, times = 1000)
+#' summary(object)
 #'
-summary.aorsf <- function(object, times, risk = TRUE, ...){
+summary.aorsf <- function(object, times = NULL, risk = TRUE, ...){
 
- if(missing(times))
-  stop("argument 'times' is missing, with no default", call. = FALSE)
+ if(is.null(times))
+  times <- object$time_pred
 
  x_numeric_key <- get_numeric_bounds(object)
 
@@ -49,7 +49,10 @@ summary.aorsf <- function(object, times, risk = TRUE, ...){
                         times = times)
 
 
- # TODO: write this in cpp
+
+ importance <- orsf_vi(object)
+
+ # TODO: write this in cpp?
 
  # position <- 1
  #
@@ -92,22 +95,57 @@ summary.aorsf <- function(object, times, risk = TRUE, ...){
                         pred_median = median(pred)),
                     by = list(name, value, level)]
 
- lvls_percentile <- paste(c('25th','50th','75th'), 'percentile')
+ fctrs_unordered <- c()
 
- pd_smry[, level := fifelse(test = is.na(level),
-                            yes = lvls_percentile[seq(.N)],
-                            no = level),
-         by = name]
+ if(!is_empty(fctr_info$cols)){
+  fctrs_unordered <- fctr_info$cols[!fctr_info$ordr]
+ }
 
- structure(
-  .Data = list(
-   oob_performance = object$eval_oobag,
-   variable_importance = object$importance,
-   partial_dependence = pd_smry
-  ),
-  class = 'aorsf_summary'
- )
 
+ pd_smry[, variable := fifelse(test = name %in% fctrs_unordered,
+                               yes = paste(name, level, sep = '_'),
+                               no = name)]
+
+
+ # lvls_percentile <- paste(c('25th','50th','75th'), 'percentile')
+ #
+ # pd_smry[, level := fifelse(test = is.na(level),
+ #                            yes = lvls_percentile[seq(.N)],
+ #                            no = level),
+ #         by = name]
+
+
+ vi_smry <- data.table(variable = names(importance),
+                       importance = as.numeric(importance))
+
+ type_smry <- data.table(name = get_names_x(object),
+                         type = get_types_x(object))
+
+ out <- vi_smry[pd_smry, on = 'variable']
+
+ out[, importance := mean(importance, na.rm=TRUE), by = name]
+
+ out <- out[type_smry, on = 'name']
+
+ setorder(out, -importance)
+
+ out[, variable := NULL]
+
+ # if a := is used inside a function with no DT[] before the end of the
+ # function, then the next time DT or print(DT) is typed at the prompt,
+ # nothing will be printed. A repeated DT or print(DT) will print.
+ # To avoid this: include a DT[] after the last := in your function.
+ out[]
+
+
+ setcolorder(out, c('name',
+                    'importance',
+                    'type',
+                    'value',
+                    'level',
+                    'pred_mean',
+                    'pred_median'))
+ out
 
 
 }

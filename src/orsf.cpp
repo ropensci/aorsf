@@ -149,6 +149,7 @@ mat
  x_node,
  y_node,
  x_pred,
+ x_mean,
  vmat,
  cmat,
  cmat2,
@@ -2208,6 +2209,9 @@ void ostree_mem_xfer(){
 void ostree_pred_leaf(){
 
  // reset values
+ // this is needed for pred_leaf since every obs gets a new leaf in
+ // the next tree, but it isn't needed for pred_surv because survival
+ // probs get aggregated over all the trees.
  leaf_pred.fill(0);
 
  for(i = 0; i < betas.n_cols; i++){
@@ -2594,7 +2598,7 @@ List ostree_fit(){
 
     for(i = 0; i < n_cols_to_sample; i++){
      betas.at(i, *node) = beta_cph[i];
-     col_indices.at(i, *node) = cols_node(i);
+     col_indices.at(i, *node) = cols_node[i];
     }
 
     children_left[*node] = nn_left;
@@ -2917,11 +2921,13 @@ List orsf_fit(NumericMatrix& x,
 
 // [[Rcpp::export]]
 arma::vec orsf_oob_vi(NumericMatrix& x,
+                      NumericMatrix& y,
                       List& forest,
-                      double cstat,
+                      const double& cstat,
                       const double& time_pred_){
 
  x_input = mat(x.begin(), x.nrow(), x.ncol(), false);
+ y_input = mat(y.begin(), y.nrow(), y.ncol(), false);
 
  time_pred = time_pred_;
 
@@ -3264,9 +3270,6 @@ arma::mat pd_oob_ice(List&          forest,
  uvec x_cols = conv_to<uvec>::from(
   ivec(x_cols_.begin(), x_cols_.length(), false)
  );
-
- vec probs = vec(probs_.begin(), probs_.length(), false);
-
 
  x_input = mat(x_new_.begin(), x_new_.nrow(), x_new_.ncol(), false);
 

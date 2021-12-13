@@ -157,7 +157,7 @@ orsf <- function(data_train,
                  cph_iter_max = 1,
                  cph_pval_max = 1,
                  cph_do_scale = TRUE,
-                 oobag_pred = FALSE,
+                 oobag_pred = TRUE,
                  oobag_time = NULL,
                  oobag_eval_every = n_tree,
                  importance = FALSE,
@@ -396,6 +396,11 @@ orsf <- function(data_train,
   for(i in seq_along(unsorted)) unsorted[ sorted[i] ] <- i
 
   orsf_out$surv_oobag <- orsf_out$surv_oobag[unsorted, , drop = FALSE]
+
+ } else {
+
+  # this would get added by orsf_fit if oobag_pred was TRUE
+  orsf_out$time_pred <- median(y[, 1])
 
  }
 
