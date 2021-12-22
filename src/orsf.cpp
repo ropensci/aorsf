@@ -201,6 +201,19 @@ void x_node_scale(){
 
 }
 
+void x_node_means(){
+
+ x_transforms.zeros(n_vars, 1);
+ w_node_sum = sum(w_node);
+
+ for(i = 0; i < n_vars; i++) {
+
+  x_transforms.at(i, 0) = sum( w_node % x_node.col(i) ) / w_node_sum;
+
+ }
+
+}
+
 // ----------------------------------------------------------------------------
 // -------------------------- leaf_surv functions -----------------------------
 // ----------------------------------------------------------------------------
@@ -2148,6 +2161,7 @@ void ostree_size_buffer(){
  }
 
  betas.insert_cols(betas.n_cols, 10);
+ x_mean.insert_cols(x_mean.n_cols, 10);
  col_indices.insert_cols(col_indices.n_cols, 10);
  children_left.insert_rows(children_left.size(), 10);
  cutpoints.insert_rows(cutpoints.size(), 10);
@@ -2164,6 +2178,7 @@ void ostree_size_buffer(){
 void ostree_mem_xfer(){
 
  // no data copied according to tracemem.
+ // not including boot rows or x_mean (don't always need them)
 
  NumericMatrix leaf_nodes_      = ostree["leaf_nodes"];
  NumericMatrix betas_           = ostree["betas"];
@@ -2311,6 +2326,7 @@ arma::uvec ostree_pred_leaf_testthat(List& tree,
 List ostree_fit(){
 
  betas.fill(0);
+ x_mean.fill(0);
  col_indices.fill(0);
  cutpoints.fill(0);
  children_left.fill(0);
@@ -2463,7 +2479,11 @@ List ostree_fit(){
 
      n_vars = x_node.n_cols;
 
-     if(cph_do_scale) x_node_scale();
+     if(cph_do_scale){
+      x_node_scale();
+     } else {
+      x_node_means();
+     }
 
      if(verbose > 0){
 
@@ -2598,6 +2618,7 @@ List ostree_fit(){
 
     for(i = 0; i < n_cols_to_sample; i++){
      betas.at(i, *node) = beta_cph[i];
+     x_mean.at(i, *node) = x_transforms(i, 0);
      col_indices.at(i, *node) = cols_node[i];
     }
 
@@ -2638,6 +2659,8 @@ List ostree_fit(){
    ),
 
    _["betas"] = betas.cols(span(0, nodes_max_true)),
+
+   _["x_mean"] = x_mean.cols(span(0, nodes_max_true)),
 
    _["col_indices"] = conv_to<imat>::from(
     col_indices.cols(span(0, nodes_max_true))
@@ -2771,6 +2794,7 @@ List orsf_fit(NumericMatrix& x,
  nodes_max_guess = std::ceil(0.5 * n_rows / leaf_min_events);
 
  betas.zeros(mtry, nodes_max_guess);
+ x_mean.zeros(mtry, nodes_max_guess);
  col_indices.zeros(mtry, nodes_max_guess);
  cutpoints.zeros(nodes_max_guess);
  children_left.zeros(nodes_max_guess);

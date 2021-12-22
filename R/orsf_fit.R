@@ -350,7 +350,7 @@ orsf <- function(data_train,
 
  } else {
 
-  # sneaky way to tell orsf.cpp to make up its own oobag_time
+  # sneaky way to tell orsf.cpp to make its own oobag_time
   oobag_time <- 0
 
  }
@@ -414,6 +414,7 @@ orsf <- function(data_train,
  attr(orsf_out, 'n_tree')          <- n_tree
  attr(orsf_out, 'names_y')         <- names_y_data
  attr(orsf_out, "names_x")         <- names_x_data
+ attr(orsf_out, "names_x_onehot")  <- colnames(x)
  attr(orsf_out, "types_x")         <- types_x_data
  attr(orsf_out, 'n_events')        <- sum(y_sort[,2])
  attr(orsf_out, 'max_time')        <- y_sort[nrow(y_sort), 1]
