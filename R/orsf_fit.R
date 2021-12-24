@@ -79,6 +79,11 @@
 #'   plan on using functions like [orsf_pd_summary] to interpret the fitted
 #'   forest using its training data.
 #'
+#' @param run_checks (_logical_) If `TRUE`, `orsf()` will run checks on
+#'  input values. If `FALSE`, the bare minimum is checked. It is very easy
+#'  to crash your R session when `run_checks` is `FALSE`. Use with care!
+#'
+#'
 #' @return an accelerated oblique RSF object (`aorsf`)
 #'
 #' @details
@@ -144,6 +149,8 @@
 #'
 #' fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 #'
+#' print(fit)
+#'
 #'
 orsf <- function(data_train,
                  formula,
@@ -161,101 +168,45 @@ orsf <- function(data_train,
                  oobag_time = NULL,
                  oobag_eval_every = n_tree,
                  importance = FALSE,
-                 attach_data = TRUE){
+                 attach_data = TRUE,
+                 run_checks = TRUE){
 
  # Run checks
- Call <- match.call()
-
- check_call(
-  Call,
-  expected = list(
-   'data_train' = list(
-    class = 'data.frame'
-   ),
-   'formula' = list(
-    class = 'formula'
-   ),
-   'n_tree' = list(
-    type = 'numeric',
-    length = 1,
-    lwr = 1,
-    integer = TRUE
-   ),
-   'n_split' = list(
-    type = 'numeric',
-    length = 1,
-    lwr = 1,
-    integer = TRUE
-   ),
-   'leaf_min_events' = list(
-    type = 'numeric',
-    length = 1,
-    lwr = 1,
-    integer = TRUE
-   ),
-   'leaf_min_obs' = list(
-    type = 'numeric',
-    length = 1,
-    lwr = 1,
-    integer = TRUE
-   ),
-   'cph_method' = list(
-    type = 'character',
-    options = c("breslow", "efron")
-   ),
-   'cph_eps' = list(
-    type = 'numeric',
-    length = 1,
-    lwr = 0,
-    integer = FALSE
-   ),
-   'cph_iter_max' = list(
-    type = 'numeric',
-    length = 1,
-    lwr = 1,
-    integer = TRUE
-   ),
-   'cph_pval_max' = list(
-    type = 'numeric',
-    length = 1,
-    lwr = 0,
-    upr = 1
-   ),
-   'cph_do_scale' = list(
-    type = 'logical',
-    length = 1
-   ),
-   'oobag_pred' = list(
-    type = 'logical',
-    length = 1
-   ),
-   oobag_time = list(
-    type = 'numeric',
-    length = 1,
-    lwr = 0
-   ),
-   'oobag_eval_every' = list(
-    type = 'numeric',
-    integer = TRUE,
-    lwr = 1,
-    upr = n_tree
-   ),
-   'attach_data' = list(
-    type = 'logical',
-    length = 1
-   )
+ if(run_checks){
+  check_orsf_inputs(
+   data_train = data_train,
+   formula = formula,
+   n_tree = n_tree,
+   n_split = n_split,
+   mtry = mtry,
+   leaf_min_events = leaf_min_events,
+   leaf_min_obs = leaf_min_obs,
+   cph_method = cph_method,
+   cph_eps = cph_eps,
+   cph_iter_max = cph_iter_max,
+   cph_pval_max = cph_pval_max,
+   cph_do_scale = cph_do_scale,
+   oobag_pred = oobag_pred,
+   oobag_time = oobag_time,
+   oobag_eval_every = oobag_eval_every,
+   importance = importance,
+   attach_data = attach_data
   )
- )
+ }
 
  if(importance && !oobag_pred) oobag_pred <- TRUE # Should I add a warning?
 
- formula_terms <- stats::terms(formula, data=data_train)
+ formula_terms <- suppressWarnings(stats::terms(formula, data=data_train))
 
- if(attr(formula_terms, 'response') == 0)
-  stop("formula must have a response", call. = FALSE)
+ if(run_checks){
 
- if(length(attr(formula_terms, 'term.labels')) < 2)
-  stop("formula must have at least 2 predictors", call. = FALSE)
+  if(attr(formula_terms, 'response') == 0)
+   stop("formula must have a response", call. = FALSE)
+
+  if(length(attr(formula_terms, 'term.labels')) < 2)
+   stop("formula must have at least 2 predictors", call. = FALSE)
+
+ }
 
  names_y_data <- all.vars(formula[[2]])
 
@@ -263,14 +214,25 @@ orsf <- function(data_train,
   stop("formula must have two variables (time & status) as the response",
        call. = FALSE)
 
+ names_x_in_f <- rownames(attr(formula_terms, 'factors'))[-1]
+
+ names_strange <- setdiff(names_x_in_f, names(data_train))
+
+ if(!is_empty(names_strange)){
+  msg <- paste0(
+   "variables in formula were not found in ", deparse(Call$data_train), ": ",
+   paste_collapse(names_strange, last = ' and ')
+  )
+  warning(msg, call. = FALSE)
+ }
+
  names_x_data <- attr(formula_terms, 'term.labels')
 
  names_not_found <- setdiff(c(names_y_data, names_x_data), names(data_train))
 
  if(!is_empty(names_not_found)){
   msg <- paste0(
-   "variables in formula were not found in ", deparse(Call$data_train),
-   " data_train: ",
+   "variables in formula were not found in ", deparse(Call$data_train), ": ",
    paste_collapse(names_not_found, last = ' and ')
   )
   stop(msg, call. = FALSE)
@@ -283,17 +245,16 @@ orsf <- function(data_train,
        call. = FALSE)
  }
 
- fctr_check(data_train, names_x_data)
+ if(run_checks) fctr_check(data_train, names_x_data)
+
  fi <- fctr_info(data_train, names_x_data)
  y  <- as.matrix(data_train[, names_y_data])
  x  <- as.matrix(one_hot(data_train, fi, names_x_data))
 
  types_x_data <- check_var_types(data_train,
                                  names_x_data,
-                                 valid_types = c('numeric',
-                                                 'integer',
-                                                 'factor',
-                                                 'ordered'))
+                                 valid_types = c('numeric','integer',
+                                                 'factor', 'ordered'))
 
  names_x_numeric <- grep(pattern = "^integer$|^numeric$",
                          x = types_x_data)
@@ -307,38 +268,26 @@ orsf <- function(data_train,
  }
 
 
+ # Check the outcome variable
+ if(run_checks){
 
- check_arg_uni(arg_value = y[, 2],
-               arg_name = paste0(deparse(Call$data_train),
-                                 '$', names_y_data[2]),
-               expected_uni = c(0,1))
+  check_arg_uni(arg_value = y[, 2],
+                arg_name = names_y_data[2],
+                expected_uni = c(0,1))
 
- check_arg_is(arg_value = y[, 1],
-              arg_name = paste0(deparse(Call$data_train),
-                                '$', names_y_data[1]),
-              expected_class = 'numeric')
+  check_arg_is(arg_value = y[, 1],
+               arg_name = names_y_data[1],
+               expected_class = 'numeric')
 
- check_arg_gt(arg_value = y[, 1],
-              arg_name = paste0(deparse(Call$data_train),
-                                '$', names_y_data[1]),
-              bound = 0)
+  check_arg_gt(arg_value = y[, 1],
+               arg_name = names_y_data[1],
+               bound = 0)
+
+ }
 
  if(is.null(mtry)){
 
   mtry <- ceiling(sqrt(ncol(x)))
-
- } else {
-
-  check_arg_is_integer(arg_name = 'mtry',
-                       arg_value = mtry)
-
-  check_bound_lwr(arg_name = 'mtry',
-                  arg_value = mtry,
-                  bound_lwr = 1)
-
-  check_arg_length(arg_name = 'mtry',
-                   arg_value = mtry,
-                   expected_length = 1)
 
  }
 
@@ -429,3 +378,275 @@ orsf <- function(data_train,
 
 
 }
+
+check_orsf_inputs <- function(data_train,
+                              formula,
+                              n_tree,
+                              n_split,
+                              mtry,
+                              leaf_min_events,
+                              leaf_min_obs,
+                              cph_method,
+                              cph_eps,
+                              cph_iter_max,
+                              cph_pval_max,
+                              cph_do_scale,
+                              oobag_pred,
+                              oobag_time,
+                              oobag_eval_every,
+                              importance,
+                              attach_data){
+
+ if(!is.null(data_train)){
+
+  check_arg_is(arg_value = data_train,
+               arg_name = 'data_train',
+               expected_class = 'data.frame')
+
+ }
+
+ if(!is.null(formula)){
+
+  check_arg_is(arg_value = formula,
+               arg_name = 'formula',
+               expected_class = 'formula')
+
+ }
+
+ if(!is.null(n_tree)){
+
+  check_arg_type(arg_value = n_tree,
+                 arg_name = 'n_tree',
+                 expected_type = 'numeric')
+
+  check_arg_is_integer(arg_value = n_tree,
+                       arg_name = 'n_tree')
+
+  check_arg_gteq(arg_value = n_tree,
+                 arg_name = 'n_tree',
+                 bound = 1)
+
+  check_arg_length(arg_value = n_tree,
+                   arg_name = 'n_tree',
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(n_split)){
+
+  check_arg_type(arg_value = n_split,
+                 arg_name = 'n_split',
+                 expected_type = 'numeric')
+
+  check_arg_is_integer(arg_value = n_split,
+                       arg_name = 'n_split')
+
+  check_arg_gteq(arg_value = n_split,
+                 arg_name = 'n_split',
+                 bound = 1)
+
+  check_arg_length(arg_value = n_split,
+                   arg_name = 'n_split',
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(mtry)){
+
+  check_arg_is_integer(arg_name = 'mtry',
+                       arg_value = mtry)
+
+  check_arg_gteq(arg_name = 'mtry',
+                 arg_value = mtry,
+                 bound = 2)
+
+  check_arg_length(arg_name = 'mtry',
+                   arg_value = mtry,
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(leaf_min_events)){
+
+  check_arg_type(arg_value = leaf_min_events,
+                 arg_name = 'leaf_min_events',
+                 expected_type = 'numeric')
+
+  check_arg_is_integer(arg_value = leaf_min_events,
+                       arg_name = 'leaf_min_events')
+
+  check_arg_gteq(arg_value = leaf_min_events,
+                 arg_name = 'leaf_min_events',
+                 bound = 1)
+
+  check_arg_length(arg_value = leaf_min_events,
+                   arg_name = 'leaf_min_events',
+                   expected_length = 1)
+ }
+
+ if(!is.null(leaf_min_obs)){
+
+  check_arg_type(arg_value = leaf_min_obs,
+                 arg_name = 'leaf_min_obs',
+                 expected_type = 'numeric')
+
+  check_arg_is_integer(arg_value = leaf_min_obs,
+                       arg_name = 'leaf_min_obs')
+
+  check_arg_gteq(arg_value = leaf_min_obs,
+                 arg_name = 'leaf_min_obs',
+                 bound = 1)
+
+  check_arg_length(arg_value = leaf_min_obs,
+                   arg_name = 'leaf_min_obs',
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(cph_method)){
+
+  check_arg_type(arg_value = cph_method,
+                 arg_name = 'cph_method',
+                 expected_type = 'character')
+
+  check_arg_is_valid(arg_value = cph_method,
+                     arg_name = 'cph_method',
+                     valid_options = c("breslow", "efron"))
+ }
+
+ if(!is.null(cph_eps)){
+
+  check_arg_type(arg_value = cph_eps,
+                 arg_name = 'cph_eps',
+                 expected_type = 'numeric')
+
+  check_arg_gt(arg_value = cph_eps,
+               arg_name = 'cph_eps',
+               bound = 0)
+
+  check_arg_length(arg_value = cph_eps,
+                   arg_name = 'cph_eps',
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(cph_iter_max)){
+
+  check_arg_type(arg_value = cph_iter_max,
+                 arg_name = 'cph_iter_max',
+                 expected_type = 'numeric')
+
+  check_arg_is_integer(arg_value = cph_iter_max,
+                       arg_name = 'cph_iter_max')
+
+  check_arg_gteq(arg_value = cph_iter_max,
+                 arg_name = 'cph_iter_max',
+                 bound = 1)
+
+  check_arg_length(arg_value = cph_iter_max,
+                   arg_name = 'cph_iter_max',
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(cph_pval_max)){
+
+  check_arg_type(arg_value = cph_pval_max,
+                 arg_name = 'cph_pval_max',
+                 expected_type = 'numeric')
+
+  check_arg_gt(arg_value = cph_pval_max,
+               arg_name = 'cph_pval_max',
+               bound = 0)
+
+  check_arg_lteq(arg_value = cph_pval_max,
+                 arg_name = 'cph_pval_max',
+                 bound = 1)
+
+  check_arg_length(arg_value = cph_pval_max,
+                   arg_name = 'cph_pval_max',
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(cph_do_scale)){
+
+  check_arg_type(arg_value = cph_do_scale,
+                 arg_name = 'cph_do_scale',
+                 expected_type = 'logical')
+
+  check_arg_length(arg_value = cph_do_scale,
+                   arg_name = 'cph_do_scale',
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(oobag_pred)){
+
+  check_arg_type(arg_value = oobag_pred,
+                 arg_name = 'oobag_pred',
+                 expected_type = 'logical')
+
+  check_arg_length(arg_value = oobag_pred,
+                   arg_name = 'oobag_pred',
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(oobag_time)){
+
+  check_arg_type(arg_value = oobag_time,
+                 arg_name = 'oobag_time',
+                 expected_type = 'numeric')
+
+  check_arg_length(arg_value = oobag_time,
+                   arg_name = 'oobag_time',
+                   expected_length = 1)
+
+  check_arg_gt(arg_value = oobag_time,
+               arg_name = 'oobag_time',
+               bound = 0)
+
+ }
+
+
+ if(!is.null(oobag_eval_every)){
+
+  check_arg_type(arg_value = oobag_eval_every,
+                 arg_name = 'oobag_eval_every',
+                 expected_type = 'numeric')
+
+  check_arg_is_integer(arg_value = oobag_eval_every,
+                       arg_name = 'oobag_eval_every')
+
+  check_arg_gteq(arg_value = oobag_eval_every,
+                 arg_name = 'oobag_eval_every',
+                 bound = 1)
+
+  check_arg_lteq(arg_value = oobag_eval_every,
+                 arg_name = 'oobag_eval_every',
+                 bound = n_tree)
+
+  check_arg_length(arg_value = oobag_eval_every,
+                   arg_name = 'oobag_eval_every',
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(attach_data)){
+
+  check_arg_type(arg_value = attach_data,
+                 arg_name = 'attach_data',
+                 expected_type = 'logical')
+
+  check_arg_length(arg_value = attach_data,
+                   arg_name = 'attach_data',
+                   expected_length = 1)
+
+ }
+
+
+}
+
+
+

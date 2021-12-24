@@ -4,7 +4,7 @@
 \alias{summary.aorsf}
 \title{Summarize ORSF model}
 \usage{
-\method{summary}{aorsf}(object, times, risk = TRUE, ...)
+\method{summary}{aorsf}(object, times = NULL, risk = TRUE, ...)
 }
 \arguments{
 \item{object}{(\emph{aorsf}) an oblique random survival forest (RSF; see \link{orsf}).}
@@ -27,8 +27,8 @@ Summarize ORSF model
 }
 \examples{
 
-fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+object <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 
-summary(fit, times = 1000)
+summary(object)
 
 }

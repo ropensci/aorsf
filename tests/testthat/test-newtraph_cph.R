@@ -52,6 +52,10 @@ run_cph_test <- function(x, y, method, pval_max = 1){
 
 .pbc <- pbc_orsf[order(pbc_orsf$time), ]
 
+.pbc$trt <- as.numeric(.pbc$trt)
+.pbc$ascites <- as.numeric(.pbc$ascites)
+.pbc$hepato <- as.numeric(.pbc$hepato)
+
 x <- as.matrix(.pbc[, c('trt','age','ascites','hepato','bili')])
 y <- survival::Surv(.pbc$time, .pbc$status)
 

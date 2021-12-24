@@ -30,13 +30,13 @@ orsf_vi <- function(object){
  if(!is_aorsf(object)) stop("object must inherit from 'aorsf' class.",
                             call. = FALSE)
 
- if(!has_oobag(object)){
+ if(!contains_oobag(object)){
   stop("cannot compute variable importance if the aorsf object does",
        " not have out-of-bag error (see oobag_pred in ?orsf).",
        call. = FALSE)
  }
 
- if(has_vi(object)) return(object$importance)
+ if(contains_vi(object)) return(object$importance)
 
  cstat <- last_value(object$eval_oobag$c_harrell[, 1, drop=TRUE])
 

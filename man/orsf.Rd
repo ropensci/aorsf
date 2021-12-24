@@ -17,7 +17,7 @@ orsf(
   cph_iter_max = 1,
   cph_pval_max = 1,
   cph_do_scale = TRUE,
-  oobag_pred = FALSE,
+  oobag_pred = TRUE,
   oobag_time = NULL,
   oobag_eval_every = n_tree,
   importance = FALSE,

@@ -9,6 +9,8 @@
 #'
 #'  3. converted `stage` into an ordered factor.
 #'
+#'  4. converted `trt`, `ascites`, `hepato`, and `spiders` into factors.
+#'
 #'
 #'
 #' @format A data frame with 276 rows and 20 variables:
@@ -16,10 +18,10 @@
 #'   \item{id}{case number}
 #'   \item{time}{number of days between registration and the earlier of death, transplantion, or study analysis in July, 1986}
 #'   \item{status}{ status at endpoint, 0 for censored or transplant, 1 for dead}
-#'   \item{trt}{1/2/NA for D-penicillmain, placebo, not randomised}
+#'   \item{trt}{randomized treatment group: D-penicillmain or placebo}
 #'   \item{age}{in years}
 #'   \item{sex}{m/f}
-#'   \item{ascites}{presence of ascites }
+#'   \item{ascites}{presence of ascites}
 #'   \item{hepato}{presence of hepatomegaly or enlarged liver}
 #'   \item{spiders}{blood vessel malformations in the skin}
 #'   \item{edema}{0 no edema, 0.5 untreated or successfully treated 1 edema despite diuretic therapy}

@@ -1,7 +1,7 @@
 
 
 
-#' Title
+#' ORSF partial dependence
 #'
 #' @inheritParams predict.aorsf
 #'
@@ -12,10 +12,13 @@
 #'   used. If the training data were not attached to `object`
 #'   (see `attach_data` input in [orsf]), an error will be triggered.
 #'
-#' @param pd_spec (_named list_). Each item in the list should be a vector
-#'   of values that will be used as points in the partial dependence function.
-#'   The name of each item in the list should indicate which variable will be
-#'   modified to take the corresponding values.
+#' @param pd_spec (_named list_ or _data.frame_). If `pd_spec` is a named list,
+#'   Each item in the list should be a vector of values that will be used as
+#'   points in the partial dependence function. The name of each item in the
+#'   list should indicate which variable will be modified to take the
+#'   corresponding values. If `pd_spec` is a `data.frame`, columns will
+#'   indicate variable names, values will indicate variable values, and
+#'   partial dependence will be computed using the inputs on each row.
 #'
 #' @param expand_grid (_logical_) if `TRUE`, partial dependence will be
 #'   computed at all possible combinations of inputs in `pd_spec`. If
@@ -35,8 +38,9 @@
 #'   `oobag = TRUE` if you are computing partial dependence using the
 #'   training data for `object`.
 #'
-#' @return a `data.frame` containing summarized or observation
-#'   level partial dependence values.
+#' @return a `data.frame` containing summarized partial dependence
+#'   values if using `orsf_pd_summery` or individual conditional
+#'   expectation (ICE) partial dependence if using `orsf_pd_ice`.
 #'
 #' @export
 #'
@@ -71,34 +75,13 @@ orsf_pd_summary <- function(object,
                             risk = TRUE,
                             boundary_checks = TRUE){
 
- check_call(
-  match.call(),
-  expected = list(
-   object = list(
-    class = 'aorsf'
-   ),
-   'expand_grid' = list(
-    type = 'logical',
-    length = 1
-   ),
-   prob_values = list(
-    type = 'numeric',
-    lwr = 0,
-    upr = 1
-   ),
-   prob_labels = list(
-    type = 'character'
-   ),
-   'oobag' = list(
-    type = 'logical',
-    length = 1
-   ),
-   'risk' = list(
-    type = 'logical',
-    length = 1
-   )
-  )
- )
+
+ check_pd_inputs(object = object,
+                 expand_grid = expand_grid,
+                 prob_values = prob_values,
+                 prob_labels = prob_labels,
+                 oobag = oobag,
+                 risk = risk)
 
  if(length(prob_values) != length(prob_labels)){
   stop("prob_values and prob_labels must have the same length.",
@@ -130,26 +113,11 @@ orsf_pd_ice <- function(object,
                         risk = TRUE,
                         boundary_checks = TRUE){
 
- check_call(
-  match.call(),
-  expected = list(
-   object = list(
-    class = 'aorsf'
-   ),
-   'expand_grid' = list(
-    type = 'logical',
-    length = 1
-   ),
-   'oobag' = list(
-    type = 'logical',
-    length = 1
-   ),
-   'risk' = list(
-    type = 'logical',
-    length = 1
-   )
-  )
- )
+
+ check_pd_inputs(object = object,
+                 expand_grid = expand_grid,
+                 oobag = oobag,
+                 risk = risk)
 
  orsf_pd_(object = object,
           pd_data = pd_data,
@@ -162,6 +130,79 @@ orsf_pd_ice <- function(object,
           oobag = oobag,
           risk = risk,
           boundary_checks = boundary_checks)
+
+}
+
+check_pd_inputs <- function(object,
+                            expand_grid = NULL,
+                            prob_values = NULL,
+                            prob_labels = NULL,
+                            oobag = NULL,
+                            risk = NULL){
+
+ check_arg_is(arg_value = object,
+              arg_name = 'object',
+              expected_class = 'aorsf')
+
+ if(!is.null(expand_grid)){
+
+  check_arg_type(arg_value = expand_grid,
+                 arg_name = 'expand_grid',
+                 expected_type = 'logical')
+
+  check_arg_length(arg_value = expand_grid,
+                   arg_name = 'expand_grid',
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(prob_values)){
+
+  check_arg_type(arg_value = prob_values,
+                 arg_name = 'prob_values',
+                 expected_type = 'numeric')
+
+  check_arg_gteq(arg_value = prob_values,
+                 arg_name = 'prob_values',
+                 bound = 0)
+
+  check_arg_lteq(arg_value = prob_values,
+                 arg_name = 'prob_values',
+                 bound = 1)
+
+ }
+
+ if(!is.null(prob_labels)){
+
+  check_arg_type(arg_value = prob_labels,
+                 arg_name = 'prob_labels',
+                 expected_type = 'character')
+
+ }
+
+ if(!is.null(oobag)){
+
+  check_arg_type(arg_value = oobag,
+                 arg_name = 'oobag',
+                 expected_type = 'logical')
+
+  check_arg_length(arg_value = oobag,
+                   arg_name = 'oobag',
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(risk)){
+
+  check_arg_type(arg_value = risk,
+                 arg_name = 'risk',
+                 expected_type = 'logical')
+
+  check_arg_length(arg_value = risk,
+                   arg_name = 'risk',
+                   expected_length = 1)
+
+ }
 
 }
 

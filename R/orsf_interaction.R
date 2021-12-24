@@ -1,14 +1,50 @@
 
 
-#' Title
+#' ORSF interactions
 #'
-#' @param object
+#' @inheritParams predict.aorsf
 #'
-#' @return
+#' @return a `data.frame` with pairwise interaction scores for each
+#'   pair of predictor variables in `object`.
+#'
 #' @export
 #'
 #' @examples
+#'
+#' pbc_orsf$ascites <- factor(pbc_orsf$ascites)
+#'
+#' set.seed(32987)
+#'
+#' fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+#'
+#' intr <- orsf_interaction(fit)
+#'
+#' pd_spec <- list(ascites = c("0","1"),
+#'                 bili = seq(0.6, 7.1, by = 0.25))
+#'
+#' pd_data <- orsf_pd_summary(fit, pd_spec = pd_spec, times = 1000)
+#'
+#' # aligning predictions at lowest value of bili
+#' min_asc_0 <- with(pd_data, median[ascites == 0 & bili == 0.6])
+#' min_asc_1 <- with(pd_data, median[ascites == 1 & bili == 0.6])
+#'
+#' pd_data_aligned <-
+#'  within(pd_data, {
+#'   median[ascites == 0] <- median[ascites == 0] - min_asc_0
+#'   median[ascites == 1] <- median[ascites == 1] - min_asc_1
+#'  })
+#'
+#' library(ggplot2)
+#'
+#' ggplot(pd_data_aligned) +
+#'  aes(x = bili, y = median, col = factor(ascites)) +
+#'  geom_line()
+
 orsf_interaction <- function(object){
+
+ check_arg_is(arg_value = object,
+              arg_name = "object",
+              expected_class = 'aorsf')
 
  dt_betas <- dt_means <- list()
 
@@ -79,8 +115,7 @@ orsf_interaction <- function(object){
  dt <- as.data.table(imat, keep.rownames = 'v1')
  dt <- melt(dt, id.vars = 'v1', variable.name = 'v2', na.rm = TRUE)
  dt <- dt[order(value, decreasing = TRUE), ]
- dt[, perc_drop := shift(value, n=1, fill=0) / value]
- dt[]
+ # dt[]
 
  dt
 

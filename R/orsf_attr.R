@@ -15,8 +15,9 @@ get_leaf_min_obs    <- function(object) attr(object, 'leaf_min_obs')
 get_numeric_bounds  <- function(object) attr(object, 'numeric_bounds')
 
 
-has_oobag <- function(object) !is_empty(object$surv_oobag)
-has_vi <- function(object) !is_empty(object$importance)
+contains_oobag <- function(object) !is_empty(object$surv_oobag)
+
+contains_vi <- function(object) !is_empty(object$importance)
 
 get_names_x <- function(object, one_hot_names = FALSE){
  if(one_hot_names)

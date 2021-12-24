@@ -22,7 +22,7 @@ print.aorsf <- function(x, ...){
  info_leaf_min_obs    <- get_leaf_min_obs(x)
  info_leaf_min_events <- get_leaf_min_events(x)
 
- info_oobag_c <- ifelse(test = has_oobag(x),
+ info_oobag_c <- ifelse(test = contains_oobag(x),
                         yes = table.glue::table_value(x$eval_oobag$c_harrell),
                         no = "none")
 

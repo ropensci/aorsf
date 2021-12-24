@@ -3,28 +3,30 @@
 \name{orsf_pd_summary}
 \alias{orsf_pd_summary}
 \alias{orsf_pd_ice}
-\title{Title}
+\title{ORSF partial dependence}
 \usage{
 orsf_pd_summary(
   object,
   pd_data = NULL,
   pd_spec,
-  times,
+  times = NULL,
   expand_grid = TRUE,
   prob_values = c(0.025, 0.5, 0.975),
   prob_labels = c("lwr", "median", "upr"),
   oobag = TRUE,
-  risk = TRUE
+  risk = TRUE,
+  boundary_checks = TRUE
 )
 
 orsf_pd_ice(
   object,
   pd_data = NULL,
   pd_spec,
-  times,
+  times = NULL,
   expand_grid = TRUE,
   oobag = TRUE,
-  risk = TRUE
+  risk = TRUE,
+  boundary_checks = TRUE
 )
 }
 \arguments{
@@ -35,10 +37,13 @@ dependence. If \code{NULL}, then the training data of \code{object} will be
 used. If the training data were not attached to \code{object}
 (see \code{attach_data} input in \link{orsf}), an error will be triggered.}
 
-\item{pd_spec}{(\emph{named list}). Each item in the list should be a vector
-of values that will be used as points in the partial dependence function.
-The name of each item in the list should indicate which variable will be
-modified to take the corresponding values.}
+\item{pd_spec}{(\emph{named list} or \emph{data.frame}). If \code{pd_spec} is a named list,
+Each item in the list should be a vector of values that will be used as
+points in the partial dependence function. The name of each item in the
+list should indicate which variable will be modified to take the
+corresponding values. If \code{pd_spec} is a \code{data.frame}, columns will
+indicate variable names, values will indicate variable values, and
+partial dependence will be computed using the inputs on each row.}
 
 \item{times}{(\emph{double}) a single time or a vector of times for oblique RSF
 predictions. All \code{times} values must not exceed the maximum follow-up
@@ -67,11 +72,12 @@ training data for \code{object}.}
 predicted survival (i.e., 1-risk) is returned.}
 }
 \value{
-a \code{data.frame} containing summarized or observation
-level partial dependence values.
+a \code{data.frame} containing summarized partial dependence
+values if using \code{orsf_pd_summery} or individual conditional
+expectation (ICE) partial dependence if using \code{orsf_pd_ice}.
 }
 \description{
-Title
+ORSF partial dependence
 }
 \examples{
 

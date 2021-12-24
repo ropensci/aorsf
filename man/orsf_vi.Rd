@@ -15,6 +15,14 @@ the \code{object} with variable importance attached.
 \description{
 ORSF variable importance
 }
+\details{
+The method used to compute variable importance with ORSF is called
+'negation importance'. Each variable is assessed separately by
+multiplying the variable's coefficients by -1 and then determining
+how much the model's performance changes. The worse the model's
+performance after negating all coefficients for a given variable,
+the more important the variable.
+}
 \examples{
 
 fit <- orsf(pbc_orsf,

@@ -17,6 +17,10 @@
 #' @param risk (_logical_) if `TRUE`, predicted risk is returned. If `FALSE`,
 #'   predicted survival (i.e., 1-risk) is returned.
 #'
+#' @param run_checks (_logical_) If `TRUE`, tests will be run on inputs.
+#'  If `FALSE`, the bare minimum will be checked. It is very easy
+#'  to crash your R session when `run_checks` is `FALSE`. Use with care!
+#'
 #' @param ... not used.
 #'
 #' @return a `matrix` of predictions. Column `j` of the matrix corresponds
@@ -39,15 +43,12 @@
 #' head(preds)
 #'
 #'
-predict.aorsf <- function(object, new_data, times, risk = TRUE, ...){
+predict.aorsf <- function(object, new_data, times,
+                          risk = TRUE,
+                          run_checks = TRUE,
+                          ...){
 
- if(missing(new_data))
-  stop("argument 'new_data' is missing, with no default", call. = FALSE)
-
- if(missing(times))
-  stop("argument 'times' is missing, with no default", call. = FALSE)
-
- check_predict(object, new_data, times, risk)
+ if(run_checks) check_predict(object, new_data, times, risk)
 
  x_new <- as.matrix(
   one_hot(x_data = new_data,
@@ -196,26 +197,39 @@ fctr_check_levels <- function(ref,
 
 }
 
-check_predict <- function(object, new_data, times, risk = TRUE){
+check_predict <- function(object, new_data, times, risk){
 
- Call <- match.call()
+ if(!is.null(new_data)){
 
- check_call(
-  Call,
-  expected = list(
-   'new_data' = list(
-    class = 'data.frame'
-   ),
-   'times' = list(
-    type = 'numeric',
-    lwr = 0
-   ),
-   'risk' = list(
-    type = 'logical',
-    length = 1
-   )
-  )
- )
+  check_arg_is(arg_value = new_data,
+               arg_name = 'new_data',
+               expected_class = 'data.frame')
+
+ }
+
+ if(!is.null(times)){
+
+  check_arg_type(arg_value = times,
+                 arg_name = 'times',
+                 expected_type = 'numeric')
+
+  check_arg_gt(arg_value = times,
+               arg_name = 'times',
+               bound = 0)
+
+ }
+
+ if(!is.null(risk)){
+
+  check_arg_type(arg_value = risk,
+                 arg_name = 'risk',
+                 expected_type = 'logical')
+
+  check_arg_length(arg_value = risk,
+                   arg_name = 'risk',
+                   expected_length = 1)
+
+ }
 
  if(any(times > get_max_time(object))){
 
@@ -223,31 +237,33 @@ check_predict <- function(object, new_data, times, risk = TRUE){
        "be <= max follow-up time ",
        "observed in training data: ",
        get_max_time(object),
+       ". You may bypass this error by setting run_checks = FALSE",
        call. = FALSE)
 
  }
-
- check_new_data_names(new_data  = new_data,
-                      ref_names = get_names_x(object),
-                      label_new = deparse(Call$new_data),
-                      label_ref = 'training data')
-
- check_new_data_types(new_data  = new_data,
-                      ref_names = get_names_x(object),
-                      ref_types = get_types_x(object),
-                      label_new = deparse(Call$new_data),
-                      label_ref = 'training data')
-
- check_new_data_fctrs(new_data  = new_data,
-                      names_x   = get_names_x(object),
-                      fi_ref    = get_fctr_info(object),
-                      label_new = deparse(Call$new_data))
 
  if(!all(order(times) == seq(length(times)))){
   stop("times must be entered in ascending order, e.g.,",
        "times = c(5, 10) instead of times = c(10, 5)",
        call. = FALSE)
  }
+
+ check_new_data_names(new_data  = new_data,
+                      ref_names = get_names_x(object),
+                      label_new = "new_data",
+                      label_ref = 'training data')
+
+ check_new_data_types(new_data  = new_data,
+                      ref_names = get_names_x(object),
+                      ref_types = get_types_x(object),
+                      label_new = "new_data",
+                      label_ref = 'training data')
+
+ check_new_data_fctrs(new_data  = new_data,
+                      names_x   = get_names_x(object),
+                      fi_ref    = get_fctr_info(object),
+                      label_new = "new_data")
+
 
 }
 

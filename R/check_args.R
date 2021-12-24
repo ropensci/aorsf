@@ -96,29 +96,41 @@ check_arg_length <- function(arg_value, arg_name, expected_length){
 
 }
 
-check_arg_bounds <- function(arg_value, arg_name, bound_lwr, bound_upr){
+check_arg_bound <- function(arg_value, arg_name, bound, relational_operator){
 
- arg_value <- arg_value[!is.na(arg_value)]
- if(!is.null(bound_lwr)) check_bound_lwr(arg_value, arg_name, bound_lwr)
- if(!is.null(bound_upr)) check_bound_upr(arg_value, arg_name, bound_upr)
+ .op <- switch(relational_operator,
+               'gt' = `>`,
+               'lt' = `<`,
+               'gteq' = `>=`,
+               'lteq' = `<=`)
 
-}
+ .lab <- switch(relational_operator,
+                'gt' = ">",
+                'lt' = "<",
+                'gteq' = ">=",
+                'lteq' = "<=")
 
-check_arg_gt <- function(arg_value, arg_name, bound) {
+ .neg <- switch(relational_operator,
+                'gt' = "<=",
+                'lt' = ">=",
+                'gteq' = "<",
+                'lteq' = ">")
 
- if(any(arg_value <= bound)){
+ fails <- !.op(arg_value, bound)
+
+ if(any(fails)){
 
   if(length(arg_value) == 1){
 
    error_msg <-
-    paste0(arg_name, " = ", arg_value, "should be >= ", bound)
+    paste0(arg_name, " = ", arg_value, " should be ", .lab, " ", bound)
 
   } else {
 
-   first_offense <- min(which(arg_value <= bound))
+   first_offense <- min(which(fails))
 
-   error_msg <- paste0(arg_name, " should be > ", bound, " but has",
-                       " at least one value that is <= ", bound,
+   error_msg <- paste0(arg_name, " should be ", .lab, " ", bound, " but has",
+                       " at least one value that is ", .neg, " ", bound,
                        " (see ", arg_name, "[", first_offense, "])")
   }
 
@@ -126,6 +138,22 @@ check_arg_gt <- function(arg_value, arg_name, bound) {
 
  }
 
+}
+
+check_arg_gt <- function(arg_value, arg_name, bound){
+ check_arg_bound(arg_value, arg_name, bound, relational_operator = 'gt')
+}
+
+check_arg_lt <- function(arg_value, arg_name, bound){
+ check_arg_bound(arg_value, arg_name, bound, relational_operator = 'lt')
+}
+
+check_arg_gteq <- function(arg_value, arg_name, bound){
+ check_arg_bound(arg_value, arg_name, bound, relational_operator = 'gteq')
+}
+
+check_arg_lteq <- function(arg_value, arg_name, bound){
+ check_arg_bound(arg_value, arg_name, bound, relational_operator = 'lteq')
 }
 
 check_arg_is_valid <- function(arg_value, arg_name, valid_options) {
@@ -202,134 +230,6 @@ check_arg_is <- function(arg_value, arg_name, expected_class){
  }
 
 }
-
-check_bound_lwr <- function(arg_value, arg_name, bound_lwr) {
-
- if(any(arg_value < bound_lwr)){
-
-  if(length(arg_value) == 1){
-
-   error_msg <-
-    paste0(arg_name, " = ", arg_value, "should be >= ", bound_lwr)
-
-  } else {
-
-   first_offense <- min(which(arg_value < bound_lwr))
-
-   error_msg <- paste0(arg_name, " should be >= ", bound_lwr, " but has",
-                       " at least one value that is < ", bound_lwr,
-                       " (see ", arg_name, "[", first_offense, "])")
-  }
-
-  stop(error_msg, call. = FALSE)
-
- }
-
-}
-
-check_bound_upr <- function(arg_value, arg_name, bound_upr) {
-
- if(any(arg_value > bound_upr)){
-
-  if(length(arg_value) == 1){
-
-   error_msg <-
-    paste0(arg_name, " = ", arg_value, " should be <= ", bound_upr)
-
-  } else {
-
-   first_offense <- min(which(arg_value > bound_upr))
-
-   error_msg <- paste0(arg_name, " should be <= ", bound_upr, " but has",
-                       " at least one value that is > ", bound_upr,
-                       " (see ", arg_name, "[", first_offense, "])")
-  }
-
-  stop(error_msg, call. = FALSE)
- }
-
-}
-
-check_call <- function(call, expected){
-
- arg_names <- setdiff( names(call), '' )
-
- #browser()
- n_frames <- length(sys.frames())
-
- for (arg_name in arg_names ){
-
-  object_found <- FALSE
-
-  n <- 1
-
-  while(n <= n_frames & !object_found){
-
-   arg_value <- try(
-    eval(call[[arg_name]], envir = parent.frame(n = n)),
-    silent = TRUE
-   )
-
-   if(!inherits(arg_value, 'try-error')) object_found <- TRUE
-
-   n <- n + 1
-
-  }
-
-  if(inherits(arg_value, 'try-error'))
-   stop("object '", deparse(call[[arg_name]]),"' not found",
-        call. = FALSE)
-
-  if(is.null(arg_value)) return(invisible())
-
-  expected_type <- expected[[arg_name]]$type
-  expected_integer <- expected[[arg_name]]$integer
-  expected_length <- expected[[arg_name]]$length
-  expected_uni <- expected[[arg_name]]$uni
-  bound_lwr = expected[[arg_name]]$lwr
-  bound_upr = expected[[arg_name]]$upr
-  expected_options = expected[[arg_name]]$options
-  expected_class = expected[[arg_name]]$class
-
-  if(!is.null(expected_type))
-   check_arg_type(arg_name = arg_name,
-                  arg_value = arg_value,
-                  expected_type = expected_type)
-
-  if(!is.null(expected_integer))
-   check_arg_is_integer(arg_name = arg_name,
-                        arg_value = arg_value)
-
-  if(!is.null(expected_length))
-   check_arg_length(arg_name = arg_name,
-                    arg_value = arg_value,
-                    expected_length = expected_length)
-
-  if(!is.null(expected_uni))
-   check_arg_uni(arg_name = arg_name,
-                 arg_value = arg_value,
-                 expected_uni = expected_uni)
-
-  if(!is.null(bound_lwr) | !is.null(bound_upr))
-   check_arg_bounds(arg_name = arg_name,
-                    arg_value = arg_value,
-                    bound_lwr = bound_lwr,
-                    bound_upr = bound_upr)
-
-  if(!is.null(expected_options))
-   check_arg_is_valid(arg_name = arg_name,
-                      arg_value = arg_value,
-                      valid_options = expected_options)
-
-  if(!is.null(expected_class))
-   check_arg_is(arg_name = arg_name,
-                arg_value = arg_value,
-                expected_class = expected_class)
-
- }
-
-}
-
 
 check_var_types <- function(data, .names, valid_types){
 

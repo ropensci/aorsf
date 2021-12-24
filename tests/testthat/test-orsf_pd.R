@@ -1,8 +1,6 @@
 
 library(pdp)
 
-pbc_orsf$stage <- factor(pbc_orsf$stage, ordered = FALSE)
-
 pred_aorsf <- function(object, newdata) {  # see ?predict.aorsf
  as.numeric(predict(object, newdata, times = 1000))
 }

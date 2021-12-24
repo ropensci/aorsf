@@ -38,7 +38,7 @@ test_that(
 )
 
 bad_data <- new_data
-bad_data$trt <- factor(bad_data$trt)
+bad_data$trt <- as.numeric(new_data$trt)
 
 test_that(
  desc = 'unexpected data types are detected',
