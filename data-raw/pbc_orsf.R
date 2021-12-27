@@ -14,5 +14,6 @@ pbc_orsf$trt <- factor(pbc_orsf$trt,
 pbc_orsf$ascites <- factor(pbc_orsf$ascites)
 pbc_orsf$hepato <- factor(pbc_orsf$hepato)
 pbc_orsf$spiders <- factor(pbc_orsf$spiders)
+pbc_orsf$edema <- factor(pbc_orsf$edema)
 
 usethis::use_data(pbc_orsf, overwrite = TRUE)

@@ -17,9 +17,6 @@
 #' @param risk (_logical_) if `TRUE`, predicted risk is returned. If `FALSE`,
 #'   predicted survival (i.e., 1-risk) is returned.
 #'
-#' @param run_checks (_logical_) If `TRUE`, tests will be run on inputs.
-#'  If `FALSE`, the bare minimum will be checked. It is very easy
-#'  to crash your R session when `run_checks` is `FALSE`. Use with care!
 #'
 #' @param ... not used.
 #'
@@ -43,12 +40,14 @@
 #' head(preds)
 #'
 #'
-predict.aorsf <- function(object, new_data, times,
+predict.aorsf <- function(object,
+                          new_data,
+                          times,
                           risk = TRUE,
-                          run_checks = TRUE,
+                          pred_aggr_fun = 'median',
                           ...){
 
- if(run_checks) check_predict(object, new_data, times, risk)
+ check_predict(object, new_data, times, risk)
 
  x_new <- as.matrix(
   one_hot(x_data = new_data,
@@ -58,11 +57,19 @@ predict.aorsf <- function(object, new_data, times,
 
  if(length(times) == 1){
 
-  return(orsf_pred_uni(object$forest, x_new, times, risk))
+  return(orsf_pred_uni(object$forest,
+                       x_new,
+                       times,
+                       risk,
+                       pred_aggr_fun == 'median'))
 
  }
 
- orsf_pred_multi(object$forest, x_new, times, risk)
+ orsf_pred_multi(object$forest,
+                 x_new,
+                 times,
+                 risk,
+                 pred_aggr_fun == 'median');
 
 }
 

@@ -32,18 +32,18 @@ pd_spec <- list(ascites = c("0","1"),
 pd_data <- orsf_pd_summary(fit, pd_spec = pd_spec, times = 1000)
 
 # aligning predictions at lowest value of bili
-min_asc_0 <- with(pd_data, median[ascites == 0 & bili == 0.6])
-min_asc_1 <- with(pd_data, median[ascites == 1 & bili == 0.6])
+min_asc_0 <- with(pd_data, mean[ascites == 0 & bili == 0.6])
+min_asc_1 <- with(pd_data, mean[ascites == 1 & bili == 0.6])
 
 pd_data_aligned <-
  within(pd_data, {
-  median[ascites == 0] <- median[ascites == 0] - min_asc_0
-  median[ascites == 1] <- median[ascites == 1] - min_asc_1
+  mean[ascites == 0] <- mean[ascites == 0] - min_asc_0
+  mean[ascites == 1] <- mean[ascites == 1] - min_asc_1
  })
 
 library(ggplot2)
 
 ggplot(pd_data_aligned) +
- aes(x = bili, y = median, col = factor(ascites)) +
+ aes(x = bili, y = mean, col = factor(ascites)) +
  geom_line()
 }

@@ -1,12 +1,66 @@
 
 
-object = orsf(formula = Surv(time, status) ~ . - id,
-              data_train = pbc_orsf,
-              mtry = 5,
-              n_split = 5,
-              cph_do_scale = TRUE,
-              n_tree = 500,
-              leaf_min_obs = 10,
-              importance = FALSE,
-              oobag_pred = TRUE)
+# catch bad inputs, give informative error
+
+pbc_temp <- pbc_orsf
+pbc_temp$id <- factor(pbc_temp$id)
+pbc_temp$status <- pbc_temp$status+1
+
+f1 <- Surv(time, status) ~ unknown_variable + bili
+f2 <- Surv(time, status) ~ id
+f3 <- Surv(time, status) ~ bili + factor(hepato)
+f4 <- Surv(time, status) ~ bili * ascites
+f5 <- Surv(time, status) ~ bili + id
+f6 <- Surv(time, not_right) ~ .
+f7 <- Surv(not_right, status) ~ .
+f8 <- Surv(start, time, status) ~ .
+f9 <- Surv(status, time) ~ . - id
+f10 <- Surv(time, time) ~ . - id
+f11 <- Surv(time, hepato) ~ . -id
+f12 <- Surv(time, status) ~ . -id
+f13 <- ~ .
+f14 <- status + time ~ . - id
+
+test_that(
+ desc = 'formula inputs are vetted',
+ code = {
+
+  expect_error(orsf(pbc_temp, f1), 'not found in data_train')
+  expect_error(orsf(pbc_temp, f2), 'at least 2 predictors')
+  expect_error(orsf(pbc_temp, f3), 'unrecognized')
+  expect_error(orsf(pbc_temp, f4), 'unrecognized')
+  expect_error(orsf(pbc_temp, f5), 'id variable?')
+  expect_error(orsf(pbc_temp, f6), 'not_right')
+  expect_error(orsf(pbc_temp, f7), 'not_right')
+  expect_error(orsf(pbc_temp, f8), 'must have two variables')
+  expect_error(orsf(pbc_temp, f9), 'should contain values of 0 and 1')
+  expect_error(orsf(pbc_temp, f10), 'must have two variables')
+  expect_error(orsf(pbc_temp, f11), 'should have type')
+  expect_error(orsf(pbc_temp, f12), 'should contain values of 0 and 1')
+  expect_error(orsf(pbc_temp, f13), 'must be two sided')
+  expect_error(orsf(pbc_temp, f14), 'should contain values of 0 and 1')
+
+ }
+)
+
+f <- time + status ~ . - id
+
+test_that(
+ desc = 'non-formula inputs are vetted',
+ code = {
+
+  expect_error(orsf(pbc_orsf, f, n_tree = 0), "should be >= 1")
+  expect_error(orsf(pbc_orsf, f, n_split = "3"), "should have type")
+  expect_error(orsf(pbc_orsf, f, mtry = 5000), 'should be <=')
+  expect_error(orsf(pbc_orsf, f, leaf_min_events = 5000), 'should be <=')
+  expect_error(orsf(pbc_orsf, f, leaf_min_obs = 5000), 'should be <=')
+  expect_error(orsf(pbc_orsf, f, cph_method = 'oh no'), "breslow or efron")
+  expect_error(orsf(pbc_orsf, f, cph_do_scale = FALSE, cph_iter_max = 10),
+               "must be TRUE")
+
+ }
+)
+
+
+
 

@@ -20,6 +20,12 @@
 #' @param n_split (_integer_) the number of cut-points assessed when splitting
 #'  a node in decision trees.
 #'
+#' @param n_retry (_integer_) when a node can be split, but the current
+#'  linear combination of inputs is unable to provide a valid split, `orsf`
+#'  will try again with a new linear combination based on a different set
+#'  of randomly selected predictors, up to `n_retry` times. When
+#'  `n_retry = 0` (the default) the retry mechanic is not applied.
+#'
 #' @param mtry (_integer_) Number of variables randomly selected as candidates
 #'   for splitting a node. The default is the smallest integer greater than
 #'   the square root of the number of features. See details.
@@ -78,11 +84,6 @@
 #'   data will be attached to the output. This is helpful if you
 #'   plan on using functions like [orsf_pd_summary] to interpret the fitted
 #'   forest using its training data.
-#'
-#' @param run_checks (_logical_) If `TRUE`, `orsf()` will run checks on
-#'  input values. If `FALSE`, the bare minimum is checked. It is very easy
-#'  to crash your R session when `run_checks` is `FALSE`. Use with care!
-#'
 #'
 #' @return an accelerated oblique RSF object (`aorsf`)
 #'
@@ -156,6 +157,7 @@ orsf <- function(data_train,
                  formula,
                  n_tree = 500,
                  n_split = 5,
+                 n_retry = 0,
                  mtry = NULL,
                  leaf_min_events = 1,
                  leaf_min_obs = 15,
@@ -168,45 +170,39 @@ orsf <- function(data_train,
                  oobag_time = NULL,
                  oobag_eval_every = n_tree,
                  importance = FALSE,
-                 attach_data = TRUE,
-                 run_checks = TRUE){
+                 attach_data = TRUE){
 
  # Run checks
- if(run_checks){
-  check_orsf_inputs(
-   data_train = data_train,
-   formula = formula,
-   n_tree = n_tree,
-   n_split = n_split,
-   mtry = mtry,
-   leaf_min_events = leaf_min_events,
-   leaf_min_obs = leaf_min_obs,
-   cph_method = cph_method,
-   cph_eps = cph_eps,
-   cph_iter_max = cph_iter_max,
-   cph_pval_max = cph_pval_max,
-   cph_do_scale = cph_do_scale,
-   oobag_pred = oobag_pred,
-   oobag_time = oobag_time,
-   oobag_eval_every = oobag_eval_every,
-   importance = importance,
-   attach_data = attach_data
-  )
- }
+ check_orsf_inputs(
+  data_train = data_train,
+  formula = formula,
+  n_tree = n_tree,
+  n_split = n_split,
+  n_retry = n_retry,
+  mtry = mtry,
+  leaf_min_events = leaf_min_events,
+  leaf_min_obs = leaf_min_obs,
+  cph_method = cph_method,
+  cph_eps = cph_eps,
+  cph_iter_max = cph_iter_max,
+  cph_pval_max = cph_pval_max,
+  cph_do_scale = cph_do_scale,
+  oobag_pred = oobag_pred,
+  oobag_time = oobag_time,
+  oobag_eval_every = oobag_eval_every,
+  importance = importance,
+  attach_data = attach_data
+ )
 
  if(importance && !oobag_pred) oobag_pred <- TRUE # Should I add a warning?
 
  formula_terms <- suppressWarnings(stats::terms(formula, data=data_train))
 
- if(run_checks){
+ if(attr(formula_terms, 'response') == 0)
+  stop("formula must have a response", call. = FALSE)
 
-  if(attr(formula_terms, 'response') == 0)
-   stop("formula must have a response", call. = FALSE)
-
-  if(length(attr(formula_terms, 'term.labels')) < 2)
-   stop("formula must have at least 2 predictors", call. = FALSE)
-
- }
+ if(length(attr(formula_terms, 'term.labels')) < 2)
+  stop("formula must have at least 2 predictors", call. = FALSE)
 
  names_y_data <- all.vars(formula[[2]])
 
@@ -214,17 +210,6 @@ orsf <- function(data_train,
   stop("formula must have two variables (time & status) as the response",
        call. = FALSE)
 
- names_x_in_f <- rownames(attr(formula_terms, 'factors'))[-1]
-
- names_strange <- setdiff(names_x_in_f, names(data_train))
-
- if(!is_empty(names_strange)){
-  msg <- paste0(
-   "variables in formula were not found in ", deparse(Call$data_train), ": ",
-   paste_collapse(names_strange, last = ' and ')
-  )
-  warning(msg, call. = FALSE)
- }
 
  names_x_data <- attr(formula_terms, 'term.labels')
 
@@ -232,20 +217,31 @@ orsf <- function(data_train,
 
  if(!is_empty(names_not_found)){
   msg <- paste0(
-   "variables in formula were not found in ", deparse(Call$data_train), ": ",
+   "variables in formula were not found in data_train: ",
    paste_collapse(names_not_found, last = ' and ')
   )
   stop(msg, call. = FALSE)
  }
 
+ names_x_in_f <- rownames(attr(formula_terms, 'factors'))[-1]
+
+ names_strange <- setdiff(names_x_in_f, names(data_train))
+
+ if(!is_empty(names_strange)){
+  msg <- paste0(
+   "variables in formula were not found in data_train: ",
+   paste_collapse(names_strange, last = ' and ')
+  )
+  warning(msg, call. = FALSE)
+ }
+
  if(any(is.na(data_train[, c(names_y_data, names_x_data)]))){
-  stop("Please remove missing values from ",
-       deparse(Call$data_train),
-       " or impute them",
+  stop("Please remove missing values from data_train, or impute them.",
        call. = FALSE)
  }
 
- if(run_checks) fctr_check(data_train, names_x_data)
+ fctr_check(data_train, names_x_data)
+ fctr_id_check(data_train, names_x_data)
 
  fi <- fctr_info(data_train, names_x_data)
  y  <- as.matrix(data_train[, names_y_data])
@@ -268,31 +264,60 @@ orsf <- function(data_train,
  }
 
 
- # Check the outcome variable
- if(run_checks){
-
-  check_arg_uni(arg_value = y[, 2],
-                arg_name = names_y_data[2],
-                expected_uni = c(0,1))
-
-  check_arg_is(arg_value = y[, 1],
-               arg_name = names_y_data[1],
-               expected_class = 'numeric')
-
-  check_arg_gt(arg_value = y[, 1],
-               arg_name = names_y_data[1],
-               bound = 0)
-
- }
-
  if(is.null(mtry)){
-
   mtry <- ceiling(sqrt(ncol(x)))
-
  }
+
+ # Check the outcome variable
+
+
+ check_arg_type(arg_value = y[, 2],
+                arg_name = "status indicator",
+                expected_type = 'numeric')
+
+ check_arg_uni(arg_value = y[, 2],
+               arg_name = "status indicator",
+               expected_uni = c(0,1))
+
+ n_events <- sum(y[, 2])
+
+ check_arg_type(arg_value = y[, 1],
+                arg_name = "time to event",
+                expected_type = 'numeric')
+
+ check_arg_gt(arg_value = y[, 1],
+              arg_name = "time to event",
+              bound = 0)
+
+ # some additional checks that are dependent on the outcome variable
+
+ check_arg_lteq(
+  arg_value = mtry,
+  arg_name = 'mtry',
+  bound = ncol(x),
+  append_to_msg = "(number of columns in the one-hot encoded x-matrix)"
+ )
+
+ check_arg_lteq(
+  arg_value = leaf_min_events,
+  arg_name = 'leaf_min_events',
+  bound = round(n_events / 2),
+  append_to_msg = "(number of events divided by 2)"
+ )
+
+ check_arg_lteq(
+  arg_value = leaf_min_obs,
+  arg_name = 'leaf_min_obs',
+  bound = round(nrow(x) / 2),
+  append_to_msg = "(number of observations divided by 2)"
+ )
+
+
+
 
  if(!is.null(oobag_time)){
-  if(oobag_time == 0)
+
+  if(oobag_time <= 0)
 
    stop("Out of bag prediction time (oobag_time) must be > 0",
         call. = FALSE)
@@ -327,7 +352,8 @@ orsf <- function(data_train,
                       oobag_pred_       = oobag_pred,
                       oobag_time_       = oobag_time,
                       oobag_eval_every_ = oobag_eval_every,
-                      oobag_importance_ = importance)
+                      oobag_importance_ = importance,
+                      max_retry_        = n_retry)
 
  orsf_out$data_train <- if(attach_data) data_train else NULL
 
@@ -349,7 +375,7 @@ orsf <- function(data_train,
  } else {
 
   # this would get added by orsf_fit if oobag_pred was TRUE
-  orsf_out$time_pred <- median(y[, 1])
+  orsf_out$time_pred <- stats::median(y[, 1])
 
  }
 
@@ -365,7 +391,7 @@ orsf <- function(data_train,
  attr(orsf_out, "names_x")         <- names_x_data
  attr(orsf_out, "names_x_onehot")  <- colnames(x)
  attr(orsf_out, "types_x")         <- types_x_data
- attr(orsf_out, 'n_events')        <- sum(y_sort[,2])
+ attr(orsf_out, 'n_events')        <- n_events
  attr(orsf_out, 'max_time')        <- y_sort[nrow(y_sort), 1]
  attr(orsf_out, "fctr_info")       <- fi
  attr(orsf_out, 'n_leaves_mean')   <- n_leaves_mean
@@ -383,6 +409,7 @@ check_orsf_inputs <- function(data_train,
                               formula,
                               n_tree,
                               n_split,
+                              n_retry,
                               mtry,
                               leaf_min_events,
                               leaf_min_obs,
@@ -410,6 +437,25 @@ check_orsf_inputs <- function(data_train,
   check_arg_is(arg_value = formula,
                arg_name = 'formula',
                expected_class = 'formula')
+
+  if(length(formula) != 3){
+   stop("formula must be two sided, i.e. left side ~ right side",
+        call. = FALSE)
+  }
+
+  formula_deparsed <- deparse(formula[[3]])
+
+  for( symbol in c("*", "^", ":", "(", ")", "["," ]", "|", "%") ){
+
+   if(grepl(symbol, formula_deparsed, fixed = TRUE)){
+
+    stop("unrecognized symbol in formula: ", symbol,
+         "\norsf recognizes '+', '-', and '.' symbols.",
+         call. = FALSE)
+
+   }
+
+  }
 
  }
 
@@ -451,7 +497,30 @@ check_orsf_inputs <- function(data_train,
 
  }
 
+ if(!is.null(n_retry)){
+
+  check_arg_type(arg_value = n_retry,
+                 arg_name = 'n_retry',
+                 expected_type = 'numeric')
+
+  check_arg_is_integer(arg_value = n_retry,
+                       arg_name = 'n_retry')
+
+  check_arg_gteq(arg_value = n_retry,
+                 arg_name = 'n_retry',
+                 bound = 0)
+
+  check_arg_length(arg_value = n_retry,
+                   arg_name = 'n_retry',
+                   expected_length = 1)
+
+ }
+
  if(!is.null(mtry)){
+
+  check_arg_type(arg_value = mtry,
+                 arg_name = 'mtry',
+                 expected_type = 'numeric')
 
   check_arg_is_integer(arg_name = 'mtry',
                        arg_value = mtry)
@@ -643,6 +712,12 @@ check_orsf_inputs <- function(data_train,
                    arg_name = 'attach_data',
                    expected_length = 1)
 
+ }
+
+
+ if(!cph_do_scale && cph_iter_max > 1){
+  stop("cph_do_scale must be TRUE when cph_iter_max > 1",
+       call. = FALSE)
  }
 
 

@@ -32,7 +32,6 @@ BugReports: https://github.com/bcjaeger/aorsf/issues
 Depends: 
     R (>= 2.10)
 Suggests: 
-    pdp,
     survival,
     ggplot2,
     testthat (>= 3.0.0),

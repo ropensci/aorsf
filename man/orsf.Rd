@@ -9,6 +9,7 @@ orsf(
   formula,
   n_tree = 500,
   n_split = 5,
+  n_retry = 0,
   mtry = NULL,
   leaf_min_events = 1,
   leaf_min_obs = 15,
@@ -34,6 +35,12 @@ of a \code{~} operator, and the terms on the right. See details.}
 
 \item{n_split}{(\emph{integer}) the number of cut-points assessed when splitting
 a node in decision trees.}
+
+\item{n_retry}{(\emph{integer}) when a node can be split, but the current
+linear combination of inputs is unable to provide a valid split, \code{orsf}
+will try again with a new linear combination based on a different set
+of randomly selected predictors, up to \code{n_retry} times. When
+\code{n_retry = 0} (the default) the retry mechanic is not applied.}
 
 \item{mtry}{(\emph{integer}) Number of variables randomly selected as candidates
 for splitting a node. The default is the smallest integer greater than
@@ -158,6 +165,8 @@ least 2 events per predictor variable.
 \examples{
 
 fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+
+print(fit)
 
 
 }

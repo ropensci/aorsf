@@ -38,6 +38,11 @@
 #'   `oobag = TRUE` if you are computing partial dependence using the
 #'   training data for `object`.
 #'
+#' @param boundary_checks (_logical_) if `TRUE`, `pd_spec` will be vetted
+#'  to make sure the requested values are between the 10th and 90th
+#'  percentile in the object's training data. If `FALSE`, these checks are
+#'  skipped.
+#'
 #' @return a `data.frame` containing summarized partial dependence
 #'   values if using `orsf_pd_summery` or individual conditional
 #'   expectation (ICE) partial dependence if using `orsf_pd_ice`.
@@ -70,7 +75,7 @@ orsf_pd_summary <- function(object,
                             times = NULL,
                             expand_grid = TRUE,
                             prob_values = c(0.025, 0.50, 0.975),
-                            prob_labels = c('lwr', 'median', 'upr'),
+                            prob_labels = c('lwr', 'medn', 'upr'),
                             oobag = TRUE,
                             risk = TRUE,
                             boundary_checks = TRUE){
@@ -126,7 +131,7 @@ orsf_pd_ice <- function(object,
           type_output = 'ice',
           type_input = if(expand_grid) 'grid' else 'loop',
           prob_values = c(0.025, 0.50, 0.975),
-          prob_labels = c('lwr', 'median', 'upr'),
+          prob_labels = c('lwr', 'medn', 'upr'),
           oobag = oobag,
           risk = risk,
           boundary_checks = boundary_checks)

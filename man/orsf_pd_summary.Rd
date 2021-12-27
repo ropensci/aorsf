@@ -12,7 +12,7 @@ orsf_pd_summary(
   times = NULL,
   expand_grid = TRUE,
   prob_values = c(0.025, 0.5, 0.975),
-  prob_labels = c("lwr", "median", "upr"),
+  prob_labels = c("lwr", "medn", "upr"),
   oobag = TRUE,
   risk = TRUE,
   boundary_checks = TRUE
@@ -70,6 +70,11 @@ training data for \code{object}.}
 
 \item{risk}{(\emph{logical}) if \code{TRUE}, predicted risk is returned. If \code{FALSE},
 predicted survival (i.e., 1-risk) is returned.}
+
+\item{boundary_checks}{(\emph{logical}) if \code{TRUE}, \code{pd_spec} will be vetted
+to make sure the requested values are between the 10th and 90th
+percentile in the object's training data. If \code{FALSE}, these checks are
+skipped.}
 }
 \value{
 a \code{data.frame} containing summarized partial dependence

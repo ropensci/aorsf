@@ -4,6 +4,11 @@
 #'
 #' @param object an object of class 'aorsf'.
 #'
+#' @param group_factors (_logical_) if `TRUE`, the importance of factor
+#'   variables will be reported overall by aggregating the importance
+#'   of individual levels of the factor. If `FALSE`, the importance of
+#'   individual factor levels will be returned.
+#'
 #' @return the `object` with variable importance attached.
 #'
 #' @details
@@ -25,7 +30,7 @@
 #'
 #' orsf_vi(fit)
 #'
-orsf_vi <- function(object){
+orsf_vi <- function(object, group_factors = TRUE){
 
  if(!is_aorsf(object)) stop("object must inherit from 'aorsf' class.",
                             call. = FALSE)
@@ -57,6 +62,30 @@ orsf_vi <- function(object){
                     time_pred_ = object$time_pred)
 
  rownames(out) <- colnames(x)
+
+ if(group_factors) {
+
+  fi <- get_fctr_info(object)
+
+  for(f in fi$cols[!fi$ordr]){
+
+   f_lvls <- fi$lvls[[f]]
+   f_rows <- which(rownames(out) %in% paste(f, f_lvls[-1], sep = '_'))
+   f_wts <- 1
+
+   if(length(f_lvls) > 2)
+    f_wts <- prop.table(x = table(object$data_train[[f]])[-1])
+
+   f_vi <- sum(out[f_rows] * f_wts)
+
+   out[f_rows] <- f_vi
+   rownames(out)[f_rows] <- f
+
+  }
+
+  if(!is_empty(fi$cols[!fi$ordr])) out <- unique(out)
+
+ }
 
  rev(out[order(out), , drop=TRUE])
 

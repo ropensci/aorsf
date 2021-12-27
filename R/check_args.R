@@ -62,7 +62,7 @@ check_arg_uni <- function(arg_value, arg_name, expected_uni){
                                    last = ' and ')
 
   error_msg <-
-   paste0(arg_name, "should contain values of ", expected_values,
+   paste0(arg_name, " should contain values of ", expected_values,
           " but has values of ", invalid_values)
 
   stop(error_msg, call. = FALSE)
@@ -96,7 +96,9 @@ check_arg_length <- function(arg_value, arg_name, expected_length){
 
 }
 
-check_arg_bound <- function(arg_value, arg_name, bound, relational_operator){
+check_arg_bound <- function(arg_value, arg_name, bound,
+                            relational_operator,
+                            append_to_msg){
 
  .op <- switch(relational_operator,
                'gt' = `>`,
@@ -134,26 +136,48 @@ check_arg_bound <- function(arg_value, arg_name, bound, relational_operator){
                        " (see ", arg_name, "[", first_offense, "])")
   }
 
+  if(!is.null(append_to_msg)){
+
+   error_msg <- paste(error_msg, append_to_msg)
+
+  }
+
   stop(error_msg, call. = FALSE)
 
  }
 
 }
 
-check_arg_gt <- function(arg_value, arg_name, bound){
- check_arg_bound(arg_value, arg_name, bound, relational_operator = 'gt')
+check_arg_gt <- function(arg_value, arg_name, bound, append_to_msg = NULL){
+ check_arg_bound(arg_value,
+                 arg_name,
+                 bound,
+                 relational_operator = 'gt',
+                 append_to_msg)
 }
 
-check_arg_lt <- function(arg_value, arg_name, bound){
- check_arg_bound(arg_value, arg_name, bound, relational_operator = 'lt')
+check_arg_lt <- function(arg_value, arg_name, bound, append_to_msg = NULL){
+ check_arg_bound(arg_value,
+                 arg_name,
+                 bound,
+                 relational_operator = 'lt',
+                 append_to_msg)
 }
 
-check_arg_gteq <- function(arg_value, arg_name, bound){
- check_arg_bound(arg_value, arg_name, bound, relational_operator = 'gteq')
+check_arg_gteq <- function(arg_value, arg_name, bound, append_to_msg = NULL){
+ check_arg_bound(arg_value,
+                 arg_name,
+                 bound,
+                 relational_operator = 'gteq',
+                 append_to_msg)
 }
 
-check_arg_lteq <- function(arg_value, arg_name, bound){
- check_arg_bound(arg_value, arg_name, bound, relational_operator = 'lteq')
+check_arg_lteq <- function(arg_value, arg_name, bound, append_to_msg = NULL){
+ check_arg_bound(arg_value,
+                 arg_name,
+                 bound,
+                 relational_operator = 'lteq',
+                 append_to_msg)
 }
 
 check_arg_is_valid <- function(arg_value, arg_name, valid_options) {

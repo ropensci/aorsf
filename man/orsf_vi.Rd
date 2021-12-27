@@ -4,10 +4,15 @@
 \alias{orsf_vi}
 \title{ORSF variable importance}
 \usage{
-orsf_vi(object)
+orsf_vi(object, group_factors = TRUE)
 }
 \arguments{
 \item{object}{an object of class 'aorsf'.}
+
+\item{group_factors}{(\emph{logical}) if \code{TRUE}, the importance of factor
+variables will be reported overall by aggregating the importance
+of individual levels of the factor. If \code{FALSE}, the importance of
+individual factor levels will be returned.}
 }
 \value{
 the \code{object} with variable importance attached.

@@ -23,17 +23,15 @@ This vignette covers core features of the `aorsf` package. A separate vignette c
 1. For two-way interactions, see `variable_interaction.Rmd`
 1. For partial dependence, see `partial_dependence.Rmd`
 
-
-```{r setup}
-
-library(aorsf)
-library(ggplot2)
-
-```
-
 # Background: Oblique RSF
 
 The oblique random survival forest (RSF) is an extension of the RSF algorithm developed by Ishwaran et al and maintained in the `RandomForestSRC` package. The only difference between oblique RSF and Ishwaran's RSF is that oblique RSFs use linear combinations of input variables instead of using the input variable as-is when growing new nodes in survival decision trees. For more details on the oblique RSF, see Jaeger et al, 2019. 
+
+
+```{r setup}
+library(aorsf)
+library(ggplot2)
+```
 
 # Accelerated ORSF
 
@@ -42,11 +40,11 @@ The purpose of `aorsf` is to provide routines to fit oblique RSFs that will scal
 To fit an accelerated ORSF model, use the `orsf` function:
 
 ```{r}
-
 set.seed(329)
 
 orsf_fit <- orsf(data_train = pbc_orsf, 
-                 formula = Surv(time, status) ~ . - id)
+                 formula = Surv(time, status) ~ . - id, 
+                 n_tree = 2500)
 
 orsf_fit
 
@@ -55,7 +53,6 @@ orsf_fit
 you may notice that `orsf`'s first input is `data_train`. This is a design choice that makes it easier to use `orsf` with pipes (i.e., `%>%` or `|>`). For instance,
 
 ```{r, eval=FALSE}
-
 library(dplyr)
 
 orsf_fit <- pbc_orsf |> 
@@ -72,7 +69,6 @@ The coefficients that are used in linear combinations of input variables are a u
 For example, to estimate the importance of a variable, ORSF multiplies each coefficient of that variable by -1 and then re-computes the out-of-sample (sometimes referred to as out-of-bag) accuracy of the ORSF model. 
 
 ```{r}
-
 variable_importance <- orsf_vi(orsf_fit)
 
 variable_importance
@@ -85,7 +81,6 @@ variable_importance
 Another application of linear combination coefficients is measuring a two-way interaction score. ORSF's two-way interaction score for a pair of predictors is the proportion of variability in the coefficient of one predictor explained by the mean of the other. So if one predictor's coefficient is highly correlated with another predictor's mean value, the two-way interaction score will be high (maximum value of the score is 1). If there is no correlation between the coefficient of one predictor and the mean value of another, the two-way interaction score will be low (minimum value of the score is 0).
 
 ```{r}
-
 variable_interaction <- orsf_interaction(orsf_fit)
 
 variable_interaction[1:5, ]
@@ -95,14 +90,14 @@ variable_interaction[1:5, ]
 
 # Partial dependence
 
-The `orsf_interaction()` function indicated that `ascites` and `bili` have a strong interaction score (second highest), and the `orsf_vi()` function indicated that `bili` is the most important predictor. We can use the `orsf_pd()` function (pd stands for partial dependence) to explore how these variables influence predicted risk from ORSF.
+The `orsf_interaction()` function indicated that `ascites` and `bili` have a strong interaction score, and the `orsf_vi()` function indicated that `bili` is the most important predictor. We can use the `orsf_pd()` function (pd stands for partial dependence) to explore how these variables influence predicted risk from ORSF.
 
 We'll use `orsf_pd_summary` below to compute the expected predicted risk for a range of `bili` values when `ascites` is either 0 or 1.
 
 ```{r}
 
 pd_spec <- list(ascites = c("0","1"),
-                bili = seq(0.6, 7.1, by = 0.25))
+                bili = seq(0.6, 7.1, by = 0.1))
 
 pd_data <-
  orsf_pd_summary(object = orsf_fit,
@@ -110,12 +105,11 @@ pd_data <-
                  times = 1000)
 
 ggplot(pd_data) +
- aes(x = bili, y = median, col = ascites) +
+ aes(x = bili, y = mean, col = ascites) +
  geom_line() + 
  labs(y = 'Predicted risk',
       x = 'Bilirubin',
       title = 'Partial dependence of bilirubin and ascites')
-
 
 ```
 
@@ -123,15 +117,14 @@ ggplot(pd_data) +
 The presence of ascites clearly has a large effect on predicted risk, which makes it hard to see the interaction effect in this plot. We'll align the partial dependence values for both ascites groups so that both curves will start at a prediction of 0 
 
 ```{r}
-
 # aligning predictions at lowest value of bili
-min_asc_0 <- with(pd_data, median[ascites == 0 & bili == 0.6])
-min_asc_1 <- with(pd_data, median[ascites == 1 & bili == 0.6])
+min_asc_0 <- with(pd_data, mean[ascites == 0 & bili == 0.6])
+min_asc_1 <- with(pd_data, mean[ascites == 1 & bili == 0.6])
 
 pd_data_aligned <-
  within(pd_data, {
-  median[ascites == 0] <- median[ascites == 0] - min_asc_0
-  median[ascites == 1] <- median[ascites == 1] - min_asc_1
+  mean[ascites == 0] <- mean[ascites == 0] - min_asc_0
+  mean[ascites == 1] <- mean[ascites == 1] - min_asc_1
  })
 
 head(pd_data_aligned)
@@ -141,9 +134,8 @@ head(pd_data_aligned)
 With the aligned partial dependence values we can see the interaction effect clearly. Increasing bilirubin solicits a greater increase in predicted risk for patients who do not have ascites versus patients who do. This is fairly intuitive as increased bilirubin may be a sign of undetected ascites.
 
 ```{r}
-
 ggplot(pd_data_aligned) +
- aes(x = bili, y = median, col = ascites) +
+ aes(x = bili, y = mean, col = ascites) +
  geom_line() + 
  labs(y = 'predicted risk, centered at Bilirubin = 0.6',
       x = 'Bilirubin',

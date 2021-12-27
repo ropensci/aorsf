@@ -32,7 +32,8 @@ fctr_id_check <- function(data, .names){
 
    if(length(levels(data[[.name]])) == nrow(data)){
     stop("factor variable ", .name, " has as many levels as there ",
-         "are rows in the training data. Is ", .name, " an id variable?")
+         "are rows in the training data. Is ", .name, " an id variable?",
+         call. = FALSE)
    }
 
   }
