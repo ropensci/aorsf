@@ -353,7 +353,9 @@ orsf <- function(data_train,
                       oobag_time_       = oobag_time,
                       oobag_eval_every_ = oobag_eval_every,
                       oobag_importance_ = importance,
-                      max_retry_        = n_retry)
+                      max_retry_        = n_retry,
+                      penalized_cph     = penalized_cph,
+                      type_             = "P")
 
  orsf_out$data_train <- if(attach_data) data_train else NULL
 

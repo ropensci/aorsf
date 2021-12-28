@@ -27,7 +27,7 @@ test_that(
 test_that(
  desc = 'predictions are bounded',
  code = {
-  expect_true(all(p1 < 1) && all(p1 > 0))
+  expect_true(all(p1 <= 1) && all(p1 >= 0))
  })
 
 p2 <- predict(aorsf, new_data = new_data, times = 1000, risk = FALSE)

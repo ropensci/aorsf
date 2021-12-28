@@ -44,7 +44,6 @@ predict.aorsf <- function(object,
                           new_data,
                           times,
                           risk = TRUE,
-                          pred_aggr_fun = 'median',
                           ...){
 
  check_predict(object, new_data, times, risk)
@@ -60,16 +59,14 @@ predict.aorsf <- function(object,
   return(orsf_pred_uni(object$forest,
                        x_new,
                        times,
-                       risk,
-                       pred_aggr_fun == 'median'))
+                       risk))
 
  }
 
  orsf_pred_multi(object$forest,
                  x_new,
                  times,
-                 risk,
-                 pred_aggr_fun == 'median');
+                 risk);
 
 }
 

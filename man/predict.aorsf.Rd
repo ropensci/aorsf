@@ -4,7 +4,7 @@
 \alias{predict.aorsf}
 \title{Prediction with oblique RSF}
 \usage{
-\method{predict}{aorsf}(object, new_data, times, risk = TRUE, run_checks = TRUE, ...)
+\method{predict}{aorsf}(object, new_data, times, risk = TRUE, pred_aggr_fun = "median", ...)
 }
 \arguments{
 \item{object}{(\emph{aorsf}) an oblique random survival forest (RSF; see \link{orsf}).}
@@ -21,10 +21,6 @@ in ascending order.}
 
 \item{risk}{(\emph{logical}) if \code{TRUE}, predicted risk is returned. If \code{FALSE},
 predicted survival (i.e., 1-risk) is returned.}
-
-\item{run_checks}{(\emph{logical}) If \code{TRUE}, tests will be run on inputs.
-If \code{FALSE}, the bare minimum will be checked. It is very easy
-to crash your R session when \code{run_checks} is \code{FALSE}. Use with care!}
 
 \item{...}{not used.}
 }

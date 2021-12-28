@@ -62,6 +62,8 @@ int
  mtry_int,
  oobag_eval_every;
 
+char type;
+
 // armadillo unsigned integers
 uword
  i,
@@ -103,7 +105,7 @@ vec
  denom_pred,
  beta_current,
  beta_new,
- beta_cph,
+ beta_fit,
  cutpoints,
  w_input,
  w_inbag,
@@ -168,6 +170,28 @@ cube
  surv_pcube;
 
 List ostree;
+
+NumericMatrix
+ beta_placeholder,
+ xx,
+ yy;
+
+//[[Rcpp::export]]
+NumericMatrix testit(arma::mat x_node,
+                     arma::mat y_node,
+                     double alpha,
+                     Function f){
+
+ NumericMatrix xx = wrap(x_node);
+ NumericMatrix yy = wrap(y_node);
+
+ colnames(yy) = CharacterVector::create("time","status");
+
+ NumericMatrix out = f(xx, yy, alpha);
+ return(out);
+
+
+}
 
 // ----------------------------------------------------------------------------
 // ---------------------------- scaling functions -----------------------------
@@ -2196,11 +2220,26 @@ void new_pred_surv_uni_mean(){
 
    for(; i < leaf_node.n_rows; i++){
     if (leaf_node(i, 0) > time_pred){
-     if(i == 0)
+
+     if(i == 0){
+
       temp1 = 1;
-     else
-      temp1 = leaf_node(i-1, 1);
+
+     } else {
+
+      temp1 = leaf_node(i - 1, 1);
+
+      // experimental - does not seem to help!
+      // weighted average of surv est from before and after time of pred
+      // temp2 = leaf_node(i, 0) - leaf_node(i-1, 0);
+      //
+      // temp1 = leaf_node(i, 1) * (time_pred - leaf_node(i-1,0)) / temp2 +
+      //  leaf_node(i-1, 1) * (leaf_node(i,0) - time_pred) / temp2;
+
+     }
+
      break;
+
     } else if (leaf_node(i, 0) == time_pred){
      temp1 = leaf_node(i, 1);
      break;
@@ -2282,10 +2321,14 @@ void new_pred_surv_uni_median(){
 
    for(; i < leaf_node.n_rows; i++){
     if (leaf_node(i, 0) > time_pred){
-     if(i == 0)
+     if(i == 0){
       temp1 = 1;
-     else
-      temp1 = leaf_node(i-1, 1);
+     } else {
+      temp2 = leaf_node(i, 0) - leaf_node(i-1, 0);
+
+      temp1 = leaf_node(i, 1) * (time_pred - leaf_node(i-1,0)) / temp2 +
+       leaf_node(i-1, 1) * (leaf_node(i,0) - time_pred) / temp2;
+     }
      break;
     } else if (leaf_node(i, 0) == time_pred){
      temp1 = leaf_node(i, 1);
@@ -2307,10 +2350,10 @@ void new_pred_surv_uni_median(){
    // then determine how much further out you are and assume
    // the survival probability decays at the same rate.
 
-   // temp2 = (1.0 - temp1) *
-   //  (time_pred - leaf_node(leaf_node.n_rows - 1, 0)) / time_pred;
-   //
-   // temp1 = temp1 * (1.0-temp2);
+   temp2 = (1.0 - temp1) *
+    (time_pred - leaf_node(leaf_node.n_rows - 1, 0)) / time_pred;
+
+   temp1 = temp1 * (1.0-temp2);
 
   }
 
@@ -2510,7 +2553,7 @@ arma::uvec ostree_pred_leaf_testthat(List& tree,
 
 }
 
-List ostree_fit(){
+List ostree_fit(Function penalized_cph){
 
  betas.fill(0);
  x_mean.fill(0);
@@ -2672,6 +2715,9 @@ List ostree_fit(){
 
       x_node = x_inbag(rows_node, cols_node);
 
+      // here is where n_vars gets updated to match the current node
+      // originally it matched the number of variables in the input x.
+
       n_vars = x_node.n_cols;
 
       if(cph_do_scale){
@@ -2689,16 +2735,39 @@ List ostree_fit(){
 
       }
 
-      beta_cph = newtraph_cph();
+      switch(type) {
 
-      if(cph_do_scale){
-       for(i = 0; i < x_transforms.n_rows; i++){
-        x_node.col(i) /= x_transforms(i,1);
-        x_node.col(i) += x_transforms(i,0);
+      case 'N' :
+
+       beta_fit = newtraph_cph();
+
+       if(cph_do_scale){
+        for(i = 0; i < x_transforms.n_rows; i++){
+         x_node.col(i) /= x_transforms(i,1);
+         x_node.col(i) += x_transforms(i,0);
+        }
+
        }
+
+       break;
+
+      case 'P' :
+
+       xx = wrap(x_node);
+       yy = wrap(y_node);
+       colnames(yy) = CharacterVector::create("time","status");
+       beta_placeholder = penalized_cph(xx, yy, 1/2);
+       beta_fit = mat(beta_placeholder.begin(),
+                      beta_placeholder.nrow(),
+                      beta_placeholder.ncol(),
+                      false);
+
+       break;
+
       }
 
-      if(any(beta_cph)){
+
+      if(any(beta_fit)){
 
        if(verbose > 0){
 
@@ -2709,7 +2778,7 @@ List ostree_fit(){
 
        }
 
-       XB = x_node * beta_cph;
+       XB = x_node * beta_fit;
        cutpoint = lrt_multi();
 
       }
@@ -2814,7 +2883,7 @@ List ostree_fit(){
     if(nodes_max_true >= betas.n_cols) ostree_size_buffer();
 
     for(i = 0; i < n_cols_to_sample; i++){
-     betas.at(i, *node) = beta_cph[i];
+     betas.at(i, *node) = beta_fit[i];
      x_mean.at(i, *node) = x_transforms(i, 0);
      col_indices.at(i, *node) = cols_node[i];
     }
@@ -2898,7 +2967,9 @@ List orsf_fit(NumericMatrix& x,
               const double&  oobag_time_,
               const int&     oobag_eval_every_,
               const bool&    oobag_importance_,
-              const int&     max_retry_){
+              const int&     max_retry_,
+              Function       penalized_cph,
+              const char&    type_ = 'N'){
 
 
  // convert inputs into arma objects
@@ -2931,9 +3002,13 @@ List orsf_fit(NumericMatrix& x,
  oobag_eval_counter = 0;
  oobag_importance   = oobag_importance_;
  max_retry          = max_retry_;
+ type               = type_;
  temp1              = 1.0 / n_rows;
 
+ Rcout << type << std::endl;
+
  if(cph_iter_max > 1) cph_do_scale = true;
+ if(type == 'P') cph_do_scale = false;
 
  if(oobag_pred){
   time_pred = oobag_time_;
@@ -3052,7 +3127,7 @@ List orsf_fit(NumericMatrix& x,
 
   }
 
-  forest[tree] = ostree_fit();
+  forest[tree] = ostree_fit(penalized_cph);
 
   // add 1 to tree here instead of end of loop
   // (more convenient to compute tree % oobag_eval_every)
@@ -3208,8 +3283,7 @@ arma::vec orsf_oob_vi(NumericMatrix& x,
 arma::mat orsf_pred_uni(List& forest,
                         NumericMatrix& x_new,
                         double time_dbl,
-                        bool return_risk,
-                        bool compute_median = false){
+                        bool return_risk){
 
  x_pred = mat(x_new.begin(), x_new.nrow(), x_new.ncol(), false);
  time_pred = time_dbl;
@@ -3218,22 +3292,22 @@ arma::mat orsf_pred_uni(List& forest,
  leaf_pred.set_size(x_pred.n_rows);
  surv_pvec.zeros(x_pred.n_rows);
 
- if(compute_median){
-
-  surv_pmat.zeros(forest.length(), x_pred.n_rows);
-
-  for(tree = 0; tree < forest.length(); ++tree){
-   ostree = forest[tree];
-   ostree_mem_xfer();
-   ostree_pred_leaf();
-   new_pred_surv_uni_median();
-  }
-
-  for(i = 0; i < x_pred.n_rows; i++){
-   surv_pvec[i] = median(surv_pmat.col(i));
-  }
-
- } else {
+ // if(compute_median){
+ //
+ //  surv_pmat.zeros(forest.length(), x_pred.n_rows);
+ //
+ //  for(tree = 0; tree < forest.length(); ++tree){
+ //   ostree = forest[tree];
+ //   ostree_mem_xfer();
+ //   ostree_pred_leaf();
+ //   new_pred_surv_uni_median();
+ //  }
+ //
+ //  for(i = 0; i < x_pred.n_rows; i++){
+ //   surv_pvec[i] = median(surv_pmat.col(i));
+ //  }
+ //
+ // }
 
   for(tree = 0; tree < forest.length(); ++tree){
    ostree = forest[tree];
@@ -3243,10 +3317,6 @@ arma::mat orsf_pred_uni(List& forest,
   }
 
   surv_pvec /= tree;
-
- }
-
-
 
  if(return_risk){
   return(1 - surv_pvec);
@@ -3260,8 +3330,7 @@ arma::mat orsf_pred_uni(List& forest,
 arma::mat orsf_pred_multi(List& forest,
                           NumericMatrix& x_new,
                           NumericVector& time_vec,
-                          bool return_risk,
-                          bool compute_median = false){
+                          bool return_risk){
 
  x_pred = mat(x_new.begin(), x_new.nrow(), x_new.ncol(), false);
  times_pred = vec(time_vec.begin(), time_vec.length(), false);
@@ -3272,24 +3341,24 @@ arma::mat orsf_pred_multi(List& forest,
  leaf_pred.set_size(x_pred.n_rows);
  surv_pmat.zeros(x_pred.n_rows, times_pred.size());
 
- if(compute_median){
-
-  surv_pcube.zeros(forest.length(), x_pred.n_rows, times_pred.size());
-
-  for(tree = 0; tree < forest.length(); ++tree){
-   ostree = forest[tree];
-   ostree_mem_xfer();
-   ostree_pred_leaf();
-   new_pred_surv_multi_median();
-  }
-
-  for(i = 0; i < x_pred.n_rows; i++){
-   for(j = 0; j < times_pred.size(); j++){
-    surv_pmat(i, j) = median(surv_pcube.slice(j).col(i));
-   }
-  }
-
- } else {
+ // if(compute_median){
+ //
+ //  surv_pcube.zeros(forest.length(), x_pred.n_rows, times_pred.size());
+ //
+ //  for(tree = 0; tree < forest.length(); ++tree){
+ //   ostree = forest[tree];
+ //   ostree_mem_xfer();
+ //   ostree_pred_leaf();
+ //   new_pred_surv_multi_median();
+ //  }
+ //
+ //  for(i = 0; i < x_pred.n_rows; i++){
+ //   for(j = 0; j < times_pred.size(); j++){
+ //    surv_pmat(i, j) = median(surv_pcube.slice(j).col(i));
+ //   }
+ //  }
+ //
+ // }
 
 
   for(tree = 0; tree < forest.length(); ++tree){
@@ -3300,10 +3369,6 @@ arma::mat orsf_pred_multi(List& forest,
   }
 
   surv_pmat /= tree;
-
- }
-
-
 
  if(return_risk){
   return(1 - surv_pmat);
