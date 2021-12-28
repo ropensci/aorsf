@@ -52,7 +52,8 @@ double
  time_pred,
  cph_pval_max,
  ll_second,
- ll_init;
+ ll_init,
+ net_alpha;
 
 int
  verbose=0,
@@ -60,6 +61,7 @@ int
  n_retry,
  tree,
  mtry_int,
+ net_df_target,
  oobag_eval_every;
 
 char type;
@@ -175,6 +177,10 @@ NumericMatrix
  beta_placeholder,
  xx,
  yy;
+
+CharacterVector yy_names = CharacterVector::create("time","status");
+
+NumericVector ww;
 
 //[[Rcpp::export]]
 NumericMatrix testit(arma::mat x_node,
@@ -2670,24 +2676,29 @@ List ostree_fit(Function penalized_cph){
 
     n_events_total = sum(y_node.col(1) % w_node);
 
-    if(n_cols_to_sample < mtry){
+    if (type == 'N'){
 
-     mtry_int = n_cols_to_sample;
+     if(n_cols_to_sample < mtry){
 
-     if(verbose > 0){
-      Rcout << " ---- >=1 constant column in node rows ----" << std::endl;
-      Rcout << "mtry reduced to " << mtry_temp << " from " << mtry;
-      Rcout << std::endl;
-      Rcout << "-------------------------------------------" << std::endl;
-      Rcout << std::endl << std::endl;
+      mtry_int = n_cols_to_sample;
+
+      if(verbose > 0){
+       Rcout << " ---- >=1 constant column in node rows ----" << std::endl;
+       Rcout << "mtry reduced to " << mtry_temp << " from " << mtry;
+       Rcout << std::endl;
+       Rcout << "-------------------------------------------" << std::endl;
+       Rcout << std::endl << std::endl;
+      }
+
+     }
+
+     // make sure there are at least 3 event per predictor variable.
+     while(n_events_total / mtry_int < 3 && mtry_int > 1){
+      --mtry_int;
      }
 
     }
 
-    // make sure there are at least 3 event per predictor variable.
-    while(n_events_total / mtry_int < 3 && mtry_int > 1){
-     --mtry_int;
-    }
 
     n_cols_to_sample = mtry_int;
 
@@ -2755,8 +2766,11 @@ List ostree_fit(Function penalized_cph){
 
        xx = wrap(x_node);
        yy = wrap(y_node);
-       colnames(yy) = CharacterVector::create("time","status");
-       beta_placeholder = penalized_cph(xx, yy, 1/2);
+       ww = wrap(w_node);
+       colnames(yy) = yy_names;
+       beta_placeholder = penalized_cph(xx, yy, ww,
+                                        net_alpha,
+                                        net_df_target);
        beta_fit = mat(beta_placeholder.begin(),
                       beta_placeholder.nrow(),
                       beta_placeholder.ncol(),
@@ -2963,6 +2977,8 @@ List orsf_fit(NumericMatrix& x,
               const int&     cph_iter_max_,
               const double&  cph_pval_max_,
               const bool&    cph_do_scale_,
+              const double&  net_alpha_,
+              const int&     net_df_target_,
               const bool&    oobag_pred_,
               const double&  oobag_time_,
               const int&     oobag_eval_every_,
@@ -2997,6 +3013,8 @@ List orsf_fit(NumericMatrix& x,
  cph_iter_max       = cph_iter_max_;
  cph_pval_max       = cph_pval_max_;
  cph_do_scale       = cph_do_scale_;
+ net_alpha          = net_alpha_;
+ net_df_target      = net_df_target_;
  oobag_pred         = oobag_pred_;
  oobag_eval_every   = oobag_eval_every_;
  oobag_eval_counter = 0;

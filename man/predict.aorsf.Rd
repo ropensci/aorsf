@@ -4,7 +4,7 @@
 \alias{predict.aorsf}
 \title{Prediction with oblique RSF}
 \usage{
-\method{predict}{aorsf}(object, new_data, times, risk = TRUE, pred_aggr_fun = "median", ...)
+\method{predict}{aorsf}(object, new_data, times, risk = TRUE, ...)
 }
 \arguments{
 \item{object}{(\emph{aorsf}) an oblique random survival forest (RSF; see \link{orsf}).}

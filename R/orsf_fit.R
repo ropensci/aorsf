@@ -36,33 +36,6 @@
 #' @param leaf_min_obs (_integer_) minimum number of observations in a
 #'   leaf node.
 #'
-#' @param cph_method (_character_) a character string specifying the method
-#'   for tie handling. If there are no tied death times all the methods are
-#'   equivalent. Valid options are 'breslow' and 'efron'.
-#'
-#' @param cph_eps (_double_) When using Newton Raphson scoring to identify
-#'   linear combinations of inputs, iteration continues in the algorithm
-#'   until the relative change in  the log partial likelihood is less than
-#'   `eps`, or the absolute change is less than `sqrt(eps)`. Must be positive.
-#'
-#' @param cph_iter_max (_integer_) When using Newton Raphson scoring to identify
-#'   linear combinations of inputs, iteration continues until convergence
-#'   (see `cph_eps` above) or the number of attempted iterations is equal to
-#'   `cph_iter_max`.
-#'
-#' @param cph_pval_max (_double_) The maximum p-value allowed for a regression
-#'   coefficient to remain non-zero. If the p-value for a given coefficient
-#'   is above the maximum, the coefficient is set to zero and the variable
-#'   no longer plays a role in the linear combination of inputs. Setting
-#'   `cph_pval_max` to 1 ensures that every predict gets a non-zero
-#'   coefficient in the linear combination of inputs.
-#'
-#' @param cph_do_scale (_logical_) if `TRUE`, values of predictors will be
-#'   scaled prior to running Newton Raphson scoring. Setting to `FALSE` will
-#'   reduce computation time but will also make the regression extremely
-#'   unstable. Therefore, `orsf` will only let you set this input to `FALSE`
-#'   if you also set `cph_iter_max` to 1.
-#'
 #' @param oobag_pred (_logical_) if `TRUE` out-of-bag predictions are returned
 #'   in the `aorsf` object.
 #'
@@ -148,29 +121,42 @@
 #'
 #' @examples
 #'
-#' fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+#' fit <- orsf(pbc_orsf, formula = Surv(time, status) ~ . - id)
 #'
 #' print(fit)
 #'
-#'
 orsf <- function(data_train,
                  formula,
+                 control = orsf_control_cph(),
                  n_tree = 500,
                  n_split = 5,
                  n_retry = 0,
                  mtry = NULL,
                  leaf_min_events = 1,
                  leaf_min_obs = 15,
-                 cph_method = 'breslow',
-                 cph_eps = 1e-5,
-                 cph_iter_max = 1,
-                 cph_pval_max = 1,
-                 cph_do_scale = TRUE,
                  oobag_pred = TRUE,
                  oobag_time = NULL,
                  oobag_eval_every = n_tree,
                  importance = FALSE,
                  attach_data = TRUE){
+
+
+ orsf_type <- attr(control, 'type')
+
+ switch(
+  orsf_type,
+  'cph' = {
+   control_net <- orsf_control_net()
+   control_cph <- control
+
+  },
+  'net' = {
+   control_net <- control
+   control_cph <- orsf_control_cph(do_scale = FALSE)
+  })
+
+ list2env(control_net, envir = environment())
+ list2env(control_cph, envir = environment())
 
  # Run checks
  check_orsf_inputs(
@@ -268,6 +254,11 @@ orsf <- function(data_train,
   mtry <- ceiling(sqrt(ncol(x)))
  }
 
+ if(is.null(net_df_target)) net_df_target <- mtry
+
+ # TODO: expand
+ if(net_df_target > mtry) stop("net_df_target > mtry")
+
  # Check the outcome variable
 
 
@@ -349,13 +340,17 @@ orsf <- function(data_train,
                       cph_iter_max_     = cph_iter_max,
                       cph_pval_max_     = cph_pval_max,
                       cph_do_scale_     = cph_do_scale,
+                      net_alpha_        = net_alpha,
+                      net_df_target_    = net_df_target,
                       oobag_pred_       = oobag_pred,
                       oobag_time_       = oobag_time,
                       oobag_eval_every_ = oobag_eval_every,
                       oobag_importance_ = importance,
                       max_retry_        = n_retry,
                       penalized_cph     = penalized_cph,
-                      type_             = "P")
+                      type_             = switch(orsf_type,
+                                                 'cph' = 'N',
+                                                 'net' = 'P'))
 
  orsf_out$data_train <- if(attach_data) data_train else NULL
 
@@ -724,6 +719,12 @@ check_orsf_inputs <- function(data_train,
 
 
 }
+
+
+
+
+
+
 
 
 

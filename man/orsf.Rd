@@ -7,17 +7,13 @@
 orsf(
   data_train,
   formula,
+  control = orsf_control_cph(),
   n_tree = 500,
   n_split = 5,
   n_retry = 0,
   mtry = NULL,
   leaf_min_events = 1,
   leaf_min_obs = 15,
-  cph_method = "breslow",
-  cph_eps = 1e-05,
-  cph_iter_max = 1,
-  cph_pval_max = 1,
-  cph_do_scale = TRUE,
   oobag_pred = TRUE,
   oobag_time = NULL,
   oobag_eval_every = n_tree,
@@ -51,33 +47,6 @@ leaf node.}
 
 \item{leaf_min_obs}{(\emph{integer}) minimum number of observations in a
 leaf node.}
-
-\item{cph_method}{(\emph{character}) a character string specifying the method
-for tie handling. If there are no tied death times all the methods are
-equivalent. Valid options are 'breslow' and 'efron'.}
-
-\item{cph_eps}{(\emph{double}) When using Newton Raphson scoring to identify
-linear combinations of inputs, iteration continues in the algorithm
-until the relative change in  the log partial likelihood is less than
-\code{eps}, or the absolute change is less than \code{sqrt(eps)}. Must be positive.}
-
-\item{cph_iter_max}{(\emph{integer}) When using Newton Raphson scoring to identify
-linear combinations of inputs, iteration continues until convergence
-(see \code{cph_eps} above) or the number of attempted iterations is equal to
-\code{cph_iter_max}.}
-
-\item{cph_pval_max}{(\emph{double}) The maximum p-value allowed for a regression
-coefficient to remain non-zero. If the p-value for a given coefficient
-is above the maximum, the coefficient is set to zero and the variable
-no longer plays a role in the linear combination of inputs. Setting
-\code{cph_pval_max} to 1 ensures that every predict gets a non-zero
-coefficient in the linear combination of inputs.}
-
-\item{cph_do_scale}{(\emph{logical}) if \code{TRUE}, values of predictors will be
-scaled prior to running Newton Raphson scoring. Setting to \code{FALSE} will
-reduce computation time but will also make the regression extremely
-unstable. Therefore, \code{orsf} will only let you set this input to \code{FALSE}
-if you also set \code{cph_iter_max} to 1.}
 
 \item{oobag_pred}{(\emph{logical}) if \code{TRUE} out-of-bag predictions are returned
 in the \code{aorsf} object.}
@@ -164,10 +133,13 @@ least 2 events per predictor variable.
 }
 \examples{
 
-fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+fit <- orsf(pbc_orsf, formula = Surv(time, status) ~ . - id)
 
 print(fit)
 
+fit <- orsf(pbc_orsf,
+            formula = Surv(time, status) ~ . - id,
+            control = orsf_control_net())
 
 }
 \references{
