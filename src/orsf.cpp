@@ -62,6 +62,8 @@ int
  tree,
  mtry_int,
  net_df_target,
+ rlt_keep,
+ rlt_trees,
  oobag_eval_every;
 
 char type;
@@ -2559,7 +2561,7 @@ arma::uvec ostree_pred_leaf_testthat(List& tree,
 
 }
 
-List ostree_fit(Function penalized_cph){
+List ostree_fit(Function f_beta){
 
  betas.fill(0);
  x_mean.fill(0);
@@ -2676,23 +2678,24 @@ List ostree_fit(Function penalized_cph){
 
     n_events_total = sum(y_node.col(1) % w_node);
 
-    if (type == 'N'){
+    if(n_cols_to_sample < mtry){
 
-     if(n_cols_to_sample < mtry){
+     mtry_int = n_cols_to_sample;
 
-      mtry_int = n_cols_to_sample;
-
-      if(verbose > 0){
-       Rcout << " ---- >=1 constant column in node rows ----" << std::endl;
-       Rcout << "mtry reduced to " << mtry_temp << " from " << mtry;
-       Rcout << std::endl;
-       Rcout << "-------------------------------------------" << std::endl;
-       Rcout << std::endl << std::endl;
-      }
-
+     if(verbose > 0){
+      Rcout << " ---- >=1 constant column in node rows ----" << std::endl;
+      Rcout << "mtry reduced to " << mtry_temp << " from " << mtry;
+      Rcout << std::endl;
+      Rcout << "-------------------------------------------" << std::endl;
+      Rcout << std::endl << std::endl;
      }
 
+    }
+
+    if (type == 'C'){
+
      // make sure there are at least 3 event per predictor variable.
+     // (if using CPH)
      while(n_events_total / mtry_int < 3 && mtry_int > 1){
       --mtry_int;
      }
@@ -2748,7 +2751,7 @@ List ostree_fit(Function penalized_cph){
 
       switch(type) {
 
-      case 'N' :
+      case 'C' :
 
        beta_fit = newtraph_cph();
 
@@ -2762,21 +2765,40 @@ List ostree_fit(Function penalized_cph){
 
        break;
 
-      case 'P' :
+      case 'N' :
 
        xx = wrap(x_node);
        yy = wrap(y_node);
        ww = wrap(w_node);
        colnames(yy) = yy_names;
-       beta_placeholder = penalized_cph(xx, yy, ww,
-                                        net_alpha,
-                                        net_df_target);
+
+       beta_placeholder = f_beta(xx, yy, ww,
+                                 net_alpha,
+                                 net_df_target);
+
        beta_fit = mat(beta_placeholder.begin(),
                       beta_placeholder.nrow(),
                       beta_placeholder.ncol(),
                       false);
 
        break;
+
+      case 'R' :
+
+       xx = wrap(x_node);
+       yy = wrap(y_node);
+       ww = wrap(w_node);
+       colnames(yy) = yy_names;
+
+       beta_placeholder = f_beta(xx, yy, ww,
+                                 rlt_keep,
+                                 rlt_trees);
+
+       beta_fit = mat(beta_placeholder.begin(),
+                      beta_placeholder.nrow(),
+                      beta_placeholder.ncol(),
+                      false);
+
 
       }
 
@@ -2979,13 +3001,15 @@ List orsf_fit(NumericMatrix& x,
               const bool&    cph_do_scale_,
               const double&  net_alpha_,
               const int&     net_df_target_,
+              const int&     rlt_keep_,
+              const int&     rlt_trees_,
               const bool&    oobag_pred_,
               const double&  oobag_time_,
               const int&     oobag_eval_every_,
               const bool&    oobag_importance_,
               const int&     max_retry_,
-              Function       penalized_cph,
-              const char&    type_ = 'N'){
+              Function       f_beta,
+              const char&    type_){
 
 
  // convert inputs into arma objects
@@ -3015,6 +3039,8 @@ List orsf_fit(NumericMatrix& x,
  cph_do_scale       = cph_do_scale_;
  net_alpha          = net_alpha_;
  net_df_target      = net_df_target_;
+ rlt_keep           = rlt_keep_;
+ rlt_trees          = rlt_trees_;
  oobag_pred         = oobag_pred_;
  oobag_eval_every   = oobag_eval_every_;
  oobag_eval_counter = 0;
@@ -3023,10 +3049,9 @@ List orsf_fit(NumericMatrix& x,
  type               = type_;
  temp1              = 1.0 / n_rows;
 
- Rcout << type << std::endl;
-
  if(cph_iter_max > 1) cph_do_scale = true;
- if(type == 'P') cph_do_scale = false;
+
+ if(type == 'N') cph_do_scale = false;
 
  if(oobag_pred){
   time_pred = oobag_time_;
@@ -3145,7 +3170,7 @@ List orsf_fit(NumericMatrix& x,
 
   }
 
-  forest[tree] = ostree_fit(penalized_cph);
+  forest[tree] = ostree_fit(f_beta);
 
   // add 1 to tree here instead of end of loop
   // (more convenient to compute tree % oobag_eval_every)

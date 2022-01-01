@@ -137,10 +137,6 @@ fit <- orsf(pbc_orsf, formula = Surv(time, status) ~ . - id)
 
 print(fit)
 
-fit <- orsf(pbc_orsf,
-            formula = Surv(time, status) ~ . - id,
-            control = orsf_control_net())
-
 }
 \references{
 Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI,

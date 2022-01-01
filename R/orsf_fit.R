@@ -141,44 +141,54 @@ orsf <- function(data_train,
                  attach_data = TRUE){
 
 
- orsf_type <- attr(control, 'type')
-
- switch(
-  orsf_type,
-  'cph' = {
-   control_net <- orsf_control_net()
-   control_cph <- control
-
-  },
-  'net' = {
-   control_net <- control
-   control_cph <- orsf_control_cph(do_scale = FALSE)
-  })
-
- list2env(control_net, envir = environment())
- list2env(control_cph, envir = environment())
-
  # Run checks
  check_orsf_inputs(
   data_train = data_train,
   formula = formula,
+  control = control,
   n_tree = n_tree,
   n_split = n_split,
   n_retry = n_retry,
   mtry = mtry,
   leaf_min_events = leaf_min_events,
   leaf_min_obs = leaf_min_obs,
-  cph_method = cph_method,
-  cph_eps = cph_eps,
-  cph_iter_max = cph_iter_max,
-  cph_pval_max = cph_pval_max,
-  cph_do_scale = cph_do_scale,
   oobag_pred = oobag_pred,
   oobag_time = oobag_time,
   oobag_eval_every = oobag_eval_every,
   importance = importance,
   attach_data = attach_data
  )
+
+ orsf_type <- attr(control, 'type')
+
+ switch(
+  orsf_type,
+
+  'cph' = {
+   control_net <- orsf_control_net()
+   control_rlt <- orsf_control_rlt()
+   control_cph <- control
+   f_beta      <- function(x) x
+
+  },
+
+  'net' = {
+   control_net <- control
+   control_rlt <- orsf_control_rlt()
+   control_cph <- orsf_control_cph(do_scale = FALSE)
+   f_beta      <- penalized_cph
+  },
+
+  'rlt' = {
+   control_net <- orsf_control_net()
+   control_rlt <- control
+   control_cph <- orsf_control_cph()
+   f_beta      <- rlt
+  }
+
+ )
+
+ list2env(c(control_net, control_cph, control_rlt), envir = environment())
 
  if(importance && !oobag_pred) oobag_pred <- TRUE # Should I add a warning?
 
@@ -255,13 +265,20 @@ orsf <- function(data_train,
  }
 
  if(is.null(net_df_target)) net_df_target <- mtry
+ if(is.null(rlt_keep)) rlt_keep <- mtry
 
- # TODO: expand
- if(net_df_target > mtry) stop("net_df_target > mtry")
+ # TODO: warn instead?
+ if(net_df_target > mtry)
+  stop("net_df_target = ", net_df_target,
+       " must be <= mtry, which is ", mtry,
+       call. = FALSE)
+
+ if(rlt_keep > mtry)
+  stop("rlt_keep = ", rlt_keep,
+       " must be <= mtry, which is ", mtry,
+       call. = FALSE)
 
  # Check the outcome variable
-
-
  check_arg_type(arg_value = y[, 2],
                 arg_name = "status indicator",
                 expected_type = 'numeric')
@@ -303,9 +320,6 @@ orsf <- function(data_train,
   append_to_msg = "(number of observations divided by 2)"
  )
 
-
-
-
  if(!is.null(oobag_time)){
 
   if(oobag_time <= 0)
@@ -325,7 +339,6 @@ orsf <- function(data_train,
  x_sort <- x[sorted, ]
  y_sort <- y[sorted, ]
 
-
  orsf_out <- orsf_fit(x                 = x_sort,
                       y                 = y_sort,
                       n_tree            = n_tree,
@@ -342,15 +355,18 @@ orsf <- function(data_train,
                       cph_do_scale_     = cph_do_scale,
                       net_alpha_        = net_alpha,
                       net_df_target_    = net_df_target,
+                      rlt_keep_         = rlt_keep,
+                      rlt_trees_        = rlt_trees,
                       oobag_pred_       = oobag_pred,
                       oobag_time_       = oobag_time,
                       oobag_eval_every_ = oobag_eval_every,
                       oobag_importance_ = importance,
                       max_retry_        = n_retry,
-                      penalized_cph     = penalized_cph,
+                      f_beta            = f_beta,
                       type_             = switch(orsf_type,
-                                                 'cph' = 'N',
-                                                 'net' = 'P'))
+                                                 'cph' = 'C',
+                                                 'net' = 'N',
+                                                 'rlt' = 'R'))
 
  orsf_out$data_train <- if(attach_data) data_train else NULL
 
@@ -404,17 +420,13 @@ orsf <- function(data_train,
 
 check_orsf_inputs <- function(data_train,
                               formula,
+                              control,
                               n_tree,
                               n_split,
                               n_retry,
                               mtry,
                               leaf_min_events,
                               leaf_min_obs,
-                              cph_method,
-                              cph_eps,
-                              cph_iter_max,
-                              cph_pval_max,
-                              cph_do_scale,
                               oobag_pred,
                               oobag_time,
                               oobag_eval_every,
@@ -455,6 +467,10 @@ check_orsf_inputs <- function(data_train,
   }
 
  }
+
+ check_arg_is(arg_value = control,
+              arg_name = 'control',
+              expected_class = 'aorsf_control')
 
  if(!is.null(n_tree)){
 
@@ -569,84 +585,6 @@ check_orsf_inputs <- function(data_train,
 
  }
 
- if(!is.null(cph_method)){
-
-  check_arg_type(arg_value = cph_method,
-                 arg_name = 'cph_method',
-                 expected_type = 'character')
-
-  check_arg_is_valid(arg_value = cph_method,
-                     arg_name = 'cph_method',
-                     valid_options = c("breslow", "efron"))
- }
-
- if(!is.null(cph_eps)){
-
-  check_arg_type(arg_value = cph_eps,
-                 arg_name = 'cph_eps',
-                 expected_type = 'numeric')
-
-  check_arg_gt(arg_value = cph_eps,
-               arg_name = 'cph_eps',
-               bound = 0)
-
-  check_arg_length(arg_value = cph_eps,
-                   arg_name = 'cph_eps',
-                   expected_length = 1)
-
- }
-
- if(!is.null(cph_iter_max)){
-
-  check_arg_type(arg_value = cph_iter_max,
-                 arg_name = 'cph_iter_max',
-                 expected_type = 'numeric')
-
-  check_arg_is_integer(arg_value = cph_iter_max,
-                       arg_name = 'cph_iter_max')
-
-  check_arg_gteq(arg_value = cph_iter_max,
-                 arg_name = 'cph_iter_max',
-                 bound = 1)
-
-  check_arg_length(arg_value = cph_iter_max,
-                   arg_name = 'cph_iter_max',
-                   expected_length = 1)
-
- }
-
- if(!is.null(cph_pval_max)){
-
-  check_arg_type(arg_value = cph_pval_max,
-                 arg_name = 'cph_pval_max',
-                 expected_type = 'numeric')
-
-  check_arg_gt(arg_value = cph_pval_max,
-               arg_name = 'cph_pval_max',
-               bound = 0)
-
-  check_arg_lteq(arg_value = cph_pval_max,
-                 arg_name = 'cph_pval_max',
-                 bound = 1)
-
-  check_arg_length(arg_value = cph_pval_max,
-                   arg_name = 'cph_pval_max',
-                   expected_length = 1)
-
- }
-
- if(!is.null(cph_do_scale)){
-
-  check_arg_type(arg_value = cph_do_scale,
-                 arg_name = 'cph_do_scale',
-                 expected_type = 'logical')
-
-  check_arg_length(arg_value = cph_do_scale,
-                   arg_name = 'cph_do_scale',
-                   expected_length = 1)
-
- }
-
  if(!is.null(oobag_pred)){
 
   check_arg_type(arg_value = oobag_pred,
@@ -710,13 +648,6 @@ check_orsf_inputs <- function(data_train,
                    expected_length = 1)
 
  }
-
-
- if(!cph_do_scale && cph_iter_max > 1){
-  stop("cph_do_scale must be TRUE when cph_iter_max > 1",
-       call. = FALSE)
- }
-
 
 }
 

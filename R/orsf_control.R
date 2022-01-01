@@ -47,6 +47,8 @@ orsf_control_cph <- function(method = 'breslow',
                              do_scale = TRUE){
 
 
+ check_control_cph(method, eps, iter_max, pval_max, do_scale)
+
  structure(
   .Data = list(cph_method = method,
                cph_eps = eps,
@@ -56,6 +58,78 @@ orsf_control_cph <- function(method = 'breslow',
   class = 'aorsf_control',
   type = 'cph'
  )
+
+}
+
+check_control_cph <- function(method, eps, iter_max, pval_max, do_scale){
+
+ check_arg_type(arg_value = method,
+                arg_name = 'method',
+                expected_type = 'character')
+
+ check_arg_is_valid(arg_value = method,
+                    arg_name = 'method',
+                    valid_options = c("breslow", "efron"))
+
+
+ check_arg_type(arg_value = eps,
+                arg_name = 'eps',
+                expected_type = 'numeric')
+
+ check_arg_gt(arg_value = eps,
+              arg_name = 'eps',
+              bound = 0)
+
+ check_arg_length(arg_value = eps,
+                  arg_name = 'eps',
+                  expected_length = 1)
+
+
+ check_arg_type(arg_value = iter_max,
+                arg_name = 'iter_max',
+                expected_type = 'numeric')
+
+ check_arg_is_integer(arg_value = iter_max,
+                      arg_name = 'iter_max')
+
+ check_arg_gteq(arg_value = iter_max,
+                arg_name = 'iter_max',
+                bound = 1)
+
+ check_arg_length(arg_value = iter_max,
+                  arg_name = 'iter_max',
+                  expected_length = 1)
+
+
+ check_arg_type(arg_value = pval_max,
+                arg_name = 'pval_max',
+                expected_type = 'numeric')
+
+ check_arg_gt(arg_value = pval_max,
+              arg_name = 'pval_max',
+              bound = 0)
+
+ check_arg_lteq(arg_value = pval_max,
+                arg_name = 'pval_max',
+                bound = 1)
+
+ check_arg_length(arg_value = pval_max,
+                  arg_name = 'pval_max',
+                  expected_length = 1)
+
+
+ check_arg_type(arg_value = do_scale,
+                arg_name = 'do_scale',
+                expected_type = 'logical')
+
+ check_arg_length(arg_value = do_scale,
+                  arg_name = 'do_scale',
+                  expected_length = 1)
+
+ if(!do_scale && iter_max > 1){
+  stop("do_scale must be TRUE when iter_max > 1",
+       call. = FALSE)
+ }
 
 }
 
@@ -91,11 +165,81 @@ orsf_control_cph <- function(method = 'breslow',
 orsf_control_net <- function(alpha = 1/2,
                              df_target = NULL){
 
+ check_control_net(alpha, df_target)
+
  structure(
   .Data = list(net_alpha = alpha,
                net_df_target = df_target),
   class = 'aorsf_control',
   type = 'net'
  )
+
+}
+
+check_control_net <- function(alpha, df_target){
+
+ check_arg_type(arg_value = alpha,
+                arg_name = 'alpha',
+                expected_type = 'numeric')
+
+ check_arg_gteq(arg_value = alpha,
+                arg_name = 'alpha',
+                bound = 0)
+
+ check_arg_lteq(arg_value = alpha,
+                arg_name = 'alpha',
+                bound = 1)
+
+ check_arg_length(arg_value = alpha,
+                  arg_name = 'alpha',
+                  expected_length = 1)
+
+ if(!is.null(df_target)){
+
+  check_arg_type(arg_value = df_target,
+                 arg_name = 'df_target',
+                 expected_type = 'numeric')
+
+  check_arg_is_integer(arg_value = df_target,
+                       arg_name = 'df_target')
+
+ }
+
+}
+
+
+
+
+#' ORSF; Reinforcement learning control
+#'
+#' @param keep
+#' @param trees
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+#' orsf(data_train = pbc_orsf,
+#'      formula = Surv(time, status) ~ . - id,
+#'      n_tree = 250,
+#'      control = orsf_control_rlt())
+#'
+orsf_control_rlt <- function(keep = NULL, trees = 35){
+
+ check_control_rlt(keep, trees)
+
+ structure(
+  .Data = list(rlt_keep = keep,
+               rlt_trees = trees),
+  class = 'aorsf_control',
+  type = 'rlt'
+ )
+
+}
+
+check_control_rlt <- function(keep, trees){
+
+ NULL
 
 }

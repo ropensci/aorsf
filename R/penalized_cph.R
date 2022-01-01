@@ -3,8 +3,8 @@
 penalized_cph <- function(x_node,
                           y_node,
                           w_node,
-                          alpha = 1/2,
-                          df_target = 3){
+                          alpha,
+                          df_target){
 
  suppressWarnings(
   fit <- try(
@@ -16,8 +16,6 @@ penalized_cph <- function(x_node,
    silent = TRUE
   )
  )
-
-
 
  if(class(fit)[1] == 'try-error'){
   return(matrix(0, nrow=ncol(x_node), ncol=1))

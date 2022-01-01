@@ -54,9 +54,16 @@ test_that(
   expect_error(orsf(pbc_orsf, f, mtry = 5000), 'should be <=')
   expect_error(orsf(pbc_orsf, f, leaf_min_events = 5000), 'should be <=')
   expect_error(orsf(pbc_orsf, f, leaf_min_obs = 5000), 'should be <=')
-  expect_error(orsf(pbc_orsf, f, cph_method = 'oh no'), "breslow or efron")
-  expect_error(orsf(pbc_orsf, f, cph_do_scale = FALSE, cph_iter_max = 10),
-               "must be TRUE")
+
+ }
+)
+
+test_that(
+ desc = 'target_df too high is caught',
+ code = {
+
+  cntrl <- orsf_control_net(df_target = 10)
+  expect_error(orsf(pbc_orsf, f, cntrl), 'must be <= mtry')
 
  }
 )
