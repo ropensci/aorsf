@@ -166,7 +166,6 @@ orsf <- function(data_train,
 
   'cph' = {
    control_net <- orsf_control_net()
-   control_rlt <- orsf_control_rlt()
    control_cph <- control
    f_beta      <- function(x) x
 
@@ -174,21 +173,13 @@ orsf <- function(data_train,
 
   'net' = {
    control_net <- control
-   control_rlt <- orsf_control_rlt()
    control_cph <- orsf_control_cph(do_scale = FALSE)
    f_beta      <- penalized_cph
-  },
-
-  'rlt' = {
-   control_net <- orsf_control_net()
-   control_rlt <- control
-   control_cph <- orsf_control_cph()
-   f_beta      <- rlt
   }
 
  )
 
- list2env(c(control_net, control_cph, control_rlt), envir = environment())
+ list2env(c(control_net, control_cph), envir = environment())
 
  if(importance && !oobag_pred) oobag_pred <- TRUE # Should I add a warning?
 
@@ -265,16 +256,10 @@ orsf <- function(data_train,
  }
 
  if(is.null(net_df_target)) net_df_target <- mtry
- if(is.null(rlt_keep)) rlt_keep <- mtry
 
  # TODO: warn instead?
  if(net_df_target > mtry)
   stop("net_df_target = ", net_df_target,
-       " must be <= mtry, which is ", mtry,
-       call. = FALSE)
-
- if(rlt_keep > mtry)
-  stop("rlt_keep = ", rlt_keep,
        " must be <= mtry, which is ", mtry,
        call. = FALSE)
 
@@ -355,8 +340,6 @@ orsf <- function(data_train,
                       cph_do_scale_     = cph_do_scale,
                       net_alpha_        = net_alpha,
                       net_df_target_    = net_df_target,
-                      rlt_keep_         = rlt_keep,
-                      rlt_trees_        = rlt_trees,
                       oobag_pred_       = oobag_pred,
                       oobag_time_       = oobag_time,
                       oobag_eval_every_ = oobag_eval_every,
@@ -365,8 +348,7 @@ orsf <- function(data_train,
                       f_beta            = f_beta,
                       type_             = switch(orsf_type,
                                                  'cph' = 'C',
-                                                 'net' = 'N',
-                                                 'rlt' = 'R'))
+                                                 'net' = 'N'))
 
  orsf_out$data_train <- if(attach_data) data_train else NULL
 

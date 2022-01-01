@@ -62,8 +62,6 @@ int
  tree,
  mtry_int,
  net_df_target,
- rlt_keep,
- rlt_trees,
  oobag_eval_every;
 
 char type;
@@ -2783,23 +2781,6 @@ List ostree_fit(Function f_beta){
 
        break;
 
-      case 'R' :
-
-       xx = wrap(x_node);
-       yy = wrap(y_node);
-       ww = wrap(w_node);
-       colnames(yy) = yy_names;
-
-       beta_placeholder = f_beta(xx, yy, ww,
-                                 rlt_keep,
-                                 rlt_trees);
-
-       beta_fit = mat(beta_placeholder.begin(),
-                      beta_placeholder.nrow(),
-                      beta_placeholder.ncol(),
-                      false);
-
-
       }
 
 
@@ -3001,8 +2982,6 @@ List orsf_fit(NumericMatrix& x,
               const bool&    cph_do_scale_,
               const double&  net_alpha_,
               const int&     net_df_target_,
-              const int&     rlt_keep_,
-              const int&     rlt_trees_,
               const bool&    oobag_pred_,
               const double&  oobag_time_,
               const int&     oobag_eval_every_,
@@ -3039,8 +3018,6 @@ List orsf_fit(NumericMatrix& x,
  cph_do_scale       = cph_do_scale_;
  net_alpha          = net_alpha_;
  net_df_target      = net_df_target_;
- rlt_keep           = rlt_keep_;
- rlt_trees          = rlt_trees_;
  oobag_pred         = oobag_pred_;
  oobag_eval_every   = oobag_eval_every_;
  oobag_eval_counter = 0;
