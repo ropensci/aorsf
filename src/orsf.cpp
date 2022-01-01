@@ -49,6 +49,8 @@ double
  V,
  leaf_min_obs,
  leaf_min_events,
+ split_min_events,
+ split_min_obs,
  time_pred,
  cph_pval_max,
  ll_second,
@@ -2811,6 +2813,7 @@ List ostree_fit(Function f_beta){
 
    if(!std::isinf(cutpoint)){
 
+    // make new nodes if a valid cutpoint was found
     nn_left   = nodes_max_true + 1;
     nodes_max_true = nodes_max_true + 2;
 
@@ -2842,8 +2845,10 @@ List ostree_fit(Function f_beta){
 
     }
 
-    if(n_events_left >= 2 * leaf_min_events &&
-       n_risk_left >= 2 * leaf_min_obs){
+    if(n_events_left >= 2*leaf_min_events &&
+       n_risk_left   >= 2*leaf_min_obs &&
+       n_events_left >=   split_min_events &&
+       n_risk_left   >=   split_min_obs){
 
      nodes_to_grow_next = join_cols(nodes_to_grow_next,
                                     uvec{nn_left});
@@ -2869,14 +2874,15 @@ List ostree_fit(Function f_beta){
 
     }
 
-    if(n_events_right >= 2 * leaf_min_events &&
-       n_risk_right   >= 2 * leaf_min_obs){
+    if(n_events_right >= 2*leaf_min_events &&
+       n_risk_right   >= 2*leaf_min_obs &&
+       n_events_right >=   split_min_events &&
+       n_risk_right   >=   split_min_obs){
 
      nodes_to_grow_next = join_cols(nodes_to_grow_next,
                                     uvec{nodes_max_true});
 
     } else {
-
 
      rows_leaf = find(group==1);
      leaf_indices(leaf_node_index_counter, 0) = nodes_max_true;
@@ -2910,6 +2916,7 @@ List ostree_fit(Function f_beta){
 
    } else {
 
+    // make a leaf node if a valid cutpoint could not be found
     leaf_indices(leaf_node_index_counter, 0) = *node;
     leaf_kaplan(y_node, w_node);
 
@@ -2975,6 +2982,8 @@ List orsf_fit(NumericMatrix& x,
               const int&     mtry_,
               const double&  leaf_min_events_,
               const double&  leaf_min_obs_,
+              const double&  split_min_events_,
+              const double&  split_min_obs_,
               const int&     cph_method_,
               const double&  cph_eps_,
               const int&     cph_iter_max_,
@@ -3011,6 +3020,8 @@ List orsf_fit(NumericMatrix& x,
  mtry               = mtry_;
  leaf_min_events    = leaf_min_events_;
  leaf_min_obs       = leaf_min_obs_;
+ split_min_events   = split_min_events_;
+ split_min_obs      = split_min_obs_;
  cph_method         = cph_method_;
  cph_eps            = cph_eps_;
  cph_iter_max       = cph_iter_max_;

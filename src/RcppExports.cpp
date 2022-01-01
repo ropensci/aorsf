@@ -95,8 +95,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // orsf_fit
-List orsf_fit(NumericMatrix& x, NumericMatrix& y, const int& n_tree, const int& n_split_, const int& mtry_, const double& leaf_min_events_, const double& leaf_min_obs_, const int& cph_method_, const double& cph_eps_, const int& cph_iter_max_, const double& cph_pval_max_, const bool& cph_do_scale_, const double& net_alpha_, const int& net_df_target_, const int& rlt_keep_, const int& rlt_trees_, const bool& oobag_pred_, const double& oobag_time_, const int& oobag_eval_every_, const bool& oobag_importance_, const int& max_retry_, Function f_beta, const char& type_);
-RcppExport SEXP _aorsf_orsf_fit(SEXP xSEXP, SEXP ySEXP, SEXP n_treeSEXP, SEXP n_split_SEXP, SEXP mtry_SEXP, SEXP leaf_min_events_SEXP, SEXP leaf_min_obs_SEXP, SEXP cph_method_SEXP, SEXP cph_eps_SEXP, SEXP cph_iter_max_SEXP, SEXP cph_pval_max_SEXP, SEXP cph_do_scale_SEXP, SEXP net_alpha_SEXP, SEXP net_df_target_SEXP, SEXP rlt_keep_SEXP, SEXP rlt_trees_SEXP, SEXP oobag_pred_SEXP, SEXP oobag_time_SEXP, SEXP oobag_eval_every_SEXP, SEXP oobag_importance_SEXP, SEXP max_retry_SEXP, SEXP f_betaSEXP, SEXP type_SEXP) {
+List orsf_fit(NumericMatrix& x, NumericMatrix& y, const int& n_tree, const int& n_split_, const int& mtry_, const double& leaf_min_events_, const double& leaf_min_obs_, const double& split_min_events_, const double& split_min_obs_, const int& cph_method_, const double& cph_eps_, const int& cph_iter_max_, const double& cph_pval_max_, const bool& cph_do_scale_, const double& net_alpha_, const int& net_df_target_, const bool& oobag_pred_, const double& oobag_time_, const int& oobag_eval_every_, const bool& oobag_importance_, const int& max_retry_, Function f_beta, const char& type_);
+RcppExport SEXP _aorsf_orsf_fit(SEXP xSEXP, SEXP ySEXP, SEXP n_treeSEXP, SEXP n_split_SEXP, SEXP mtry_SEXP, SEXP leaf_min_events_SEXP, SEXP leaf_min_obs_SEXP, SEXP split_min_events_SEXP, SEXP split_min_obs_SEXP, SEXP cph_method_SEXP, SEXP cph_eps_SEXP, SEXP cph_iter_max_SEXP, SEXP cph_pval_max_SEXP, SEXP cph_do_scale_SEXP, SEXP net_alpha_SEXP, SEXP net_df_target_SEXP, SEXP oobag_pred_SEXP, SEXP oobag_time_SEXP, SEXP oobag_eval_every_SEXP, SEXP oobag_importance_SEXP, SEXP max_retry_SEXP, SEXP f_betaSEXP, SEXP type_SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -107,6 +107,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int& >::type mtry_(mtry_SEXP);
     Rcpp::traits::input_parameter< const double& >::type leaf_min_events_(leaf_min_events_SEXP);
     Rcpp::traits::input_parameter< const double& >::type leaf_min_obs_(leaf_min_obs_SEXP);
+    Rcpp::traits::input_parameter< const double& >::type split_min_events_(split_min_events_SEXP);
+    Rcpp::traits::input_parameter< const double& >::type split_min_obs_(split_min_obs_SEXP);
     Rcpp::traits::input_parameter< const int& >::type cph_method_(cph_method_SEXP);
     Rcpp::traits::input_parameter< const double& >::type cph_eps_(cph_eps_SEXP);
     Rcpp::traits::input_parameter< const int& >::type cph_iter_max_(cph_iter_max_SEXP);
@@ -114,8 +116,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const bool& >::type cph_do_scale_(cph_do_scale_SEXP);
     Rcpp::traits::input_parameter< const double& >::type net_alpha_(net_alpha_SEXP);
     Rcpp::traits::input_parameter< const int& >::type net_df_target_(net_df_target_SEXP);
-    Rcpp::traits::input_parameter< const int& >::type rlt_keep_(rlt_keep_SEXP);
-    Rcpp::traits::input_parameter< const int& >::type rlt_trees_(rlt_trees_SEXP);
     Rcpp::traits::input_parameter< const bool& >::type oobag_pred_(oobag_pred_SEXP);
     Rcpp::traits::input_parameter< const double& >::type oobag_time_(oobag_time_SEXP);
     Rcpp::traits::input_parameter< const int& >::type oobag_eval_every_(oobag_eval_every_SEXP);
@@ -123,7 +123,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int& >::type max_retry_(max_retry_SEXP);
     Rcpp::traits::input_parameter< Function >::type f_beta(f_betaSEXP);
     Rcpp::traits::input_parameter< const char& >::type type_(type_SEXP);
-    rcpp_result_gen = Rcpp::wrap(orsf_fit(x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, cph_do_scale_, net_alpha_, net_df_target_, rlt_keep_, rlt_trees_, oobag_pred_, oobag_time_, oobag_eval_every_, oobag_importance_, max_retry_, f_beta, type_));
+    rcpp_result_gen = Rcpp::wrap(orsf_fit(x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, split_min_events_, split_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, cph_do_scale_, net_alpha_, net_df_target_, oobag_pred_, oobag_time_, oobag_eval_every_, oobag_importance_, max_retry_, f_beta, type_));
     return rcpp_result_gen;
 END_RCPP
 }
