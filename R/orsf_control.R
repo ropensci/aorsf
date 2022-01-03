@@ -1,6 +1,6 @@
 
 
-#' ORSF; Newton-Raphson control
+#' ORSF; Cox PH control
 #'
 #' @param method (_character_) a character string specifying the method
 #'   for tie handling. If there are no tied death times all the methods are
