@@ -36,6 +36,12 @@
 #' @param leaf_min_obs (_integer_) minimum number of observations in a
 #'   leaf node.
 #'
+#' @param split_min_events (_integer_) minimum number of events required
+#'   to split a node.
+#'
+#' @param split_min_obs (_integer_) minimum number of observations required
+#'   to split a node.
+#'
 #' @param oobag_pred (_logical_) if `TRUE` out-of-bag predictions are returned
 #'   in the `aorsf` object.
 #'
@@ -154,6 +160,8 @@ orsf <- function(data_train,
   mtry = mtry,
   leaf_min_events = leaf_min_events,
   leaf_min_obs = leaf_min_obs,
+  split_min_events = split_min_events,
+  split_min_obs = split_min_obs,
   oobag_pred = oobag_pred,
   oobag_time = oobag_time,
   oobag_eval_every = oobag_eval_every,
@@ -307,6 +315,16 @@ orsf <- function(data_train,
   append_to_msg = "(number of observations divided by 2)"
  )
 
+ check_arg_lt(arg_value = split_min_events,
+              arg_name = "split_min_events",
+              bound = n_events,
+              append_to_msg = "(number of events)")
+
+ check_arg_lt(arg_value = split_min_obs,
+              arg_name = "split_min_obs",
+              bound = nrow(x),
+              append_to_msg = "(number of observations)")
+
  if(!is.null(oobag_time)){
 
   if(oobag_time <= 0)
@@ -321,7 +339,9 @@ orsf <- function(data_train,
 
  }
 
- sorted <- order(y[, 1], -y[, 2])
+
+ sorted <- order(y[, 1],  # order this way for risk sets
+                 -y[, 2]) # order this way for oob C-statistic.
 
  x_sort <- x[sorted, ]
  y_sort <- y[sorted, ]
@@ -413,6 +433,8 @@ check_orsf_inputs <- function(data_train,
                               mtry,
                               leaf_min_events,
                               leaf_min_obs,
+                              split_min_events,
+                              split_min_obs,
                               oobag_pred,
                               oobag_time,
                               oobag_eval_every,
@@ -567,6 +589,43 @@ check_orsf_inputs <- function(data_train,
 
   check_arg_length(arg_value = leaf_min_obs,
                    arg_name = 'leaf_min_obs',
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(split_min_events)){
+
+  check_arg_type(arg_value = split_min_events,
+                 arg_name = 'split_min_events',
+                 expected_type = 'numeric')
+
+  check_arg_is_integer(arg_value = split_min_events,
+                       arg_name = 'split_min_events')
+
+  check_arg_gteq(arg_value = split_min_events,
+                 arg_name = 'split_min_events',
+                 bound = 1)
+
+  check_arg_length(arg_value = split_min_events,
+                   arg_name = 'split_min_events',
+                   expected_length = 1)
+ }
+
+ if(!is.null(split_min_obs)){
+
+  check_arg_type(arg_value = split_min_obs,
+                 arg_name = 'split_min_obs',
+                 expected_type = 'numeric')
+
+  check_arg_is_integer(arg_value = split_min_obs,
+                       arg_name = 'split_min_obs')
+
+  check_arg_gteq(arg_value = split_min_obs,
+                 arg_name = 'split_min_obs',
+                 bound = 1)
+
+  check_arg_length(arg_value = split_min_obs,
+                   arg_name = 'split_min_obs',
                    expected_length = 1)
 
  }
