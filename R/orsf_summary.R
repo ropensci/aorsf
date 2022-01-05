@@ -29,8 +29,38 @@ orsf_summarize_uni <- function(object,
  # for CRAN check:
  medn <- name <- value <- level <- variable <- NULL
 
- if(is.null(times))
-  times <- object$time_pred
+ if(!is.null(n_variables)){
+
+  check_arg_type(arg_value = n_variables,
+                 arg_name = 'n_variables',
+                 expected_type = 'numeric')
+
+  check_arg_is_integer(arg_value = n_variables,
+                       arg_name = 'n_variables')
+
+  check_arg_gteq(arg_value = n_variables,
+                 arg_name = 'n_variables',
+                 bound = 1)
+
+  check_arg_length(arg_value = n_variables,
+                   arg_name = 'n_variables',
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(times)){
+
+  check_arg_type(arg_value = times,
+                 arg_name = 'times',
+                 expected_type = 'numeric')
+
+  check_arg_gt(arg_value = times,
+               arg_name = 'times',
+               bound = 0)
+
+ }
+
+ if(is.null(times)) times <- object$time_pred
 
  x_numeric_key <- get_numeric_bounds(object)
 
@@ -67,48 +97,9 @@ orsf_summarize_uni <- function(object,
                               prob_values = c(0.25, 0.50, 0.75),
                               times = times)
 
-
- # TODO: write this in cpp?
-
- # position <- 1
- #
- # pratio <- pdiff <- rep(NA_real_, nrow(pd_output))
- #
- # pred <- pd_output$pred
- # name <- pd_output$name
- #
- # while(position < nrow(pd_output)){
- #
- #  ref_index <- seq(position, position + n_obs - 1)
- #
- #  step <- 1
- #  pratio[ref_index] <- 1
- #  pdiff[ref_index] <- 0
- #
- #  new_index <- ref_index + n_obs
- #
- #  while( name[ new_index[1] ] == name[ ref_index[1] ] ){
- #
- #   step <- step + 1
- #   pratio[new_index] <- pred[new_index] / pred[ref_index]
- #   pdiff[new_index] <- pred[new_index] - pred[ref_index]
- #   new_index <- ref_index + n_obs * step
- #
- #   if(new_index[1] > nrow(pd_output)) break
- #
- #  }
- #
- #  position <- new_index[1]
- #
- # }
- #
- # pd_output$pred_ratio <- pratio
- # pd_output$pred_diff <- pdiff
-
- # end TODO
-
  fctrs_unordered <- c()
 
+ # did the orsf have factor variables?
  if(!is_empty(fctr_info$cols)){
   fctrs_unordered <- fctr_info$cols[!fctr_info$ordr]
  }
