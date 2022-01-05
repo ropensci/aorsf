@@ -7,19 +7,10 @@ Authors@R:
            role = c("aut", "cre"),
            email = "bjaeger@wakehealth.edu",
            comment = c(ORCID = "0000-0001-7399-2299"))
-Description: Oblique random survival forests incorporate linear combinations 
-  of input variables into the recursive partitioning algorithm, a routine that
-  is commonly used to grow decision trees. Oblique trees are usually more 
-  effective in creating generalizable decision rules compared to their 
-  axis-based counterparts, but the computational requirements of identifying
-  oblique splits are usually much higher than that of an axis-based split. 
-  Previous oblique decision tree algorithms embedded statistical models, e.g., 
-  the Cox proportional hazards model, into nodes of a decision tree to identify
-  linear combinations of input variables. A much faster approach utilized here
-  is to apply incomplete Newton Raphson scoring based on Cox regression to 
-  to identify linear combinations of input variables. In other words, complete
-  1 iteration of the Newton Raphson algorithm and use the initial estimates
-  of regression coefficients to derive a linear combination of inputs. 
+Description: Fit, interpret, and make predictions with oblique random
+    survival forests. Oblique decision trees are notoriously slow compared
+    to their axis based counterparts, but 'aorsf' runs as fast or faster than 
+    axis-based decision tree algorithms for survival decision trees.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -32,15 +23,18 @@ Imports:
     table.glue,
     Rcpp,
     data.table
-URL: https://github.com/bcjaeger/aorsf
+URL: https://github.com/bcjaeger/aorsf,
+    https://bcjaeger.github.io/aorsf
 BugReports: https://github.com/bcjaeger/aorsf/issues
 Depends: 
-    R (>= 2.10)
+    R (>= 4.0.0)
 Suggests: 
     survival,
     ggplot2,
     testthat (>= 3.0.0),
     knitr,
-    rmarkdown
+    rmarkdown,
+    glmnet,
+    covr
 Config/testthat/edition: 3
 VignetteBuilder: knitr

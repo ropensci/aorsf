@@ -4,7 +4,7 @@
 \alias{print.aorsf_summary_uni}
 \title{Print ORSF summary}
 \usage{
-\method{print}{aorsf_summary_uni}(x, n_variables = 3, ...)
+\method{print}{aorsf_summary_uni}(x, n_variables = NULL, ...)
 }
 \arguments{
 \item{x}{an object of class 'aorsf_summary'}

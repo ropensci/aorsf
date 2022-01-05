@@ -29,6 +29,9 @@ orsf(
 \item{formula}{(\emph{formula}) a formula object, with the response on the left
 of a \code{~} operator, and the terms on the right. See details.}
 
+\item{control}{An \code{aorsf_control} object, created with \link{orsf_control_net}
+or \link{orsf_control_cph}. Default is \code{orsf_control_cph()}.}
+
 \item{n_tree}{(\emph{integer}) the number of trees to grow}
 
 \item{n_split}{(\emph{integer}) the number of cut-points assessed when splitting
@@ -49,6 +52,12 @@ leaf node.}
 
 \item{leaf_min_obs}{(\emph{integer}) minimum number of observations in a
 leaf node.}
+
+\item{split_min_events}{(\emph{integer}) minimum number of events required
+to split a node.}
+
+\item{split_min_obs}{(\emph{integer}) minimum number of observations required
+to split a node.}
 
 \item{oobag_pred}{(\emph{logical}) if \code{TRUE} out-of-bag predictions are returned
 in the \code{aorsf} object.}

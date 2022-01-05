@@ -15,6 +15,9 @@
 #' @param formula (_formula_) a formula object, with the response on the left
 #'   of a `~` operator, and the terms on the right. See details.
 #'
+#' @param control An `aorsf_control` object, created with [orsf_control_net]
+#'  or [orsf_control_cph]. Default is `orsf_control_cph()`.
+#'
 #' @param n_tree (_integer_) the number of trees to grow
 #'
 #' @param n_split (_integer_) the number of cut-points assessed when splitting
@@ -182,6 +185,15 @@ orsf <- function(data_train,
   },
 
   'net' = {
+
+   if (!requireNamespace("glmnet", quietly = TRUE)) {
+    stop(
+     "Package \"glmnet\" must be installed to use",
+     " orsf_control_net() with orsf().",
+     call. = FALSE
+    )
+   }
+
    control_net <- control
    control_cph <- orsf_control_cph(do_scale = FALSE)
    f_beta      <- penalized_cph
@@ -189,7 +201,14 @@ orsf <- function(data_train,
 
  )
 
- list2env(c(control_net, control_cph), envir = environment())
+ cph_method = control_cph$cph_method
+ cph_eps = control_cph$cph_eps
+ cph_iter_max = control_cph$cph_iter_max
+ cph_pval_max = control_cph$cph_pval_max
+ cph_do_scale = control_cph$cph_do_scale
+
+ net_alpha = control_net$net_alpha
+ net_df_target = control_net$net_df_target
 
  if(importance && !oobag_pred) oobag_pred <- TRUE # Should I add a warning?
 
@@ -421,6 +440,26 @@ orsf <- function(data_train,
 
  orsf_out
 
+
+}
+
+
+
+orsf_cph <- function(data_train,
+                     formula,
+                     n_tree = 500,
+                     n_split = 5,
+                     n_retry = 0,
+                     mtry = NULL,
+                     leaf_min_events = 1,
+                     leaf_min_obs = 5,
+                     split_min_events = 5,
+                     split_min_obs = 10,
+                     oobag_pred = TRUE,
+                     oobag_time = NULL,
+                     oobag_eval_every = n_tree,
+                     importance = FALSE,
+                     attach_data = TRUE){
 
 }
 

@@ -1,6 +1,6 @@
 
 
-#' ORSF; Cox PH control
+#' ORSF; Cox proportional hazards control
 #'
 #' @param method (_character_) a character string specifying the method
 #'   for tie handling. If there are no tied death times all the methods are
@@ -134,7 +134,7 @@ check_control_cph <- function(method, eps, iter_max, pval_max, do_scale){
 }
 
 
-#' ORSF; Penalized regression control
+#' ORSF; Elastic net control
 #'
 #' @param alpha The elastic net mixing parameter. A value of 1 gives the
 #'  lasso penalty, and a value of 0 gives the ridge penalty. If multiple

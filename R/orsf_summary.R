@@ -1,16 +1,25 @@
 
-#' Summarize ORSF model
+#' ORSF summary of univariate information
+#'
+#' ORSF's linear combinations of inputs can be used to provide helpful data
+#'   about individual variables. Summarizing the univariate information from
+#'   an ORSF provides data on the importance of individual variables and the
+#'   expected predicted risk at designated values of the variables.
 #'
 #' @inheritParams predict.aorsf
-#' @param n_variables how many variables should be summarized?
+#'
+#' @param n_variables (_integer_) how many variables should be summarized?
+#'   Setting this input to a lower number will improve computation time.
+#'
 #' @return an object of class 'aorsf_summary'
+#'
 #' @export
 #'
 #' @examples
 #'
 #' object <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 #'
-#' orsf_summarize_uni(object)
+#' orsf_summarize_uni(object, n_variables = 3)
 #'
 orsf_summarize_uni <- function(object,
                                n_variables = NULL,
@@ -137,12 +146,12 @@ orsf_summarize_uni <- function(object,
 
 }
 
-as.data.table.aorsf_summary_uni <- function(x) x$dt
-
 #' Print ORSF summary
 #'
 #' @param x an object of class 'aorsf_summary'
+#'
 #' @param n_variables The number of variables to print
+#'
 #' @param ... not used
 #'
 #' @return nothing - output is printed to console.
@@ -155,8 +164,10 @@ as.data.table.aorsf_summary_uni <- function(x) x$dt
 #'
 #' summary(object)
 #'
-print.aorsf_summary_uni <- function(x, n_variables = 3, ...){
+print.aorsf_summary_uni <- function(x, n_variables = NULL, ...){
 
+
+ if(is.null(n_variables)) n_variables <- length(unique(x$dt$name))
 
  risk_or_surv <- if(x$risk) "risk" else "survival"
 
@@ -171,29 +182,34 @@ print.aorsf_summary_uni <- function(x, n_variables = 3, ...){
                "lwr",
                "upr")
 
- .sd_fncy <- c("Variable Value",
-               paste(c("Mean", "Median"), risk_or_surv),
-               "25th Percentile",
-               "75th Percentile")
+ .sd_fncy <- c("Value",
+               "Mean",
+               "Median",
+               "25th %",
+               "75th %")
 
  setnames(x$dt,
           old = .sd_orig,
           new = .sd_fncy)
 
  banner_input_length <-
-  vapply(
-   utils::capture.output(
-    do.call(
-     print,
-     list(x = x$dt[1L, .SD, .SDcols = .sd_fncy],
-          trunc.cols = TRUE)
-    )
-   ),
-   nchar,
-   integer(1)
-  )[1L]
+  as.integer(
+   vapply(
+    utils::capture.output(
+     do.call(
+      print,
+      list(x = x$dt[, .SD, .SDcols = .sd_fncy],
+           row.names = FALSE,
+           trunc.cols = TRUE)
+     )
+    ),
+    nchar,
+    integer(1)
+   )[1L]
+  )
 
  name_index <- rle(x$dt$name)
+
  row_current <- 1
 
  i_vals <- seq(min(n_variables, length(name_index$values)))
@@ -208,26 +224,61 @@ print.aorsf_summary_uni <- function(x, n_variables = 3, ...){
    collapse = ''
   )
 
+  banner_value_length <-
+   as.integer(
+    vapply(
+     utils::capture.output(
+      do.call(
+       print,
+       list(x = x$dt[i, .SD, .SDcols = .sd_fncy[1]],
+            row.names = FALSE,
+            trunc.cols = TRUE)
+      )
+     ),
+     nchar,
+     integer(1)
+    )[1L]
+   )
+
+  banner_value_length <- banner_value_length + 1
+
+  header_length <-
+   (banner_input_length - banner_value_length - nchar(risk_or_surv)) / 2
+
+  header_length <- header_length - 1.5
+
+  header_row <- paste(
+   paste(rep(" ", times = banner_value_length), collapse = ''),
+   paste(c("|",rep("-", times = header_length)), collapse = ''),
+   " ",
+   risk_or_surv,
+   " ",
+   paste(c(rep("-", times = header_length), "|"), collapse = ''),
+   collapse = '',
+   sep = ''
+  )
+
   cat("\n",
       name,
       " ",
       banner_input,
       "\n\n",
+      header_row,
+      "\n",
       sep = "")
 
   row_new <- row_current + name_index$lengths[i]-1
 
-  print(x$dt[row_new:row_current, .SD, .SDcols = .sd_fncy],
-        row.names = F,
+  print(x$dt[row_current:row_new, .SD, .SDcols = .sd_fncy],
+        row.names = FALSE,
         col.names = "top",
-        trunc.cols = TRUE,
-        digits = 4)
+        trunc.cols = TRUE)
 
   row_current <- row_new+1
 
  }
 
- cat("\n", msg_btm)
+ cat("\n", msg_btm, "\n")
 
  setnames(x$dt,
           old = .sd_fncy,

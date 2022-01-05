@@ -6,12 +6,13 @@
 \alias{aorsf-package}
 \title{aorsf: Accelerated Oblique Random Survival Forests}
 \description{
-Oblique random survival forests incorporate linear combinations of input variables into the recursive partitioning algorithm used to grow decision trees. The algorithm used to grow survival trees is the same as in random survival forests from Ishwaran, 2008 <doi:10.1214/08-AOAS169>. A Newton Raphson scoring algorithm based on the Cox proportional hazard model is used to identify linear combinations of input variables. Relative to obliqueRSF, the predecessor of aorsf, decision trees are grown about 500 times faster.
+Fit, interpret, and make predictions with oblique random survival forests. Oblique decision trees are notoriously slow compared to their axis based counterparts, but 'aorsf' runs as fast or faster than axis-based decision tree algorithms for survival decision trees.
 }
 \seealso{
 Useful links:
 \itemize{
   \item \url{https://github.com/bcjaeger/aorsf}
+  \item \url{https://bcjaeger.github.io/aorsf}
   \item Report bugs at \url{https://github.com/bcjaeger/aorsf/issues}
 }
 

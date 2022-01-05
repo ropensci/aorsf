@@ -2,12 +2,12 @@
 % Please edit documentation in R/orsf_predict.R
 \name{predict.aorsf}
 \alias{predict.aorsf}
-\title{Prediction with oblique RSF}
+\title{ORSF predictions}
 \usage{
 \method{predict}{aorsf}(object, new_data, times, risk = TRUE, ...)
 }
 \arguments{
-\item{object}{(\emph{aorsf}) an oblique random survival forest (RSF; see \link{orsf}).}
+\item{object}{(\emph{aorsf}) an oblique random survival forest (ORSF; see \link{orsf}).}
 
 \item{new_data}{(\emph{data.frame}) data to compute predictions for. Must have
 the same columns with equivalent types as the data used to train \code{object}.
@@ -30,7 +30,7 @@ to value \code{j} in \code{times}. Row \code{i} of the matrix corresponds to row
 in \code{new_data}.
 }
 \description{
-Prediction with oblique RSF
+ORSF predictions
 }
 \examples{
 

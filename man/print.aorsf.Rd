@@ -2,7 +2,7 @@
 % Please edit documentation in R/orsf_print.R
 \name{print.aorsf}
 \alias{print.aorsf}
-\title{print aosrf object}
+\title{ORSF presentation}
 \usage{
 \method{print}{aorsf}(x, ...)
 }
@@ -15,5 +15,5 @@
 nothing - just print output to console
 }
 \description{
-print aosrf object
+ORSF presentation
 }

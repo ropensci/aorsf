@@ -7,7 +7,7 @@
 orsf_interaction(object)
 }
 \arguments{
-\item{object}{(\emph{aorsf}) an oblique random survival forest (RSF; see \link{orsf}).}
+\item{object}{(\emph{aorsf}) an oblique random survival forest (ORSF; see \link{orsf}).}
 }
 \value{
 a \code{data.frame} with pairwise interaction scores for each

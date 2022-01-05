@@ -2,14 +2,15 @@
 % Please edit documentation in R/orsf_summary.R
 \name{orsf_summarize_uni}
 \alias{orsf_summarize_uni}
-\title{Summarize ORSF model}
+\title{ORSF summary of univariate information}
 \usage{
 orsf_summarize_uni(object, n_variables = NULL, times = NULL, risk = TRUE)
 }
 \arguments{
-\item{object}{(\emph{aorsf}) an oblique random survival forest (RSF; see \link{orsf}).}
+\item{object}{(\emph{aorsf}) an oblique random survival forest (ORSF; see \link{orsf}).}
 
-\item{n_variables}{how many variables should be summarized?}
+\item{n_variables}{(\emph{integer}) how many variables should be summarized?
+Setting this input to a lower number will improve computation time.}
 
 \item{times}{(\emph{double}) a single time or a vector of times for oblique RSF
 predictions. All \code{times} values must not exceed the maximum follow-up
@@ -23,12 +24,15 @@ predicted survival (i.e., 1-risk) is returned.}
 an object of class 'aorsf_summary'
 }
 \description{
-Summarize ORSF model
+ORSF's linear combinations of inputs can be used to provide helpful data
+about individual variables. Summarizing the univariate information from
+an ORSF provides data on the importance of individual variables and the
+expected predicted risk at designated values of the variables.
 }
 \examples{
 
 object <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 
-orsf_summarize_uni(object)
+orsf_summarize_uni(object, n_variables = 3)
 
 }

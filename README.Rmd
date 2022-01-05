@@ -1,0 +1,59 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# aorsf
+
+<!-- badges: start -->
+  [![Codecov test coverage](https://codecov.io/gh/bcjaeger/aorsf/branch/master/graph/badge.svg)](https://app.codecov.io/gh/bcjaeger/aorsf?branch=master)
+<!-- badges: end -->
+
+The goal of `aorsf` is to fit, interpret, and make predictions with oblique random survival forests (ORSFs).
+
+## Installation
+
+You can install the development version of aorsf from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("remotes")
+remotes::install_github("bcjaeger/aorsf")
+```
+## Example
+
+The `orsf()` function is used to fit ORSFs. Printing the output from `orsf()` will give some descriptive statistics about the ensemble.
+
+```{r example}
+library(aorsf)
+
+fit <- orsf(data_train = pbc_orsf,
+            formula = Surv(time, status) ~ . - id)
+
+print(fit)
+
+```
+
+How about interpreting the fit? There are several functions for this: `orsf_vi()` for variable importance, `orsf_interaction()` for two-way variable interactions, and `orsf_pd_ice()` or `orsf_pd_summary()` for individual or aggregated partial dependence values. However, `orsf_summarize_uni()` is the most convenient way to assess top predictor variables in ORSF and the expected predicted risk at specific values of those predictors.
+
+```{r}
+
+# take a look at the top 5 variables 
+# for continuous predictors, see expected risk at 25/50/75th quantile
+# for categorical predictors, see expected risk in each category
+
+orsf_summarize_uni(object = fit, n_variables = 5)
+
+```
+
+The term 'uni' is short for univariate.
+

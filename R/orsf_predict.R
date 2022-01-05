@@ -1,8 +1,8 @@
 
 
-#' Prediction with oblique RSF
+#' ORSF predictions
 #'
-#' @param object (_aorsf_) an oblique random survival forest (RSF; see [orsf]).
+#' @param object (_aorsf_) an oblique random survival forest (ORSF; see [orsf]).
 #'
 #' @param new_data (_data.frame_) data to compute predictions for. Must have
 #'   the same columns with equivalent types as the data used to train `object`.

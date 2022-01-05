@@ -18,28 +18,36 @@ knitr::opts_chunk$set(
 
 This vignette covers core features of the `aorsf` package. A separate vignette covers each feature in more detail. 
 
-1. For computing time benchmarks, see `benchmark.Rmd`
 1. For variable importance, see `variable_importance.Rmd`
 1. For two-way interactions, see `variable_interaction.Rmd`
 1. For partial dependence, see `partial_dependence.Rmd`
 
 # Background: Oblique RSF
 
-The oblique random survival forest (RSF) is an extension of the RSF algorithm developed by Ishwaran et al and maintained in the `RandomForestSRC` package. The only difference between oblique RSF and Ishwaran's RSF is that oblique RSFs use linear combinations of input variables instead of using the input variable as-is when growing new nodes in survival decision trees. For more details on the oblique RSF, see Jaeger et al, 2019. 
+The oblique random survival forest (RSF) is an extension of the axis-based RSF algorithm. Numerous R packages offer axis-based splits for survival decision trees, including `RandomForestSRC`, `party`, and `ranger`. 
 
 
-```{r setup}
-library(aorsf)
-library(ggplot2)
+## What is an oblique decision tree?
+
+Decision trees are developed by splitting a set of training data into two new subsets, with the goal of having more similarity within the new subsets than between them. This splitting process is repeated on the resulting subsets of data until a stopping criterion is met. When the new subsets of data are formed based on a single predictor, the decision tree is said to be axis-based because the splits of the data appear perpendicular to the axis of the predictor. When linear combinations of variables are used instead of a single variable, the tree is oblique because the splits of the data are neither parallel nor at a right angle to the axis. 
+
+```{r fig_oblique_v_axis, out.width='100%', echo = FALSE, fig.cap="Decision trees for classification with axis-based splitting (left) and oblique splitting (right). Cases are orange squares; controls are purple circles. Both trees partition the predictor space defined by variables X1 and X2, but the oblique splits do a better job of separating the two classes."}
+
+knitr::include_graphics('tree_axis_v_oblique.png')
+
 ```
+
 
 # Accelerated ORSF
 
-The purpose of `aorsf` is to provide routines to fit oblique RSFs that will scale adequately to large data sets. It runs almost 1000 times faster than its predecessor, `obliqueRSF` (see `benchmark` vignette).
+The purpose of `aorsf` is to provide routines to fit oblique RSFs that will scale adequately to large data sets. For example, `aorsf::orsf()` runs about 500 times faster than its predecessor, `obliqueRSF::ORSF()`.
 
 To fit an accelerated ORSF model, use the `orsf` function:
 
 ```{r}
+library(aorsf)
+library(ggplot2)
+
 set.seed(329)
 
 orsf_fit <- orsf(data_train = pbc_orsf, 
@@ -50,7 +58,7 @@ orsf_fit
 
 ```
 
-you may notice that `orsf`'s first input is `data_train`. This is a design choice that makes it easier to use `orsf` with pipes (i.e., `%>%` or `|>`). For instance,
+you may notice that the first input of `aorsf` is `data_train`. This is a design choice that makes it easier to use `orsf` with pipes (i.e., `%>%` or `|>`). For instance,
 
 ```{r, eval=FALSE}
 library(dplyr)
@@ -61,7 +69,6 @@ orsf_fit <- pbc_orsf |>
 
 ```
 
-
 # Variable importance
 
 The coefficients that are used in linear combinations of input variables are a unique characteristic of ORSF that can be used for model interpretation.
@@ -69,6 +76,7 @@ The coefficients that are used in linear combinations of input variables are a u
 For example, to estimate the importance of a variable, ORSF multiplies each coefficient of that variable by -1 and then re-computes the out-of-sample (sometimes referred to as out-of-bag) accuracy of the ORSF model. 
 
 ```{r}
+
 variable_importance <- orsf_vi(orsf_fit)
 
 variable_importance
@@ -142,5 +150,46 @@ ggplot(pd_data_aligned) +
       title = 'Interaction between bilirubin and ascites')
 
 ```
+
+# What about the old ORSF?
+
+The old ORSF (i.e., `obliqueRSF`) used `glmnet` to find linear combinations of inputs. `aorsf` allows users to implement this approach using the `orsf_control_net()` function: 
+
+```{r}
+
+orsf_net <- orsf(data_train = pbc_orsf, 
+                 formula = Surv(time, status) ~ . - id, 
+                 control = orsf_control_net(),
+                 n_tree = 50)
+
+```
+
+Note that the `net` approach is a fair bit slower than the `cph` one!
+
+```{r}
+
+# tracking how long it takes to fit 50 glmnet trees
+print(
+ system.time(
+  orsf(data_train = pbc_orsf, 
+       formula = Surv(time, status) ~ . - id, 
+       control = orsf_control_net(),
+       n_tree = 50)
+ )
+)
+
+# and how long it takes to fit 50 cph trees
+print(
+ system.time(
+  orsf(data_train = pbc_orsf, 
+       formula = Surv(time, status) ~ . - id, 
+       control = orsf_control_cph(),
+       n_tree = 50)
+ )
+)
+
+
+```
+
 
 
