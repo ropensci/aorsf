@@ -452,7 +452,7 @@ pd_loop <- function(object,
   pd_new  <- as.data.frame(pd_spec[i])
   pd_name <- names(pd_spec)[i]
 
-  pd_bind <- data.frame(name = pd_name,
+  pd_bind <- data.frame(variable = pd_name,
                         value = rep(NA_real_, length(pd_spec[[i]])),
                         level = rep(NA_character_, length(pd_spec[[i]])))
 
@@ -481,6 +481,7 @@ pd_loop <- function(object,
                             probs_      = prob_values,
                             time_dbl    = times,
                             return_risk = risk)
+
 
   # pd_fun_predict modifies x_new by reference, so reset it.
   x_new[, x_cols] <- x_vals
