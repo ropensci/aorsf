@@ -3,7 +3,7 @@ pkgdown: 2.0.1
 pkgdown_sha: ~
 articles:
   getting_started: getting_started.html
-last_built: 2022-01-05T21:06Z
+last_built: 2022-01-10T21:03Z
 urls:
   reference: https://bcjaeger.github.io/aorsf/reference
   article: https://bcjaeger.github.io/aorsf/articles
