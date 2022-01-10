@@ -260,7 +260,7 @@ orsf <- function(data_train,
  fctr_id_check(data_train, names_x_data)
 
  fi <- fctr_info(data_train, names_x_data)
- y  <- as.matrix(data_train[, names_y_data])
+ y  <- as.matrix(select_cols(data_train, names_y_data))
  x  <- as.matrix(one_hot(data_train, fi, names_x_data))
 
  types_x_data <- check_var_types(data_train,
@@ -274,9 +274,10 @@ orsf <- function(data_train,
  numeric_bounds <- NULL
 
  if(!is_empty(names_x_numeric)){
-  numeric_bounds <- sapply(data_train[, names_x_data[names_x_numeric] ],
-                           FUN = stats::quantile,
-                           probs = c(0.10, 0.25, 0.50, 0.75, 0.90))
+  numeric_bounds <-
+   sapply(select_cols(data_train, names_x_data[names_x_numeric]),
+          FUN = stats::quantile,
+          probs = c(0.10, 0.25, 0.50, 0.75, 0.90))
  }
 
 

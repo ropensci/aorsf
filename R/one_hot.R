@@ -73,7 +73,7 @@ one_hot <- function (x_data, fi, names_x_data){
 
  }
 
- x_data[ , OH_names, drop = FALSE]
+ select_cols(x_data, OH_names)
 
 }
 

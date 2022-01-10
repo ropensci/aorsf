@@ -68,6 +68,12 @@ test_that(
  }
 )
 
+test_that(
+ desc = 'orsf works fine with data.table',
+ code = {
+  expect_s3_class(orsf(as.data.table(pbc_orsf), f), 'aorsf')
+ }
+)
 
 
 
