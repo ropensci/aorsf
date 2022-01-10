@@ -29,6 +29,10 @@ orsf_summarize_uni <- function(object,
  # for CRAN check:
  medn <- name <- value <- level <- variable <- NULL
 
+ check_arg_is(arg_value = object,
+              arg_name = 'object',
+              expected_class = 'aorsf')
+
  if(!is.null(n_variables)){
 
   check_arg_type(arg_value = n_variables,
@@ -41,6 +45,12 @@ orsf_summarize_uni <- function(object,
   check_arg_gteq(arg_value = n_variables,
                  arg_name = 'n_variables',
                  bound = 1)
+
+  check_arg_lteq(arg_value = n_variables,
+                 arg_name = 'n_variables',
+                 bound = length(get_names_x(object, one_hot_names = FALSE)),
+                 append_to_msg = "(total number of predictors)")
+
 
   check_arg_length(arg_value = n_variables,
                    arg_name = 'n_variables',
@@ -104,7 +114,7 @@ orsf_summarize_uni <- function(object,
   fctrs_unordered <- fctr_info$cols[!fctr_info$ordr]
  }
 
- name_rep <- rle(pd_output$name)
+ name_rep <- rle(pd_output$variable)
 
  pd_output$importance <- rep(importance[name_rep$values],
                              times = name_rep$lengths)
@@ -119,7 +129,7 @@ orsf_summarize_uni <- function(object,
  # To avoid this: include a DT[] after the last := in your function.
  pd_output[]
 
- setcolorder(pd_output, c('name',
+ setcolorder(pd_output, c('variable',
                           'importance',
                           'value',
                           'mean',
@@ -153,12 +163,14 @@ orsf_summarize_uni <- function(object,
 #'
 #' object <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 #'
-#' summary(object)
+#' smry <- orsf_summarize_uni(object, n_variables = 3)
+#'
+#' print(smry)
 #'
 print.aorsf_summary_uni <- function(x, n_variables = NULL, ...){
 
 
- if(is.null(n_variables)) n_variables <- length(unique(x$dt$name))
+ if(is.null(n_variables)) n_variables <- length(unique(x$dt$variable))
 
  risk_or_surv <- if(x$risk) "risk" else "survival"
 
@@ -199,7 +211,22 @@ print.aorsf_summary_uni <- function(x, n_variables = NULL, ...){
    )[1L]
   )
 
- name_index <- rle(x$dt$name)
+ first_col_vals <- nchar(x$dt$Value)
+ first_col_width <- max(first_col_vals)
+ first_col_pad <- first_col_width - first_col_vals
+
+ for(i in seq_along(x$dt$Value)){
+
+  pad <- paste(
+   rep(" ", times = first_col_pad[i]),
+   collapse = ''
+  )
+
+  x$dt$Value[i] <- paste0(pad, x$dt$Value[i])
+
+ }
+
+ name_index <- rle(x$dt$variable)
 
  row_current <- 1
 
