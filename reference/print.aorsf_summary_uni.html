@@ -74,14 +74,35 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
 <span class="r-in"><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span>
 <span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">object</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            Length Class      Mode   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> forest     500    -none-     list   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> surv_oobag 276    -none-     numeric</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> time_pred    1    -none-     numeric</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> eval_oobag   1    -none-     list   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> importance   0    -none-     numeric</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> data_train  20    data.frame list   </span>
+<span class="r-in"><span class="va">smry</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">object</span>, n_variables <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">smry</span><span class="op">)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- 2 (VI Rank: 1) ------------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- risk ----------------|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.80 0.2310270 0.1181015 0.05293073 0.3563591</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    1.4 0.2502546 0.1404306 0.06424322 0.3883664</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    3.5 0.3662063 0.2831497 0.16763036 0.5426141</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- 1 (VI Rank: 2) ------------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- risk ----------------|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     42 0.2723601 0.1404704 0.04882297 0.4486407</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     50 0.2985764 0.1700417 0.05439152 0.5090264</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     57 0.3274084 0.2176652 0.07571543 0.5533756</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- 3 (VI Rank: 3) ------------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- risk ----------------|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     43 0.2610782 0.1472669 0.05037585 0.4570850</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     74 0.2799128 0.1653180 0.06246852 0.4918984</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    129 0.3338423 0.2314497 0.10853566 0.5547992</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Predicted risk at time t = 1788 for top 3 predictors </span>
 <span class="r-in"></span>
 </code></pre></div>
     </div>
