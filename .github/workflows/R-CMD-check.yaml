@@ -26,7 +26,8 @@ jobs:
 
           - {os: windows-latest, r: 'release'}
           # Use 3.6 to trigger usage of RTools35, + .3 for glmnet install
-          - {os: windows-latest, r: '3.6.3'}
+          # need to drop this b/c glmnet can't be installed (cpp14 issue)
+          # - {os: windows-latest, r: '3.6.3'}
 
           # Use older ubuntu to maximise backward compatibility
           - {os: ubuntu-18.04,   r: 'devel', http-user-agent: 'release'}
