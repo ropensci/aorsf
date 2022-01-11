@@ -185,23 +185,6 @@ CharacterVector yy_names = CharacterVector::create("time","status");
 
 NumericVector ww;
 
-//[[Rcpp::export]]
-NumericMatrix testit(arma::mat x_node,
-                     arma::mat y_node,
-                     double alpha,
-                     Function f){
-
- NumericMatrix xx = wrap(x_node);
- NumericMatrix yy = wrap(y_node);
-
- colnames(yy) = CharacterVector::create("time","status");
-
- NumericMatrix out = f(xx, yy, alpha);
- return(out);
-
-
-}
-
 // ----------------------------------------------------------------------------
 // ---------------------------- scaling functions -----------------------------
 // ----------------------------------------------------------------------------
@@ -507,19 +490,6 @@ void cholesky_solve(){
   }
 
  }
-
-}
-
-//[[Rcpp::export]]
-arma::vec cholesky_testthat(NumericMatrix& vmat_,
-                            NumericVector& u_){
-
- vmat = mat(vmat_.begin(), vmat_.nrow(), vmat_.ncol(), false);
- u = vec(u_.begin(), u_.length(), false);
- n_vars = vmat.n_cols;
- cholesky();
- cholesky_solve();
- return(u);
 
 }
 
@@ -2102,97 +2072,97 @@ void new_pred_surv_multi_mean(){
 
 }
 
-void new_pred_surv_multi_median(){
-
- // allocate memory for output
- // surv_pvec.zeros(x_pred.n_rows);
-
- surv_pvec.set_size(times_pred.size());
- iit_vals = sort_index(leaf_pred, "ascend");
- iit = iit_vals.begin();
-
- do {
-
-  person_leaf = leaf_pred(*iit);
-
-  for(i = 0; i < leaf_indices.n_rows; i++){
-   if(leaf_indices.at(i, 0) == person_leaf){
-    break;
-   }
-  }
-
-  leaf_node = leaf_nodes.rows(leaf_indices(i, 1),
-                              leaf_indices(i, 2));
-
-  if(verbose > 1){
-   Rcout << "leaf_node:" << std::endl << leaf_node << std::endl;
-  }
-
-  i = 0;
-
-  for(j = 0; j < times_pred.size(); j++){
-
-   time_pred = times_pred(j);
-
-   if(time_pred < leaf_node(leaf_node.n_rows - 1, 0)){
-
-    for(; i < leaf_node.n_rows; i++){
-
-     if (leaf_node(i, 0) > time_pred){
-
-      if(i == 0)
-       temp1 = 1;
-      else
-       temp1 = leaf_node(i-1, 1);
-
-      break;
-
-     } else if (leaf_node(i, 0) == time_pred){
-
-      temp1 = leaf_node(i, 1);
-      break;
-
-     }
-
-    }
-
-   } else {
-
-    // go here if prediction horizon > max time in current leaf.
-    temp1 = leaf_node(leaf_node.n_rows - 1, 1);
-
-   }
-
-   surv_pvec(j) = temp1;
-
-  }
-
-
-  for(i = 0; i < times_pred.size(); i++){
-   surv_pcube(tree, *iit, i) = surv_pvec[i];
-  }
-
-  ++iit;
-
-  if(iit < iit_vals.end()){
-
-   while(person_leaf == leaf_pred(*iit)){
-
-    for(i = 0; i < times_pred.size(); i++){
-     surv_pcube(tree, *iit, i) = surv_pvec[i];
-    }
-
-    ++iit;
-
-    if (iit == iit_vals.end()) break;
-
-   }
-
-  }
-
- } while (iit < iit_vals.end());
-
-}
+// void new_pred_surv_multi_median(){
+//
+//  // allocate memory for output
+//  // surv_pvec.zeros(x_pred.n_rows);
+//
+//  surv_pvec.set_size(times_pred.size());
+//  iit_vals = sort_index(leaf_pred, "ascend");
+//  iit = iit_vals.begin();
+//
+//  do {
+//
+//   person_leaf = leaf_pred(*iit);
+//
+//   for(i = 0; i < leaf_indices.n_rows; i++){
+//    if(leaf_indices.at(i, 0) == person_leaf){
+//     break;
+//    }
+//   }
+//
+//   leaf_node = leaf_nodes.rows(leaf_indices(i, 1),
+//                               leaf_indices(i, 2));
+//
+//   if(verbose > 1){
+//    Rcout << "leaf_node:" << std::endl << leaf_node << std::endl;
+//   }
+//
+//   i = 0;
+//
+//   for(j = 0; j < times_pred.size(); j++){
+//
+//    time_pred = times_pred(j);
+//
+//    if(time_pred < leaf_node(leaf_node.n_rows - 1, 0)){
+//
+//     for(; i < leaf_node.n_rows; i++){
+//
+//      if (leaf_node(i, 0) > time_pred){
+//
+//       if(i == 0)
+//        temp1 = 1;
+//       else
+//        temp1 = leaf_node(i-1, 1);
+//
+//       break;
+//
+//      } else if (leaf_node(i, 0) == time_pred){
+//
+//       temp1 = leaf_node(i, 1);
+//       break;
+//
+//      }
+//
+//     }
+//
+//    } else {
+//
+//     // go here if prediction horizon > max time in current leaf.
+//     temp1 = leaf_node(leaf_node.n_rows - 1, 1);
+//
+//    }
+//
+//    surv_pvec(j) = temp1;
+//
+//   }
+//
+//
+//   for(i = 0; i < times_pred.size(); i++){
+//    surv_pcube(tree, *iit, i) = surv_pvec[i];
+//   }
+//
+//   ++iit;
+//
+//   if(iit < iit_vals.end()){
+//
+//    while(person_leaf == leaf_pred(*iit)){
+//
+//     for(i = 0; i < times_pred.size(); i++){
+//      surv_pcube(tree, *iit, i) = surv_pvec[i];
+//     }
+//
+//     ++iit;
+//
+//     if (iit == iit_vals.end()) break;
+//
+//    }
+//
+//   }
+//
+//  } while (iit < iit_vals.end());
+//
+// }
 
 
 // naming pattern
@@ -2302,90 +2272,90 @@ void new_pred_surv_uni_mean(){
 
 }
 
-void new_pred_surv_uni_median(){
-
- iit_vals = sort_index(leaf_pred, "ascend");
- iit = iit_vals.begin();
-
- do {
-
-  person_leaf = leaf_pred(*iit);
-
-  for(i = 0; i < leaf_indices.n_rows; i++){
-   if(leaf_indices.at(i, 0) == person_leaf){
-    break;
-   }
-  }
-
-  leaf_node = leaf_nodes.rows(leaf_indices(i, 1),
-                              leaf_indices(i, 2));
-
-  if(verbose > 1){
-   Rcout << "leaf_node:" << std::endl << leaf_node << std::endl;
-  }
-
-  i = 0;
-
-  if(time_pred < leaf_node(leaf_node.n_rows - 1, 0)){
-
-   for(; i < leaf_node.n_rows; i++){
-    if (leaf_node(i, 0) > time_pred){
-     if(i == 0){
-      temp1 = 1;
-     } else {
-      temp2 = leaf_node(i, 0) - leaf_node(i-1, 0);
-
-      temp1 = leaf_node(i, 1) * (time_pred - leaf_node(i-1,0)) / temp2 +
-       leaf_node(i-1, 1) * (leaf_node(i,0) - time_pred) / temp2;
-     }
-     break;
-    } else if (leaf_node(i, 0) == time_pred){
-     temp1 = leaf_node(i, 1);
-     break;
-    }
-   }
-
-  } else if (time_pred == leaf_node(leaf_node.n_rows - 1, 0)){
-
-   temp1 = leaf_node(leaf_node.n_rows - 1, 1);
-
-  } else {
-
-   // go here if prediction horizon > max time in current leaf.
-   temp1 = leaf_node(leaf_node.n_rows - 1, 1);
-
-   // --- EXPERIMENTAL ADD-ON --- //
-   // if you are predicting beyond the max time in a node,
-   // then determine how much further out you are and assume
-   // the survival probability decays at the same rate.
-
-   temp2 = (1.0 - temp1) *
-    (time_pred - leaf_node(leaf_node.n_rows - 1, 0)) / time_pred;
-
-   temp1 = temp1 * (1.0-temp2);
-
-  }
-
-  surv_pmat(tree, *iit) = temp1;
-  ++iit;
-
-  if(iit < iit_vals.end()){
-
-   while(person_leaf == leaf_pred(*iit)){
-
-    surv_pmat(tree, *iit) = temp1;
-    ++iit;
-
-    if (iit == iit_vals.end()) break;
-
-   }
-
-  }
-
- } while (iit < iit_vals.end());
-
-
-}
+// void new_pred_surv_uni_median(){
+//
+//  iit_vals = sort_index(leaf_pred, "ascend");
+//  iit = iit_vals.begin();
+//
+//  do {
+//
+//   person_leaf = leaf_pred(*iit);
+//
+//   for(i = 0; i < leaf_indices.n_rows; i++){
+//    if(leaf_indices.at(i, 0) == person_leaf){
+//     break;
+//    }
+//   }
+//
+//   leaf_node = leaf_nodes.rows(leaf_indices(i, 1),
+//                               leaf_indices(i, 2));
+//
+//   if(verbose > 1){
+//    Rcout << "leaf_node:" << std::endl << leaf_node << std::endl;
+//   }
+//
+//   i = 0;
+//
+//   if(time_pred < leaf_node(leaf_node.n_rows - 1, 0)){
+//
+//    for(; i < leaf_node.n_rows; i++){
+//     if (leaf_node(i, 0) > time_pred){
+//      if(i == 0){
+//       temp1 = 1;
+//      } else {
+//       temp2 = leaf_node(i, 0) - leaf_node(i-1, 0);
+//
+//       temp1 = leaf_node(i, 1) * (time_pred - leaf_node(i-1,0)) / temp2 +
+//        leaf_node(i-1, 1) * (leaf_node(i,0) - time_pred) / temp2;
+//      }
+//      break;
+//     } else if (leaf_node(i, 0) == time_pred){
+//      temp1 = leaf_node(i, 1);
+//      break;
+//     }
+//    }
+//
+//   } else if (time_pred == leaf_node(leaf_node.n_rows - 1, 0)){
+//
+//    temp1 = leaf_node(leaf_node.n_rows - 1, 1);
+//
+//   } else {
+//
+//    // go here if prediction horizon > max time in current leaf.
+//    temp1 = leaf_node(leaf_node.n_rows - 1, 1);
+//
+//    // --- EXPERIMENTAL ADD-ON --- //
+//    // if you are predicting beyond the max time in a node,
+//    // then determine how much further out you are and assume
+//    // the survival probability decays at the same rate.
+//
+//    temp2 = (1.0 - temp1) *
+//     (time_pred - leaf_node(leaf_node.n_rows - 1, 0)) / time_pred;
+//
+//    temp1 = temp1 * (1.0-temp2);
+//
+//   }
+//
+//   surv_pmat(tree, *iit) = temp1;
+//   ++iit;
+//
+//   if(iit < iit_vals.end()){
+//
+//    while(person_leaf == leaf_pred(*iit)){
+//
+//     surv_pmat(tree, *iit) = temp1;
+//     ++iit;
+//
+//     if (iit == iit_vals.end()) break;
+//
+//    }
+//
+//   }
+//
+//  } while (iit < iit_vals.end());
+//
+//
+// }
 
 
 // ----------------------------------------------------------------------------

@@ -11,20 +11,6 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// testit
-NumericMatrix testit(arma::mat x_node, arma::mat y_node, double alpha, Function f);
-RcppExport SEXP _aorsf_testit(SEXP x_nodeSEXP, SEXP y_nodeSEXP, SEXP alphaSEXP, SEXP fSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type x_node(x_nodeSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type y_node(y_nodeSEXP);
-    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
-    Rcpp::traits::input_parameter< Function >::type f(fSEXP);
-    rcpp_result_gen = Rcpp::wrap(testit(x_node, y_node, alpha, f));
-    return rcpp_result_gen;
-END_RCPP
-}
 // leaf_kaplan_testthat
 arma::mat leaf_kaplan_testthat(const arma::mat& y, const arma::vec& w);
 RcppExport SEXP _aorsf_leaf_kaplan_testthat(SEXP ySEXP, SEXP wSEXP) {
@@ -34,18 +20,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type y(ySEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type w(wSEXP);
     rcpp_result_gen = Rcpp::wrap(leaf_kaplan_testthat(y, w));
-    return rcpp_result_gen;
-END_RCPP
-}
-// cholesky_testthat
-arma::vec cholesky_testthat(NumericMatrix& vmat_, NumericVector& u_);
-RcppExport SEXP _aorsf_cholesky_testthat(SEXP vmat_SEXP, SEXP u_SEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix& >::type vmat_(vmat_SEXP);
-    Rcpp::traits::input_parameter< NumericVector& >::type u_(u_SEXP);
-    rcpp_result_gen = Rcpp::wrap(cholesky_testthat(vmat_, u_));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -240,9 +214,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_aorsf_testit", (DL_FUNC) &_aorsf_testit, 4},
     {"_aorsf_leaf_kaplan_testthat", (DL_FUNC) &_aorsf_leaf_kaplan_testthat, 2},
-    {"_aorsf_cholesky_testthat", (DL_FUNC) &_aorsf_cholesky_testthat, 2},
     {"_aorsf_newtraph_cph_testthat", (DL_FUNC) &_aorsf_newtraph_cph_testthat, 7},
     {"_aorsf_lrt_multi_testthat", (DL_FUNC) &_aorsf_lrt_multi_testthat, 6},
     {"_aorsf_ostree_pred_leaf_testthat", (DL_FUNC) &_aorsf_ostree_pred_leaf_testthat, 2},
