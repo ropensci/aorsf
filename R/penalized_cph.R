@@ -17,7 +17,7 @@ penalized_cph <- function(x_node,
   )
  )
 
- if(class(fit)[1] == 'try-error'){
+ if(is_error(fit)){
   return(matrix(0, nrow=ncol(x_node), ncol=1))
  }
 

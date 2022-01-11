@@ -2484,24 +2484,24 @@ void ostree_pred_leaf(){
     // Matrix product = linear combination of columns
     // (this is faster b/c armadillo is great at making
     //  pointers to the columns of an arma mat)
-    XB.zeros(obs_in_node.size());
-
-    uvec col_indices_i = col_indices.unsafe_col(i);
-
-    j = 0;
-
-    jit = col_indices_i.begin();
-
-    for(; jit < col_indices_i.end(); ++jit, ++j){
-
-     vec x_j = x_pred.unsafe_col(*jit);
-
-     XB += x_j(obs_in_node) * betas.at(j, i);
-
-    }
+    // XB.zeros(obs_in_node.size());
+    //
+    // uvec col_indices_i = col_indices.unsafe_col(i);
+    //
+    // j = 0;
+    //
+    // jit = col_indices_i.begin();
+    //
+    // for(; jit < col_indices_i.end(); ++jit, ++j){
+    //
+    //  vec x_j = x_pred.unsafe_col(*jit);
+    //
+    //  XB += x_j(obs_in_node) * betas.at(j, i);
+    //
+    // }
 
     // this is slower but more clear matrix multiplication
-    // XB = x_pred(obs_in_node, col_indices.col(i)) * betas.col(i);
+    XB = x_pred(obs_in_node, col_indices.col(i)) * betas.col(i);
 
     jit = obs_in_node.begin();
 

@@ -63,9 +63,9 @@ run_lrt_multi_tests <- function(test_values, XB){
      n_left = sum(XB <= x)
     )
    }
-  ) |>
-  t() |>
-  as.data.frame()
+  )
+
+ cp_stats <- as.data.frame(t(cp_stats))
 
  cp_stats$valid_cp = with(
   cp_stats,
