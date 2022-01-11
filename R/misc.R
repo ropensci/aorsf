@@ -17,3 +17,9 @@ last_value <- function(x) x[length(x)]
 is_aorsf <- function(object){
  inherits(object, 'aorsf')
 }
+
+
+# Clean up after aorsf is unloaded.
+.onUnload <- function (libpath) {
+ library.dynam.unload("mypackage", libpath)
+}

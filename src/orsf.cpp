@@ -3109,6 +3109,9 @@ List orsf_fit(NumericMatrix& x,
 
  for(tree = 0; tree < n_tree; ){
 
+  // This aborts the routine if user has pressed Ctrl + C or Escape in R.
+  Rcpp::checkUserInterrupt();
+
   // --------------------------------------------
   // ---- initialize parameters to grow tree ----
   // --------------------------------------------

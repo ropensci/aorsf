@@ -2,7 +2,7 @@
 % Please edit documentation in R/orsf_predict.R
 \name{predict.aorsf}
 \alias{predict.aorsf}
-\title{ORSF predictions}
+\title{Predict risk or survival}
 \usage{
 \method{predict}{aorsf}(object, new_data, times, risk = TRUE, ...)
 }
@@ -30,7 +30,7 @@ to value \code{j} in \code{times}. Row \code{i} of the matrix corresponds to row
 in \code{new_data}.
 }
 \description{
-ORSF predictions
+Predict risk or survival
 }
 \examples{
 

@@ -6,7 +6,7 @@
 \alias{aorsf-package}
 \title{aorsf: Accelerated Oblique Random Survival Forests}
 \description{
-Fit, interpret, and make predictions with oblique random survival forests. Oblique decision trees are notoriously slow compared to their axis based counterparts, but 'aorsf' runs as fast or faster than axis-based decision tree algorithms for survival decision trees.
+Fit, interpret, and make predictions with oblique random survival forests. Oblique decision trees are notoriously slow compared to their axis based counterparts, but 'aorsf' runs as fast or faster than axis-based decision tree algorithms for right-censored time-to-event outcomes.
 }
 \seealso{
 Useful links:

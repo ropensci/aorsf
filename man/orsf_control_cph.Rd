@@ -2,7 +2,7 @@
 % Please edit documentation in R/orsf_control.R
 \name{orsf_control_cph}
 \alias{orsf_control_cph}
-\title{ORSF; Cox proportional hazards control}
+\title{Cox proportional hazards control}
 \usage{
 orsf_control_cph(
   method = "breslow",
@@ -45,7 +45,7 @@ an object of class \code{'aorsf_control'}, which should be used as
 an input for the \code{control} argument of \link{orsf}.
 }
 \description{
-ORSF; Cox proportional hazards control
+Cox proportional hazards control
 }
 \examples{
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/orsf_control.R
 \name{orsf_control_net}
 \alias{orsf_control_net}
-\title{ORSF; Elastic net control}
+\title{Elastic net control}
 \usage{
 orsf_control_net(alpha = 1/2, df_target = NULL)
 }
@@ -22,7 +22,7 @@ an object of class \code{'aorsf_control'}, which should be used as
 an input for the \code{control} argument of \link{orsf}.
 }
 \description{
-ORSF; Elastic net control
+Elastic net control
 }
 \examples{
 

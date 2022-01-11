@@ -114,7 +114,8 @@ orsf_summarize_uni <- function(object,
   fctrs_unordered <- fctr_info$cols[!fctr_info$ordr]
  }
 
- name_rep <- rle(pd_output$variable)
+ # some cart-wheels here for backward compatibility.
+ name_rep <- rle(as.integer(as.factor(pd_output$variable)))
 
  pd_output$importance <- rep(importance[name_rep$values],
                              times = name_rep$lengths)
@@ -226,7 +227,7 @@ print.aorsf_summary_uni <- function(x, n_variables = NULL, ...){
 
  }
 
- name_index <- rle(x$dt$variable)
+ name_index <- rle(as.integer(as.factor(x$dt$variable)))
 
  row_current <- 1
 

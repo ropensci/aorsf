@@ -23,6 +23,8 @@ Print ORSF summary
 
 object <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 
-summary(object)
+smry <- orsf_summarize_uni(object, n_variables = 3)
+
+print(smry)
 
 }
