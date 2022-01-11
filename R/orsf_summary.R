@@ -121,7 +121,7 @@ orsf_summarize_uni <- function(object,
                              times = name_rep$lengths)
 
  pd_output[, value := fifelse(test = is.na(value),
-                              yes = level,
+                              yes = as.character(level),
                               no = table.glue::table_value(value))]
 
  # if a := is used inside a function with no DT[] before the end of the
