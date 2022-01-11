@@ -3,6 +3,9 @@
 
 // [[Rcpp::depends(RcppArmadillo)]]
 
+// using cpp 14 for glmnet installation with R version 3.6
+// [[Rcpp::plugins(cpp14)]]
+
 using namespace Rcpp;
 using namespace arma;
 
