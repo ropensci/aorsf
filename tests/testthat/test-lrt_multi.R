@@ -90,8 +90,8 @@ run_lrt_multi_tests <- function(test_values, XB){
     XB_cut <- as.numeric(XB > test_values$cutpoints[i])
 
     chisq <-
-     survival::survdiff(survival::Surv(time, status) ~ XB_cut) |>
-     getElement('chisq')
+     getElement(survival::survdiff(survival::Surv(time, status) ~ XB_cut),
+                'chisq')
 
     # same chi square stat
     expect_equal(test_values$statistic[i], chisq)
