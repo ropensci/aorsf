@@ -44,7 +44,7 @@ print(fit)
 
 ```
 
-How about interpreting the fit? There are several functions for this: `orsf_vi()` for variable importance, `orsf_interaction()` for two-way variable interactions, and `orsf_pd_ice()` or `orsf_pd_summary()` for individual or aggregated partial dependence values. However, `orsf_summarize_uni()` is the most convenient way to assess top predictor variables in ORSF and the expected predicted risk at specific values of those predictors.
+How about interpreting the fit? There are several functions for this: `orsf_vi()` for variable importance, `orsf_interaction()` for two-way variable interactions, and `orsf_pd_ice()` or `orsf_pd_summary()` for individual or aggregated partial dependence values. However, `orsf_summarize_uni()` is the most convenient way to assess top predictor variables in ORSF and the expected predicted risk at specific values of those predictors. The term 'uni' is short for univariate.
 
 ```{r}
 
@@ -55,6 +55,4 @@ How about interpreting the fit? There are several functions for this: `orsf_vi()
 orsf_summarize_uni(object = fit, n_variables = 5)
 
 ```
-
-The term 'uni' is short for univariate.
 
