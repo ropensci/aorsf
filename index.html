@@ -8,7 +8,8 @@
 <meta name="description" content="Fit, interpret, and make predictions with oblique random
     survival forests. Oblique decision trees are notoriously slow compared
     to their axis based counterparts, but aorsf runs as fast or faster than 
-    axis-based decision tree algorithms for survival decision trees.">
+    axis-based decision tree algorithms for right-censored time-to-event 
+    outcomes.">
 <title>Accelerated Oblique Random Survival Forests • aorsf</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
@@ -18,7 +19,8 @@
 <meta property="og:description" content="Fit, interpret, and make predictions with oblique random
     survival forests. Oblique decision trees are notoriously slow compared
     to their axis based counterparts, but aorsf runs as fast or faster than 
-    axis-based decision tree algorithms for survival decision trees.">
+    axis-based decision tree algorithms for right-censored time-to-event 
+    outcomes.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -104,7 +106,7 @@
 <span class="co">#&gt;          OOB C-statistic: 0.84</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; -----------------------------------------</span></code></pre></div>
-<p>How about interpreting the fit? There are several functions for this: <code><a href="reference/orsf_vi.html">orsf_vi()</a></code> for variable importance, <code><a href="reference/orsf_interaction.html">orsf_interaction()</a></code> for two-way variable interactions, and <code><a href="reference/orsf_pd_summary.html">orsf_pd_ice()</a></code> or <code><a href="reference/orsf_pd_summary.html">orsf_pd_summary()</a></code> for individual or aggregated partial dependence values. However, <code><a href="reference/orsf_summarize_uni.html">orsf_summarize_uni()</a></code> is the most convenient way to assess top predictor variables in ORSF and the expected predicted risk at specific values of those predictors.</p>
+<p>How about interpreting the fit? There are several functions for this: <code><a href="reference/orsf_vi.html">orsf_vi()</a></code> for variable importance, <code><a href="reference/orsf_interaction.html">orsf_interaction()</a></code> for two-way variable interactions, and <code><a href="reference/orsf_pd_summary.html">orsf_pd_ice()</a></code> or <code><a href="reference/orsf_pd_summary.html">orsf_pd_summary()</a></code> for individual or aggregated partial dependence values. However, <code><a href="reference/orsf_summarize_uni.html">orsf_summarize_uni()</a></code> is the most convenient way to assess top predictor variables in ORSF and the expected predicted risk at specific values of those predictors. The term ‘uni’ is short for univariate.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># take a look at the top 5 variables </span>
 <span class="co"># for continuous predictors, see expected risk at 25/50/75th quantile</span>
@@ -116,42 +118,44 @@
 <span class="co">#&gt; </span>
 <span class="co">#&gt;        |---------------- risk ----------------|</span>
 <span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
-<span class="co">#&gt;   0.80 0.2325340 0.1265260 0.04848649 0.3757404</span>
-<span class="co">#&gt;    1.4 0.2506499 0.1408313 0.06174594 0.3890790</span>
-<span class="co">#&gt;    3.5 0.3672571 0.2771605 0.16780738 0.5592806</span>
+<span class="co">#&gt;   0.80 0.2331220 0.1252519 0.04787173 0.3698876</span>
+<span class="co">#&gt;    1.4 0.2496992 0.1448403 0.06142788 0.3871287</span>
+<span class="co">#&gt;    3.5 0.3623194 0.2776568 0.15801605 0.5475111</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; -- age (VI Rank: 2) ----------------------------</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;        |---------------- risk ----------------|</span>
 <span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
-<span class="co">#&gt;     42 0.2742214 0.1506950 0.04545622 0.4585691</span>
-<span class="co">#&gt;     50 0.2977520 0.1759675 0.05254730 0.5043843</span>
-<span class="co">#&gt;     57 0.3268951 0.2143951 0.07200863 0.5633268</span>
+<span class="co">#&gt;     42 0.2704098 0.1417984 0.04608896 0.4440794</span>
+<span class="co">#&gt;     50 0.2965021 0.1667501 0.05256073 0.5070508</span>
+<span class="co">#&gt;     57 0.3273849 0.2118161 0.07401963 0.5635498</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; -- ascites (VI Rank: 3) ------------------------</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;        |---------------- risk ----------------|</span>
-<span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
-<span class="co">#&gt;      0 0.2953194 0.1688652 0.05285233 0.5296210</span>
-<span class="co">#&gt;      1 0.4711030 0.3923678 0.28036067 0.6666691</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; -- protime (VI Rank: 4) ------------------------</span>
+<span class="co">#&gt; -- protime (VI Rank: 3) ------------------------</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;        |---------------- risk ----------------|</span>
 <span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
-<span class="co">#&gt;     10 0.2802406 0.1542821 0.04971174 0.5090750</span>
-<span class="co">#&gt;     11 0.2932556 0.1708379 0.05749268 0.5189746</span>
-<span class="co">#&gt;     11 0.3170823 0.1904355 0.07086467 0.5495897</span>
+<span class="co">#&gt;     10 0.2788376 0.1501081 0.05137325 0.4815079</span>
+<span class="co">#&gt;     11 0.2910832 0.1592242 0.05324888 0.4945039</span>
+<span class="co">#&gt;     11 0.3122619 0.1899187 0.06860109 0.5257119</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; -- spiders (VI Rank: 5) ------------------------</span>
+<span class="co">#&gt; -- copper (VI Rank: 4) -------------------------</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;        |---------------- risk ----------------|</span>
 <span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
-<span class="co">#&gt;      0 0.2903928 0.1590619 0.04953802 0.5106214</span>
-<span class="co">#&gt;      1 0.3361667 0.2161500 0.09189305 0.5474268</span>
+<span class="co">#&gt;     43 0.2615647 0.1451407 0.04761734 0.4448444</span>
+<span class="co">#&gt;     74 0.2781534 0.1622355 0.05967552 0.4711515</span>
+<span class="co">#&gt;    129 0.3295867 0.2258534 0.10952305 0.5317666</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; -- stage (VI Rank: 5) --------------------------</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;        |---------------- risk ----------------|</span>
+<span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
+<span class="co">#&gt;      1 0.2576518 0.1412697 0.04913651 0.4312446</span>
+<span class="co">#&gt;      2 0.2671853 0.1405898 0.04736663 0.4673936</span>
+<span class="co">#&gt;      3 0.2887433 0.1564222 0.05633898 0.5015073</span>
+<span class="co">#&gt;      4 0.3355217 0.2158436 0.08858787 0.5588579</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;  Predicted risk at time t = 1788 for top 5 predictors</span></code></pre></div>
-<p>The term ‘uni’ is short for univariate.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
