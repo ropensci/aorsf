@@ -38,7 +38,8 @@
 #'
 #' ggplot(pd_data_aligned) +
 #'  aes(x = bili, y = mean, col = factor(ascites)) +
-#'  geom_line()
+#'  geom_line() +
+#'  theme_bw()
 
 orsf_interaction <- function(object){
 

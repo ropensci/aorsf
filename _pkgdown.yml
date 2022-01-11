@@ -1,5 +1,16 @@
 url: https://bcjaeger.github.io/aorsf
 
+template:
+  bootstrap: 5
+  bootswatch: lux
+  bslib:
+    pkgdown-nav-height: 100px
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, tutorials, news]
+    right: [search, github]
+
 reference:
 - title: Fit oblique random survival forests (ORSFs)
   desc: Fit ORSF models using cox proportional hazards regression or elastic net proportional hazards regression to identify linear combinations of input variables.

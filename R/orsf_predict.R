@@ -1,6 +1,6 @@
 
 
-#' ORSF predictions
+#' Predict risk or survival
 #'
 #' @param object (_aorsf_) an oblique random survival forest (ORSF; see [orsf]).
 #'

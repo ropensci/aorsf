@@ -16,11 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette covers core features of the `aorsf` package. A separate vignette covers each feature in more detail. 
-
-1. For variable importance, see `variable_importance.Rmd`
-1. For two-way interactions, see `variable_interaction.Rmd`
-1. For partial dependence, see `partial_dependence.Rmd`
+This vignette covers core features of the `aorsf` package. Separate vignettes will cover these features in more detail. 
 
 # Background: Oblique RSF
 
