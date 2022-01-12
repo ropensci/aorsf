@@ -2,14 +2,18 @@ url: https://bcjaeger.github.io/aorsf
 
 template:
   bootstrap: 5
-  bootswatch: lux
-  bslib:
-    pkgdown-nav-height: 100px
+  bootswatch: sandstone
 
 navbar:
   structure:
     left:  [intro, reference, articles, tutorials, news]
     right: [search, github]
+
+articles:
+- title: Learn to use ORSF
+  navbar: ~
+  contents:
+  - aorsf
 
 reference:
 - title: Fit oblique random survival forests (ORSFs)
