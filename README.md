@@ -13,11 +13,13 @@ coverage](https://codecov.io/gh/bcjaeger/aorsf/branch/master/graph/badge.svg)](h
 The goal of `aorsf` is to fit, interpret, and make predictions with
 oblique random survival forests (ORSFs). The ‘a’ in the title of `aorsf`
 stands for accelerated. So why do ORSFs need to be accelerated? Oblique
-decision trees are notoriously slow, and the issue of higher computation
-time is compounded by the fast that survival trees may also be slow. To
-make ORSF more accessible and able to engage with larger datasets,
-`aorsf` applies strategies to cut down computing time without
-sacrificing prediction accuracy.
+decision trees are often more accurate but slower to fit compared to
+their axis-based counterparts. The issue of higher computation time is
+compounded for survival decision trees, which usually require more
+computing than classification or regression trees. To make ORSF more
+accessible and able to engage with larger datasets, `aorsf` applies
+strategies to cut down computing time without sacrificing prediction
+accuracy.
 
 ## Installation
 
@@ -75,41 +77,48 @@ orsf_summarize_uni(object = fit, n_variables = 5)
 #> 
 #>        |---------------- risk ----------------|
 #>  Value      Mean    Median     25th %    75th %
-#>   0.80 0.2327223 0.1187105 0.04920697 0.3532136
-#>    1.4 0.2503352 0.1355363 0.06129695 0.3794809
-#>    3.5 0.3617920 0.2801387 0.16335693 0.5145361
+#>   0.80 0.2303045 0.1159666 0.04540949 0.3738375
+#>   1.40 0.2501020 0.1314716 0.06338070 0.3913647
+#>   3.52 0.3614245 0.2718542 0.15921464 0.5318559
 #> 
 #> -- age (VI Rank: 2) ----------------------------
 #> 
 #>        |---------------- risk ----------------|
 #>  Value      Mean    Median     25th %    75th %
-#>     42 0.2719462 0.1368686 0.04647107 0.4459963
-#>     50 0.2955702 0.1644157 0.05180857 0.5115135
-#>     57 0.3237065 0.2026756 0.07015707 0.5451979
+#>   41.5 0.2700114 0.1346919 0.04416058 0.4529193
+#>   49.7 0.2957704 0.1642519 0.05406492 0.4954041
+#>   56.6 0.3254694 0.2082042 0.07406272 0.5352754
 #> 
 #> -- ascites (VI Rank: 3) ------------------------
 #> 
 #>        |---------------- risk ----------------|
 #>  Value      Mean    Median     25th %    75th %
-#>      0 0.2914747 0.1571831 0.05285387 0.5241465
-#>      1 0.4699443 0.3873810 0.28113338 0.6587456
+#>      0 0.2917184 0.1545333 0.05076274 0.5028834
+#>      1 0.4627266 0.3794409 0.25965444 0.6429872
 #> 
-#> -- stage (VI Rank: 4) --------------------------
-#> 
-#>        |---------------- risk ----------------|
-#>  Value      Mean    Median     25th %    75th %
-#>      1 0.2579344 0.1377085 0.04771583 0.4422156
-#>      2 0.2657589 0.1446005 0.04661316 0.4628640
-#>      3 0.2884751 0.1683806 0.05461591 0.5014843
-#>      4 0.3347969 0.2075534 0.08498729 0.5744516
-#> 
-#> -- copper (VI Rank: 5) -------------------------
+#> -- protime (VI Rank: 4) ------------------------
 #> 
 #>        |---------------- risk ----------------|
 #>  Value      Mean    Median     25th %    75th %
-#>     43 0.2599877 0.1425730 0.05012715 0.4470400
-#>     74 0.2765080 0.1562001 0.05850182 0.4536671
-#>    129 0.3319711 0.2266852 0.11518515 0.5382018
+#>   10.0 0.2787354 0.1502139 0.04815788 0.4908722
+#>   10.6 0.2916406 0.1630598 0.05422335 0.5144108
+#>   11.2 0.3119439 0.1838502 0.07078713 0.5324805
+#> 
+#> -- albumin (VI Rank: 5) ------------------------
+#> 
+#>        |---------------- risk ----------------|
+#>  Value      Mean    Median     25th %    75th %
+#>   3.31 0.3128104 0.1812829 0.05640159 0.5564690
+#>   3.54 0.2890683 0.1506630 0.04749213 0.5105134
+#>   3.77 0.2750514 0.1459699 0.04861506 0.4788465
 #> 
 #>  Predicted risk at time t = 1788 for top 5 predictors
 ```
+
+## References
+
+Byron C. Jaeger, D. Leann Long, Dustin M. Long, Mario Sims, Jeff M.
+Szychowski, Yuan-I Min, Leslie A. Mcclure, George Howard, Noah Simon
+(2019). Oblique Random Survival Forests. Ann. Appl. Stat. 13(3):
+1847-1883. URL <https://doi.org/10.1214/19-AOAS1261> DOI:
+10.1214/19-AOAS1261

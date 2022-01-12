@@ -1,8 +1,10 @@
 ---
-title: "Getting started"
+title: "Introduction to aorsf"
+description: >
+  Learn how to get started with the basics of aorsf.
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Getting started}
+  %\VignetteIndexEntry{Introduction to aorsf}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -15,8 +17,6 @@ knitr::opts_chunk$set(
   fig.width = 7
 )
 ```
-
-# Introduction to aorsf
 
 This article covers core features of the `aorsf` package. Separate articles will cover these features in more detail. 
 

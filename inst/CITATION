@@ -1,0 +1,29 @@
+citHeader("To cite aorsf in publications use:")
+
+citEntry(entry = "Article",
+  title        = "Oblique Random Survival Forests",
+  author       = personList(
+                   as.person("Byron C. Jaeger"),
+                   as.person("D. Leann Long"),
+                   as.person("Dustin M. Long"),
+                   as.person("Mario Sims"),
+                   as.person("Jeff M. Szychowski"),
+                   as.person("Yuan-I Min"),
+                   as.person("Leslie A. Mcclure"),
+                   as.person("George Howard"),
+                   as.person("Noah Simon")
+                   ),
+  journal      = "Annals of Applied Statistics",
+  year         = "2019",
+  volume       = "13",
+  number       = "3",
+  pages        = "1847--1883",
+  url          = "https://doi.org/10.1214/19-AOAS1261",
+
+  textVersion  =
+  paste("Byron C. Jaeger, D. Leann Long, Dustin M. Long, Mario Sims, Jeff M. Szychowski, Yuan-I Min, Leslie A. Mcclure, George Howard, Noah Simon (2019).",
+        "Oblique Random Survival Forests.",
+        "Ann. Appl. Stat. 13(3): 1847-1883.",
+        "URL https://doi.org/10.1214/19-AOAS1261",
+        "DOI: 10.1214/19-AOAS1261")
+)

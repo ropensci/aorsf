@@ -1,8 +1,10 @@
 ---
 title: "Compute partial dependence with ORSF"
+description: >
+  Learn how to interpret ORSF models using partial dependence.
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Compute}
+  %\VignetteIndexEntry{Compute partial dependence with ORSF}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
