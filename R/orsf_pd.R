@@ -66,7 +66,6 @@
 #'  aes(x = bili, y = pred, group = id_row) +
 #'  geom_line(alpha = 0.4, color = 'grey') +
 #'  geom_smooth(aes(group = 1), color = 'black', se = FALSE) +
-#'  theme_bw() +
 #'  theme(panel.grid = element_blank())
 
 orsf_pd_summary <- function(object,
@@ -236,6 +235,22 @@ orsf_pd_ <- function(object,
        " but your times input has length ", length(times), ".",
        call. = FALSE)
  }
+
+ if(oobag && !is.null(pd_data)){
+
+  warning(
+   "pd_data should be NULL when computing out-of-bag partial dependence,",
+   " i.e., when oobag = TRUE. the pd_data input will be ignored and instead",
+   " object$data_train will be used to compute out-of-bag partial dependence.",
+   " If you want to compute partial dependence on new data, set oobag = FALSE",
+   call. = FALSE
+  )
+
+  pd_data <- object$data_train
+
+ }
+
+
 
  if(is.null(pd_data)) pd_data <- object$data_train
 

@@ -115,14 +115,21 @@ orsf_summarize_uni <- function(object,
  }
 
  # some cart-wheels here for backward compatibility.
- name_rep <- rle(as.integer(as.factor(pd_output$variable)))
+ f <- as.factor(pd_output$variable)
 
- pd_output$importance <- rep(importance[name_rep$values],
+ name_rep <- rle(as.integer(f))
+
+ pd_output$importance <- rep(importance[levels(f)[name_rep$values]],
                              times = name_rep$lengths)
+
+ rs <- table.glue::round_spec()
+ rs <- table.glue::round_using_magnitude(rspec = rs,
+                                         digits = c(2, 1, 0),
+                                         breaks = c(10, 100, Inf))
 
  pd_output[, value := fifelse(test = is.na(value),
                               yes = as.character(level),
-                              no = table.glue::table_value(value))]
+                              no = table.glue::table_value(value, rspec = rs))]
 
  # if a := is used inside a function with no DT[] before the end of the
  # function, then the next time DT or print(DT) is typed at the prompt,
@@ -227,7 +234,10 @@ print.aorsf_summary_uni <- function(x, n_variables = NULL, ...){
 
  }
 
- name_index <- rle(as.integer(as.factor(x$dt$variable)))
+ # cart-wheels for rle backward compatibility
+ f <- as.factor(x$dt$variable)
+
+ name_index <- rle(as.integer(f))
 
  row_current <- 1
 
@@ -235,7 +245,7 @@ print.aorsf_summary_uni <- function(x, n_variables = NULL, ...){
 
  for(i in i_vals){
 
-  name <- paste0('-- ', name_index$values[i],
+  name <- paste0('-- ', levels(f)[name_index$values[i]],
                  " (VI Rank: ", i, ")")
 
   banner_input <- paste(
