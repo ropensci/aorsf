@@ -4,6 +4,11 @@
 #'
 #' @inheritParams predict.aorsf
 #'
+#' @param min_pairwise_obs (_integer_) minimum number of observations
+#'   where both variables were included in a linear combination together.
+#'   The default is the number of trees in `object` divided by the mean
+#'   number of leaves in the trees.
+#'
 #' @return a `data.frame` with pairwise interaction scores for each
 #'   pair of predictor variables in `object`.
 #'
@@ -11,11 +16,9 @@
 #'
 #' @examples
 #'
-#' pbc_orsf$ascites <- factor(pbc_orsf$ascites)
-#'
 #' set.seed(32987)
 #'
-#' fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+#' fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 2500)
 #'
 #' intr <- orsf_interaction(fit)
 #'
@@ -41,11 +44,15 @@
 #'  geom_line() +
 #'  theme_bw()
 
-orsf_interaction <- function(object){
+orsf_interaction <- function(object,
+                             min_pairwise_obs = NULL){
 
  check_arg_is(arg_value = object,
               arg_name = "object",
               expected_class = 'aorsf')
+
+ if(is.null(min_pairwise_obs))
+  min_pairwise_obs <- round(get_n_tree(object) / get_n_leaves_mean(object))
 
  # for CRAN:
  cor <- value <- NULL
@@ -99,8 +106,29 @@ orsf_interaction <- function(object){
 
  for(i in i_vals){
 
-  imat[xnames[-i], xnames[i]] <-
-   t(cor(dt_betas[,i], dt_means[,-i], use = 'pairwise.complete.obs')^2)
+  # imat[xnames[-i], xnames[i]] <-
+  #  t(cor(dt_betas[,i], dt_means[,-i], use = 'pairwise.complete.obs')^2)
+  # tmp = vector(mode = 'numeric', length = n_vars)
+
+  observed_i <- !is.na(dt_betas[,i])
+
+  for(j in setdiff(seq(n_vars), i) ){
+
+   observed_j <- !is.na(dt_means[,j])
+
+   pairwise_complete <- observed_i & observed_j
+
+   n_pairwise_complete <- sum(pairwise_complete)
+
+   if(n_pairwise_complete > min_pairwise_obs){
+
+    imat[i, j] <-
+     cor(dt_betas[pairwise_complete, i],
+         dt_means[pairwise_complete, j])^2
+   }
+
+  }
+
 
  }
 
