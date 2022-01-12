@@ -101,6 +101,5 @@ ggplot(data_ice) +
  aes(x = bili, y = pred, group = id_row) +
  geom_line(alpha = 0.4, color = 'grey') +
  geom_smooth(aes(group = 1), color = 'black', se = FALSE) +
- theme_bw() +
  theme(panel.grid = element_blank())
 }

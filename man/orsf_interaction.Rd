@@ -4,10 +4,15 @@
 \alias{orsf_interaction}
 \title{ORSF interactions}
 \usage{
-orsf_interaction(object)
+orsf_interaction(object, min_pairwise_obs = NULL)
 }
 \arguments{
 \item{object}{(\emph{aorsf}) an oblique random survival forest (ORSF; see \link{orsf}).}
+
+\item{min_pairwise_obs}{(\emph{integer}) minimum number of observations
+where both variables were included in a linear combination together.
+The default is the number of trees in \code{object} divided by the mean
+number of leaves in the trees.}
 }
 \value{
 a \code{data.frame} with pairwise interaction scores for each
@@ -18,11 +23,9 @@ ORSF interactions
 }
 \examples{
 
-pbc_orsf$ascites <- factor(pbc_orsf$ascites)
-
 set.seed(32987)
 
-fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 2500)
 
 intr <- orsf_interaction(fit)
 
