@@ -1,0 +1,21 @@
+---
+title: "Compute partial dependence with ORSF models"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{pd}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(aorsf)
+```
+
+This article is under construction
