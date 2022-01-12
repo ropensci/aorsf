@@ -16,7 +16,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette covers core features of the `aorsf` package. Separate vignettes will cover these features in more detail. 
+# Introduction to aorsf
+
+This article covers core features of the `aorsf` package. Separate articles will cover these features in more detail. 
 
 ## Background: ORSF
 

@@ -1,8 +1,8 @@
 ---
-title: "Compute partial dependence with ORSF models"
+title: "Compute partial dependence with ORSF"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{pd}
+  %\VignetteIndexEntry{Compute}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
