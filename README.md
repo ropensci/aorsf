@@ -11,10 +11,10 @@ coverage](https://codecov.io/gh/bcjaeger/aorsf/branch/master/graph/badge.svg)](h
 <!-- badges: end -->
 
 The goal of `aorsf` is to fit, interpret, and make predictions with
-oblique random survival forests (ORSFs). The ‘a’ in the title of `aorsf`
-stands for accelerated. So why do ORSFs need to be accelerated? Oblique
-decision trees are often more accurate but slower to fit compared to
-their axis-based counterparts. The issue of higher computation time is
+oblique random survival forests (ORSFs). The ‘a’ in the title stands for
+accelerated. So why do ORSFs need to be accelerated? Oblique decision
+trees are often more accurate but slower to fit compared to their
+axis-based counterparts. The issue of higher computation time is
 compounded for survival decision trees, which usually require more
 computing than classification or regression trees. To make ORSF more
 accessible and able to engage with larger datasets, `aorsf` applies
@@ -73,44 +73,43 @@ values of those predictors. The term ‘uni’ is short for univariate.
 
 orsf_summarize_uni(object = fit, n_variables = 5)
 #> 
-#> -- bili (VI Rank: 1) ---------------------------
+#> -- age (VI Rank: 1) ----------------------------
 #> 
 #>        |---------------- risk ----------------|
 #>  Value      Mean    Median     25th %    75th %
-#>   0.80 0.2303045 0.1159666 0.04540949 0.3738375
-#>   1.40 0.2501020 0.1314716 0.06338070 0.3913647
-#>   3.52 0.3614245 0.2718542 0.15921464 0.5318559
+#>   41.5 0.2706164 0.1337351 0.04630290 0.4612794
+#>   49.7 0.2975084 0.1661233 0.05237698 0.5170854
+#>   56.6 0.3284048 0.2116927 0.07674439 0.5457127
 #> 
-#> -- age (VI Rank: 2) ----------------------------
-#> 
-#>        |---------------- risk ----------------|
-#>  Value      Mean    Median     25th %    75th %
-#>   41.5 0.2700114 0.1346919 0.04416058 0.4529193
-#>   49.7 0.2957704 0.1642519 0.05406492 0.4954041
-#>   56.6 0.3254694 0.2082042 0.07406272 0.5352754
-#> 
-#> -- ascites (VI Rank: 3) ------------------------
+#> -- bili (VI Rank: 2) ---------------------------
 #> 
 #>        |---------------- risk ----------------|
 #>  Value      Mean    Median     25th %    75th %
-#>      0 0.2917184 0.1545333 0.05076274 0.5028834
-#>      1 0.4627266 0.3794409 0.25965444 0.6429872
+#>   0.80 0.2320563 0.1234708 0.04876897 0.3530933
+#>   1.40 0.2504298 0.1421328 0.06205604 0.3746472
+#>   3.52 0.3650838 0.2800719 0.16607641 0.5189161
 #> 
-#> -- protime (VI Rank: 4) ------------------------
-#> 
-#>        |---------------- risk ----------------|
-#>  Value      Mean    Median     25th %    75th %
-#>   10.0 0.2787354 0.1502139 0.04815788 0.4908722
-#>   10.6 0.2916406 0.1630598 0.05422335 0.5144108
-#>   11.2 0.3119439 0.1838502 0.07078713 0.5324805
-#> 
-#> -- albumin (VI Rank: 5) ------------------------
+#> -- sex (VI Rank: 3) ----------------------------
 #> 
 #>        |---------------- risk ----------------|
 #>  Value      Mean    Median     25th %    75th %
-#>   3.31 0.3128104 0.1812829 0.05640159 0.5564690
-#>   3.54 0.2890683 0.1506630 0.04749213 0.5105134
-#>   3.77 0.2750514 0.1459699 0.04861506 0.4788465
+#>      m 0.3536771 0.2485654 0.11330040 0.5797451
+#>      f 0.2928458 0.1494558 0.05061492 0.5113725
+#> 
+#> -- spiders (VI Rank: 4) ------------------------
+#> 
+#>        |---------------- risk ----------------|
+#>  Value      Mean    Median     25th %    75th %
+#>      0 0.2881293 0.1477039 0.04940008 0.4931721
+#>      1 0.3327476 0.2142004 0.08124437 0.5465791
+#> 
+#> -- copper (VI Rank: 5) -------------------------
+#> 
+#>        |---------------- risk ----------------|
+#>  Value      Mean    Median     25th %    75th %
+#>   42.8 0.2619422 0.1423453 0.04838753 0.4504369
+#>   74.0 0.2789013 0.1513143 0.05669541 0.4814084
+#>    129 0.3313322 0.2132656 0.10764336 0.5389831
 #> 
 #>  Predicted risk at time t = 1788 for top 5 predictors
 ```
