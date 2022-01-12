@@ -44,8 +44,6 @@ check_arg_type <- function(arg_value, arg_name, expected_type){
 
 check_arg_uni <- function(arg_value, arg_name, expected_uni){
 
- if(is.null(expected_uni)) return(invisible())
-
  uni <- unique(arg_value)
 
  # expected_in_uni <- all(expected_uni %in% uni)
@@ -73,8 +71,6 @@ check_arg_uni <- function(arg_value, arg_name, expected_uni){
 }
 
 check_arg_length <- function(arg_value, arg_name, expected_length){
-
- if(is.null(expected_length)) return(invisible())
 
  arg_length <- length(arg_value)
 

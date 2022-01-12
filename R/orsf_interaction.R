@@ -51,6 +51,25 @@ orsf_interaction <- function(object,
               arg_name = "object",
               expected_class = 'aorsf')
 
+ if(!is.null(min_pairwise_obs)){
+
+  check_arg_type(arg_value = min_pairwise_obs,
+                 arg_name = 'min_pairwise_obs',
+                 expected_type = 'numeric')
+
+  check_arg_is_integer(arg_value = min_pairwise_obs,
+                       arg_name = 'min_pairwise_obs')
+
+  check_arg_gteq(arg_value = min_pairwise_obs,
+                 arg_name = 'min_pairwise_obs',
+                 bound = 1)
+
+  check_arg_length(arg_value = min_pairwise_obs,
+                   arg_name = 'min_pairwise_obs',
+                   expected_length = 1)
+
+ }
+
  if(is.null(min_pairwise_obs))
   min_pairwise_obs <- round(get_n_tree(object) / get_n_leaves_mean(object))
 

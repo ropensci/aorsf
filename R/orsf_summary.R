@@ -68,6 +68,11 @@ orsf_summarize_uni <- function(object,
                arg_name = 'times',
                bound = 0)
 
+  check_arg_lteq(arg_value = times,
+                 arg_name = 'times',
+                 bound = get_max_time(object),
+                 append_to_msg = '(max time in training data)')
+
  }
 
  if(is.null(times)) times <- object$time_pred
@@ -198,6 +203,9 @@ print.aorsf_summary_uni <- function(x, n_variables = NULL, ...){
                "Median",
                "25th %",
                "75th %")
+
+ if(any(.sd_fncy %in% names(x$dt)))
+  setnames(x$dt, old = .sd_fncy, new = .sd_orig, skip_absent = TRUE)
 
  setnames(x$dt,
           old = .sd_orig,
