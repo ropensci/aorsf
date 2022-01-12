@@ -18,10 +18,9 @@ knitr::opts_chunk$set(
 
 This vignette covers core features of the `aorsf` package. Separate vignettes will cover these features in more detail. 
 
-# Background: Oblique RSF
+## Background: ORSF
 
-The oblique random survival forest (RSF) is an extension of the axis-based RSF algorithm. Numerous R packages offer axis-based splits for survival decision trees, including `RandomForestSRC`, `party`, and `ranger`. 
-
+The oblique random survival forest (ORSF) is an extension of the axis-based RSF algorithm that can be found in several R packages, including `RandomForestSRC`, `party`, and `ranger`. 
 
 ## What is an oblique decision tree?
 
@@ -33,14 +32,14 @@ knitr::include_graphics('tree_axis_v_oblique.png')
 
 ```
 
+## Accelerated ORSF
 
-# Accelerated ORSF
-
-The purpose of `aorsf` is to provide routines to fit oblique RSFs that will scale adequately to large data sets. For example, `aorsf::orsf()` runs about 500 times faster than its predecessor, `obliqueRSF::ORSF()`.
+The purpose of `aorsf` ('a' is short for accelerated) is to provide routines to fit ORSFs that will scale adequately to large data sets. For example, `aorsf::orsf()` runs about 500 times faster than its predecessor, `obliqueRSF::ORSF()`.
 
 To fit an accelerated ORSF model, use the `orsf` function:
 
 ```{r}
+
 library(aorsf)
 library(ggplot2)
 
@@ -65,11 +64,11 @@ orsf_fit <- pbc_orsf |>
 
 ```
 
-# Variable importance
+In addition to their reputation for slow computing, oblique decision trees are considered less interpretable than their axis-based counterparts. The opinionated developer of `aorsf` disagrees with this sentiment, and has included routines in `aorsf` that use coefficients from linear combinations of input variables to estimate variable importance and identify pair-wise interactions.
 
-The coefficients that are used in linear combinations of input variables are a unique characteristic of ORSF that can be used for model interpretation.
+### Variable importance
 
-For example, to estimate the importance of a variable, ORSF multiplies each coefficient of that variable by -1 and then re-computes the out-of-sample (sometimes referred to as out-of-bag) accuracy of the ORSF model. 
+To estimate the importance of a variable, ORSF multiplies each coefficient of that variable by -1 and then re-computes the out-of-sample (sometimes referred to as out-of-bag) accuracy of the ORSF model. 
 
 ```{r}
 
@@ -80,76 +79,103 @@ variable_importance
 ```
 
 
-# Variable interaction
+### Variable interaction
 
-Another application of linear combination coefficients is measuring a two-way interaction score. ORSF's two-way interaction score for a pair of predictors is the proportion of variability in the coefficient of one predictor explained by the mean of the other. So if one predictor's coefficient is highly correlated with another predictor's mean value, the two-way interaction score will be high (maximum value of the score is 1). If there is no correlation between the coefficient of one predictor and the mean value of another, the two-way interaction score will be low (minimum value of the score is 0).
+ORSF's two-way interaction score for a pair of predictors is the proportion of variability in the coefficient of one predictor explained by the mean of the other. If one predictor's coefficient is highly correlated with another predictor's mean value, the two-way interaction score will be high (maximum value of the score is 1). If there is no correlation between the coefficient of one predictor and the mean value of another, the two-way interaction score will be low (minimum value of the score is 0).
 
 ```{r}
+
 variable_interaction <- orsf_interaction(orsf_fit)
 
 variable_interaction[1:5, ]
 
 ```
 
+### Partial dependence
 
-# Partial dependence
-
-The `orsf_interaction()` function indicated that `ascites` and `bili` have a strong interaction score, and the `orsf_vi()` function indicated that `bili` is the most important predictor. We can use the `orsf_pd()` function (pd stands for partial dependence) to explore how these variables influence predicted risk from ORSF.
-
-We'll use `orsf_pd_summary` below to compute the expected predicted risk for a range of `bili` values when `ascites` is either 0 or 1.
+`orsf_interaction()` indicated that `edema == 1` and `bili` have the highest interaction score. We can use the `orsf_pd_summary()` function (pd = partial dependence) to explore how these variables influence the expected prediction from ORSF.
 
 ```{r}
 
-pd_spec <- list(ascites = c("0","1"),
+# make a list containing the variable values you
+# want to compute partial dependence for
+pd_spec <- list(edema = c("0", "0.5", "1"),
                 bili = seq(0.6, 7.1, by = 0.1))
 
-pd_data <-
- orsf_pd_summary(object = orsf_fit,
-                 pd_spec = pd_spec,
-                 times = 1000)
+# orsf_pd_summary automatically computes pd for all combinations
+# in the list (this can be turned off with expand_grid = FALSE)
+pd_data <- orsf_pd_summary(object = orsf_fit, 
+                           pd_spec = pd_spec,
+                           expand_grid = TRUE)
 
 ggplot(pd_data) +
- aes(x = bili, y = mean, col = ascites) +
+ aes(x = bili, y = mean, col = edema) +
  geom_line() + 
  labs(y = 'Predicted risk',
       x = 'Bilirubin',
-      title = 'Partial dependence of bilirubin and ascites')
+      title = 'Partial dependence of bilirubin and edema')
 
 ```
 
-
-The presence of ascites clearly has a large effect on predicted risk, which makes it hard to see the interaction effect in this plot. We'll align the partial dependence values for both ascites groups so that both curves will start at a prediction of 0 
+The presence of edema clearly has effect on predicted risk, which makes it hard to see the interaction effect in this plot. Let's align the partial dependence values for the edema subgroups so that each curve will start at a value of 0 
 
 ```{r}
+
 # aligning predictions at lowest value of bili
-min_asc_0 <- with(pd_data, mean[ascites == 0 & bili == 0.6])
-min_asc_1 <- with(pd_data, mean[ascites == 1 & bili == 0.6])
+min_ed_0 <- with(pd_data, mean[edema == "0"   & bili == 0.6])
+min_ed_1 <- with(pd_data, mean[edema == "0.5" & bili == 0.6])
+min_ed_2 <- with(pd_data, mean[edema == "1"   & bili == 0.6])
 
 pd_data_aligned <-
  within(pd_data, {
-  mean[ascites == 0] <- mean[ascites == 0] - min_asc_0
-  mean[ascites == 1] <- mean[ascites == 1] - min_asc_1
+  value <- mean
+  value[edema == "0" ] <- value[edema == "0" ] - min_ed_0
+  value[edema == "0.5"] <- value[edema == "0.5"] - min_ed_1
+  value[edema == "1" ] <- value[edema == "1" ] - min_ed_2
  })
 
 head(pd_data_aligned)
 
+
 ```
 
-With the aligned partial dependence values we can see the interaction effect clearly. Increasing bilirubin solicits a greater increase in predicted risk for patients who do not have ascites versus patients who do. This is fairly intuitive as increased bilirubin may be a sign of undetected ascites.
+With the aligned partial dependence values we can see the interaction effect clearly. Increasing bilirubin solicits a greater increase in predicted risk for patients with no edema (`edema == 0`), untreated edema (`edema == 0.5`), or successfully treated edema (`edema == 0.5`) compared to patients with therapy-resistant edema (`edema == 1`). 
 
 ```{r}
+
 ggplot(pd_data_aligned) +
- aes(x = bili, y = mean, col = ascites) +
+ aes(x = bili, y = value, col = edema) +
  geom_line() + 
- labs(y = 'predicted risk, centered at Bilirubin = 0.6',
+ labs(y = 'Predictions centered at Bilirubin = 0.6',
       x = 'Bilirubin',
-      title = 'Interaction between bilirubin and ascites')
+      title = 'Interaction between bilirubin and edema')
 
 ```
 
-# What about the old ORSF?
+The similarity in trajectories for patients with `edema == 0` and `edema == 0.5` explains why ORSF only had a high interaction score for the combination of `edema == 1` and bilirubin. As a sanity check, we can fit a Cox regression model and conduct a likelihood ratio test for this interaction: 
 
-The old ORSF (i.e., `obliqueRSF`) used `glmnet` to find linear combinations of inputs. `aorsf` allows users to implement this approach using the `orsf_control_net()` function: 
+```{r}
+
+library(survival)
+
+anova(coxph(Surv(time,status) ~ edema * bili, data = pbc_orsf))
+
+```
+
+The interaction p-value of 0.0208 above should not be interpreted in the usual way because it does not account for what must be a large number of degrees of freedom used by ORSF as it scanned every pairwise interaction (153 in this case) in the data. However, it is nice to see that the strongest interaction identified by ORSF is also identified with a traditional modeling strategy.
+
+### Summarize ORSF models
+
+Getting straight to variable importance and partial dependence in a direct way can often be helpful in exploratory analyses. When you want a lot of information for just a little code, `orsf_summarize_uni()` is the tool for you:
+
+```{r}
+orsf_summarize_uni(orsf_fit, n_variables = 5)
+```
+
+
+## What about the original ORSF?
+
+The original ORSF (i.e., `obliqueRSF`) used `glmnet` to find linear combinations of inputs. `aorsf` allows users to implement this approach using the `orsf_control_net()` function: 
 
 ```{r}
 
@@ -160,13 +186,13 @@ orsf_net <- orsf(data_train = pbc_orsf,
 
 ```
 
-Note that the `net` approach is a fair bit slower than the `cph` one!
+`net` forests fit a lot faster than the original ORSF function in `obliqueRSF`. However, `net` forests are still about 100 times slower than `cph` ones:
 
 ```{r}
 
 # tracking how long it takes to fit 50 glmnet trees
 print(
- system.time(
+ t1 <- system.time(
   orsf(data_train = pbc_orsf, 
        formula = Surv(time, status) ~ . - id, 
        control = orsf_control_net(),
@@ -176,13 +202,15 @@ print(
 
 # and how long it takes to fit 50 cph trees
 print(
- system.time(
+ t2 <- system.time(
   orsf(data_train = pbc_orsf, 
        formula = Surv(time, status) ~ . - id, 
        control = orsf_control_cph(),
        n_tree = 50)
  )
 )
+
+t1['elapsed'] / t2['elapsed']
 
 
 ```
