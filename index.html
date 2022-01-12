@@ -37,7 +37,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
+    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
     
     <a class="navbar-brand me-2" href="index.html">aorsf</a>
 
@@ -82,7 +82,7 @@
 </div>
 <!-- badges: start -->
 
-<p>The goal of <code>aorsf</code> is to fit, interpret, and make predictions with oblique random survival forests (ORSFs).</p>
+<p>The goal of <code>aorsf</code> is to fit, interpret, and make predictions with oblique random survival forests (ORSFs). The ‘a’ in the title of <code>aorsf</code> stands for accelerated. So why do ORSFs need to be accelerated? Oblique decision trees are notoriously slow, and the issue of higher computation time is compounded by the fast that survival trees may also be slow. To make ORSF more accessible and able to engage with larger datasets, <code>aorsf</code> applies strategies to cut down computing time without sacrificing prediction accuracy.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -127,42 +127,41 @@
 <span class="co">#&gt; </span>
 <span class="co">#&gt;        |---------------- risk ----------------|</span>
 <span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
-<span class="co">#&gt;   0.80 0.2331220 0.1252519 0.04787173 0.3698876</span>
-<span class="co">#&gt;    1.4 0.2496992 0.1448403 0.06142788 0.3871287</span>
-<span class="co">#&gt;    3.5 0.3623194 0.2776568 0.15801605 0.5475111</span>
+<span class="co">#&gt;   0.80 0.2327223 0.1187105 0.04920697 0.3532136</span>
+<span class="co">#&gt;    1.4 0.2503352 0.1355363 0.06129695 0.3794809</span>
+<span class="co">#&gt;    3.5 0.3617920 0.2801387 0.16335693 0.5145361</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; -- age (VI Rank: 2) ----------------------------</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;        |---------------- risk ----------------|</span>
 <span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
-<span class="co">#&gt;     42 0.2704098 0.1417984 0.04608896 0.4440794</span>
-<span class="co">#&gt;     50 0.2965021 0.1667501 0.05256073 0.5070508</span>
-<span class="co">#&gt;     57 0.3273849 0.2118161 0.07401963 0.5635498</span>
+<span class="co">#&gt;     42 0.2719462 0.1368686 0.04647107 0.4459963</span>
+<span class="co">#&gt;     50 0.2955702 0.1644157 0.05180857 0.5115135</span>
+<span class="co">#&gt;     57 0.3237065 0.2026756 0.07015707 0.5451979</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; -- protime (VI Rank: 3) ------------------------</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;        |---------------- risk ----------------|</span>
-<span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
-<span class="co">#&gt;     10 0.2788376 0.1501081 0.05137325 0.4815079</span>
-<span class="co">#&gt;     11 0.2910832 0.1592242 0.05324888 0.4945039</span>
-<span class="co">#&gt;     11 0.3122619 0.1899187 0.06860109 0.5257119</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; -- copper (VI Rank: 4) -------------------------</span>
+<span class="co">#&gt; -- ascites (VI Rank: 3) ------------------------</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;        |---------------- risk ----------------|</span>
 <span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
-<span class="co">#&gt;     43 0.2615647 0.1451407 0.04761734 0.4448444</span>
-<span class="co">#&gt;     74 0.2781534 0.1622355 0.05967552 0.4711515</span>
-<span class="co">#&gt;    129 0.3295867 0.2258534 0.10952305 0.5317666</span>
+<span class="co">#&gt;      0 0.2914747 0.1571831 0.05285387 0.5241465</span>
+<span class="co">#&gt;      1 0.4699443 0.3873810 0.28113338 0.6587456</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; -- stage (VI Rank: 5) --------------------------</span>
+<span class="co">#&gt; -- stage (VI Rank: 4) --------------------------</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;        |---------------- risk ----------------|</span>
 <span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
-<span class="co">#&gt;      1 0.2576518 0.1412697 0.04913651 0.4312446</span>
-<span class="co">#&gt;      2 0.2671853 0.1405898 0.04736663 0.4673936</span>
-<span class="co">#&gt;      3 0.2887433 0.1564222 0.05633898 0.5015073</span>
-<span class="co">#&gt;      4 0.3355217 0.2158436 0.08858787 0.5588579</span>
+<span class="co">#&gt;      1 0.2579344 0.1377085 0.04771583 0.4422156</span>
+<span class="co">#&gt;      2 0.2657589 0.1446005 0.04661316 0.4628640</span>
+<span class="co">#&gt;      3 0.2884751 0.1683806 0.05461591 0.5014843</span>
+<span class="co">#&gt;      4 0.3347969 0.2075534 0.08498729 0.5744516</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; -- copper (VI Rank: 5) -------------------------</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;        |---------------- risk ----------------|</span>
+<span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
+<span class="co">#&gt;     43 0.2599877 0.1425730 0.05012715 0.4470400</span>
+<span class="co">#&gt;     74 0.2765080 0.1562001 0.05850182 0.4536671</span>
+<span class="co">#&gt;    129 0.3319711 0.2266852 0.11518515 0.5382018</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;  Predicted risk at time t = 1788 for top 5 predictors</span></code></pre></div>
 </div>

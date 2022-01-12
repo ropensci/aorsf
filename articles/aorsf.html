@@ -29,7 +29,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
+    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
     
     <a class="navbar-brand me-2" href="../index.html">aorsf</a>
 
@@ -78,10 +78,11 @@
     
     
 <p>This vignette covers core features of the <code>aorsf</code> package. Separate vignettes will cover these features in more detail.</p>
-<div class="section level1">
-<h1 id="background-oblique-rsf">Background: Oblique RSF<a class="anchor" aria-label="anchor" href="#background-oblique-rsf"></a>
-</h1>
-<p>The oblique random survival forest (RSF) is an extension of the axis-based RSF algorithm. Numerous R packages offer axis-based splits for survival decision trees, including <code>RandomForestSRC</code>, <code>party</code>, and <code>ranger</code>.</p>
+<div class="section level2">
+<h2 id="background-orsf">Background: ORSF<a class="anchor" aria-label="anchor" href="#background-orsf"></a>
+</h2>
+<p>The oblique random survival forest (ORSF) is an extension of the axis-based RSF algorithm that can be found in several R packages, including <code>RandomForestSRC</code>, <code>party</code>, and <code>ranger</code>.</p>
+</div>
 <div class="section level2">
 <h2 id="what-is-an-oblique-decision-tree">What is an oblique decision tree?<a class="anchor" aria-label="anchor" href="#what-is-an-oblique-decision-tree"></a>
 </h2>
@@ -92,14 +93,14 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 </p>
 </div>
 </div>
-</div>
-<div class="section level1">
-<h1 id="accelerated-orsf">Accelerated ORSF<a class="anchor" aria-label="anchor" href="#accelerated-orsf"></a>
-</h1>
-<p>The purpose of <code>aorsf</code> is to provide routines to fit oblique RSFs that will scale adequately to large data sets. For example, <code><a href="../reference/orsf.html">aorsf::orsf()</a></code> runs about 500 times faster than its predecessor, <code>obliqueRSF::ORSF()</code>.</p>
+<div class="section level2">
+<h2 id="accelerated-orsf">Accelerated ORSF<a class="anchor" aria-label="anchor" href="#accelerated-orsf"></a>
+</h2>
+<p>The purpose of <code>aorsf</code> (‘a’ is short for accelerated) is to provide routines to fit ORSFs that will scale adequately to large data sets. For example, <code><a href="../reference/orsf.html">aorsf::orsf()</a></code> runs about 500 times faster than its predecessor, <code>obliqueRSF::ORSF()</code>.</p>
 <p>To fit an accelerated ORSF model, use the <code>orsf</code> function:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bcjaeger/aorsf" class="external-link">aorsf</a></span><span class="op">)</span>
+<code class="sourceCode R">
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bcjaeger/aorsf" class="external-link">aorsf</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span>
@@ -129,12 +130,11 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <span class="va">orsf_fit</span> <span class="op">&lt;-</span> <span class="va">pbc_orsf</span> |&gt; 
  <span class="fu">select</span><span class="op">(</span><span class="op">-</span><span class="va">id</span><span class="op">)</span> |&gt; 
  <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span><span class="op">)</span></code></pre></div>
-</div>
-<div class="section level1">
-<h1 id="variable-importance">Variable importance<a class="anchor" aria-label="anchor" href="#variable-importance"></a>
-</h1>
-<p>The coefficients that are used in linear combinations of input variables are a unique characteristic of ORSF that can be used for model interpretation.</p>
-<p>For example, to estimate the importance of a variable, ORSF multiplies each coefficient of that variable by -1 and then re-computes the out-of-sample (sometimes referred to as out-of-bag) accuracy of the ORSF model.</p>
+<p>In addition to their reputation for slow computing, oblique decision trees are considered less interpretable than their axis-based counterparts. The opinionated developer of <code>aorsf</code> disagrees with this sentiment, and has included routines in <code>aorsf</code> that use coefficients from linear combinations of input variables to estimate variable importance and identify pair-wise interactions.</p>
+<div class="section level3">
+<h3 id="variable-importance">Variable importance<a class="anchor" aria-label="anchor" href="#variable-importance"></a>
+</h3>
+<p>To estimate the importance of a variable, ORSF multiplies each coefficient of that variable by -1 and then re-computes the out-of-sample (sometimes referred to as out-of-bag) accuracy of the ORSF model.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="va">variable_importance</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_vi.html">orsf_vi</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span>
@@ -149,12 +149,13 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <span class="co">#&gt;           trt      platelet </span>
 <span class="co">#&gt; -0.0011978543 -0.0023436279</span></code></pre></div>
 </div>
-<div class="section level1">
-<h1 id="variable-interaction">Variable interaction<a class="anchor" aria-label="anchor" href="#variable-interaction"></a>
-</h1>
-<p>Another application of linear combination coefficients is measuring a two-way interaction score. ORSF’s two-way interaction score for a pair of predictors is the proportion of variability in the coefficient of one predictor explained by the mean of the other. So if one predictor’s coefficient is highly correlated with another predictor’s mean value, the two-way interaction score will be high (maximum value of the score is 1). If there is no correlation between the coefficient of one predictor and the mean value of another, the two-way interaction score will be low (minimum value of the score is 0).</p>
+<div class="section level3">
+<h3 id="variable-interaction">Variable interaction<a class="anchor" aria-label="anchor" href="#variable-interaction"></a>
+</h3>
+<p>ORSF’s two-way interaction score for a pair of predictors is the proportion of variability in the coefficient of one predictor explained by the mean of the other. If one predictor’s coefficient is highly correlated with another predictor’s mean value, the two-way interaction score will be high (maximum value of the score is 1). If there is no correlation between the coefficient of one predictor and the mean value of another, the two-way interaction score will be low (minimum value of the score is 0).</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">variable_interaction</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_interaction.html">orsf_interaction</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span>
+<code class="sourceCode R">
+<span class="va">variable_interaction</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_interaction.html">orsf_interaction</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span>
 
 <span class="va">variable_interaction</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span>
 <span class="co">#&gt;           v1       v2      value</span>
@@ -164,96 +165,175 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <span class="co">#&gt; 4:  hepato_1  edema_1 0.08104954</span>
 <span class="co">#&gt; 5:   edema_1   copper 0.07484794</span></code></pre></div>
 </div>
-<div class="section level1">
-<h1 id="partial-dependence">Partial dependence<a class="anchor" aria-label="anchor" href="#partial-dependence"></a>
-</h1>
-<p>The <code><a href="../reference/orsf_interaction.html">orsf_interaction()</a></code> function indicated that <code>ascites</code> and <code>bili</code> have a strong interaction score, and the <code><a href="../reference/orsf_vi.html">orsf_vi()</a></code> function indicated that <code>bili</code> is the most important predictor. We can use the <code>orsf_pd()</code> function (pd stands for partial dependence) to explore how these variables influence predicted risk from ORSF.</p>
-<p>We’ll use <code>orsf_pd_summary</code> below to compute the expected predicted risk for a range of <code>bili</code> values when <code>ascites</code> is either 0 or 1.</p>
+<div class="section level3">
+<h3 id="partial-dependence">Partial dependence<a class="anchor" aria-label="anchor" href="#partial-dependence"></a>
+</h3>
+<p><code><a href="../reference/orsf_interaction.html">orsf_interaction()</a></code> indicated that <code>edema == 1</code> and <code>bili</code> have the highest interaction score. We can use the <code><a href="../reference/orsf_pd_summary.html">orsf_pd_summary()</a></code> function (pd = partial dependence) to explore how these variables influence the expected prediction from ORSF.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
-<span class="va">pd_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ascites <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"0"</span>,<span class="st">"1"</span><span class="op">)</span>,
+<span class="co"># make a list containing the variable values you</span>
+<span class="co"># want to compute partial dependence for</span>
+<span class="va">pd_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>edema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"0"</span>, <span class="st">"0.5"</span>, <span class="st">"1"</span><span class="op">)</span>,
                 bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.6</span>, <span class="fl">7.1</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span><span class="op">)</span>
 
-<span class="va">pd_data</span> <span class="op">&lt;-</span>
- <span class="fu"><a href="../reference/orsf_pd_summary.html">orsf_pd_summary</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">orsf_fit</span>,
-                 pd_spec <span class="op">=</span> <span class="va">pd_spec</span>,
-                 times <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span>
+<span class="co"># orsf_pd_summary automatically computes pd for all combinations</span>
+<span class="co"># in the list (this can be turned off with expand_grid = FALSE)</span>
+<span class="va">pd_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_summary.html">orsf_pd_summary</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">orsf_fit</span>, 
+                           pd_spec <span class="op">=</span> <span class="va">pd_spec</span>,
+                           expand_grid <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 
 <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">pd_data</span><span class="op">)</span> <span class="op">+</span>
- <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">bili</span>, y <span class="op">=</span> <span class="va">mean</span>, col <span class="op">=</span> <span class="va">ascites</span><span class="op">)</span> <span class="op">+</span>
+ <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">bili</span>, y <span class="op">=</span> <span class="va">mean</span>, col <span class="op">=</span> <span class="va">edema</span><span class="op">)</span> <span class="op">+</span>
  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> 
  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">'Predicted risk'</span>,
       x <span class="op">=</span> <span class="st">'Bilirubin'</span>,
-      title <span class="op">=</span> <span class="st">'Partial dependence of bilirubin and ascites'</span><span class="op">)</span></code></pre></div>
+      title <span class="op">=</span> <span class="st">'Partial dependence of bilirubin and edema'</span><span class="op">)</span></code></pre></div>
 <p><img src="aorsf_files/figure-html/unnamed-chunk-6-1.png" width="672"></p>
-<p>The presence of ascites clearly has a large effect on predicted risk, which makes it hard to see the interaction effect in this plot. We’ll align the partial dependence values for both ascites groups so that both curves will start at a prediction of 0</p>
+<p>The presence of edema clearly has effect on predicted risk, which makes it hard to see the interaction effect in this plot. Let’s align the partial dependence values for the edema subgroups so that each curve will start at a value of 0</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># aligning predictions at lowest value of bili</span>
-<span class="va">min_asc_0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">pd_data</span>, <span class="va">mean</span><span class="op">[</span><span class="va">ascites</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="va">bili</span> <span class="op">==</span> <span class="fl">0.6</span><span class="op">]</span><span class="op">)</span>
-<span class="va">min_asc_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">pd_data</span>, <span class="va">mean</span><span class="op">[</span><span class="va">ascites</span> <span class="op">==</span> <span class="fl">1</span> <span class="op">&amp;</span> <span class="va">bili</span> <span class="op">==</span> <span class="fl">0.6</span><span class="op">]</span><span class="op">)</span>
+<code class="sourceCode R">
+<span class="co"># aligning predictions at lowest value of bili</span>
+<span class="va">min_ed_0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">pd_data</span>, <span class="va">mean</span><span class="op">[</span><span class="va">edema</span> <span class="op">==</span> <span class="st">"0"</span>   <span class="op">&amp;</span> <span class="va">bili</span> <span class="op">==</span> <span class="fl">0.6</span><span class="op">]</span><span class="op">)</span>
+<span class="va">min_ed_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">pd_data</span>, <span class="va">mean</span><span class="op">[</span><span class="va">edema</span> <span class="op">==</span> <span class="st">"0.5"</span> <span class="op">&amp;</span> <span class="va">bili</span> <span class="op">==</span> <span class="fl">0.6</span><span class="op">]</span><span class="op">)</span>
+<span class="va">min_ed_2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">pd_data</span>, <span class="va">mean</span><span class="op">[</span><span class="va">edema</span> <span class="op">==</span> <span class="st">"1"</span>   <span class="op">&amp;</span> <span class="va">bili</span> <span class="op">==</span> <span class="fl">0.6</span><span class="op">]</span><span class="op">)</span>
 
 <span class="va">pd_data_aligned</span> <span class="op">&lt;-</span>
  <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">within</a></span><span class="op">(</span><span class="va">pd_data</span>, <span class="op">{</span>
-  <span class="va">mean</span><span class="op">[</span><span class="va">ascites</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">mean</span><span class="op">[</span><span class="va">ascites</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span> <span class="op">-</span> <span class="va">min_asc_0</span>
-  <span class="va">mean</span><span class="op">[</span><span class="va">ascites</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">mean</span><span class="op">[</span><span class="va">ascites</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="va">min_asc_1</span>
+  <span class="va">value</span> <span class="op">&lt;-</span> <span class="va">mean</span>
+  <span class="va">value</span><span class="op">[</span><span class="va">edema</span> <span class="op">==</span> <span class="st">"0"</span> <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">value</span><span class="op">[</span><span class="va">edema</span> <span class="op">==</span> <span class="st">"0"</span> <span class="op">]</span> <span class="op">-</span> <span class="va">min_ed_0</span>
+  <span class="va">value</span><span class="op">[</span><span class="va">edema</span> <span class="op">==</span> <span class="st">"0.5"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">value</span><span class="op">[</span><span class="va">edema</span> <span class="op">==</span> <span class="st">"0.5"</span><span class="op">]</span> <span class="op">-</span> <span class="va">min_ed_1</span>
+  <span class="va">value</span><span class="op">[</span><span class="va">edema</span> <span class="op">==</span> <span class="st">"1"</span> <span class="op">]</span> <span class="op">&lt;-</span> <span class="va">value</span><span class="op">[</span><span class="va">edema</span> <span class="op">==</span> <span class="st">"1"</span> <span class="op">]</span> <span class="op">-</span> <span class="va">min_ed_2</span>
  <span class="op">}</span><span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pd_data_aligned</span><span class="op">)</span>
-<span class="co">#&gt;    ascites bili         mean         lwr       medn       upr</span>
-<span class="co">#&gt; 1:       0  0.6 0.0000000000 0.005571336 0.05164828 0.5479384</span>
-<span class="co">#&gt; 2:       1  0.6 0.0000000000 0.112882689 0.20368704 0.7139951</span>
-<span class="co">#&gt; 3:       0  0.7 0.0007918855 0.005450950 0.05087316 0.5511908</span>
-<span class="co">#&gt; 4:       1  0.7 0.0009444713 0.113058207 0.20441990 0.7175981</span>
-<span class="co">#&gt; 5:       0  0.8 0.0017398735 0.005524165 0.05280451 0.5569397</span>
-<span class="co">#&gt; 6:       1  0.8 0.0020742942 0.113703363 0.20568055 0.7206198</span></code></pre></div>
-<p>With the aligned partial dependence values we can see the interaction effect clearly. Increasing bilirubin solicits a greater increase in predicted risk for patients who do not have ascites versus patients who do. This is fairly intuitive as increased bilirubin may be a sign of undetected ascites.</p>
+<span class="co">#&gt;    edema bili      mean        lwr      medn       upr       value</span>
+<span class="co">#&gt; 1:     0  0.6 0.2154799 0.01718182 0.1162081 0.7622311 0.000000000</span>
+<span class="co">#&gt; 2:   0.5  0.6 0.2734275 0.04075219 0.1871151 0.7838840 0.000000000</span>
+<span class="co">#&gt; 3:     1  0.6 0.3839478 0.16722234 0.3064889 0.8566843 0.000000000</span>
+<span class="co">#&gt; 4:     0  0.7 0.2170702 0.01754604 0.1162003 0.7668854 0.001590322</span>
+<span class="co">#&gt; 5:   0.5  0.7 0.2756578 0.04128041 0.1897663 0.7867215 0.002230301</span>
+<span class="co">#&gt; 6:     1  0.7 0.3853281 0.16888233 0.3075500 0.8591565 0.001380300</span></code></pre></div>
+<p>With the aligned partial dependence values we can see the interaction effect clearly. Increasing bilirubin solicits a greater increase in predicted risk for patients with no edema (<code>edema == 0</code>), untreated edema (<code>edema == 0.5</code>), or successfully treated edema (<code>edema == 0.5</code>) compared to patients with therapy-resistant edema (<code>edema == 1</code>).</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">pd_data_aligned</span><span class="op">)</span> <span class="op">+</span>
- <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">bili</span>, y <span class="op">=</span> <span class="va">mean</span>, col <span class="op">=</span> <span class="va">ascites</span><span class="op">)</span> <span class="op">+</span>
+<code class="sourceCode R">
+<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">pd_data_aligned</span><span class="op">)</span> <span class="op">+</span>
+ <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">bili</span>, y <span class="op">=</span> <span class="va">value</span>, col <span class="op">=</span> <span class="va">edema</span><span class="op">)</span> <span class="op">+</span>
  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> 
- <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">'predicted risk, centered at Bilirubin = 0.6'</span>,
+ <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">'Predictions centered at Bilirubin = 0.6'</span>,
       x <span class="op">=</span> <span class="st">'Bilirubin'</span>,
-      title <span class="op">=</span> <span class="st">'Interaction between bilirubin and ascites'</span><span class="op">)</span></code></pre></div>
+      title <span class="op">=</span> <span class="st">'Interaction between bilirubin and edema'</span><span class="op">)</span></code></pre></div>
 <p><img src="aorsf_files/figure-html/unnamed-chunk-8-1.png" width="672"></p>
-</div>
-<div class="section level1">
-<h1 id="what-about-the-old-orsf">What about the old ORSF?<a class="anchor" aria-label="anchor" href="#what-about-the-old-orsf"></a>
-</h1>
-<p>The old ORSF (i.e., <code>obliqueRSF</code>) used <code>glmnet</code> to find linear combinations of inputs. <code>aorsf</code> allows users to implement this approach using the <code><a href="../reference/orsf_control_net.html">orsf_control_net()</a></code> function:</p>
+<p>The similarity in trajectories for patients with <code>edema == 0</code> and <code>edema == 0.5</code> explains why ORSF only had a high interaction score for the combination of <code>edema == 1</code> and bilirubin. As a sanity check, we can fit a Cox regression model and conduct a likelihood ratio test for this interaction:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">coxph</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>,<span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">edema</span> <span class="op">*</span> <span class="va">bili</span>, data <span class="op">=</span> <span class="va">pbc_orsf</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#&gt; Analysis of Deviance Table</span>
+<span class="co">#&gt;  Cox model: response is Surv(time, status)</span>
+<span class="co">#&gt; Terms added sequentially (first to last)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;             loglik   Chisq Df Pr(&gt;|Chi|)    </span>
+<span class="co">#&gt; NULL       -550.19                          </span>
+<span class="co">#&gt; edema      -524.61 51.1681  2  7.744e-12 ***</span>
+<span class="co">#&gt; bili       -502.51 44.1953  1  2.972e-11 ***</span>
+<span class="co">#&gt; edema:bili -498.64  7.7459  2     0.0208 *  </span>
+<span class="co">#&gt; ---</span>
+<span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></code></pre></div>
+<p>The interaction p-value of 0.0208 above should not be interpreted in the usual way because it does not account for what must be a large number of degrees of freedom used by ORSF as it scanned every pairwise interaction (153 in this case) in the data. However, it is nice to see that the strongest interaction identified by ORSF is also identified with a traditional modeling strategy.</p>
+</div>
+<div class="section level3">
+<h3 id="summarize-orsf-models">Summarize ORSF models<a class="anchor" aria-label="anchor" href="#summarize-orsf-models"></a>
+</h3>
+<p>Getting straight to variable importance and partial dependence in a direct way can often be helpful in exploratory analyses. When you want a lot of information for just a little code, <code><a href="../reference/orsf_summarize_uni.html">orsf_summarize_uni()</a></code> is the tool for you:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">orsf_fit</span>, n_variables <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; -- bili (VI Rank: 1) ---------------------------</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;        |---------------- risk ----------------|</span>
+<span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
+<span class="co">#&gt;   0.80 0.2322995 0.1282478 0.04969597 0.3680273</span>
+<span class="co">#&gt;   1.40 0.2512471 0.1412819 0.06288363 0.3883091</span>
+<span class="co">#&gt;   3.52 0.3646850 0.2831674 0.16033196 0.5409685</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; -- age (VI Rank: 2) ----------------------------</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;        |---------------- risk ----------------|</span>
+<span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
+<span class="co">#&gt;   41.5 0.2717600 0.1357782 0.04559734 0.4529935</span>
+<span class="co">#&gt;   49.7 0.2973417 0.1673988 0.05263427 0.5141063</span>
+<span class="co">#&gt;   56.6 0.3266062 0.2130041 0.07319402 0.5588488</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; -- copper (VI Rank: 3) -------------------------</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;        |---------------- risk ----------------|</span>
+<span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
+<span class="co">#&gt;   42.8 0.2624793 0.1505639 0.04958913 0.4495358</span>
+<span class="co">#&gt;   74.0 0.2790690 0.1631167 0.05814677 0.4807697</span>
+<span class="co">#&gt;    129 0.3309482 0.2215598 0.10515721 0.5473132</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; -- protime (VI Rank: 4) ------------------------</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;        |---------------- risk ----------------|</span>
+<span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
+<span class="co">#&gt;   10.0 0.2797304 0.1559129 0.05081794 0.4965262</span>
+<span class="co">#&gt;   10.6 0.2923159 0.1667987 0.05605080 0.5187835</span>
+<span class="co">#&gt;   11.2 0.3137827 0.1877831 0.07045189 0.5328001</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; -- ascites (VI Rank: 5) ------------------------</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;        |---------------- risk ----------------|</span>
+<span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
+<span class="co">#&gt;      0 0.2937962 0.1615006 0.05345858 0.5290444</span>
+<span class="co">#&gt;      1 0.4618232 0.3826351 0.26907079 0.6541703</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;  Predicted risk at time t = 1788 for top 5 predictors</span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="what-about-the-original-orsf">What about the original ORSF?<a class="anchor" aria-label="anchor" href="#what-about-the-original-orsf"></a>
+</h2>
+<p>The original ORSF (i.e., <code>obliqueRSF</code>) used <code>glmnet</code> to find linear combinations of inputs. <code>aorsf</code> allows users to implement this approach using the <code><a href="../reference/orsf_control_net.html">orsf_control_net()</a></code> function:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R">
 <span class="va">orsf_net</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data_train <span class="op">=</span> <span class="va">pbc_orsf</span>, 
-                 formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>, 
+                 formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>, 
                  control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_net.html">orsf_control_net</a></span><span class="op">(</span><span class="op">)</span>,
                  n_tree <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></code></pre></div>
-<p>Note that the <code>net</code> approach is a fair bit slower than the <code>cph</code> one!</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<p><code>net</code> forests fit a lot faster than the original ORSF function in <code>obliqueRSF</code>. However, <code>net</code> forests are still about 100 times slower than <code>cph</code> ones:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="co"># tracking how long it takes to fit 50 glmnet trees</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>
- <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span>
+ <span class="va">t1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span>
   <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data_train <span class="op">=</span> <span class="va">pbc_orsf</span>, 
-       formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>, 
+       formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>, 
        control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_net.html">orsf_control_net</a></span><span class="op">(</span><span class="op">)</span>,
        n_tree <span class="op">=</span> <span class="fl">50</span><span class="op">)</span>
  <span class="op">)</span>
 <span class="op">)</span>
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   2.908   0.000   2.909</span>
+<span class="co">#&gt;   3.054   0.000   3.055</span>
 
 <span class="co"># and how long it takes to fit 50 cph trees</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>
- <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span>
+ <span class="va">t2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span>
   <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data_train <span class="op">=</span> <span class="va">pbc_orsf</span>, 
-       formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>, 
+       formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>, 
        control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_cph.html">orsf_control_cph</a></span><span class="op">(</span><span class="op">)</span>,
        n_tree <span class="op">=</span> <span class="fl">50</span><span class="op">)</span>
  <span class="op">)</span>
 <span class="op">)</span>
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   0.024   0.000   0.024</span></code></pre></div>
+<span class="co">#&gt;   0.024   0.000   0.024</span>
+
+<span class="va">t1</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">t2</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span>
+<span class="co">#&gt;  elapsed </span>
+<span class="co">#&gt; 127.2917</span></code></pre></div>
 </div>
-  </main>
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
