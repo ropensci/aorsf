@@ -4,9 +4,50 @@ object <- orsf(formula = Surv(time, status) ~ . - id,
                mtry = 5,
                n_split = 10,
                n_tree = 500,
-               oobag_pred = T,
+               oobag_pred = F,
                oobag_time = 2500,
                leaf_min_obs = 10)
+
+test_that(
+ 'pd uses oobag data if asked',
+ code = {
+  expect_identical(
+   orsf_pd_ice(object,
+               pd_data = NULL,
+               pd_spec = list(bili = c(0.8)),
+               oobag = TRUE),
+   suppressWarnings(orsf_pd_ice(object,
+                                pd_data = pbc_orsf,
+                                pd_spec = list(bili = c(0.8)),
+                                oobag = TRUE))
+  )
+  expect_identical(
+   orsf_pd_summary(object,
+                   pd_data = NULL,
+                   pd_spec = list(bili = c(0.8)),
+                   oobag = TRUE),
+   suppressWarnings(orsf_pd_summary(object,
+                                    pd_data = pbc_orsf,
+                                    pd_spec = list(bili = c(0.8)),
+                                    oobag = TRUE))
+  )
+ }
+)
+
+test_that(
+ desc = 'pd won\'t use incorrect data when oobag is true',
+ code = {
+  expect_warning(
+   orsf_pd_summary(object,
+                   pd_data = pbc_orsf[1:10,],
+                   pd_spec = list(bili = c(0.8)),
+                   oobag = TRUE)
+  )
+ }
+)
+
+
+
 
 test_that(
  "user cant supply empty pd_spec",

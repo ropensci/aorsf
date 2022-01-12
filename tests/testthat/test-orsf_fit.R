@@ -69,9 +69,12 @@ test_that(
 )
 
 test_that(
- desc = 'orsf works fine with data.table',
+ desc = 'orsf runs with data.table and with net control',
  code = {
   expect_s3_class(orsf(as.data.table(pbc_orsf), f), 'aorsf')
+  expect_s3_class(orsf(as.data.table(pbc_orsf), f,
+                       control = orsf_control_net(),
+                       n_tree = 1), 'aorsf')
  }
 )
 
