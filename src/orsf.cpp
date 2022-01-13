@@ -59,7 +59,7 @@ double
  net_alpha;
 
 int
- verbose=0,
+ // verbose=0,
  max_retry,
  n_retry,
  tree,
@@ -900,17 +900,17 @@ arma::vec newtraph_cph(){
 
   for(iter = 1; iter < cph_iter_max; iter++){
 
-   if(verbose > 0){
-
-    Rcout << "--------- Newt-Raph algo; iter " << iter;
-    Rcout << " ---------"  << std::endl;
-    Rcout << "beta: "      << beta_new.t();
-    Rcout << "loglik:    " << stat_best;
-    Rcout                  << std::endl;
-    Rcout << "------------------------------------------";
-    Rcout << std::endl << std::endl << std::endl;
-
-   }
+   // if(verbose > 0){
+   //
+   //  Rcout << "--------- Newt-Raph algo; iter " << iter;
+   //  Rcout << " ---------"  << std::endl;
+   //  Rcout << "beta: "      << beta_new.t();
+   //  Rcout << "loglik:    " << stat_best;
+   //  Rcout                  << std::endl;
+   //  Rcout << "------------------------------------------";
+   //  Rcout << std::endl << std::endl << std::endl;
+   //
+   // }
 
    // do the next iteration
    stat_current = newtraph_cph_iter(beta_new);
@@ -976,28 +976,28 @@ arma::vec newtraph_cph(){
    vmat.at(i, i) = 1.0;
   }
 
-  if(verbose > 0) Rcout << "scaled beta: " << beta_current[i] << "; ";
+  // if(verbose > 0) Rcout << "scaled beta: " << beta_current[i] << "; ";
 
   if(cph_do_scale){
    beta_current.at(i) *= x_transforms.at(i, 1);
    vmat.at(i, i) *= x_transforms.at(i, 1) * x_transforms.at(i, 1);
   }
 
-  if(verbose > 0) Rcout << "un-scaled beta: " << beta_current[i] << std::endl;
+  // if(verbose > 0) Rcout << "un-scaled beta: " << beta_current[i] << std::endl;
 
   temp1 = R::pchisq(pow(beta_current[i], 2) / vmat.at(i, i),
                     1, false, false);
 
   if(temp1 > cph_pval_max){
    beta_current[i] = 0;
-   if(verbose > 1){
-    Rcout<<"dropping coef "<<i<<" to 0; p = "<<temp1<<std::endl;
-   }
+   // if(verbose > 1){
+   //  Rcout<<"dropping coef "<<i<<" to 0; p = "<<temp1<<std::endl;
+   // }
   }
 
  }
 
- if(verbose > 1) Rcout << std::endl;
+ // if(verbose > 1) Rcout << std::endl;
 
  return(beta_current);
 
@@ -1078,9 +1078,9 @@ double lrt_multi(){
  n_events = 0;
  n_risk = 0;
 
- if(verbose > 1){
-  Rcout << "----- finding cut-point boundaries -----" << std::endl;
- }
+ // if(verbose > 1){
+ //  Rcout << "----- finding cut-point boundaries -----" << std::endl;
+ // }
 
  // Iterate through the sorted values of XB, in ascending order.
 
@@ -1093,30 +1093,30 @@ double lrt_multi(){
   // to make sure the next value of XB isn't equal to this current value.
   // Otherwise, we will have the same value of XB in both groups!
 
-  if(verbose > 1){
-   Rcout << XB[*iit]     << " ---- ";
-   Rcout << XB[*(iit+1)] << " ---- ";
-   Rcout << n_events     << " ---- ";
-   Rcout << n_risk       << std::endl;
-  }
+  // if(verbose > 1){
+  //  Rcout << XB[*iit]     << " ---- ";
+  //  Rcout << XB[*(iit+1)] << " ---- ";
+  //  Rcout << n_events     << " ---- ";
+  //  Rcout << n_risk       << std::endl;
+  // }
 
   if(XB[*iit] != XB[*(iit+1)]){
 
-   if(verbose > 1){
-    Rcout << "********* New cut-point here ********" << std::endl;
-   }
+   // if(verbose > 1){
+   //  Rcout << "********* New cut-point here ********" << std::endl;
+   // }
 
 
    if( n_events >= leaf_min_events &&
        n_risk   >= leaf_min_obs) {
 
-    if(verbose > 1){
-     Rcout << std::endl;
-     Rcout << "lower cutpoint: "         << XB[*iit] << std::endl;
-     Rcout << " - n_events, left node: " << n_events << std::endl;
-     Rcout << " - n_risk, left node:   " << n_risk   << std::endl;
-     Rcout << std::endl;
-    }
+    // if(verbose > 1){
+    //  Rcout << std::endl;
+    //  Rcout << "lower cutpoint: "         << XB[*iit] << std::endl;
+    //  Rcout << " - n_events, left node: " << n_events << std::endl;
+    //  Rcout << " - n_risk, left node:   " << n_risk   << std::endl;
+    //  Rcout << std::endl;
+    // }
 
     break;
 
@@ -1126,11 +1126,11 @@ double lrt_multi(){
 
  }
 
- if(verbose > 1){
-  if(iit >= iit_vals.end()-1) {
-   Rcout << "Could not find a valid lower cut-point" << std::endl;
-  }
- }
+ // if(verbose > 1){
+ //  if(iit >= iit_vals.end()-1) {
+ //   Rcout << "Could not find a valid lower cut-point" << std::endl;
+ //  }
+ // }
 
 
  j = iit - iit_vals.begin();
@@ -1148,18 +1148,18 @@ double lrt_multi(){
   n_risk   += w_node[*iit];
   group[*iit] = 1;
 
-  if(verbose > 1){
-   Rcout << XB[*iit]     << " ---- ";
-   Rcout << XB(*(iit-1)) << " ---- ";
-   Rcout << n_events     << " ---- ";
-   Rcout << n_risk       << std::endl;
-  }
+  // if(verbose > 1){
+  //  Rcout << XB[*iit]     << " ---- ";
+  //  Rcout << XB(*(iit-1)) << " ---- ";
+  //  Rcout << n_events     << " ---- ";
+  //  Rcout << n_risk       << std::endl;
+  // }
 
   if ( XB[*iit] != XB[*(iit-1)] ) {
 
-   if(verbose > 1){
-    Rcout << "********* New cut-point here ********" << std::endl;
-   }
+   // if(verbose > 1){
+   //  Rcout << "********* New cut-point here ********" << std::endl;
+   // }
 
    if( n_events >= leaf_min_events &&
        n_risk   >= leaf_min_obs ) {
@@ -1174,12 +1174,12 @@ double lrt_multi(){
 
     --iit;
 
-    if(verbose > 1){
-     Rcout << std::endl;
-     Rcout << "upper cutpoint: " << XB[*iit] << std::endl;
-     Rcout << " - n_events, right node: " << n_events    << std::endl;
-     Rcout << " - n_risk, right node:   " << n_risk      << std::endl;
-    }
+    // if(verbose > 1){
+    //  Rcout << std::endl;
+    //  Rcout << "upper cutpoint: " << XB[*iit] << std::endl;
+    //  Rcout << " - n_events, right node: " << n_events    << std::endl;
+    //  Rcout << " - n_risk, right node:   " << n_risk      << std::endl;
+    // }
 
     break;
 
@@ -1192,11 +1192,11 @@ double lrt_multi(){
  // number of steps taken
  k = iit + 1 - iit_vals.begin();
 
- if(verbose > 1){
-  Rcout << "----------------------------------------" << std::endl;
-  Rcout << std::endl << std::endl;
-  Rcout << "sorted XB: " << std::endl << XB(iit_vals).t() << std::endl;
- }
+ // if(verbose > 1){
+ //  Rcout << "----------------------------------------" << std::endl;
+ //  Rcout << std::endl << std::endl;
+ //  Rcout << "sorted XB: " << std::endl << XB(iit_vals).t() << std::endl;
+ // }
 
  // initialize cut-point as the value of XB iit currently points to.
  iit_best = iit;
@@ -1209,26 +1209,26 @@ double lrt_multi(){
  // telling us where we are after taking p steps from the end
  // of the XB vec. Returning the infinite cp is a red flag.
 
- if(verbose > 1){
-  Rcout << "j: " << j << std::endl;
-  Rcout << "k: " << k << std::endl;
- }
+ // if(verbose > 1){
+ //  Rcout << "j: " << j << std::endl;
+ //  Rcout << "k: " << k << std::endl;
+ // }
 
  if (j > k){
 
-  if(verbose > 1) {
-   Rcout << "Could not find a cut-point for this XB" << std::endl;
-  }
+  // if(verbose > 1) {
+  //  Rcout << "Could not find a cut-point for this XB" << std::endl;
+  // }
 
   return(R_PosInf);
  }
 
- if(verbose > 1){
-
-  Rcout << "----- initializing log-rank test cutpoints -----" << std::endl;
-  Rcout << "n potential cutpoints: " << k-j << std::endl;
-
- }
+ // if(verbose > 1){
+ //
+ //  Rcout << "----- initializing log-rank test cutpoints -----" << std::endl;
+ //  Rcout << "n potential cutpoints: " << k-j << std::endl;
+ //
+ // }
 
 
  // adjust k to indicate the number of valid cut-points
@@ -1260,16 +1260,16 @@ double lrt_multi(){
  // back to how it was!
  if(j == 0) jit_vals(jit_vals.size()-1)++;
 
- if(verbose > 1){
-
-  Rcout << "cut-points chosen: ";
-
-  Rcout << vec_temp.t();
-
-  Rcout << "----------------------------------------" << std::endl <<
-   std::endl << std::endl;
-
- }
+ // if(verbose > 1){
+ //
+ //  Rcout << "cut-points chosen: ";
+ //
+ //  Rcout << vec_temp.t();
+ //
+ //  Rcout << "----------------------------------------" << std::endl <<
+ //   std::endl << std::endl;
+ //
+ // }
 
  bool do_lrt = true;
 
@@ -1280,9 +1280,9 @@ double lrt_multi(){
  for(jit = jit_vals.begin(); jit != jit_vals.end(); ++jit){
 
 
-  if(verbose > 1){
-   Rcout << "jit points to " << *jit << std::endl;
-  }
+  // if(verbose > 1){
+  //  Rcout << "jit points to " << *jit << std::endl;
+  // }
 
   // switch group values from 0 to 1 until you get to the next cut-point
   for( ; j < *jit; j++){
@@ -1311,10 +1311,10 @@ double lrt_multi(){
      --iit;
      ++j;
 
-     if(verbose > 1){
-      Rcout << "cutpoint dropped down one spot: ";
-      Rcout << XB[*iit] << std::endl;
-     }
+     // if(verbose > 1){
+     //  Rcout << "cutpoint dropped down one spot: ";
+     //  Rcout << XB[*iit] << std::endl;
+     // }
 
     }
 
@@ -1340,15 +1340,15 @@ double lrt_multi(){
 
    i = y_node.n_rows-1;
 
-   if(verbose > 1){
-    Rcout << "sum(group==1): " << sum(group) << ";  ";
-    Rcout << "sum(group==1 * w_node): " << sum(group % w_node);
-    Rcout << std::endl;
-    if(verbose > 1){
-     Rcout << "group:" << std::endl;
-     Rcout << group(iit_vals).t() << std::endl;
-    }
-   }
+   // if(verbose > 1){
+   //  Rcout << "sum(group==1): " << sum(group) << ";  ";
+   //  Rcout << "sum(group==1 * w_node): " << sum(group % w_node);
+   //  Rcout << std::endl;
+   //  if(verbose > 1){
+   //   Rcout << "group:" << std::endl;
+   //   Rcout << group(iit_vals).t() << std::endl;
+   //  }
+   // }
 
 
    // begin inner loop  - - - - - - - - - - - - -  - - - - - - - - - - - - -
@@ -1393,15 +1393,15 @@ double lrt_multi(){
 
    stat_current = pow(expected-observed, 2) / V;
 
-   if(verbose > 1){
-
-    Rcout << "-------- log-rank test results --------" << std::endl;
-    Rcout << "cutpoint: " << XB[*iit]                  << std::endl;
-    Rcout << "lrt stat: " << stat_current              << std::endl;
-    Rcout << "---------------------------------------" << std::endl <<
-     std::endl << std::endl;
-
-   }
+   // if(verbose > 1){
+   //
+   //  Rcout << "-------- log-rank test results --------" << std::endl;
+   //  Rcout << "cutpoint: " << XB[*iit]                  << std::endl;
+   //  Rcout << "lrt stat: " << stat_current              << std::endl;
+   //  Rcout << "---------------------------------------" << std::endl <<
+   //   std::endl << std::endl;
+   //
+   // }
 
    if(stat_current > stat_best){
     iit_best = iit;
@@ -1421,9 +1421,9 @@ double lrt_multi(){
 
  if(stat_best < 3.841459) return(R_PosInf);
 
- if(verbose > 1){
-  Rcout << "Best LRT stat: " << stat_best << std::endl;
- }
+ // if(verbose > 1){
+ //  Rcout << "Best LRT stat: " << stat_best << std::endl;
+ // }
 
  // rewind iit until it is back where it was when we got the
  // best lrt stat. While rewinding iit, also reset the group
@@ -1499,9 +1499,9 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
  n_events = 0;
  n_risk = 0;
 
- if(verbose > 1){
-  Rcout << "----- finding cut-point boundaries -----" << std::endl;
- }
+ // if(verbose > 1){
+ //  Rcout << "----- finding cut-point boundaries -----" << std::endl;
+ // }
 
  // Iterate through the sorted values of XB, in ascending order.
 
@@ -1514,30 +1514,30 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
   // to make sure the next value of XB isn't equal to this current value.
   // Otherwise, we will have the same value of XB in both groups!
 
-  if(verbose > 1){
-   Rcout << XB(*iit)     << " ---- ";
-   Rcout << XB(*(iit+1)) << " ---- ";
-   Rcout << n_events     << " ---- ";
-   Rcout << n_risk       << std::endl;
-  }
+  // if(verbose > 1){
+  //  Rcout << XB(*iit)     << " ---- ";
+  //  Rcout << XB(*(iit+1)) << " ---- ";
+  //  Rcout << n_events     << " ---- ";
+  //  Rcout << n_risk       << std::endl;
+  // }
 
   if(XB(*iit) != XB(*(iit+1))){
 
-   if(verbose > 1){
-    Rcout << "********* New cut-point here ********" << std::endl;
-   }
+   // if(verbose > 1){
+   //  Rcout << "********* New cut-point here ********" << std::endl;
+   // }
 
 
    if( n_events >= leaf_min_events &&
        n_risk   >= leaf_min_obs) {
 
-    if(verbose > 1){
-     Rcout << std::endl;
-     Rcout << "lower cutpoint: "         << XB(*iit) << std::endl;
-     Rcout << " - n_events, left node: " << n_events << std::endl;
-     Rcout << " - n_risk, left node:   " << n_risk   << std::endl;
-     Rcout << std::endl;
-    }
+    // if(verbose > 1){
+    //  Rcout << std::endl;
+    //  Rcout << "lower cutpoint: "         << XB(*iit) << std::endl;
+    //  Rcout << " - n_events, left node: " << n_events << std::endl;
+    //  Rcout << " - n_risk, left node:   " << n_risk   << std::endl;
+    //  Rcout << std::endl;
+    // }
 
     break;
 
@@ -1547,11 +1547,11 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
 
  }
 
- if(verbose > 1){
-  if(iit >= iit_vals.end()-1) {
-   Rcout << "Could not find a valid lower cut-point" << std::endl;
-  }
- }
+ // if(verbose > 1){
+ //  if(iit >= iit_vals.end()-1) {
+ //   Rcout << "Could not find a valid lower cut-point" << std::endl;
+ //  }
+ // }
 
 
  j = iit - iit_vals.begin();
@@ -1569,18 +1569,18 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
   n_risk   += w_node(*iit);
   group(*iit) = 1;
 
-  if(verbose > 1){
-   Rcout << XB(*iit)     << " ---- ";
-   Rcout << XB(*(iit-1)) << " ---- ";
-   Rcout << n_events     << " ---- ";
-   Rcout << n_risk       << std::endl;
-  }
+  // if(verbose > 1){
+  //  Rcout << XB(*iit)     << " ---- ";
+  //  Rcout << XB(*(iit-1)) << " ---- ";
+  //  Rcout << n_events     << " ---- ";
+  //  Rcout << n_risk       << std::endl;
+  // }
 
   if(XB(*iit) != XB(*(iit-1))){
 
-   if(verbose > 1){
-    Rcout << "********* New cut-point here ********" << std::endl;
-   }
+   // if(verbose > 1){
+   //  Rcout << "********* New cut-point here ********" << std::endl;
+   // }
 
    if( n_events >= leaf_min_events &&
        n_risk   >= leaf_min_obs ) {
@@ -1595,12 +1595,12 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
 
     --iit;
 
-    if(verbose > 1){
-     Rcout << std::endl;
-     Rcout << "upper cutpoint: " << XB(*iit) << std::endl;
-     Rcout << " - n_events, right node: " << n_events    << std::endl;
-     Rcout << " - n_risk, right node:   " << n_risk      << std::endl;
-    }
+    // if(verbose > 1){
+    //  Rcout << std::endl;
+    //  Rcout << "upper cutpoint: " << XB(*iit) << std::endl;
+    //  Rcout << " - n_events, right node: " << n_events    << std::endl;
+    //  Rcout << " - n_risk, right node:   " << n_risk      << std::endl;
+    // }
 
     break;
 
@@ -1613,11 +1613,11 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
  // number of steps taken
  k = iit + 1 - iit_vals.begin();
 
- if(verbose > 1){
-  Rcout << "----------------------------------------" << std::endl;
-  Rcout << std::endl << std::endl;
-  Rcout << "sorted XB: " << std::endl << XB(iit_vals).t() << std::endl;
- }
+ // if(verbose > 1){
+ //  Rcout << "----------------------------------------" << std::endl;
+ //  Rcout << std::endl << std::endl;
+ //  Rcout << "sorted XB: " << std::endl << XB(iit_vals).t() << std::endl;
+ // }
 
  // initialize cut-point as the value of XB iit currently points to.
  iit_best = iit;
@@ -1630,26 +1630,26 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
  // telling us where we are after taking p steps from the end
  // of the XB vec. Returning the infinite cp is a red flag.
 
- if(verbose > 1){
-  Rcout << "j: " << j << std::endl;
-  Rcout << "k: " << k << std::endl;
- }
+ // if(verbose > 1){
+ //  Rcout << "j: " << j << std::endl;
+ //  Rcout << "k: " << k << std::endl;
+ // }
 
  if (j > k){
 
-  if(verbose > 1) {
-   Rcout << "Could not find a cut-point for this XB" << std::endl;
-  }
+  // if(verbose > 1) {
+  //  Rcout << "Could not find a cut-point for this XB" << std::endl;
+  // }
 
   return(R_PosInf);
  }
 
- if(verbose > 1){
-
-  Rcout << "----- initializing log-rank test cutpoints -----" << std::endl;
-  Rcout << "n potential cutpoints: " << k-j << std::endl;
-
- }
+ // if(verbose > 1){
+ //
+ //  Rcout << "----- initializing log-rank test cutpoints -----" << std::endl;
+ //  Rcout << "n potential cutpoints: " << k-j << std::endl;
+ //
+ // }
 
  // what happens if there are only 5 potential cut-points
  // but the value of n_split is > 5? We will just check out
@@ -1679,16 +1679,16 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
  if(j == 0) jit_vals(jit_vals.size()-1)++;
 
 
- if(verbose > 1){
-
-  Rcout << "cut-points chosen: ";
-
-  Rcout << vec_temp.t();
-
-  Rcout << "----------------------------------------" << std::endl <<
-   std::endl << std::endl;
-
- }
+ // if(verbose > 1){
+ //
+ //  Rcout << "cut-points chosen: ";
+ //
+ //  Rcout << vec_temp.t();
+ //
+ //  Rcout << "----------------------------------------" << std::endl <<
+ //   std::endl << std::endl;
+ //
+ // }
 
  bool do_lrt = true;
 
@@ -1699,9 +1699,9 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
  for(jit = jit_vals.begin(); jit != jit_vals.end(); ++jit){
 
 
-  if(verbose > 1){
-   Rcout << "jit points to " << *jit << std::endl;
-  }
+  // if(verbose > 1){
+  //  Rcout << "jit points to " << *jit << std::endl;
+  // }
 
   for( ; j < *jit; j++){
    group(*iit) = 1;
@@ -1729,10 +1729,10 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
      --iit;
      ++j;
 
-     if(verbose > 1){
-      Rcout << "cutpoint dropped down one spot: ";
-      Rcout << XB(*iit) << std::endl;
-     }
+     // if(verbose > 1){
+     //  Rcout << "cutpoint dropped down one spot: ";
+     //  Rcout << XB(*iit) << std::endl;
+     // }
 
     }
 
@@ -1760,15 +1760,15 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
 
    i = y_node.n_rows-1;
 
-   if(verbose > 1){
-    Rcout << "sum(group==1): " << sum(group) << ";  ";
-    Rcout << "sum(group==1 * w_node): " << sum(group % w_node);
-    Rcout << std::endl;
-    if(verbose > 1){
-     Rcout << "group:" << std::endl;
-     Rcout << group(iit_vals).t() << std::endl;
-    }
-   }
+   // if(verbose > 1){
+   //  Rcout << "sum(group==1): " << sum(group) << ";  ";
+   //  Rcout << "sum(group==1 * w_node): " << sum(group % w_node);
+   //  Rcout << std::endl;
+   //  if(verbose > 1){
+   //   Rcout << "group:" << std::endl;
+   //   Rcout << group(iit_vals).t() << std::endl;
+   //  }
+   // }
 
 
    // begin inner loop  - - - - - - - - - - - - -  - - - - - - - - - - - - -
@@ -1817,15 +1817,15 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
 
    list_counter++;
 
-   if(verbose > 1){
-
-    Rcout << "-------- log-rank test results --------" << std::endl;
-    Rcout << "cutpoint: " << XB(*iit)                  << std::endl;
-    Rcout << "lrt stat: " << stat_current              << std::endl;
-    Rcout << "---------------------------------------" << std::endl <<
-     std::endl << std::endl;
-
-   }
+   // if(verbose > 1){
+   //
+   //  Rcout << "-------- log-rank test results --------" << std::endl;
+   //  Rcout << "cutpoint: " << XB(*iit)                  << std::endl;
+   //  Rcout << "lrt stat: " << stat_current              << std::endl;
+   //  Rcout << "---------------------------------------" << std::endl <<
+   //   std::endl << std::endl;
+   //
+   // }
 
    if(stat_current > stat_best){
     iit_best = iit;
@@ -1845,9 +1845,9 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
 
  if(stat_best < 3.841459) return(R_PosInf);
 
- if(verbose > 1){
-  Rcout << "Best LRT stat: " << stat_best << std::endl;
- }
+ // if(verbose > 1){
+ //  Rcout << "Best LRT stat: " << stat_best << std::endl;
+ // }
 
  // rewind iit until it is back where it was when we got the
  // best lrt stat. While rewinding iit, also reset the group
@@ -1887,9 +1887,9 @@ void oobag_pred_surv_uni(){
   leaf_node = leaf_nodes.rows(leaf_indices(i, 1),
                               leaf_indices(i, 2));
 
-  if(verbose > 1){
-   Rcout << "leaf_node:" << std::endl << leaf_node << std::endl;
-  }
+  // if(verbose > 1){
+  //  Rcout << "leaf_node:" << std::endl << leaf_node << std::endl;
+  // }
 
   i = 0;
 
@@ -1939,9 +1939,9 @@ void oobag_pred_surv_uni(){
 
  } while (iit < iit_vals.end());
 
- if(verbose > 0){
-  Rcout << "surv_pvec:" << std::endl << surv_pvec.t() << std::endl;
- }
+ // if(verbose > 0){
+ //  Rcout << "surv_pvec:" << std::endl << surv_pvec.t() << std::endl;
+ // }
 
 }
 
@@ -2007,9 +2007,9 @@ void new_pred_surv_multi_mean(){
   leaf_node = leaf_nodes.rows(leaf_indices(i, 1),
                               leaf_indices(i, 2));
 
-  if(verbose > 1){
-   Rcout << "leaf_node:" << std::endl << leaf_node << std::endl;
-  }
+  // if(verbose > 1){
+  //  Rcout << "leaf_node:" << std::endl << leaf_node << std::endl;
+  // }
 
   i = 0;
 
@@ -2189,9 +2189,9 @@ void new_pred_surv_uni_mean(){
   leaf_node = leaf_nodes.rows(leaf_indices(i, 1),
                               leaf_indices(i, 2));
 
-  if(verbose > 1){
-   Rcout << "leaf_node:" << std::endl << leaf_node << std::endl;
-  }
+  // if(verbose > 1){
+  //  Rcout << "leaf_node:" << std::endl << leaf_node << std::endl;
+  // }
 
   i = 0;
 
@@ -2266,9 +2266,9 @@ void new_pred_surv_uni_mean(){
 
  } while (iit < iit_vals.end());
 
- if(verbose > 1){
-  Rcout << "pred_surv:" << std::endl << surv_pvec.t() << std::endl;
- }
+ // if(verbose > 1){
+ //  Rcout << "pred_surv:" << std::endl << surv_pvec.t() << std::endl;
+ // }
 
 }
 
@@ -2364,10 +2364,10 @@ void new_pred_surv_uni_mean(){
 
 void ostree_size_buffer(){
 
- if(verbose > 1){
-  Rcout << "---------- buffering outputs ----------" << std::endl;
-  Rcout << "betas before:  " << std::endl << betas.t() << std::endl;
- }
+ // if(verbose > 1){
+ //  Rcout << "---------- buffering outputs ----------" << std::endl;
+ //  Rcout << "betas before:  " << std::endl << betas.t() << std::endl;
+ // }
 
  betas.insert_cols(betas.n_cols, 10);
  x_mean.insert_cols(x_mean.n_cols, 10);
@@ -2375,11 +2375,11 @@ void ostree_size_buffer(){
  children_left.insert_rows(children_left.size(), 10);
  cutpoints.insert_rows(cutpoints.size(), 10);
 
- if(verbose > 1){
-  Rcout << "betas after:  " << std::endl << betas.t() << std::endl;
-  Rcout << "---------------------------------------";
-  Rcout << std::endl << std::endl;
- }
+ // if(verbose > 1){
+ //  Rcout << "betas after:  " << std::endl << betas.t() << std::endl;
+ //  Rcout << "---------------------------------------";
+ //  Rcout << std::endl << std::endl;
+ // }
 
 
 }
@@ -2490,17 +2490,17 @@ void ostree_pred_leaf(){
 
     }
 
-    if(verbose > 0){
-
-     uvec in_left = find(leaf_pred == children_left(i));
-     uvec in_right = find(leaf_pred == children_left(i)+1);
-
-     Rcout << "N to node_" << children_left(i) << ": ";
-     Rcout << in_left.size() << "; ";
-     Rcout << "N to node_" << children_left(i)+1 << ": ";
-     Rcout << in_right.size() << std::endl;
-
-    }
+    // if(verbose > 0){
+    //
+    //  uvec in_left = find(leaf_pred == children_left(i));
+    //  uvec in_right = find(leaf_pred == children_left(i)+1);
+    //
+    //  Rcout << "N to node_" << children_left(i) << ": ";
+    //  Rcout << in_left.size() << "; ";
+    //  Rcout << "N to node_" << children_left(i)+1 << ": ";
+    //  Rcout << in_right.size() << std::endl;
+    //
+    // }
 
    }
 
@@ -2558,15 +2558,15 @@ List ostree_fit(Function f_beta){
 
   nodes_to_grow_next.set_size(0);
 
-  if(verbose > 0){
-
-   Rcout << "----------- nodes to grow -----------" << std::endl;
-   Rcout << "nodes: "<< nodes_to_grow.t()           << std::endl;
-   Rcout << "-------------------------------------" << std::endl <<
-    std::endl << std::endl;
-
-
-  }
+  // if(verbose > 0){
+  //
+  //  Rcout << "----------- nodes to grow -----------" << std::endl;
+  //  Rcout << "nodes: "<< nodes_to_grow.t()           << std::endl;
+  //  Rcout << "-------------------------------------" << std::endl <<
+  //   std::endl << std::endl;
+  //
+  //
+  // }
 
   for(node = nodes_to_grow.begin(); node != nodes_to_grow.end(); ++node){
 
@@ -2588,18 +2588,18 @@ List ostree_fit(Function f_beta){
    y_node = y_inbag.rows(rows_node);
    w_node = w_inbag(rows_node);
 
-   if(verbose > 0){
-
-    n_risk = sum(w_node);
-    n_events = sum(y_node.col(1) % w_node);
-    Rcout << "-------- Growing node " << *node << " --------" << std::endl;
-    Rcout << "No. of observations in node: " << n_risk        << std::endl;
-    Rcout << "No. of events in node:       " << n_events      << std::endl;
-    Rcout << "No. of rows in node:         " << w_node.size() << std::endl;
-    Rcout << "--------------------------------"               << std::endl;
-    Rcout << std::endl << std::endl;
-
-   }
+   // if(verbose > 0){
+   //
+   //  n_risk = sum(w_node);
+   //  n_events = sum(y_node.col(1) % w_node);
+   //  Rcout << "-------- Growing node " << *node << " --------" << std::endl;
+   //  Rcout << "No. of observations in node: " << n_risk        << std::endl;
+   //  Rcout << "No. of events in node:       " << n_events      << std::endl;
+   //  Rcout << "No. of rows in node:         " << w_node.size() << std::endl;
+   //  Rcout << "--------------------------------"               << std::endl;
+   //  Rcout << std::endl << std::endl;
+   //
+   // }
 
    // initialize an impossible cut-point value
    // if cutpoint is still infinite later, node should not be split
@@ -2653,13 +2653,13 @@ List ostree_fit(Function f_beta){
 
      mtry_int = n_cols_to_sample;
 
-     if(verbose > 0){
-      Rcout << " ---- >=1 constant column in node rows ----" << std::endl;
-      Rcout << "mtry reduced to " << mtry_temp << " from " << mtry;
-      Rcout << std::endl;
-      Rcout << "-------------------------------------------" << std::endl;
-      Rcout << std::endl << std::endl;
-     }
+     // if(verbose > 0){
+     //  Rcout << " ---- >=1 constant column in node rows ----" << std::endl;
+     //  Rcout << "mtry reduced to " << mtry_temp << " from " << mtry;
+     //  Rcout << std::endl;
+     //  Rcout << "-------------------------------------------" << std::endl;
+     //  Rcout << std::endl << std::endl;
+     // }
 
     }
 
@@ -2676,11 +2676,11 @@ List ostree_fit(Function f_beta){
 
     n_cols_to_sample = mtry_int;
 
-    if(verbose > 0){
-     Rcout << "n_events: " << n_events_total << std::endl;
-     Rcout << "mtry: " << mtry_int << std::endl;
-     Rcout << "n_events per column: " << n_events_total/mtry_int << std::endl;
-    }
+    // if(verbose > 0){
+    //  Rcout << "n_events: " << n_events_total << std::endl;
+    //  Rcout << "mtry: " << mtry_int << std::endl;
+    //  Rcout << "n_events per column: " << n_events_total/mtry_int << std::endl;
+    // }
 
     if(mtry_int > 1){
 
@@ -2711,14 +2711,14 @@ List ostree_fit(Function f_beta){
        x_node_means();
       }
 
-      if(verbose > 0){
-
-       uword temp_uword_1 = min(uvec {x_node.n_rows, 5});
-       Rcout << "x node scaled: " << std::endl;
-       Rcout << x_node.submat(0, 0, temp_uword_1-1, x_node.n_cols-1);
-       Rcout << std::endl;
-
-      }
+      // if(verbose > 0){
+      //
+      //  uword temp_uword_1 = min(uvec {x_node.n_rows, 5});
+      //  Rcout << "x node scaled: " << std::endl;
+      //  Rcout << x_node.submat(0, 0, temp_uword_1-1, x_node.n_cols-1);
+      //  Rcout << std::endl;
+      //
+      // }
 
       switch(type) {
 
@@ -2759,14 +2759,14 @@ List ostree_fit(Function f_beta){
 
       if(any(beta_fit)){
 
-       if(verbose > 0){
-
-        uword temp_uword_1 = min(uvec {x_node.n_rows, 5});
-        Rcout << "x node unscaled: " << std::endl;
-        Rcout << x_node.submat(0, 0, temp_uword_1-1, x_node.n_cols-1);
-        Rcout << std::endl;
-
-       }
+       // if(verbose > 0){
+       //
+       //  uword temp_uword_1 = min(uvec {x_node.n_rows, 5});
+       //  Rcout << "x node unscaled: " << std::endl;
+       //  Rcout << x_node.submat(0, 0, temp_uword_1-1, x_node.n_cols-1);
+       //  Rcout << std::endl;
+       //
+       // }
 
        XB = x_node * beta_fit;
        cutpoint = lrt_multi();
@@ -2789,24 +2789,24 @@ List ostree_fit(Function f_beta){
     nodes_max_true = nodes_max_true + 2;
 
 
-    if(verbose > 0){
-
-     Rcout << "-------- New nodes created --------" << std::endl;
-     Rcout << "Left node: "  << nn_left             << std::endl;
-     Rcout << "Right node: " << nodes_max_true      << std::endl;
-     Rcout << "-----------------------------------" << std::endl <<
-      std::endl << std::endl;
-
-    }
+    // if(verbose > 0){
+    //
+    //  Rcout << "-------- New nodes created --------" << std::endl;
+    //  Rcout << "Left node: "  << nn_left             << std::endl;
+    //  Rcout << "Right node: " << nodes_max_true      << std::endl;
+    //  Rcout << "-----------------------------------" << std::endl <<
+    //   std::endl << std::endl;
+    //
+    // }
 
     n_events_left = n_events_total - n_events_right;
 
-    if(verbose > 0){
-     Rcout << "n_events_left: " << n_events_left << std::endl;
-     Rcout << "n_risk_left: " << n_risk_left << std::endl;
-     Rcout << "n_events_right: " << n_events_right << std::endl;
-     Rcout << "n_risk_right: " << n_risk_right << std::endl;
-    }
+    // if(verbose > 0){
+    //  Rcout << "n_events_left: " << n_events_left << std::endl;
+    //  Rcout << "n_risk_left: " << n_risk_left << std::endl;
+    //  Rcout << "n_events_right: " << n_events_right << std::endl;
+    //  Rcout << "n_risk_right: " << n_risk_right << std::endl;
+    // }
 
     i=0;
 
@@ -2830,18 +2830,18 @@ List ostree_fit(Function f_beta){
      leaf_indices(leaf_node_index_counter, 0) = nn_left;
      leaf_kaplan(y_node.rows(rows_leaf), w_node(rows_leaf));
 
-     if(verbose > 0){
-      Rcout << "-------- creating a new leaf --------" << std::endl;
-      Rcout << "name: node_" << nn_left                << std::endl;
-      Rcout << "n_obs:    "  << sum(w_node(rows_leaf));
-      Rcout << std::endl;
-      Rcout << "n_events: ";
-      vec_temp = y_node.col(1);
-      Rcout << sum(w_node(rows_leaf) % vec_temp(rows_leaf));
-      Rcout << std::endl;
-      Rcout << "------------------------------------";
-      Rcout << std::endl << std::endl << std::endl;
-     }
+     // if(verbose > 0){
+     //  Rcout << "-------- creating a new leaf --------" << std::endl;
+     //  Rcout << "name: node_" << nn_left                << std::endl;
+     //  Rcout << "n_obs:    "  << sum(w_node(rows_leaf));
+     //  Rcout << std::endl;
+     //  Rcout << "n_events: ";
+     //  vec_temp = y_node.col(1);
+     //  Rcout << sum(w_node(rows_leaf) % vec_temp(rows_leaf));
+     //  Rcout << std::endl;
+     //  Rcout << "------------------------------------";
+     //  Rcout << std::endl << std::endl << std::endl;
+     // }
 
     }
 
@@ -2859,18 +2859,18 @@ List ostree_fit(Function f_beta){
      leaf_indices(leaf_node_index_counter, 0) = nodes_max_true;
      leaf_kaplan(y_node.rows(rows_leaf), w_node(rows_leaf));
 
-     if(verbose > 0){
-      Rcout << "-------- creating a new leaf --------" << std::endl;
-      Rcout << "name: node_" << nodes_max_true               << std::endl;
-      Rcout << "n_obs:    "  << sum(w_node(rows_leaf));
-      Rcout << std::endl;
-      Rcout << "n_events: ";
-      vec_temp = y_node.col(1);
-      Rcout << sum(w_node(rows_leaf) % vec_temp(rows_leaf));
-      Rcout << std::endl;
-      Rcout << "------------------------------------";
-      Rcout << std::endl << std::endl << std::endl;
-     }
+     // if(verbose > 0){
+     //  Rcout << "-------- creating a new leaf --------" << std::endl;
+     //  Rcout << "name: node_" << nodes_max_true               << std::endl;
+     //  Rcout << "n_obs:    "  << sum(w_node(rows_leaf));
+     //  Rcout << std::endl;
+     //  Rcout << "n_events: ";
+     //  vec_temp = y_node.col(1);
+     //  Rcout << sum(w_node(rows_leaf) % vec_temp(rows_leaf));
+     //  Rcout << std::endl;
+     //  Rcout << "------------------------------------";
+     //  Rcout << std::endl << std::endl << std::endl;
+     // }
 
     }
 
@@ -2891,16 +2891,16 @@ List ostree_fit(Function f_beta){
     leaf_indices(leaf_node_index_counter, 0) = *node;
     leaf_kaplan(y_node, w_node);
 
-    if(verbose > 0){
-     Rcout << "-------- creating a new leaf --------" << std::endl;
-     Rcout << "name: node_" << *node                  << std::endl;
-     Rcout << "n_obs:    "  << sum(w_node)      << std::endl;
-     Rcout << "n_events: "  << sum(w_node % y_node.col(1));
-     Rcout                                            << std::endl;
-     Rcout << "Couldn't find a cutpoint??"            << std::endl;
-     Rcout << "------------------------------------"  << std::endl;
-     Rcout << std::endl << std::endl;
-    }
+    // if(verbose > 0){
+    //  Rcout << "-------- creating a new leaf --------" << std::endl;
+    //  Rcout << "name: node_" << *node                  << std::endl;
+    //  Rcout << "n_obs:    "  << sum(w_node)      << std::endl;
+    //  Rcout << "n_events: "  << sum(w_node % y_node.col(1));
+    //  Rcout                                            << std::endl;
+    //  Rcout << "Couldn't find a cutpoint??"            << std::endl;
+    //  Rcout << "------------------------------------"  << std::endl;
+    //  Rcout << std::endl << std::endl;
+    // }
 
    }
 
@@ -2979,13 +2979,13 @@ List orsf_fit(NumericMatrix& x,
  n_rows = x_input.n_rows;
  n_vars = x_input.n_cols;
 
- if(verbose > 0){
-  Rcout << "------------ dimensions ------------"  << std::endl;
-  Rcout << "N obs total: "     << n_rows           << std::endl;
-  Rcout << "N columns total: " << n_vars           << std::endl;
-  Rcout << "------------------------------------";
-  Rcout << std::endl << std::endl << std::endl;
- }
+ // if(verbose > 0){
+ //  Rcout << "------------ dimensions ------------"  << std::endl;
+ //  Rcout << "N obs total: "     << n_rows           << std::endl;
+ //  Rcout << "N columns total: " << n_vars           << std::endl;
+ //  Rcout << "------------------------------------";
+ //  Rcout << std::endl << std::endl << std::endl;
+ // }
 
  n_split            = n_split_;
  mtry               = mtry_;
@@ -3020,19 +3020,19 @@ List orsf_fit(NumericMatrix& x,
   cstat_oobag.set_size(0);
  }
 
- if(verbose > 0){
-  Rcout << "------------ input variables ------------" << std::endl;
-  Rcout << "n_split: "         << n_split              << std::endl;
-  Rcout << "mtry: "            << mtry                 << std::endl;
-  Rcout << "leaf_min_events: " << leaf_min_events      << std::endl;
-  Rcout << "leaf_min_obs: "    << leaf_min_obs         << std::endl;
-  Rcout << "cph_method: "      << cph_method           << std::endl;
-  Rcout << "cph_eps: "         << cph_eps              << std::endl;
-  Rcout << "cph_iter_max: "    << cph_iter_max         << std::endl;
-  Rcout << "cph_pval_max: "    << cph_pval_max         << std::endl;
-  Rcout << "-----------------------------------------" << std::endl;
-  Rcout << std::endl << std::endl;
- }
+ // if(verbose > 0){
+ //  Rcout << "------------ input variables ------------" << std::endl;
+ //  Rcout << "n_split: "         << n_split              << std::endl;
+ //  Rcout << "mtry: "            << mtry                 << std::endl;
+ //  Rcout << "leaf_min_events: " << leaf_min_events      << std::endl;
+ //  Rcout << "leaf_min_obs: "    << leaf_min_obs         << std::endl;
+ //  Rcout << "cph_method: "      << cph_method           << std::endl;
+ //  Rcout << "cph_eps: "         << cph_eps              << std::endl;
+ //  Rcout << "cph_iter_max: "    << cph_iter_max         << std::endl;
+ //  Rcout << "cph_pval_max: "    << cph_pval_max         << std::endl;
+ //  Rcout << "-----------------------------------------" << std::endl;
+ //  Rcout << std::endl << std::endl;
+ // }
 
  // ----------------------------------------------------
  // ---- sample weights to mimic a bootstrap sample ----
@@ -3092,16 +3092,16 @@ List orsf_fit(NumericMatrix& x,
   rows_oobag = find(w_inbag == 0);
   w_inbag    = w_inbag(rows_inbag);
 
-  if(verbose > 0){
-
-   Rcout << "------------ boot weights ------------" << std::endl;
-   Rcout << "pr(inbag): " << 1-pow(1-temp1,n_rows)   << std::endl;
-   Rcout << "total: "     << sum(w_inbag)      << std::endl;
-   Rcout << "N > 0: "     << rows_inbag.size()       << std::endl;
-   Rcout << "--------------------------------------" <<
-    std::endl << std::endl << std::endl;
-
-  }
+  // if(verbose > 0){
+  //
+  //  Rcout << "------------ boot weights ------------" << std::endl;
+  //  Rcout << "pr(inbag): " << 1-pow(1-temp1,n_rows)   << std::endl;
+  //  Rcout << "total: "     << sum(w_inbag)      << std::endl;
+  //  Rcout << "N > 0: "     << rows_inbag.size()       << std::endl;
+  //  Rcout << "--------------------------------------" <<
+  //   std::endl << std::endl << std::endl;
+  //
+  // }
 
   x_inbag = x_input.rows(rows_inbag);
   y_inbag = y_input.rows(rows_inbag);
@@ -3111,26 +3111,26 @@ List orsf_fit(NumericMatrix& x,
    leaf_pred.set_size(rows_oobag.size());
   }
 
-  if(verbose > 0){
-
-   uword temp_uword_1, temp_uword_2;
-
-   if(x_inbag.n_rows < 5)
-    temp_uword_1 = x_inbag.n_rows-1;
-   else
-    temp_uword_1 = 5;
-
-   if(x_inbag.n_cols < 5)
-    temp_uword_2 = x_inbag.n_cols-1;
-   else
-    temp_uword_2 = 4;
-
-   Rcout << "x inbag: " << std::endl <<
-    x_inbag.submat(0, 0,
-                   temp_uword_1,
-                   temp_uword_2) << std::endl;
-
-  }
+  // if(verbose > 0){
+  //
+  //  uword temp_uword_1, temp_uword_2;
+  //
+  //  if(x_inbag.n_rows < 5)
+  //   temp_uword_1 = x_inbag.n_rows-1;
+  //  else
+  //   temp_uword_1 = 5;
+  //
+  //  if(x_inbag.n_cols < 5)
+  //   temp_uword_2 = x_inbag.n_cols-1;
+  //  else
+  //   temp_uword_2 = 4;
+  //
+  //  Rcout << "x inbag: " << std::endl <<
+  //   x_inbag.submat(0, 0,
+  //                  temp_uword_1,
+  //                  temp_uword_2) << std::endl;
+  //
+  // }
 
   forest[tree] = ostree_fit(f_beta);
 
