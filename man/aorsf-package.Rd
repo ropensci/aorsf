@@ -20,5 +20,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Byron Jaeger \email{bjaeger@wakehealth.edu} (\href{https://orcid.org/0000-0001-7399-2299}{ORCID})
 
+Other contributors:
+\itemize{
+  \item Nicholas Pajewski [contributor]
+}
+
 }
 \keyword{internal}
