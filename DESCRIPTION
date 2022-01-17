@@ -1,12 +1,14 @@
 Package: aorsf
 Title: Accelerated Oblique Random Survival Forests
 Version: 0.0.1
-Authors@R: 
+Authors@R: c(
     person(given = "Byron",
            family = "Jaeger",
            role = c("aut", "cre"),
            email = "bjaeger@wakehealth.edu",
-           comment = c(ORCID = "0000-0001-7399-2299"))
+           comment = c(ORCID = "0000-0001-7399-2299")),
+    person(given = "Nicholas",  family = "Pajewski", role = "ctb")
+    )
 Description: Fit, interpret, and make predictions with oblique random
     survival forests. Oblique decision trees are notoriously slow compared
     to their axis based counterparts, but 'aorsf' runs as fast or faster than 
