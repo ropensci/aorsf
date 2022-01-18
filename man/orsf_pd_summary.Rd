@@ -77,7 +77,7 @@ percentile in the object's training data. If \code{FALSE}, these checks are
 skipped.}
 }
 \value{
-a \code{data.frame} containing summarized partial dependence
+a \code{data.table} containing summarized partial dependence
 values if using \code{orsf_pd_summery} or individual conditional
 expectation (ICE) partial dependence if using \code{orsf_pd_ice}.
 }

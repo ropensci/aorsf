@@ -22,7 +22,8 @@ an object of class \code{'aorsf_control'}, which should be used as
 an input for the \code{control} argument of \link{orsf}.
 }
 \description{
-Elastic net control
+Use regularized Cox proportional hazard models to identify linear
+combinations of input variables while fitting an \link{orsf} model.
 }
 \examples{
 
@@ -34,4 +35,7 @@ orsf(data_train = pbc_orsf,
      formula = Surv(time, status) ~ . - id,
      n_tree = 25,
      control = orsf_control_net())
+}
+\references{
+Simon N, Friedman J, Hastie T, Tibshirani R. Regularization paths for Cox’s proportional hazards model via coordinate descent. \emph{Journal of statistical software}. 2011 Mar;39(5):1. DOI: 10.18637/jss.v039.i05
 }

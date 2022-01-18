@@ -2,13 +2,24 @@
 
 #' Oblique Random Survival Forest (ORSF)
 #'
-#' The oblique random survival forest (RSF) is an extension of the RSF
+#' @srrstats {G1.4} *documented with Roxygen*
+#'
+#' @srrstats {G1.1} *aorsf is an improvement of the ORSF algorithm implemented in obliqueRSF, which was an extension of Hemant Ishwaran's random survival forest.*
+#'
+#' @srrstats {G1.3} *linear combinations of inputs defined.*
+#'
+#' The oblique random survival forest (ORSF) is an extension of the RSF
 #'   algorithm developed by Ishwaran et al and maintained in the
-#'   `RandomForestSRC` package. The only difference between oblique
-#'   RSF and Ishwaran's RSF is that oblique RSFs use linear combinations
-#'   of input variables instead of using the input variable as-is when
-#'   growing new nodes in survival decision trees. For more details on
-#'   the oblique RSF, see Jaeger et al, 2019.
+#'   `RandomForestSRC` package. The difference between ORSF and RSF is
+#'   that ORSF uses linear combinations of input variables whereas RSF
+#'   uses a single variable when growing new nodes in survival decision trees.
+#'   A linear combination is an expression constructed from a set of terms
+#'   by multiplying each term by a constant and adding the results (e.g.
+#'   a linear combination of x and y would be any expression of the form
+#'   ax + by, where a and b are constants). For more details on the ORSF
+#'   algorithm, see Jaeger et al, 2019. The `orsf()` function implements a
+#'   novel algorithm that speeds up the ORSF algorithm described by Jaeger
+#'   et al (see details).
 #'
 #' @param data_train (_data.frame_) that will be used to grow the forest.
 #'
@@ -73,7 +84,7 @@
 #'
 #' This function is based on and highly similar to the `ORSF` function
 #'   in the `obliqueRSF` R package. The primary difference is that this
-#'   function runs about 200 times faster because it uses a simplified
+#'   function runs about 500 times faster because it uses a simplified
 #'   Newton Raphson scoring algorithm to identify linear combinations of
 #'   inputs rather than performing penalized regression using routines in
 #'   `glmnet`.The modified Newton Raphson scoring algorithm that this
@@ -81,6 +92,8 @@
 #'   Terry M. Therneau that fits Cox proportional hazards models
 #'   (see [survival::coxph()]).
 #'
+#'
+#' @srrstats {G1.3} *define oblique and axis based decision trees*
 #'
 #' __What is an oblique decision tree?__
 #'
@@ -103,6 +116,12 @@
 #'
 #' \if{html}{\figure{tree_axis_v_oblique.png}{options: width=95\%}}
 #'
+#' @srrstats {G1.3} *clarify the term 'random forest'*
+#'
+#' __What is a random forest?__
+#'
+#' Random forests are collections of de-correlated decision trees. Predictions from each tree are aggregated to make an ensemble prediction for the forest. For more details, see Breiman at el, 2001.
+#'
 #' __Some comments on inputs__
 #'
 #' _formula_: The response in `formula` can be a survival
@@ -114,17 +133,30 @@
 #'   writing `status + time ~ .` will make `orsf` assume your
 #'   `status` variable is actually the `time` variable.
 #'
-#' _mtry_: The `mtry` parameter may be decreased while fitting an oblique
-#'   RSF. Currently oblique RSF's are fitted by a Newton Raphson scoring
-#'   algorithm that becomes unstable when the number of covariates is
-#'   greater than or equal to the number of events. During the ORSF
-#'   algorithm, mtry may be reduced temporarily to ensure there are at
-#'   least 2 events per predictor variable.
+#' _mtry_: The `mtry` parameter may be temporarily reduced to ensure there
+#'   are at least 2 events per predictor variable. This occurs when using
+#'   [orsf_control_cph] because coefficients in the Newton Raphson scoring
+#'   algorithm may become unstable when the number of covariates is
+#'   greater than or equal to the number of events. This reduction does not
+#'   occur when using [orsf_control_net].
 #'
-#' @references Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI,
+#'
+#' @srrstats {G1.0} *Jaeger et al describes the ORSF algorithm that aorsf is based on. Note: aorsf uses a different approach to create linear combinations of inputs for speed reasons, but orsf_control_net() allows users to make ensembles that are very similar to obliqueRSF::ORSF().*
+#'
+#' @references
+#'
+#' Breiman L. Random forests. *Machine learning*. 2001 Oct;45(1):5-32.
+#'   DOI: 10.1023/A:1010933404324
+#'
+#' Ishwaran H, Kogalur UB, Blackstone EH, Lauer MS. Random survival forests.
+#'   *Annals of applied statistics*. 2008 Sep;2(3):841-60.
+#'   DOI: 10.1214/08-AOAS169
+#'
+#' Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI,
 #'   Mcclure LA, Howard G, Simon N. Oblique random survival forests.
-#'   *The Annals of Applied Statistics*. 2019 Sep;13(3):1847-83.
+#'   *Annals of applied statistics*. 2019 Sep;13(3):1847-83.
 #'   DOI: 10.1214/19-AOAS1261
+#'
 #'
 #' @export
 #'
@@ -261,7 +293,7 @@ orsf <- function(data_train,
 
  fi <- fctr_info(data_train, names_x_data)
  y  <- as.matrix(select_cols(data_train, names_y_data))
- x  <- as.matrix(one_hot(data_train, fi, names_x_data))
+ x  <- as.matrix(ref_code(data_train, fi, names_x_data))
 
  types_x_data <- check_var_types(data_train,
                                  names_x_data,
@@ -428,7 +460,7 @@ orsf <- function(data_train,
  attr(orsf_out, 'n_tree')          <- n_tree
  attr(orsf_out, 'names_y')         <- names_y_data
  attr(orsf_out, "names_x")         <- names_x_data
- attr(orsf_out, "names_x_onehot")  <- colnames(x)
+ attr(orsf_out, "names_x_ref")  <- colnames(x)
  attr(orsf_out, "types_x")         <- types_x_data
  attr(orsf_out, 'n_events')        <- n_events
  attr(orsf_out, 'max_time')        <- y_sort[nrow(y_sort), 1]
@@ -446,295 +478,6 @@ orsf <- function(data_train,
 
 
 
-orsf_cph <- function(data_train,
-                     formula,
-                     n_tree = 500,
-                     n_split = 5,
-                     n_retry = 0,
-                     mtry = NULL,
-                     leaf_min_events = 1,
-                     leaf_min_obs = 5,
-                     split_min_events = 5,
-                     split_min_obs = 10,
-                     oobag_pred = TRUE,
-                     oobag_time = NULL,
-                     oobag_eval_every = n_tree,
-                     importance = FALSE,
-                     attach_data = TRUE){
-
-}
-
-check_orsf_inputs <- function(data_train,
-                              formula,
-                              control,
-                              n_tree,
-                              n_split,
-                              n_retry,
-                              mtry,
-                              leaf_min_events,
-                              leaf_min_obs,
-                              split_min_events,
-                              split_min_obs,
-                              oobag_pred,
-                              oobag_time,
-                              oobag_eval_every,
-                              importance,
-                              attach_data){
-
- if(!is.null(data_train)){
-
-  check_arg_is(arg_value = data_train,
-               arg_name = 'data_train',
-               expected_class = 'data.frame')
-
- }
-
- if(!is.null(formula)){
-
-  check_arg_is(arg_value = formula,
-               arg_name = 'formula',
-               expected_class = 'formula')
-
-  if(length(formula) != 3){
-   stop("formula must be two sided, i.e. left side ~ right side",
-        call. = FALSE)
-  }
-
-  formula_deparsed <- deparse(formula[[3]])
-
-  for( symbol in c("*", "^", ":", "(", ")", "["," ]", "|", "%") ){
-
-   if(grepl(symbol, formula_deparsed, fixed = TRUE)){
-
-    stop("unrecognized symbol in formula: ", symbol,
-         "\norsf recognizes '+', '-', and '.' symbols.",
-         call. = FALSE)
-
-   }
-
-  }
-
- }
-
- check_arg_is(arg_value = control,
-              arg_name = 'control',
-              expected_class = 'aorsf_control')
-
- if(!is.null(n_tree)){
-
-  check_arg_type(arg_value = n_tree,
-                 arg_name = 'n_tree',
-                 expected_type = 'numeric')
-
-  check_arg_is_integer(arg_value = n_tree,
-                       arg_name = 'n_tree')
-
-  check_arg_gteq(arg_value = n_tree,
-                 arg_name = 'n_tree',
-                 bound = 1)
-
-  check_arg_length(arg_value = n_tree,
-                   arg_name = 'n_tree',
-                   expected_length = 1)
-
- }
-
- if(!is.null(n_split)){
-
-  check_arg_type(arg_value = n_split,
-                 arg_name = 'n_split',
-                 expected_type = 'numeric')
-
-  check_arg_is_integer(arg_value = n_split,
-                       arg_name = 'n_split')
-
-  check_arg_gteq(arg_value = n_split,
-                 arg_name = 'n_split',
-                 bound = 1)
-
-  check_arg_length(arg_value = n_split,
-                   arg_name = 'n_split',
-                   expected_length = 1)
-
- }
-
- if(!is.null(n_retry)){
-
-  check_arg_type(arg_value = n_retry,
-                 arg_name = 'n_retry',
-                 expected_type = 'numeric')
-
-  check_arg_is_integer(arg_value = n_retry,
-                       arg_name = 'n_retry')
-
-  check_arg_gteq(arg_value = n_retry,
-                 arg_name = 'n_retry',
-                 bound = 0)
-
-  check_arg_length(arg_value = n_retry,
-                   arg_name = 'n_retry',
-                   expected_length = 1)
-
- }
-
- if(!is.null(mtry)){
-
-  check_arg_type(arg_value = mtry,
-                 arg_name = 'mtry',
-                 expected_type = 'numeric')
-
-  check_arg_is_integer(arg_name = 'mtry',
-                       arg_value = mtry)
-
-  check_arg_gteq(arg_name = 'mtry',
-                 arg_value = mtry,
-                 bound = 2)
-
-  check_arg_length(arg_name = 'mtry',
-                   arg_value = mtry,
-                   expected_length = 1)
-
- }
-
- if(!is.null(leaf_min_events)){
-
-  check_arg_type(arg_value = leaf_min_events,
-                 arg_name = 'leaf_min_events',
-                 expected_type = 'numeric')
-
-  check_arg_is_integer(arg_value = leaf_min_events,
-                       arg_name = 'leaf_min_events')
-
-  check_arg_gteq(arg_value = leaf_min_events,
-                 arg_name = 'leaf_min_events',
-                 bound = 1)
-
-  check_arg_length(arg_value = leaf_min_events,
-                   arg_name = 'leaf_min_events',
-                   expected_length = 1)
- }
-
- if(!is.null(leaf_min_obs)){
-
-  check_arg_type(arg_value = leaf_min_obs,
-                 arg_name = 'leaf_min_obs',
-                 expected_type = 'numeric')
-
-  check_arg_is_integer(arg_value = leaf_min_obs,
-                       arg_name = 'leaf_min_obs')
-
-  check_arg_gteq(arg_value = leaf_min_obs,
-                 arg_name = 'leaf_min_obs',
-                 bound = 1)
-
-  check_arg_length(arg_value = leaf_min_obs,
-                   arg_name = 'leaf_min_obs',
-                   expected_length = 1)
-
- }
-
- if(!is.null(split_min_events)){
-
-  check_arg_type(arg_value = split_min_events,
-                 arg_name = 'split_min_events',
-                 expected_type = 'numeric')
-
-  check_arg_is_integer(arg_value = split_min_events,
-                       arg_name = 'split_min_events')
-
-  check_arg_gteq(arg_value = split_min_events,
-                 arg_name = 'split_min_events',
-                 bound = 1)
-
-  check_arg_length(arg_value = split_min_events,
-                   arg_name = 'split_min_events',
-                   expected_length = 1)
- }
-
- if(!is.null(split_min_obs)){
-
-  check_arg_type(arg_value = split_min_obs,
-                 arg_name = 'split_min_obs',
-                 expected_type = 'numeric')
-
-  check_arg_is_integer(arg_value = split_min_obs,
-                       arg_name = 'split_min_obs')
-
-  check_arg_gteq(arg_value = split_min_obs,
-                 arg_name = 'split_min_obs',
-                 bound = 1)
-
-  check_arg_length(arg_value = split_min_obs,
-                   arg_name = 'split_min_obs',
-                   expected_length = 1)
-
- }
-
- if(!is.null(oobag_pred)){
-
-  check_arg_type(arg_value = oobag_pred,
-                 arg_name = 'oobag_pred',
-                 expected_type = 'logical')
-
-  check_arg_length(arg_value = oobag_pred,
-                   arg_name = 'oobag_pred',
-                   expected_length = 1)
-
- }
-
- if(!is.null(oobag_time)){
-
-  check_arg_type(arg_value = oobag_time,
-                 arg_name = 'oobag_time',
-                 expected_type = 'numeric')
-
-  check_arg_length(arg_value = oobag_time,
-                   arg_name = 'oobag_time',
-                   expected_length = 1)
-
-  check_arg_gt(arg_value = oobag_time,
-               arg_name = 'oobag_time',
-               bound = 0)
-
- }
-
-
- if(!is.null(oobag_eval_every)){
-
-  check_arg_type(arg_value = oobag_eval_every,
-                 arg_name = 'oobag_eval_every',
-                 expected_type = 'numeric')
-
-  check_arg_is_integer(arg_value = oobag_eval_every,
-                       arg_name = 'oobag_eval_every')
-
-  check_arg_gteq(arg_value = oobag_eval_every,
-                 arg_name = 'oobag_eval_every',
-                 bound = 1)
-
-  check_arg_lteq(arg_value = oobag_eval_every,
-                 arg_name = 'oobag_eval_every',
-                 bound = n_tree)
-
-  check_arg_length(arg_value = oobag_eval_every,
-                   arg_name = 'oobag_eval_every',
-                   expected_length = 1)
-
- }
-
- if(!is.null(attach_data)){
-
-  check_arg_type(arg_value = attach_data,
-                 arg_name = 'attach_data',
-                 expected_type = 'logical')
-
-  check_arg_length(arg_value = attach_data,
-                   arg_name = 'attach_data',
-                   expected_length = 1)
-
- }
-
-}
 
 
 

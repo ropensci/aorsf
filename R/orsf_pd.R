@@ -3,6 +3,8 @@
 
 #' ORSF partial dependence
 #'
+#' @srrstats {G1.4} *documented with Roxygen*
+#'
 #' @inheritParams predict.aorsf
 #'
 #' @param object (_aorsf_) An accelerated oblique random survival forest model.
@@ -43,7 +45,7 @@
 #'  percentile in the object's training data. If `FALSE`, these checks are
 #'  skipped.
 #'
-#' @return a `data.frame` containing summarized partial dependence
+#' @return a `data.table` containing summarized partial dependence
 #'   values if using `orsf_pd_summery` or individual conditional
 #'   expectation (ICE) partial dependence if using `orsf_pd_ice`.
 #'
@@ -137,79 +139,21 @@ orsf_pd_ice <- function(object,
 
 }
 
-check_pd_inputs <- function(object,
-                            expand_grid = NULL,
-                            prob_values = NULL,
-                            prob_labels = NULL,
-                            oobag = NULL,
-                            risk = NULL){
 
- check_arg_is(arg_value = object,
-              arg_name = 'object',
-              expected_class = 'aorsf')
-
- if(!is.null(expand_grid)){
-
-  check_arg_type(arg_value = expand_grid,
-                 arg_name = 'expand_grid',
-                 expected_type = 'logical')
-
-  check_arg_length(arg_value = expand_grid,
-                   arg_name = 'expand_grid',
-                   expected_length = 1)
-
- }
-
- if(!is.null(prob_values)){
-
-  check_arg_type(arg_value = prob_values,
-                 arg_name = 'prob_values',
-                 expected_type = 'numeric')
-
-  check_arg_gteq(arg_value = prob_values,
-                 arg_name = 'prob_values',
-                 bound = 0)
-
-  check_arg_lteq(arg_value = prob_values,
-                 arg_name = 'prob_values',
-                 bound = 1)
-
- }
-
- if(!is.null(prob_labels)){
-
-  check_arg_type(arg_value = prob_labels,
-                 arg_name = 'prob_labels',
-                 expected_type = 'character')
-
- }
-
- if(!is.null(oobag)){
-
-  check_arg_type(arg_value = oobag,
-                 arg_name = 'oobag',
-                 expected_type = 'logical')
-
-  check_arg_length(arg_value = oobag,
-                   arg_name = 'oobag',
-                   expected_length = 1)
-
- }
-
- if(!is.null(risk)){
-
-  check_arg_type(arg_value = risk,
-                 arg_name = 'risk',
-                 expected_type = 'logical')
-
-  check_arg_length(arg_value = risk,
-                   arg_name = 'risk',
-                   expected_length = 1)
-
- }
-
-}
-
+#' delegation function of orsf_pd family
+#'
+#' this function takes inputs from the main API functions and
+#'   determines which of the lower level functions to call.
+#'
+#' @inheritParams orsf_pd_summary
+#' @param type_output 'ice' or 'smry'.
+#'   this in combination with oobag determines which cpp routine to use.
+#' @param type_input if 'grid', then all combos of pd_data are considered.
+#'   if 'loop', then each entry of pd_data is considered separately.
+#'
+#' @return output from one of the pd working functions
+#'
+#' @noRd
 
 orsf_pd_ <- function(object,
                      pd_data,
@@ -332,7 +276,9 @@ orsf_pd_ <- function(object,
          vals_above_list,
          "or below",
          vals_below_list,
-         "90th or 10th percentiles in training data",
+         "90th or 10th percentiles in training data.",
+         " Change pd_spec or set boundary_checks = FALSE",
+         " to prevent this error",
          call. = FALSE)
 
   }
@@ -341,7 +287,7 @@ orsf_pd_ <- function(object,
 
 
  x_new <- as.matrix(
-  one_hot(x_data = pd_data,
+  ref_code(x_data = pd_data,
           fi = get_fctr_info(object),
           names_x_data = get_names_x(object))
  )
@@ -373,6 +319,21 @@ orsf_pd_ <- function(object,
 
 }
 
+
+#' grid working function in orsf_pd family
+#'
+#' This function expands pd_spec into a grid with all combos of inputs,
+#'   and computes partial dependence for each one.
+#'
+#' @inheritParams orsf_pd_
+#' @param x_new the x-matrix used to compute partial dependence
+#' @param pd_fun_predict which cpp function to use.
+#'
+#' @return a `data.table` containing summarized partial dependence
+#'   values if using `orsf_pd_summery` or individual conditional
+#'   expectation (ICE) partial dependence if using `orsf_pd_ice`.
+#'
+#' @noRd
 
 pd_grid <- function(object,
                     x_new,
@@ -408,7 +369,7 @@ pd_grid <- function(object,
                       fi_ref    = fi_ref,
                       label_new = "pd_spec")
 
- pd_spec_new <- one_hot(x_data = pd_spec,
+ pd_spec_new <- ref_code(x_data = pd_spec,
                         fi = get_fctr_info(object),
                         names_x_data = names(pd_spec))
 
@@ -446,6 +407,20 @@ pd_grid <- function(object,
 
 }
 
+#' loop working function in orsf_pd family
+#'
+#' This function loops through the items in pd_spec one by one,
+#'   computing partial dependence for each one separately.
+#'
+#' @inheritParams orsf_pd_
+#' @param x_new the x-matrix used to compute partial dependence
+#' @param pd_fun_predict which cpp function to use.
+#'
+#' @return a `data.table` containing summarized partial dependence
+#'   values if using `orsf_pd_summery` or individual conditional
+#'   expectation (ICE) partial dependence if using `orsf_pd_ice`.
+#'
+#' @noRd
 
 pd_loop <- function(object,
                     x_new,
@@ -475,7 +450,7 @@ pd_loop <- function(object,
 
    pd_bind$level <- as.character(pd_spec[[i]])
 
-   pd_new <- one_hot(pd_new,
+   pd_new <- ref_code(pd_new,
                      fi = fi,
                      names_x_data = pd_name)
   } else {

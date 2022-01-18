@@ -85,62 +85,18 @@ forest using its training data.}
 an accelerated oblique RSF object (\code{aorsf})
 }
 \description{
-The oblique random survival forest (RSF) is an extension of the RSF
-algorithm developed by Ishwaran et al and maintained in the
-\code{RandomForestSRC} package. The only difference between oblique
-RSF and Ishwaran's RSF is that oblique RSFs use linear combinations
-of input variables instead of using the input variable as-is when
-growing new nodes in survival decision trees. For more details on
-the oblique RSF, see Jaeger et al, 2019.
+Oblique Random Survival Forest (ORSF)
 }
 \details{
 This function is based on and highly similar to the \code{ORSF} function
 in the \code{obliqueRSF} R package. The primary difference is that this
-function runs about 200 times faster because it uses a simplified
+function runs about 500 times faster because it uses a simplified
 Newton Raphson scoring algorithm to identify linear combinations of
 inputs rather than performing penalized regression using routines in
 \code{glmnet}.The modified Newton Raphson scoring algorithm that this
 function applies is an adaptation of the C++ routine developed by
 Terry M. Therneau that fits Cox proportional hazards models
 (see \code{\link[survival:coxph]{survival::coxph()}}).
-
-\strong{What is an oblique decision tree?}
-
-Decision trees are developed by splitting a set of training data into two
-new subsets, with the goal of having more similarity within the new subsets
-than between them. This splitting process is repeated on the resulting
-subsets of data until a stopping criterion is met. When the new subsets of
-data are formed based on a single predictor, the decision tree is said to
-be axis-based because the splits of the data appear perpendicular to the
-axis of the predictor. When linear combinations of variables are used
-instead of a single variable, the tree is oblique because the splits of
-the data are neither parallel nor at a right angle to the axis
-
-\emph{Figure} : Decision trees for classification with axis-based splitting
-(left) and oblique splitting (right). Cases are orange squares; controls
-are purple circles. Both trees partition the predictor space defined by
-variables X1 and X2, but the oblique splits do a better job of separating
-the two classes.
-
-\if{html}{\figure{tree_axis_v_oblique.png}{options: width=95\%}}
-
-\strong{Some comments on inputs}
-
-\emph{formula}: The response in \code{formula} can be a survival
-object as returned by the \link[survival:Surv]{survival::Surv} function,
-but can also just be the time and status variables.
-For example, \code{Surv(time, status) ~ .} works just like
-\code{time + status ~ .}. The only thing that can break this
-input is putting the variables in the wrong order, i.e.,
-writing \code{status + time ~ .} will make \code{orsf} assume your
-\code{status} variable is actually the \code{time} variable.
-
-\emph{mtry}: The \code{mtry} parameter may be decreased while fitting an oblique
-RSF. Currently oblique RSF's are fitted by a Newton Raphson scoring
-algorithm that becomes unstable when the number of covariates is
-greater than or equal to the number of events. During the ORSF
-algorithm, mtry may be reduced temporarily to ensure there are at
-least 2 events per predictor variable.
 }
 \examples{
 
@@ -150,8 +106,15 @@ print(fit)
 
 }
 \references{
+Breiman L. Random forests. \emph{Machine learning}. 2001 Oct;45(1):5-32.
+DOI: 10.1023/A:1010933404324
+
+Ishwaran H, Kogalur UB, Blackstone EH, Lauer MS. Random survival forests.
+\emph{Annals of applied statistics}. 2008 Sep;2(3):841-60.
+DOI: 10.1214/08-AOAS169
+
 Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI,
 Mcclure LA, Howard G, Simon N. Oblique random survival forests.
-\emph{The Annals of Applied Statistics}. 2019 Sep;13(3):1847-83.
+\emph{Annals of applied statistics}. 2019 Sep;13(3):1847-83.
 DOI: 10.1214/19-AOAS1261
 }

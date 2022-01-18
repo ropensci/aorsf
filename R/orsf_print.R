@@ -4,6 +4,8 @@
 
 #' ORSF presentation
 #'
+#' @srrstats {G1.4} *documented with Roxygen*
+#'
 #' @param x an object of class 'aorsf'
 #' @param ... not used
 #'

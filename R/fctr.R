@@ -1,5 +1,17 @@
 
 
+
+#' Factor tests
+#'
+#' @param data data frame to check factors in
+#' @param .names names of variables in `data` to consider.
+#'
+#' @return check functions 'return' errors and the intent is
+#'   to return nothing if nothing is wrong,
+#'   so hopefully nothing is returned.
+#'
+#' @noRd
+#'
 fctr_check <- function(data, .names){
 
  chrs <- c()
@@ -24,6 +36,22 @@ fctr_check <- function(data, .names){
 
 }
 
+#' Factor tests
+#'
+#' There is a good chance that someone using Surv(time, status) ~ .
+#'   will forget that inside of the '.' sits an ID variable.
+#'   Catching that and sending an informative error will likely
+#'   be appreciated.
+#'
+#' @param data data frame to check factors in
+#' @param .names names of variables in `data` to consider.
+#'
+#' @return check functions 'return' errors and the intent is
+#'   to return nothing if nothing is wrong,
+#'   so hopefully nothing is returned.
+#'
+#' @noRd
+#'
 fctr_id_check <- function(data, .names){
 
  for(.name in .names) {
@@ -44,6 +72,19 @@ fctr_id_check <- function(data, .names){
 
 }
 
+
+#' Factor information
+#'
+#' @param data data frame to check factors in
+#' @param .names names of variables in `data` to consider.
+#' @param fctr_sep how to separate factor variable names from levels.
+#'
+#' @return a list describing factor variables in `data`.
+#'
+#' @noRd
+#'
+#' @example
+#' fctr_info(pbc_orsf, .names = c('sex','stage'))
 
 fctr_info <- function(data, .names, fctr_sep = '_'){
 

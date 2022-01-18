@@ -18,7 +18,8 @@ individual factor levels will be returned.}
 the \code{object} with variable importance attached.
 }
 \description{
-ORSF variable importance
+Determine the importance of individual variables using 'negation
+importance.' See 'Details' for definition of negation importance.
 }
 \details{
 The method used to compute variable importance with ORSF is called

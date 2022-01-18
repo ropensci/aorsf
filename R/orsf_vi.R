@@ -2,6 +2,9 @@
 
 #' ORSF variable importance
 #'
+#' Determine the importance of individual variables using 'negation
+#'   importance.' See 'Details' for definition of negation importance.
+#'
 #' @param object an object of class 'aorsf'.
 #'
 #' @param group_factors (_logical_) if `TRUE`, the importance of factor
@@ -50,7 +53,7 @@ orsf_vi <- function(object, group_factors = TRUE){
  sorted <- order(y[, 1], -y[, 2])
 
  x <- as.matrix(
-  one_hot(x_data = object$data_train,
+  ref_code(x_data = object$data_train,
           fi = get_fctr_info(object),
           names_x_data = get_names_x(object))
  )

@@ -1,6 +1,8 @@
 
 #' ORSF summary of univariate information
 #'
+#' @srrstats {G1.4} *documented with Roxygen*
+#'
 #' ORSF's linear combinations of inputs can be used to provide helpful data
 #'   about individual variables. Summarizing the univariate information from
 #'   an ORSF provides data on the importance of individual variables and the
@@ -48,7 +50,7 @@ orsf_summarize_uni <- function(object,
 
   check_arg_lteq(arg_value = n_variables,
                  arg_name = 'n_variables',
-                 bound = length(get_names_x(object, one_hot_names = FALSE)),
+                 bound = length(get_names_x(object, ref_code_names = FALSE)),
                  append_to_msg = "(total number of predictors)")
 
 
@@ -161,6 +163,8 @@ orsf_summarize_uni <- function(object,
 }
 
 #' Print ORSF summary
+#'
+#' @srrstats {G1.4} *documented with Roxygen*
 #'
 #' @param x an object of class 'aorsf_summary'
 #'

@@ -24,10 +24,7 @@ predicted survival (i.e., 1-risk) is returned.}
 an object of class 'aorsf_summary'
 }
 \description{
-ORSF's linear combinations of inputs can be used to provide helpful data
-about individual variables. Summarizing the univariate information from
-an ORSF provides data on the importance of individual variables and the
-expected predicted risk at designated values of the variables.
+ORSF summary of univariate information
 }
 \examples{
 

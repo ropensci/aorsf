@@ -54,3 +54,8 @@ orsf(data_train = pbc_orsf,
      control = orsf_control_cph())
 
 }
+\references{
+Therneau T.M., Grambsch P.M. (2000) The Cox Model. In: Modeling Survival
+Data: Extending the Cox Model. Statistics for Biology and Health.
+Springer, New York, NY. DOI: 10.1007/978-1-4757-3294-8_3
+}

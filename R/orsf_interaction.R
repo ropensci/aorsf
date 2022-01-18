@@ -2,6 +2,8 @@
 
 #' ORSF interactions
 #'
+#' @srrstats {G1.4} *documented with Roxygen*
+#'
 #' @inheritParams predict.aorsf
 #'
 #' @param min_pairwise_obs (_integer_) minimum number of observations
@@ -78,7 +80,7 @@ orsf_interaction <- function(object,
 
  dt_betas <- dt_means <- list()
 
- xnames <- get_names_x(object, one_hot_names = TRUE)
+ xnames <- get_names_x(object, ref_code_names = TRUE)
 
  for(t in seq_along(object$forest)){
 

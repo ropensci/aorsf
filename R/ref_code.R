@@ -1,5 +1,26 @@
 
-one_hot <- function (x_data, fi, names_x_data){
+
+#' Reference coding for factors
+#'
+#' Use reference coding of factors to make sure there is no possibility of
+#'   collinearity while I am running coxph routines inside of orsf().
+#'
+#' @param x_data data frame to convert to one-hot encoding
+#' @param fi factor information
+#' @param names_x_data names of the variables to consider
+#'
+#' @return the same data with factors formatted in one-hot encoding.
+#'
+#' @noRd
+#'
+#' @examples
+#' dat_refcoded <- ref_code(x_data = pbc_orsf,
+#'                   fi = fctr_info(pbc_orsf, .names = 'sex'),
+#'                   names_x_data = c('age', 'sex'))
+#'
+#' head(dat_refcoded)
+#'
+ref_code <- function (x_data, fi, names_x_data){
 
  # Will use these original names to help re-order the output
 
@@ -80,6 +101,24 @@ one_hot <- function (x_data, fi, names_x_data){
 
 
 
+#' insert some value(s) into a vector
+#'
+#'
+#' @param vec the vector to be edited
+#' @param where where to insert values
+#' @param what what is to be inserted
+#'
+#' @return a vector with new values inserted
+#'
+#' @details The value that was originally in the vector at
+#'   `where` will be replaced (see example).
+#'
+#' @noRd
+#'
+#' @examples
+#'
+#' insert_vals(vec = 1:4, where = 4, what = c(5L))
+#'
 insert_vals <- function(vec, where, what){
 
  stopifnot(

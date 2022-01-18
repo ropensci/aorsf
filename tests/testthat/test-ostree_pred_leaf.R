@@ -15,7 +15,7 @@ formula_terms <- stats::terms(formula, data=pbc_orsf)
 names_x_data <- attr(formula_terms, 'term.labels')
 
 fi <- fctr_info(pbc_orsf, names_x_data)
-x  <- as.matrix(one_hot(pbc_orsf, fi, names_x_data))
+x  <- as.matrix(ref_code(pbc_orsf, fi, names_x_data))
 
 for( tr in seq(10) ){
 

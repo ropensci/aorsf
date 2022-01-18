@@ -2,6 +2,15 @@
 
 #' Cox proportional hazards control
 #'
+#' @srrstats {G1.4} *documented with Roxygen*
+#'
+#' @srrstats {G1.3} clarify Newton-Raphson scoring and Cox PH.
+#'
+#' Use Newton-Raphson scoring to identify linear combinations of input
+#'   variables while fitting an [orsf] model. For more details on
+#'   of Newton-Raphson scoring and the Cox proportional hazards
+#'   model, see Therneau and Grambsch (2000).
+#'
 #' @param method (_character_) a character string specifying the method
 #'   for tie handling. If there are no tied death times all the methods are
 #'   equivalent. Valid options are 'breslow' and 'efron'.
@@ -34,6 +43,12 @@
 #'
 #' @export
 #'
+#' @references
+#'
+#' Therneau T.M., Grambsch P.M. (2000) The Cox Model. In: Modeling Survival
+#'   Data: Extending the Cox Model. Statistics for Biology and Health.
+#'   Springer, New York, NY. DOI: 10.1007/978-1-4757-3294-8_3
+#'
 #' @examples
 #'
 #' orsf(data_train = pbc_orsf,
@@ -61,80 +76,10 @@ orsf_control_cph <- function(method = 'breslow',
 
 }
 
-check_control_cph <- function(method, eps, iter_max, pval_max, do_scale){
-
- check_arg_type(arg_value = method,
-                arg_name = 'method',
-                expected_type = 'character')
-
- check_arg_is_valid(arg_value = method,
-                    arg_name = 'method',
-                    valid_options = c("breslow", "efron"))
-
-
- check_arg_type(arg_value = eps,
-                arg_name = 'eps',
-                expected_type = 'numeric')
-
- check_arg_gt(arg_value = eps,
-              arg_name = 'eps',
-              bound = 0)
-
- check_arg_length(arg_value = eps,
-                  arg_name = 'eps',
-                  expected_length = 1)
-
-
- check_arg_type(arg_value = iter_max,
-                arg_name = 'iter_max',
-                expected_type = 'numeric')
-
- check_arg_is_integer(arg_value = iter_max,
-                      arg_name = 'iter_max')
-
- check_arg_gteq(arg_value = iter_max,
-                arg_name = 'iter_max',
-                bound = 1)
-
- check_arg_length(arg_value = iter_max,
-                  arg_name = 'iter_max',
-                  expected_length = 1)
-
-
- check_arg_type(arg_value = pval_max,
-                arg_name = 'pval_max',
-                expected_type = 'numeric')
-
- check_arg_gt(arg_value = pval_max,
-              arg_name = 'pval_max',
-              bound = 0)
-
- check_arg_lteq(arg_value = pval_max,
-                arg_name = 'pval_max',
-                bound = 1)
-
- check_arg_length(arg_value = pval_max,
-                  arg_name = 'pval_max',
-                  expected_length = 1)
-
-
- check_arg_type(arg_value = do_scale,
-                arg_name = 'do_scale',
-                expected_type = 'logical')
-
- check_arg_length(arg_value = do_scale,
-                  arg_name = 'do_scale',
-                  expected_length = 1)
-
- if(!do_scale && iter_max > 1){
-  stop("do_scale must be TRUE when iter_max > 1",
-       call. = FALSE)
- }
-
-}
-
-
 #' Elastic net control
+#'
+#' Use regularized Cox proportional hazard models to identify linear
+#'   combinations of input variables while fitting an [orsf] model.
 #'
 #' @param alpha The elastic net mixing parameter. A value of 1 gives the
 #'  lasso penalty, and a value of 0 gives the ridge penalty. If multiple
@@ -150,6 +95,11 @@ check_control_cph <- function(method, eps, iter_max, pval_max, do_scale){
 #'  an input for the `control` argument of [orsf].
 #'
 #' @export
+#'
+#' @references
+#'
+#'  Simon N, Friedman J, Hastie T, Tibshirani R. Regularization paths for Cox’s proportional hazards model via coordinate descent. *Journal of statistical software*. 2011 Mar;39(5):1. DOI: 10.18637/jss.v039.i05
+#'
 #'
 #' @examples
 #'
@@ -176,33 +126,5 @@ orsf_control_net <- function(alpha = 1/2,
 
 }
 
-check_control_net <- function(alpha, df_target){
 
- check_arg_type(arg_value = alpha,
-                arg_name = 'alpha',
-                expected_type = 'numeric')
 
- check_arg_gteq(arg_value = alpha,
-                arg_name = 'alpha',
-                bound = 0)
-
- check_arg_lteq(arg_value = alpha,
-                arg_name = 'alpha',
-                bound = 1)
-
- check_arg_length(arg_value = alpha,
-                  arg_name = 'alpha',
-                  expected_length = 1)
-
- if(!is.null(df_target)){
-
-  check_arg_type(arg_value = df_target,
-                 arg_name = 'df_target',
-                 expected_type = 'numeric')
-
-  check_arg_is_integer(arg_value = df_target,
-                       arg_name = 'df_target')
-
- }
-
-}
