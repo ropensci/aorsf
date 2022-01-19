@@ -89,56 +89,63 @@
 of a <code>~</code> operator, and the terms on the right. See details.</p></dd>
 <dt>control</dt>
 <dd><p>An <code>aorsf_control</code> object, created with <a href="orsf_control_net.html">orsf_control_net</a>
-or <a href="orsf_control_cph.html">orsf_control_cph</a>. Default is <code><a href="orsf_control_cph.html">orsf_control_cph()</a></code>.</p></dd>
+or <a href="orsf_control_cph.html">orsf_control_cph</a>. Default is <code>control = orsf_control_cph()</code>.</p></dd>
 <dt>n_tree</dt>
-<dd><p>(<em>integer</em>) the number of trees to grow</p></dd>
+<dd><p>(<em>integer</em>) the number of trees to grow.
+Default is <code>n_tree = 500.</code></p></dd>
 <dt>n_split</dt>
 <dd><p>(<em>integer</em>) the number of cut-points assessed when splitting
-a node in decision trees.</p></dd>
+a node in decision trees. Default is <code>n_split = 5</code>.</p></dd>
 <dt>n_retry</dt>
 <dd><p>(<em>integer</em>) when a node can be split, but the current
 linear combination of inputs is unable to provide a valid split, <code>orsf</code>
 will try again with a new linear combination based on a different set
 of randomly selected predictors, up to <code>n_retry</code> times. When
-<code>n_retry = 0</code> (the default) the retry mechanic is not applied.</p></dd>
+<code>n_retry = 0</code> the retry mechanic is not applied.
+Default is <code>n_retry = 0</code>.</p></dd>
 <dt>mtry</dt>
 <dd><p>(<em>integer</em>) Number of variables randomly selected as candidates
 for splitting a node. The default is the smallest integer greater than
-the square root of the number of features. See details.</p></dd>
+the square root of the number of features, i.e.,
+<code>mtry = ceiling(sqrt(number of predictors))</code></p></dd>
 <dt>leaf_min_events</dt>
 <dd><p>(<em>integer</em>) minimum number of events in a
-leaf node.</p></dd>
+leaf node. Default is <code>leaf_min_events = 1</code></p></dd>
 <dt>leaf_min_obs</dt>
 <dd><p>(<em>integer</em>) minimum number of observations in a
-leaf node.</p></dd>
+leaf node. Default is <code>leaf_min_obs = 5</code></p></dd>
 <dt>split_min_events</dt>
 <dd><p>(<em>integer</em>) minimum number of events required
-to split a node.</p></dd>
+to split a node. Default is <code>split_min_events = 5</code></p></dd>
 <dt>split_min_obs</dt>
 <dd><p>(<em>integer</em>) minimum number of observations required
-to split a node.</p></dd>
+to split a node. Default is <code>split_min_obs = 10</code>.</p></dd>
 <dt>oobag_pred</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code> out-of-bag predictions are returned
-in the <code>aorsf</code> object.</p></dd>
+in the <code>aorsf</code> object. Default is <code>TRUE</code>.</p></dd>
 <dt>oobag_time</dt>
 <dd><p>(<em>numeric</em>) A numeric value indicating what time
-should be used for out-of-bag predictions.</p></dd>
+should be used for out-of-bag predictions. Default is the median
+of the observed times, i.e., <code>oobag_time = median(time)</code>.</p></dd>
 <dt>oobag_eval_every</dt>
 <dd><p>(<em>integer</em>) The out-of-bag performance of the
 ensemble will be checked every <code>oobag_eval_every</code> trees. So, if
 <code>oobag_eval_every = 10</code>, then out-of-bag performance is checked
-after growing the 10th tree, the 20th tree, and so on.</p></dd>
+after growing the 10th tree, the 20th tree, and so on. Default
+is <code>oobag_eval_every = n_tree</code>, so that out-of-bag performance is
+assessed once after growing all the trees.</p></dd>
 <dt>importance</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, variable importance will be
 computed using <em>negation</em> importance. With negation importance,
 all coefficients for a given variable are multiplied by -1 and
 then the out-of-bag error for the forest is re-computed. The greater
-the degradation of the forest's error, the more important the variable.</p></dd>
+the degradation of the forest's error, the more important the variable.
+Default is <code>FALSE</code>.</p></dd>
 <dt>attach_data</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, a copy of the training
 data will be attached to the output. This is helpful if you
 plan on using functions like <a href="orsf_pd_summary.html">orsf_pd_summary</a> to interpret the fitted
-forest using its training data.</p></dd>
+forest using its training data. Default is <code>TRUE</code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
