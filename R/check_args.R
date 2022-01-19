@@ -104,7 +104,12 @@ check_arg_uni <- function(arg_value, arg_name, expected_uni){
 
 }
 
+
 #' strict checks for inputs
+#'
+#' @srrstats {G2.0} The function check_arg_length is used to vet inputs.
+#' @srrstats {G2.0a} Do error messages count as secondary documentation?
+#'   I think they do.
 #'
 #' @param arg_value the object that is to be checked
 #' @param arg_name the name of the object (used for possible error message)

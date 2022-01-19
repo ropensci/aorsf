@@ -8,6 +8,10 @@
 #'
 #' @srrstats {G1.3} *linear combinations of inputs defined.*
 #'
+#' @srrstats {G1.5} *orsf() will be used in publications to benchmark performance of the aorsf package in computation speed and prediction accuracy*
+#'
+#' @srrstatsTODO {G1.6} *orsf() should be used to compare performance claims with other packages*
+#'
 #' The oblique random survival forest (ORSF) is an extension of the RSF
 #'   algorithm developed by Ishwaran et al and maintained in the
 #'   `RandomForestSRC` package. The difference between ORSF and RSF is
@@ -27,56 +31,63 @@
 #'   of a `~` operator, and the terms on the right. See details.
 #'
 #' @param control An `aorsf_control` object, created with [orsf_control_net]
-#'  or [orsf_control_cph]. Default is `orsf_control_cph()`.
+#'  or [orsf_control_cph]. Default is `control = orsf_control_cph()`.
 #'
-#' @param n_tree (_integer_) the number of trees to grow
+#' @param n_tree (_integer_) the number of trees to grow.
+#' Default is `n_tree = 500.`
 #'
 #' @param n_split (_integer_) the number of cut-points assessed when splitting
-#'  a node in decision trees.
+#'  a node in decision trees. Default is `n_split = 5`.
 #'
 #' @param n_retry (_integer_) when a node can be split, but the current
 #'  linear combination of inputs is unable to provide a valid split, `orsf`
 #'  will try again with a new linear combination based on a different set
 #'  of randomly selected predictors, up to `n_retry` times. When
-#'  `n_retry = 0` (the default) the retry mechanic is not applied.
+#'  `n_retry = 0` the retry mechanic is not applied.
+#'  Default is `n_retry = 0`.
 #'
 #' @param mtry (_integer_) Number of variables randomly selected as candidates
 #'   for splitting a node. The default is the smallest integer greater than
-#'   the square root of the number of features. See details.
+#'   the square root of the number of features, i.e.,
+#'   `mtry = ceiling(sqrt(number of predictors))`
 #'
 #' @param leaf_min_events (_integer_) minimum number of events in a
-#'   leaf node.
+#'   leaf node. Default is `leaf_min_events = 1`
 #'
 #' @param leaf_min_obs (_integer_) minimum number of observations in a
-#'   leaf node.
+#'   leaf node. Default is `leaf_min_obs = 5`
 #'
 #' @param split_min_events (_integer_) minimum number of events required
-#'   to split a node.
+#'   to split a node. Default is `split_min_events = 5`
 #'
 #' @param split_min_obs (_integer_) minimum number of observations required
-#'   to split a node.
+#'   to split a node. Default is `split_min_obs = 10`.
 #'
 #' @param oobag_pred (_logical_) if `TRUE` out-of-bag predictions are returned
-#'   in the `aorsf` object.
+#'   in the `aorsf` object. Default is `TRUE`.
 #'
 #' @param oobag_time (_numeric_) A numeric value indicating what time
-#'   should be used for out-of-bag predictions.
+#'   should be used for out-of-bag predictions. Default is the median
+#'   of the observed times, i.e., `oobag_time = median(time)`.
 #'
 #' @param oobag_eval_every (_integer_) The out-of-bag performance of the
 #'   ensemble will be checked every `oobag_eval_every` trees. So, if
 #'   `oobag_eval_every = 10`, then out-of-bag performance is checked
-#'   after growing the 10th tree, the 20th tree, and so on.
+#'   after growing the 10th tree, the 20th tree, and so on. Default
+#'   is `oobag_eval_every = n_tree`, so that out-of-bag performance is
+#'   assessed once after growing all the trees.
 #'
 #' @param importance (_logical_) if `TRUE`, variable importance will be
 #'   computed using _negation_ importance. With negation importance,
 #'   all coefficients for a given variable are multiplied by -1 and
 #'   then the out-of-bag error for the forest is re-computed. The greater
 #'   the degradation of the forest's error, the more important the variable.
+#'   Default is `FALSE`.
 #'
 #' @param attach_data (_logical_) if `TRUE`, a copy of the training
 #'   data will be attached to the output. This is helpful if you
 #'   plan on using functions like [orsf_pd_summary] to interpret the fitted
-#'   forest using its training data.
+#'   forest using its training data. Default is `TRUE`.
 #'
 #' @return an accelerated oblique RSF object (`aorsf`)
 #'
@@ -139,6 +150,10 @@
 #'   algorithm may become unstable when the number of covariates is
 #'   greater than or equal to the number of events. This reduction does not
 #'   occur when using [orsf_control_net].
+#'
+#' @srrstats {G2.0a} *secondary documentation of arg lengths*
+#' With the exception of `data_train` and `formula`, all inputs of `orsf()`
+#'   should be an integer, double, or logical value of length 1.
 #'
 #'
 #' @srrstats {G1.0} *Jaeger et al describes the ORSF algorithm that aorsf is based on. Note: aorsf uses a different approach to create linear combinations of inputs for speed reasons, but orsf_control_net() allows users to make ensembles that are very similar to obliqueRSF::ORSF().*

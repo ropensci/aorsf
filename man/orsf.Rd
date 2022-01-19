@@ -30,56 +30,63 @@ orsf(
 of a \code{~} operator, and the terms on the right. See details.}
 
 \item{control}{An \code{aorsf_control} object, created with \link{orsf_control_net}
-or \link{orsf_control_cph}. Default is \code{orsf_control_cph()}.}
+or \link{orsf_control_cph}. Default is \code{control = orsf_control_cph()}.}
 
-\item{n_tree}{(\emph{integer}) the number of trees to grow}
+\item{n_tree}{(\emph{integer}) the number of trees to grow.
+Default is \code{n_tree = 500.}}
 
 \item{n_split}{(\emph{integer}) the number of cut-points assessed when splitting
-a node in decision trees.}
+a node in decision trees. Default is \code{n_split = 5}.}
 
 \item{n_retry}{(\emph{integer}) when a node can be split, but the current
 linear combination of inputs is unable to provide a valid split, \code{orsf}
 will try again with a new linear combination based on a different set
 of randomly selected predictors, up to \code{n_retry} times. When
-\code{n_retry = 0} (the default) the retry mechanic is not applied.}
+\code{n_retry = 0} the retry mechanic is not applied.
+Default is \code{n_retry = 0}.}
 
 \item{mtry}{(\emph{integer}) Number of variables randomly selected as candidates
 for splitting a node. The default is the smallest integer greater than
-the square root of the number of features. See details.}
+the square root of the number of features, i.e.,
+\verb{mtry = ceiling(sqrt(number of predictors))}}
 
 \item{leaf_min_events}{(\emph{integer}) minimum number of events in a
-leaf node.}
+leaf node. Default is \code{leaf_min_events = 1}}
 
 \item{leaf_min_obs}{(\emph{integer}) minimum number of observations in a
-leaf node.}
+leaf node. Default is \code{leaf_min_obs = 5}}
 
 \item{split_min_events}{(\emph{integer}) minimum number of events required
-to split a node.}
+to split a node. Default is \code{split_min_events = 5}}
 
 \item{split_min_obs}{(\emph{integer}) minimum number of observations required
-to split a node.}
+to split a node. Default is \code{split_min_obs = 10}.}
 
 \item{oobag_pred}{(\emph{logical}) if \code{TRUE} out-of-bag predictions are returned
-in the \code{aorsf} object.}
+in the \code{aorsf} object. Default is \code{TRUE}.}
 
 \item{oobag_time}{(\emph{numeric}) A numeric value indicating what time
-should be used for out-of-bag predictions.}
+should be used for out-of-bag predictions. Default is the median
+of the observed times, i.e., \code{oobag_time = median(time)}.}
 
 \item{oobag_eval_every}{(\emph{integer}) The out-of-bag performance of the
 ensemble will be checked every \code{oobag_eval_every} trees. So, if
 \code{oobag_eval_every = 10}, then out-of-bag performance is checked
-after growing the 10th tree, the 20th tree, and so on.}
+after growing the 10th tree, the 20th tree, and so on. Default
+is \code{oobag_eval_every = n_tree}, so that out-of-bag performance is
+assessed once after growing all the trees.}
 
 \item{importance}{(\emph{logical}) if \code{TRUE}, variable importance will be
 computed using \emph{negation} importance. With negation importance,
 all coefficients for a given variable are multiplied by -1 and
 then the out-of-bag error for the forest is re-computed. The greater
-the degradation of the forest's error, the more important the variable.}
+the degradation of the forest's error, the more important the variable.
+Default is \code{FALSE}.}
 
 \item{attach_data}{(\emph{logical}) if \code{TRUE}, a copy of the training
 data will be attached to the output. This is helpful if you
 plan on using functions like \link{orsf_pd_summary} to interpret the fitted
-forest using its training data.}
+forest using its training data. Default is \code{TRUE}.}
 }
 \value{
 an accelerated oblique RSF object (\code{aorsf})

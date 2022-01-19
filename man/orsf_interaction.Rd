@@ -12,7 +12,10 @@ orsf_interaction(object, min_pairwise_obs = NULL)
 \item{min_pairwise_obs}{(\emph{integer}) minimum number of observations
 where both variables were included in a linear combination together.
 The default is the number of trees in \code{object} divided by the mean
-number of leaves in the trees.}
+number of leaves in the trees. Default is the number of trees
+divided by the average number of leaves per tree, rounded to the
+nearest integer, i.e.,
+\verb{min_pairwise_obs = round(number of trees / mean(number of leaves))}.}
 }
 \value{
 a \code{data.frame} with pairwise interaction scores for each
@@ -21,33 +24,55 @@ pair of predictor variables in \code{object}.
 \description{
 ORSF interactions
 }
+\details{
+\code{min_pairwise_obs} should be a single value and should be large
+enough to prevent consideration of variable pairs that are so infrequently
+used together that it would not make sense to consider them interacting.
+For example, if two variables are only used together in one split of
+an entire random forest (i.e., number of pairwise observations = 1),
+it would not make sense to compute a correlation.
+}
 \examples{
 
-set.seed(32987)
+set.seed(329)
 
 fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 2500)
 
 intr <- orsf_interaction(fit)
 
-pd_spec <- list(ascites = c("0","1"),
-                bili = seq(0.6, 7.1, by = 0.25))
+# edema==1 and bili are strongest interacting pair
+print(intr)
 
-pd_data <- orsf_pd_summary(fit, pd_spec = pd_spec, times = 1000)
+# make a list containing the variable values you
+# want to compute partial dependence for
+pd_spec <- list(edema = c("0", "0.5", "1"),
+                bili = seq(0.6, 7.1, by = 0.5))
+
+# orsf_pd_summary automatically computes pd for all combinations
+# in the list (this can be turned off with expand_grid = FALSE)
+pd_data <- orsf_pd_summary(object = orsf_fit,
+                           pd_spec = pd_spec,
+                           expand_grid = TRUE)
 
 # aligning predictions at lowest value of bili
-min_asc_0 <- with(pd_data, mean[ascites == 0 & bili == 0.6])
-min_asc_1 <- with(pd_data, mean[ascites == 1 & bili == 0.6])
+min_ed_0 <- with(pd_data, mean[edema == "0"   & bili == 0.6])
+min_ed_1 <- with(pd_data, mean[edema == "0.5" & bili == 0.6])
+min_ed_2 <- with(pd_data, mean[edema == "1"   & bili == 0.6])
 
 pd_data_aligned <-
  within(pd_data, {
-  mean[ascites == 0] <- mean[ascites == 0] - min_asc_0
-  mean[ascites == 1] <- mean[ascites == 1] - min_asc_1
+  value <- mean
+  value[edema == "0" ] <- value[edema == "0" ] - min_ed_0
+  value[edema == "0.5"] <- value[edema == "0.5"] - min_ed_1
+  value[edema == "1" ] <- value[edema == "1" ] - min_ed_2
  })
 
-library(ggplot2)
+head(pd_data_aligned)
 
 ggplot(pd_data_aligned) +
- aes(x = bili, y = mean, col = factor(ascites)) +
+ aes(x = bili, y = value, col = edema) +
  geom_line() +
- theme_bw()
+ labs(y = 'Predictions centered at Bilirubin = 0.6',
+      x = 'Bilirubin',
+      title = 'Interaction between bilirubin and edema')
 }
