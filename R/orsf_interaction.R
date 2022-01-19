@@ -46,7 +46,7 @@
 #'
 #' # orsf_pd_summary automatically computes pd for all combinations
 #' # in the list (this can be turned off with expand_grid = FALSE)
-#' pd_data <- orsf_pd_summary(object = orsf_fit,
+#' pd_data <- orsf_pd_summary(object = fit,
 #'                            pd_spec = pd_spec,
 #'                            expand_grid = TRUE)
 #'
@@ -64,6 +64,8 @@
 #'  })
 #'
 #' head(pd_data_aligned)
+#'
+#' library(ggplot2)
 #'
 #' ggplot(pd_data_aligned) +
 #'  aes(x = bili, y = value, col = edema) +
