@@ -9,7 +9,7 @@ orsf_pd_summary(
   object,
   pd_data = NULL,
   pd_spec,
-  times = NULL,
+  pred_horizon = NULL,
   expand_grid = TRUE,
   prob_values = c(0.025, 0.5, 0.975),
   prob_labels = c("lwr", "medn", "upr"),
@@ -22,7 +22,7 @@ orsf_pd_ice(
   object,
   pd_data = NULL,
   pd_spec,
-  times = NULL,
+  pred_horizon = NULL,
   expand_grid = TRUE,
   oobag = TRUE,
   risk = TRUE,
@@ -45,9 +45,13 @@ corresponding values. If \code{pd_spec} is a \code{data.frame}, columns will
 indicate variable names, values will indicate variable values, and
 partial dependence will be computed using the inputs on each row.}
 
-\item{times}{(\emph{double}) a single time or a vector of times for oblique RSF
-predictions. All \code{times} values must not exceed the maximum follow-up
-time in the oblique RSF's training data. Also, \code{times} must be entered
+\item{pred_horizon}{(\emph{double}) a single time indicating the prediction horizon.
+Predicted risk or survival values will indicate the probability of
+having an event or surviving from baseline to the prediction horizon.
+When using \code{\link[=predict.aorsf]{predict.aorsf()}}, \code{pred_horizon} can be a vector of arbitrary length.
+When using \code{\link[=orsf_pd_summary]{orsf_pd_summary()}} or \code{\link[=orsf_pd_ice]{orsf_pd_ice()}}, \code{pred_horizon} must be
+length 1. All \code{pred_horizon} values must not exceed the maximum follow-up
+time in the oblique RSF's training data. Also, \code{pred_horizon} must be entered
 in ascending order.}
 
 \item{expand_grid}{(\emph{logical}) if \code{TRUE}, partial dependence will be
@@ -57,11 +61,13 @@ in \code{pd_spec}, separately.}
 
 \item{prob_values}{(\emph{numeric}) a vector of values between 0 and 1,
 indicating what quantiles will be used to summarize the partial
-dependence values at each set of inputs.}
+dependence values at each set of inputs. \code{prob_values} should
+have the same length as \code{prob_labels}.}
 
 \item{prob_labels}{(\emph{character}) a vector of labels with the same length
 as \code{prob_values}, with each label indicating what the corresponding
-value in \code{prob_values} should be labelled as in summarized outputs.}
+value in \code{prob_values} should be labelled as in summarized outputs.
+\code{prob_labels} should have the same length as \code{prob_values}.}
 
 \item{oobag}{(\emph{logical}) if \code{TRUE}, then partial dependence will be
 computed using the out of bag training data. You should set
@@ -88,11 +94,11 @@ ORSF partial dependence
 
 fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 
-orsf_pd_summary(fit, pd_spec = list(bili = c(1,2,3,4,5,6)), times = 1000)
+orsf_pd_summary(fit, pd_spec = list(bili = c(1,2,3,4,5,6)), pred_horizon = 1000)
 
 # more points for a plot
 pd_spec <- list(bili = seq(1, 6, length.out = 20))
-data_ice <- orsf_pd_ice(fit, pd_spec = pd_spec, times = 1000)
+data_ice <- orsf_pd_ice(fit, pd_spec = pd_spec, pred_horizon = 1000)
 
 head(data_ice)
 

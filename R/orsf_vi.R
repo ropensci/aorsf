@@ -62,7 +62,7 @@ orsf_vi <- function(object, group_factors = TRUE){
                     y = y[sorted, ],
                     cstat = cstat,
                     forest = object$forest,
-                    time_pred_ = object$time_pred)
+                    time_pred_ = object$pred_horizon)
 
  rownames(out) <- colnames(x)
 

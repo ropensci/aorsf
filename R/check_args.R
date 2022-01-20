@@ -1144,7 +1144,7 @@ fctr_check_levels <- function(ref,
 #'
 #' @noRd
 
-check_predict <- function(object, new_data, times, risk){
+check_predict <- function(object, new_data, pred_horizon, risk){
 
  if(!is.null(new_data)){
 
@@ -1154,14 +1154,14 @@ check_predict <- function(object, new_data, times, risk){
 
  }
 
- if(!is.null(times)){
+ if(!is.null(pred_horizon)){
 
-  check_arg_type(arg_value = times,
-                 arg_name = 'times',
+  check_arg_type(arg_value = pred_horizon,
+                 arg_name = 'pred_horizon',
                  expected_type = 'numeric')
 
-  check_arg_gt(arg_value = times,
-               arg_name = 'times',
+  check_arg_gt(arg_value = pred_horizon,
+               arg_name = 'pred_horizon',
                bound = 0)
 
  }
@@ -1178,9 +1178,9 @@ check_predict <- function(object, new_data, times, risk){
 
  }
 
- if(any(times > get_max_time(object))){
+ if(any(pred_horizon > get_max_time(object))){
 
-  stop("prediction times should ",
+  stop("prediction horizon should ",
        "be <= max follow-up time ",
        "observed in training data: ",
        get_max_time(object),
@@ -1189,9 +1189,9 @@ check_predict <- function(object, new_data, times, risk){
 
  }
 
- if(!all(order(times) == seq(length(times)))){
-  stop("times must be entered in ascending order, e.g.,",
-       "times = c(5, 10) instead of times = c(10, 5)",
+ if(!all(order(pred_horizon) == seq(length(pred_horizon)))){
+  stop("prediction horizons must be entered in ascending order, e.g.,",
+       "pred_horizon = c(5, 10) instead of pred_horizon = c(10, 5)",
        call. = FALSE)
  }
 

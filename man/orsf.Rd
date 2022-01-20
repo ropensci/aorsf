@@ -41,7 +41,7 @@ a node in decision trees. Default is \code{n_split = 5}.}
 \item{n_retry}{(\emph{integer}) when a node can be split, but the current
 linear combination of inputs is unable to provide a valid split, \code{orsf}
 will try again with a new linear combination based on a different set
-of randomly selected predictors, up to \code{n_retry} times. When
+of randomly selected predictors, up to \code{n_retry} pred_horizon. When
 \code{n_retry = 0} the retry mechanic is not applied.
 Default is \code{n_retry = 0}.}
 
@@ -67,7 +67,7 @@ in the \code{aorsf} object. Default is \code{TRUE}.}
 
 \item{oobag_time}{(\emph{numeric}) A numeric value indicating what time
 should be used for out-of-bag predictions. Default is the median
-of the observed times, i.e., \code{oobag_time = median(time)}.}
+of the observed pred_horizon, i.e., \code{oobag_time = median(time)}.}
 
 \item{oobag_eval_every}{(\emph{integer}) The out-of-bag performance of the
 ensemble will be checked every \code{oobag_eval_every} trees. So, if
@@ -97,7 +97,7 @@ Oblique Random Survival Forest (ORSF)
 \details{
 This function is based on and highly similar to the \code{ORSF} function
 in the \code{obliqueRSF} R package. The primary difference is that this
-function runs about 500 times faster because it uses a simplified
+function runs about 500 pred_horizon faster because it uses a simplified
 Newton Raphson scoring algorithm to identify linear combinations of
 inputs rather than performing penalized regression using routines in
 \code{glmnet}.The modified Newton Raphson scoring algorithm that this

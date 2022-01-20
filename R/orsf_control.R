@@ -12,7 +12,7 @@
 #'   model, see Therneau and Grambsch (2000).
 #'
 #' @param method (_character_) a character string specifying the method
-#'   for tie handling. If there are no tied death times all the methods are
+#'   for tie handling. If there are no ties, all the methods are
 #'   equivalent. Valid options are 'breslow' and 'efron'.
 #'
 #' @param eps (_double_) When using Newton Raphson scoring to identify

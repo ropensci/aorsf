@@ -11,15 +11,15 @@
 #'   Also, factors in `new_data` must not have levels that were not in the
 #'   data used to train `object`. Last, missing data are not supported.
 #'
-#' @srrstats {G2.0a} documenting length of `times`.
+#' @srrstats {G2.0a} documenting length of `pred_horizon`.
 #'
-#' @param times (_double_) a single time indicating the prediction horizon.
+#' @param pred_horizon (_double_) a single time indicating the prediction horizon.
 #'   Predicted risk or survival values will indicate the probability of
 #'   having an event or surviving from baseline to the prediction horizon.
-#'   When using [predict.aorsf()], `times` can be a vector of arbitrary length.
-#'   When using [orsf_pd_summary()] or [orsf_pd_ice()], `times` must be
-#'   length 1. All `times` values must not exceed the maximum follow-up
-#'   time in the oblique RSF's training data. Also, `times` must be entered
+#'   When using [predict.aorsf()], `pred_horizon` can be a vector of arbitrary length.
+#'   When using [orsf_pd_summary()] or [orsf_pd_ice()], `pred_horizon` must be
+#'   length 1. All `pred_horizon` values must not exceed the maximum follow-up
+#'   time in the oblique RSF's training data. Also, `pred_horizon` must be entered
 #'   in ascending order.
 #'
 #' @param risk (_logical_) if `TRUE`, predicted risk is returned. If `FALSE`,
@@ -29,7 +29,7 @@
 #' @param ... not used.
 #'
 #' @return a `matrix` of predictions. Column `j` of the matrix corresponds
-#'   to value `j` in `times`. Row `i` of the matrix corresponds to row `i`
+#'   to value `j` in `pred_horizon`. Row `i` of the matrix corresponds to row `i`
 #'   in `new_data`.
 #'
 #' @export
@@ -43,18 +43,18 @@
 #'
 #' preds <- predict(fit,
 #'                  new_data = pbc_orsf[test, ],
-#'                  times = c(500, 1500, 2500))
+#'                  pred_horizon = c(500, 1500, 2500))
 #'
 #' head(preds)
 #'
 #'
 predict.aorsf <- function(object,
                           new_data,
-                          times,
+                          pred_horizon,
                           risk = TRUE,
                           ...){
 
- check_predict(object, new_data, times, risk)
+ check_predict(object, new_data, pred_horizon, risk)
 
  x_new <- as.matrix(
   ref_code(x_data = new_data,
@@ -62,10 +62,10 @@ predict.aorsf <- function(object,
            names_x_data = get_names_x(object))
  )
 
- if(length(times) == 1)
-  return(orsf_pred_uni(object$forest, x_new, times, risk))
+ if(length(pred_horizon) == 1)
+  return(orsf_pred_uni(object$forest, x_new, pred_horizon, risk))
 
- orsf_pred_multi(object$forest, x_new, times, risk)
+ orsf_pred_multi(object$forest, x_new, pred_horizon, risk)
 
 }
 

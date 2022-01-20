@@ -60,11 +60,11 @@
 #'
 #' fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 #'
-#' orsf_pd_summary(fit, pd_spec = list(bili = c(1,2,3,4,5,6)), times = 1000)
+#' orsf_pd_summary(fit, pd_spec = list(bili = c(1,2,3,4,5,6)), pred_horizon = 1000)
 #'
 #' # more points for a plot
 #' pd_spec <- list(bili = seq(1, 6, length.out = 20))
-#' data_ice <- orsf_pd_ice(fit, pd_spec = pd_spec, times = 1000)
+#' data_ice <- orsf_pd_ice(fit, pd_spec = pd_spec, pred_horizon = 1000)
 #'
 #' head(data_ice)
 #'
@@ -78,7 +78,7 @@
 orsf_pd_summary <- function(object,
                             pd_data = NULL,
                             pd_spec,
-                            times = NULL,
+                            pred_horizon = NULL,
                             expand_grid = TRUE,
                             prob_values = c(0.025, 0.50, 0.975),
                             prob_labels = c('lwr', 'medn', 'upr'),
@@ -102,7 +102,7 @@ orsf_pd_summary <- function(object,
  orsf_pd_(object = object,
           pd_data = pd_data,
           pd_spec = pd_spec,
-          times = times,
+          pred_horizon = pred_horizon,
           type_output = 'smry',
           type_input = if(expand_grid) 'grid' else 'loop',
           prob_values = prob_values,
@@ -118,7 +118,7 @@ orsf_pd_summary <- function(object,
 orsf_pd_ice <- function(object,
                         pd_data = NULL,
                         pd_spec,
-                        times = NULL,
+                        pred_horizon = NULL,
                         expand_grid = TRUE,
                         oobag = TRUE,
                         risk = TRUE,
@@ -133,7 +133,7 @@ orsf_pd_ice <- function(object,
  orsf_pd_(object = object,
           pd_data = pd_data,
           pd_spec = pd_spec,
-          times = times,
+          pred_horizon = pred_horizon,
           type_output = 'ice',
           type_input = if(expand_grid) 'grid' else 'loop',
           prob_values = c(0.025, 0.50, 0.975),
@@ -163,7 +163,7 @@ orsf_pd_ice <- function(object,
 orsf_pd_ <- function(object,
                      pd_data,
                      pd_spec,
-                     times,
+                     pred_horizon,
                      type_output,
                      type_input,
                      prob_values,
@@ -172,16 +172,16 @@ orsf_pd_ <- function(object,
                      risk,
                      boundary_checks){
 
- if(is.null(times)) times <- object$time_pred
+ if(is.null(pred_horizon)) pred_horizon <- object$pred_horizon
 
- if(is.null(times))
-  stop("times was not specified and could not be found in object. ",
+ if(is.null(pred_horizon))
+  stop("pred_horizon was not specified and could not be found in object. ",
        "did you use oobag_pred = FALSE when running orsf()?",
        call. = FALSE)
 
- if(length(times) > 1){
+ if(length(pred_horizon) > 1){
   stop("orsf_pd functions only allow 1 prediction time,",
-       " but your times input has length ", length(times), ".",
+       " but your pred_horizon input has length ", length(pred_horizon), ".",
        call. = FALSE)
  }
 
@@ -209,7 +209,7 @@ orsf_pd_ <- function(object,
 
 
 
- check_predict(object, pd_data, times, risk)
+ check_predict(object, pd_data, pred_horizon, risk)
 
  if(is_empty(pd_spec)){
 
@@ -314,7 +314,7 @@ orsf_pd_ <- function(object,
  pd_fun_structure(object,
                   x_new,
                   pd_spec,
-                  times,
+                  pred_horizon,
                   pd_fun_predict,
                   type_output,
                   prob_values,
@@ -343,7 +343,7 @@ orsf_pd_ <- function(object,
 pd_grid <- function(object,
                     x_new,
                     pd_spec,
-                    times,
+                    pred_horizon,
                     pd_fun_predict,
                     type_output,
                     prob_values,
@@ -385,7 +385,7 @@ pd_grid <- function(object,
                            x_cols_     = x_cols-1,
                            x_vals_     = as.matrix(pd_spec_new),
                            probs_      = prob_values,
-                           time_dbl    = times,
+                           time_dbl    = pred_horizon,
                            return_risk = risk)
 
  if(type_output == 'smry'){
@@ -401,7 +401,7 @@ pd_grid <- function(object,
   colnames(pd_vals) <- c('id_variable', 'pred')
   pd_spec$id_variable <- seq(nrow(pd_spec))
   output <- merge(pd_spec, pd_vals, by = 'id_variable')
-  output$id_row <- rep(seq(nrow(x_new)), times = nrow(pd_spec))
+  output$id_row <- rep(seq(nrow(x_new)), pred_horizon = nrow(pd_spec))
 
   ids <- c('id_variable', 'id_row')
   .names <- c(ids, setdiff(names(output), ids))
@@ -430,7 +430,7 @@ pd_grid <- function(object,
 pd_loop <- function(object,
                     x_new,
                     pd_spec,
-                    times,
+                    pred_horizon,
                     pd_fun_predict,
                     type_output,
                     prob_values,
@@ -474,7 +474,7 @@ pd_loop <- function(object,
                             x_cols_     = x_cols-1,
                             x_vals_     = as.matrix(pd_new),
                             probs_      = prob_values,
-                            time_dbl    = times,
+                            time_dbl    = pred_horizon,
                             return_risk = risk)
 
 

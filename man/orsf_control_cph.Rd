@@ -14,7 +14,7 @@ orsf_control_cph(
 }
 \arguments{
 \item{method}{(\emph{character}) a character string specifying the method
-for tie handling. If there are no tied death times all the methods are
+for tie handling. If there are no ties, all the methods are
 equivalent. Valid options are 'breslow' and 'efron'.}
 
 \item{eps}{(\emph{double}) When using Newton Raphson scoring to identify

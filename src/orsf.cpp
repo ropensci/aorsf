@@ -3213,7 +3213,7 @@ List orsf_fit(NumericMatrix& x,
   List::create(
    _["forest"] = forest,
    _["surv_oobag"] = surv_pvec,
-   _["time_pred"] = time_pred,
+   _["pred_horizon"] = time_pred,
    _["eval_oobag"] = List::create(_["c_harrell"] = cstat_oobag),
    _["importance"] = vimp
   )

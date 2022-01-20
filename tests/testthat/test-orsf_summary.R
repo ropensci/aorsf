@@ -13,7 +13,7 @@ smry_1 <- orsf_summarize_uni(object,
                              risk = risk)
 
 smry_2 <- orsf_summarize_uni(object,
-                             times = 1000,
+                             pred_horizon = 1000,
                              n_variables = NULL,
                              risk = risk)
 
@@ -22,15 +22,15 @@ test_that("output is normal", {
 
  expect_s3_class(smry_1, class = 'aorsf_summary_uni')
  expect_true(length(unique(smry_1$dt$variable)) == n_variables)
- expect_true(smry_1$times == object$time_pred)
+ expect_true(smry_1$pred_horizon == object$pred_horizon)
  expect_true(smry_1$risk == risk)
 
 
 
- expect_true(smry_2$times == 1000)
+ expect_true(smry_2$pred_horizon == 1000)
 
  expect_error(orsf_summarize_uni(object,
-                                 times = 1e10,
+                                 pred_horizon = 1e10,
                                  n_variables = n_variables,
                                  risk = risk),
               regexp = 'max time')

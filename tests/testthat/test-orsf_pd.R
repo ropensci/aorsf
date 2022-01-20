@@ -56,7 +56,7 @@ test_that(
    orsf_pd_ice(object,
                pd_data = pbc_orsf,
                pd_spec = list(),
-               times = 1000,
+               pred_horizon = 1000,
                oobag = FALSE),
    regexp = 'pd_spec is empty'
   )
@@ -72,7 +72,7 @@ test_that(
                pd_spec = list(bili = 1:5,
                               nope = c(1,2),
                               no_sir = 1),
-               times = 1000,
+               pred_horizon = 1000,
                oobag = FALSE),
    regexp = 'nope and no_sir'
   )
@@ -89,7 +89,7 @@ test_that(
    orsf_pd_ice(object,
                pd_data = pbc_orsf,
                pd_spec = list(bili = c(bad_value_lower, 1:10, bad_value_upper)),
-               times = 1000,
+               pred_horizon = 1000,
                oobag = FALSE),
    regexp = 'values for bili'
   )
@@ -102,7 +102,7 @@ test_that(
 # library(pdp)
 #
 # pred_aorsf <- function(object, newdata) {  # see ?predict.aorsf
-#  as.numeric(predict(object, newdata, times = 1000))
+#  as.numeric(predict(object, newdata, pred_horizon = 1000))
 # }
 # pd_reference <- partial(object,
 #                         pred.var = "bili",
@@ -119,14 +119,14 @@ test_that(
 # pd_bcj <- orsf_pd_ice(object,
 #                       pd_data = pbc_orsf,
 #                       pd_spec = pd_spec,
-#                       times = 1000,
+#                       pred_horizon = 1000,
 #                       expand_grid = TRUE,
 #                       oobag = FALSE)
 #
 # pd_smry <- orsf_pd_summary(object,
 #                            pd_data = pbc_orsf,
 #                            pd_spec = pd_spec,
-#                            times = 1000,
+#                            pred_horizon = 1000,
 #                            oobag = FALSE)
 #
 # pd_bcj_check <- pd_bcj[, .(bili_mean = mean(pred),

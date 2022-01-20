@@ -42,7 +42,7 @@
 #' @param n_retry (_integer_) when a node can be split, but the current
 #'  linear combination of inputs is unable to provide a valid split, `orsf`
 #'  will try again with a new linear combination based on a different set
-#'  of randomly selected predictors, up to `n_retry` times. When
+#'  of randomly selected predictors, up to `n_retry` pred_horizon. When
 #'  `n_retry = 0` the retry mechanic is not applied.
 #'  Default is `n_retry = 0`.
 #'
@@ -68,7 +68,7 @@
 #'
 #' @param oobag_time (_numeric_) A numeric value indicating what time
 #'   should be used for out-of-bag predictions. Default is the median
-#'   of the observed times, i.e., `oobag_time = median(time)`.
+#'   of the observed pred_horizon, i.e., `oobag_time = median(time)`.
 #'
 #' @param oobag_eval_every (_integer_) The out-of-bag performance of the
 #'   ensemble will be checked every `oobag_eval_every` trees. So, if
@@ -95,7 +95,7 @@
 #'
 #' This function is based on and highly similar to the `ORSF` function
 #'   in the `obliqueRSF` R package. The primary difference is that this
-#'   function runs about 500 times faster because it uses a simplified
+#'   function runs about 500 pred_horizon faster because it uses a simplified
 #'   Newton Raphson scoring algorithm to identify linear combinations of
 #'   inputs rather than performing penalized regression using routines in
 #'   `glmnet`.The modified Newton Raphson scoring algorithm that this
@@ -461,7 +461,7 @@ orsf <- function(data_train,
  } else {
 
   # this would get added by orsf_fit if oobag_pred was TRUE
-  orsf_out$time_pred <- stats::median(y[, 1])
+  orsf_out$pred_horizon <- stats::median(y[, 1])
 
  }
 

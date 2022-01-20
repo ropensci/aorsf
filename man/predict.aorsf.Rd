@@ -4,7 +4,7 @@
 \alias{predict.aorsf}
 \title{Predict risk or survival}
 \usage{
-\method{predict}{aorsf}(object, new_data, times, risk = TRUE, ...)
+\method{predict}{aorsf}(object, new_data, pred_horizon, risk = TRUE, ...)
 }
 \arguments{
 \item{object}{(\emph{aorsf}) an oblique random survival forest (ORSF; see \link{orsf}).}
@@ -14,9 +14,13 @@ the same columns with equivalent types as the data used to train \code{object}.
 Also, factors in \code{new_data} must not have levels that were not in the
 data used to train \code{object}. Last, missing data are not supported.}
 
-\item{times}{(\emph{double}) a single time or a vector of times for oblique RSF
-predictions. All \code{times} values must not exceed the maximum follow-up
-time in the oblique RSF's training data. Also, \code{times} must be entered
+\item{pred_horizon}{(\emph{double}) a single time indicating the prediction horizon.
+Predicted risk or survival values will indicate the probability of
+having an event or surviving from baseline to the prediction horizon.
+When using \code{\link[=predict.aorsf]{predict.aorsf()}}, \code{pred_horizon} can be a vector of arbitrary length.
+When using \code{\link[=orsf_pd_summary]{orsf_pd_summary()}} or \code{\link[=orsf_pd_ice]{orsf_pd_ice()}}, \code{pred_horizon} must be
+length 1. All \code{pred_horizon} values must not exceed the maximum follow-up
+time in the oblique RSF's training data. Also, \code{pred_horizon} must be entered
 in ascending order.}
 
 \item{risk}{(\emph{logical}) if \code{TRUE}, predicted risk is returned. If \code{FALSE},
@@ -26,7 +30,7 @@ predicted survival (i.e., 1-risk) is returned.}
 }
 \value{
 a \code{matrix} of predictions. Column \code{j} of the matrix corresponds
-to value \code{j} in \code{times}. Row \code{i} of the matrix corresponds to row \code{i}
+to value \code{j} in \code{pred_horizon}. Row \code{i} of the matrix corresponds to row \code{i}
 in \code{new_data}.
 }
 \description{
@@ -41,7 +45,7 @@ fit <- orsf(pbc_orsf[train, ], Surv(time, status) ~ . - id)
 
 preds <- predict(fit,
                  new_data = pbc_orsf[test, ],
-                 times = c(500, 1500, 2500))
+                 pred_horizon = c(500, 1500, 2500))
 
 head(preds)
 

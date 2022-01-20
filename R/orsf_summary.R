@@ -25,7 +25,7 @@
 #'
 orsf_summarize_uni <- function(object,
                                n_variables = NULL,
-                               times = NULL,
+                               pred_horizon = NULL,
                                risk = TRUE){
 
  # for CRAN check:
@@ -60,24 +60,24 @@ orsf_summarize_uni <- function(object,
 
  }
 
- if(!is.null(times)){
+ if(!is.null(pred_horizon)){
 
-  check_arg_type(arg_value = times,
-                 arg_name = 'times',
+  check_arg_type(arg_value = pred_horizon,
+                 arg_name = 'pred_horizon',
                  expected_type = 'numeric')
 
-  check_arg_gt(arg_value = times,
-               arg_name = 'times',
+  check_arg_gt(arg_value = pred_horizon,
+               arg_name = 'pred_horizon',
                bound = 0)
 
-  check_arg_lteq(arg_value = times,
-                 arg_name = 'times',
+  check_arg_lteq(arg_value = pred_horizon,
+                 arg_name = 'pred_horizon',
                  bound = get_max_time(object),
                  append_to_msg = '(max time in training data)')
 
  }
 
- if(is.null(times)) times <- object$time_pred
+ if(is.null(pred_horizon)) pred_horizon <- object$pred_horizon
 
  x_numeric_key <- get_numeric_bounds(object)
 
@@ -112,7 +112,7 @@ orsf_summarize_uni <- function(object,
                               expand_grid = FALSE,
                               risk = risk,
                               prob_values = c(0.25, 0.50, 0.75),
-                              times = times)
+                              pred_horizon = pred_horizon)
 
  fctrs_unordered <- c()
 
@@ -155,7 +155,7 @@ orsf_summarize_uni <- function(object,
  structure(
   .Data = list(dt = pd_output,
                risk = risk,
-               times = times),
+               pred_horizon = pred_horizon),
   class = 'aorsf_summary_uni'
  )
 
@@ -192,7 +192,7 @@ print.aorsf_summary_uni <- function(x, n_variables = NULL, ...){
  risk_or_surv <- if(x$risk) "risk" else "survival"
 
  msg_btm <- paste("Predicted", risk_or_surv,
-                  "at time t =", x$times,
+                  "at time t =", x$pred_horizon,
                   "for top", n_variables,
                   "predictors")
 

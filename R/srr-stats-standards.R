@@ -13,7 +13,7 @@
 
 
 
-#' @srrstatsTODO {G2.0a} Provide explicit secondary documentation of any expectations on lengths of inputs
+# @srrstatsTODO {G2.0a} Provide explicit secondary documentation of any expectations on lengths of inputs
 #' @srrstatsTODO {G2.1} *Implement assertions on types of inputs (see the initial point on nomenclature above).*
 #' @srrstatsTODO {G2.1a} *Provide explicit secondary documentation of expectations on data types of all vector inputs.*
 #' @srrstatsTODO {G2.2} *Appropriately prohibit or restrict submission of multivariate input to parameters expected to be univariate.*
