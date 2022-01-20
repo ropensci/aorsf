@@ -100,7 +100,7 @@ a node in decision trees. Default is <code>n_split = 5</code>.</p></dd>
 <dd><p>(<em>integer</em>) when a node can be split, but the current
 linear combination of inputs is unable to provide a valid split, <code>orsf</code>
 will try again with a new linear combination based on a different set
-of randomly selected predictors, up to <code>n_retry</code> times. When
+of randomly selected predictors, up to <code>n_retry</code> pred_horizon. When
 <code>n_retry = 0</code> the retry mechanic is not applied.
 Default is <code>n_retry = 0</code>.</p></dd>
 <dt>mtry</dt>
@@ -126,7 +126,7 @@ in the <code>aorsf</code> object. Default is <code>TRUE</code>.</p></dd>
 <dt>oobag_time</dt>
 <dd><p>(<em>numeric</em>) A numeric value indicating what time
 should be used for out-of-bag predictions. Default is the median
-of the observed times, i.e., <code>oobag_time = median(time)</code>.</p></dd>
+of the observed pred_horizon, i.e., <code>oobag_time = median(time)</code>.</p></dd>
 <dt>oobag_eval_every</dt>
 <dd><p>(<em>integer</em>) The out-of-bag performance of the
 ensemble will be checked every <code>oobag_eval_every</code> trees. So, if
@@ -155,7 +155,7 @@ forest using its training data. Default is <code>TRUE</code>.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function is based on and highly similar to the <code>ORSF</code> function
 in the <code>obliqueRSF</code> R package. The primary difference is that this
-function runs about 500 times faster because it uses a simplified
+function runs about 500 pred_horizon faster because it uses a simplified
 Newton Raphson scoring algorithm to identify linear combinations of
 inputs rather than performing penalized regression using routines in
 <code>glmnet</code>.The modified Newton Raphson scoring algorithm that this

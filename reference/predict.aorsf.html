@@ -61,7 +61,7 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="co"># S3 method for aorsf</span>
-<span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">object</span>, <span class="va">new_data</span>, <span class="va">times</span>, risk <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">object</span>, <span class="va">new_data</span>, <span class="va">pred_horizon</span>, risk <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -73,10 +73,14 @@
 the same columns with equivalent types as the data used to train <code>object</code>.
 Also, factors in <code>new_data</code> must not have levels that were not in the
 data used to train <code>object</code>. Last, missing data are not supported.</p></dd>
-<dt>times</dt>
-<dd><p>(<em>double</em>) a single time or a vector of times for oblique RSF
-predictions. All <code>times</code> values must not exceed the maximum follow-up
-time in the oblique RSF's training data. Also, <code>times</code> must be entered
+<dt>pred_horizon</dt>
+<dd><p>(<em>double</em>) a single time indicating the prediction horizon.
+Predicted risk or survival values will indicate the probability of
+having an event or surviving from baseline to the prediction horizon.
+When using <code>predict.aorsf()</code>, <code>pred_horizon</code> can be a vector of arbitrary length.
+When using <code><a href="orsf_pd_summary.html">orsf_pd_summary()</a></code> or <code><a href="orsf_pd_summary.html">orsf_pd_ice()</a></code>, <code>pred_horizon</code> must be
+length 1. All <code>pred_horizon</code> values must not exceed the maximum follow-up
+time in the oblique RSF's training data. Also, <code>pred_horizon</code> must be entered
 in ascending order.</p></dd>
 <dt>risk</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, predicted risk is returned. If <code>FALSE</code>,
@@ -87,7 +91,7 @@ predicted survival (i.e., 1-risk) is returned.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>a <code>matrix</code> of predictions. Column <code>j</code> of the matrix corresponds
-to value <code>j</code> in <code>times</code>. Row <code>i</code> of the matrix corresponds to row <code>i</code>in <code>new_data</code>.</p>
+to value <code>j</code> in <code>pred_horizon</code>. Row <code>i</code> of the matrix corresponds to row <code>i</code>in <code>new_data</code>.</p>
     </div>
 
     <div class="section level2">
@@ -100,7 +104,7 @@ to value <code>j</code> in <code>times</code>. Row <code>i</code> of the matrix 
 <span class="r-in"></span>
 <span class="r-in"><span class="va">preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>,</span>
 <span class="r-in">                 new_data <span class="op">=</span> <span class="va">pbc_orsf</span><span class="op">[</span><span class="va">test</span>, <span class="op">]</span>,</span>
-<span class="r-in">                 times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1500</span>, <span class="fl">2500</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in">                 pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1500</span>, <span class="fl">2500</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">preds</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             [,1]       [,2]       [,3]</span>
