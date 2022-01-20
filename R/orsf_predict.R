@@ -11,8 +11,14 @@
 #'   Also, factors in `new_data` must not have levels that were not in the
 #'   data used to train `object`. Last, missing data are not supported.
 #'
-#' @param times (_double_) a single time or a vector of times for oblique RSF
-#'   predictions. All `times` values must not exceed the maximum follow-up
+#' @srrstats {G2.0a} documenting length of `times`.
+#'
+#' @param times (_double_) a single time indicating the prediction horizon.
+#'   Predicted risk or survival values will indicate the probability of
+#'   having an event or surviving from baseline to the prediction horizon.
+#'   When using [predict.aorsf()], `times` can be a vector of arbitrary length.
+#'   When using [orsf_pd_summary()] or [orsf_pd_ice()], `times` must be
+#'   length 1. All `times` values must not exceed the maximum follow-up
 #'   time in the oblique RSF's training data. Also, `times` must be entered
 #'   in ascending order.
 #'

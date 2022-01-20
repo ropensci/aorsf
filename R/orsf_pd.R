@@ -27,13 +27,18 @@
 #'   `FALSE`, partial dependence will be computed for each variable
 #'   in `pd_spec`, separately.
 #'
+#' @srrstats {G2.0a} documenting length by indicating these inputs
+#'  are vectors and that they must have the same length as the other.
+#'
 #' @param prob_values (_numeric_) a vector of values between 0 and 1,
 #'   indicating what quantiles will be used to summarize the partial
-#'   dependence values at each set of inputs.
+#'   dependence values at each set of inputs. `prob_values` should
+#'   have the same length as `prob_labels`.
 #'
 #' @param prob_labels (_character_) a vector of labels with the same length
 #'   as `prob_values`, with each label indicating what the corresponding
 #'   value in `prob_values` should be labelled as in summarized outputs.
+#'   `prob_labels` should have the same length as `prob_values`.
 #'
 #' @param oobag (_logical_) if `TRUE`, then partial dependence will be
 #'   computed using the out of bag training data. You should set
