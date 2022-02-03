@@ -35,6 +35,8 @@
 #'
 orsf_vi <- function(object, group_factors = TRUE){
 
+ #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
+
  if(!is_aorsf(object)) stop("object must inherit from 'aorsf' class.",
                             call. = FALSE)
 

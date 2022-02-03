@@ -27,8 +27,7 @@
 #'   `FALSE`, partial dependence will be computed for each variable
 #'   in `pd_spec`, separately.
 #'
-#' @srrstats {G2.0a} documenting length by indicating these inputs
-#'  are vectors and that they must have the same length as the other.
+#' @srrstats {G2.0a} *documenting length by indicating these inputs are vectors and that they must have the same length as the other.*
 #'
 #' @param prob_values (_numeric_) a vector of values between 0 and 1,
 #'   indicating what quantiles will be used to summarize the partial
@@ -64,15 +63,17 @@
 #'
 #' # more points for a plot
 #' pd_spec <- list(bili = seq(1, 6, length.out = 20))
-#' data_ice <- orsf_pd_ice(fit, pd_spec = pd_spec, pred_horizon = 1000)
+#' data_ice <- orsf_pd_ice(fit, pd_spec = pd_spec, pred_horizon = c(1000))
 #'
 #' head(data_ice)
 #'
 #' library(ggplot2)
+#'
 #' ggplot(data_ice) +
 #'  aes(x = bili, y = pred, group = id_row) +
 #'  geom_line(alpha = 0.4, color = 'grey') +
 #'  geom_smooth(aes(group = 1), color = 'black', se = FALSE) +
+#'  theme_bw() +
 #'  theme(panel.grid = element_blank())
 
 orsf_pd_summary <- function(object,
@@ -86,6 +87,34 @@ orsf_pd_summary <- function(object,
                             risk = TRUE,
                             boundary_checks = TRUE){
 
+ if(length(pred_horizon) > 1){
+
+  out_list <- lapply(
+   X = pred_horizon,
+   FUN = function(.pred_horizon){
+    orsf_pd_summary(
+     object          = object,
+     pd_data         = pd_data,
+     pd_spec         = pd_spec,
+     pred_horizon    = .pred_horizon,
+     expand_grid     = expand_grid,
+     prob_values     = prob_values,
+     prob_labels     = prob_labels,
+     oobag           = oobag,
+     risk            = risk,
+     boundary_checks = boundary_checks)
+   }
+  )
+
+  names(out_list) <- as.character(pred_horizon)
+
+  return(
+   rbindlist(l = out_list,
+             fill = TRUE,
+             idcol = 'pred_horizon')
+  )
+
+ }
 
  check_pd_inputs(object = object,
                  expand_grid = expand_grid,
@@ -124,6 +153,33 @@ orsf_pd_ice <- function(object,
                         risk = TRUE,
                         boundary_checks = TRUE){
 
+
+ if(length(pred_horizon) > 1){
+
+  out_list <- lapply(
+   X = pred_horizon,
+   FUN = function(.pred_horizon){
+    orsf_pd_ice(
+     object          = object,
+     pd_data         = pd_data,
+     pd_spec         = pd_spec,
+     pred_horizon    = .pred_horizon,
+     expand_grid     = expand_grid,
+     oobag           = oobag,
+     risk            = risk,
+     boundary_checks = boundary_checks)
+   }
+  )
+
+  names(out_list) <- as.character(pred_horizon)
+
+  return(
+   rbindlist(l = out_list,
+             fill = TRUE,
+             idcol = 'pred_horizon')
+  )
+
+ }
 
  check_pd_inputs(object = object,
                  expand_grid = expand_grid,

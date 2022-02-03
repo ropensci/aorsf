@@ -107,9 +107,10 @@ check_arg_uni <- function(arg_value, arg_name, expected_uni){
 
 #' strict checks for inputs
 #'
-#' @srrstats {G2.0} The function check_arg_length is used to vet inputs.
-#' @srrstats {G2.0a} Do error messages count as secondary documentation?
-#'   I think they do.
+#' @srrstats {G2.0} *The function check_arg_length is used to vet inputs.*
+#' @srrstats {G2.0a} *Error messages indicate expected lengths*
+#'
+#' @srrstats {G2.2} *prohibits submission of multivariate input to parameters expected to be univariate.*
 #'
 #' @param arg_value the object that is to be checked
 #' @param arg_name the name of the object (used for possible error message)
@@ -287,6 +288,7 @@ check_arg_lteq <- function(arg_value, arg_name, bound, append_to_msg = NULL){
 
 #' strict checks for inputs
 #'
+#' @srrstats {G2.3a} *Using %in% instead of match.arg to allow customized error message when inputs are invalid.*
 #' @param arg_value the object that is to be checked
 #' @param arg_name the name of the object (used for possible error message)
 #' @param valid_options what are the valid inputs for `arg_value`?
@@ -324,6 +326,8 @@ check_arg_is_valid <- function(arg_value, arg_name, valid_options) {
 #' strict checks for inputs
 #'
 #' make sure the user has supplied an integer valued input.
+#'
+#' @srrstatsTODO {G2.4a}  *My design philosophy is that the user should be made aware if their input is the wrong type and the user should also be responsible for correcting the input. Therefore, this function communicates exactly what the user should do to fix the issue.*
 #'
 #' @param arg_value the object that is to be checked
 #' @param arg_name the name of the object (used for possible error message)
@@ -396,6 +400,10 @@ check_arg_is <- function(arg_value, arg_name, expected_class){
 
 
 #' Check variable types
+#'
+#' @srrstats {G2.1} *types of variables in input data are vetted here.*
+#'
+#' @srrstats {G2.4} * I think the user should be  aware of type inconsistencies in their data and the user should  also take full responsibility for managing variable types. Therefore, this function communicates problems with variable types to the user but does not fix those problems for the user. It does tell the user exactly how to fix them.*
 #'
 #' I can only run orsf() with certain types of variables. Checking
 #'   input data to make sure all variables have a primary (i.e., first)
@@ -1003,8 +1011,12 @@ check_new_data_names <- function(new_data,
 
 #' New data have same types as reference data
 #'
+#' @srrstats {G2.4} *I think the user should be aware of type inconsistencies in their data and the user should  also take full responsibility for managing variable types. Therefore, this function communicates problems with variable types to the user but does not fix those problems for the user. It does tell the user exactly how to fix them though.*
+#'
+#' @srrstats {G2.6} *Ensure all one-dimensional inputs in new_data have been processed to match their corresponding inputs in the training data for the aorsf model. I.e., if a variable was a factor in the training data, it needs to be a factor with the exact same levels in the testing data. If a variable was an integer in the training data, it must also be an integer in the testing data.*
+#'
 #' If new data have an integer vector where the ref data
-#'  had a factor vector, orsf_predict() will mess up! Also
+#'  had a factor vector, orsf_predict() will yell! Also
 #'  it is good practice to make sure users are supplying
 #'  consistent data types.
 #'

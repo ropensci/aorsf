@@ -8,9 +8,12 @@
 #'
 #' @srrstats {G1.3} *linear combinations of inputs defined.*
 #'
-#' @srrstats {G1.5} *orsf() will be used in publications to benchmark performance of the aorsf package in computation speed and prediction accuracy*
+#' @srrstats {G1.5} *orsf() will be used in publications to benchmark performance of the aorsf package in computation speed and prediction accuracy.*
 #'
-#' @srrstatsTODO {G1.6} *orsf() should be used to compare performance claims with other packages*
+#' @srrstats {G1.6} *orsf() should be used to compare performance claims with other packages.*
+#'
+#'
+#' @srrstats {G2.1} *Inputs have indication of type in parentheticals. This format is used in all exported functions.*
 #'
 #' The oblique random survival forest (ORSF) is an extension of the RSF
 #'   algorithm developed by Ishwaran et al and maintained in the
@@ -27,8 +30,12 @@
 #'
 #' @param data_train (_data.frame_) that will be used to grow the forest.
 #'
+#' @srrstats {G2.5} factors used as predictors can be ordered and un-ordered.
+#'
 #' @param formula (_formula_) a formula object, with the response on the left
-#'   of a `~` operator, and the terms on the right. See details.
+#'   of a `~` operator, and the terms on the right (see details). Variables
+#'   on the right hand size of the `~` can be numeric, integer, or factor
+#'   variables. Factors may be ordered or unordered.
 #'
 #' @param control An `aorsf_control` object, created with [orsf_control_net]
 #'  or [orsf_control_cph]. Default is `control = orsf_control_cph()`.
@@ -199,7 +206,8 @@ orsf <- function(data_train,
                  attach_data = TRUE){
 
 
- # Run checks
+ #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
+
  check_orsf_inputs(
   data_train = data_train,
   formula = formula,
@@ -298,6 +306,8 @@ orsf <- function(data_train,
   warning(msg, call. = FALSE)
  }
 
+ #' @srrstatsTODO {G2.6} ensure that one-dimensional inputs are appropriately pre-processed. aorsf does not deal with missing data as many other R packages are quite good at dealing with it.
+
  if(any(is.na(data_train[, c(names_y_data, names_x_data)]))){
   stop("Please remove missing values from data_train, or impute them.",
        call. = FALSE)
@@ -309,6 +319,8 @@ orsf <- function(data_train,
  fi <- fctr_info(data_train, names_x_data)
  y  <- as.matrix(select_cols(data_train, names_y_data))
  x  <- as.matrix(ref_code(data_train, fi, names_x_data))
+
+ #' @srrstats {G2.7} *aorsf accepts as input numeric and categorical predictor variables. I do not think it is necessary to incorporate any other type of input, since it is relatively straightforward to convert a date variable into something numeric.*
 
  types_x_data <- check_var_types(data_train,
                                  names_x_data,
@@ -455,6 +467,8 @@ orsf <- function(data_train,
   # put the oob predictions into the same order as the training data.
   unsorted <- vector(mode = 'integer', length = length(sorted))
   for(i in seq_along(unsorted)) unsorted[ sorted[i] ] <- i
+
+  #' @srrstats {G2.10} *set drop = FALSE to ensure that extraction or filtering of single columns from tabular inputs should not presume any particular default behavior, and all column-extraction operations behave consistently regardless of the class of tabular data used as input.*
 
   orsf_out$surv_oobag <- orsf_out$surv_oobag[unsorted, , drop = FALSE]
 

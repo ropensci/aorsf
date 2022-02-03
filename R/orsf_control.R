@@ -62,6 +62,9 @@ orsf_control_cph <- function(method = 'breslow',
                              do_scale = TRUE){
 
 
+ #' @srrstats {G2.3b} *ensure input of character parameters is not case dependent*
+ method <- tolower(method)
+
  check_control_cph(method, eps, iter_max, pval_max, do_scale)
 
  structure(

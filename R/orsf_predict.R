@@ -4,6 +4,8 @@
 #'
 #' @srrstats {G1.4} *documented with Roxygen*
 #'
+#' @srrstats {G2.0a} *specified expectations for length of `pred_horizon`. In general, inputs of length > 1 have the term 'vector' in their description, and inputs of length 1 just have the expected type.*
+#'
 #' @param object (_aorsf_) an oblique random survival forest (ORSF; see [orsf]).
 #'
 #' @param new_data (_data.frame_) data to compute predictions for. Must have
@@ -11,16 +13,14 @@
 #'   Also, factors in `new_data` must not have levels that were not in the
 #'   data used to train `object`. Last, missing data are not supported.
 #'
-#' @srrstats {G2.0a} documenting length of `pred_horizon`.
 #'
-#' @param pred_horizon (_double_) a single time indicating the prediction horizon.
-#'   Predicted risk or survival values will indicate the probability of
-#'   having an event or surviving from baseline to the prediction horizon.
-#'   When using [predict.aorsf()], `pred_horizon` can be a vector of arbitrary length.
-#'   When using [orsf_pd_summary()] or [orsf_pd_ice()], `pred_horizon` must be
-#'   length 1. All `pred_horizon` values must not exceed the maximum follow-up
-#'   time in the oblique RSF's training data. Also, `pred_horizon` must be entered
-#'   in ascending order.
+#' @param pred_horizon (_double_) a single time or a vector of times
+#'   indicating the prediction horizon. Predicted risk or survival values
+#'   will indicate the probability of having an event or surviving from
+#'   baseline to the prediction horizon, respectively. All `pred_horizon`
+#'   values must not exceed the maximum follow-up time in `object`'s
+#'   training data. Also, `pred_horizon` values must be entered in
+#'   ascending order.
 #'
 #' @param risk (_logical_) if `TRUE`, predicted risk is returned. If `FALSE`,
 #'   predicted survival (i.e., 1-risk) is returned.
@@ -54,6 +54,7 @@ predict.aorsf <- function(object,
                           risk = TRUE,
                           ...){
 
+ #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
  check_predict(object, new_data, pred_horizon, risk)
 
  x_new <- as.matrix(

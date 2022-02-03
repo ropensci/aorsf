@@ -31,6 +31,8 @@ orsf_summarize_uni <- function(object,
  # for CRAN check:
  medn <- name <- value <- level <- variable <- NULL
 
+ #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
+
  check_arg_is(arg_value = object,
               arg_name = 'object',
               expected_class = 'aorsf')

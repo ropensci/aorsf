@@ -18,7 +18,7 @@ select_cols <- function(data, col_names){
 }
 
 # standard data.frame column selection,
-# drop = FALSE for type consistency, i.e., always return a data.frame
+#' @srrstats {G2.10} *set drop = FALSE to ensure that extraction or filtering of single columns from tabular inputs should not presume any particular default behavior, and all column-extraction operations behave consistently regardless of the class of tabular data used as input.*
 select_cols.data.frame <- function(data, col_names){
 
  data[, col_names, drop = FALSE]

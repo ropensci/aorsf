@@ -19,7 +19,7 @@
 #'
 #' @export
 #'
-#' @srrstats {G2.0a} specifying the length of `min_pairwise_obs`.
+#' @srrstats {G2.0a} *specifying the length of `min_pairwise_obs`.*
 #'
 #' @details `min_pairwise_obs` should be a single value and should be large
 #'  enough to prevent consideration of variable pairs that are so infrequently
@@ -77,6 +77,8 @@
 
 orsf_interaction <- function(object,
                              min_pairwise_obs = NULL){
+
+ #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
 
  check_arg_is(arg_value = object,
               arg_name = "object",
