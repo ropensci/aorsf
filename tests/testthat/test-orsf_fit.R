@@ -79,4 +79,38 @@ test_that(
 )
 
 
+test_that(
+ desc = "blank and non-standard names trigger an error",
+ code = {
+
+  pbc_temp <- pbc_orsf
+  pbc_temp$x1 <- rnorm(nrow(pbc_temp))
+  pbc_temp$x2 <- rnorm(nrow(pbc_temp))
+
+  names(pbc_temp)[names(pbc_temp)=='x1'] <- ""
+  names(pbc_temp)[names(pbc_temp)=='x2'] <- " "
+
+  expect_error(
+   orsf(data = pbc_temp, Surv(time, status) ~ . - id), regex = 'Blank'
+  )
+
+
+  pbc_temp <- pbc_orsf
+  pbc_temp$x1 <- rnorm(nrow(pbc_temp))
+  pbc_temp$x2 <- rnorm(nrow(pbc_temp))
+
+  names(pbc_temp)[names(pbc_temp)=='x1'] <- "@"
+  names(pbc_temp)[names(pbc_temp)=='x2'] <- "#"
+
+  expect_error(
+   orsf(data = pbc_temp, Surv(time, status) ~ . - id), regex = 'Non\\-standard'
+  )
+
+ }
+)
+
+
+
+#
+# head(pbc_temp)
 

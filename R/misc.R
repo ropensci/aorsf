@@ -71,7 +71,33 @@ is_aorsf <- function(object){
 }
 
 
+#' paste lists of things
+#'
+#' @param x a vector of character values
+#' @param sep how to space first length(x) - 1 things
+#' @param last how to space the last thing
+#'
+#' @return a string
+#'
+#' @noRd
+#'
+#' @example
+#' paste_collapse(x = c("first", "second", "third"), last = ' and ')
+
+paste_collapse <- function(x, sep=', ', last = ' or '){
+
+ if(length(x) == 1) return(paste(x))
+
+ if(length(x) == 2) return(paste0(x[1], last, x[2]))
+
+ paste0(paste(x[-length(x)], collapse = sep), trimws(sep), last, x[length(x)])
+
+}
+
 # Clean up after aorsf is unloaded.
 .onUnload <- function (libpath) {
  library.dynam.unload("aorsf", libpath)
 }
+
+
+

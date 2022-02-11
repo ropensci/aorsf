@@ -2,28 +2,7 @@
 
 
 
-#' paste lists of things
-#'
-#' @param x a vector of character values
-#' @param sep how to space first length(x) - 1 things
-#' @param last how to space the last thing
-#'
-#' @return a string
-#'
-#' @noRd
-#'
-#' @example
-#' paste_collapse(x = c("first", "second", "third"), last = ' and ')
 
-paste_collapse <- function(x, sep=', ', last = ' or '){
-
- if(length(x) == 1) return(paste(x))
-
- if(length(x) == 2) return(paste0(x[1], last, x[2]))
-
- paste0(paste(x[-length(x)], collapse = sep), trimws(sep), last, x[length(x)])
-
-}
 
 #' strict checks for inputs
 #'
@@ -609,6 +588,46 @@ check_orsf_inputs <- function(data_train,
                expected_class = 'data.frame')
 
  }
+
+ #' @srrstats {G2.9} issue diagnostic messages for blank column names. In this case, no fixes are applied. Instead, the user is notified by an error message.
+
+ # check for blanks first b/c the check for non-standard symbols
+ # will detect blanks with >1 empty characters
+
+ blank_names <- grepl(pattern = '^\\s*$',
+                      x = names(data_train))
+
+ if(any(blank_names)){
+
+  s_if_plural_blank_otherwise <- ""
+
+  to_list <- which(blank_names)
+
+  if(length(to_list) > 1) s_if_plural_blank_otherwise <- "s"
+
+  last <- ifelse(length(to_list) == 2, ' and ', ', and ')
+
+  stop("Blank or empty names detected in training data: see column",
+       s_if_plural_blank_otherwise, " ",
+       paste_collapse(x = to_list, last = last),
+       call. = FALSE)
+
+ }
+
+ ns_names <- grepl(pattern = '[^a-zA-Z0-9\\.\\_]+',
+                   x = names(data_train))
+
+ if(any(ns_names)){
+
+  last <- ifelse(sum(ns_names) == 2, ' and ', ', and ')
+
+  stop("Non-standard names detected in training data: ",
+       paste_collapse(x = names(data_train)[ns_names],
+                      last = last),
+       call. = FALSE)
+
+ }
+
 
  if(!is.null(formula)){
 
