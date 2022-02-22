@@ -38,6 +38,7 @@ Suggests:
     knitr,
     rmarkdown,
     glmnet,
-    covr
+    covr,
+    units
 Config/testthat/edition: 3
 VignetteBuilder: knitr

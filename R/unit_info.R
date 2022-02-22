@@ -32,6 +32,12 @@ unit_info <- function(data, .names){
                     denominator = d,
                     label = l)
 
+  } else {
+   stop("variable ", i, " has units attributes but they do not",
+        " inherit from 'symbolic_units' class in the units package.",
+        " Please install the units package and use it to manage",
+        " units for analyses with the aorsf package that require",
+        " units.")
   }
 
 
