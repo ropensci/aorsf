@@ -86,7 +86,9 @@
 <dd><p>(<em>data.frame</em>) that will be used to grow the forest.</p></dd>
 <dt>formula</dt>
 <dd><p>(<em>formula</em>) a formula object, with the response on the left
-of a <code>~</code> operator, and the terms on the right. See details.</p></dd>
+of a <code>~</code> operator, and the terms on the right (see details). Variables
+on the right hand size of the <code>~</code> can be numeric, integer, or factor
+variables. Factors may be ordered or unordered.</p></dd>
 <dt>control</dt>
 <dd><p>An <code>aorsf_control</code> object, created with <a href="orsf_control_net.html">orsf_control_net</a>
 or <a href="orsf_control_cph.html">orsf_control_cph</a>. Default is <code>control = orsf_control_cph()</code>.</p></dd>

@@ -74,14 +74,13 @@ the same columns with equivalent types as the data used to train <code>object</c
 Also, factors in <code>new_data</code> must not have levels that were not in the
 data used to train <code>object</code>. Last, missing data are not supported.</p></dd>
 <dt>pred_horizon</dt>
-<dd><p>(<em>double</em>) a single time indicating the prediction horizon.
-Predicted risk or survival values will indicate the probability of
-having an event or surviving from baseline to the prediction horizon.
-When using <code>predict.aorsf()</code>, <code>pred_horizon</code> can be a vector of arbitrary length.
-When using <code><a href="orsf_pd_summary.html">orsf_pd_summary()</a></code> or <code><a href="orsf_pd_summary.html">orsf_pd_ice()</a></code>, <code>pred_horizon</code> must be
-length 1. All <code>pred_horizon</code> values must not exceed the maximum follow-up
-time in the oblique RSF's training data. Also, <code>pred_horizon</code> must be entered
-in ascending order.</p></dd>
+<dd><p>(<em>double</em>) a single time or a vector of times
+indicating the prediction horizon. Predicted risk or survival values
+will indicate the probability of having an event or surviving from
+baseline to the prediction horizon, respectively. All <code>pred_horizon</code>
+values must not exceed the maximum follow-up time in <code>object</code>'s
+training data. Also, <code>pred_horizon</code> values must be entered in
+ascending order.</p></dd>
 <dt>risk</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, predicted risk is returned. If <code>FALSE</code>,
 predicted survival (i.e., 1-risk) is returned.</p></dd>
