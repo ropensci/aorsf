@@ -1,5 +1,6 @@
 
 
+
 # catch bad inputs, give informative error
 
 pbc_temp <- pbc_orsf
@@ -110,7 +111,43 @@ test_that(
 )
 
 
+test_that(
+ 'orsf tracks meta data for units class variables',
+ code = {
 
-#
-# head(pbc_temp)
+  suppressMessages(library(units))
+  pbc_units <- pbc_orsf
 
+
+  units(pbc_units$time) <- 'days'
+  units(pbc_units$age) <- 'years'
+  units(pbc_units$bili) <- 'mg/dl'
+
+  expect_message(
+   fit_units <- orsf(pbc_units, Surv(time, status) ~ . - id),
+   regexp = 'unit attributes'
+  )
+
+  expect_equal(
+   get_unit_info(fit_units),
+   list(
+    time = list(
+     numerator = "d",
+     denominator = character(0),
+     label = "d"
+    ),
+    age = list(
+     numerator = "years",
+     denominator = character(0),
+     label = "years"
+    ),
+    bili = list(
+     numerator = "mg",
+     denominator = "dl",
+     label = "mg/dl"
+    )
+   )
+  )
+ }
+
+)

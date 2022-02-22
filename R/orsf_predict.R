@@ -55,6 +55,12 @@ predict.aorsf <- function(object,
                           ...){
 
  #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
+
+ ui_train <- get_unit_info(object)
+
+ # get unit info for new data if training data had unit variables
+ if(!is_empty(ui_train)) new_data <- check_units(new_data, ui_train)
+
  check_predict(object, new_data, pred_horizon, risk)
 
  x_new <- as.matrix(

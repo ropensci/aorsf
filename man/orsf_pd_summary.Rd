@@ -45,14 +45,13 @@ corresponding values. If \code{pd_spec} is a \code{data.frame}, columns will
 indicate variable names, values will indicate variable values, and
 partial dependence will be computed using the inputs on each row.}
 
-\item{pred_horizon}{(\emph{double}) a single time indicating the prediction horizon.
-Predicted risk or survival values will indicate the probability of
-having an event or surviving from baseline to the prediction horizon.
-When using \code{\link[=predict.aorsf]{predict.aorsf()}}, \code{pred_horizon} can be a vector of arbitrary length.
-When using \code{\link[=orsf_pd_summary]{orsf_pd_summary()}} or \code{\link[=orsf_pd_ice]{orsf_pd_ice()}}, \code{pred_horizon} must be
-length 1. All \code{pred_horizon} values must not exceed the maximum follow-up
-time in the oblique RSF's training data. Also, \code{pred_horizon} must be entered
-in ascending order.}
+\item{pred_horizon}{(\emph{double}) a single time or a vector of times
+indicating the prediction horizon. Predicted risk or survival values
+will indicate the probability of having an event or surviving from
+baseline to the prediction horizon, respectively. All \code{pred_horizon}
+values must not exceed the maximum follow-up time in \code{object}'s
+training data. Also, \code{pred_horizon} values must be entered in
+ascending order.}
 
 \item{expand_grid}{(\emph{logical}) if \code{TRUE}, partial dependence will be
 computed at all possible combinations of inputs in \code{pd_spec}. If
@@ -98,14 +97,16 @@ orsf_pd_summary(fit, pd_spec = list(bili = c(1,2,3,4,5,6)), pred_horizon = 1000)
 
 # more points for a plot
 pd_spec <- list(bili = seq(1, 6, length.out = 20))
-data_ice <- orsf_pd_ice(fit, pd_spec = pd_spec, pred_horizon = 1000)
+data_ice <- orsf_pd_ice(fit, pd_spec = pd_spec, pred_horizon = c(1000))
 
 head(data_ice)
 
 library(ggplot2)
+
 ggplot(data_ice) +
  aes(x = bili, y = pred, group = id_row) +
  geom_line(alpha = 0.4, color = 'grey') +
  geom_smooth(aes(group = 1), color = 'black', se = FALSE) +
+ theme_bw() +
  theme(panel.grid = element_blank())
 }

@@ -27,7 +27,9 @@ orsf(
 \item{data_train}{(\emph{data.frame}) that will be used to grow the forest.}
 
 \item{formula}{(\emph{formula}) a formula object, with the response on the left
-of a \code{~} operator, and the terms on the right. See details.}
+of a \code{~} operator, and the terms on the right (see details). Variables
+on the right hand size of the \code{~} can be numeric, integer, or factor
+variables. Factors may be ordered or unordered.}
 
 \item{control}{An \code{aorsf_control} object, created with \link{orsf_control_net}
 or \link{orsf_control_cph}. Default is \code{control = orsf_control_cph()}.}

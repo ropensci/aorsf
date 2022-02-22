@@ -111,6 +111,9 @@ vec
  beta_current,
  beta_new,
  beta_fit,
+ vi_pval_sum,
+ vi_pval_numer,
+ vi_pval_denom,
  cutpoints,
  w_input,
  w_inbag,
@@ -985,15 +988,26 @@ arma::vec newtraph_cph(){
 
   // if(verbose > 0) Rcout << "un-scaled beta: " << beta_current[i] << std::endl;
 
-  temp1 = R::pchisq(pow(beta_current[i], 2) / vmat.at(i, i),
-                    1, false, false);
+  if(beta_current.at(i) != 0){
 
-  if(temp1 > cph_pval_max){
-   beta_current[i] = 0;
+   temp1 = R::pchisq(pow(beta_current[i], 2) / vmat.at(i, i),
+                     1, false, false);
+
+
+   vi_pval_sum[cols_node[i]] += temp1;
+
+   if(temp1 < 0.10) vi_pval_numer[cols_node[i]]++;
+
+  }
+
+  vi_pval_denom[cols_node[i]]++;
+
+  // if(temp1 > cph_pval_max){
+  //  beta_current[i] = 0;
    // if(verbose > 1){
    //  Rcout<<"dropping coef "<<i<<" to 0; p = "<<temp1<<std::endl;
    // }
-  }
+  // }
 
  }
 
@@ -1025,6 +1039,11 @@ arma::vec newtraph_cph_testthat(NumericMatrix& x_in,
  cph_iter_max = iter_max;
  n_vars = x_node.n_cols;
  cph_pval_max = pval_max;
+
+ vi_pval_sum.zeros(x_node.n_cols);
+ vi_pval_numer.zeros(x_node.n_cols);
+ vi_pval_denom.zeros(x_node.n_cols);
+ cols_node = regspace<uvec>(0, x_node.n_cols - 1);
 
  x_node_scale();
 
@@ -2979,6 +2998,11 @@ List orsf_fit(NumericMatrix& x,
  n_rows = x_input.n_rows;
  n_vars = x_input.n_cols;
 
+ // initialize the vi vecs
+ vi_pval_numer.zeros(n_vars);
+ vi_pval_denom.zeros(n_vars);
+ vi_pval_sum.zeros(n_vars);
+
  // if(verbose > 0){
  //  Rcout << "------------ dimensions ------------"  << std::endl;
  //  Rcout << "N obs total: "     << n_rows           << std::endl;
@@ -3215,7 +3239,9 @@ List orsf_fit(NumericMatrix& x,
    _["surv_oobag"] = surv_pvec,
    _["pred_horizon"] = time_pred,
    _["eval_oobag"] = List::create(_["c_harrell"] = cstat_oobag),
-   _["importance"] = vimp
+   _["importance"] = vimp,
+   _["signif_means"] = vi_pval_numer / vi_pval_denom,
+   _["pval_means"] = 1 - (vi_pval_sum / vi_pval_denom)
   )
  );
 

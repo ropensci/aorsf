@@ -282,6 +282,35 @@ orsf <- function(data_train,
        call. = FALSE)
 
 
+ types_y_data <- vector(mode = 'character', length = 2)
+
+ for(i in seq_along(types_y_data)){
+  types_y_data[i] <- class(data_train[[ names_y_data[i] ]])[1]
+ }
+
+ unit_y_names <- names_y_data[types_y_data == 'units']
+
+ ui_y <- unit_info(data = data_train, .names = unit_y_names)
+
+ # Remove the unit class to make sure variables have the right underlying type
+ if(!is_empty(unit_y_names)){
+
+  for(i in unit_y_names){
+
+   #' @srrstats {G2.9} *Issue diagnostic message for removal of meta-data attached to unit columns*
+
+   message("dropping unit attributes from ", i,
+           " (",ui_y[[i]]$label, ") ",
+           "and saving them in output")
+
+   class(data_train[[i]]) <- setdiff(class(data_train[[i]]), "units")
+   attr(data_train[[i]], "units") <- NULL
+
+  }
+
+ }
+
+
  names_x_data <- attr(formula_terms, 'term.labels')
 
  names_not_found <- setdiff(c(names_y_data, names_x_data), names(data_train))
@@ -306,7 +335,7 @@ orsf <- function(data_train,
   warning(msg, call. = FALSE)
  }
 
- #' @srrstatsTODO {G2.6} ensure that one-dimensional inputs are appropriately pre-processed. aorsf does not deal with missing data as many other R packages are quite good at dealing with it.
+ #' @srrstats {G2.6} ensure that one-dimensional inputs are appropriately pre-processed. aorsf does not deal with missing data as many other R packages are very good at dealing with it.
 
  if(any(is.na(data_train[, c(names_y_data, names_x_data)]))){
   stop("Please remove missing values from data_train, or impute them.",
@@ -320,12 +349,44 @@ orsf <- function(data_train,
  y  <- as.matrix(select_cols(data_train, names_y_data))
  x  <- as.matrix(ref_code(data_train, fi, names_x_data))
 
- #' @srrstats {G2.7} *aorsf accepts as input numeric and categorical predictor variables. I do not think it is necessary to incorporate any other type of input, since it is relatively straightforward to convert a date variable into something numeric.*
+ #' @srrstats {G2.7} *aorsf accepts as input numeric and categorical predictor variables, including those with unit class. I do not think it is necessary to incorporate any other type of input, since it is relatively straightforward to convert data into a numeric or categorical format.*
 
  types_x_data <- check_var_types(data_train,
                                  names_x_data,
-                                 valid_types = c('numeric','integer',
-                                                 'factor', 'ordered'))
+                                 valid_types = c('numeric',
+                                                 'integer',
+                                                 'units',
+                                                 'factor',
+                                                 'ordered'))
+
+ unit_x_names <- names_x_data[types_x_data == 'units']
+
+ ui_x <- unit_info(data = data_train, .names = unit_x_names)
+
+ # Remove the unit class to make sure variables have the right underlying type
+
+ if(!is_empty(unit_x_names)){
+
+  for(i in unit_x_names){
+
+   #' @srrstats {G2.9} *Issue diagnostic message for removal of meta-data attached to unit columns*
+
+   message("dropping unit attributes from ", i,
+           " (",ui_x[[i]]$label, ") ",
+           "and saving them in output")
+   class(data_train[[i]]) <- setdiff(class(data_train[[i]]), "units")
+   attr(data_train[[i]], "units") <- NULL
+
+  }
+
+  types_x_data <- check_var_types(data_train,
+                                  names_x_data,
+                                  valid_types = c('numeric',
+                                                  'integer',
+                                                  'factor',
+                                                  'ordered'))
+
+ }
 
  names_x_numeric <- grep(pattern = "^integer$|^numeric$",
                          x = types_x_data)
@@ -482,23 +543,25 @@ orsf <- function(data_train,
  n_leaves_mean <-
   mean(sapply(orsf_out$forest, function(t) nrow(t$leaf_node_index)))
 
- class(orsf_out) <- "aorsf"
 
  attr(orsf_out, 'mtry')            <- mtry
  attr(orsf_out, 'n_obs')           <- nrow(y_sort)
  attr(orsf_out, 'n_tree')          <- n_tree
  attr(orsf_out, 'names_y')         <- names_y_data
  attr(orsf_out, "names_x")         <- names_x_data
- attr(orsf_out, "names_x_ref")  <- colnames(x)
+ attr(orsf_out, "names_x_ref")     <- colnames(x)
  attr(orsf_out, "types_x")         <- types_x_data
  attr(orsf_out, 'n_events')        <- n_events
  attr(orsf_out, 'max_time')        <- y_sort[nrow(y_sort), 1]
+ attr(orsf_out, "unit_info")       <- c(ui_y, ui_x)
  attr(orsf_out, "fctr_info")       <- fi
  attr(orsf_out, 'n_leaves_mean')   <- n_leaves_mean
  attr(orsf_out, 'n_split')         <- n_split
  attr(orsf_out, 'leaf_min_events') <- leaf_min_events
  attr(orsf_out, 'leaf_min_obs')    <- leaf_min_obs
  attr(orsf_out, 'numeric_bounds')  <- numeric_bounds
+
+ class(orsf_out) <- "aorsf"
 
  orsf_out
 

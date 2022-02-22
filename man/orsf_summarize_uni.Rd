@@ -17,14 +17,13 @@ orsf_summarize_uni(
 \item{n_variables}{(\emph{integer}) how many variables should be summarized?
 Setting this input to a lower number will improve computation time.}
 
-\item{pred_horizon}{(\emph{double}) a single time indicating the prediction horizon.
-Predicted risk or survival values will indicate the probability of
-having an event or surviving from baseline to the prediction horizon.
-When using \code{\link[=predict.aorsf]{predict.aorsf()}}, \code{pred_horizon} can be a vector of arbitrary length.
-When using \code{\link[=orsf_pd_summary]{orsf_pd_summary()}} or \code{\link[=orsf_pd_ice]{orsf_pd_ice()}}, \code{pred_horizon} must be
-length 1. All \code{pred_horizon} values must not exceed the maximum follow-up
-time in the oblique RSF's training data. Also, \code{pred_horizon} must be entered
-in ascending order.}
+\item{pred_horizon}{(\emph{double}) a single time or a vector of times
+indicating the prediction horizon. Predicted risk or survival values
+will indicate the probability of having an event or surviving from
+baseline to the prediction horizon, respectively. All \code{pred_horizon}
+values must not exceed the maximum follow-up time in \code{object}'s
+training data. Also, \code{pred_horizon} values must be entered in
+ascending order.}
 
 \item{risk}{(\emph{logical}) if \code{TRUE}, predicted risk is returned. If \code{FALSE},
 predicted survival (i.e., 1-risk) is returned.}

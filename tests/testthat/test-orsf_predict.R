@@ -2,6 +2,8 @@
 
 train <- sample(nrow(pbc_orsf), size = 170)
 
+set.seed(1)
+
 aorsf = orsf(formula = time + status  ~ . - id,
              data = pbc_orsf[train, ],
              mtry = 5,
@@ -94,6 +96,74 @@ test_that(
   )
  }
 )
+
+
+
+test_that(
+ 'units are vetted in testing data',
+ code = {
+
+  suppressMessages(library(units))
+  pbc_units_trn <- pbc_orsf[train, ]
+  pbc_units_tst <- pbc_orsf[-train, ]
+
+
+  units(pbc_units_trn$time) <- 'days'
+  units(pbc_units_trn$age) <- 'years'
+  units(pbc_units_trn$bili) <- 'mg/dl'
+
+  set.seed(1)
+
+  fit_units = orsf(formula = time + status  ~ . - id,
+                   data = pbc_units_trn,
+                   mtry = 5,
+                   n_split = 10,
+                   n_tree = 50,
+                   oobag_pred = TRUE,
+                   leaf_min_obs = 15)
+
+
+
+  expect_message(
+   predict(fit_units, new_data = pbc_units_trn, pred_horizon = 1000),
+   regexp = 'unit attributes'
+  )
+
+  expect_error(
+   predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000),
+   regexp = 'time, age, and bili'
+  )
+
+  units(pbc_units_tst$time) <- 'years'
+  units(pbc_units_tst$age) <- 'years'
+  units(pbc_units_tst$bili) <- 'mg/dl'
+
+  expect_error(
+   predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000),
+   regexp = 'time has unit d in the training data'
+  )
+
+  units(pbc_units_tst$time) <- 'days'
+  units(pbc_units_tst$age) <- 'years'
+  units(pbc_units_tst$bili) <- 'mg/l'
+
+  expect_error(
+   predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000),
+   regexp = 'bili has unit mg/dl in the training data'
+  )
+
+  units(pbc_units_tst$time) <- 'days'
+  units(pbc_units_tst$age) <- 'years'
+  units(pbc_units_tst$bili) <- 'mg/dl'
+
+  p3 <- predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000)
+
+  expect_equal(p3, p1)
+
+ }
+
+)
+
 
 
 

@@ -1156,8 +1156,80 @@ fctr_check_levels <- function(ref,
 }
 
 
+#' check units
+#'
+#' @param new_data new data to check units in
+#'
+#' @param ui_train unit information in training data
+#'
+#' @return new_data without any unit attributes
+#'
+#' @noRd
 
-#' Run all prediction checks
+check_units <- function(new_data, ui_train) {
+
+ ui_new <- unit_info(data = new_data, .names = names(ui_train))
+
+ ui_missing <- setdiff(names(ui_train), names(ui_new))
+
+ if(!is_empty(ui_missing)){
+
+  if(length(ui_missing) == 1){
+   stop(ui_missing, "had unit attributes in training data but",
+        " did not have unit attributes in testing data.",
+        " Please ensure that variables in new data have the same",
+        " units as their counterparts in the training data.",
+        call. = FALSE)
+  }
+
+  stop(length(ui_missing),
+       " variables (",
+       paste_collapse(ui_missing, last = ' and '),
+       ") had unit attributes in training",
+       " data but did not have unit attributes in new data.",
+       " Please ensure that variables in new data have the same",
+       " units as their counterparts in the training data.",
+       call. = FALSE)
+
+ }
+
+ for(i in names(ui_train)){
+
+  if(ui_train[[i]]$label != ui_new[[i]]$label){
+
+   msg <- paste("variable", i, 'has unit', ui_train[[i]]$label,
+                'in the training data but has unit', ui_new[[i]]$label,
+                'in new data')
+
+   stop(msg, call. = FALSE)
+
+  }
+
+ }
+
+ # need to drop unit class in order to assess underlying variable type
+
+ if(!is_empty(ui_new)){
+
+  for(i in names(ui_new)){
+
+   #' @srrstats {G2.9} *Issue diagnostic message for removal of meta-data attached to unit columns*
+
+   message("dropping unit attributes from ", i,
+           " (",ui_new[[i]]$label, ") ")
+
+   class(new_data[[i]]) <- setdiff(class(new_data[[i]]), "units")
+   attr(new_data[[i]], "units") <- NULL
+
+  }
+
+ }
+
+ new_data
+
+}
+
+#' Run prediction checks
 #'
 #' The intent of this function is to protect users from common
 #'   inconsistencies that can occur between training data and

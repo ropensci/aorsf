@@ -98,4 +98,23 @@ orsf_vi <- function(object, group_factors = TRUE){
 
 
 
+orsf_vi_menze <- function(object){
+
+ vi <- as.numeric(object$signif_means)
+ names(vi) <- get_names_x(object, ref_code_names = TRUE)
+ sort(vi)
+
+}
+
+orsf_vi_pv <- function(object){
+
+ vi <- as.numeric(object$pval_means)
+ names(vi) <- get_names_x(object, ref_code_names = TRUE)
+ sort(vi)
+
+}
+
+
+
+
 
