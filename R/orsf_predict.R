@@ -59,7 +59,7 @@ predict.aorsf <- function(object,
  ui_train <- get_unit_info(object)
 
  # get unit info for new data if training data had unit variables
- if(!is_empty(ui_train)) new_data <- check_units(new_data, ui_train)
+ if(!is_empty(ui_train)) check_units(new_data, ui_train)
 
  check_predict(object, new_data, pred_horizon, risk)
 

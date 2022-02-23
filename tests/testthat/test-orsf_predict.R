@@ -122,13 +122,6 @@ test_that(
                    oobag_pred = TRUE,
                    leaf_min_obs = 15)
 
-
-
-  expect_message(
-   predict(fit_units, new_data = pbc_units_trn, pred_horizon = 1000),
-   regexp = 'unit attributes'
-  )
-
   expect_error(
    predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000),
    regexp = 'time, age, and bili'

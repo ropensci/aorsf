@@ -123,10 +123,7 @@ test_that(
   units(pbc_units$age) <- 'years'
   units(pbc_units$bili) <- 'mg/dl'
 
-  expect_message(
-   fit_units <- orsf(pbc_units, Surv(time, status) ~ . - id),
-   regexp = 'unit attributes'
-  )
+  fit_units <- orsf(pbc_units, Surv(time, status) ~ . - id)
 
   expect_equal(
    get_unit_info(fit_units),

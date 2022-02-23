@@ -292,25 +292,6 @@ orsf <- function(data_train,
 
  ui_y <- unit_info(data = data_train, .names = unit_y_names)
 
- # Remove the unit class to make sure variables have the right underlying type
- if(!is_empty(unit_y_names)){
-
-  for(i in unit_y_names){
-
-   #' @srrstats {G2.9} *Issue diagnostic message for removal of meta-data attached to unit columns*
-
-   message("dropping unit attributes from ", i,
-           " (",ui_y[[i]]$label, ") ",
-           "and saving them in output")
-
-   class(data_train[[i]]) <- setdiff(class(data_train[[i]]), "units")
-   attr(data_train[[i]], "units") <- NULL
-
-  }
-
- }
-
-
  names_x_data <- attr(formula_terms, 'term.labels')
 
  names_not_found <- setdiff(c(names_y_data, names_x_data), names(data_train))
@@ -363,32 +344,7 @@ orsf <- function(data_train,
 
  ui_x <- unit_info(data = data_train, .names = unit_x_names)
 
- # Remove the unit class to make sure variables have the right underlying type
-
- if(!is_empty(unit_x_names)){
-
-  for(i in unit_x_names){
-
-   #' @srrstats {G2.9} *Issue diagnostic message for removal of meta-data attached to unit columns*
-
-   message("dropping unit attributes from ", i,
-           " (",ui_x[[i]]$label, ") ",
-           "and saving them in output")
-   class(data_train[[i]]) <- setdiff(class(data_train[[i]]), "units")
-   attr(data_train[[i]], "units") <- NULL
-
-  }
-
-  types_x_data <- check_var_types(data_train,
-                                  names_x_data,
-                                  valid_types = c('numeric',
-                                                  'integer',
-                                                  'factor',
-                                                  'ordered'))
-
- }
-
- names_x_numeric <- grep(pattern = "^integer$|^numeric$",
+ names_x_numeric <- grep(pattern = "^integer$|^numeric$|^units$",
                          x = types_x_data)
 
  numeric_bounds <- NULL

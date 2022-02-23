@@ -1162,7 +1162,7 @@ fctr_check_levels <- function(ref,
 #'
 #' @param ui_train unit information in training data
 #'
-#' @return new_data without any unit attributes
+#' @return nada
 #'
 #' @noRd
 
@@ -1206,26 +1206,6 @@ check_units <- function(new_data, ui_train) {
   }
 
  }
-
- # need to drop unit class in order to assess underlying variable type
-
- if(!is_empty(ui_new)){
-
-  for(i in names(ui_new)){
-
-   #' @srrstats {G2.9} *Issue diagnostic message for removal of meta-data attached to unit columns*
-
-   message("dropping unit attributes from ", i,
-           " (",ui_new[[i]]$label, ") ")
-
-   class(new_data[[i]]) <- setdiff(class(new_data[[i]]), "units")
-   attr(new_data[[i]], "units") <- NULL
-
-  }
-
- }
-
- new_data
 
 }
 
