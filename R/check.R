@@ -384,8 +384,8 @@ check_arg_is <- function(arg_value, arg_name, expected_class){
 #'
 #' @srrstats {G2.4} * I think the user should be  aware of type inconsistencies in their data and the user should  also take full responsibility for managing variable types. Therefore, this function communicates problems with variable types to the user but does not fix those problems for the user. It does tell the user exactly how to fix them.*
 #'
-#' I can only run orsf() with certain types of variables. Checking
-#'   input data to make sure all variables have a primary (i.e., first)
+#' orsf() should only be run with certain types of variables. This function
+#'   checks input data to make sure all variables have a primary (i.e., first)
 #'   class that is within the list of valid options.
 #'
 #' @param data data frame with variables to be checked
@@ -1261,6 +1261,11 @@ check_predict <- function(object, new_data, pred_horizon, risk){
 
  }
 
+ ui_train <- get_unit_info(object)
+
+ # check unit info for new data if training data had unit variables
+ if(!is_empty(ui_train)) check_units(new_data, ui_train)
+
  if(any(pred_horizon > get_max_time(object))){
 
   stop("prediction horizon should ",
@@ -1293,6 +1298,33 @@ check_predict <- function(object, new_data, pred_horizon, risk){
                       names_x   = get_names_x(object),
                       fi_ref    = get_fctr_info(object),
                       label_new = "new_data")
+
+ #' @srrstats {G2.6} *ensure that one-dimensional inputs are appropriately pre-processed. aorsf does not deal with missing data as many other R packages are very good at dealing with it.*
+
+ #' @srrstats {G2.13} *check for missing data as part of initial pre-processing prior to passing data to analytic algorithms.*
+
+ #' @srrstats {G2.15} *Never pass data with potential missing values to any base routines.*
+
+ if(any(is.na(new_data[, c(get_names_y(object), get_names_x(object))]))){
+  stop("Please remove missing values from new_data, or impute them.",
+       call. = FALSE)
+ }
+
+ #' @srrstats {G2.16} *Throw hard errors if undefined values are detected.*
+
+ for(i in c(get_names_y(object), get_names_x(object))){
+
+  if(any(is.infinite(new_data[[i]]))){
+   stop("Please remove infinite values from ", i, ".",
+        call. = FALSE)
+  }
+
+  if(any(is.nan(new_data[[i]]))){
+   stop("Please remove NaN values from ", i, ".",
+        call. = FALSE)
+  }
+
+ }
 
 
 }

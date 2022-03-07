@@ -123,18 +123,19 @@ insert_vals <- function(vec, where, what){
 
  stopifnot(
   typeof(what) == typeof(vec),
-  where >= 1 & where <= length(vec)
+  where >= 1L & where <= length(vec)
  )
 
- if(where == 1){
+ if(where == 1L){
 
-  if(length(vec) == 1) return(c(what)) else return(c(what, vec[-1]))
+  if(length(vec) == 1L) return(c(what)) else return(c(what, vec[-1L]))
+
  }
 
- if(where == length(vec)) return(c(vec[1:(length(vec)-1)], what))
+ if(where == length(vec)) return(c(vec[1L:(length(vec)-1L)], what))
 
- vec_left <- vec[1:(where-1)]
- vec_right <- vec[(where+1):length(vec)]
+ vec_left <- vec[1L:(where-1L)]
+ vec_right <- vec[(where+1L):length(vec)]
 
  c(vec_left, what, vec_right)
 

@@ -54,22 +54,26 @@ predict.aorsf <- function(object,
                           risk = TRUE,
                           ...){
 
+ #' @srrstats {G2.13} *check for missing data as part of initial pre-processing prior to passing data to analytic algorithms.*
+
+ names_x_data <- get_names_x(object)
+
+ if(any(is.na(new_data[, intersect(names_x_data, names(new_data))]))){
+  stop("Please remove missing values from new_data, or impute them.",
+       call. = FALSE)
+ }
+
  #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
-
- ui_train <- get_unit_info(object)
-
- # get unit info for new data if training data had unit variables
- if(!is_empty(ui_train)) check_units(new_data, ui_train)
 
  check_predict(object, new_data, pred_horizon, risk)
 
  x_new <- as.matrix(
   ref_code(x_data = new_data,
            fi = get_fctr_info(object),
-           names_x_data = get_names_x(object))
+           names_x_data = names_x_data)
  )
 
- if(length(pred_horizon) == 1)
+ if(length(pred_horizon) == 1L)
   return(orsf_pred_uni(object$forest, x_new, pred_horizon, risk))
 
  orsf_pred_multi(object$forest, x_new, pred_horizon, risk)

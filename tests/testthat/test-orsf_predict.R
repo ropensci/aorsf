@@ -80,6 +80,21 @@ test_that(
  }
 )
 
+bad_data <- new_data
+bad_data$age[1] <- NA_real_
+
+test_that(
+ desc = 'missing values are detected',
+ code = {
+  expect_error(
+   object = predict(aorsf, bad_data, pred_horizon = 1000),
+   regexp = "missing values"
+  )
+ }
+)
+
+
+
 new_col_order <- sample(names(new_data),
                         size = ncol(new_data),
                         replace = F)
@@ -98,6 +113,7 @@ test_that(
 )
 
 
+#' @srrstats {G2.11} *test to make sure testing units are consistent with training units when someone is trying to compute predictions.*
 
 test_that(
  'units are vetted in testing data',

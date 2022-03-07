@@ -111,6 +111,8 @@ test_that(
 )
 
 
+#' @srrstats {G2.11} *testing allowance and accounting for units class*
+
 test_that(
  'orsf tracks meta data for units class variables',
  code = {

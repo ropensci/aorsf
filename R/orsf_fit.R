@@ -316,12 +316,34 @@ orsf <- function(data_train,
   warning(msg, call. = FALSE)
  }
 
- #' @srrstats {G2.6} ensure that one-dimensional inputs are appropriately pre-processed. aorsf does not deal with missing data as many other R packages are very good at dealing with it.
+ #' @srrstats {G2.6} *ensure that one-dimensional inputs are appropriately pre-processed. aorsf does not deal with missing data as many other R packages are very good at dealing with it.*
 
- if(any(is.na(data_train[, c(names_y_data, names_x_data)]))){
+ #' @srrstats {G2.13} *check for missing data as part of initial pre-processing prior to passing data to analytic algorithms.*
+
+ #' @srrstats {G2.15} *Never pass data with potential missing values to any base routines.*
+
+ if(any(is.na(select_cols(data_train, c(names_y_data, names_x_data))))){
   stop("Please remove missing values from data_train, or impute them.",
        call. = FALSE)
  }
+
+ #' @srrstats {G2.16} *Throw hard errors if undefined values are detected.*
+
+ for(i in c(names_y_data, names_x_data)){
+
+  if(any(is.infinite(data_train[[i]]))){
+   stop("Please remove infinite values from ", i, ".",
+        call. = FALSE)
+  }
+
+  if(any(is.nan(data_train[[i]]))){
+   stop("Please remove NaN values from ", i, ".",
+        call. = FALSE)
+  }
+
+ }
+
+
 
  fctr_check(data_train, names_x_data)
  fctr_id_check(data_train, names_x_data)
@@ -331,6 +353,8 @@ orsf <- function(data_train,
  x  <- as.matrix(ref_code(data_train, fi, names_x_data))
 
  #' @srrstats {G2.7} *aorsf accepts as input numeric and categorical predictor variables, including those with unit class. I do not think it is necessary to incorporate any other type of input, since it is relatively straightforward to convert data into a numeric or categorical format.*
+
+ #' @srrstats {G2.11} *I cannot write code for every possible vector class to ensure that the vector data will be safely coerced into a a valid class and the attributes will be stored in the orsf_out object. It is much easier and safer for the user to convert a few columns to numeric or factor than it is for me to attempt writing code that will safely coerce every type of vector. That being said, I do find units columns to be helpful and I've written some code to make them an allowable class in input data.*
 
  types_x_data <- check_var_types(data_train,
                                  names_x_data,

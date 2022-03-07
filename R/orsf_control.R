@@ -15,6 +15,8 @@
 #'   for tie handling. If there are no ties, all the methods are
 #'   equivalent. Valid options are 'breslow' and 'efron'.
 #'
+#' @srrstats {G3.0} *use eps to avoid comparing floating point numbers for equality*
+#'
 #' @param eps (_double_) When using Newton Raphson scoring to identify
 #'   linear combinations of inputs, iteration continues in the algorithm
 #'   until the relative change in  the log partial likelihood is less than

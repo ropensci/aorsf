@@ -70,11 +70,13 @@ In addition to their reputation for slow computing, oblique decision trees are c
 
 ### Variable importance
 
-To estimate the importance of a variable, ORSF multiplies each coefficient of that variable by -1 and then re-computes the out-of-sample (sometimes referred to as out-of-bag) accuracy of the ORSF model. 
+`aorsf` provides multiple ways to compute variable importance. 
+
+- To compute negation importance, ORSF multiplies each coefficient of that variable by -1 and then re-computes the out-of-sample (sometimes referred to as out-of-bag) accuracy of the ORSF model. 
 
 ```{r}
 
-variable_importance <- orsf_vi(orsf_fit)
+variable_importance <- orsf_vi_negate(orsf_fit)
 
 variable_importance
 

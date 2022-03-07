@@ -13,6 +13,11 @@
 #' @param n_variables (_integer_) how many variables should be summarized?
 #'   Setting this input to a lower number will improve computation time.
 #'
+#' @param importance_type (_character_) which method to use for variable
+#'   importance. Valid input values are 'anova' and 'negate'. The default
+#'   is 'anova' because it is faster. See [orsf_vi_negate] for details on
+#'   these methods.
+#'
 #' @return an object of class 'aorsf_summary'
 #'
 #' @export
@@ -26,7 +31,8 @@
 orsf_summarize_uni <- function(object,
                                n_variables = NULL,
                                pred_horizon = NULL,
-                               risk = TRUE){
+                               risk = TRUE,
+                               importance_type = 'anova'){
 
  # for CRAN check:
  medn <- name <- value <- level <- variable <- NULL
@@ -87,7 +93,11 @@ orsf_summarize_uni <- function(object,
 
  n_obs <- get_n_obs(object)
 
- importance <- orsf_vi(object, group_factors = TRUE)
+ importance <- switch(
+  importance_type,
+  'anova' = orsf_vi_anova(object, group_factors = TRUE),
+  'negate' = orsf_vi_negate(object, group_factors = TRUE)
+ )
 
  if(is.null(n_variables)) n_variables <- length(importance)
 

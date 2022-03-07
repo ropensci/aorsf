@@ -8,7 +8,8 @@ orsf_summarize_uni(
   object,
   n_variables = NULL,
   pred_horizon = NULL,
-  risk = TRUE
+  risk = TRUE,
+  importance_type = "anova"
 )
 }
 \arguments{
@@ -27,6 +28,11 @@ ascending order.}
 
 \item{risk}{(\emph{logical}) if \code{TRUE}, predicted risk is returned. If \code{FALSE},
 predicted survival (i.e., 1-risk) is returned.}
+
+\item{importance_type}{(\emph{character}) which method to use for variable
+importance. Valid input values are 'anova' and 'negate'. The default
+is 'anova' because it is faster. See \link{orsf_vi_negate} for details on
+these methods.}
 }
 \value{
 an object of class 'aorsf_summary'
