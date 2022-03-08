@@ -27,7 +27,7 @@ reference:
 - title: Interpret ORSFs
   desc: Use data from linear combinations of inputs to determine the importance of individual variables, the degree of interaction between pairs of variables, or the expected prediction from an ORSF model at a given value of one or multiple variables.
 - contents:
-  - matches("^orsf_vi$")
+  - matches("^orsf_vi")
   - matches('^orsf_interaction$')
   - starts_with("orsf_pd")
   - starts_with("orsf_summarize")
