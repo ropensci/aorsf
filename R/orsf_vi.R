@@ -30,6 +30,8 @@
 #' ANOVA importance in aorsf for an individual variable is the proportion
 #' of times a p-value for its coefficient is < 0.10.
 #'
+#' __Disclaimer__: Negation importance is currently in development and its routine may be tweaked in future updates. ANOVA importance has been published by Menze et al. and is in a more stable lifecycle than negation importance.
+#'
 #' @export
 #'
 #' @examples
