@@ -38,6 +38,8 @@ coefficient in each linear combination of variables in each decision
 tree of an oRF. Following the definition proposed by Menze et al,
 ANOVA importance in aorsf for an individual variable is the proportion
 of times a p-value for its coefficient is < 0.10.
+
+\strong{Disclaimer}: Negation importance is currently in development and its routine may be tweaked in future updates. ANOVA importance has been published by Menze et al. and is in a more stable lifecycle than negation importance.
 }
 \examples{
 

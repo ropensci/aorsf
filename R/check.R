@@ -1305,14 +1305,14 @@ check_predict <- function(object, new_data, pred_horizon, risk){
 
  #' @srrstats {G2.15} *Never pass data with potential missing values to any base routines.*
 
- if(any(is.na(new_data[, c(get_names_y(object), get_names_x(object))]))){
+ if(any(is.na(new_data[, get_names_x(object)]))){
   stop("Please remove missing values from new_data, or impute them.",
        call. = FALSE)
  }
 
  #' @srrstats {G2.16} *Throw hard errors if undefined values are detected.*
 
- for(i in c(get_names_y(object), get_names_x(object))){
+ for(i in c(get_names_x(object))){
 
   if(any(is.infinite(new_data[[i]]))){
    stop("Please remove infinite values from ", i, ".",
