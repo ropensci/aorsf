@@ -100,6 +100,38 @@ test_that(
  }
 )
 
+pd_vals_ice <- orsf_pd_ice(
+ object,
+ pd_data = pbc_orsf,
+ pd_spec = list(bili = 1:4),
+ pred_horizon = 1000,
+ oobag = FALSE
+)
+
+pd_vals_smry <- orsf_pd_summary(
+ object,
+ pd_data = pbc_orsf,
+ pd_spec = list(bili = 1:4),
+ pred_horizon = 1000,
+ oobag = FALSE
+)
+
+#' @srrstats {G5.3} *Test that objects returned contain no missing (`NA`) or undefined (`NaN`, `Inf`) values.*
+
+test_that(
+ 'No missing values in output',
+ code = {
+  expect_false(any(is.na(pd_vals_ice)))
+  expect_false(any(is.nan(as.matrix(pd_vals_ice))))
+  expect_false(any(is.infinite(as.matrix(pd_vals_ice))))
+
+  expect_false(any(is.na(pd_vals_smry)))
+  expect_false(any(is.nan(as.matrix(pd_vals_smry))))
+  expect_false(any(is.infinite(as.matrix(pd_vals_smry))))
+
+ }
+)
+
 
 # These tests are kept commented out and run locally
 # I dont want to suggest pdp package in DESCRIPTION just for testing

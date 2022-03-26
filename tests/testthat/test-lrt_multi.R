@@ -1,5 +1,6 @@
 
-
+#' @srrstatsTODO {G5.4} **Correctness tests** *test that statistical algorithms produce expected results to some fixed test data sets. I simulate arbitrary data and compare the aorsf likelihood ratio test to the same algorithm used in survival::survdiff().*
+#'
 set.seed(329)
 
 leaf_min_events <- 1

@@ -48,6 +48,8 @@ run_cph_test <- function(x, y, method, pval_max = 1){
 
 }
 
+#' @srrstatsTODO {G5.4} **Correctness tests** *test that statistical algorithms produce expected results to some fixed test data sets. I use the pbc data and compare the aorsf newton raphson algorithm to the same algorithm used in survival::coxph().*
+
 # pbc data ----------------------------------------------------------------
 
 .pbc <- pbc_orsf[order(pbc_orsf$time), ]

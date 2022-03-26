@@ -45,8 +45,14 @@ for( tr in seq(10) ){
  test_that(
   desc = 'check pred_leaf with R script',
   code = {
-   expect_equal(as.numeric(ostree_pred_leaf_testthat(tree = tree, x_pred_ = x)),
-                as.numeric(leaf_assigned))
+
+   leaves <- as.numeric(ostree_pred_leaf_testthat(tree = tree, x_pred_ = x))
+   #' @srrstats {G5.3} *Test that objects returned contain no missing (`NA`) or undefined (`NaN`, `Inf`) values.*
+   expect_false(any(is.na(leaves)))
+   expect_false(any(is.nan(leaves)))
+   expect_false(any(is.infinite(leaves)))
+   expect_equal(leaves, as.numeric(leaf_assigned))
+
   }
  )
 

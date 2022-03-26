@@ -17,6 +17,21 @@ smry_2 <- orsf_summarize_uni(object,
                              n_variables = NULL,
                              risk = risk)
 
+
+no_miss_list <- function(l){
+
+ sapply(l, function(x){
+
+  if(is.list(x)) {return(no_miss_list(x))}
+
+  any(is.na(x)) | any(is.nan(x)) | any(is.infinite(x))
+
+ })
+
+}
+
+fi <- get_fctr_info(object)
+
 #' @srrstats {G5.2} *Appropriate error behaviour is explicitly demonstrated through tests.*
 #' @srrstats {G5.2b} *Tests demonstrate conditions which trigger error messages.*
 
@@ -28,6 +43,25 @@ test_that("output is normal", {
  expect_true(smry_1$pred_horizon == object$pred_horizon)
  expect_true(smry_1$risk == risk)
 
+ rows_categorical_variables <- smry_1$dt$variable %in% fi$cols
+ rows_numeric_variables <- !rows_categorical_variables
+
+ # level should be NA when the variable is numeric
+ expect_true(all(is.na(smry_1$dt$level[rows_numeric_variables])))
+ # level should not be NA when the variable is categorical
+ expect_false(any(is.na(smry_1$dt$level[rows_categorical_variables])))
+
+ rows_categorical_variables <- smry_2$dt$variable %in% fi$cols
+ rows_numeric_variables <- !rows_categorical_variables
+ # level should be NA when the variable is numeric
+ expect_true(all(is.na(smry_2$dt$level[rows_numeric_variables])))
+ # level should not be NA when the variable is categorical
+ expect_false(any(is.na(smry_2$dt$level[rows_categorical_variables])))
+
+ #' @srrstats {G5.3} *Test that objects returned contain no missing (`NA`) or undefined (`NaN`, `Inf`) values.*
+ # only one thing should have missing values (level)
+ expect_equal(Reduce(f = sum, x = no_miss_list(smry_1)), 1)
+ expect_equal(Reduce(f = sum, x = no_miss_list(smry_2)), 1)
 
 
  expect_true(smry_2$pred_horizon == 1000)

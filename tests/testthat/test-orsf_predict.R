@@ -39,6 +39,27 @@ test_that(
  code = {expect_true(all(p1 == 1 - p2))}
 )
 
+#' @srrstats {G5.3} *Test that objects returned contain no missing (`NA`) or undefined (`NaN`, `Inf`) values.*
+
+test_that(
+ 'No missing, nan, or infinite values in prediction output',
+ code = {
+
+  expect_false(any(is.na(p1)))
+  expect_false(any(is.nan(p1)))
+  expect_false(any(is.infinite(p1)))
+
+  expect_false(any(is.na(p2)))
+  expect_false(any(is.nan(p2)))
+  expect_false(any(is.infinite(p2)))
+
+  expect_false(any(is.na(p_multi)))
+  expect_false(any(is.nan(p_multi)))
+  expect_false(any(is.infinite(p_multi)))
+
+ }
+)
+
 bad_data <- new_data
 bad_data$trt <- as.numeric(new_data$trt)
 
@@ -175,8 +196,6 @@ test_that(
  }
 
 )
-
-
 
 
 
