@@ -42,6 +42,9 @@ test_that(
 bad_data <- new_data
 bad_data$trt <- as.numeric(new_data$trt)
 
+#' @srrstats {G5.2} *Appropriate error behaviour is explicitly demonstrated through tests.*
+#' @srrstats {G5.2b} *Tests demonstrate conditions which trigger error messages.*
+
 test_that(
  desc = 'unexpected data types are detected',
  code = {

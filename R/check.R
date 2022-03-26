@@ -2,7 +2,7 @@
 
 
 
-
+#' @srrstats {G5.2a} *messages produced here (e.g., with `stop()`, `warning()`, `message()`) are unique and make effort to highlight the specific data elements that cause the error*
 
 #' strict checks for inputs
 #'

@@ -13,7 +13,9 @@
 #' @srrstats {G1.6} *orsf() should be used to compare performance claims with other packages.*
 #'
 #'
-#' @srrstats {G2.1} *Inputs have indication of type in parentheticals. This format is used in all exported functions.*
+#' @srrstats {G2.1} *Inputs have indicatigiton of type in parentheticals. This format is used in all exported functions.*
+#'
+#' @srrstats {G5.2a} *messages produced here (e.g., with `stop()`, `warning()`, `message()`) are unique and make effort to highlight the specific data elements that cause the error*
 #'
 #' The oblique random survival forest (ORSF) is an extension of the RSF
 #'   algorithm developed by Ishwaran et al and maintained in the
@@ -323,8 +325,10 @@ orsf <- function(data_train,
  #' @srrstats {G2.15} *Never pass data with potential missing values to any base routines.*
 
  if(any(is.na(select_cols(data_train, c(names_y_data, names_x_data))))){
+
   stop("Please remove missing values from data_train, or impute them.",
        call. = FALSE)
+
  }
 
  #' @srrstats {G2.16} *Throw hard errors if undefined values are detected.*

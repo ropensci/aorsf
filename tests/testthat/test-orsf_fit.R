@@ -1,6 +1,6 @@
 
 
-
+#' @srrstats {G5.0} *tests use the PBC data, a standard set that has been widely studied and disseminated in other R package (e.g., survival and randomForestSRC)*
 # catch bad inputs, give informative error
 
 pbc_temp <- pbc_orsf
@@ -22,6 +22,8 @@ f12 <- Surv(time, status) ~ . -id
 f13 <- ~ .
 f14 <- status + time ~ . - id
 
+#' @srrstats {G5.2} *Appropriate error behaviour is explicitly demonstrated through tests.*
+#' @srrstats {G5.2b} *Tests demonstrate conditions which trigger error messages.*
 test_that(
  desc = 'formula inputs are vetted',
  code = {
@@ -150,3 +152,51 @@ test_that(
  }
 
 )
+
+fit_with_vi <- orsf(data_train = pbc_orsf,
+                    formula = Surv(time, status) ~ . - id,
+                    importance = TRUE)
+
+fit_no_vi <- orsf(data_train = pbc_orsf,
+                  formula = Surv(time, status) ~ . - id,
+                  importance = TRUE)
+
+no_miss_list <- function(l){
+
+ sapply(l, function(x){
+
+  if(is.list(x)) {return(no_miss_list(x))}
+
+  any(is.na(x)) | any(is.nan(x)) | any(is.infinite(x))
+
+ })
+
+}
+
+#' @srrstats {G5.3} *Explicit test expected to return objects containing no missing (`NA`) or undefined (`NaN`, `Inf`) values are explicitly tested.*
+
+test_that(
+ "output contains no missing values",
+ code = {
+
+  miss_check_no_vi <- sapply(fit_no_vi, no_miss_list)
+  miss_check_with_vi <- sapply(fit_with_vi, no_miss_list)
+
+  for(i in seq_along(miss_check_no_vi)){
+   if(!is_empty(miss_check_no_vi[[i]]))
+    expect_true(sum(miss_check_no_vi[[i]]) == 0)
+  }
+
+  for(i in seq_along(miss_check_with_vi)){
+   if(!is_empty(miss_check_with_vi[[i]]))
+    expect_true(sum(miss_check_with_vi[[i]]) == 0)
+  }
+
+
+ }
+)
+
+
+
+
+

@@ -17,6 +17,9 @@ smry_2 <- orsf_summarize_uni(object,
                              n_variables = NULL,
                              risk = risk)
 
+#' @srrstats {G5.2} *Appropriate error behaviour is explicitly demonstrated through tests.*
+#' @srrstats {G5.2b} *Tests demonstrate conditions which trigger error messages.*
+
 test_that("output is normal", {
 
 

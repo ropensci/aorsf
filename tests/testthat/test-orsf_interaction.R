@@ -3,6 +3,9 @@ object <- orsf(data_train = pbc_orsf,
                formula = Surv(time, status) ~ . - id,
                n_tree = 200)
 
+#' @srrstats {G5.2} *Appropriate error behaviour is explicitly demonstrated through tests.*
+#' @srrstats {G5.2b} *Tests demonstrate conditions which trigger error messages.*
+
 test_that(
  'min_pairwise_obs is vetted',
  code = {

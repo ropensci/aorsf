@@ -34,6 +34,8 @@ test_that(
  }
 )
 
+#' @srrstats {G5.2} *Appropriate warning behaviour is explicitly demonstrated through tests.*
+
 test_that(
  desc = 'pd won\'t use incorrect data when oobag is true',
  code = {
@@ -48,6 +50,8 @@ test_that(
 
 
 
+#' @srrstats {G5.2} *Appropriate error behaviour is explicitly demonstrated through tests.*
+#' @srrstats {G5.2b} *Tests demonstrate conditions which trigger error messages.*
 
 test_that(
  "user cant supply empty pd_spec",
