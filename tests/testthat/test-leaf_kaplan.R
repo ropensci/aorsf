@@ -1,4 +1,8 @@
 
+#' @srrstats {G5.4} **Correctness tests** *test that statistical algorithms produce expected results to some fixed test data sets. I use the flchain data and compare the aorsf kaplan meier routine to that of the survival package.*
+
+#' @srrstats {G5.4b} *Correctness tests include tests against previous implementations, explicitly calling those implementations in testing.*
+
 library(survival)
 
 data("flchain", package = 'survival')
@@ -25,7 +29,7 @@ flchain_y <- Surv(time = df_sorted[[time]],
 
 y <- flchain_y
 ymat <- as.matrix(y)
-
+#' @srrstats {G5.5} *Correctness tests are run with a fixed random seed*
 set.seed(329)
 
 weights <- sample(1:5, length(y), replace = TRUE)
@@ -35,7 +39,7 @@ rows <- sort(sample(nrow(ymat), 20))
 bcj <- leaf_kaplan_testthat(ymat[rows, ], weights[rows])
 
 
-# run this code locally to creat kap below
+
 kap <- survival::survfit(survival::Surv(ymat[rows,1], ymat[rows,2]) ~ 1,
                          weights = weights[rows])
 

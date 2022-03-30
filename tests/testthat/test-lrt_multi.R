@@ -1,7 +1,12 @@
 
-#' @srrstatsTODO {G5.4} **Correctness tests** *test that statistical algorithms produce expected results to some fixed test data sets. I simulate arbitrary data and compare the aorsf likelihood ratio test to the same algorithm used in survival::survdiff().*
-#'
+#' @srrstats {G5.4} **Correctness tests** *test that statistical algorithms produce expected results to some fixed test data sets. I simulate arbitrary data and compare the aorsf likelihood ratio test to the same algorithm used in survival::survdiff().*
+
+#' @srrstats {G5.4b} *Correctness tests include tests against previous implementations, explicitly calling those implementations in testing.*
+
+#' @srrstats {G5.5} *Correctness tests are run with a fixed random seed*
 set.seed(329)
+
+#' @srrstatsTODO {G5.6} **Parameter recovery tests** *the likelihood ratio test returns expected values consistent with the survival implementation for randomly generated data*
 
 leaf_min_events <- 1
 leaf_min_obs    <- 15

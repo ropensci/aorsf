@@ -2,6 +2,7 @@
 
 train <- sample(nrow(pbc_orsf), size = 170)
 
+#' @srrstats {G5.5} *Correctness tests are run with a fixed random seed*
 set.seed(1)
 
 aorsf = orsf(formula = time + status  ~ . - id,
@@ -37,6 +38,25 @@ p2 <- predict(aorsf, new_data = new_data, pred_horizon = 1000, risk = FALSE)
 test_that(
  desc = 'risk is inverse of survival',
  code = {expect_true(all(p1 == 1 - p2))}
+)
+
+#' @srrstats {G5.8, G5.8a} **Edge condition tests** *Zero-length data produce expected behaviour*
+
+test_that(
+ desc = 'Boundary case: empty new data throw an error',
+ code = {
+
+  expect_error(
+   predict(aorsf, new_data = new_data[c(), ], pred_horizon = 1000),
+   regexp = 'new data are empty'
+  )
+
+  expect_error(
+   predict(aorsf, new_data = new_data[c(), ], pred_horizon = 1000),
+   regexp = 'new data are empty'
+  )
+
+ }
 )
 
 #' @srrstats {G5.3} *Test that objects returned contain no missing (`NA`) or undefined (`NaN`, `Inf`) values.*
@@ -152,6 +172,7 @@ test_that(
   units(pbc_units_trn$age) <- 'years'
   units(pbc_units_trn$bili) <- 'mg/dl'
 
+  #' @srrstats {G5.5} *Correctness tests are run with a fixed random seed*
   set.seed(1)
 
   fit_units = orsf(formula = time + status  ~ . - id,

@@ -104,13 +104,14 @@
 #'
 #' This function is based on and highly similar to the `ORSF` function
 #'   in the `obliqueRSF` R package. The primary difference is that this
-#'   function runs about 500 pred_horizon faster because it uses a simplified
-#'   Newton Raphson scoring algorithm to identify linear combinations of
+#'   function runs much faster. The speed increase is attributable to better
+#'   management of memory (i.e., no unnecessary copies of inputs) and using
+#'   a Newton Raphson scoring algorithm to identify linear combinations of
 #'   inputs rather than performing penalized regression using routines in
 #'   `glmnet`.The modified Newton Raphson scoring algorithm that this
 #'   function applies is an adaptation of the C++ routine developed by
 #'   Terry M. Therneau that fits Cox proportional hazards models
-#'   (see [survival::coxph()]).
+#'   (see [survival::coxph()] and more specifically [survival::coxph.fit()]).
 #'
 #'
 #' @srrstats {G1.3} *define oblique and axis based decision trees*
@@ -346,8 +347,6 @@ orsf <- function(data_train,
   }
 
  }
-
-
 
  fctr_check(data_train, names_x_data)
  fctr_id_check(data_train, names_x_data)

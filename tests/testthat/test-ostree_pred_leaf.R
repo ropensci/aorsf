@@ -1,5 +1,7 @@
 
+#' @srrstats {G5.4a} *Testing of leaf assignment implementation is done by comparing results from an initial R implementation to the C++ implementation.*
 
+#' @srrstats {G5.5} *Correctness tests are run with a fixed random seed*
 set.seed(1)
 
 formula <- Surv(time, status) ~ . - id
@@ -52,6 +54,8 @@ for( tr in seq(10) ){
    expect_false(any(is.nan(leaves)))
    expect_false(any(is.infinite(leaves)))
    expect_equal(leaves, as.numeric(leaf_assigned))
+
+   #' @srrstats {G5.6a} *In this case the results are integers, so no tolerance is used.*
 
   }
  )

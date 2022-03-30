@@ -1,4 +1,13 @@
 
+#' @srrstats {G5.4} **Correctness tests** *test that statistical algorithms produce expected results to some fixed test data sets. I use the pbc data and compare the aorsf newton raphson algorithm to the same algorithm used in survival::coxph().*
+
+#' @srrstats {G5.4b} *Correctness tests include tests against previous implementations, explicitly calling those implementations in testing.*
+
+#' @srrstats {G5.0} *tests use the pbc data and the flchain data, two standard datasets in the survival package that are widely studied. The pbc data are also featured in another R package for random forests, i.e., randomForestSRC*
+
+
+#' @srrstatsTODO {G5.6} **Parameter recovery tests** *The coxph newton-raphson algorithm returns coefficient values. The aorsf version matches those within a specified tolerance*
+
 iter_max = 20
 control <- survival::coxph.control(iter.max = iter_max, eps = 1e-8)
 
@@ -48,7 +57,6 @@ run_cph_test <- function(x, y, method, pval_max = 1){
 
 }
 
-#' @srrstatsTODO {G5.4} **Correctness tests** *test that statistical algorithms produce expected results to some fixed test data sets. I use the pbc data and compare the aorsf newton raphson algorithm to the same algorithm used in survival::coxph().*
 
 # pbc data ----------------------------------------------------------------
 
@@ -60,6 +68,8 @@ run_cph_test <- function(x, y, method, pval_max = 1){
 
 x <- as.matrix(.pbc[, c('trt','age','ascites','hepato','bili')])
 y <- survival::Surv(.pbc$time, .pbc$status)
+
+#' @srrstats {G5.6a} *succeed within a defined tolerance rather than recovering exact values.*
 
 test_that(
  desc = 'similar answers for pbc data',
@@ -95,6 +105,8 @@ flchain_y <- survival::Surv(time = df_sorted[[time]],
 
 x <- flchain_x[, c('age', 'sexF','sample.yr', 'kappa', 'lambda')]
 y <- flchain_y
+
+#' @srrstats {G5.6a} *succeed within a defined tolerance rather than recovering exact values.*
 
 test_that(
  desc = 'similar answers for flchain data',

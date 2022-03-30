@@ -587,6 +587,15 @@ check_orsf_inputs <- function(data_train,
                arg_name = 'data_train',
                expected_class = 'data.frame')
 
+  # Minimum event numbers are checked later.
+  # Also, later we check to make sure there are at least 2 columns.
+  # We specify ncol > 0 here to make the error message that users will
+  # receive more specific.
+  if(nrow(data_train) == 0 || ncol(data_train) ==  0){
+   stop("training data are empty",
+        call. = FALSE)
+  }
+
  }
 
  #' @srrstats {G2.9} issue diagnostic messages for blank column names. In this case, no fixes are applied. Instead, the user is notified by an error message.
@@ -1235,6 +1244,11 @@ check_predict <- function(object, new_data, pred_horizon, risk){
                arg_name = 'new_data',
                expected_class = 'data.frame')
 
+  if(nrow(new_data) == 0 || ncol(new_data) ==  0){
+   stop("new data are empty",
+        call. = FALSE)
+  }
+
  }
 
  if(!is.null(pred_horizon)){
@@ -1272,7 +1286,6 @@ check_predict <- function(object, new_data, pred_horizon, risk){
        "be <= max follow-up time ",
        "observed in training data: ",
        get_max_time(object),
-       ". You may bypass this error by setting run_checks = FALSE",
        call. = FALSE)
 
  }
