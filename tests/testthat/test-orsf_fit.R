@@ -314,18 +314,18 @@ add_noise <- function(x, eps = .Machine$double.eps){
  x + rnorm(length(x), mean = 0, sd = eps)
 }
 
-pbc_temp <- pbc_orsf
+pbc_noise <- pbc_orsf
 
 noise_vars <- c('bili', 'chol', 'albumin', 'copper', 'alk.phos', 'ast')
 
-pbc_temp[, noise_vars] <- sapply(pbc_temp[, noise_vars], add_noise)
+pbc_noise[, noise_vars] <- sapply(pbc_noise[, noise_vars], add_noise)
 
 set.seed(89)
 fit_orsf <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 10)
 set.seed(89)
 fit_orsf_2 <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 10)
 set.seed(89)
-fit_orsf_noised <- orsf(pbc_temp, Surv(time, status) ~ . - id, n_tree = 10)
+fit_orsf_noise <- orsf(pbc_noise, Surv(time, status) ~ . - id, n_tree = 10)
 
 test_that(
  desc = 'results are identical if a forest is fitted under the same random seed',
@@ -348,15 +348,15 @@ test_that(
  code = {
 
   expect_true(
-   max(abs(fit_orsf$signif_means-fit_orsf_noised$signif_means)) < 0.025
+   max(abs(fit_orsf$signif_means-fit_orsf_noise$signif_means)) < 0.025
   )
 
   expect_true(
-   abs(fit_orsf$eval_oobag$stat_values - fit_orsf_noised$eval_oobag$stat_values) < 0.01
+   abs(fit_orsf$eval_oobag$stat_values - fit_orsf_noise$eval_oobag$stat_values) < 0.01
   )
 
   expect_true(
-   max(abs(fit_orsf$surv_oobag-fit_orsf_noised$surv_oobag)) < 0.1
+   max(abs(fit_orsf$surv_oobag-fit_orsf_noise$surv_oobag)) < 0.1
   )
 
  }
