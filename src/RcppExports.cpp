@@ -69,8 +69,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // orsf_fit
-List orsf_fit(NumericMatrix& x, NumericMatrix& y, const int& n_tree, const int& n_split_, const int& mtry_, const double& leaf_min_events_, const double& leaf_min_obs_, const double& split_min_events_, const double& split_min_obs_, const int& cph_method_, const double& cph_eps_, const int& cph_iter_max_, const double& cph_pval_max_, const bool& cph_do_scale_, const double& net_alpha_, const int& net_df_target_, const bool& oobag_pred_, const double& oobag_time_, const int& oobag_eval_every_, const bool& oobag_importance_, const int& max_retry_, Function f_beta, const char& type_);
-RcppExport SEXP _aorsf_orsf_fit(SEXP xSEXP, SEXP ySEXP, SEXP n_treeSEXP, SEXP n_split_SEXP, SEXP mtry_SEXP, SEXP leaf_min_events_SEXP, SEXP leaf_min_obs_SEXP, SEXP split_min_events_SEXP, SEXP split_min_obs_SEXP, SEXP cph_method_SEXP, SEXP cph_eps_SEXP, SEXP cph_iter_max_SEXP, SEXP cph_pval_max_SEXP, SEXP cph_do_scale_SEXP, SEXP net_alpha_SEXP, SEXP net_df_target_SEXP, SEXP oobag_pred_SEXP, SEXP oobag_time_SEXP, SEXP oobag_eval_every_SEXP, SEXP oobag_importance_SEXP, SEXP max_retry_SEXP, SEXP f_betaSEXP, SEXP type_SEXP) {
+List orsf_fit(NumericMatrix& x, NumericMatrix& y, const int& n_tree, const int& n_split_, const int& mtry_, const double& leaf_min_events_, const double& leaf_min_obs_, const double& split_min_events_, const double& split_min_obs_, const int& cph_method_, const double& cph_eps_, const int& cph_iter_max_, const double& cph_pval_max_, const bool& cph_do_scale_, const double& net_alpha_, const int& net_df_target_, const bool& oobag_pred_, const double& oobag_time_, const int& oobag_eval_every_, const bool& oobag_importance_, const int& max_retry_, Function f_beta, const char& type_beta_, Function f_oobag_eval, const char& type_oobag_eval_);
+RcppExport SEXP _aorsf_orsf_fit(SEXP xSEXP, SEXP ySEXP, SEXP n_treeSEXP, SEXP n_split_SEXP, SEXP mtry_SEXP, SEXP leaf_min_events_SEXP, SEXP leaf_min_obs_SEXP, SEXP split_min_events_SEXP, SEXP split_min_obs_SEXP, SEXP cph_method_SEXP, SEXP cph_eps_SEXP, SEXP cph_iter_max_SEXP, SEXP cph_pval_max_SEXP, SEXP cph_do_scale_SEXP, SEXP net_alpha_SEXP, SEXP net_df_target_SEXP, SEXP oobag_pred_SEXP, SEXP oobag_time_SEXP, SEXP oobag_eval_every_SEXP, SEXP oobag_importance_SEXP, SEXP max_retry_SEXP, SEXP f_betaSEXP, SEXP type_beta_SEXP, SEXP f_oobag_evalSEXP, SEXP type_oobag_eval_SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -96,23 +96,27 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const bool& >::type oobag_importance_(oobag_importance_SEXP);
     Rcpp::traits::input_parameter< const int& >::type max_retry_(max_retry_SEXP);
     Rcpp::traits::input_parameter< Function >::type f_beta(f_betaSEXP);
-    Rcpp::traits::input_parameter< const char& >::type type_(type_SEXP);
-    rcpp_result_gen = Rcpp::wrap(orsf_fit(x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, split_min_events_, split_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, cph_do_scale_, net_alpha_, net_df_target_, oobag_pred_, oobag_time_, oobag_eval_every_, oobag_importance_, max_retry_, f_beta, type_));
+    Rcpp::traits::input_parameter< const char& >::type type_beta_(type_beta_SEXP);
+    Rcpp::traits::input_parameter< Function >::type f_oobag_eval(f_oobag_evalSEXP);
+    Rcpp::traits::input_parameter< const char& >::type type_oobag_eval_(type_oobag_eval_SEXP);
+    rcpp_result_gen = Rcpp::wrap(orsf_fit(x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, split_min_events_, split_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, cph_do_scale_, net_alpha_, net_df_target_, oobag_pred_, oobag_time_, oobag_eval_every_, oobag_importance_, max_retry_, f_beta, type_beta_, f_oobag_eval, type_oobag_eval_));
     return rcpp_result_gen;
 END_RCPP
 }
 // orsf_oob_vi
-arma::vec orsf_oob_vi(NumericMatrix& x, NumericMatrix& y, List& forest, const double& cstat, const double& time_pred_);
-RcppExport SEXP _aorsf_orsf_oob_vi(SEXP xSEXP, SEXP ySEXP, SEXP forestSEXP, SEXP cstatSEXP, SEXP time_pred_SEXP) {
+arma::vec orsf_oob_vi(NumericMatrix& x, NumericMatrix& y, List& forest, const double& last_eval_stat, const double& time_pred_, Function f_oobag_eval, const char& type_oobag_eval_);
+RcppExport SEXP _aorsf_orsf_oob_vi(SEXP xSEXP, SEXP ySEXP, SEXP forestSEXP, SEXP last_eval_statSEXP, SEXP time_pred_SEXP, SEXP f_oobag_evalSEXP, SEXP type_oobag_eval_SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix& >::type x(xSEXP);
     Rcpp::traits::input_parameter< NumericMatrix& >::type y(ySEXP);
     Rcpp::traits::input_parameter< List& >::type forest(forestSEXP);
-    Rcpp::traits::input_parameter< const double& >::type cstat(cstatSEXP);
+    Rcpp::traits::input_parameter< const double& >::type last_eval_stat(last_eval_statSEXP);
     Rcpp::traits::input_parameter< const double& >::type time_pred_(time_pred_SEXP);
-    rcpp_result_gen = Rcpp::wrap(orsf_oob_vi(x, y, forest, cstat, time_pred_));
+    Rcpp::traits::input_parameter< Function >::type f_oobag_eval(f_oobag_evalSEXP);
+    Rcpp::traits::input_parameter< const char& >::type type_oobag_eval_(type_oobag_eval_SEXP);
+    rcpp_result_gen = Rcpp::wrap(orsf_oob_vi(x, y, forest, last_eval_stat, time_pred_, f_oobag_eval, type_oobag_eval_));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -218,8 +222,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_newtraph_cph_testthat", (DL_FUNC) &_aorsf_newtraph_cph_testthat, 7},
     {"_aorsf_lrt_multi_testthat", (DL_FUNC) &_aorsf_lrt_multi_testthat, 6},
     {"_aorsf_ostree_pred_leaf_testthat", (DL_FUNC) &_aorsf_ostree_pred_leaf_testthat, 2},
-    {"_aorsf_orsf_fit", (DL_FUNC) &_aorsf_orsf_fit, 23},
-    {"_aorsf_orsf_oob_vi", (DL_FUNC) &_aorsf_orsf_oob_vi, 5},
+    {"_aorsf_orsf_fit", (DL_FUNC) &_aorsf_orsf_fit, 25},
+    {"_aorsf_orsf_oob_vi", (DL_FUNC) &_aorsf_orsf_oob_vi, 7},
     {"_aorsf_orsf_pred_uni", (DL_FUNC) &_aorsf_orsf_pred_uni, 4},
     {"_aorsf_orsf_pred_multi", (DL_FUNC) &_aorsf_orsf_pred_multi, 4},
     {"_aorsf_pd_new_smry", (DL_FUNC) &_aorsf_pd_new_smry, 7},

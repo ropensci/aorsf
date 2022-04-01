@@ -83,21 +83,21 @@ variable_importance
 ```
 
 
-### Variable interaction
+<!-- ### Variable interaction -->
 
-ORSF's two-way interaction score for a pair of predictors is the proportion of variability in the coefficient of one predictor explained by the mean of the other. If one predictor's coefficient is highly correlated with another predictor's mean value, the two-way interaction score will be high (maximum value of the score is 1). If there is no correlation between the coefficient of one predictor and the mean value of another, the two-way interaction score will be low (minimum value of the score is 0).
+<!-- ORSF's two-way interaction score for a pair of predictors is the proportion of variability in the coefficient of one predictor explained by the mean of the other. If one predictor's coefficient is highly correlated with another predictor's mean value, the two-way interaction score will be high (maximum value of the score is 1). If there is no correlation between the coefficient of one predictor and the mean value of another, the two-way interaction score will be low (minimum value of the score is 0). -->
 
-```{r}
+<!-- ```{r} -->
 
-variable_interaction <- orsf_interaction(orsf_fit)
+<!-- variable_interaction <- orsf_interaction(orsf_fit) -->
 
-variable_interaction[1:5, ]
+<!-- variable_interaction[1:5, ] -->
 
-```
+<!-- ``` -->
 
 ### Partial dependence
 
-`orsf_interaction()` indicated that `edema == 1` and `bili` have the highest interaction score. We can use the `orsf_pd_summary()` function (pd = partial dependence) to explore how these variables influence the expected prediction from ORSF.
+`edema == 1` may modify the effect of `bili`. We can use the `orsf_pd_summary()` function (pd = partial dependence) to explore how these variables influence the expected prediction from ORSF.
 
 ```{r}
 
@@ -121,7 +121,7 @@ ggplot(pd_data) +
 
 ```
 
-The presence of edema clearly has effect on predicted risk, which makes it hard to see the interaction effect in this plot. Let's align the partial dependence values for the edema subgroups so that each curve will start at a value of 0 
+The presence of edema clearly impacts predicted risk, which makes it hard to see the interaction effect in this plot. Let's align the partial dependence values for the edema subgroups so that each curve will start at a value of 0 
 
 ```{r}
 
@@ -156,7 +156,7 @@ ggplot(pd_data_aligned) +
 
 ```
 
-The similarity in trajectories for patients with `edema == 0` and `edema == 0.5` explains why ORSF only had a high interaction score for the combination of `edema == 1` and bilirubin. As a sanity check, we can fit a Cox regression model and conduct a likelihood ratio test for this interaction: 
+The similarity in trajectories for patients with `edema == 0` and `edema == 0.5` suggests that `edema == 1` has the strongest modifying effect of bilirubin. As a sanity check, we can fit a Cox regression model and conduct a likelihood ratio test for this interaction: 
 
 ```{r}
 
@@ -166,7 +166,7 @@ anova(coxph(Surv(time,status) ~ edema * bili, data = pbc_orsf))
 
 ```
 
-The interaction p-value of 0.0208 above should not be interpreted in the usual way because it does not account for what must be a large number of degrees of freedom used by ORSF as it scanned every pairwise interaction (153 in this case) in the data. However, it is nice to see that the strongest interaction identified by ORSF is also identified with a traditional modeling strategy.
+The interaction p-value of 0.0208 above should not be interpreted in the usual way because it was not an apriori hypothesis, (I used other software to score every pairwise interaction in the data and picked one with a strong score). However, it is nice to see that an interaction identified by ORSF's partial dependence function is also identified with a traditional modeling strategy.
 
 ### Summarize ORSF models
 
@@ -175,7 +175,6 @@ Getting straight to variable importance and partial dependence in a direct way c
 ```{r}
 orsf_summarize_uni(orsf_fit, n_variables = 5)
 ```
-
 
 ## What about the original ORSF?
 

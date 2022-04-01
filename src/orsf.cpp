@@ -67,7 +67,7 @@ int
  net_df_target,
  oobag_eval_every;
 
-char type;
+char type_beta, type_oobag_eval;
 
 // armadillo unsigned integers
 uword
@@ -103,7 +103,7 @@ bool
 vec
  vec_temp,
  times_pred,
- cstat_oobag,
+ eval_oobag,
  node_assignments,
  nodes_grown,
  surv_pvec,
@@ -1973,7 +1973,7 @@ double oobag_c_harrell(){
 
   for(j = *iit + 1; j < k; ++j){
 
-   if (time[j] > time[i]) { // ties not counted
+   if (time[j] > time[*iit]) { // ties not counted
 
     total++;
 
@@ -2677,7 +2677,7 @@ List ostree_fit(Function f_beta){
 
     }
 
-    if (type == 'C'){
+    if (type_beta == 'C'){
 
      // make sure there are at least 3 event per predictor variable.
      // (if using CPH)
@@ -2734,7 +2734,7 @@ List ostree_fit(Function f_beta){
       //
       // }
 
-      switch(type) {
+      switch(type_beta) {
 
       case 'C' :
 
@@ -2982,7 +2982,9 @@ List orsf_fit(NumericMatrix& x,
               const bool&    oobag_importance_,
               const int&     max_retry_,
               Function       f_beta,
-              const char&    type_){
+              const char&    type_beta_,
+              Function       f_oobag_eval,
+              const char&    type_oobag_eval_){
 
 
  // convert inputs into arma objects
@@ -3023,19 +3025,26 @@ List orsf_fit(NumericMatrix& x,
  oobag_eval_counter = 0;
  oobag_importance   = oobag_importance_;
  max_retry          = max_retry_;
- type               = type_;
+ type_beta          = type_beta_;
+ type_oobag_eval    = type_oobag_eval_;
  temp1              = 1.0 / n_rows;
 
  if(cph_iter_max > 1) cph_do_scale = true;
 
- if(type == 'N') cph_do_scale = false;
+ if(type_beta == 'N') cph_do_scale = false;
 
  if(oobag_pred){
+
   time_pred = oobag_time_;
+
   if(time_pred == 0) time_pred = median(y_input.col(0));
-  cstat_oobag.set_size(std::floor(n_tree / oobag_eval_every));
+
+  eval_oobag.set_size(std::floor(n_tree / oobag_eval_every));
+
  } else {
-  cstat_oobag.set_size(0);
+
+  eval_oobag.set_size(0);
+
  }
 
  // if(verbose > 0){
@@ -3164,8 +3173,31 @@ List orsf_fit(NumericMatrix& x,
 
    if(tree % oobag_eval_every == 0){
 
-    cstat_oobag[oobag_eval_counter] = oobag_c_harrell();
-    oobag_eval_counter++;
+    switch(type_oobag_eval) {
+
+    // H stands for Harrell's C-statistic
+    case 'H' :
+
+     eval_oobag[oobag_eval_counter] = oobag_c_harrell();
+     oobag_eval_counter++;
+
+     break;
+
+    // U stands for a user-supplied function
+    case 'U' :
+
+     ww = wrap(surv_pvec);
+
+     eval_oobag[oobag_eval_counter] = as<double>(
+      f_oobag_eval(y, ww)
+     );
+
+     oobag_eval_counter++;
+
+     break;
+
+    }
+
 
    }
 
@@ -3218,11 +3250,29 @@ List orsf_fit(NumericMatrix& x,
 
    }
 
-   vimp(variable) = cstat_oobag[oobag_eval_counter] - oobag_c_harrell();
+   switch(type_oobag_eval) {
+
+   // H stands for Harrell's C-statistic
+   case 'H' :
+
+    vimp(variable) = eval_oobag[oobag_eval_counter] - oobag_c_harrell();
+
+    break;
+
+    // U stands for a user-supplied function
+   case 'U' :
+
+    ww = wrap(surv_pvec);
+
+    vimp(variable) =
+     eval_oobag[oobag_eval_counter] - as<double>(f_oobag_eval(y, ww));
+
+
+    break;
+
+   }
 
   }
-
-
 
  }
 
@@ -3232,7 +3282,8 @@ List orsf_fit(NumericMatrix& x,
    _["forest"] = forest,
    _["surv_oobag"] = surv_pvec,
    _["pred_horizon"] = time_pred,
-   _["eval_oobag"] = List::create(_["c_harrell"] = cstat_oobag),
+   _["eval_oobag"] = List::create(_["stat_values"] = eval_oobag,
+                                  _["stat_type"]   = type_oobag_eval),
    _["importance"] = vimp,
    _["signif_means"] = vi_pval_numer / vi_pval_denom
   )
@@ -3245,13 +3296,16 @@ List orsf_fit(NumericMatrix& x,
 arma::vec orsf_oob_vi(NumericMatrix& x,
                       NumericMatrix& y,
                       List& forest,
-                      const double& cstat,
-                      const double& time_pred_){
+                      const double& last_eval_stat,
+                      const double& time_pred_,
+                      Function      f_oobag_eval,
+                      const char&   type_oobag_eval_){
 
  x_input = mat(x.begin(), x.nrow(), x.ncol(), false);
  y_input = mat(y.begin(), y.nrow(), y.ncol(), false);
 
  time_pred = time_pred_;
+ type_oobag_eval = type_oobag_eval_;
 
  vec vimp(x_input.n_cols);
 
@@ -3295,7 +3349,25 @@ arma::vec orsf_oob_vi(NumericMatrix& x,
 
   }
 
-  vimp(variable) = cstat - oobag_c_harrell();
+  switch(type_oobag_eval) {
+
+  // H stands for Harrell's C-statistic
+  case 'H' :
+
+   vimp(variable) = last_eval_stat - oobag_c_harrell();
+
+   break;
+
+   // U stands for a user-supplied function
+  case 'U' :
+
+   ww = wrap(surv_pvec);
+
+   vimp(variable) = last_eval_stat - as<double>(f_oobag_eval(y, ww));
+
+   break;
+
+  }
 
  }
 

@@ -24,9 +24,18 @@ print.aorsf <- function(x, ...){
  info_leaf_min_obs    <- get_leaf_min_obs(x)
  info_leaf_min_events <- get_leaf_min_events(x)
 
- info_oobag_c <- ifelse(test = contains_oobag(x),
-                        yes = table.glue::table_value(x$eval_oobag$c_harrell),
-                        no = "none")
+ info_oobag_type <- info_oobag_stat <- 'none'
+
+ if(contains_oobag(x)){
+
+  info_oobag_type <- x$eval_oobag$stat_type
+
+  info_oobag_stat <- table.glue::table_value(
+   last_value(x$eval_oobag$stat_values)
+  )
+
+ }
+
 
 
  cat('---------- Oblique random survival forest\n',
@@ -38,7 +47,8 @@ print.aorsf <- function(x, ...){
      paste0(' Average leaves per tree: ', info_n_leaves_mean  ),
      paste0('Min observations in leaf: ', info_leaf_min_obs   ),
      paste0('      Min events in leaf: ', info_leaf_min_events),
-     paste0('         OOB C-statistic: ', info_oobag_c        ),
+     paste0('          OOB stat value: ', info_oobag_stat     ),
+     paste0('           OOB stat type: ', info_oobag_type     ),
      '\n-----------------------------------------',
      sep = '\n')
 

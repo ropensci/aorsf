@@ -12,6 +12,8 @@
 #'   of individual levels of the factor. If `FALSE`, the importance of
 #'   individual factor levels will be returned.
 #'
+#' @inheritParams orsf
+#'
 #' @return a named vector. Names indicate predictors, values indicate importance.
 #'  The vector is sorted from highest to lowest value, with higher values
 #'  indicating higher importance.
@@ -50,25 +52,25 @@
 #'  Springer, Berlin, Heidelberg, 2011.
 #'  DOI: 10.1007/978-3-642-23783-6_29
 #'
-orsf_vi_negate <- function(object, group_factors = TRUE){
- orsf_vi_(object, group_factors, type = 'negate')
+orsf_vi_negate <- function(object, group_factors = TRUE, oobag_fun = NULL){
+ orsf_vi_(object, group_factors, type_vi = 'negate', oobag_fun = oobag_fun)
 }
 
 
 #' @rdname orsf_vi_negate
 #' @export
 orsf_vi_anova <- function(object, group_factors = TRUE){
- orsf_vi_(object, group_factors, type = 'anova')
+ orsf_vi_(object, group_factors, type_vi = 'anova', oobag_fun = NULL)
 }
 
 #' Variable importance working function
 #'
 #' @inheritParams orsf_vi_negate
-#' @param type the type of variable selection technique to use.
+#' @param type_vi the type of variable importance technique to use.
 #'
 #' @noRd
 #'
-orsf_vi_ <- function(object, group_factors, type){
+orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
 
  #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
 
@@ -76,7 +78,7 @@ orsf_vi_ <- function(object, group_factors, type){
                             call. = FALSE)
 
 
- switch(type,
+ switch(type_vi,
 
   'anova' = {
    out <- object$signif_means
@@ -97,10 +99,24 @@ orsf_vi_ <- function(object, group_factors, type){
 
    } else {
 
-    cstat <- last_value(object$eval_oobag$c_harrell[, 1, drop=TRUE])
+    if(is.null(oobag_fun)){
+
+     f_oobag_eval <- function(x) x
+     type_oobag_eval <- 'H'
+
+    } else {
+
+     check_oobag_fun(oobag_fun)
+     f_oobag_eval <- oobag_fun
+     type_oobag_eval <- 'U'
+
+    }
+
+    last_eval_stat <- last_value(object$eval_oobag$stat_values[, 1, drop=TRUE])
 
     y <- as.matrix(object$data_train[, get_names_y(object)])
 
+    # Put data in the same order that it was in when object was fit
     sorted <- order(y[, 1], -y[, 2])
 
     x <- as.matrix(
@@ -109,11 +125,15 @@ orsf_vi_ <- function(object, group_factors, type){
               names_x_data = get_names_x(object))
     )
 
+    # if(type_oobag_eval == 'U') browser()
+
     out <- orsf_oob_vi(x = x[sorted, ],
                        y = y[sorted, ],
-                       cstat = cstat,
+                       last_eval_stat = last_eval_stat,
                        forest = object$forest,
-                       time_pred_ = object$pred_horizon)
+                       time_pred_ = object$pred_horizon,
+                       f_oobag_eval = f_oobag_eval,
+                       type_oobag_eval_ = type_oobag_eval)
 
     rownames(out) <- colnames(x)
 
@@ -156,14 +176,6 @@ orsf_vi_ <- function(object, group_factors, type){
 }
 
 
-
-orsf_vi_menze <- function(object){
-
- vi <- as.numeric(object$signif_means)
- names(vi) <- get_names_x(object, ref_code_names = TRUE)
- sort(vi)
-
-}
 
 
 

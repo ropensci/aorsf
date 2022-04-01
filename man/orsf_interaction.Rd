@@ -38,7 +38,7 @@ set.seed(329)
 
 fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 2500)
 
-intr <- orsf_interaction(fit)
+intr <- aorsf:::orsf_interaction(fit)
 
 # edema==1 and bili are strongest interacting pair
 print(intr)

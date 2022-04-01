@@ -1,4 +1,6 @@
 
+# NOTE: THIS IS STILL EXPERIMENTAL; I MAY REMOVE IT.
+# (why? Using vip's interaction function works better, but is slower)
 
 #' ORSF interactions
 #'
@@ -17,7 +19,6 @@
 #' @return a `data.frame` with pairwise interaction scores for each
 #'   pair of predictor variables in `object`.
 #'
-#' @export
 #'
 #' @srrstats {G2.0a} *specifying the length of `min_pairwise_obs`.*
 #'
@@ -34,7 +35,7 @@
 #'
 #' fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 2500)
 #'
-#' intr <- orsf_interaction(fit)
+#' intr <- aorsf:::orsf_interaction(fit)
 #'
 #' # edema==1 and bili are strongest interacting pair
 #' print(intr)

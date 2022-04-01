@@ -17,12 +17,12 @@ ostree_pred_leaf_testthat <- function(tree, x_pred_) {
     .Call(`_aorsf_ostree_pred_leaf_testthat`, tree, x_pred_)
 }
 
-orsf_fit <- function(x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, split_min_events_, split_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, cph_do_scale_, net_alpha_, net_df_target_, oobag_pred_, oobag_time_, oobag_eval_every_, oobag_importance_, max_retry_, f_beta, type_) {
-    .Call(`_aorsf_orsf_fit`, x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, split_min_events_, split_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, cph_do_scale_, net_alpha_, net_df_target_, oobag_pred_, oobag_time_, oobag_eval_every_, oobag_importance_, max_retry_, f_beta, type_)
+orsf_fit <- function(x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, split_min_events_, split_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, cph_do_scale_, net_alpha_, net_df_target_, oobag_pred_, oobag_time_, oobag_eval_every_, oobag_importance_, max_retry_, f_beta, type_beta_, f_oobag_eval, type_oobag_eval_) {
+    .Call(`_aorsf_orsf_fit`, x, y, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, split_min_events_, split_min_obs_, cph_method_, cph_eps_, cph_iter_max_, cph_pval_max_, cph_do_scale_, net_alpha_, net_df_target_, oobag_pred_, oobag_time_, oobag_eval_every_, oobag_importance_, max_retry_, f_beta, type_beta_, f_oobag_eval, type_oobag_eval_)
 }
 
-orsf_oob_vi <- function(x, y, forest, cstat, time_pred_) {
-    .Call(`_aorsf_orsf_oob_vi`, x, y, forest, cstat, time_pred_)
+orsf_oob_vi <- function(x, y, forest, last_eval_stat, time_pred_, f_oobag_eval, type_oobag_eval_) {
+    .Call(`_aorsf_orsf_oob_vi`, x, y, forest, last_eval_stat, time_pred_, f_oobag_eval, type_oobag_eval_)
 }
 
 orsf_pred_uni <- function(forest, x_new, time_dbl, return_risk) {

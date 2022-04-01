@@ -86,12 +86,22 @@
 #'   is `oobag_eval_every = n_tree`, so that out-of-bag performance is
 #'   assessed once after growing all the trees.
 #'
+#' @param oobag_fun (_function_) When `oobag_fun` = `NULL` (the default),
+#'   out-of-bag predictions are evaluated using Harrell's C-statistic.
+#'   If a value for `oobag_fun` is provided, it will be used in place of
+#'   Harrell's C-statistic to evaluate out-of-bag predictions. The function
+#'   must have two inputs: `y_mat` and `s_vec`. The input `y_mat` is
+#'   presumed to be a matrix with two columns named `time` (first column)
+#'   and `status` (second column). The input `s_vec` is presumed to be a
+#'   numeric vector containing predicted survival probabilities for `y_mat`.
+#'
 #' @param importance (_logical_) if `TRUE`, variable importance will be
 #'   computed using _negation_ importance. With negation importance,
 #'   all coefficients for a given variable are multiplied by -1 and
 #'   then the out-of-bag error for the forest is re-computed. The greater
 #'   the degradation of the forest's error, the more important the variable.
-#'   Default is `FALSE`.
+#'   Default is `FALSE`. Note that if `oobag_fun` is specified above, it
+#'   will be used in the computation of negation importance.
 #'
 #' @param attach_data (_logical_) if `TRUE`, a copy of the training
 #'   data will be attached to the output. This is helpful if you
@@ -205,6 +215,7 @@ orsf <- function(data_train,
                  oobag_pred = TRUE,
                  oobag_time = NULL,
                  oobag_eval_every = n_tree,
+                 oobag_fun = NULL,
                  importance = FALSE,
                  attach_data = TRUE){
 
@@ -258,6 +269,19 @@ orsf <- function(data_train,
   }
 
  )
+
+ if(is.null(oobag_fun)){
+
+  f_oobag_eval <- function(x) x
+  type_oobag_eval <- 'H'
+
+ } else {
+
+  check_oobag_fun(oobag_fun)
+  f_oobag_eval <- oobag_fun
+  type_oobag_eval <- 'U'
+
+ }
 
  cph_method = control_cph$cph_method
  cph_eps = control_cph$cph_eps
@@ -493,9 +517,11 @@ orsf <- function(data_train,
                       oobag_importance_ = importance,
                       max_retry_        = n_retry,
                       f_beta            = f_beta,
-                      type_             = switch(orsf_type,
+                      type_beta_        = switch(orsf_type,
                                                  'cph' = 'C',
-                                                 'net' = 'N'))
+                                                 'net' = 'N'),
+                      f_oobag_eval      = f_oobag_eval,
+                      type_oobag_eval_  = type_oobag_eval)
 
  orsf_out$data_train <- if(attach_data) data_train else NULL
 
@@ -511,6 +537,13 @@ orsf <- function(data_train,
   # put the oob predictions into the same order as the training data.
   unsorted <- vector(mode = 'integer', length = length(sorted))
   for(i in seq_along(unsorted)) unsorted[ sorted[i] ] <- i
+
+  # clear labels for oobag evaluation type
+
+  orsf_out$eval_oobag$stat_type <-
+   switch(EXPR = orsf_out$eval_oobag$stat_type,
+          'H' = "Harrell's C-statistic",
+          'U' = "User-specified function")
 
   #' @srrstats {G2.10} *set drop = FALSE to ensure that extraction or filtering of single columns from tabular inputs should not presume any particular default behavior, and all column-extraction operations behave consistently regardless of the class of tabular data used as input.*
 

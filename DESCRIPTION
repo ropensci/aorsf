@@ -33,6 +33,7 @@ Depends:
     R (>= 3.6)
 Suggests: 
     survival,
+    survivalROC,
     ggplot2,
     testthat (>= 3.0.0),
     knitr,

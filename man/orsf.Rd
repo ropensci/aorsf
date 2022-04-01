@@ -19,6 +19,7 @@ orsf(
   oobag_pred = TRUE,
   oobag_time = NULL,
   oobag_eval_every = n_tree,
+  oobag_fun = NULL,
   importance = FALSE,
   attach_data = TRUE
 )
@@ -78,12 +79,22 @@ after growing the 10th tree, the 20th tree, and so on. Default
 is \code{oobag_eval_every = n_tree}, so that out-of-bag performance is
 assessed once after growing all the trees.}
 
+\item{oobag_fun}{(\emph{function}) When \code{oobag_fun} = \code{NULL} (the default),
+out-of-bag predictions are evaluated using Harrell's C-statistic.
+If a value for \code{oobag_fun} is provided, it will be used in place of
+Harrell's C-statistic to evaluate out-of-bag predictions. The function
+must have two inputs: \code{y_mat} and \code{s_vec}. The input \code{y_mat} is
+presumed to be a matrix with two columns named \code{time} (first column)
+and \code{status} (second column). The input \code{s_vec} is presumed to be a
+numeric vector containing predicted survival probabilities for \code{y_mat}.}
+
 \item{importance}{(\emph{logical}) if \code{TRUE}, variable importance will be
 computed using \emph{negation} importance. With negation importance,
 all coefficients for a given variable are multiplied by -1 and
 then the out-of-bag error for the forest is re-computed. The greater
 the degradation of the forest's error, the more important the variable.
-Default is \code{FALSE}.}
+Default is \code{FALSE}. Note that if \code{oobag_fun} is specified above, it
+will be used in the computation of negation importance.}
 
 \item{attach_data}{(\emph{logical}) if \code{TRUE}, a copy of the training
 data will be attached to the output. This is helpful if you
@@ -99,13 +110,14 @@ Oblique Random Survival Forest (ORSF)
 \details{
 This function is based on and highly similar to the \code{ORSF} function
 in the \code{obliqueRSF} R package. The primary difference is that this
-function runs about 500 pred_horizon faster because it uses a simplified
-Newton Raphson scoring algorithm to identify linear combinations of
+function runs much faster. The speed increase is attributable to better
+management of memory (i.e., no unnecessary copies of inputs) and using
+a Newton Raphson scoring algorithm to identify linear combinations of
 inputs rather than performing penalized regression using routines in
 \code{glmnet}.The modified Newton Raphson scoring algorithm that this
 function applies is an adaptation of the C++ routine developed by
 Terry M. Therneau that fits Cox proportional hazards models
-(see \code{\link[survival:coxph]{survival::coxph()}}).
+(see \code{\link[survival:coxph]{survival::coxph()}} and more specifically \code{\link[survival:agreg.fit]{survival::coxph.fit()}}).
 }
 \examples{
 

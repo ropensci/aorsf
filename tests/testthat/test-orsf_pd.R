@@ -86,7 +86,7 @@ test_that(
 bad_value_lower <- quantile(pbc_orsf$bili, probs = 0.01)
 bad_value_upper <- quantile(pbc_orsf$bili, probs = 0.99)
 
-#' @srrstatsTODO {G5.8, G5.8d} **Edge condition tests** * an error is thrown when partial dependence functions are asked to predict estimates outside of boundaries determined by the aorsf model's training data*
+#' @srrstats {G5.8, G5.8d} **Edge condition tests** * an error is thrown when partial dependence functions are asked to predict estimates outside of boundaries determined by the aorsf model's training data*
 
 test_that(
  "user cant supply pd_spec with values out of bounds",
