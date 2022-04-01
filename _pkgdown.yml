@@ -15,6 +15,7 @@ articles:
   contents:
   - aorsf
   - pd
+  - oobag
 
 reference:
 - title: Fit oblique random survival forests (ORSFs)
