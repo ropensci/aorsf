@@ -63,7 +63,7 @@ importance.' See 'Details' for definition of negation importance.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">orsf_vi_negate</span><span class="op">(</span><span class="va">object</span>, group_factors <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">orsf_vi_negate</span><span class="op">(</span><span class="va">object</span>, group_factors <span class="op">=</span> <span class="cn">TRUE</span>, oobag_fun <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>
 
 <span class="fu">orsf_vi_anova</span><span class="op">(</span><span class="va">object</span>, group_factors <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
     </div>
@@ -77,6 +77,15 @@ importance.' See 'Details' for definition of negation importance.</p>
 variables will be reported overall by aggregating the importance
 of individual levels of the factor. If <code>FALSE</code>, the importance of
 individual factor levels will be returned.</p></dd>
+<dt>oobag_fun</dt>
+<dd><p>(<em>function</em>) When <code>oobag_fun</code> = <code>NULL</code> (the default),
+out-of-bag predictions are evaluated using Harrell's C-statistic.
+If a value for <code>oobag_fun</code> is provided, it will be used in place of
+Harrell's C-statistic to evaluate out-of-bag predictions. The function
+must have two inputs: <code>y_mat</code> and <code>s_vec</code>. The input <code>y_mat</code> is
+presumed to be a matrix with two columns named <code>time</code> (first column)
+and <code>status</code> (second column). The input <code>s_vec</code> is presumed to be a
+numeric vector containing predicted survival probabilities for <code>y_mat</code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -115,13 +124,13 @@ DOI: 10.1007/978-3-642-23783-6_29</p>
 <span class="r-in"></span>
 <span class="r-in"><span class="fu">orsf_vi_negate</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           age          bili         stage        copper       ascites </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0158325087  0.0131763971  0.0071350450  0.0065621582  0.0060413520 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0158887268  0.0131798291  0.0071369035  0.0065638675  0.0060429256 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       spiders       albumin        hepato         edema           sex </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0041664497  0.0036977241  0.0028644341  0.0024105887  0.0022915473 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0041675349  0.0037507814  0.0029172744  0.0024112166  0.0023442384 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       protime          chol           ast      platelet      alk.phos </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0008853706  0.0007291287  0.0005977579 -0.0002604031 -0.0004166450 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0008856012  0.0007293186  0.0006251302 -0.0002604709 -0.0004167535 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          trig           trt </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0009895318 -0.0017707411 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0009897895 -0.0017712023 </span>
 <span class="r-in"><span class="fu">orsf_vi_anova</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ascites      bili     edema       age   albumin    copper   protime     stage </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.5773354 0.5407434 0.4373171 0.4271811 0.4163150 0.4126095 0.3689046 0.3670058 </span>

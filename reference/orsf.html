@@ -75,6 +75,7 @@
   oobag_pred <span class="op">=</span> <span class="cn">TRUE</span>,
   oobag_time <span class="op">=</span> <span class="cn">NULL</span>,
   oobag_eval_every <span class="op">=</span> <span class="va">n_tree</span>,
+  oobag_fun <span class="op">=</span> <span class="cn">NULL</span>,
   importance <span class="op">=</span> <span class="cn">FALSE</span>,
   attach_data <span class="op">=</span> <span class="cn">TRUE</span>
 <span class="op">)</span></code></pre></div>
@@ -136,13 +137,23 @@ ensemble will be checked every <code>oobag_eval_every</code> trees. So, if
 after growing the 10th tree, the 20th tree, and so on. Default
 is <code>oobag_eval_every = n_tree</code>, so that out-of-bag performance is
 assessed once after growing all the trees.</p></dd>
+<dt>oobag_fun</dt>
+<dd><p>(<em>function</em>) When <code>oobag_fun</code> = <code>NULL</code> (the default),
+out-of-bag predictions are evaluated using Harrell's C-statistic.
+If a value for <code>oobag_fun</code> is provided, it will be used in place of
+Harrell's C-statistic to evaluate out-of-bag predictions. The function
+must have two inputs: <code>y_mat</code> and <code>s_vec</code>. The input <code>y_mat</code> is
+presumed to be a matrix with two columns named <code>time</code> (first column)
+and <code>status</code> (second column). The input <code>s_vec</code> is presumed to be a
+numeric vector containing predicted survival probabilities for <code>y_mat</code>.</p></dd>
 <dt>importance</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, variable importance will be
 computed using <em>negation</em> importance. With negation importance,
 all coefficients for a given variable are multiplied by -1 and
 then the out-of-bag error for the forest is re-computed. The greater
 the degradation of the forest's error, the more important the variable.
-Default is <code>FALSE</code>.</p></dd>
+Default is <code>FALSE</code>. Note that if <code>oobag_fun</code> is specified above, it
+will be used in the computation of negation importance.</p></dd>
 <dt>attach_data</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, a copy of the training
 data will be attached to the output. This is helpful if you
@@ -157,13 +168,14 @@ forest using its training data. Default is <code>TRUE</code>.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function is based on and highly similar to the <code>ORSF</code> function
 in the <code>obliqueRSF</code> R package. The primary difference is that this
-function runs about 500 pred_horizon faster because it uses a simplified
-Newton Raphson scoring algorithm to identify linear combinations of
+function runs much faster. The speed increase is attributable to better
+management of memory (i.e., no unnecessary copies of inputs) and using
+a Newton Raphson scoring algorithm to identify linear combinations of
 inputs rather than performing penalized regression using routines in
 <code>glmnet</code>.The modified Newton Raphson scoring algorithm that this
 function applies is an adaptation of the C++ routine developed by
 Terry M. Therneau that fits Cox proportional hazards models
-(see <code><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">survival::coxph()</a></code>).</p>
+(see <code><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">survival::coxph()</a></code> and more specifically <code><a href="https://rdrr.io/pkg/survival/man/agreg.fit.html" class="external-link">survival::coxph.fit()</a></code>).</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -194,7 +206,8 @@ DOI: 10.1214/19-AOAS1261</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Average leaves per tree: 19</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Min observations in leaf: 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       Min events in leaf: 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          OOB C-statistic: 0.84</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           OOB stat value: 0.84</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            OOB stat type: Harrell's C-statistic</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -----------------------------------------</span>
 <span class="r-in"></span>
