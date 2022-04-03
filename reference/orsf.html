@@ -78,8 +78,11 @@
   oobag_eval_every <span class="op">=</span> <span class="va">n_tree</span>,
   oobag_fun <span class="op">=</span> <span class="cn">NULL</span>,
   importance <span class="op">=</span> <span class="cn">FALSE</span>,
-  attach_data <span class="op">=</span> <span class="cn">TRUE</span>
-<span class="op">)</span></code></pre></div>
+  attach_data <span class="op">=</span> <span class="cn">TRUE</span>,
+  no_fit <span class="op">=</span> <span class="cn">FALSE</span>
+<span class="op">)</span>
+
+<span class="fu">orsf_train</span><span class="op">(</span><span class="va">object</span><span class="op">)</span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -160,6 +163,13 @@ will be used in the computation of negation importance.</p></dd>
 data will be attached to the output. This is helpful if you
 plan on using functions like <a href="orsf_pd_summary.html">orsf_pd_summary</a> to interpret the fitted
 forest using its training data. Default is <code>TRUE</code>.</p></dd>
+<dt>no_fit</dt>
+<dd><p>(<em>logical</em>) if <code>TRUE</code>, pre-processing steps are defined and
+parametrized, but training is not initiated. The object returned can be
+directly submitted to <code>orsf_train()</code> so long as <code>attach_data</code> is <code>TRUE</code>.</p></dd>
+<dt>object</dt>
+<dd><p>an untrained aorsf object, created by setting
+<code>no_fit = TRUE</code> in <code>orsf()</code>.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -207,7 +217,7 @@ DOI: 10.1214/19-AOAS1261</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Average leaves per tree: 19</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Min observations in leaf: 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       Min events in leaf: 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           OOB stat value: 0.84</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           OOB stat value: 0.85</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            OOB stat type: Harrell's C-statistic</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -----------------------------------------</span>
