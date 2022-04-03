@@ -108,6 +108,13 @@
 #'   plan on using functions like [orsf_pd_summary] to interpret the fitted
 #'   forest using its training data. Default is `TRUE`.
 #'
+#' @param no_fit (_logical_) if `TRUE`, pre-processing steps are defined and
+#'   parametrized, but training is not initiated. The object returned can be
+#'   directly submitted to `orsf_train()` so long as `attach_data` is `TRUE`.
+#'
+#' @param object an untrained aorsf object, created by setting
+#'   `no_fit = TRUE` in `orsf()`.
+#'
 #' @return an accelerated oblique RSF object (`aorsf`)
 #'
 #' @details
@@ -217,7 +224,8 @@ orsf <- function(data_train,
                  oobag_eval_every = n_tree,
                  oobag_fun = NULL,
                  importance = FALSE,
-                 attach_data = TRUE){
+                 attach_data = TRUE,
+                 no_fit = FALSE){
 
 
  #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
@@ -376,8 +384,6 @@ orsf <- function(data_train,
  fctr_id_check(data_train, names_x_data)
 
  fi <- fctr_info(data_train, names_x_data)
- y  <- as.matrix(select_cols(data_train, names_y_data))
- x  <- as.matrix(ref_code(data_train, fi, names_x_data))
 
  #' @srrstats {G2.7} *aorsf accepts as input numeric and categorical predictor variables, including those with unit class. I do not think it is necessary to incorporate any other type of input, since it is relatively straightforward to convert data into a numeric or categorical format.*
 
@@ -407,10 +413,10 @@ orsf <- function(data_train,
           probs = c(0.10, 0.25, 0.50, 0.75, 0.90))
  }
 
+ y  <- as.matrix(select_cols(data_train, names_y_data))
+ x  <- as.matrix(ref_code(data_train, fi, names_x_data))
 
- if(is.null(mtry)){
-  mtry <- ceiling(sqrt(ncol(x)))
- }
+ if(is.null(mtry)) mtry <- ceiling(sqrt(ncol(x)))
 
  if(is.null(net_df_target)) net_df_target <- mtry
 
@@ -419,6 +425,7 @@ orsf <- function(data_train,
   stop("net_df_target = ", net_df_target,
        " must be <= mtry, which is ", mtry,
        call. = FALSE)
+
 
  # Check the outcome variable
  check_arg_type(arg_value = y[, 2],
@@ -486,7 +493,6 @@ orsf <- function(data_train,
 
  }
 
-
  sorted <- order(y[, 1],  # order this way for risk sets
                  -y[, 2]) # order this way for oob C-statistic.
 
@@ -495,7 +501,7 @@ orsf <- function(data_train,
 
  orsf_out <- orsf_fit(x                 = x_sort,
                       y                 = y_sort,
-                      n_tree            = n_tree,
+                      n_tree            = if(no_fit) 0 else n_tree,
                       n_split_          = n_split,
                       mtry_             = mtry,
                       leaf_min_events_  = leaf_min_events,
@@ -505,7 +511,7 @@ orsf <- function(data_train,
                       cph_method_       = switch(tolower(cph_method),
                                                  'breslow' = 0,
                                                  'efron'   = 1),
-                      cph_eps_          = cph_eps,
+                      cph_eps_          = cph_eps, #
                       cph_iter_max_     = cph_iter_max,
                       cph_pval_max_     = cph_pval_max,
                       cph_do_scale_     = cph_do_scale,
@@ -556,26 +562,49 @@ orsf <- function(data_train,
 
  }
 
- n_leaves_mean <-
-  mean(sapply(orsf_out$forest, function(t) nrow(t$leaf_node_index)))
+ n_leaves_mean <- 0
+
+ if(!no_fit) {
+  n_leaves_mean <-
+   mean(sapply(orsf_out$forest, function(t) nrow(t$leaf_node_index)))
+ }
 
 
- attr(orsf_out, 'mtry')            <- mtry
- attr(orsf_out, 'n_obs')           <- nrow(y_sort)
- attr(orsf_out, 'n_tree')          <- n_tree
- attr(orsf_out, 'names_y')         <- names_y_data
- attr(orsf_out, "names_x")         <- names_x_data
- attr(orsf_out, "names_x_ref")     <- colnames(x)
- attr(orsf_out, "types_x")         <- types_x_data
- attr(orsf_out, 'n_events')        <- n_events
- attr(orsf_out, 'max_time')        <- y_sort[nrow(y_sort), 1]
- attr(orsf_out, "unit_info")       <- c(ui_y, ui_x)
- attr(orsf_out, "fctr_info")       <- fi
- attr(orsf_out, 'n_leaves_mean')   <- n_leaves_mean
- attr(orsf_out, 'n_split')         <- n_split
- attr(orsf_out, 'leaf_min_events') <- leaf_min_events
- attr(orsf_out, 'leaf_min_obs')    <- leaf_min_obs
- attr(orsf_out, 'numeric_bounds')  <- numeric_bounds
+
+ attr(orsf_out, 'mtry')               <- mtry
+ attr(orsf_out, 'n_obs')              <- nrow(y_sort)
+ attr(orsf_out, 'n_tree')             <- n_tree
+ attr(orsf_out, 'names_y')            <- names_y_data
+ attr(orsf_out, "names_x")            <- names_x_data
+ attr(orsf_out, "names_x_ref")        <- colnames(x)
+ attr(orsf_out, "types_x")            <- types_x_data
+ attr(orsf_out, 'n_events')           <- n_events
+ attr(orsf_out, 'max_time')           <- y_sort[nrow(y_sort), 1]
+ attr(orsf_out, "unit_info")          <- c(ui_y, ui_x)
+ attr(orsf_out, "fctr_info")          <- fi
+ attr(orsf_out, 'n_leaves_mean')      <- n_leaves_mean
+ attr(orsf_out, 'n_split')            <- n_split
+ attr(orsf_out, 'leaf_min_events')    <- leaf_min_events
+ attr(orsf_out, 'leaf_min_obs')       <- leaf_min_obs
+ attr(orsf_out, 'split_min_events')   <- split_min_events
+ attr(orsf_out, 'split_min_obs')      <- split_min_obs
+ attr(orsf_out, 'cph_method')         <- cph_method
+ attr(orsf_out, 'cph_eps')            <- cph_eps
+ attr(orsf_out, 'cph_iter_max')       <- cph_iter_max
+ attr(orsf_out, 'cph_pval_max')       <- cph_pval_max
+ attr(orsf_out, 'cph_do_scale')       <- cph_do_scale
+ attr(orsf_out, 'net_alpha')          <- net_alpha
+ attr(orsf_out, 'net_df_target')      <- net_df_target
+ attr(orsf_out, 'numeric_bounds')     <- numeric_bounds
+ attr(orsf_out, 'trained')            <- !no_fit
+ attr(orsf_out, 'n_retry')            <- n_retry
+ attr(orsf_out, 'orsf_type')          <- orsf_type
+ attr(orsf_out, 'f_beta')             <- f_beta
+ attr(orsf_out, 'f_oobag_eval')       <- f_oobag_eval
+ attr(orsf_out, 'type_oobag_eval')    <- type_oobag_eval
+ attr(orsf_out, 'oobag_pred')         <- oobag_pred
+ attr(orsf_out, 'oobag_eval_every')   <- oobag_eval_every
+ attr(orsf_out, 'importance')         <- importance
 
  class(orsf_out) <- "aorsf"
 
@@ -585,7 +614,108 @@ orsf <- function(data_train,
 }
 
 
+#' @rdname orsf
+#' @export
+orsf_train <- function(object){
 
+ if(is_trained(object)){
+  stop("object has already been trained", call. = FALSE)
+ }
+
+ if(is.null(object$data_train)){
+  stop("object must have training data attached.",
+       " Set attach_data = TRUE in orsf()",
+       call. = FALSE)
+ }
+
+ y  <- as.matrix(select_cols(object$data_train, get_names_y(object)))
+
+ x  <- as.matrix(ref_code(object$data_train,
+                          get_fctr_info(object),
+                          get_names_x(object, ref_code_names = FALSE)))
+
+ sorted <- order(y[, 1],  # order this way for risk sets
+                 -y[, 2]) # order this way for oob C-statistic.
+
+ x_sort <- x[sorted, ]
+ y_sort <- y[sorted, ]
+
+ orsf_out <- orsf_fit(
+  x                 = x_sort,
+  y                 = y_sort,
+  n_tree            = get_n_tree(object),
+  n_split_          = get_n_split(object),
+  mtry_             = get_mtry(object),
+  leaf_min_events_  = get_leaf_min_events(object),
+  leaf_min_obs_     = get_leaf_min_obs(object),
+  split_min_events_ = get_split_min_events(object),
+  split_min_obs_    = get_split_min_obs(object),
+  cph_method_       = switch(tolower(get_cph_method(object)),
+                             'breslow' = 0,
+                             'efron'   = 1),
+  cph_eps_          = get_cph_eps(object), #
+  cph_iter_max_     = get_cph_iter_max(object),
+  cph_pval_max_     = get_cph_pval_max(object),
+  cph_do_scale_     = get_cph_do_scale(object),
+  net_alpha_        = get_net_alpha(object),
+  net_df_target_    = get_net_df_target(object),
+  oobag_pred_       = get_oobag_pred(object),
+  oobag_time_       = object$pred_horizon,
+  oobag_eval_every_ = get_oobag_eval_every(object),
+  oobag_importance_ = get_importance(object),
+  max_retry_        = get_n_retry(object),
+  f_beta            = get_f_beta(object),
+  type_beta_        = switch(get_orsf_type(object),
+                             'cph' = 'C',
+                             'net' = 'N'),
+  f_oobag_eval      = get_f_oobag_eval(object),
+  type_oobag_eval_  = get_type_oobag_eval(object)
+ )
+
+ object$forest       <- orsf_out$forest
+ object$surv_oobag   <- orsf_out$surv_oobag
+ object$pred_horizon <- orsf_out$pred_horizon
+ object$eval_oobag   <- orsf_out$eval_oobag
+ object$importance   <- orsf_out$importance
+ object$signif_means <- orsf_out$signif_means
+
+ if(get_importance(object)){
+
+  rownames(object$importance) <- colnames(x)
+
+  object$importance <-
+   rev(object$importance[order(object$importance), , drop=TRUE])
+
+ }
+
+
+ if(get_oobag_pred(object)){
+
+  # put the oob predictions into the same order as the training data.
+  unsorted <- vector(mode = 'integer', length = length(sorted))
+  for(i in seq_along(unsorted)) unsorted[ sorted[i] ] <- i
+
+  # clear labels for oobag evaluation type
+
+  object$eval_oobag$stat_type <-
+   switch(EXPR = object$eval_oobag$stat_type,
+          'H' = "Harrell's C-statistic",
+          'U' = "User-specified function")
+
+  object$surv_oobag <- object$surv_oobag[unsorted, , drop = FALSE]
+
+ }
+
+ attr(object, "n_leaves_mean") <- mean(
+  sapply(object$forest, function(t) nrow(t$leaf_node_index))
+ )
+
+ attr(object, 'trained') <- TRUE
+
+
+ object
+
+}
 
 
 

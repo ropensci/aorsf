@@ -30,15 +30,25 @@ print.aorsf <- function(x, ...){
 
   info_oobag_type <- x$eval_oobag$stat_type
 
-  info_oobag_stat <- table.glue::table_value(
-   last_value(x$eval_oobag$stat_values)
-  )
+  info_oobag_stat <- "Not estimated"
+
+  if(is_trained(x)){
+   info_oobag_stat <- table.glue::table_value(
+    last_value(x$eval_oobag$stat_values)
+   )
+  }
+
 
  }
 
 
+ header <- '---------- Oblique random survival forest\n'
 
- cat('---------- Oblique random survival forest\n',
+ if(!is_trained(x)){
+  header <- 'Untrained Oblique random survival forest\n'
+ }
+
+ cat(header,
      paste0('          N observations: ', info_n_obs          ),
      paste0('                N events: ', info_n_events       ),
      paste0('                 N trees: ', info_n_tree         ),

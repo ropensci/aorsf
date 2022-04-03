@@ -237,14 +237,14 @@ test_that(
    orsf(pbc_orsf,
         control = orsf_control_cph(iter_max = 50, eps = 1),
         Surv(time, status) ~ . -id,
-        n_tree = 50)
+        n_tree = 150)
   )
 
   time_large <- system.time(
    orsf(pbc_orsf,
         control = orsf_control_cph(iter_max = 50, eps = 1e-10),
         Surv(time, status) ~ . -id,
-        n_tree = 50)
+        n_tree = 150)
   )
 
   expect_true(time_small['elapsed'] < time_large['elapsed'])
@@ -265,7 +265,7 @@ test_that(
   time_large <- system.time(
    orsf(pbc_orsf,
         Surv(time, status) ~ . -id,
-        n_tree = 100)
+        n_tree = 1000) # big difference prevents unneeded failure
   )
 
   expect_true(time_small['elapsed'] < time_large['elapsed'])
@@ -327,6 +327,13 @@ fit_orsf_2 <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 10)
 set.seed(89)
 fit_orsf_noise <- orsf(pbc_noise, Surv(time, status) ~ . - id, n_tree = 10)
 
+# testing the seed behavior when no_fit is TRUE. You should get the same
+# forest whether you train with orsf() or with orsf_train().
+object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
+               n_tree = 10, no_fit = TRUE)
+set.seed(89)
+fit_orsf_3 <- orsf_train(object)
+
 test_that(
  desc = 'results are identical if a forest is fitted under the same random seed',
  code = {
@@ -338,7 +345,43 @@ test_that(
     object = fit_orsf$forest[[i]]$betas,
     expected = fit_orsf_2$forest[[i]]$betas
    )
+   expect_equal(
+    object = fit_orsf$forest[[i]]$betas,
+    expected = fit_orsf_3$forest[[i]]$betas
+   )
   }
+
+  attr_orsf <- attributes(fit_orsf)
+  attr_orsf_3 <- attributes(fit_orsf_3)
+
+  for(i in names(attr_orsf)){
+
+   if( !(i %in% c('f_beta', 'f_oobag_eval')) ){
+
+    expect_equal(attr_orsf[[i]], attr_orsf_3[[i]])
+
+   }
+
+  }
+
+ }
+
+)
+
+test_that(
+ desc = 'orsf_train does not accept bad inputs',
+ code = {
+
+  expect_error(orsf_train(object = fit_orsf), regexp = 'been trained')
+
+  fit_nodat <- orsf(pbc_orsf,
+                    Surv(time, status) ~ . - id,
+                    n_tree = 2,
+                    no_fit = TRUE,
+                    attach_data = FALSE)
+
+  expect_error(orsf_train(object = fit_nodat),
+               regexp = 'training data attached')
 
  }
 )
@@ -362,7 +405,6 @@ test_that(
  }
 
 )
-
 
 
 

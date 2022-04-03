@@ -2,6 +2,7 @@
 % Please edit documentation in R/orsf_fit.R
 \name{orsf}
 \alias{orsf}
+\alias{orsf_train}
 \title{Oblique Random Survival Forest (ORSF)}
 \usage{
 orsf(
@@ -21,8 +22,11 @@ orsf(
   oobag_eval_every = n_tree,
   oobag_fun = NULL,
   importance = FALSE,
-  attach_data = TRUE
+  attach_data = TRUE,
+  no_fit = FALSE
 )
+
+orsf_train(object)
 }
 \arguments{
 \item{data_train}{(\emph{data.frame}) that will be used to grow the forest.}
@@ -100,6 +104,13 @@ will be used in the computation of negation importance.}
 data will be attached to the output. This is helpful if you
 plan on using functions like \link{orsf_pd_summary} to interpret the fitted
 forest using its training data. Default is \code{TRUE}.}
+
+\item{no_fit}{(\emph{logical}) if \code{TRUE}, pre-processing steps are defined and
+parametrized, but training is not initiated. The object returned can be
+directly submitted to \code{orsf_train()} so long as \code{attach_data} is \code{TRUE}.}
+
+\item{object}{an untrained aorsf object, created by setting
+\code{no_fit = TRUE} in \code{orsf()}.}
 }
 \value{
 an accelerated oblique RSF object (\code{aorsf})
