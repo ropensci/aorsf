@@ -30,6 +30,8 @@
 #'   novel algorithm that speeds up the ORSF algorithm described by Jaeger
 #'   et al (see details).
 #'
+#' @srrstats {ML1.1} *Training data are labelled as "train".*
+#'
 #' @param data_train (_data.frame_) that will be used to grow the forest.
 #'
 #' @srrstats {G2.5} factors used as predictors can be ordered and un-ordered.
@@ -108,10 +110,18 @@
 #'   plan on using functions like [orsf_pd_summary] to interpret the fitted
 #'   forest using its training data. Default is `TRUE`.
 #'
+#' @srrstats {ML2.0, ML2.0b} *orsf() enables pre-processing steps to be defined and parametrized without fitting a model when no_fit is TRUE, returning an object with a defined class minimally intended to implement a default `print` method which summarizes the model specifications.*
+#'
+#' @srrstats {ML3.0} *Model specification can be implemented prior to actual model fitting or training*
+#' @srrstats {ML3.0a} *As pre-processing, model specification, and training are controlled by the orsf() function, an input parameter (no_fit) enables models to be specified yet not fitted.*
+#'
 #' @param no_fit (_logical_) if `TRUE`, pre-processing steps are defined and
 #'   parametrized, but training is not initiated. The object returned can be
 #'   directly submitted to `orsf_train()` so long as `attach_data` is `TRUE`.
 #'
+#' @srrstats {ML3.0c} *when no_fit=TRUE, orsf() will return an object that can be directly trained using orsf_train().*
+#'
+#' and run the model training procedures.*
 #' @param object an untrained aorsf object, created by setting
 #'   `no_fit = TRUE` in `orsf()`.
 #'
@@ -160,6 +170,16 @@
 #'
 #' Random forests are collections of de-correlated decision trees. Predictions from each tree are aggregated to make an ensemble prediction for the forest. For more details, see Breiman at el, 2001.
 #'
+#' @srrstats {ML1.0} *Make a clear conceptual distinction between training and test data*
+#'
+#' __Training, out-of-bag error, and testing__
+#'
+#' In random forests, each tree is grown with a bootstrapped version of the training set. Because bootstrap samples are selected with replacement, each bootstrapped training set contains about two-thirds of instances in the original training set. The 'out-of-bag' data are instances that are _not_ in the bootstrapped training set. Each tree in the random forest can make predictions for its out-of-bag data, and the out-of-bag predictions can be aggregated to make an ensemble out-of-bag prediction. Since the out-of-bag data are not used to grow the tree, the accuracy of the ensemble out-of-bag predictions approximate the generalization error of the random forest. Generalization error refers to the error of a random forest's predictions when it is applied to predict outcomes for data that were not used to train it, i.e., testing data.
+#'
+#' __Missing data__
+#' @srrstats {ML1.6a} *Explain why missing values are not admitted.*
+#' Data passed to aorsf functions are not allowed to have missing values. A user should impute missing values using an R package with that purpose, such as `recipes` or `mlr3pipelines`. Other software such as `xgboost` send data with missing values down a decision tree based on whichever direction minimizes a specified error function. While this technique is very effective for axis-based decision trees, it is not clear how it should be applied in the case of oblique decision trees. For example, what should be done if three variables were used to split a node and one of these three variable has a missing value? In this case, mean imputation of the missing variable may be the best option.
+#'
 #' __Some comments on inputs__
 #'
 #' _formula_: The response in `formula` can be a survival
@@ -204,9 +224,74 @@
 #'
 #' @examples
 #'
+#'
 #' fit <- orsf(pbc_orsf, formula = Surv(time, status) ~ . - id)
 #'
 #' print(fit)
+#'
+#' @srrstats {ML1.6b} *Explicit example showing how missing values may be imputed rather than discarded.*
+#'
+#' \dontrun{requires too many external packages
+#'
+#' # --------------------------------------------------------------------------
+#' # a standard machine learning workflow using aorsf and tidymodels
+#' # --------------------------------------------------------------------------
+#'
+#' library(tidymodels)
+#' library(tidyverse)
+#' library(survivalROC)
+#' library(aorsf)
+#'
+#' set.seed(329)
+#'
+#' # a recipe to impute missing values instead of discarding them.
+#' # this is for illustration only. pbc_orsf does not have missing values
+#'
+#' imputer <- recipe(x = pbc_orsf, time + status ~ .) |>
+#'  step_impute_mean(all_numeric_predictors()) |>
+#'  step_impute_mode(all_nominal_predictors()) |>
+#'  step_rm(id)
+#'
+#' # 10-fold cross validation; make a container for the pre-processed data
+#' analyses <- vfold_cv(data = pbc_orsf, v = 10) |>
+#'  mutate(recipe = map(splits, ~prep(imputer, training = training(.x))),
+#'         data_train = map(recipe, juice),
+#'         data_test = map2(splits, recipe, ~bake(.y, new_data = testing(.x))))
+#'
+#' # 10-fold cross validation; train models and compute test predictions
+#' aorsf_data <- analyses |>
+#'  select(data_train, data_test) |>
+#'  mutate(fit = map(data_train, orsf, formula = time + status ~ .),
+#'         pred = map2(fit, data_test, predict, pred_horizon = 3500),
+#'         pred = map(pred, as.numeric))
+#'
+#' # testing sets are small, so pool them and compute 1 overall C-stat.
+#' aorsf_eval <- aorsf_data |>
+#'  select(data_test, pred) |>
+#'  unnest(cols = everything()) |>
+#'  summarize(
+#'   auc = survivalROC(Stime = time,
+#'                     status = status,
+#'                     marker = pred,
+#'                     predict.time = 3500,
+#'                     span = 0.25*n()^(-0.20)) |>
+#'    getElement('AUC')
+#'  )
+#'
+#' # C-stat: 0.816
+#' aorsf_eval
+#'
+#' # standard workflow for model development: fit and interpret
+#'
+#' aorsf_fit <- orsf(pbc_orsf, time + status ~ .,
+#'                   importance = TRUE,
+#'                   n_tree = 2500,
+#'                   oobag_time = 3500)
+#'
+#' aorsf_smry <- orsf_summarize_uni(aorsf_fit, n_variables = 5)
+#'
+#' }
+#'
 #'
 orsf <- function(data_train,
                  formula,
@@ -226,7 +311,6 @@ orsf <- function(data_train,
                  importance = FALSE,
                  attach_data = TRUE,
                  no_fit = FALSE){
-
 
  #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
 
@@ -356,6 +440,9 @@ orsf <- function(data_train,
  #' @srrstats {G2.13} *check for missing data as part of initial pre-processing prior to passing data to analytic algorithms.*
 
  #' @srrstats {G2.15} *Never pass data with potential missing values to any base routines.*
+
+
+ #' @srrstats {ML1.6} *do not admit missing values, and implement explicit pre-processing routines to identify whether data has any missing values. Throw errors appropriately and informatively when passed data contain missing values.*
 
  if(any(is.na(select_cols(data_train, c(names_y_data, names_x_data))))){
 
@@ -499,6 +586,8 @@ orsf <- function(data_train,
  x_sort <- x[sorted, ]
  y_sort <- y[sorted, ]
 
+ #' @srrstats {ML2.3} *Values associated with transformations are recorded in the object returned by orsf(), specifically in object$forest[[<insert tree number>]]$x_mean*
+
  orsf_out <- orsf_fit(x                 = x_sort,
                       y                 = y_sort,
                       n_tree            = if(no_fit) 0 else n_tree,
@@ -613,7 +702,8 @@ orsf <- function(data_train,
 
 }
 
-
+#' @srrstats {ML2.0a} *objects returned from orsf() with no_fit = TRUE can be directly submitted to orsf_train to train the model specification.*
+#'
 #' @rdname orsf
 #' @export
 orsf_train <- function(object){

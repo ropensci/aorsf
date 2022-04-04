@@ -132,6 +132,7 @@ Terry M. Therneau that fits Cox proportional hazards models
 }
 \examples{
 
+
 fit <- orsf(pbc_orsf, formula = Surv(time, status) ~ . - id)
 
 print(fit)

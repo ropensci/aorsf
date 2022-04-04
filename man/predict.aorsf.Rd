@@ -37,7 +37,12 @@ Predict risk or survival
 }
 \examples{
 
+#' @srrstats {ML1.1} using the terms 'train' and 'test'.
+
+# indices of data used for training the model
 train <- seq(1, nrow(pbc_orsf), by = 2)
+
+# indices of data used to test the trained model.
 test <- seq(2, nrow(pbc_orsf), by = 2)
 
 fit <- orsf(pbc_orsf[train, ], Surv(time, status) ~ . - id)

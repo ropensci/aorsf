@@ -11,52 +11,26 @@
 #'
 
 
-#' @srrstatsTODO {ML1.0} *Documentation should make a clear conceptual distinction between training and test data (even where such may ultimately be confounded as described above.)*
-#' @srrstatsTODO {ML1.0a} *Where these terms are ultimately eschewed, these should nevertheless be used in initial documentation, along with clear explanation of, and justification for, alternative terminology.*
-#' @srrstatsTODO {ML1.1} *Absent clear justification for alternative design decisions, input data should be expected to be labelled "test", "training", and, where applicable, "validation" data.*
-#' @srrstatsTODO {ML1.1a} *The presence and use of these labels should be explicitly confirmed via pre-processing steps (and tested in accordance with **ML7.0**, below).*
-#' @srrstatsTODO {ML1.1b} *Matches to expected labels should be case-insensitive and based on partial matching such that, for example, "Test", "test", or "testing" should all suffice.*
-#' @srrstatsTODO {ML1.2} *Training and test data sets for ML software should be able to be input as a single, generally tabular, data object, with the training and test data distinguished either by* - *A specified variable containing, for example, `TRUE`/`FALSE` or `0`/`1` values, or which uses some other system such as missing (`NA`) values to denote test data); and/or* - *An additional parameter designating case or row numbers, or labels of test data.*
-#' @srrstatsTODO {ML1.3} *Input data should be clearly partitioned between training and test data (for example, through having each passed as a distinct `list` item), or should enable an additional means of categorically distinguishing training from test data (such as via an additional parameter which provides explicit labels). Where applicable, distinction of validation and any other data should also accord with this standard.*
-#' @srrstatsTODO {ML1.4} *Training and test data sets, along with other necessary components such as validation data sets, should be stored in their own distinctly labelled sub-directories (for distinct files), or according to an explicit and distinct labelling scheme (for example, for database connections). Labelling should in all cases adhere to **ML1.1**, above.*
-#' @srrstatsTODO {ML1.5} *ML software should implement a single function which summarises the contents of test and training (and other) data sets, minimally including counts of numbers of cases, records, or files, and potentially extending to tables or summaries of file or data types, sizes, and other information (such as unique hashes for each component).*
-#' @srrstatsTODO {ML1.6} *ML software which does not admit missing values, and which expects no missing values, should implement explicit pre-processing routines to identify whether data has any missing values, and should generally error appropriately and informatively when passed data with missing values. In addition, ML software which does not admit missing values should:*
-#' @srrstatsTODO {ML1.6a} *Explain why missing values are not admitted.*
-#' @srrstatsTODO {ML1.6b} *Provide explicit examples (in function documentation, vignettes, or both) for how missing values may be imputed, rather than simply discarded.*
-#' @srrstatsTODO {ML1.7} *ML software which admits missing values should clearly document how such values are processed.*
-#' @srrstatsTODO {ML1.7a} *Where missing values are imputed, software should offer multiple user-defined ways to impute missing data.*
-#' @srrstatsTODO {ML1.7b} *Where missing values are imputed, the precise imputation steps should also be explicitly documented, either in tests (see **ML7.2** below), function documentation, or vignettes.*
-#' @srrstatsTODO {ML1.8} *ML software should enable equal treatment of missing values for both training and test data, with optional user ability to control application to either one or both.*
-#' @srrstatsTODO {ML2.0} *A dedicated function should enable pre-processing steps to be defined and parametrized.*
-#' @srrstatsTODO {ML2.0a} *That function should return an object which can be directly submitted to a specified model (see section 3, below).*
-#' @srrstatsTODO {ML2.0b} *Absent explicit justification otherwise, that return object should have a defined class minimally intended to implement a default `print` method which summarizes the input data set (as per **ML1.5** above) and associated transformations (see the following standard).*
-#' @srrstatsTODO {ML2.1} *ML software which uses broadcasting to reconcile dimensionally incommensurate input data should offer an ability to at least optionally record transformations applied to each input file.*
-#' @srrstatsTODO {ML2.2} *ML software which requires or relies upon numeric transformations of input data (such as change in mean values or variances) should allow optimal explicit specification of target values, rather than restricting transformations to default generic values only (such as transformations to z-scores).*
-#' @srrstatsTODO {ML2.2a} *Where the parameters have default values, reasons for those particular defaults should be explicitly described.*
-#' @srrstatsTODO {ML2.2b} *Any extended documentation (such as vignettes) which demonstrates the use of explicit values for numeric transformations should explicitly describe why particular values are used.*
-#' @srrstatsTODO {ML2.3} *The values associated with all transformations should be recorded in the object returned by the function described in the preceding standard (**ML2.0**).*
-#' @srrstatsTODO {ML2.4} *Default values of all transformations should be explicitly documented, both in documentation of parameters where appropriate (such as for numeric transformations), and in extended documentation such as vignettes.*
-#' @srrstatsTODO {ML2.5} *ML software should provide options to bypass or otherwise switch off all default transformations.*
-#' @srrstatsTODO {ML2.6} *Where transformations are implemented via distinct functions, these should be exported to a package's namespace so they can be applied in other contexts.*
-#' @srrstatsTODO {ML2.7} *Where possible, documentation should be provided for how transformations may be reversed. For example, documentation may demonstrate how the values retained via **ML2.3**, above, can be used along with transformations either exported via **ML2.6** or otherwise exemplified in demonstration code to independently transform data, and then to reverse those transformations.*
-#' @srrstatsTODO {ML3.0} *Model specification should be implemented as a distinct stage subsequent to specification of pre-processing routines (see Section 2, above) and prior to actual model fitting or training (see Section 4, below). In particular,*
-#' @srrstatsTODO {ML3.0a} *A dedicated function should enable models to be specified without actually fitting or training them, or if this (**ML3**) and the following (**ML4**) stages are controlled by a single function, that function should have a parameter enabling models to be specified yet not fitted (for example, `nofit = FALSE`).*
-#' @srrstatsTODO {ML3.0b} *That function should accept as input the objects produced by the previous Input Data Specification stage, and defined according to **ML2.0**, above.*
-#' @srrstatsTODO {ML3.0c} *The function described above (**ML3.0a**) should return an object which can be directly trained as described in the following sub-section (**ML4**).*
-#' @srrstatsTODO {ML3.0d} *That return object should have a defined class minimally intended to implement a default `print` method which summarises the model specification, including values of all relevant parameters.*
-#' @srrstatsTODO {ML3.1} *ML software should allow the use of both untrained models, specified through model parameters only, as well as pre-trained models. Use of the latter commonly entails an ability to submit a previously-trained model object to the function defined according to **ML3.0a**, above.*
-#' @srrstatsTODO {ML3.2} *ML software should enable different models to be applied to the object specifying data inputs and transformations (see sub-sections 1--2, above) without needing to re-define those preceding steps.*
+
+
+
+
+
+
+
+
+
+
+
 #' @srrstatsTODO {ML3.3} *Where ML software implements its own distinct classes of model objects, the properties and behaviours of those specific classes of objects should be explicitly compared with objects produced by other ML software. In particular, where possible, ML software should provide extended documentation (as vignettes or equivalent) comparing model objects with those from other ML software, noting both unique abilities and restrictions of any implemented classes.*
-#' @srrstatsTODO {ML3.4} *Where training rates are used, ML software should provide explicit documentation both in all functions which use training rates, and in extended form such as vignettes, of the importance of, and/or sensitivity to, different values of training rates. In particular,*
-#' @srrstatsTODO {ML3.4a} *Unless explicitly justified otherwise, ML software should offer abilities to automatically determine appropriate or optimal training rates, either as distinct pre-processing stages, or as implicit stages of model training.*
-#' @srrstatsTODO {ML3.4b} *ML software which provides default values for training rates should clearly document anticipated restrictions of validity of those default values; for example through clear suggestions that user-determined and -specified values may generally be necessary or preferable.*
+
 #' @srrstatsTODO {ML3.5} *Parameters controlling optimization algorithms should minimally include:*
 #' @srrstatsTODO {ML3.5a} *Specification of the type of algorithm used to explore the search space (commonly, for example, some kind of gradient descent algorithm)*
 #' @srrstatsTODO {ML3.5b} *The kind of loss function used to assess distance between model estimates and desired output.*
 #' @srrstatsTODO {ML3.6} *Unless explicitly justified otherwise (for example because ML software under consideration is an implementation of one specific algorithm), ML software should:*
 #' @srrstatsTODO {ML3.6a} *Implement or otherwise permit usage of multiple ways of exploring search space*
 #' @srrstatsTODO {ML3.6b} *Implement or otherwise permit usage of multiple loss functions.*
-#' @srrstatsTODO {ML3.7} *For ML software in which algorithms are coded in C++, user-controlled use of either CPUs or GPUs (on NVIDIA processors at least) should be implemented through direct use of [`libcudacxx`](https://github.com/NVIDIA/libcudacxx).*
+
 #' @srrstatsTODO {ML4.0} *ML software should generally implement a unified single-function interface to model training, able to receive as input a model specified according to all preceding standards. In particular, models with categorically different specifications, such as different model architectures or optimization algorithms, should be able to be submitted to the same model training function.*
 #' @srrstatsTODO {ML4.1} *ML software should at least optionally retain explicit information on paths taken as an optimizer advances towards minimal loss. Such information should minimally include:*
 #' @srrstatsTODO {ML4.1a} *Specification of all model-internal parameters, or equivalent hashed representation.*
@@ -131,9 +105,30 @@ NULL
 #' @srrstatsNA {G5.11a} *Extended tests are not used in this package*
 #' @srrstatsNA {G5.12} *Extended tests are not used in this package*
 #'
+#' @srrstatsNA {ML1.0a} *Training and testing data are not eschewed.*
+#' @srrstatsNA {ML1.1a, ML1.1b} *The labels 'train' and 'test' are not used by functions in aorsf, so are not explicitly confirmed via pre-processing steps.*
+#'
+#' @srrstatsNA {ML1.2} *orsf() only requires training data, and predict.aorsf() only requires testing data, so I do not not apply methods to distinguish training and testing data in these functions.*
+#'
+#' @srrstatsNA {ML1.4} *aorsf does not provide explicit training and test data sets, only a small dataset for illustrative purposes. If testing data are needed for illustration, they are created by sub-setting.*
+#'
+#' @srrstatsNA {ML1.5} *aorsf is a very lightweight package that focuses on fitting, applying, and interpreting oblique random survival forests. There are numerous other R packages that summarize the contents of data sets, and their extensively developed functions are much better at summarizing training and testing data than something I would write*
+#'
+#' @srrstatsNA {ML1.7, ML1.7a, ML1.7b, ML1.8} *aorsf does not admit or impute missing values*
+#'
+#' @srrstatsNA {ML2.1} *aorsf does not use broadcasting to reconcile dimensionally incommensurate input data.*
+#' @srrstatsNA {ML2.2, ML2.2a, ML2.2b} *aorsf does not require numeric transformation of input data and therefore does not have a dedicated input data specification stage. When internal transformations are performed, they are always reversed for compatibility with the original input. The strategy used by aorsf is the same as Terry Therneau's routine in the survival::coxph function. I do not intend to allow specification of target values for this transformation. I want to keep my Newton-Raphson scoring procedure as close to identical to Terry Therneau's as possible.*
+#'
+#' @srrstatsNA {ML3.0b} *Since aorsf doesn't have a dedicated input data specification state, the output of orsf(no_fit=TRUE) is passed directly to orsf_train().*
+#'
+#' @srrstatsNA {ML3.1} *aorsf allows users to print and fit untrained models. Since aorsf doesn't include a data pre-processing stage, I am not sure if there are any other helpful functions to include for an untrained random forest. For pre-trained models, users can always run saveRDS and readRDS on aorsf objects, which are just lists with attributes. Thus, additional functions for these purposes have not been added*
+#'
+#' @srrstatsNA {ML3.2} *aorsf does not have a dedicated input data specification step.*
+#'
+#' @srrstatsNA {ML3.4, ML3.4a, ML3.4b} *aorsf does not use training rates.*
+#'
+#' @srrstatsNA {ML3.7} *This software uses C++, facilitated through Rcpp, which does not currently allow user-controlled use of either CPUs or GPUs.*
+#'
 #' @noRd
 NULL
-
-
-
 

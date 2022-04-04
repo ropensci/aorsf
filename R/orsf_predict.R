@@ -8,6 +8,8 @@
 #'
 #' @param object (_aorsf_) an oblique random survival forest (ORSF; see [orsf]).
 #'
+#' @srrstats {ML1.1} *The term 'new_data' are used instead of data_test. There are two reasons for this. First, I am making an effort to be consistent with tidymodels. Second, there is a possibility that users will use predict() without the intention of testing their model, e.g., for interpretation.*
+#'
 #' @param new_data (_data.frame_) data to compute predictions for. Must have
 #'   the same columns with equivalent types as the data used to train `object`.
 #'   Also, factors in `new_data` must not have levels that were not in the
@@ -36,7 +38,12 @@
 #'
 #' @examples
 #'
+#' #' @srrstats {ML1.1} using the terms 'train' and 'test'.
+#'
+#' # indices of data used for training the model
 #' train <- seq(1, nrow(pbc_orsf), by = 2)
+#'
+#' # indices of data used to test the trained model.
 #' test <- seq(2, nrow(pbc_orsf), by = 2)
 #'
 #' fit <- orsf(pbc_orsf[train, ], Surv(time, status) ~ . - id)

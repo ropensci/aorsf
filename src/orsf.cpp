@@ -191,7 +191,6 @@ NumericVector ww;
 // ---------------------------- scaling functions -----------------------------
 // ----------------------------------------------------------------------------
 
-
 void x_node_scale(){
 
  // set aside memory for outputs
@@ -233,6 +232,25 @@ void x_node_means(){
   x_transforms.at(i, 0) = sum( w_node % x_node.col(i) ) / w_node_sum;
 
  }
+
+}
+
+// [[Rcpp::export]]
+List x_node_scale_exported(NumericMatrix& x_,
+                           NumericVector& w_){
+
+ x_node = mat(x_.begin(), x_.nrow(), x_.ncol(), false);
+ w_node = vec(w_.begin(), w_.length(), false);
+ n_vars = x_node.n_cols;
+
+ x_node_scale();
+
+ return(
+  List::create(
+   _["x_scaled"] = x_node,
+   _["x_transforms"] = x_transforms
+  )
+ );
 
 }
 
@@ -3107,12 +3125,15 @@ List orsf_fit(NumericMatrix& x,
 
  for(tree = 0; tree < n_tree; ){
 
-  // This aborts the routine if user has pressed Ctrl + C or Escape in R.
+  // Abort the routine if user has pressed Ctrl + C or Escape in R.
   Rcpp::checkUserInterrupt();
 
   // --------------------------------------------
   // ---- initialize parameters to grow tree ----
   // --------------------------------------------
+
+  // @srrstats {ML1.3} *Input data are partitioned as
+  // training (in-bag) and test (out-of-bag) data.
 
   w_inbag    = as<vec>(sample(s, n_rows, true, probs));
   rows_inbag = find(w_inbag != 0);

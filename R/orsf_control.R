@@ -4,7 +4,9 @@
 #'
 #' @srrstats {G1.4} *documented with Roxygen*
 #'
-#' @srrstats {G1.3} clarify Newton-Raphson scoring and Cox PH.
+#' @srrstats {ML2.4} *Default values of all transformations are explicitly documented.*
+#'
+#' @srrstats {G1.3} *clarify Newton-Raphson scoring and Cox PH.*
 #'
 #' Use Newton-Raphson scoring to identify linear combinations of input
 #'   variables while fitting an [orsf] model. For more details on
@@ -13,7 +15,10 @@
 #'
 #' @param method (_character_) a character string specifying the method
 #'   for tie handling. If there are no ties, all the methods are
-#'   equivalent. Valid options are 'breslow' and 'efron'.
+#'   equivalent. Valid options are 'breslow' and 'efron'. The Efron
+#'   approximation is the default because it is more accurate when dealing
+#'   with tied event times and has similar computational efficiency compared
+#'   to the Breslow method.
 #'
 #' @srrstats {G3.0} *use eps to avoid comparing floating point numbers for equality*
 #'
@@ -21,24 +26,29 @@
 #'   linear combinations of inputs, iteration continues in the algorithm
 #'   until the relative change in  the log partial likelihood is less than
 #'   `eps`, or the absolute change is less than `sqrt(eps)`. Must be positive.
+#'   A default value of 1e-09 is used for consistency with
+#'   [survival::coxph.control].
 #'
 #' @param iter_max (_integer_) When using Newton Raphson scoring to identify
 #'   linear combinations of inputs, iteration continues until convergence
 #'   (see `eps` above) or the number of attempted iterations is equal to
-#'   `iter_max`.
+#'   `iter_max`. A default value of 1 is used for computational efficiency.
 #'
 #' @param pval_max (_double_) The maximum p-value allowed for a regression
 #'   coefficient to remain non-zero. If the p-value for a given coefficient
 #'   is above the maximum, the coefficient is set to zero and the variable
 #'   no longer plays a role in the linear combination of inputs. Setting
-#'   `pval_max` to 1 ensures that every predict gets a non-zero
-#'   coefficient in the linear combination of inputs.
+#'   `pval_max` to 1 (the default) ensures that each of the `mtry` randomly
+#'   selected predictor variables will get a non-zero coefficient in the
+#'   linear combination of inputs.
+#'
+#' @srrstats {ML2.5} *Provide the option to bypass default transformations.*
 #'
 #' @param do_scale (_logical_) if `TRUE`, values of predictors will be
 #'   scaled prior to running Newton Raphson scoring. Setting to `FALSE` will
-#'   reduce computation time but will also make the regression extremely
-#'   unstable. Therefore, `orsf` will only let you set this input to `FALSE`
-#'   if you also set `iter_max` to 1.
+#'   reduce computation time but will also make the regression unstable, which
+#'   is why the default value is `TRUE`. For stability, `orsf` will only let
+#'   you set this input to `FALSE` if you also set `iter_max` to 1.
 #'
 #' @return an object of class `'aorsf_control'`, which should be used as
 #'  an input for the `control` argument of [orsf].
@@ -57,8 +67,8 @@
 #'      formula = Surv(time, status) ~ . - id,
 #'      control = orsf_control_cph())
 #'
-orsf_control_cph <- function(method = 'breslow',
-                             eps = 1e-5,
+orsf_control_cph <- function(method = 'efron',
+                             eps = 1e-9,
                              iter_max = 1,
                              pval_max = 1,
                              do_scale = TRUE){

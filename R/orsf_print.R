@@ -4,6 +4,8 @@
 
 #' ORSF presentation
 #'
+#' @srrstats {ML3.0d} *object returned by orsf() has a defined class with `print` method that summarises the model specification and other relevant parameters. The output also indicates whether the orsf oject was trained or not.*
+#'
 #' @srrstats {G1.4} *documented with Roxygen*
 #'
 #' @param x an object of class 'aorsf'

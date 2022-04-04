@@ -37,3 +37,7 @@ reference:
   desc: Datasets used in examples and vignettes.
 - contents:
   - matches("^pbc_orsf$")
+- title: Back-end functions
+  desc: Techniques used by aorsf that may be helpful in other contexts.
+- contents:
+  - matches("scale_cph$")
