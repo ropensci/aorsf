@@ -103,18 +103,18 @@ it would not make sense to compute a correlation.</p>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># edema==1 and bili are strongest interacting pair</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">intr</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             v1        v2        value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1:   edema_1      bili 9.516179e-02</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   2: ascites_1      bili 8.722359e-02</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   3: ascites_1  hepato_1 8.607192e-02</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   4:  hepato_1   edema_1 8.104954e-02</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   5:   edema_1    copper 7.484794e-02</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  ---                                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 149:   albumin      trig 2.276298e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 150:   albumin       ast 1.765690e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 151:       age edema_0.5 1.683258e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 152:   albumin  alk.phos 1.303141e-04</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 153: edema_0.5       ast 1.522985e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             v1       v2        value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1: ascites_1 hepato_1 1.518809e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   2:  hepato_1  edema_1 9.822065e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3:   edema_1     bili 9.664972e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   4: ascites_1    stage 7.886334e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   5: ascites_1     bili 7.281218e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  ---                                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 149:   protime    stage 1.272883e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 150:       age      ast 1.162674e-04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 151:      trig    stage 9.898533e-05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 152:       ast platelet 9.977999e-06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 153:  alk.phos    stage 4.108593e-07</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># make a list containing the variable values you</span></span>
 <span class="r-in"><span class="co"># want to compute partial dependence for</span></span>
@@ -141,13 +141,13 @@ it would not make sense to compute a correlation.</p>
 <span class="r-in"> <span class="op">}</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pd_data_aligned</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    edema bili      mean        lwr      medn       upr       value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:     0  0.6 0.2154799 0.01718182 0.1162081 0.7622311 0.000000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:   0.5  0.6 0.2734275 0.04075219 0.1871151 0.7838840 0.000000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:     1  0.6 0.3839478 0.16722234 0.3064889 0.8566843 0.000000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:     0  1.1 0.2265615 0.02078347 0.1224758 0.7777483 0.011081691</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:   0.5  1.1 0.2872575 0.04639360 0.1982758 0.7951350 0.013830014</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:     1  1.1 0.3936647 0.17440193 0.3152310 0.8677766 0.009716911</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    edema bili      mean        lwr      medn       upr      value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:     0  0.6 0.2128776 0.01756484 0.1126341 0.7534361 0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:   0.5  0.6 0.2751993 0.04155871 0.1882097 0.7872818 0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:     1  0.6 0.3813413 0.16789635 0.3122795 0.8565087 0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:     0  1.1 0.2240847 0.02121329 0.1244971 0.7711730 0.01120710</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:   0.5  1.1 0.2882422 0.04609579 0.2014714 0.8007295 0.01304285</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:     1  1.1 0.3908542 0.17331920 0.3202989 0.8655679 0.00951297</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span class="r-in"></span>

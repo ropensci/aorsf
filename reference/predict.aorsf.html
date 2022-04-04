@@ -97,7 +97,12 @@ to value <code>j</code> in <code>pred_horizon</code>. Row <code>i</code> of the 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
+<span class="r-in"><span class="co">#' @srrstats {ML1.1} using the terms 'train' and 'test'.</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># indices of data used for training the model</span></span>
 <span class="r-in"><span class="va">train</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">pbc_orsf</span><span class="op">)</span>, by <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="co"># indices of data used to test the trained model.</span></span>
 <span class="r-in"><span class="va">test</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">pbc_orsf</span><span class="op">)</span>, by <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span><span class="op">[</span><span class="va">train</span>, <span class="op">]</span>, <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span>
@@ -108,12 +113,12 @@ to value <code>j</code> in <code>pred_horizon</code>. Row <code>i</code> of the 
 <span class="r-in"></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">preds</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             [,1]       [,2]       [,3]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.044869223 0.14543208 0.30557157</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.187354735 0.41742255 0.56071222</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 0.020419537 0.08868470 0.23581293</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 0.060948645 0.20591224 0.39934812</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 0.057372950 0.11875398 0.23163964</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [6,] 0.007949562 0.01711468 0.09576592</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.047217248 0.15180683 0.33379482</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.180124410 0.44074268 0.58941456</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 0.013746291 0.08019755 0.22559530</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 0.053184212 0.17876868 0.37323218</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 0.061952217 0.12041407 0.24821148</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [6,] 0.009271426 0.01742009 0.08579656</span>
 <span class="r-in"></span>
 <span class="r-in"></span>
 </code></pre></div>

@@ -124,21 +124,19 @@ DOI: 10.1007/978-3-642-23783-6_29</p>
 <span class="r-in">            oobag_pred <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="fu">orsf_vi_negate</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           age          bili         stage        copper       ascites </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0158887268  0.0131798291  0.0071369035  0.0065638675  0.0060429256 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       spiders       albumin        hepato         edema           sex </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0041675349  0.0037507814  0.0029172744  0.0024112166  0.0023442384 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       protime          chol           ast      platelet      alk.phos </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0008856012  0.0007293186  0.0006251302 -0.0002604709 -0.0004167535 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          trig           trt </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0009897895 -0.0017712023 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         bili          age          sex        stage      protime          ast </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.012450511  0.011408627  0.006147114  0.006095020  0.005574078  0.004428006 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       copper      albumin      spiders       hepato        edema          trt </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.004219629  0.003750781  0.002969369  0.002135862  0.002008107 -0.002656804 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         chol         trig     alk.phos     platelet </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.002708898 -0.002865180 -0.002969369 -0.003229840 </span>
 <span class="r-in"><span class="fu">orsf_vi_anova</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ascites      bili     edema       age   albumin    copper   protime     stage </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.5773354 0.5407434 0.4373171 0.4271811 0.4163150 0.4126095 0.3689046 0.3670058 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      chol       sex   spiders       ast    hepato      trig  alk.phos  platelet </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.3408690 0.3279570 0.3217426 0.3185109 0.3075070 0.3014472 0.2966252 0.2550432 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ascites      bili       age     edema    copper   albumin   protime     stage </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.6120264 0.5387570 0.4313245 0.4311995 0.4168170 0.4156336 0.3684764 0.3677180 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      chol       ast   spiders    hepato       sex      trig  alk.phos  platelet </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.3571171 0.3392608 0.3321183 0.3251582 0.3200543 0.3050789 0.2964029 0.2523894 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       trt </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.2307409 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 0.2354244 </span>
 <span class="r-in"></span>
 </code></pre></div>
     </div>

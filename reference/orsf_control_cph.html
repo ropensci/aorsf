@@ -62,8 +62,8 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">orsf_control_cph</span><span class="op">(</span>
-  method <span class="op">=</span> <span class="st">"breslow"</span>,
-  eps <span class="op">=</span> <span class="fl">1e-05</span>,
+  method <span class="op">=</span> <span class="st">"efron"</span>,
+  eps <span class="op">=</span> <span class="fl">1e-09</span>,
   iter_max <span class="op">=</span> <span class="fl">1</span>,
   pval_max <span class="op">=</span> <span class="fl">1</span>,
   do_scale <span class="op">=</span> <span class="cn">TRUE</span>
@@ -75,30 +75,36 @@
     <dl><dt>method</dt>
 <dd><p>(<em>character</em>) a character string specifying the method
 for tie handling. If there are no ties, all the methods are
-equivalent. Valid options are 'breslow' and 'efron'.</p></dd>
+equivalent. Valid options are 'breslow' and 'efron'. The Efron
+approximation is the default because it is more accurate when dealing
+with tied event times and has similar computational efficiency compared
+to the Breslow method.</p></dd>
 <dt>eps</dt>
 <dd><p>(<em>double</em>) When using Newton Raphson scoring to identify
 linear combinations of inputs, iteration continues in the algorithm
 until the relative change in  the log partial likelihood is less than
-<code>eps</code>, or the absolute change is less than <code>sqrt(eps)</code>. Must be positive.</p></dd>
+<code>eps</code>, or the absolute change is less than <code>sqrt(eps)</code>. Must be positive.
+A default value of 1e-09 is used for consistency with
+<a href="https://rdrr.io/pkg/survival/man/coxph.control.html" class="external-link">survival::coxph.control</a>.</p></dd>
 <dt>iter_max</dt>
 <dd><p>(<em>integer</em>) When using Newton Raphson scoring to identify
 linear combinations of inputs, iteration continues until convergence
 (see <code>eps</code> above) or the number of attempted iterations is equal to
-<code>iter_max</code>.</p></dd>
+<code>iter_max</code>. A default value of 1 is used for computational efficiency.</p></dd>
 <dt>pval_max</dt>
 <dd><p>(<em>double</em>) The maximum p-value allowed for a regression
 coefficient to remain non-zero. If the p-value for a given coefficient
 is above the maximum, the coefficient is set to zero and the variable
 no longer plays a role in the linear combination of inputs. Setting
-<code>pval_max</code> to 1 ensures that every predict gets a non-zero
-coefficient in the linear combination of inputs.</p></dd>
+<code>pval_max</code> to 1 (the default) ensures that each of the <code>mtry</code> randomly
+selected predictor variables will get a non-zero coefficient in the
+linear combination of inputs.</p></dd>
 <dt>do_scale</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, values of predictors will be
 scaled prior to running Newton Raphson scoring. Setting to <code>FALSE</code> will
-reduce computation time but will also make the regression extremely
-unstable. Therefore, <code>orsf</code> will only let you set this input to <code>FALSE</code>
-if you also set <code>iter_max</code> to 1.</p></dd>
+reduce computation time but will also make the regression unstable, which
+is why the default value is <code>TRUE</code>. For stability, <code>orsf</code> will only let
+you set this input to <code>FALSE</code> if you also set <code>iter_max</code> to 1.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
