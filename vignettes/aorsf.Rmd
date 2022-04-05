@@ -218,5 +218,9 @@ t1['elapsed'] / t2['elapsed']
 
 ```
 
+## aorsf and other machine learning software
 
+Generally, `aorsf` follows conventions set by the R packages `randomForest` and `randomForestSRC`. For example, the `print` method for `aorsf` models is very similar to `randomForestSRC` models, as is the specification of computing variable importance and the objects returned by variable importance functions. Similar to `randomForestSRC`, `aorsf` allows and recommends partial dependence to be estimated using out-of-bag data. 
+
+The unique feature of `aorsf` is fitting oblique random survival forests fast while maintaining strong prediction accuracy. `RLT` and `obliqueRSF` both fit oblique random survival forests, but `aorsf` does so faster. `ranger` and `randomForestSRC` fit survival forests, but neither package supports oblique splitting. `obliqueRF` fits oblique random forests for classification and regression, but not survival. `PPforest` fits oblique random forests for classification but not survival. The default prediction behavior for `aorsf` models is to produce predicted risk at a specific prediction horizon, which is not the default for `ranger`  or `randomForestSRC`.
 

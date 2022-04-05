@@ -13,7 +13,8 @@
 #'   automatically by `orsf_scale_cph`.
 #'
 #' @param w_vec (_numeric vector_) an optional vector of weights. If no weights
-#'   are supplied (the default), all observations will be equally weighted.
+#'   are supplied (the default), all observations will be equally weighted. If
+#'   supplied, `w_vec` must have length equal to `nrow(x_mat)`.
 #'
 #' @return the scaled or unscaled `x_mat`.
 #'

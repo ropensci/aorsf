@@ -16,29 +16,6 @@
 
 
 
-
-
-
-
-
-
-#' @srrstatsTODO {ML3.3} *Where ML software implements its own distinct classes of model objects, the properties and behaviours of those specific classes of objects should be explicitly compared with objects produced by other ML software. In particular, where possible, ML software should provide extended documentation (as vignettes or equivalent) comparing model objects with those from other ML software, noting both unique abilities and restrictions of any implemented classes.*
-
-#' @srrstatsTODO {ML3.5} *Parameters controlling optimization algorithms should minimally include:*
-#' @srrstatsTODO {ML3.5a} *Specification of the type of algorithm used to explore the search space (commonly, for example, some kind of gradient descent algorithm)*
-#' @srrstatsTODO {ML3.5b} *The kind of loss function used to assess distance between model estimates and desired output.*
-#' @srrstatsTODO {ML3.6} *Unless explicitly justified otherwise (for example because ML software under consideration is an implementation of one specific algorithm), ML software should:*
-#' @srrstatsTODO {ML3.6a} *Implement or otherwise permit usage of multiple ways of exploring search space*
-#' @srrstatsTODO {ML3.6b} *Implement or otherwise permit usage of multiple loss functions.*
-
-#' @srrstatsTODO {ML4.0} *ML software should generally implement a unified single-function interface to model training, able to receive as input a model specified according to all preceding standards. In particular, models with categorically different specifications, such as different model architectures or optimization algorithms, should be able to be submitted to the same model training function.*
-#' @srrstatsTODO {ML4.1} *ML software should at least optionally retain explicit information on paths taken as an optimizer advances towards minimal loss. Such information should minimally include:*
-#' @srrstatsTODO {ML4.1a} *Specification of all model-internal parameters, or equivalent hashed representation.*
-#' @srrstatsTODO {ML4.1b} *The value of the loss function at each point*
-#' @srrstatsTODO {ML4.1c} *Information used to advance to next point, for example quantification of local gradient.*
-#' @srrstatsTODO {ML4.2} *The subsequent extraction of information retained according to the preceding standard should be explicitly documented, including through example code.*
-#' @srrstatsTODO {ML4.3} *All parameters controlling batch processing and associated terminology should be explicitly documented, and it should not, for example, be presumed that users will understand the definition of "epoch" as implemented in any particular ML software.*
-#' @srrstatsTODO {ML4.4} *Explicit guidance should be provided on selection of appropriate values for parameter controlling batch processing, for example, on trade-offs between batch sizes and numbers of epochs (with both terms provided as Control Parameters in accordance with the preceding standard, **ML3**).*
 #' @srrstatsTODO {ML4.5} *ML software may optionally include a function to estimate likely time to train a specified model, through estimating initial timings from a small sample of the full batch.*
 #' @srrstatsTODO {ML4.6} *ML software should by default provide explicit information on the progress of batch jobs (even where those jobs may be implemented in parallel on GPUs). That information may be optionally suppressed through additional parameters.*
 #' @srrstatsTODO {ML4.7} *ML software should provide an ability to combine results from multiple re-sampling iterations using a single parameter specifying numbers of iterations.*
@@ -128,6 +105,12 @@ NULL
 #' @srrstatsNA {ML3.4, ML3.4a, ML3.4b} *aorsf does not use training rates.*
 #'
 #' @srrstatsNA {ML3.7} *This software uses C++, facilitated through Rcpp, which does not currently allow user-controlled use of either CPUs or GPUs.*
+#'
+#' @srrstatsNA {ML4.1c} *The random forest trees do not depend on each other, so there is no information used to advance from one tree to the next.*
+#'
+#' @srrstatsNA {ML4.3} *aorsf does not use batch processing.*
+#'
+#' @srrstatsNA {ML4.4} *aorsf does not use batch processing.*
 #'
 #' @noRd
 NULL

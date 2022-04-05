@@ -1,12 +1,19 @@
 
 
+
 #' Cox proportional hazards control
+#'
+#' @srrstats {ML3.5} *The orsf_control_ function family allows users to control optimization algorithms used to grow random forests*
 #'
 #' @srrstats {G1.4} *documented with Roxygen*
 #'
 #' @srrstats {ML2.4} *Default values of all transformations are explicitly documented.*
 #'
 #' @srrstats {G1.3} *clarify Newton-Raphson scoring and Cox PH.*
+#'
+#' @srrstats {ML3.5a} *Specify Newton-Raphson scoring or penalized regression as the type of algorithm used to explore the search space, i.e., the space of possible linear combinations*
+#'
+#' @srrstats {ML3.6, ML3.6a} *Implement usage of multiple ways of exploring search space*
 #'
 #' Use Newton-Raphson scoring to identify linear combinations of input
 #'   variables while fitting an [orsf] model. For more details on
@@ -92,6 +99,8 @@ orsf_control_cph <- function(method = 'efron',
 }
 
 #' Elastic net control
+#'
+#' @srrstats {ML3.5a} *Specify regularization of the coxph model as the type of algorithm used to explore the search space*
 #'
 #' Use regularized Cox proportional hazard models to identify linear
 #'   combinations of input variables while fitting an [orsf] model.

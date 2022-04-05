@@ -17,6 +17,12 @@
 #'
 #' @srrstats {G5.2a} *messages produced here (e.g., with `stop()`, `warning()`, `message()`) are unique and make effort to highlight the specific data elements that cause the error*
 #'
+#' @srrstats {G2.0a} *secondary documentation of arg lengths. When an input has length 1, a parenthetical gives the specific type of value it should be and uses a singular description (e.g., an integer). When inputs have length > 1, a vector description is used (e.g., integer vector)*
+#'
+#' @srrstats {ML3.3} *Properties and behaviours of aorsf models are explicitly compared with objects produced by other ML software in the "Introduction to aorsf" vignette.*
+#'
+#' @srrstats {ML4.0} *orsf() is a unified single-function interface to model training. orsf_train() is able to receive as input an untrained model specified by orsf() when no_fit = TRUE. Models with categorically different specifications are able to be submitted to the same model training function.*
+#'
 #' The oblique random survival forest (ORSF) is an extension of the RSF
 #'   algorithm developed by Ishwaran et al and maintained in the
 #'   `RandomForestSRC` package. The difference between ORSF and RSF is
@@ -81,12 +87,18 @@
 #'   should be used for out-of-bag predictions. Default is the median
 #'   of the observed pred_horizon, i.e., `oobag_time = median(time)`.
 #'
+#' @srrstats {ML4.1b} *The value of out-of-bag error can be returned for every oobag_eval_every step.*
+#'
+#' @srrstatsTODO {ML4.2} *The extraction of out-of-bag error is explicitly documented with example code in the "Out-of-bag predictions and evaluation" vignette.*
+#'
 #' @param oobag_eval_every (_integer_) The out-of-bag performance of the
 #'   ensemble will be checked every `oobag_eval_every` trees. So, if
 #'   `oobag_eval_every = 10`, then out-of-bag performance is checked
 #'   after growing the 10th tree, the 20th tree, and so on. Default
 #'   is `oobag_eval_every = n_tree`, so that out-of-bag performance is
 #'   assessed once after growing all the trees.
+#'
+#' @srrstats {ML3.5b} *Users can specify the kind of loss function to assess distance between model estimates and desired output. This is discussed in detail in the "Out-of-bag predictions and evaluation" vignette.*
 #'
 #' @param oobag_fun (_function_) When `oobag_fun` = `NULL` (the default),
 #'   out-of-bag predictions are evaluated using Harrell's C-statistic.
@@ -141,7 +153,25 @@
 #'   (see [survival::coxph()] and more specifically [survival::coxph.fit()]).
 #'
 #'
+#' __Some comments on inputs__
+#'
+#' _formula_: The response in `formula` can be a survival
+#'   object as returned by the [survival::Surv] function,
+#'   but can also just be the time and status variables.
+#'   For example, `Surv(time, status) ~ .` works just like
+#'   `time + status ~ .`. The only thing that can break this
+#'   input is putting the variables in the wrong order, i.e.,
+#'   writing `status + time ~ .` will make `orsf` assume your
+#'   `status` variable is actually the `time` variable.
+#'
+#' _mtry_: The `mtry` parameter may be temporarily reduced to ensure there
+#'   are at least 2 events per predictor variable. This occurs when using
+#'   [orsf_control_cph] because coefficients in the Newton Raphson scoring
+#'   algorithm may become unstable when the number of covariates is
+#'   greater than or equal to the number of events. This reduction does not
+#'   occur when using [orsf_control_net].#'
 #' @srrstats {G1.3} *define oblique and axis based decision trees*
+#'
 #'
 #' __What is an oblique decision tree?__
 #'
@@ -179,29 +209,6 @@
 #' __Missing data__
 #' @srrstats {ML1.6a} *Explain why missing values are not admitted.*
 #' Data passed to aorsf functions are not allowed to have missing values. A user should impute missing values using an R package with that purpose, such as `recipes` or `mlr3pipelines`. Other software such as `xgboost` send data with missing values down a decision tree based on whichever direction minimizes a specified error function. While this technique is very effective for axis-based decision trees, it is not clear how it should be applied in the case of oblique decision trees. For example, what should be done if three variables were used to split a node and one of these three variable has a missing value? In this case, mean imputation of the missing variable may be the best option.
-#'
-#' __Some comments on inputs__
-#'
-#' _formula_: The response in `formula` can be a survival
-#'   object as returned by the [survival::Surv] function,
-#'   but can also just be the time and status variables.
-#'   For example, `Surv(time, status) ~ .` works just like
-#'   `time + status ~ .`. The only thing that can break this
-#'   input is putting the variables in the wrong order, i.e.,
-#'   writing `status + time ~ .` will make `orsf` assume your
-#'   `status` variable is actually the `time` variable.
-#'
-#' _mtry_: The `mtry` parameter may be temporarily reduced to ensure there
-#'   are at least 2 events per predictor variable. This occurs when using
-#'   [orsf_control_cph] because coefficients in the Newton Raphson scoring
-#'   algorithm may become unstable when the number of covariates is
-#'   greater than or equal to the number of events. This reduction does not
-#'   occur when using [orsf_control_net].
-#'
-#' @srrstats {G2.0a} *secondary documentation of arg lengths*
-#' With the exception of `data_train` and `formula`, all inputs of `orsf()`
-#'   should be an integer, double, or logical value of length 1.
-#'
 #'
 #' @srrstats {G1.0} *Jaeger et al describes the ORSF algorithm that aorsf is based on. Note: aorsf uses a different approach to create linear combinations of inputs for speed reasons, but orsf_control_net() allows users to make ensembles that are very similar to obliqueRSF::ORSF().*
 #'
@@ -587,6 +594,11 @@ orsf <- function(data_train,
  y_sort <- y[sorted, ]
 
  #' @srrstats {ML2.3} *Values associated with transformations are recorded in the object returned by orsf(), specifically in object$forest[[<insert tree number>]]$x_mean*
+ #'
+ #' @srrstats {ML4.1} *orsf_fit() retains information on model-internal parameters.*
+ #'
+ #' @srrstats {ML4.1a} *orsf_fit() output includes all model-internal parameters, specifically the linear combination coefficients.*
+ #'
 
  orsf_out <- orsf_fit(x                 = x_sort,
                       y                 = y_sort,
@@ -707,6 +719,103 @@ orsf <- function(data_train,
 #' @rdname orsf
 #' @export
 orsf_train <- function(object){
+ orsf_train_(object)
+}
+
+
+
+#' Estimate training time
+#'
+#' @param object an untrained `aorsf` object
+#'
+#' @param n_tree_subset (_integer_)  how many trees should be fit in order
+#'   to estimate the time needed to train `object`. The default value is 10,
+#'   and usually any number between 5 and 15 gives a good enough approximation.
+#'
+#' @return a [difftime] object.
+#'
+#' @export
+#'
+#' @examples
+#'
+#' # specify but do not train the model by setting no_fit = TRUE.
+#' object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
+#'                n_tree = 500, no_fit = TRUE)
+#'
+#' # grow 50 trees to approximate the time it will take to grow 500 trees
+#' time_estimated <- orsf_time_to_train(object, n_tree_subset = 50)
+#'
+#' print(time_estimated)
+#'
+#' # let's see how close the approximation was
+#' time_true_start <- Sys.time()
+#' fit <- orsf_train(object)
+#' time_true_stop <- Sys.time()
+#'
+#' time_true <- time_true_stop - time_true_start
+#'
+#' print(time_true)
+#'
+#' # error
+#' abs(time_true - time_estimated)
+#'
+
+orsf_time_to_train <- function(object, n_tree_subset = 10){
+
+ time_preproc_start <- Sys.time()
+
+ y  <- as.matrix(select_cols(object$data_train, get_names_y(object)))
+
+ x  <- as.matrix(ref_code(object$data_train,
+                          get_fctr_info(object),
+                          get_names_x(object, ref_code_names = FALSE)))
+
+ sorted <- order(y[, 1],  # order this way for risk sets
+                 -y[, 2]) # order this way for oob C-statistic.
+
+ time_preproc_stop <- Sys.time()
+
+ output <- orsf_train_(object,
+                       n_tree = n_tree_subset,
+                       x = x,
+                       y = y,
+                       sorted = sorted)
+
+ time_train_stop <- Sys.time()
+
+ mult_by <- get_n_tree(object) / n_tree_subset
+
+ difftime(time_preproc_stop, time_preproc_start) +
+  difftime(time_train_stop, time_preproc_stop) * mult_by
+
+}
+
+
+#' internal training function
+#'
+#' the purpose of this function is to have more control over fit parameters
+#'   so that I can do tasks other than train the specific aorsf specification,
+#'   e.g., estimate how much time it will take to train it.
+#'
+#' @param object see orsf()
+#' @param n_tree default is NULL. If this input is specified, then it will
+#'   be used instead of the n_tree attribute in object.
+#' @param x default is NULL. If this input is specified, then it will
+#'   be used instead of creating an x matrix by normal means.
+#' @param y default is NULL. If this input is specified, then it will
+#'   be used instead of creating a y matrix by normal means.
+#' @param sorted default is NULL. If this input is specified, then it will
+#'   be used instead of sorting the y matrix.
+#'
+#' @return a trained aorsf model
+#'
+#' @noRd
+#'
+orsf_train_ <- function(object,
+                        n_tree = NULL,
+                        x = NULL,
+                        y = NULL,
+                        sorted  = NULL){
 
  if(is_trained(object)){
   stop("object has already been trained", call. = FALSE)
@@ -718,14 +827,21 @@ orsf_train <- function(object){
        call. = FALSE)
  }
 
- y  <- as.matrix(select_cols(object$data_train, get_names_y(object)))
+ if(is.null(y)){
+  y  <- as.matrix(select_cols(object$data_train, get_names_y(object)))
+ }
 
- x  <- as.matrix(ref_code(object$data_train,
-                          get_fctr_info(object),
-                          get_names_x(object, ref_code_names = FALSE)))
+ if(is.null(x)){
+  x  <- as.matrix(ref_code(object$data_train,
+                           get_fctr_info(object),
+                           get_names_x(object, ref_code_names = FALSE)))
+ }
 
- sorted <- order(y[, 1],  # order this way for risk sets
-                 -y[, 2]) # order this way for oob C-statistic.
+ if(is.null(sorted)){
+  sorted <- order(y[, 1],  # order this way for risk sets
+                  -y[, 2]) # order this way for oob C-statistic.
+ }
+
 
  x_sort <- x[sorted, ]
  y_sort <- y[sorted, ]
@@ -733,7 +849,7 @@ orsf_train <- function(object){
  orsf_out <- orsf_fit(
   x                 = x_sort,
   y                 = y_sort,
-  n_tree            = get_n_tree(object),
+  n_tree            = if(!is.null(n_tree)) n_tree else get_n_tree(object),
   n_split_          = get_n_split(object),
   mtry_             = get_mtry(object),
   leaf_min_events_  = get_leaf_min_events(object),
@@ -806,12 +922,5 @@ orsf_train <- function(object){
  object
 
 }
-
-
-
-
-
-
-
 
 

@@ -332,7 +332,14 @@ fit_orsf_noise <- orsf(pbc_noise, Surv(time, status) ~ . - id, n_tree = 10)
 object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
                n_tree = 10, no_fit = TRUE)
 set.seed(89)
+time_estimated <- orsf_time_to_train(object)
+
+set.seed(89)
+time_true_start <- Sys.time()
 fit_orsf_3 <- orsf_train(object)
+time_true_stop <- Sys.time()
+
+time_true <- time_true_stop - time_true_start
 
 test_that(
  desc = 'results are identical if a forest is fitted under the same random seed',
@@ -366,6 +373,43 @@ test_that(
 
  }
 
+)
+
+test_that(
+ desc = 'orsf_time_to_train is reasonable at approximating time to train',
+ code = {
+
+  # testing the seed behavior when no_fit is TRUE. You should get the same
+  # forest whether you train with orsf() or with orsf_train().
+
+  for(.n_tree in c(100, 250, 1000, 2500)){
+
+   object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
+                  n_tree = .n_tree, no_fit = TRUE)
+   set.seed(89)
+   time_estimated <- orsf_time_to_train(object, n_tree_subset = 15)
+
+   set.seed(89)
+   time_true_start <- Sys.time()
+   fit_orsf_3 <- orsf_train(object)
+   time_true_stop <- Sys.time()
+
+   time_true <- time_true_stop - time_true_start
+
+   diff_abs <- abs(as.numeric(time_true - time_estimated))
+   diff_rel <- diff_abs / as.numeric(time_true)
+
+   # expect the difference between estimated and true time is < 1 second.
+   expect_lt(diff_abs, 1)
+   # expect that the difference is not greater than 1/2 the
+   # magnitude of the actual time it took to fit the forest
+   expect_lt(diff_rel, 1/2)
+
+  }
+
+
+
+ }
 )
 
 test_that(

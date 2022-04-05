@@ -16,7 +16,8 @@ that have an attribute containing transform values, which are added
 automatically by \code{orsf_scale_cph}.}
 
 \item{w_vec}{(\emph{numeric vector}) an optional vector of weights. If no weights
-are supplied (the default), all observations will be equally weighted.}
+are supplied (the default), all observations will be equally weighted. If
+supplied, \code{w_vec} must have length equal to \code{nrow(x_mat)}.}
 }
 \value{
 the scaled or unscaled \code{x_mat}.

@@ -129,6 +129,24 @@ inputs rather than performing penalized regression using routines in
 function applies is an adaptation of the C++ routine developed by
 Terry M. Therneau that fits Cox proportional hazards models
 (see \code{\link[survival:coxph]{survival::coxph()}} and more specifically \code{\link[survival:agreg.fit]{survival::coxph.fit()}}).
+
+\strong{Some comments on inputs}
+
+\emph{formula}: The response in \code{formula} can be a survival
+object as returned by the \link[survival:Surv]{survival::Surv} function,
+but can also just be the time and status variables.
+For example, \code{Surv(time, status) ~ .} works just like
+\code{time + status ~ .}. The only thing that can break this
+input is putting the variables in the wrong order, i.e.,
+writing \code{status + time ~ .} will make \code{orsf} assume your
+\code{status} variable is actually the \code{time} variable.
+
+\emph{mtry}: The \code{mtry} parameter may be temporarily reduced to ensure there
+are at least 2 events per predictor variable. This occurs when using
+\link{orsf_control_cph} because coefficients in the Newton Raphson scoring
+algorithm may become unstable when the number of covariates is
+greater than or equal to the number of events. This reduction does not
+occur when using \link{orsf_control_net}.#'
 }
 \examples{
 
