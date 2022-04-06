@@ -23,6 +23,7 @@ reference:
 - contents:
   - matches("^orsf$")
   - starts_with("orsf_control")
+  - matches("^orsf_time_to_train$")
   - matches("^predict\\.aorsf$")
   - matches("^print\\.aorsf$")
 - title: Interpret ORSFs

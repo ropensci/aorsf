@@ -16,14 +16,12 @@
 
 
 
-#' @srrstatsTODO {ML4.5} *ML software may optionally include a function to estimate likely time to train a specified model, through estimating initial timings from a small sample of the full batch.*
-#' @srrstatsTODO {ML4.6} *ML software should by default provide explicit information on the progress of batch jobs (even where those jobs may be implemented in parallel on GPUs). That information may be optionally suppressed through additional parameters.*
-#' @srrstatsTODO {ML4.7} *ML software should provide an ability to combine results from multiple re-sampling iterations using a single parameter specifying numbers of iterations.*
-#' @srrstatsTODO {ML4.8} *Absent any additional specification, re-sampling algorithms should by default partition data according to proportions of original test and training data.*
-#' @srrstatsTODO {ML4.8a} *Re-sampling routines of ML software should nevertheless offer an ability to explicitly control or override such default proportions of test and training data.*
-#' @srrstatsTODO {ML5.0} *The result of applying the training processes described above should be contained within a single model object returned by the function defined according to **ML4.0**, above. Even where the output reflects application to a test data set, the resultant object need not include any information on model performance (see **ML5.3**--**ML5.4**, below).*
-#' @srrstatsTODO {ML5.0a} *That object should either have its own class, or extend some previously-defined class.*
-#' @srrstatsTODO {ML5.0b} *That class should have a defined `print` method which summarises important aspects of the model object, including but not limited to summaries of input data and algorithmic control parameters.*
+
+
+
+
+
+
 #' @srrstatsTODO {ML5.1} *As for the untrained model objects produced according to the above standards, and in particular as a direct extension of **ML3.3**, the properties and behaviours of trained models produced by ML software should be explicitly compared with equivalent objects produced by other ML software. (Such comparison will generally be done in terms of comparing model performance, as described in the following standard **ML5.3**--**ML5.4**).*
 #' @srrstatsTODO {ML5.2} *The structure and functionality of objects representing trained ML models should be thoroughly documented. In particular,*
 #' @srrstatsTODO {ML5.2a} *Either all functionality extending from the class of model object should be explicitly documented, or a method for listing or otherwise accessing all associated functionality explicitly documented and demonstrated in example code.*
@@ -111,6 +109,11 @@ NULL
 #' @srrstatsNA {ML4.3} *aorsf does not use batch processing.*
 #'
 #' @srrstatsNA {ML4.4} *aorsf does not use batch processing.*
+#'
+#' @srrstatsNA {ML4.6} *aorsf does not use batch jobs.*
+#'
+#' @srrstatsNA {ML4.7, ML4.8, ML4.8a} *aorsf does not currently include functions for re-sampling as random forests generally do not need a lot of tuning and because there are other R packages that are dedicated to providing robust resampling routines (e.g., rsample).*
+
 #'
 #' @noRd
 NULL

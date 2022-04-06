@@ -187,6 +187,21 @@ CharacterVector yy_names = CharacterVector::create("time","status");
 
 NumericVector ww;
 
+// [[Rcpp::export]]
+arma::uvec std_setdiff(arma::uvec& x, arma::uvec& y) {
+
+ std::vector<int> a = conv_to< std::vector<int> >::from(sort(x));
+ std::vector<int> b = conv_to< std::vector<int> >::from(sort(y));
+ std::vector<int> out;
+
+ std::set_difference(a.begin(), a.end(),
+                     b.begin(), b.end(),
+                     std::inserter(out, out.end()));
+
+ return conv_to<uvec>::from(out);
+
+}
+
 // ----------------------------------------------------------------------------
 // ---------------------------- scaling functions -----------------------------
 // ----------------------------------------------------------------------------
@@ -3013,7 +3028,7 @@ List orsf_fit(NumericMatrix& x,
  n_rows = x_input.n_rows;
  n_vars = x_input.n_cols;
 
- // initialize the vi vecs
+ // initialize the variable importance (vi) vectors
  vi_pval_numer.zeros(n_vars);
  vi_pval_denom.zeros(n_vars);
 
@@ -3123,6 +3138,9 @@ List orsf_fit(NumericMatrix& x,
 
  List forest(n_tree);
 
+ // sampling with replacement or not?
+ // using the same oob index as another forest?
+
  for(tree = 0; tree < n_tree; ){
 
   // Abort the routine if user has pressed Ctrl + C or Escape in R.
@@ -3131,9 +3149,6 @@ List orsf_fit(NumericMatrix& x,
   // --------------------------------------------
   // ---- initialize parameters to grow tree ----
   // --------------------------------------------
-
-  // @srrstats {ML1.3} *Input data are partitioned as
-  // training (in-bag) and test (out-of-bag) data.
 
   w_inbag    = as<vec>(sample(s, n_rows, true, probs));
   rows_inbag = find(w_inbag != 0);

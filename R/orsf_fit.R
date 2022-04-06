@@ -137,6 +137,8 @@
 #' @param object an untrained aorsf object, created by setting
 #'   `no_fit = TRUE` in `orsf()`.
 #'
+#' @srrstats {ML5.0} *The result of applying orsf training processes results in a single model object.*
+#'
 #' @return an accelerated oblique RSF object (`aorsf`)
 #'
 #' @details
@@ -595,6 +597,8 @@ orsf <- function(data_train,
 
  #' @srrstats {ML2.3} *Values associated with transformations are recorded in the object returned by orsf(), specifically in object$forest[[<insert tree number>]]$x_mean*
  #'
+ #' @srrstats {ML1.3} *Input data are partitioned as training (in-bag) and test (out-of-bag) data within orsf_fit().*
+ #'
  #' @srrstats {ML4.1} *orsf_fit() retains information on model-internal parameters.*
  #'
  #' @srrstats {ML4.1a} *orsf_fit() output includes all model-internal parameters, specifically the linear combination coefficients.*
@@ -707,6 +711,7 @@ orsf <- function(data_train,
  attr(orsf_out, 'oobag_eval_every')   <- oobag_eval_every
  attr(orsf_out, 'importance')         <- importance
 
+ #' @srrstats {ML5.0a} *orsf output has its own class*
  class(orsf_out) <- "aorsf"
 
  orsf_out
@@ -725,6 +730,8 @@ orsf_train <- function(object){
 
 
 #' Estimate training time
+#'
+#' @srrstats {ML4.5} *include a function to estimate likely time to train a specified model*
 #'
 #' @param object an untrained `aorsf` object
 #'

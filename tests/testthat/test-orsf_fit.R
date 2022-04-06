@@ -387,7 +387,7 @@ test_that(
    object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
                   n_tree = .n_tree, no_fit = TRUE)
    set.seed(89)
-   time_estimated <- orsf_time_to_train(object, n_tree_subset = 15)
+   time_estimated <- orsf_time_to_train(object, n_tree_subset = 50)
 
    set.seed(89)
    time_true_start <- Sys.time()

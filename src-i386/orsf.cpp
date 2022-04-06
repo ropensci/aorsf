@@ -3013,7 +3013,7 @@ List orsf_fit(NumericMatrix& x,
  n_rows = x_input.n_rows;
  n_vars = x_input.n_cols;
 
- // initialize the vi vecs
+ // initialize the variable importance (vi) vectors
  vi_pval_numer.zeros(n_vars);
  vi_pval_denom.zeros(n_vars);
 

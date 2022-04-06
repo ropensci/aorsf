@@ -11,6 +11,18 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// std_setdiff
+arma::uvec std_setdiff(arma::uvec& x, arma::uvec& y);
+RcppExport SEXP _aorsf_std_setdiff(SEXP xSEXP, SEXP ySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::uvec& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type y(ySEXP);
+    rcpp_result_gen = Rcpp::wrap(std_setdiff(x, y));
+    return rcpp_result_gen;
+END_RCPP
+}
 // x_node_scale_exported
 List x_node_scale_exported(NumericMatrix& x_, NumericVector& w_);
 RcppExport SEXP _aorsf_x_node_scale_exported(SEXP x_SEXP, SEXP w_SEXP) {
@@ -230,6 +242,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_aorsf_std_setdiff", (DL_FUNC) &_aorsf_std_setdiff, 2},
     {"_aorsf_x_node_scale_exported", (DL_FUNC) &_aorsf_x_node_scale_exported, 2},
     {"_aorsf_leaf_kaplan_testthat", (DL_FUNC) &_aorsf_leaf_kaplan_testthat, 2},
     {"_aorsf_newtraph_cph_testthat", (DL_FUNC) &_aorsf_newtraph_cph_testthat, 7},
