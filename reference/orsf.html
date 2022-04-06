@@ -187,6 +187,21 @@ inputs rather than performing penalized regression using routines in
 function applies is an adaptation of the C++ routine developed by
 Terry M. Therneau that fits Cox proportional hazards models
 (see <code><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">survival::coxph()</a></code> and more specifically <code><a href="https://rdrr.io/pkg/survival/man/agreg.fit.html" class="external-link">survival::coxph.fit()</a></code>).</p>
+<p><strong>Some comments on inputs</strong></p>
+<p><em>formula</em>: The response in <code>formula</code> can be a survival
+object as returned by the <a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">survival::Surv</a> function,
+but can also just be the time and status variables.
+For example, <code>Surv(time, status) ~ .</code> works just like
+<code>time + status ~ .</code>. The only thing that can break this
+input is putting the variables in the wrong order, i.e.,
+writing <code>status + time ~ .</code> will make <code>orsf</code> assume your
+<code>status</code> variable is actually the <code>time</code> variable.</p>
+<p><em>mtry</em>: The <code>mtry</code> parameter may be temporarily reduced to ensure there
+are at least 2 events per predictor variable. This occurs when using
+<a href="orsf_control_cph.html">orsf_control_cph</a> because coefficients in the Newton Raphson scoring
+algorithm may become unstable when the number of covariates is
+greater than or equal to the number of events. This reduction does not
+occur when using <a href="orsf_control_net.html">orsf_control_net</a>.#'</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

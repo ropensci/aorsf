@@ -323,7 +323,7 @@ Decision trees for classification with axis-based splitting (left) and oblique s
  <span class="op">)</span>
 <span class="op">)</span>
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   3.067   0.000   3.068</span>
+<span class="co">#&gt;   3.067   0.000   3.067</span>
 
 <span class="co"># and how long it takes to fit 50 cph trees</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>
@@ -335,11 +335,17 @@ Decision trees for classification with axis-based splitting (left) and oblique s
  <span class="op">)</span>
 <span class="op">)</span>
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   0.024   0.000   0.024</span>
+<span class="co">#&gt;   0.023   0.000   0.024</span>
 
 <span class="va">t1</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">t2</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span>
 <span class="co">#&gt;  elapsed </span>
-<span class="co">#&gt; 127.8333</span></code></pre></div>
+<span class="co">#&gt; 127.7917</span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="aorsf-and-other-machine-learning-software">aorsf and other machine learning software<a class="anchor" aria-label="anchor" href="#aorsf-and-other-machine-learning-software"></a>
+</h2>
+<p>Generally, <code>aorsf</code> follows conventions set by the R packages <code>randomForest</code> and <code>randomForestSRC</code>. For example, the <code>print</code> method for <code>aorsf</code> models is very similar to <code>randomForestSRC</code> models, as is the specification of computing variable importance and the objects returned by variable importance functions. Similar to <code>randomForestSRC</code>, <code>aorsf</code> allows and recommends partial dependence to be estimated using out-of-bag data.</p>
+<p>The unique feature of <code>aorsf</code> is fitting oblique random survival forests fast while maintaining strong prediction accuracy. <code>RLT</code> and <code>obliqueRSF</code> both fit oblique random survival forests, but <code>aorsf</code> does so faster. <code>ranger</code> and <code>randomForestSRC</code> fit survival forests, but neither package supports oblique splitting. <code>obliqueRF</code> fits oblique random forests for classification and regression, but not survival. <code>PPforest</code> fits oblique random forests for classification but not survival. The default prediction behavior for <code>aorsf</code> models is to produce predicted risk at a specific prediction horizon, which is not the default for <code>ranger</code> or <code>randomForestSRC</code>.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
