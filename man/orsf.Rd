@@ -22,6 +22,7 @@ orsf(
   oobag_eval_every = n_tree,
   oobag_fun = NULL,
   importance = FALSE,
+  tree_seeds = NULL,
   attach_data = TRUE,
   no_fit = FALSE
 )
@@ -100,6 +101,16 @@ the degradation of the forest's error, the more important the variable.
 Default is \code{FALSE}. Note that if \code{oobag_fun} is specified above, it
 will be used in the computation of negation importance.}
 
+\item{tree_seeds}{(\emph{integer vector}) if specified, random seeds will be set
+using the values in \code{tree_seeds[i]}  before growing tree i. Two forests
+grown with the same number of trees and the same seeds will have the exact
+same out-of-bag samples and, in many cases, the same random sets of
+candidate predictors. This design makes comparisons of out-of-bag error
+between two random forests more meaningful, since the out-of-bag
+performance of a random forest depends somewhat on the observations
+picked in out-of-bag samples. If \code{tree_seeds} is \code{NULL} (the default),
+no seeds are set during the training process.}
+
 \item{attach_data}{(\emph{logical}) if \code{TRUE}, a copy of the training
 data will be attached to the output. This is helpful if you
 plan on using functions like \link{orsf_pd_summary} to interpret the fitted
@@ -150,10 +161,15 @@ occur when using \link{orsf_control_net}.#'
 }
 \examples{
 
+# standard workflow for model development: fit and interpret
 
 fit <- orsf(pbc_orsf, formula = Surv(time, status) ~ . - id)
 
 print(fit)
+
+smry <- orsf_summarize_uni(fit, n_variables = 5)
+
+smry
 
 }
 \references{
@@ -168,4 +184,8 @@ Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI,
 Mcclure LA, Howard G, Simon N. Oblique random survival forests.
 \emph{Annals of applied statistics}. 2019 Sep;13(3):1847-83.
 DOI: 10.1214/19-AOAS1261
+
+Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA.
+Evaluating the Yield of Medical Tests. \emph{JAMA}. 1982;247(18):2543–2546.
+DOI: 10.1001/jama.1982.03320430047030
 }

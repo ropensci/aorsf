@@ -4,14 +4,14 @@
 \alias{orsf_time_to_train}
 \title{Estimate training time}
 \usage{
-orsf_time_to_train(object, n_tree_subset = 10)
+orsf_time_to_train(object, n_tree_subset = 50)
 }
 \arguments{
 \item{object}{an untrained \code{aorsf} object}
 
 \item{n_tree_subset}{(\emph{integer})  how many trees should be fit in order
-to estimate the time needed to train \code{object}. The default value is 10,
-and usually any number between 5 and 15 gives a good enough approximation.}
+to estimate the time needed to train \code{object}. The default value is 50,
+as this usually gives a good enough approximation.}
 }
 \value{
 a \link{difftime} object.

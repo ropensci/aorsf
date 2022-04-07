@@ -6,7 +6,11 @@
 #' @srrstats {G5.0} *tests use the pbc data and the flchain data, two standard datasets in the survival package that are widely studied. The pbc data are also featured in another R package for random forests, i.e., randomForestSRC*
 
 
-#' @srrstatsTODO {G5.6} **Parameter recovery tests** *The coxph newton-raphson algorithm returns coefficient values. The aorsf version matches those within a specified tolerance*
+#' @srrstats {G5.6} **Parameter recovery tests** *The coxph newton-raphson algorithm returns coefficient values. The aorsf version matches those within a specified tolerance*
+
+#' @srrstats {ML7.7} *explicitly test optimization algorithms for accuracy. I do not test multiple optimization algorithms because this is the only one I have programmed in aorsf. The optimization algorithm used in coxnet has been thoroughly tested by the glmnet developers.*
+
+#' @srrstats {ML7.10} *The successful extraction of information on paths taken by optimizers is tested.*
 
 iter_max = 20
 control <- survival::coxph.control(iter.max = iter_max, eps = 1e-8)

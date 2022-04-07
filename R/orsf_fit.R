@@ -23,6 +23,12 @@
 #'
 #' @srrstats {ML4.0} *orsf() is a unified single-function interface to model training. orsf_train() is able to receive as input an untrained model specified by orsf() when no_fit = TRUE. Models with categorically different specifications are able to be submitted to the same model training function.*
 #'
+#' @srrstats {ML5.2, ML5.2a} *The structure and functionality of trained aorsf objects is documented through vignettes. In particular, basic functionality extending from the aorsf class is explicitly described in the "Introduction to aorsf" vignette, and additional functionality is documented in the "Out-of-bag predictions and evaluation" and "Compute partial dependence with ORSF" vignettes. Each vignettes demonstrates functionality clearly with example code.*
+#'
+#' @srrstats {ML5.3} *Assessment of model performance is implemented through out-of-bag error, which is finalized after a model is trained*
+#'
+#' @srrstats {ML5.4} *The "Out-of-bag predictions and evaluation" vignette shows how to implement built-in or user-specified functions for this functionality.*
+#'
 #' The oblique random survival forest (ORSF) is an extension of the RSF
 #'   algorithm developed by Ishwaran et al and maintained in the
 #'   `RandomForestSRC` package. The difference between ORSF and RSF is
@@ -80,6 +86,7 @@
 #' @param split_min_obs (_integer_) minimum number of observations required
 #'   to split a node. Default is `split_min_obs = 10`.
 #'
+#'
 #' @param oobag_pred (_logical_) if `TRUE` out-of-bag predictions are returned
 #'   in the `aorsf` object. Default is `TRUE`.
 #'
@@ -89,7 +96,7 @@
 #'
 #' @srrstats {ML4.1b} *The value of out-of-bag error can be returned for every oobag_eval_every step.*
 #'
-#' @srrstatsTODO {ML4.2} *The extraction of out-of-bag error is explicitly documented with example code in the "Out-of-bag predictions and evaluation" vignette.*
+#' @srrstats {ML4.2} *The extraction of out-of-bag error is explicitly documented with example code in the "Out-of-bag predictions and evaluation" vignette.*
 #'
 #' @param oobag_eval_every (_integer_) The out-of-bag performance of the
 #'   ensemble will be checked every `oobag_eval_every` trees. So, if
@@ -99,6 +106,10 @@
 #'   assessed once after growing all the trees.
 #'
 #' @srrstats {ML3.5b} *Users can specify the kind of loss function to assess distance between model estimates and desired output. This is discussed in detail in the "Out-of-bag predictions and evaluation" vignette.*
+#'
+#' @srrstats {ML5.4a} *Harrell's C-statistic, an internally utilized metric for model performance, is clearly and distinctly documented and cited.*
+#'
+#' #' @srrstatsTODO {ML5.4b} *It is possible to submit custom metrics to a model assessment function, and the ability to do so is clearly documented. The "Out-of-bag predictions and evaluation" vignette provides example code.*
 #'
 #' @param oobag_fun (_function_) When `oobag_fun` = `NULL` (the default),
 #'   out-of-bag predictions are evaluated using Harrell's C-statistic.
@@ -117,6 +128,16 @@
 #'   Default is `FALSE`. Note that if `oobag_fun` is specified above, it
 #'   will be used in the computation of negation importance.
 #'
+#' @param tree_seeds (_integer vector_) if specified, random seeds will be set
+#'   using the values in `tree_seeds[i]`  before growing tree i. Two forests
+#'   grown with the same number of trees and the same seeds will have the exact
+#'   same out-of-bag samples and, in many cases, the same random sets of
+#'   candidate predictors. This design makes comparisons of out-of-bag error
+#'   between two random forests more meaningful, since the out-of-bag
+#'   performance of a random forest depends somewhat on the observations
+#'   picked in out-of-bag samples. If `tree_seeds` is `NULL` (the default),
+#'   no seeds are set during the training process.
+#'
 #' @param attach_data (_logical_) if `TRUE`, a copy of the training
 #'   data will be attached to the output. This is helpful if you
 #'   plan on using functions like [orsf_pd_summary] to interpret the fitted
@@ -126,14 +147,12 @@
 #'
 #' @srrstats {ML3.0} *Model specification can be implemented prior to actual model fitting or training*
 #' @srrstats {ML3.0a} *As pre-processing, model specification, and training are controlled by the orsf() function, an input parameter (no_fit) enables models to be specified yet not fitted.*
+#' @srrstats {ML3.0c} *when no_fit=TRUE, orsf() will return an object that can be directly trained using orsf_train().*
 #'
 #' @param no_fit (_logical_) if `TRUE`, pre-processing steps are defined and
 #'   parametrized, but training is not initiated. The object returned can be
 #'   directly submitted to `orsf_train()` so long as `attach_data` is `TRUE`.
 #'
-#' @srrstats {ML3.0c} *when no_fit=TRUE, orsf() will return an object that can be directly trained using orsf_train().*
-#'
-#' and run the model training procedures.*
 #' @param object an untrained aorsf object, created by setting
 #'   `no_fit = TRUE` in `orsf()`.
 #'
@@ -204,6 +223,8 @@
 #'
 #' @srrstats {ML1.0} *Make a clear conceptual distinction between training and test data*
 #'
+#' @srrstats {ML6.0} *Make explicit reference to a workflow which separates training and testing stages, and which clearly indicates a need for distinct training and test data sets.*
+#'
 #' __Training, out-of-bag error, and testing__
 #'
 #' In random forests, each tree is grown with a bootstrapped version of the training set. Because bootstrap samples are selected with replacement, each bootstrapped training set contains about two-thirds of instances in the original training set. The 'out-of-bag' data are instances that are _not_ in the bootstrapped training set. Each tree in the random forest can make predictions for its out-of-bag data, and the out-of-bag predictions can be aggregated to make an ensemble out-of-bag prediction. Since the out-of-bag data are not used to grow the tree, the accuracy of the ensemble out-of-bag predictions approximate the generalization error of the random forest. Generalization error refers to the error of a random forest's predictions when it is applied to predict outcomes for data that were not used to train it, i.e., testing data.
@@ -228,23 +249,36 @@
 #'   *Annals of applied statistics*. 2019 Sep;13(3):1847-83.
 #'   DOI: 10.1214/19-AOAS1261
 #'
+#' Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA.
+#' Evaluating the Yield of Medical Tests. *JAMA*. 1982;247(18):2543–2546.
+#' DOI: 10.1001/jama.1982.03320430047030
+#'
 #'
 #' @export
 #'
 #' @examples
 #'
+#' # standard workflow for model development: fit and interpret
 #'
 #' fit <- orsf(pbc_orsf, formula = Surv(time, status) ~ . - id)
 #'
 #' print(fit)
 #'
+#' smry <- orsf_summarize_uni(fit, n_variables = 5)
+#'
+#' smry
+#'
 #' @srrstats {ML1.6b} *Explicit example showing how missing values may be imputed rather than discarded.*
+#'
+#' @srrstats {ML6.1} *clearly document how aorsf can be embedded within a typical full ML workflow.*
 #'
 #' \dontrun{requires too many external packages
 #'
 #' # --------------------------------------------------------------------------
-#' # a standard machine learning workflow using aorsf and tidymodels
+#' # a standard internal validation workflow using aorsf and tidymodels
 #' # --------------------------------------------------------------------------
+#'
+#' @srrstats {ML6.1a} *Embed aorsf within a full workflow using tidymodels, tidyverse, and survivalROC.*
 #'
 #' library(tidymodels)
 #' library(tidyverse)
@@ -254,12 +288,13 @@
 #' set.seed(329)
 #'
 #' # a recipe to impute missing values instead of discarding them.
-#' # this is for illustration only. pbc_orsf does not have missing values
+#' # (this is for illustration only. pbc_orsf does not have missing values)
 #'
 #' imputer <- recipe(x = pbc_orsf, time + status ~ .) |>
 #'  step_impute_mean(all_numeric_predictors()) |>
 #'  step_impute_mode(all_nominal_predictors()) |>
 #'  step_rm(id)
+#'
 #'
 #' # 10-fold cross validation; make a container for the pre-processed data
 #' analyses <- vfold_cv(data = pbc_orsf, v = 10) |>
@@ -290,17 +325,28 @@
 #' # C-stat: 0.816
 #' aorsf_eval
 #'
-#' # standard workflow for model development: fit and interpret
-#'
-#' aorsf_fit <- orsf(pbc_orsf, time + status ~ .,
-#'                   importance = TRUE,
-#'                   n_tree = 2500,
-#'                   oobag_time = 3500)
-#'
-#' aorsf_smry <- orsf_summarize_uni(aorsf_fit, n_variables = 5)
-#'
 #' }
 #'
+#'
+#' @srrstats {ML5.2b} *Documentation includes examples of how to save and re-load trained model objects for their re-use.*
+#' # save and re-load aorsf models for later use:
+#'
+#' file_temp <- tempfile("aorsf_fit", fileext = ".rds")
+#'
+#' # save a single object to file
+#' saveRDS(aorsf_fit, file_temp)
+#'
+#' # restore it under a different name
+#' aorsf_fit_read_in <- readRDS(file_temp)
+#'
+#' # compare the original with the loaded fit.
+#' identical(aorsf_fit$forest, aorsf_fit_read_in$forest)
+#'
+#' # note: attributes of orsf_fit and orsf_fit_read_in are not identical;
+#' # specifically env of f_beta and f_oobag_eval
+#'
+#' attr(aorsf_fit, 'f_beta')
+#' attr(aorsf_fit_read_in, 'f_beta')
 #'
 orsf <- function(data_train,
                  formula,
@@ -318,6 +364,7 @@ orsf <- function(data_train,
                  oobag_eval_every = n_tree,
                  oobag_fun = NULL,
                  importance = FALSE,
+                 tree_seeds = NULL,
                  attach_data = TRUE,
                  no_fit = FALSE){
 
@@ -339,6 +386,7 @@ orsf <- function(data_train,
   oobag_time = oobag_time,
   oobag_eval_every = oobag_eval_every,
   importance = importance,
+  tree_seeds = tree_seeds,
   attach_data = attach_data
  )
 
@@ -604,35 +652,40 @@ orsf <- function(data_train,
  #' @srrstats {ML4.1a} *orsf_fit() output includes all model-internal parameters, specifically the linear combination coefficients.*
  #'
 
- orsf_out <- orsf_fit(x                 = x_sort,
-                      y                 = y_sort,
-                      n_tree            = if(no_fit) 0 else n_tree,
-                      n_split_          = n_split,
-                      mtry_             = mtry,
-                      leaf_min_events_  = leaf_min_events,
-                      leaf_min_obs_     = leaf_min_obs,
-                      split_min_events_ = split_min_events,
-                      split_min_obs_    = split_min_obs,
-                      cph_method_       = switch(tolower(cph_method),
-                                                 'breslow' = 0,
-                                                 'efron'   = 1),
-                      cph_eps_          = cph_eps, #
-                      cph_iter_max_     = cph_iter_max,
-                      cph_pval_max_     = cph_pval_max,
-                      cph_do_scale_     = cph_do_scale,
-                      net_alpha_        = net_alpha,
-                      net_df_target_    = net_df_target,
-                      oobag_pred_       = oobag_pred,
-                      oobag_time_       = oobag_time,
-                      oobag_eval_every_ = oobag_eval_every,
-                      oobag_importance_ = importance,
-                      max_retry_        = n_retry,
-                      f_beta            = f_beta,
-                      type_beta_        = switch(orsf_type,
-                                                 'cph' = 'C',
-                                                 'net' = 'N'),
-                      f_oobag_eval      = f_oobag_eval,
-                      type_oobag_eval_  = type_oobag_eval)
+ if(is.null(tree_seeds)) tree_seeds <- vector(mode = 'integer', length = 0L)
+
+ orsf_out <- orsf_fit(
+  x                 = x_sort,
+  y                 = y_sort,
+  n_tree            = if(no_fit) 0 else n_tree,
+  n_split_          = n_split,
+  mtry_             = mtry,
+  leaf_min_events_  = leaf_min_events,
+  leaf_min_obs_     = leaf_min_obs,
+  split_min_events_ = split_min_events,
+  split_min_obs_    = split_min_obs,
+  cph_method_       = switch(tolower(cph_method),
+                             'breslow' = 0,
+                             'efron'   = 1),
+  cph_eps_          = cph_eps, #
+  cph_iter_max_     = cph_iter_max,
+  cph_pval_max_     = cph_pval_max,
+  cph_do_scale_     = cph_do_scale,
+  net_alpha_        = net_alpha,
+  net_df_target_    = net_df_target,
+  oobag_pred_       = oobag_pred,
+  oobag_time_       = oobag_time,
+  oobag_eval_every_ = oobag_eval_every,
+  oobag_importance_ = importance,
+  tree_seeds        = as.integer(tree_seeds), # in case dbl vector w/int values
+  max_retry_        = n_retry,
+  f_beta            = f_beta,
+  type_beta_        = switch(orsf_type,
+                             'cph' = 'C',
+                             'net' = 'N'),
+  f_oobag_eval      = f_oobag_eval,
+  type_oobag_eval_  = type_oobag_eval
+ )
 
  orsf_out$data_train <- if(attach_data) data_train else NULL
 
@@ -662,8 +715,11 @@ orsf <- function(data_train,
 
  } else {
 
+  if(is.null(oobag_time))
   # this would get added by orsf_fit if oobag_pred was TRUE
-  orsf_out$pred_horizon <- stats::median(y[, 1])
+   orsf_out$pred_horizon <- stats::median(y[, 1])
+  else
+   orsf_out$pred_horizon <- oobag_time
 
  }
 
@@ -676,40 +732,42 @@ orsf <- function(data_train,
 
 
 
- attr(orsf_out, 'mtry')               <- mtry
- attr(orsf_out, 'n_obs')              <- nrow(y_sort)
- attr(orsf_out, 'n_tree')             <- n_tree
- attr(orsf_out, 'names_y')            <- names_y_data
- attr(orsf_out, "names_x")            <- names_x_data
- attr(orsf_out, "names_x_ref")        <- colnames(x)
- attr(orsf_out, "types_x")            <- types_x_data
- attr(orsf_out, 'n_events')           <- n_events
- attr(orsf_out, 'max_time')           <- y_sort[nrow(y_sort), 1]
- attr(orsf_out, "unit_info")          <- c(ui_y, ui_x)
- attr(orsf_out, "fctr_info")          <- fi
- attr(orsf_out, 'n_leaves_mean')      <- n_leaves_mean
- attr(orsf_out, 'n_split')            <- n_split
- attr(orsf_out, 'leaf_min_events')    <- leaf_min_events
- attr(orsf_out, 'leaf_min_obs')       <- leaf_min_obs
- attr(orsf_out, 'split_min_events')   <- split_min_events
- attr(orsf_out, 'split_min_obs')      <- split_min_obs
- attr(orsf_out, 'cph_method')         <- cph_method
- attr(orsf_out, 'cph_eps')            <- cph_eps
- attr(orsf_out, 'cph_iter_max')       <- cph_iter_max
- attr(orsf_out, 'cph_pval_max')       <- cph_pval_max
- attr(orsf_out, 'cph_do_scale')       <- cph_do_scale
- attr(orsf_out, 'net_alpha')          <- net_alpha
- attr(orsf_out, 'net_df_target')      <- net_df_target
- attr(orsf_out, 'numeric_bounds')     <- numeric_bounds
- attr(orsf_out, 'trained')            <- !no_fit
- attr(orsf_out, 'n_retry')            <- n_retry
- attr(orsf_out, 'orsf_type')          <- orsf_type
- attr(orsf_out, 'f_beta')             <- f_beta
- attr(orsf_out, 'f_oobag_eval')       <- f_oobag_eval
- attr(orsf_out, 'type_oobag_eval')    <- type_oobag_eval
- attr(orsf_out, 'oobag_pred')         <- oobag_pred
- attr(orsf_out, 'oobag_eval_every')   <- oobag_eval_every
- attr(orsf_out, 'importance')         <- importance
+ attr(orsf_out, 'mtry')             <- mtry
+ attr(orsf_out, 'n_obs')            <- nrow(y_sort)
+ attr(orsf_out, 'n_tree')           <- n_tree
+ attr(orsf_out, 'names_y')          <- names_y_data
+ attr(orsf_out, "names_x")          <- names_x_data
+ attr(orsf_out, "names_x_ref")      <- colnames(x)
+ attr(orsf_out, "types_x")          <- types_x_data
+ attr(orsf_out, 'n_events')         <- n_events
+ attr(orsf_out, 'max_time')         <- y_sort[nrow(y_sort), 1]
+ attr(orsf_out, "unit_info")        <- c(ui_y, ui_x)
+ attr(orsf_out, "fctr_info")        <- fi
+ attr(orsf_out, 'n_leaves_mean')    <- n_leaves_mean
+ attr(orsf_out, 'n_split')          <- n_split
+ attr(orsf_out, 'leaf_min_events')  <- leaf_min_events
+ attr(orsf_out, 'leaf_min_obs')     <- leaf_min_obs
+ attr(orsf_out, 'split_min_events') <- split_min_events
+ attr(orsf_out, 'split_min_obs')    <- split_min_obs
+ attr(orsf_out, 'cph_method')       <- cph_method
+ attr(orsf_out, 'cph_eps')          <- cph_eps
+ attr(orsf_out, 'cph_iter_max')     <- cph_iter_max
+ attr(orsf_out, 'cph_pval_max')     <- cph_pval_max
+ attr(orsf_out, 'cph_do_scale')     <- cph_do_scale
+ attr(orsf_out, 'net_alpha')        <- net_alpha
+ attr(orsf_out, 'net_df_target')    <- net_df_target
+ attr(orsf_out, 'numeric_bounds')   <- numeric_bounds
+ attr(orsf_out, 'trained')          <- !no_fit
+ attr(orsf_out, 'n_retry')          <- n_retry
+ attr(orsf_out, 'orsf_type')        <- orsf_type
+ attr(orsf_out, 'f_beta')           <- f_beta
+ attr(orsf_out, 'f_oobag_eval')     <- f_oobag_eval
+ attr(orsf_out, 'type_oobag_eval')  <- type_oobag_eval
+ attr(orsf_out, 'oobag_pred')       <- oobag_pred
+ attr(orsf_out, 'oobag_eval_every') <- oobag_eval_every
+ attr(orsf_out, 'importance')       <- importance
+
+ attr(orsf_out, 'tree_seeds') <- if(is.null(tree_seeds)) c() else tree_seeds
 
  #' @srrstats {ML5.0a} *orsf output has its own class*
  class(orsf_out) <- "aorsf"
@@ -736,8 +794,8 @@ orsf_train <- function(object){
 #' @param object an untrained `aorsf` object
 #'
 #' @param n_tree_subset (_integer_)  how many trees should be fit in order
-#'   to estimate the time needed to train `object`. The default value is 10,
-#'   and usually any number between 5 and 15 gives a good enough approximation.
+#'   to estimate the time needed to train `object`. The default value is 50,
+#'   as this usually gives a good enough approximation.
 #'
 #' @return a [difftime] object.
 #'
@@ -767,7 +825,7 @@ orsf_train <- function(object){
 #' abs(time_true - time_estimated)
 #'
 
-orsf_time_to_train <- function(object, n_tree_subset = 10){
+orsf_time_to_train <- function(object, n_tree_subset = 50){
 
  time_preproc_start <- Sys.time()
 
@@ -876,6 +934,7 @@ orsf_train_ <- function(object,
   oobag_time_       = object$pred_horizon,
   oobag_eval_every_ = get_oobag_eval_every(object),
   oobag_importance_ = get_importance(object),
+  tree_seeds        = as.integer(get_tree_seeds(object)),
   max_retry_        = get_n_retry(object),
   f_beta            = get_f_beta(object),
   type_beta_        = switch(get_orsf_type(object),

@@ -306,7 +306,7 @@ check_arg_is_valid <- function(arg_value, arg_name, valid_options) {
 #'
 #' make sure the user has supplied an integer valued input.
 #'
-#' @srrstatsTODO {G2.4a}  *My design philosophy is that the user should be made aware if their input is the wrong type and the user should also be responsible for correcting the input. Therefore, this function communicates exactly what the user should do to fix the issue.*
+#' @srrstats {G2.4a}  *My design philosophy is that the user should be made aware if their input is the wrong type and the user should also be responsible for correcting the input. Therefore, this function communicates exactly what the user should do to fix the issue.*
 #'
 #' @param arg_value the object that is to be checked
 #' @param arg_name the name of the object (used for possible error message)
@@ -579,6 +579,7 @@ check_orsf_inputs <- function(data_train,
                               oobag_time,
                               oobag_eval_every,
                               importance,
+                              tree_seeds,
                               attach_data){
 
  if(!is.null(data_train)){
@@ -868,6 +869,24 @@ check_orsf_inputs <- function(data_train,
   check_arg_length(arg_value = oobag_eval_every,
                    arg_name = 'oobag_eval_every',
                    expected_length = 1)
+
+ }
+
+ if(!is.null(tree_seeds)){
+
+  check_arg_type(arg_value = tree_seeds,
+                 arg_name = 'tree_seed',
+                 expected_type = 'numeric')
+
+  check_arg_is_integer(tree_seeds, arg_name = 'tree_seeds')
+
+  if(length(tree_seeds) != n_tree){
+
+   stop('tree_seeds should have length <', n_tree,
+        "> (the number of trees) but instead has length <",
+        length(tree_seeds), ">", call. = FALSE)
+
+  }
 
  }
 

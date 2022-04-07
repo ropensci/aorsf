@@ -97,6 +97,7 @@ bool
  break_loop, // a delayed break statement
  oobag_pred,
  oobag_importance,
+ use_tree_seed,
  cph_do_scale;
 
 // armadillo vectors (doubles)
@@ -186,6 +187,10 @@ NumericMatrix
 CharacterVector yy_names = CharacterVector::create("time","status");
 
 NumericVector ww;
+
+Environment base_env("package:base");
+
+Function set_seed_r = base_env["set.seed"];
 
 // [[Rcpp::export]]
 arma::uvec std_setdiff(arma::uvec& x, arma::uvec& y) {
@@ -3013,6 +3018,7 @@ List orsf_fit(NumericMatrix& x,
               const double&  oobag_time_,
               const int&     oobag_eval_every_,
               const bool&    oobag_importance_,
+              IntegerVector& tree_seeds,
               const int&     max_retry_,
               Function       f_beta,
               const char&    type_beta_,
@@ -3057,6 +3063,7 @@ List orsf_fit(NumericMatrix& x,
  oobag_eval_every   = oobag_eval_every_;
  oobag_eval_counter = 0;
  oobag_importance   = oobag_importance_;
+ use_tree_seed      = tree_seeds.length() > 0;
  max_retry          = max_retry_;
  type_beta          = type_beta_;
  type_oobag_eval    = type_oobag_eval_;
@@ -3150,10 +3157,15 @@ List orsf_fit(NumericMatrix& x,
   // ---- initialize parameters to grow tree ----
   // --------------------------------------------
 
-  w_inbag    = as<vec>(sample(s, n_rows, true, probs));
-  rows_inbag = find(w_inbag != 0);
-  rows_oobag = find(w_inbag == 0);
-  w_inbag    = w_inbag(rows_inbag);
+  // rows_inbag = find(w_inbag != 0);
+
+  if(use_tree_seed) set_seed_r(tree_seeds[tree]);
+
+  w_input    = as<vec>(sample(s, n_rows, true, probs));
+  rows_oobag = find(w_input == 0);
+  rows_inbag = regspace<uvec>(0, n_rows-1);
+  rows_inbag = std_setdiff(rows_inbag, rows_oobag);
+  w_inbag    = w_input(rows_inbag);
 
   // if(verbose > 0){
   //

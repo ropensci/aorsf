@@ -6,52 +6,9 @@
 #' @srrstats {G5.5} *Correctness tests are run with a fixed random seed*
 set.seed(329)
 
-#' @srrstatsTODO {G5.6} **Parameter recovery tests** *the likelihood ratio test returns expected values consistent with the survival implementation for randomly generated data*
+#' @srrstats {G5.6} **Parameter recovery tests** *the likelihood ratio test returns expected values consistent with the survival implementation for randomly generated data*
 
-leaf_min_events <- 1
-leaf_min_obs    <- 15
-n_split         <- 5
-n_total         <- 100
-
-XB_ctns <- sort(rnorm(n_total))
-XB_catg <- round(XB_ctns)
-XB_bnry <- as.numeric(XB_ctns > 0)
-
-XB_catg <- XB_catg + abs(min(XB_catg)) + 1
-XB_bnry <- XB_bnry + 1
-
-prob <- (XB_ctns + abs(min(XB_ctns))) / (max(XB_ctns)+abs(min(XB_ctns)))
-
-status  <- rbinom(n = n_total, prob = prob, size = 1)
-
-n_event <- sum(status)
-
-time    <- seq(n_total, 1)
-t_sort  <- order(time)
-status  <- status[t_sort]
-XB_ctns <- XB_ctns[t_sort]
-XB_catg <- XB_catg[t_sort]
-XB_bnry <- XB_bnry[t_sort]
-time    <- time[t_sort]
-
-y <- cbind(time=time, status=status)
-w <- rep(1, n_total)
-
-lrt_multi_vals <- lapply(
- X = list(ctns = XB_ctns,
-          catg = XB_catg,
-          bnry = XB_bnry),
- FUN = function(XB){
-  lrt_multi_testthat(y_node_ = y,
-                     w_node_ = w,
-                     XB_ = XB,
-                     n_split_ = n_split,
-                     leaf_min_events_ = leaf_min_events,
-                     leaf_min_obs_ = leaf_min_obs)
- }
-)
-
-test_values = lrt_multi_vals[[1]]
+#' @srrstats {ML7.8} *Explicitly test my implementation of the likelihood ratio test, used as a loss function when determining the best split for a given node. I do not test other loss functions because this is the only loss function that aorsf implements.*
 
 run_lrt_multi_tests <- function(test_values, XB){
 
@@ -126,8 +83,61 @@ run_lrt_multi_tests <- function(test_values, XB){
 
 }
 
-run_lrt_multi_tests(lrt_multi_vals$ctns, XB_ctns)
-run_lrt_multi_tests(lrt_multi_vals$catg, XB_catg)
-run_lrt_multi_tests(lrt_multi_vals$bnry, XB_bnry)
+
+n_total         <- 100
+n_split         <- 5
+
+.leaf_min_events <- c(1, 3, 5, 10, 15)
+
+for(leaf_min_events in .leaf_min_events){
+
+ leaf_min_obs    <- leaf_min_events + 10
+
+ XB_ctns <- sort(rnorm(n_total))
+ XB_catg <- round(XB_ctns)
+ XB_bnry <- as.numeric(XB_ctns > 0)
+
+ XB_catg <- XB_catg + abs(min(XB_catg)) + 1
+ XB_bnry <- XB_bnry + 1
+
+ prob <- (XB_ctns + abs(min(XB_ctns))) / (max(XB_ctns)+abs(min(XB_ctns)))
+
+ status  <- rbinom(n = n_total, prob = prob, size = 1)
+
+ n_event <- sum(status)
+
+ time    <- seq(n_total, 1)
+ t_sort  <- order(time)
+ status  <- status[t_sort]
+ XB_ctns <- XB_ctns[t_sort]
+ XB_catg <- XB_catg[t_sort]
+ XB_bnry <- XB_bnry[t_sort]
+ time    <- time[t_sort]
+
+ y <- cbind(time=time, status=status)
+ w <- rep(1, n_total)
+
+ lrt_multi_vals <- lapply(
+  X = list(ctns = XB_ctns,
+           catg = XB_catg,
+           bnry = XB_bnry),
+  FUN = function(XB){
+   lrt_multi_testthat(y_node_ = y,
+                      w_node_ = w,
+                      XB_ = XB,
+                      n_split_ = n_split,
+                      leaf_min_events_ = leaf_min_events,
+                      leaf_min_obs_ = leaf_min_obs)
+  }
+ )
+
+ test_values = lrt_multi_vals[[1]]
+
+ run_lrt_multi_tests(lrt_multi_vals$ctns, XB_ctns)
+ run_lrt_multi_tests(lrt_multi_vals$catg, XB_catg)
+ run_lrt_multi_tests(lrt_multi_vals$bnry, XB_bnry)
+
+}
+
 
 

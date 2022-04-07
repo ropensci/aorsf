@@ -22,34 +22,14 @@
 
 
 
-#' @srrstatsTODO {ML5.1} *As for the untrained model objects produced according to the above standards, and in particular as a direct extension of **ML3.3**, the properties and behaviours of trained models produced by ML software should be explicitly compared with equivalent objects produced by other ML software. (Such comparison will generally be done in terms of comparing model performance, as described in the following standard **ML5.3**--**ML5.4**).*
-#' @srrstatsTODO {ML5.2} *The structure and functionality of objects representing trained ML models should be thoroughly documented. In particular,*
-#' @srrstatsTODO {ML5.2a} *Either all functionality extending from the class of model object should be explicitly documented, or a method for listing or otherwise accessing all associated functionality explicitly documented and demonstrated in example code.*
-#' @srrstatsTODO {ML5.2b} *Documentation should include examples of how to save and re-load trained model objects for their re-use in accordance with **ML3.1**, above.*
-#' @srrstatsTODO {ML5.2c} *Where general functions for saving or serializing objects, such as [`saveRDS`](https://stat.ethz.ch/R-manual/R-devel/library/base/html/readRDS.html) are not appropriate for storing local copies of trained models, an explicit function should be provided for that purpose, and should be demonstrated with example code.*
-#' @srrstatsTODO {ML5.3} *Assessment of model performance should be implemented as one or more functions distinct from model training.*
-#' @srrstatsTODO {ML5.4} *Model performance should be able to be assessed according to a variety of metrics.*
-#' @srrstatsTODO {ML5.4a} *All model performance metrics represented by functions internal to a package must be clearly and distinctly documented.*
-#' @srrstatsTODO {ML5.4b} *It should be possible to submit custom metrics to a model assessment function, and the ability to do so should be clearly documented including through example code.*
-#' @srrstatsTODO {ML6.0} *Descriptions of ML software should make explicit reference to a workflow which separates training and testing stages, and which clearly indicates a need for distinct training and test data sets.*
-#' @srrstatsTODO {ML6.1} *ML software intentionally designed to address only a restricted subset of the workflow described here should clearly document how it can be embedded within a typical full ML workflow in the sense considered here.*
-#' @srrstatsTODO {ML6.1a} *Such demonstrations should include and contrast embedding within a full workflow using at least two other packages to implement that workflow.*
-#' @srrstatsTODO {ML7.0} *Test should explicitly confirm partial and case-insensitive matching of "test", "train", and, where applicable, "validation" data.*
-#' @srrstatsTODO {ML7.1} *Tests should demonstrate effects of different numeric scaling of input data (see **ML2.2**).*
-#' @srrstatsTODO {ML7.2} *For software which imputes missing data, tests should compare internal imputation with explicit code which directly implements imputation steps (even where such imputation is a single-step implemented via some external package). These tests serve as an explicit reference for how imputation is performed.*
-#' @srrstatsTODO {ML7.3} *Where model objects are implemented as distinct classes, tests should explicitly compare the functionality of these classes with functionality of equivalent classes for ML model objects from other packages.*
-#' @srrstatsTODO {ML7.3a} *These tests should explicitly identify restrictions on the functionality of model objects in comparison with those of other packages.*
-#' @srrstatsTODO {ML7.3b} *These tests should explicitly identify functional advantages and unique abilities of the model objects in comparison with those of other packages.*
-#' @srrstatsTODO {ML7.4} *ML software should explicit document the effects of different training rates, and in particular should demonstrate divergence from optima with inappropriate training rates.*
-#' @srrstatsTODO {ML7.5} *ML software which implements routines to determine optimal training rates (see **ML3.4**, above) should implement tests to confirm the optimality of resultant values.*
-#' @srrstatsTODO {ML7.6} *ML software which implement independent training "epochs" should demonstrate in tests the effects of lesser versus greater numbers of epochs.*
-#' @srrstatsTODO {ML7.7} *ML software should explicitly test different optimization algorithms, even where software is intended to implement one specific algorithm.*
-#' @srrstatsTODO {ML7.8} *ML software should explicitly test different loss functions, even where software is intended to implement one specific measure of loss.*
-#' @srrstatsTODO {ML7.9} *Tests should explicitly compare all possible combinations in categorical differences in model architecture, such as different model architectures with same optimization algorithms, same model architectures with different optimization algorithms, and differences in both.*
-#' @srrstatsTODO {ML7.9a} *Such combinations will generally be formed from multiple categorical factors, for which explicit use of functions such as [`expand.grid()`](https://stat.ethz.ch/R-manual/R-devel/library/base/html/expand.grid.html) is recommended.*
-#' @srrstatsTODO {ML7.10} *The successful extraction of information on paths taken by optimizers (see **ML5.1**, above), should be tested, including testing the general properties, but not necessarily actual values of, such data.*
-#' @srrstatsTODO {ML7.11} *All performance metrics available for a given class of trained model should be thoroughly tested and compared.*
-#' @srrstatsTODO {ML7.11a} *Tests which compare metrics should do so over a range of inputs (generally implying differently trained models) to demonstrate relative advantages and disadvantages of different metrics.*
+
+
+
+
+
+
+
+
 
 #' @noRd
 NULL
@@ -114,7 +94,23 @@ NULL
 #'
 #' @srrstatsNA {ML4.7, ML4.8, ML4.8a} *aorsf does not currently include functions for re-sampling as random forests generally do not need a lot of tuning and because there are other R packages that are dedicated to providing robust resampling routines (e.g., rsample).*
 
+#' #' @srrstatsNA {ML5.1} *The properties and behaviours of ORSF models were explicitly compared with objects produced by other ML software in Jaeger et al, 2019 (DOI: 10.1214/19-AOAS1261). These comparisons focused on comparing model performance. I am not including comparisons such as this in the aorsf package because I want aorsf to include or suggest including as few other R packages as possible.*
+#'
+#' @srrstatsNA {ML5.2c} *General functions for saving or serializing objects, such as [`saveRDS`](https://stat.ethz.ch/R-manual/R-devel/library/base/html/readRDS.html) are  appropriate for storing local copies of trained aorsf models.*
+#'
+#' @srrstatsNA {ML7.0} *aorsf does not have text inputs with labels of "test", "train", or "validation" data. However, aorsf does implement a function, check_arg_is_valid(), which assesses validity of text inputs based on a case-sensitive set of valid options.*
+#'
+#' @srrstatsNA {ML7.2} *aorsf does not impute missing data.*
+#'
+#' @srrstatsNA {ML7.3, ML7.3a, ML7.3b} *I am not including comparisons such as this in the aorsf package because I want aorsf to include or suggest including as few other R packages as possible. I don't want to overload the imported or suggested packages for aorsf because it becomes exponentially harder to get a package onto CRAN the more it depends on other packages. Jaeger et al, 2019 (DOI: 10.1214/19-AOAS1261) made comparisons like these formally using several ML software packages, and I plan on writing a similar paper for aorsf that will make meaningful comparisons similar to the ones I made in Jaeger et al, 2019. *
+#'
+#' @srrstatsNA {ML7.4} *aorsf does not use training rates*
+#'
+#' @srrstatsNA {ML7.5} *aorsf does not use training rates*
+#'
+#' @srrstatsNA {ML7.6} *aorsf does not use training epochs.*
+#'
+#' @srrstatsNA {ML7.11a} *aorsf does not implement multiple metrics and therefore cannot demonstrate relative advantages and disadvantages of different metrics. However, when verifying the accuracy of aorsf's scripts to compute certain metrics (e.g., the likelihood ratio test, and cox PH regression), aorsf tests to make sure the metrics are correctly computed over a wide range of inputs*
 #'
 #' @noRd
 NULL
-
