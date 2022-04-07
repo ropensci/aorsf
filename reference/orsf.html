@@ -78,6 +78,7 @@
   oobag_eval_every <span class="op">=</span> <span class="va">n_tree</span>,
   oobag_fun <span class="op">=</span> <span class="cn">NULL</span>,
   importance <span class="op">=</span> <span class="cn">FALSE</span>,
+  tree_seeds <span class="op">=</span> <span class="cn">NULL</span>,
   attach_data <span class="op">=</span> <span class="cn">TRUE</span>,
   no_fit <span class="op">=</span> <span class="cn">FALSE</span>
 <span class="op">)</span>
@@ -158,6 +159,16 @@ then the out-of-bag error for the forest is re-computed. The greater
 the degradation of the forest's error, the more important the variable.
 Default is <code>FALSE</code>. Note that if <code>oobag_fun</code> is specified above, it
 will be used in the computation of negation importance.</p></dd>
+<dt>tree_seeds</dt>
+<dd><p>(<em>integer vector</em>) if specified, random seeds will be set
+using the values in <code>tree_seeds[i]</code>  before growing tree i. Two forests
+grown with the same number of trees and the same seeds will have the exact
+same out-of-bag samples and, in many cases, the same random sets of
+candidate predictors. This design makes comparisons of out-of-bag error
+between two random forests more meaningful, since the out-of-bag
+performance of a random forest depends somewhat on the observations
+picked in out-of-bag samples. If <code>tree_seeds</code> is <code>NULL</code> (the default),
+no seeds are set during the training process.</p></dd>
 <dt>attach_data</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, a copy of the training
 data will be attached to the output. This is helpful if you
@@ -214,11 +225,15 @@ DOI: 10.1214/08-AOAS169</p>
 Mcclure LA, Howard G, Simon N. Oblique random survival forests.
 <em>Annals of applied statistics</em>. 2019 Sep;13(3):1847-83.
 DOI: 10.1214/19-AOAS1261</p>
+<p>Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA.
+Evaluating the Yield of Medical Tests. <em>JAMA</em>. 1982;247(18):2543–2546.
+DOI: 10.1001/jama.1982.03320430047030</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
+<span class="r-in"><span class="co"># standard workflow for model development: fit and interpret</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">orsf</span><span class="op">(</span><span class="va">pbc_orsf</span>, formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span>
 <span class="r-in"></span>
@@ -237,6 +252,51 @@ DOI: 10.1214/19-AOAS1261</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            OOB stat type: Harrell's C-statistic</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -----------------------------------------</span>
+<span class="r-in"></span>
+<span class="r-in"><span class="va">smry</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">fit</span>, n_variables <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span class="r-in"></span>
+<span class="r-in"><span class="va">smry</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- ascites (VI Rank: 1) ------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- risk ----------------|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0 0.2930184 0.1586975 0.05413621 0.5290301</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      1 0.4775163 0.3928108 0.29328828 0.6529854</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- bili (VI Rank: 2) ---------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- risk ----------------|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.80 0.2336010 0.1231015 0.05205421 0.3914109</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1.40 0.2516015 0.1432486 0.06059993 0.4108370</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3.52 0.3625555 0.2802789 0.16097472 0.5325489</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- edema (VI Rank: 3) --------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- risk ----------------|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0 0.2889373 0.1511744 0.05394809 0.5264098</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.5 0.3518024 0.2335233 0.09587065 0.6182171</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      1 0.4426657 0.3426989 0.23819716 0.6584315</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- albumin (VI Rank: 4) ------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- risk ----------------|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3.31 0.3128816 0.1821867 0.06187152 0.5553825</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3.54 0.2889552 0.1515573 0.05012960 0.5143443</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3.77 0.2751296 0.1438405 0.05144096 0.4701131</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- age (VI Rank: 5) ----------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- risk ----------------|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   41.5 0.2722113 0.1395798 0.04941910 0.4617116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   49.7 0.2976899 0.1752566 0.05502665 0.5165440</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   56.6 0.3267222 0.2099933 0.07064221 0.5636380</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Predicted risk at time t = 1788 for top 5 predictors </span>
 <span class="r-in"></span>
 </code></pre></div>
     </div>
