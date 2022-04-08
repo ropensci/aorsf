@@ -258,14 +258,7 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">orsf_fit</span>, n_variables <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; -- ascites (VI Rank: 1) ------------------------</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;        |---------------- risk ----------------|</span>
-<span class="co">#&gt;  Value      Mean   Median     25th %    75th %</span>
-<span class="co">#&gt;      0 0.2929154 0.163062 0.05318032 0.5097082</span>
-<span class="co">#&gt;      1 0.4637308 0.382016 0.26225152 0.6590867</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; -- bili (VI Rank: 2) ---------------------------</span>
+<span class="co">#&gt; -- bili (VI Rank: 1) ---------------------------</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;        |---------------- risk ----------------|</span>
 <span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
@@ -273,15 +266,7 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <span class="co">#&gt;   1.40 0.2493383 0.1364783 0.06240488 0.3799558</span>
 <span class="co">#&gt;   3.52 0.3629451 0.2809326 0.16729225 0.5370454</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; -- edema (VI Rank: 3) --------------------------</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;        |---------------- risk ----------------|</span>
-<span class="co">#&gt;  Value      Mean    Median    25th %    75th %</span>
-<span class="co">#&gt;      0 0.2879752 0.1593280 0.0504200 0.5100068</span>
-<span class="co">#&gt;    0.5 0.3535787 0.2490830 0.1095931 0.6025282</span>
-<span class="co">#&gt;      1 0.4364006 0.3395867 0.2343640 0.6488321</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; -- age (VI Rank: 4) ----------------------------</span>
+<span class="co">#&gt; -- age (VI Rank: 2) ----------------------------</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;        |---------------- risk ----------------|</span>
 <span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
@@ -289,13 +274,27 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <span class="co">#&gt;   49.7 0.2963928 0.1653473 0.05344984 0.5159703</span>
 <span class="co">#&gt;   56.6 0.3261666 0.2140083 0.07259286 0.5531233</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; -- copper (VI Rank: 5) -------------------------</span>
+<span class="co">#&gt; -- copper (VI Rank: 3) -------------------------</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;        |---------------- risk ----------------|</span>
 <span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
 <span class="co">#&gt;   42.8 0.2621926 0.1455405 0.04907613 0.4642134</span>
 <span class="co">#&gt;   74.0 0.2783801 0.1634844 0.05793596 0.4795875</span>
 <span class="co">#&gt;    129 0.3299214 0.2205642 0.10267176 0.5424471</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; -- ascites (VI Rank: 4) ------------------------</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;        |---------------- risk ----------------|</span>
+<span class="co">#&gt;  Value      Mean   Median     25th %    75th %</span>
+<span class="co">#&gt;      0 0.2929154 0.163062 0.05318032 0.5097082</span>
+<span class="co">#&gt;      1 0.4637308 0.382016 0.26225152 0.6590867</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; -- sex (VI Rank: 5) ----------------------------</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;        |---------------- risk ----------------|</span>
+<span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span>
+<span class="co">#&gt;      m 0.3490948 0.2412210 0.11694515 0.5825721</span>
+<span class="co">#&gt;      f 0.2925945 0.1569997 0.05077453 0.5154134</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;  Predicted risk at time t = 1788 for top 5 predictors</span></code></pre></div>
 </div>
@@ -323,7 +322,7 @@ Decision trees for classification with axis-based splitting (left) and oblique s
  <span class="op">)</span>
 <span class="op">)</span>
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   3.495   0.000   3.495</span>
+<span class="co">#&gt;   3.920   0.000   3.922</span>
 
 <span class="co"># and how long it takes to fit 50 cph trees</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>
@@ -335,11 +334,11 @@ Decision trees for classification with axis-based splitting (left) and oblique s
  <span class="op">)</span>
 <span class="op">)</span>
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   0.028   0.000   0.028</span>
+<span class="co">#&gt;    0.03    0.00    0.03</span>
 
 <span class="va">t1</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">t2</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span>
 <span class="co">#&gt;  elapsed </span>
-<span class="co">#&gt; 124.8214</span></code></pre></div>
+<span class="co">#&gt; 130.7333</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="aorsf-and-other-machine-learning-software">aorsf and other machine learning software<a class="anchor" aria-label="anchor" href="#aorsf-and-other-machine-learning-software"></a>
