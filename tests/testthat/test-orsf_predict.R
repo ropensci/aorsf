@@ -125,19 +125,71 @@ test_that(
 )
 
 bad_data <- new_data
-bad_data$age[1] <- NA_real_
+
 
 test_that(
  desc = 'missing values are detected',
  code = {
+
+  bad_data$age[1] <- NA_real_
+
   expect_error(
    object = predict(aorsf, bad_data, pred_horizon = 1000),
    regexp = "missing values"
+  )
+
+  bad_data$age[1] <- Inf
+
+  expect_error(
+   object = predict(aorsf, bad_data, pred_horizon = 1000),
+   regexp = "infinite"
+  )
+
+
+ }
+)
+
+test_that(
+ desc = 'pred horizon < max time',
+ code = {
+  expect_error(
+   object = predict(aorsf, pbc_orsf[-train,], pred_horizon = 100000),
+   regexp = "max follow-up"
+  )
+ }
+)
+
+test_that(
+ desc = 'pred horizon in increasing order',
+ code = {
+  expect_error(
+   object = predict(aorsf, pbc_orsf[-train,],
+                    pred_horizon = c(4000, 2000)),
+   regexp = "ascending"
   )
  }
 )
 
 
+
+
+test_that(
+ desc = 'missing units are detected',
+ code = {
+
+  suppressMessages(library(units))
+  pbc_units <- pbc_orsf
+  units(pbc_units$age) <- 'years'
+
+  fit <- orsf(formula = time + status  ~ . - id,
+              data = pbc_units,
+              n_tree = 10)
+
+  expect_error(predict(fit, new_data = pbc_orsf, pred_horizon = 1000),
+               'unit attributes')
+
+ }
+)
 
 new_col_order <- sample(names(new_data),
                         size = ncol(new_data),

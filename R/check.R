@@ -1203,7 +1203,7 @@ check_units <- function(new_data, ui_train) {
  if(!is_empty(ui_missing)){
 
   if(length(ui_missing) == 1){
-   stop(ui_missing, "had unit attributes in training data but",
+   stop(ui_missing, " had unit attributes in training data but",
         " did not have unit attributes in testing data.",
         " Please ensure that variables in new data have the same",
         " units as their counterparts in the training data.",
@@ -1351,10 +1351,11 @@ check_predict <- function(object, new_data, pred_horizon, risk){
         call. = FALSE)
   }
 
-  if(any(is.nan(new_data[[i]]))){
-   stop("Please remove NaN values from ", i, ".",
-        call. = FALSE)
-  }
+  # NaN values trigger is.na(), so this probaly isn't needed.
+  # if(any(is.nan(new_data[[i]]))){
+  #  stop("Please remove NaN values from ", i, ".",
+  #       call. = FALSE)
+  # }
 
  }
 

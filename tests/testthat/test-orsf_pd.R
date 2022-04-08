@@ -134,14 +134,53 @@ test_that(
  }
 )
 
+test_that(
+ 'multi-valued horizon inputs are allowed',
 
-# These tests are kept commented out and run locally
-# I dont want to suggest pdp package in DESCRIPTION just for testing
+ code = {
+
+  pd_smry_multi_horiz <- orsf_pd_summary(
+   object,
+   pd_spec = list(bili = 1),
+   pred_horizon = c(1000, 2000, 3000),
+   oobag = TRUE
+  )
+
+  # risk must increase or remain steady over time
+  expect_lte(pd_smry_multi_horiz$mean[1], pd_smry_multi_horiz$mean[2])
+  expect_lte(pd_smry_multi_horiz$mean[2], pd_smry_multi_horiz$mean[3])
+
+  expect_lte(pd_smry_multi_horiz$medn[1], pd_smry_multi_horiz$medn[2])
+  expect_lte(pd_smry_multi_horiz$medn[2], pd_smry_multi_horiz$medn[3])
+
+  pd_ice_multi_horiz <- orsf_pd_ice(
+   object,
+   pd_spec = list(bili = 1),
+   pred_horizon = c(1000, 2000, 3000),
+   oobag = TRUE
+  )
+
+  ice_check <- pd_ice_multi_horiz[, .(m = mean(pred)), by = pred_horizon]
+
+  expect_equal(ice_check$m, pd_smry_multi_horiz$mean)
+
+ }
+
+
+)
+
+
+
+
+
+# # These tests are kept commented out and run locally
+# # I dont want to suggest pdp package in DESCRIPTION just for testing
 # library(pdp)
 #
 # pred_aorsf <- function(object, newdata) {  # see ?predict.aorsf
 #  as.numeric(predict(object, newdata, pred_horizon = 1000))
 # }
+#
 # pd_reference <- partial(object,
 #                         pred.var = "bili",
 #                         pred.grid = data.frame(bili = 1:5),
@@ -175,7 +214,7 @@ test_that(
 #  desc = "pd_smry matches pd_ice",
 #  code = {
 #   expect_equal(pd_bcj_check$bili_mean, pd_smry$mean)
-#   expect_equal(pd_bcj_check$bili_median, pd_smry$median)
+#   expect_equal(pd_bcj_check$bili_median, pd_smry$medn)
 #  }
 # )
 #

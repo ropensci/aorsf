@@ -1,4 +1,50 @@
+oobag_c_harrell <- function(y_mat, s_vec){
 
+ sorted <- order(y_mat[, 1], -y_mat[, 2])
+
+ y_mat <- y_mat[sorted, ]
+ s_vec <- s_vec[sorted]
+
+ time = y_mat[, 1]
+ status = y_mat[, 2]
+ events = which(status == 1)
+
+ k = nrow(y_mat)
+
+ total <- 0
+ concordant <- 0
+
+ for(i in events){
+
+  if(i+1 <= k){
+
+   for(j in seq(i+1, k)){
+
+    if(time[j] > time[i]){
+
+     total <- total + 1
+
+     if(s_vec[j] > s_vec[i]){
+
+      concordant <- concordant + 1
+
+     } else if (s_vec[j] == s_vec[i]){
+
+      concordant <- concordant + 0.5
+
+     }
+
+    }
+
+   }
+
+  }
+
+ }
+
+ concordant / total
+
+}
 
 #' @srrstats {G5.0} *tests use the PBC data, a standard set that has been widely studied and disseminated in other R package (e.g., survival and randomForestSRC)*
 
@@ -58,6 +104,9 @@ test_that(
   expect_error(orsf(pbc_orsf, f, mtry = 5000), 'should be <=')
   expect_error(orsf(pbc_orsf, f, leaf_min_events = 5000), 'should be <=')
   expect_error(orsf(pbc_orsf, f, leaf_min_obs = 5000), 'should be <=')
+
+  pbc_temp$date_var <- Sys.Date()
+  expect_error(orsf(pbc_temp, f), 'unsupported type')
 
  }
 )
@@ -161,12 +210,12 @@ test_that(
 fit_with_vi <- orsf(data_train = pbc_orsf,
                     formula = Surv(time, status) ~ . - id,
                     importance = TRUE,
-                    n_tree = 10)
+                    n_tree = 50)
 
 fit_no_vi <- orsf(data_train = pbc_orsf,
                   formula = Surv(time, status) ~ . - id,
-                  importance = TRUE,
-                  n_tree = 10)
+                  importance = FALSE,
+                  n_tree = 50)
 
 no_miss_list <- function(l){
 
@@ -199,6 +248,42 @@ test_that(
     expect_true(sum(miss_check_with_vi[[i]]) == 0)
   }
 
+
+ }
+)
+
+cstat_bcj <- function(y_mat, s_vec){
+
+ sorted <- order( y_mat[, 1], -y_mat[, 2])
+ oobag_c_harrell_testthat(y_mat[sorted, ], s_vec[sorted, ])
+
+}
+
+test_that(
+ desc = 'oobag error is reproducible from an aorsf object',
+ code = {
+
+  y_mat <- as.matrix(fit_no_vi$data_train[, c('time', 'status')])
+  s_vec <- fit_no_vi$surv_oobag
+
+  tt <- survival::concordancefit(y = Surv(pbc_orsf$time, pbc_orsf$status),
+                                 x = fit_no_vi$surv_oobag)
+
+  denom <- sum(tt$count[c('concordant',
+                          'discordant',
+                          'tied.y')])
+
+  target <- as.numeric(tt$concordance)
+
+  bcj <- cstat_bcj(y_mat, s_vec)
+
+  expect_equal(
+   bcj,
+   as.numeric(fit_no_vi$eval_oobag$stat_values)
+  )
+
+  # cstat_bcj close enough to cstat from survival
+  expect_lt(abs(target - bcj), 0.001)
 
  }
 )
@@ -275,15 +360,15 @@ test_that(
 
 
 #' @srrstats {ML7.11} *OOB C-statistic is monitored by this test. As the number of trees in the forest increases, the C-statistic should also increase*
-#'
+
 test_that(
  desc = "algorithm grows more accurate with higher number of iterations",
  code = {
 
   fit <- orsf(pbc_orsf,
               formula = Surv(time, status) ~ . -id,
-              n_tree = 1000,
-              oobag_eval_every = 50)
+              n_tree = 50,
+              oobag_eval_every = 5)
 
   expect_lt(fit$eval_oobag$stat_values[1],
             last_value(fit$eval_oobag$stat_values))
@@ -422,10 +507,20 @@ test_that(
 )
 
 test_that(
- desc = 'oob rows are identical when the same tree seeds are used',
+ desc = 'oob rows identical with same tree seeds, oob error correct for user-specified function',
  code = {
 
   tree_seeds = sample.int(n = 50000, size = 10)
+  bad_tree_seeds <- c(1,2,3)
+
+  expect_error(
+   orsf(data_train = pbc_orsf,
+        formula = time+status~.-id,
+        n_tree = 10,
+        mtry = 2,
+        tree_seeds = bad_tree_seeds),
+   regexp = 'the number of trees'
+  )
 
   fit_1 <- orsf(data_train = pbc_orsf,
                 formula = time+status~.-id,
@@ -439,15 +534,24 @@ test_that(
                 mtry = 6,
                 tree_seeds = tree_seeds)
 
-  for(i in seq(10)){
+  fit_3 <- orsf(data_train = pbc_orsf,
+                formula = time+status~.-id,
+                n_tree = 10,
+                mtry = 6,
+                oobag_fun = oobag_c_harrell,
+                tree_seeds = tree_seeds)
+
+  expect_equal(
+   fit_2$eval_oobag$stat_values,
+   fit_3$eval_oobag$stat_values
+  )
+
+  for(i in seq(get_n_tree(fit_2))){
 
    expect_equal(fit_1$forest[[i]]$rows_oobag,
                 fit_2$forest[[i]]$rows_oobag)
 
   }
-
-
-
  }
 )
 
@@ -463,7 +567,8 @@ test_that(
   for(.n_tree in c(100, 250, 1000, 2500)){
 
    object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-                  n_tree = .n_tree, no_fit = TRUE)
+                  n_tree = .n_tree, no_fit = TRUE,
+                  importance = .n_tree == 100)
    set.seed(89)
    time_estimated <- orsf_time_to_train(object, n_tree_subset = 50)
 
@@ -561,6 +666,8 @@ test_that(
  }
 )
 
+
+
 #' @srrstats {ML7.9} *Explicitly compare all possible combinations in categorical differences in model architecture, such as different model architectures with same optimization algorithms, same model architectures with different optimization algorithms, and differences in both.*
 
 
@@ -650,7 +757,30 @@ test_that(
 
   }
 
+  test_that(
+   desc = 'if oobag time is unspecified, pred horizon = median(time)',
+   code = {
+
+    fit_1 <- orsf(data_train = pbc_orsf,
+                  formula = time + status ~ . - id,
+                  n_tree = 1,
+                  oobag_pred = TRUE)
+
+    fit_2 <- orsf(data_train = pbc_orsf,
+                  formula = time + status ~ . - id,
+                  n_tree = 1,
+                  oobag_pred = FALSE)
+
+    expect_equal(fit_1$pred_horizon, fit_2$pred_horizon)
+
+   }
+  )
+
+
+
+
  }
+
 )
 
 

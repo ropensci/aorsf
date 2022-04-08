@@ -82,7 +82,6 @@ orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
 
   'anova' = {
    out <- object$signif_means
-   rownames(out) <- get_names_x(object, ref_code_names = TRUE)
   },
 
   'negate' = {
@@ -93,9 +92,11 @@ orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
          call. = FALSE)
    }
 
-   if(contains_vi(object)){
+   if(contains_vi(object) && is.null(oobag_fun)){
 
-    out <- object$importance
+    out <- matrix(object$importance, ncol = 1)
+    rownames(out) <- names(object$importance)
+
 
    } else {
 
@@ -112,8 +113,6 @@ orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
 
     }
 
-    last_eval_stat <- last_value(object$eval_oobag$stat_values[, 1, drop=TRUE])
-
     y <- as.matrix(object$data_train[, get_names_y(object)])
 
     # Put data in the same order that it was in when object was fit
@@ -125,7 +124,18 @@ orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
               names_x_data = get_names_x(object))
     )
 
-    # if(type_oobag_eval == 'U') browser()
+    if(is.null(oobag_fun)) {
+
+     last_eval_stat <-
+      last_value(object$eval_oobag$stat_values[, 1, drop=TRUE])
+
+    } else {
+
+     last_eval_stat <-
+      f_oobag_eval(y_mat = y, s_vec = object$surv_oobag)
+
+    }
+
 
     out <- orsf_oob_vi(x = x[sorted, ],
                        y = y[sorted, ],
@@ -152,11 +162,13 @@ orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
    for(f in fi$cols[!fi$ordr]){
 
     f_lvls <- fi$lvls[[f]]
-    f_rows <- which(rownames(out) %in% paste(f, f_lvls[-1], sep = '_'))
+    f_rows <- match(paste(f, f_lvls[-1], sep = '_'), rownames(out))
     f_wts <- 1
 
-    if(length(f_lvls) > 2)
+    if(length(f_lvls) > 2){
+     # browser()
      f_wts <- prop.table(x = table(object$data_train[[f]])[-1])
+    }
 
     f_vi <- sum(out[f_rows] * f_wts)
 

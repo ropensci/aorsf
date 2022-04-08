@@ -21,6 +21,10 @@ lrt_multi_testthat <- function(y_node_, w_node_, XB_, n_split_, leaf_min_events_
     .Call(`_aorsf_lrt_multi_testthat`, y_node_, w_node_, XB_, n_split_, leaf_min_events_, leaf_min_obs_)
 }
 
+oobag_c_harrell_testthat <- function(y_mat, s_vec) {
+    .Call(`_aorsf_oobag_c_harrell_testthat`, y_mat, s_vec)
+}
+
 ostree_pred_leaf_testthat <- function(tree, x_pred_) {
     .Call(`_aorsf_ostree_pred_leaf_testthat`, tree, x_pred_)
 }

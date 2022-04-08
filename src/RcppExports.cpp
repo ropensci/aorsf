@@ -80,6 +80,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// oobag_c_harrell_testthat
+double oobag_c_harrell_testthat(NumericMatrix y_mat, NumericVector s_vec);
+RcppExport SEXP _aorsf_oobag_c_harrell_testthat(SEXP y_matSEXP, SEXP s_vecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type y_mat(y_matSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type s_vec(s_vecSEXP);
+    rcpp_result_gen = Rcpp::wrap(oobag_c_harrell_testthat(y_mat, s_vec));
+    return rcpp_result_gen;
+END_RCPP
+}
 // ostree_pred_leaf_testthat
 arma::uvec ostree_pred_leaf_testthat(List& tree, NumericMatrix& x_pred_);
 RcppExport SEXP _aorsf_ostree_pred_leaf_testthat(SEXP treeSEXP, SEXP x_pred_SEXP) {
@@ -248,6 +260,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_leaf_kaplan_testthat", (DL_FUNC) &_aorsf_leaf_kaplan_testthat, 2},
     {"_aorsf_newtraph_cph_testthat", (DL_FUNC) &_aorsf_newtraph_cph_testthat, 7},
     {"_aorsf_lrt_multi_testthat", (DL_FUNC) &_aorsf_lrt_multi_testthat, 6},
+    {"_aorsf_oobag_c_harrell_testthat", (DL_FUNC) &_aorsf_oobag_c_harrell_testthat, 2},
     {"_aorsf_ostree_pred_leaf_testthat", (DL_FUNC) &_aorsf_ostree_pred_leaf_testthat, 2},
     {"_aorsf_orsf_fit", (DL_FUNC) &_aorsf_orsf_fit, 26},
     {"_aorsf_orsf_oob_vi", (DL_FUNC) &_aorsf_orsf_oob_vi, 7},

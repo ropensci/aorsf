@@ -480,17 +480,18 @@ orsf <- function(data_train,
   stop(msg, call. = FALSE)
  }
 
- names_x_in_f <- rownames(attr(formula_terms, 'factors'))[-1]
-
- names_strange <- setdiff(names_x_in_f, names(data_train))
-
- if(!is_empty(names_strange)){
-  msg <- paste0(
-   "variables in formula were not found in data_train: ",
-   paste_collapse(names_strange, last = ' and ')
-  )
-  warning(msg, call. = FALSE)
- }
+ # I think this isn't needed. leaving it commented out just in case.
+ # names_x_in_f <- rownames(attr(formula_terms, 'factors'))[-1]
+ #
+ # names_strange <- setdiff(names_x_in_f, names(data_train))
+ #
+ # if(!is_empty(names_strange)){
+ #  msg <- paste0(
+ #   "variables in formula were not found in data_train: ",
+ #   paste_collapse(names_strange, last = ' and ')
+ #  )
+ #  warning(msg, call. = FALSE)
+ # }
 
  #' @srrstats {G2.6} *ensure that one-dimensional inputs are appropriately pre-processed. aorsf does not deal with missing data as many other R packages are very good at dealing with it.*
 
@@ -517,10 +518,11 @@ orsf <- function(data_train,
         call. = FALSE)
   }
 
-  if(any(is.nan(data_train[[i]]))){
-   stop("Please remove NaN values from ", i, ".",
-        call. = FALSE)
-  }
+  # nan values trigger is.na(), so this probably isnt needed.
+  # if(any(is.nan(data_train[[i]]))){
+  #  stop("Please remove NaN values from ", i, ".",
+  #       call. = FALSE)
+  # }
 
  }
 
@@ -695,6 +697,8 @@ orsf <- function(data_train,
    rev(orsf_out$importance[order(orsf_out$importance), , drop=TRUE])
  }
 
+ # ANOVA importance is computed whether importance is true or not.
+ rownames(orsf_out$signif_means) <- colnames(x)
 
  if(oobag_pred){
 
@@ -715,7 +719,7 @@ orsf <- function(data_train,
 
  } else {
 
-  if(is.null(oobag_time))
+  if(oobag_time == 0)
   # this would get added by orsf_fit if oobag_pred was TRUE
    orsf_out$pred_horizon <- stats::median(y[, 1])
   else
@@ -911,10 +915,14 @@ orsf_train_ <- function(object,
  x_sort <- x[sorted, ]
  y_sort <- y[sorted, ]
 
+ if(is.null(n_tree)) n_tree <- get_n_tree(object)
+
+ oobag_eval_every <- min(n_tree, get_oobag_eval_every(object))
+
  orsf_out <- orsf_fit(
   x                 = x_sort,
   y                 = y_sort,
-  n_tree            = if(!is.null(n_tree)) n_tree else get_n_tree(object),
+  n_tree            = n_tree,
   n_split_          = get_n_split(object),
   mtry_             = get_mtry(object),
   leaf_min_events_  = get_leaf_min_events(object),
@@ -932,7 +940,7 @@ orsf_train_ <- function(object,
   net_df_target_    = get_net_df_target(object),
   oobag_pred_       = get_oobag_pred(object),
   oobag_time_       = object$pred_horizon,
-  oobag_eval_every_ = get_oobag_eval_every(object),
+  oobag_eval_every_ = oobag_eval_every,
   oobag_importance_ = get_importance(object),
   tree_seeds        = as.integer(get_tree_seeds(object)),
   max_retry_        = get_n_retry(object),
@@ -943,6 +951,7 @@ orsf_train_ <- function(object,
   f_oobag_eval      = get_f_oobag_eval(object),
   type_oobag_eval_  = get_type_oobag_eval(object)
  )
+
 
  object$forest       <- orsf_out$forest
  object$surv_oobag   <- orsf_out$surv_oobag

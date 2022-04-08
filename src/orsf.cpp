@@ -108,6 +108,7 @@ vec
  node_assignments,
  nodes_grown,
  surv_pvec,
+ surv_pvec_output,
  denom_pred,
  beta_current,
  beta_new,
@@ -2037,6 +2038,16 @@ double oobag_c_harrell(){
 
 }
 
+// [[Rcpp::export]]
+double oobag_c_harrell_testthat(NumericMatrix y_mat,
+                                NumericVector s_vec) {
+
+ y_input = mat(y_mat.begin(), y_mat.nrow(), y_mat.ncol(), false);
+ surv_pvec = vec(s_vec.begin(), s_vec.length(), false);
+ return(oobag_c_harrell());
+
+}
+
 void new_pred_surv_multi_mean(){
 
  // allocate memory for output
@@ -3253,11 +3264,21 @@ List orsf_fit(NumericMatrix& x,
 
  }
 
- vec vimp;
 
- if(oobag_importance){
 
-  vimp.set_size(x_input.n_cols);
+ vec vimp(x_input.n_cols);
+
+ // if we are computing variable importance, surv_pvec is about
+ // to get modified, and we don't want to return the modified
+ // version of surv_pvec.
+ // So make a deep copy if oobag_importance is true.
+ // Make a shallow copy if oobag_importance is false
+ surv_pvec_output = vec(surv_pvec.begin(),
+                        surv_pvec.size(),
+                        oobag_importance);
+
+ if(oobag_importance && n_tree > 0){
+
   uvec betas_to_flip;
   oobag_eval_counter--;
 
@@ -3328,7 +3349,7 @@ List orsf_fit(NumericMatrix& x,
  return(
   List::create(
    _["forest"] = forest,
-   _["surv_oobag"] = surv_pvec,
+   _["surv_oobag"] = surv_pvec_output,
    _["pred_horizon"] = time_pred,
    _["eval_oobag"] = List::create(_["stat_values"] = eval_oobag,
                                   _["stat_type"]   = type_oobag_eval),

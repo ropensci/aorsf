@@ -47,3 +47,6 @@ oobag_c_harrell <- function(y_mat, s_vec){
  concordant / total
 
 }
+
+
+fit <- orsf
