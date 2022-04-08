@@ -77,7 +77,7 @@ contains_oobag <- function(object) {!is_empty(object$surv_oobag)}
 #'
 #' @noRd
 #'
-contains_vi <- function(object) !is_empty(object$importance)
+contains_vi <- function(object) get_importance(object)
 
 
 #' Retrieve x-matrix names

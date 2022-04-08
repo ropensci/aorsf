@@ -53,66 +53,93 @@ print(fit)
 #>  Average leaves per tree: 19
 #> Min observations in leaf: 5
 #>       Min events in leaf: 1
-#>          OOB C-statistic: 0.84
+#>           OOB stat value: 0.84
+#>            OOB stat type: Harrell's C-statistic
 #> 
 #> -----------------------------------------
 ```
 
-How about interpreting the fit? There are several functions for this:
-`orsf_vi()` for variable importance, `orsf_interaction()` for two-way
-variable interactions, and `orsf_pd_ice()` or `orsf_pd_summary()` for
-individual or aggregated partial dependence values. However,
-`orsf_summarize_uni()` is the most convenient way to assess top
-predictor variables in ORSF and the expected predicted risk at specific
-values of those predictors. The term ‘uni’ is short for univariate.
+How about interpreting the fit?
 
-``` r
-# take a look at the top 5 variables 
-# for continuous predictors, see expected risk at 25/50/75th quantile
-# for categorical predictors, see expected risk in each category
+-   use `orsf_vi_negate()` and `orsf_vi_anova()` for variable importance
 
-orsf_summarize_uni(object = fit, n_variables = 5)
-#> 
-#> -- age (VI Rank: 1) ----------------------------
-#> 
-#>        |---------------- risk ----------------|
-#>  Value      Mean    Median     25th %    75th %
-#>   41.5 0.2706164 0.1337351 0.04630290 0.4612794
-#>   49.7 0.2975084 0.1661233 0.05237698 0.5170854
-#>   56.6 0.3284048 0.2116927 0.07674439 0.5457127
-#> 
-#> -- bili (VI Rank: 2) ---------------------------
-#> 
-#>        |---------------- risk ----------------|
-#>  Value      Mean    Median     25th %    75th %
-#>   0.80 0.2320563 0.1234708 0.04876897 0.3530933
-#>   1.40 0.2504298 0.1421328 0.06205604 0.3746472
-#>   3.52 0.3650838 0.2800719 0.16607641 0.5189161
-#> 
-#> -- sex (VI Rank: 3) ----------------------------
-#> 
-#>        |---------------- risk ----------------|
-#>  Value      Mean    Median     25th %    75th %
-#>      m 0.3536771 0.2485654 0.11330040 0.5797451
-#>      f 0.2928458 0.1494558 0.05061492 0.5113725
-#> 
-#> -- spiders (VI Rank: 4) ------------------------
-#> 
-#>        |---------------- risk ----------------|
-#>  Value      Mean    Median     25th %    75th %
-#>      0 0.2881293 0.1477039 0.04940008 0.4931721
-#>      1 0.3327476 0.2142004 0.08124437 0.5465791
-#> 
-#> -- copper (VI Rank: 5) -------------------------
-#> 
-#>        |---------------- risk ----------------|
-#>  Value      Mean    Median     25th %    75th %
-#>   42.8 0.2619422 0.1423453 0.04838753 0.4504369
-#>   74.0 0.2789013 0.1513143 0.05669541 0.4814084
-#>    129 0.3313322 0.2132656 0.10764336 0.5389831
-#> 
-#>  Predicted risk at time t = 1788 for top 5 predictors
-```
+    ``` r
+    orsf_vi_negate(fit)
+    #>          bili           age        copper       protime       spiders 
+    #>  0.0150552198  0.0102104605  0.0071369035  0.0061992082  0.0052615128 
+    #>       ascites         stage           ast           sex         edema 
+    #>  0.0037507814  0.0028130861  0.0026047093  0.0022400500  0.0020899691 
+    #>        hepato       albumin          trig           trt      alk.phos 
+    #>  0.0005209419 -0.0016149198 -0.0017712023 -0.0025005209 -0.0026568035 
+    #>          chol      platelet 
+    #> -0.0039070640 -0.0058345489
+    ```
+
+-   use `orsf_pd_ice()` or `orsf_pd_summary()` for individual or
+    aggregated partial dependence values.
+
+    ``` r
+    orsf_pd_summary(fit, pd_spec = list(bili = c(1:5)))
+    #>    bili      mean        lwr      medn       upr
+    #> 1:    1 0.2376476 0.01635153 0.1256940 0.8708692
+    #> 2:    2 0.2835588 0.04178780 0.1755214 0.8949604
+    #> 3:    3 0.3334560 0.07231476 0.2427077 0.9133485
+    #> 4:    4 0.3828746 0.10197692 0.2978942 0.9196410
+    #> 5:    5 0.4246769 0.13559889 0.3548921 0.9288099
+    ```
+
+-   use `orsf_summarize_uni()` to show the top predictor variables in an
+    ORSF model and the expected predicted risk at specific values of
+    those predictors. (The term ‘uni’ is short for univariate.)
+
+    ``` r
+    # take a look at the top 5 variables 
+    # for continuous predictors, see expected risk at 25/50/75th quantile
+    # for categorical predictors, see expected risk in specified category
+
+    orsf_summarize_uni(object = fit, n_variables = 5)
+    #> 
+    #> -- bili (VI Rank: 1) ---------------------------
+    #> 
+    #>        |---------------- risk ----------------|
+    #>  Value      Mean    Median     25th %    75th %
+    #>   0.80 0.2335217 0.1199713 0.05114585 0.3770848
+    #>   1.40 0.2513566 0.1450413 0.06171788 0.3921046
+    #>   3.52 0.3599267 0.2732172 0.15551597 0.5235124
+    #> 
+    #> -- age (VI Rank: 2) ----------------------------
+    #> 
+    #>        |---------------- risk ----------------|
+    #>  Value      Mean    Median     25th %    75th %
+    #>   41.5 0.2696310 0.1368879 0.04219276 0.4531681
+    #>   49.7 0.2977741 0.1648595 0.05141696 0.5128280
+    #>   56.6 0.3290685 0.2174152 0.07230906 0.5623700
+    #> 
+    #> -- copper (VI Rank: 3) -------------------------
+    #> 
+    #>        |---------------- risk ----------------|
+    #>  Value      Mean    Median     25th %    75th %
+    #>   42.8 0.2622928 0.1338668 0.04827596 0.4526263
+    #>   74.0 0.2766374 0.1574435 0.05479530 0.4745227
+    #>    129 0.3308975 0.2200028 0.10231560 0.5417730
+    #> 
+    #> -- protime (VI Rank: 4) ------------------------
+    #> 
+    #>        |---------------- risk ----------------|
+    #>  Value      Mean    Median     25th %    75th %
+    #>   10.0 0.2782086 0.1447316 0.04814394 0.4867040
+    #>   10.6 0.2903538 0.1580250 0.05512409 0.5146609
+    #>   11.2 0.3128801 0.1860102 0.06449054 0.5435381
+    #> 
+    #> -- spiders (VI Rank: 5) ------------------------
+    #> 
+    #>        |---------------- risk ----------------|
+    #>  Value      Mean    Median     25th %    75th %
+    #>      0 0.2889144 0.1564381 0.04787306 0.5173158
+    #>      1 0.3337453 0.2158072 0.08894740 0.5493756
+    #> 
+    #>  Predicted risk at time t = 1788 for top 5 predictors
+    ```
 
 ## References
 

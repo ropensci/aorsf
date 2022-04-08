@@ -14,9 +14,8 @@
 #'   Setting this input to a lower number will improve computation time.
 #'
 #' @param importance_type (_character_) which method to use for variable
-#'   importance. Valid input values are 'anova' and 'negate'. The default
-#'   is 'anova' because it is faster. See [orsf_vi_negate] for details on
-#'   these methods.
+#'   importance. Valid input values are 'anova' and 'negate'.
+#'   See [orsf_vi_negate] for details on these methods.
 #'
 #' @return an object of class 'aorsf_summary'
 #'
@@ -32,7 +31,7 @@ orsf_summarize_uni <- function(object,
                                n_variables = NULL,
                                pred_horizon = NULL,
                                risk = TRUE,
-                               importance_type = 'anova'){
+                               importance_type = 'negate'){
 
  # for CRAN check:
  medn <- name <- value <- level <- variable <- NULL

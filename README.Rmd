@@ -35,6 +35,7 @@ remotes::install_github("bcjaeger/aorsf")
 The `orsf()` function is used to fit ORSFs. Printing the output from `orsf()` will give some descriptive statistics about the ensemble.
 
 ```{r example}
+
 library(aorsf)
 
 fit <- orsf(data_train = pbc_orsf,
@@ -44,17 +45,36 @@ print(fit)
 
 ```
 
-How about interpreting the fit? There are several functions for this: `orsf_vi()` for variable importance, `orsf_interaction()` for two-way variable interactions, and `orsf_pd_ice()` or `orsf_pd_summary()` for individual or aggregated partial dependence values. However, `orsf_summarize_uni()` is the most convenient way to assess top predictor variables in ORSF and the expected predicted risk at specific values of those predictors. The term 'uni' is short for univariate.
+How about interpreting the fit? 
 
-```{r}
+- use `orsf_vi_negate()` and `orsf_vi_anova()` for variable importance
 
-# take a look at the top 5 variables 
-# for continuous predictors, see expected risk at 25/50/75th quantile
-# for categorical predictors, see expected risk in each category
+  ```{r}
+  
+  orsf_vi_negate(fit)
+  
+  ```
 
-orsf_summarize_uni(object = fit, n_variables = 5)
+- use `orsf_pd_ice()` or `orsf_pd_summary()` for individual or aggregated partial dependence values. 
 
-```
+  ```{r}
+  
+  orsf_pd_summary(fit, pd_spec = list(bili = c(1:5)))
+  
+  ```
+
+
+- use `orsf_summarize_uni()` to show the top predictor variables in an ORSF model and the expected predicted risk at specific values of those predictors. (The term 'uni' is short for univariate.)
+
+  ```{r}
+
+  # take a look at the top 5 variables 
+  # for continuous predictors, see expected risk at 25/50/75th quantile
+  # for categorical predictors, see expected risk in specified category
+
+  orsf_summarize_uni(object = fit, n_variables = 5)
+
+  ```
 
 ## References
 
