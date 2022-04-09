@@ -232,73 +232,7 @@ DOI: 10.1001/jama.1982.03320430047030</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="co"># standard workflow for model development: fit and interpret</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">orsf</span><span class="op">(</span><span class="va">pbc_orsf</span>, formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ---------- Oblique random survival forest</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           N observations: 276</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 N events: 111</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                  N trees: 500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       N predictors total: 17</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    N predictors per node: 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Average leaves per tree: 19</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Min observations in leaf: 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Min events in leaf: 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           OOB stat value: 0.84</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            OOB stat type: Harrell's C-statistic</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -----------------------------------------</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">smry</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">fit</span>, n_variables <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">smry</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- bili (VI Rank: 1) ---------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- risk ----------------|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.80 0.2362937 0.1359686 0.04987203 0.3718329</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1.40 0.2543906 0.1522127 0.06354548 0.4037091</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   3.52 0.3590116 0.2830375 0.15742365 0.5346295</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- age (VI Rank: 2) ----------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- risk ----------------|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   41.5 0.2717073 0.1471482 0.04623047 0.4591033</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   49.7 0.2989436 0.1764357 0.05462576 0.5069098</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   56.6 0.3288837 0.2259769 0.07826394 0.5581197</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- protime (VI Rank: 3) ------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- risk ----------------|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   10.0 0.2815099 0.1557245 0.05095498 0.4974654</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   10.6 0.2943137 0.1627503 0.05799166 0.5080876</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   11.2 0.3164772 0.2071293 0.07213758 0.5291270</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- ascites (VI Rank: 4) ------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- risk ----------------|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median    25th %    75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0 0.2951780 0.1711950 0.0535649 0.5252014</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      1 0.4639399 0.3792498 0.2700832 0.6543478</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- copper (VI Rank: 5) -------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- risk ----------------|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   42.8 0.2646226 0.1484681 0.04949303 0.4584307</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   74.0 0.2816635 0.1648867 0.05825073 0.4894235</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    129 0.3358932 0.2279954 0.10977077 0.5537572</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Predicted risk at time t = 1788 for top 5 predictors </span>
-<span class="r-in"></span>
-</code></pre></div>
+    
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
