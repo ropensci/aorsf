@@ -15,6 +15,7 @@
 #'   Also, factors in `new_data` must not have levels that were not in the
 #'   data used to train `object`. Last, missing data are not supported.
 #'
+#' @srrstats {G2.1a} explicit secondary documentation of expectations on data types of all vector inputs
 #'
 #' @param pred_horizon (_double_) a single time or a vector of times
 #'   indicating the prediction horizon. Predicted risk or survival values

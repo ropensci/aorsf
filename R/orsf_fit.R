@@ -109,7 +109,7 @@
 #'
 #' @srrstats {ML5.4a} *Harrell's C-statistic, an internally utilized metric for model performance, is clearly and distinctly documented and cited.*
 #'
-#' #' @srrstatsTODO {ML5.4b} *It is possible to submit custom metrics to a model assessment function, and the ability to do so is clearly documented. The "Out-of-bag predictions and evaluation" vignette provides example code.*
+#' @srrstats {ML5.4b} *It is possible to submit custom metrics to a model assessment function, and the ability to do so is clearly documented. The "Out-of-bag predictions and evaluation" vignette provides example code.*
 #'
 #' @param oobag_fun (_function_) When `oobag_fun` = `NULL` (the default),
 #'   out-of-bag predictions are evaluated using Harrell's C-statistic.
@@ -256,6 +256,12 @@
 #'
 #' @export
 #'
+#' @srrstats {ML1.6b} *Explicit example showing how missing values may be imputed rather than discarded.*
+#'
+#' @srrstats {ML6.1} *clearly document how aorsf can be embedded within a typical full ML workflow.*
+#'
+#' @srrstats {ML6.1a} *Embed aorsf within a full workflow using tidymodels, tidyverse, and survivalROC.*
+#'
 #' @examples
 #'
 #' # standard workflow for model development: fit and interpret
@@ -268,17 +274,12 @@
 #'
 #' smry
 #'
-#' @srrstats {ML1.6b} *Explicit example showing how missing values may be imputed rather than discarded.*
-#'
-#' @srrstats {ML6.1} *clearly document how aorsf can be embedded within a typical full ML workflow.*
-#'
 #' \dontrun{requires too many external packages
 #'
 #' # --------------------------------------------------------------------------
 #' # a standard internal validation workflow using aorsf and tidymodels
 #' # --------------------------------------------------------------------------
 #'
-#' @srrstats {ML6.1a} *Embed aorsf within a full workflow using tidymodels, tidyverse, and survivalROC.*
 #'
 #' library(tidymodels)
 #' library(tidyverse)
@@ -493,6 +494,18 @@ orsf <- function(data_train,
  #  warning(msg, call. = FALSE)
  # }
 
+ #' @srrstats {G2.7} *aorsf accepts as input numeric and categorical predictor variables, including those with unit class. I do not think it is necessary to incorporate any other type of input, since it is relatively straightforward to convert data into a numeric or categorical format.*
+
+ #' @srrstats {G2.11} *I cannot write code for every possible vector class to ensure that the vector data will be safely coerced into a a valid class and the attributes will be stored in the orsf_out object. It is much easier and safer for the user to convert a few columns to numeric or factor than it is for me to attempt writing code that will safely coerce every type of vector. That being said, I do find units columns to be helpful and I've written some code to make them an allowable class in input data.*
+
+ types_x_data <- check_var_types(data_train,
+                                 names_x_data,
+                                 valid_types = c('numeric',
+                                                 'integer',
+                                                 'units',
+                                                 'factor',
+                                                 'ordered'))
+
  #' @srrstats {G2.6} *ensure that one-dimensional inputs are appropriately pre-processed. aorsf does not deal with missing data as many other R packages are very good at dealing with it.*
 
  #' @srrstats {G2.13} *check for missing data as part of initial pre-processing prior to passing data to analytic algorithms.*
@@ -531,17 +544,6 @@ orsf <- function(data_train,
 
  fi <- fctr_info(data_train, names_x_data)
 
- #' @srrstats {G2.7} *aorsf accepts as input numeric and categorical predictor variables, including those with unit class. I do not think it is necessary to incorporate any other type of input, since it is relatively straightforward to convert data into a numeric or categorical format.*
-
- #' @srrstats {G2.11} *I cannot write code for every possible vector class to ensure that the vector data will be safely coerced into a a valid class and the attributes will be stored in the orsf_out object. It is much easier and safer for the user to convert a few columns to numeric or factor than it is for me to attempt writing code that will safely coerce every type of vector. That being said, I do find units columns to be helpful and I've written some code to make them an allowable class in input data.*
-
- types_x_data <- check_var_types(data_train,
-                                 names_x_data,
-                                 valid_types = c('numeric',
-                                                 'integer',
-                                                 'units',
-                                                 'factor',
-                                                 'ordered'))
 
  unit_x_names <- names_x_data[types_x_data == 'units']
 
@@ -679,7 +681,8 @@ orsf <- function(data_train,
   oobag_time_       = oobag_time,
   oobag_eval_every_ = oobag_eval_every,
   oobag_importance_ = importance,
-  tree_seeds        = as.integer(tree_seeds), # in case dbl vector w/int values
+  #' @srrstats {G2.4a} *converting to integer in case R does that thing where it assumes the integer values you gave it are supposed to be doubles*
+  tree_seeds        = as.integer(tree_seeds),
   max_retry_        = n_retry,
   f_beta            = f_beta,
   type_beta_        = switch(orsf_type,

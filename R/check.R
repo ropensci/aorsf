@@ -1,6 +1,6 @@
 
 
-
+#' @srrstats {G1.4a} internal functions are documented with roxygen and given @noRd tags.
 
 #' @srrstats {G5.2a} *messages produced here (e.g., with `stop()`, `warning()`, `message()`) are unique and make effort to highlight the specific data elements that cause the error*
 
@@ -267,7 +267,7 @@ check_arg_lteq <- function(arg_value, arg_name, bound, append_to_msg = NULL){
 
 #' strict checks for inputs
 #'
-#' @srrstats {G2.3a} *Using %in% instead of match.arg to allow customized error message when inputs are invalid.*
+#' @srrstats {G2.3, G2.3a} *Using %in% instead of match.arg to allow customized error message when inputs are invalid.*
 #' @param arg_value the object that is to be checked
 #' @param arg_name the name of the object (used for possible error message)
 #' @param valid_options what are the valid inputs for `arg_value`?

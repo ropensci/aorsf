@@ -1,7 +1,7 @@
-# aorsf 0.0.1
+# aorsf 0.0.0.9000
 
-* Added a `NEWS.md` file to track changes to the package.
+* Core features implemented: fit, interpret, and predict using oblique random survival forests.
 
-* Added a vignette covering the core features of `aorsf`.
+* Vignettes + Readme covering usage of core features.
 
-* Added a website hosted with GitHub pages.
+* Website hosted through GitHub pages, managed with `pkgdown`.

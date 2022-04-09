@@ -106,6 +106,8 @@ orsf_summarize_uni <- function(object,
 
   if(x_name %in% colnames(x_numeric_key)){
 
+   #' @srrstats {G2.4b} explicit conversion to continuous values
+
    pd_spec[[x_name]] <- unique(
     as.numeric(x_numeric_key[c('25%','50%','75%'), x_name])
    )

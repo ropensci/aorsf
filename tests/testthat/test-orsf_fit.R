@@ -54,6 +54,7 @@ pbc_temp <- pbc_orsf
 pbc_temp$id <- factor(pbc_temp$id)
 pbc_temp$status <- pbc_temp$status+1
 
+
 f1 <- Surv(time, status) ~ unknown_variable + bili
 f2 <- Surv(time, status) ~ id
 f3 <- Surv(time, status) ~ bili + factor(hepato)
@@ -399,7 +400,7 @@ test_that(
 #' @srrstats {G5.8c, G5.8c} *Data with all-`NA` fields or columns are rejected*
 
 pbc_temp <- pbc_orsf
-pbc_temp[, 'bili'] <- NA
+pbc_temp[, 'bili'] <- NA_real_
 
 test_that(
  desc = "data with missing values are rejected",
@@ -776,12 +777,21 @@ test_that(
    }
   )
 
-
-
-
  }
 
 )
 
+pbc_temp <- pbc_orsf
+pbc_temp$list_col <- list(a=1)
 
+#' @srrstats {G2.12} *pre-processing identifies list columns and throws informative error*
 
+test_that(
+ desc = 'list columns are not allowed',
+ code = {
+  expect_error(
+   orsf(pbc_temp, time + status ~ . - id),
+   regexp = '<list_col>'
+  )
+ }
+)

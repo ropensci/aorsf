@@ -11,6 +11,9 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+
+#' @srrstats {G1.2} *Project status describes current and anticipated future states of development.* 
+ 
 ```
 
 # aorsf

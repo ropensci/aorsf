@@ -14,6 +14,8 @@
 #'   used. If the training data were not attached to `object`
 #'   (see `attach_data` input in [orsf]), an error will be triggered.
 #'
+#'  @srrstats {G2.1a} explicit secondary documentation of expectations on data types of all vector inputs
+#'
 #' @param pd_spec (_named list_ or _data.frame_). If `pd_spec` is a named list,
 #'   Each item in the list should be a vector of values that will be used as
 #'   points in the partial dependence function. The name of each item in the

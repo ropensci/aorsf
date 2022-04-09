@@ -35,7 +35,9 @@ orsf_pd_ice(
 \item{pd_data}{(\emph{data frame}) that will be used to compute partial
 dependence. If \code{NULL}, then the training data of \code{object} will be
 used. If the training data were not attached to \code{object}
-(see \code{attach_data} input in \link{orsf}), an error will be triggered.}
+(see \code{attach_data} input in \link{orsf}), an error will be triggered.
+
+@srrstats {G2.1a} explicit secondary documentation of expectations on data types of all vector inputs}
 
 \item{pd_spec}{(\emph{named list} or \emph{data.frame}). If \code{pd_spec} is a named list,
 Each item in the list should be a vector of values that will be used as

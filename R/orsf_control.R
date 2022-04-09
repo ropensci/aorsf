@@ -102,6 +102,8 @@ orsf_control_cph <- function(method = 'efron',
 #'
 #' @srrstats {ML3.5a} *Specify regularization of the coxph model as the type of algorithm used to explore the search space*
 #'
+#' @srrstats {ML3.6b} *Use the loss function associated with the penalized coxph model instead of the Newton Raphson scoring algorithm (default).*
+
 #' Use regularized Cox proportional hazard models to identify linear
 #'   combinations of input variables while fitting an [orsf] model.
 #'
