@@ -43,11 +43,10 @@ NULL
 #' @srrstatsNA {G2.4c} *orsf() and other functions in aorsf generally throw errors when data types do not meet expectations. I believe this is the design I want to pursue because I think trusting users to learn how to supply inputs correctly will lead to more accurate and reproducible science than relying on my software to continuously fix mistakes in the inputs.*
 #' @srrstatsNA {G2.4d} see above
 #' @srrstatsNA {G2.4e} see above
-#' @srrstatsNA {G2.12} data.frame or list columns are not accepted as valid types for orsf().
 #'
 #' @srrstatsNA {G2.14} *I have made orsf and its associated functions throw an error when there is a missing value in the relevant data. Here is why I made this decision: (1) imputation of missing data is an involved process that many other packages have been designed to engage with. I want aorsf to be good at one thing, which is oblique random survival forests. If I try to make routines to handle missing data, I am kind of re-inventing the wheel when I could be working on things that are more relevant to the oblique random survival forest. (2) ignoring missing data would be okay from a programmatic point of view, but I have chosen not to implement this because it would not be helpful if the user was unaware of their missing data. I want orsf to perform a hard stop when it detects missing data because in many cases, junior analysts are not familiar enough with their data to know it has missing values, and perpetuating the unawareness of missing data by handling it on the back-end of analysis functions just creates downstream issues when the analysis is written up.*
 #' @srrstatsNA {G2.14a} see above
-#' @srrstatsNA {G2.14b} see sbove
+#' @srrstatsNA {G2.14b} see above
 #' @srrstatsNA {G2.14c} see above
 #'
 #' @srrstatsNA {G3.1} *there is no user-facing covariance calculation.*
