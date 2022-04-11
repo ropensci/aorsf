@@ -89,7 +89,7 @@ as this usually gives a good enough approximation.</p></dd>
 <span class="r-in"><span class="va">time_estimated</span> <span class="op">&lt;-</span> <span class="fu">orsf_time_to_train</span><span class="op">(</span><span class="va">object</span>, n_tree_subset <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">time_estimated</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Time difference of 0.1865947 secs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Time difference of 0.1866555 secs</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># let's see how close the approximation was</span></span>
 <span class="r-in"><span class="va">time_true_start</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -99,11 +99,11 @@ as this usually gives a good enough approximation.</p></dd>
 <span class="r-in"><span class="va">time_true</span> <span class="op">&lt;-</span> <span class="va">time_true_stop</span> <span class="op">-</span> <span class="va">time_true_start</span></span>
 <span class="r-in"></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">time_true</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Time difference of 0.1770244 secs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Time difference of 0.1777272 secs</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># error</span></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">time_true</span> <span class="op">-</span> <span class="va">time_estimated</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Time difference of 0.00957036 secs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Time difference of 0.008928299 secs</span>
 <span class="r-in"></span>
 </code></pre></div>
     </div>

@@ -155,12 +155,12 @@ expectation (ICE) partial dependence if using <code>orsf_pd_ice</code>.</p>
 <span class="r-in"></span>
 <span class="r-in"><span class="fu">orsf_pd_summary</span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">4</span>,<span class="fl">5</span>,<span class="fl">6</span><span class="op">)</span><span class="op">)</span>, pred_horizon <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    bili      mean         lwr       medn       upr</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:    1 0.1366718 0.005347821 0.05189007 0.7280168</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:    2 0.1574489 0.010615043 0.07265842 0.7792729</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:    3 0.1887505 0.023373515 0.10571062 0.8109868</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:    4 0.2162676 0.037995963 0.13730646 0.8239788</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:    5 0.2419633 0.053349189 0.16775563 0.8293607</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:    6 0.2682117 0.074106676 0.19329280 0.8389885</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:    1 0.1381998 0.004934146 0.05231375 0.7301486</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:    2 0.1616475 0.014200093 0.07511547 0.7603249</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:    3 0.1933361 0.028089340 0.10832253 0.7792838</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:    4 0.2190828 0.035298288 0.14325501 0.7882367</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:    5 0.2443443 0.051321509 0.16716599 0.8008618</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:    6 0.2691875 0.079233901 0.19058120 0.8120114</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># more points for a plot</span></span>
 <span class="r-in"><span class="va">pd_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">6</span>, length.out <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span></span>
@@ -168,12 +168,12 @@ expectation (ICE) partial dependence if using <code>orsf_pd_ice</code>.</p>
 <span class="r-in"></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data_ice</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    id_variable id_row bili       pred</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:           1      1    1 0.75757926</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:           1      2    1 0.04113575</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:           1      3    1 0.38107500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:           1      4    1 0.16009991</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:           1      5    1 0.07033439</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:           1      6    1 0.01824809</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:           1      1    1 0.76331850</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:           1      2    1 0.05044550</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:           1      3    1 0.38480302</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:           1      4    1 0.21551076</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:           1      5    1 0.05220732</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:           1      6    1 0.01064663</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span class="r-in"></span>
