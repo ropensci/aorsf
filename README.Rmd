@@ -24,7 +24,19 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/bcjaeger/aorsf/workflows/R-CMD-check/badge.svg)](https://github.com/bcjaeger/aorsf/actions)
 <!-- badges: end -->
 
-The goal of `aorsf` is to fit, interpret, and make predictions with oblique random survival forests (ORSFs). The 'a' in the title stands for accelerated. So why do ORSFs need to be accelerated? Oblique decision trees are often more accurate but slower to fit compared to their axis-based counterparts. The issue of higher computation time is compounded for survival decision trees, which usually require more computing than classification or regression trees. To make ORSF more accessible and able to engage with larger datasets, `aorsf` applies strategies to cut down computing time without sacrificing prediction accuracy.  
+`aorsf` provides optimized software to fit, interpret, and make predictions with oblique random survival forests (ORSFs).  
+
+## Why aorsf?
+
+- over 500 times faster than `obliqueRSF`.
+
+- accurate predictions for time-to-event outcomes.
+
+- negation importance, a novel technique to estimate variable importance for ORSFs.
+
+- intuitive API with formula based interface.
+
+- extensive input checks + informative error messages.
 
 ## Installation
 

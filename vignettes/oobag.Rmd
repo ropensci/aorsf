@@ -245,6 +245,22 @@ orsf_vi_negate(fit, oobag_fun = oobag_fun_sroc)
 
 There are some discrepancies between methods in the ranking of important variables. A simulation study to determine which method of estimating out-of-bag error does a better job of discriminating between important and unimportant variables would be helpful.
 
-## What about riskRegression functions?
+## I really need to use <package X>
 
-I have experimented with `riskRegression` but found its functions do not work as I would expect them to when I try to run them from C++. I think this may be due to `riskRegression`'s internal use of `data.table` and modification by reference, but I do not have certainty on that yet. 
+You can use any package whatsoever to evaluate out-of-bag predictions. You can access the final out-of-bag survival predictions from an `aorsf` model like so:
+
+```{r}
+
+surv_oobag <- fit$surv_oobag
+
+surv_oobag[1:5, ]
+
+```
+
+Some notes to remember when evaluating out-of-bag error with `surv_oobag`: 
+
+- the `oobag_time` input in `orsf()` determines the prediction horizon for out-of-bag predictions. The prediction horizon is a critical input for evaluation of predictions with time-to-event outcomes. 
+
+- Some functions expect predicted risk (i.e., 1 - predicted survival), others expect predicted survival. 
+
+In most cases, you should also be able to use any package whatsoever to compute negation importance. One exception at this point is `riskRegression`. I have experimented with `riskRegression` but found its functions do not work as I would expect them to when I try to run them from C++. I think this may be due to `riskRegression`'s internal use of `data.table` and modification by reference, but I do not have certainty on that yet. 
