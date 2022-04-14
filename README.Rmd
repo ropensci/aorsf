@@ -96,3 +96,8 @@ How about interpreting the fit?
 ## References
 
 Byron C. Jaeger, D. Leann Long, Dustin M. Long, Mario Sims, Jeff M. Szychowski, Yuan-I Min, Leslie A. Mcclure, George Howard, Noah Simon (2019). Oblique Random Survival Forests. Ann. Appl. Stat. 13(3): 1847-1883. URL https://doi.org/10.1214/19-AOAS1261 DOI: 10.1214/19-AOAS1261
+
+## Funding
+
+This software receives financial support from the Center for Biomedical Informatics, Wake Forest School of Medicine.
+
