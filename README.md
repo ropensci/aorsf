@@ -11,7 +11,7 @@ public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostat
 [![Codecov test
 coverage](https://codecov.io/gh/bcjaeger/aorsf/branch/master/graph/badge.svg)](https://app.codecov.io/gh/bcjaeger/aorsf?branch=master)
 [![R-CMD-check](https://github.com/bcjaeger/aorsf/workflows/R-CMD-check/badge.svg)](https://github.com/bcjaeger/aorsf/actions)
-[![pkgcheck](https://github.com/bcjaeger/aorsf/workflows/pkgcheck/badge.svg)](https://github.com/%3Corg%3E/%3Crepo%3E/actions?query=workflow%3Apkgcheck)
+[![pkgcheck](https://github.com/bcjaeger/aorsf/workflows/pkgcheck/badge.svg)](https://github.com/bcjaeger/aorsf/actions?query=workflow%3Apkgcheck)
 <!-- badges: end -->
 
 `aorsf` provides optimized software to fit, interpret, and make
@@ -74,14 +74,14 @@ How about interpreting the fit?
 
     ``` r
     orsf_vi_negate(fit)
-    #>          bili           age       spiders        copper       ascites 
-    #>  0.0145863722  0.0098978954  0.0054698896  0.0053657012  0.0041675349 
-    #>         edema       protime           sex        hepato          trig 
-    #>  0.0020862481  0.0016149198  0.0015628256  0.0008856012  0.0008335070 
-    #>           ast      alk.phos       albumin           trt          chol 
-    #>  0.0003646593 -0.0017712023 -0.0023963326 -0.0026047093 -0.0034382163 
-    #>      platelet 
-    #> -0.0043759116
+    #>          bili           age       spiders       ascites        copper 
+    #>  0.0156282559  0.0127109815  0.0065638675  0.0059387372  0.0046363826 
+    #>       protime         edema         stage        hepato          trig 
+    #>  0.0045842884  0.0035386837  0.0022921442  0.0013023547  0.0010418837 
+    #>           sex           ast           trt      alk.phos      platelet 
+    #>  0.0007293186  0.0006251302 -0.0011981663 -0.0018753907 -0.0019795791 
+    #>          chol       albumin 
+    #> -0.0023963326 -0.0047405710
     ```
 
 -   use `orsf_pd_ice()` or `orsf_pd_summary()` for individual or
@@ -90,11 +90,11 @@ How about interpreting the fit?
     ``` r
     orsf_pd_summary(fit, pd_spec = list(bili = c(1:5)))
     #>    bili      mean        lwr      medn       upr
-    #> 1:    1 0.2382753 0.01773748 0.1307939 0.8577912
-    #> 2:    2 0.2853975 0.04275394 0.1810123 0.8854531
-    #> 3:    3 0.3365038 0.07167211 0.2416212 0.9025165
-    #> 4:    4 0.3866597 0.10783117 0.3041577 0.9133883
-    #> 5:    5 0.4320569 0.14703665 0.3754485 0.9237173
+    #> 1:    1 0.2352732 0.01833523 0.1196051 0.8675898
+    #> 2:    2 0.2821136 0.04112874 0.1714480 0.8919186
+    #> 3:    3 0.3371132 0.06911118 0.2545069 0.9177142
+    #> 4:    4 0.3922269 0.10551068 0.3141783 0.9270324
+    #> 5:    5 0.4376877 0.13935792 0.3658866 0.9337528
     ```
 
 -   use `orsf_summarize_uni()` to show the top predictor variables in an
@@ -112,39 +112,39 @@ How about interpreting the fit?
     #> 
     #>        |---------------- risk ----------------|
     #>  Value      Mean    Median     25th %    75th %
-    #>   0.80 0.2336123 0.1243892 0.04891279 0.3728749
-    #>   1.40 0.2529711 0.1472202 0.06224278 0.4043204
-    #>   3.52 0.3620186 0.2753187 0.15692651 0.5408907
+    #>   0.80 0.2302554 0.1169780 0.04856717 0.3521751
+    #>   1.40 0.2486047 0.1329087 0.06193197 0.3859956
+    #>   3.52 0.3669522 0.2779187 0.16387346 0.5419349
     #> 
     #> -- age (VI Rank: 2) ----------------------------
     #> 
     #>        |---------------- risk ----------------|
     #>  Value      Mean    Median     25th %    75th %
-    #>   41.5 0.2725735 0.1390167 0.04693890 0.4488588
-    #>   49.7 0.2981903 0.1660931 0.05541691 0.4978383
-    #>   56.6 0.3277967 0.2120451 0.07091227 0.5494069
+    #>   41.5 0.2720260 0.1353055 0.04497034 0.4635398
+    #>   49.7 0.2961534 0.1684676 0.05106990 0.5080294
+    #>   56.6 0.3249653 0.2054728 0.06901834 0.5609686
     #> 
     #> -- spiders (VI Rank: 3) ------------------------
     #> 
     #>        |---------------- risk ----------------|
     #>  Value      Mean    Median     25th %    75th %
-    #>      0 0.2895505 0.1520606 0.04922667 0.4961561
-    #>      1 0.3336321 0.2229523 0.08399896 0.5631630
+    #>      0 0.2900883 0.1547913 0.04929566 0.4958708
+    #>      1 0.3327155 0.2041412 0.08623750 0.5486246
     #> 
-    #> -- copper (VI Rank: 4) -------------------------
-    #> 
-    #>        |---------------- risk ----------------|
-    #>  Value      Mean    Median     25th %    75th %
-    #>   42.8 0.2662774 0.1470582 0.04937255 0.4772178
-    #>   74.0 0.2800090 0.1646179 0.05653250 0.4909421
-    #>    129 0.3287680 0.2176701 0.10020571 0.5388215
-    #> 
-    #> -- ascites (VI Rank: 5) ------------------------
+    #> -- ascites (VI Rank: 4) ------------------------
     #> 
     #>        |---------------- risk ----------------|
     #>  Value      Mean    Median     25th %    75th %
-    #>      0 0.2944291 0.1537523 0.05330642 0.5204440
-    #>      1 0.4536219 0.3645048 0.25408417 0.6381112
+    #>      0 0.2942298 0.1605606 0.05226003 0.5278228
+    #>      1 0.4616882 0.3752462 0.25852339 0.6415898
+    #> 
+    #> -- copper (VI Rank: 5) -------------------------
+    #> 
+    #>        |---------------- risk ----------------|
+    #>  Value      Mean    Median     25th %    75th %
+    #>   42.8 0.2634105 0.1427394 0.04614312 0.4569345
+    #>   74.0 0.2789849 0.1600635 0.05747877 0.4679921
+    #>    129 0.3305907 0.2252363 0.09389927 0.5383923
     #> 
     #>  Predicted risk at time t = 1788 for top 5 predictors
     ```
