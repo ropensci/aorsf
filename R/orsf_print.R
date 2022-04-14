@@ -16,6 +16,12 @@
 #' @return nothing - just print output to console
 #' @export
 #'
+#' @examples
+#'
+#' object <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 5)
+#'
+#' print(object)
+#'
 print.aorsf <- function(x, ...){
 
  info_n_obs           <- get_n_obs(x)
