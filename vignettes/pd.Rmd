@@ -20,4 +20,4 @@ knitr::opts_chunk$set(
 library(aorsf)
 ```
 
-This article is under construction
+This article is under construction. It will be available no later than 4/22/2022.
