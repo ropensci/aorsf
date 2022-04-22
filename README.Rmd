@@ -22,6 +22,7 @@ knitr::opts_chunk$set(
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
   [![Codecov test coverage](https://codecov.io/gh/bcjaeger/aorsf/branch/master/graph/badge.svg)](https://app.codecov.io/gh/bcjaeger/aorsf?branch=master)
 [![R-CMD-check](https://github.com/bcjaeger/aorsf/workflows/R-CMD-check/badge.svg)](https://github.com/bcjaeger/aorsf/actions)
+[![pkgcheck](https://github.com/bcjaeger/aorsf/workflows/pkgcheck/badge.svg)](https://github.com/bcjaeger/aorsf/actions?query=workflow%3Apkgcheck)
 <!-- badges: end -->
 
 `aorsf` provides optimized software to fit, interpret, and make predictions with oblique random survival forests (ORSFs).  
@@ -96,3 +97,8 @@ How about interpreting the fit?
 ## References
 
 Byron C. Jaeger, D. Leann Long, Dustin M. Long, Mario Sims, Jeff M. Szychowski, Yuan-I Min, Leslie A. Mcclure, George Howard, Noah Simon (2019). Oblique Random Survival Forests. Ann. Appl. Stat. 13(3): 1847-1883. URL https://doi.org/10.1214/19-AOAS1261 DOI: 10.1214/19-AOAS1261
+
+## Funding
+
+This software receives financial support from the Center for Biomedical Informatics, Wake Forest School of Medicine.
+

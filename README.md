@@ -11,6 +11,7 @@ public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostat
 [![Codecov test
 coverage](https://codecov.io/gh/bcjaeger/aorsf/branch/master/graph/badge.svg)](https://app.codecov.io/gh/bcjaeger/aorsf?branch=master)
 [![R-CMD-check](https://github.com/bcjaeger/aorsf/workflows/R-CMD-check/badge.svg)](https://github.com/bcjaeger/aorsf/actions)
+[![pkgcheck](https://github.com/bcjaeger/aorsf/workflows/pkgcheck/badge.svg)](https://github.com/bcjaeger/aorsf/actions?query=workflow%3Apkgcheck)
 <!-- badges: end -->
 
 `aorsf` provides optimized software to fit, interpret, and make
@@ -58,7 +59,7 @@ print(fit)
 #>                  N trees: 500
 #>       N predictors total: 17
 #>    N predictors per node: 5
-#>  Average leaves per tree: 20
+#>  Average leaves per tree: 19
 #> Min observations in leaf: 5
 #>       Min events in leaf: 1
 #>           OOB stat value: 0.84
@@ -73,14 +74,14 @@ How about interpreting the fit?
 
     ``` r
     orsf_vi_negate(fit)
-    #>          bili           age       protime        copper       albumin 
-    #>  0.0130756408  0.0114086268  0.0098458012  0.0073973745  0.0056261721 
-    #>       spiders       ascites         stage           sex           ast 
-    #>  0.0050010419  0.0048447593  0.0028651802  0.0026568035  0.0019795791 
-    #>         edema        hepato          trig           trt          chol 
-    #>  0.0016533702  0.0015628256 -0.0007814128 -0.0015628256 -0.0026568035 
-    #>      platelet 
-    #> -0.0051052303
+    #>          bili           age       spiders       ascites        copper 
+    #>  0.0156282559  0.0127109815  0.0065638675  0.0059387372  0.0046363826 
+    #>       protime         edema         stage        hepato          trig 
+    #>  0.0045842884  0.0035386837  0.0022921442  0.0013023547  0.0010418837 
+    #>           sex           ast           trt      alk.phos      platelet 
+    #>  0.0007293186  0.0006251302 -0.0011981663 -0.0018753907 -0.0019795791 
+    #>          chol       albumin 
+    #> -0.0023963326 -0.0047405710
     ```
 
 -   use `orsf_pd_ice()` or `orsf_pd_summary()` for individual or
@@ -89,11 +90,11 @@ How about interpreting the fit?
     ``` r
     orsf_pd_summary(fit, pd_spec = list(bili = c(1:5)))
     #>    bili      mean        lwr      medn       upr
-    #> 1:    1 0.2361736 0.01839454 0.1180382 0.8590437
-    #> 2:    2 0.2806029 0.03994244 0.1749138 0.8879428
-    #> 3:    3 0.3320496 0.06504773 0.2340415 0.9022515
-    #> 4:    4 0.3897615 0.11408469 0.3126960 0.9197574
-    #> 5:    5 0.4354408 0.16286191 0.3630698 0.9288308
+    #> 1:    1 0.2352732 0.01833523 0.1196051 0.8675898
+    #> 2:    2 0.2821136 0.04112874 0.1714480 0.8919186
+    #> 3:    3 0.3371132 0.06911118 0.2545069 0.9177142
+    #> 4:    4 0.3922269 0.10551068 0.3141783 0.9270324
+    #> 5:    5 0.4376877 0.13935792 0.3658866 0.9337528
     ```
 
 -   use `orsf_summarize_uni()` to show the top predictor variables in an
@@ -111,41 +112,39 @@ How about interpreting the fit?
     #> 
     #>        |---------------- risk ----------------|
     #>  Value      Mean    Median     25th %    75th %
-    #>   0.80 0.2319720 0.1160500 0.04808352 0.3702140
-    #>   1.40 0.2499153 0.1359647 0.06258755 0.3931161
-    #>   3.52 0.3638905 0.2809810 0.16098160 0.5329988
+    #>   0.80 0.2302554 0.1169780 0.04856717 0.3521751
+    #>   1.40 0.2486047 0.1329087 0.06193197 0.3859956
+    #>   3.52 0.3669522 0.2779187 0.16387346 0.5419349
     #> 
     #> -- age (VI Rank: 2) ----------------------------
     #> 
     #>        |---------------- risk ----------------|
     #>  Value      Mean    Median     25th %    75th %
-    #>   41.5 0.2726001 0.1387599 0.04506039 0.4643828
-    #>   49.7 0.2978844 0.1751892 0.05095761 0.4964155
-    #>   56.6 0.3280455 0.2212188 0.06674200 0.5565002
+    #>   41.5 0.2720260 0.1353055 0.04497034 0.4635398
+    #>   49.7 0.2961534 0.1684676 0.05106990 0.5080294
+    #>   56.6 0.3249653 0.2054728 0.06901834 0.5609686
     #> 
-    #> -- protime (VI Rank: 3) ------------------------
-    #> 
-    #>        |---------------- risk ----------------|
-    #>  Value      Mean    Median     25th %    75th %
-    #>   10.0 0.2818471 0.1555631 0.04844540 0.4992442
-    #>   10.6 0.2933758 0.1668372 0.05174262 0.5228040
-    #>   11.2 0.3147079 0.1913758 0.06748312 0.5403061
-    #> 
-    #> -- copper (VI Rank: 4) -------------------------
+    #> -- spiders (VI Rank: 3) ------------------------
     #> 
     #>        |---------------- risk ----------------|
     #>  Value      Mean    Median     25th %    75th %
-    #>   42.8 0.2620289 0.1431331 0.04808758 0.4417854
-    #>   74.0 0.2790941 0.1607429 0.05319370 0.4768399
-    #>    129 0.3312052 0.2227699 0.09596998 0.5421644
+    #>      0 0.2900883 0.1547913 0.04929566 0.4958708
+    #>      1 0.3327155 0.2041412 0.08623750 0.5486246
     #> 
-    #> -- albumin (VI Rank: 5) ------------------------
+    #> -- ascites (VI Rank: 4) ------------------------
     #> 
     #>        |---------------- risk ----------------|
     #>  Value      Mean    Median     25th %    75th %
-    #>   3.31 0.3149738 0.1839701 0.05776364 0.5530028
-    #>   3.54 0.2922352 0.1571160 0.04749076 0.5216508
-    #>   3.77 0.2770757 0.1478748 0.04574065 0.4912170
+    #>      0 0.2942298 0.1605606 0.05226003 0.5278228
+    #>      1 0.4616882 0.3752462 0.25852339 0.6415898
+    #> 
+    #> -- copper (VI Rank: 5) -------------------------
+    #> 
+    #>        |---------------- risk ----------------|
+    #>  Value      Mean    Median     25th %    75th %
+    #>   42.8 0.2634105 0.1427394 0.04614312 0.4569345
+    #>   74.0 0.2789849 0.1600635 0.05747877 0.4679921
+    #>    129 0.3305907 0.2252363 0.09389927 0.5383923
     #> 
     #>  Predicted risk at time t = 1788 for top 5 predictors
     ```
@@ -157,3 +156,8 @@ Szychowski, Yuan-I Min, Leslie A. Mcclure, George Howard, Noah Simon
 (2019). Oblique Random Survival Forests. Ann. Appl. Stat. 13(3):
 1847-1883. URL <https://doi.org/10.1214/19-AOAS1261> DOI:
 10.1214/19-AOAS1261
+
+## Funding
+
+This software receives financial support from the Center for Biomedical
+Informatics, Wake Forest School of Medicine.

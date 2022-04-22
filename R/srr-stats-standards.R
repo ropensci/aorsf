@@ -98,9 +98,9 @@ NULL
 #'
 #' @srrstatsNA {ML4.6} *aorsf does not use batch jobs.*
 #'
-#' @srrstatsNA {ML4.7, ML4.8, ML4.8a} *aorsf does not currently include functions for re-sampling as random forests generally do not need a lot of tuning and because there are other R packages that are dedicated to providing robust resampling routines (e.g., rsample).*
+#' @srrstatsNA {ML4.7, ML4.8, ML4.8a} *aorsf does not currently include dedicated functions for re-sampling (e.g., glmnet::cv.glmnet or xgboost::xgb.cv). Random forests generally do not need a lot of tuning and there are other R packages that are dedicated to providing robust resampling routines (e.g., rsample).*
 
-#' @srrstatsNA {ML5.1} *The properties and behaviours of ORSF models were explicitly compared with objects produced by other ML software in Jaeger et al, 2019 (DOI: 10.1214/19-AOAS1261). These comparisons focused on comparing model performance. I am not including comparisons such as this in the aorsf package because I want aorsf to include or suggest including as few other R packages as possible.*
+#' @srrstatsNA {ML5.1} *The properties and behaviours of ORSF models were explicitly compared with objects produced by other ML software in Jaeger et al, 2019 (DOI: 10.1214/19-AOAS1261). These comparisons focused on comparing model performance. I am not including comparisons such as this in the aorsf package because I want aorsf to include or suggest including as few other R packages as possible. However, I am managing a separate repository where extensive comparisons are made between aorsf, party, randomForestSRC, xgboost, and ranger. This repo is located at: https://github.com/bcjaeger/aorsf-bench and the comparisons made between aorsf and other software can be viewed here: https://bcjaeger.github.io/aorsf-bench/*
 #'
 #' @srrstatsNA {ML5.2c} *General functions for saving or serializing objects, such as [`saveRDS`](https://stat.ethz.ch/R-manual/R-devel/library/base/html/readRDS.html) are  appropriate for storing local copies of trained aorsf models.*
 #'
@@ -108,7 +108,7 @@ NULL
 #'
 #' @srrstatsNA {ML7.2} *aorsf does not impute missing data.*
 #'
-#' @srrstatsNA {ML7.3, ML7.3a, ML7.3b} *I am not including comparisons such as this in the aorsf package because I want aorsf to include or suggest including as few other R packages as possible. I don't want to overload the imported or suggested packages for aorsf because it becomes exponentially harder to get a package onto CRAN the more it depends on other packages. Jaeger et al, 2019 (DOI: 10.1214/19-AOAS1261) made comparisons like these formally using several ML software packages, and I plan on writing a similar paper for aorsf that will make meaningful comparisons similar to the ones I made in Jaeger et al, 2019. *
+#' @srrstatsNA {ML7.3, ML7.3a, ML7.3b} *I am not including comparisons such as this in the aorsf package because I want aorsf to include or suggest including as few other R packages as possible. I don't want to overload the imported or suggested packages for aorsf because it becomes exponentially harder to get a package onto CRAN the more it depends on other packages. Jaeger et al, 2019 (DOI: 10.1214/19-AOAS1261) made comparisons like these formally using several ML software packages, and I plan on writing a similar paper for aorsf that will make meaningful comparisons similar to the ones I made in Jaeger et al, 2019. I am developing this paper in the following repo: https://github.com/bcjaeger/aorsf-bench. You can look directly at comparisons of computational efficiency and prediction accuracy here: https://bcjaeger.github.io/aorsf-bench/*
 #'
 #' @srrstatsNA {ML7.4} *aorsf does not use training rates*
 #'

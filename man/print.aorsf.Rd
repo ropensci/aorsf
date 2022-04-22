@@ -17,3 +17,10 @@ nothing - just print output to console
 \description{
 ORSF presentation
 }
+\examples{
+
+object <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 5)
+
+print(object)
+
+}
