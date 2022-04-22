@@ -109,16 +109,16 @@
 <code class="sourceCode R">
 <span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span>
 
-<span class="va">osrf_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data_train <span class="op">=</span> <span class="va">pbc_orsf</span>,
+<span class="va">orsf_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data_train <span class="op">=</span> <span class="va">pbc_orsf</span>,
                  formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span><span class="va">id</span>,
                  n_tree <span class="op">=</span> <span class="fl">2500</span><span class="op">)</span></code></pre></div>
-<p>To view the partial dependence between blood vessel malformations in the skin (<code>spiders</code>) and urine copper (<code>copper</code>), use <code>orsf_pd_summary</code>. The <code>pd_spec</code> argument contains the variable values we want to compute partial dependence for. By default <code>oobag == TRUE</code>, meaning partial dependence is calculated using the out of bag training data. We keep this set to <code>TRUE</code> because we are computing partial dependence using the training data. <code>expand_grid == TRUE</code> tells <code>orsf_pd_summary</code> to use all combinations of values in <code>pd_spec</code>.</p>
+<p>To view the partial dependence between predicted risk and the combination of blood vessel malformations in the skin (<code>spiders</code>) and urine copper (<code>copper</code>), we use <code>orsf_pd_summary</code>. The <code>pd_spec</code> argument contains the variable values we want to compute partial dependence for. By default <code>oobag == TRUE</code>, meaning partial dependence is calculated using the out of bag training data. We keep this set to <code>TRUE</code> because we are computing partial dependence using the training data. <code>expand_grid == TRUE</code> tells <code>orsf_pd_summary</code> to use all combinations of values in <code>pd_spec</code>.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pd_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>spiders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"0"</span>, <span class="st">"1"</span><span class="op">)</span>,
                 copper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">45</span>, <span class="fl">130</span>, by <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span>
 
-<span class="va">pd_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_summary.html">orsf_pd_summary</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">osrf_fit</span>,
-                           pd_spec <span class="op">=</span> <span class="va">pd_spec</span>,,
+<span class="va">pd_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_summary.html">orsf_pd_summary</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">orsf_fit</span>,
+                           pd_spec <span class="op">=</span> <span class="va">pd_spec</span>,
                            oobag <span class="op">=</span> <span class="cn">TRUE</span>,
                            expand_grid <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 
@@ -127,21 +127,23 @@
  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> 
  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">'Predicted risk'</span>,
       x <span class="op">=</span> <span class="st">'Urine Copper'</span>,
-      title <span class="op">=</span> <span class="st">'Partial dependence of copper and treatment'</span><span class="op">)</span></code></pre></div>
-<p><img src="pd_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
-<p>Next lets look at Individual Conditional Expectation (ICE). Each instance in the dataset is represented by one line showing change in prediction dependant on change in a feature. While <code>orsf_pd_ice</code> allows you to use multiple features, it is recommended to view one at a time. In the plot below we can see how each datapoint’s predicted survival changes as copper changes.</p>
+      title <span class="op">=</span> <span class="st">'Partial dependence of copper and spiders'</span><span class="op">)</span></code></pre></div>
+<p><img src="pd_files/figure-html/unnamed-chunk-3-1.png" width="672"></p>
+<p>Next lets look at Individual Conditional Expectation (ICE). Each instance in the dataset is represented by one line showing change in prediction dependent on change in a feature. While <code>orsf_pd_ice</code> allows you to use multiple features, it is recommended to view one at a time. In the plot below we can see how each data point’s predicted survival changes as copper changes.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">ice_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_summary.html">orsf_pd_ice</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">osrf_fit</span>,
-                       pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span>, by <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span>,
+<code class="sourceCode R">
+<span class="va">ice_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_summary.html">orsf_pd_ice</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">orsf_fit</span>,
+                       pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>copper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">45</span>, <span class="fl">130</span>, by <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span>,
                        expand_grid <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 
-<span class="va">ice_data</span> |&gt;
- <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">bili</span>, y<span class="op">=</span><span class="va">pred</span>, group<span class="op">=</span><span class="va">id_row</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> 
+<span class="va">ice_data</span><span class="op">[</span><span class="va">id_row</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">30</span><span class="op">)</span><span class="op">]</span> |&gt; 
+ <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">copper</span>, y<span class="op">=</span><span class="va">pred</span>, group<span class="op">=</span><span class="va">id_row</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> 
  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span>
  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">'Predicted risk'</span>,
      x <span class="op">=</span> <span class="st">'Urine Copper'</span>,
-     title <span class="op">=</span> <span class="st">'Partial dependence of copper and treatment'</span><span class="op">)</span></code></pre></div>
-<p><img src="pd_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+     title <span class="op">=</span> <span class="st">'Individual conditional expectation of copper'</span>,
+     subtitle <span class="op">=</span> <span class="st">'Data for 30 patients are shown'</span><span class="op">)</span></code></pre></div>
+<p><img src="pd_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
