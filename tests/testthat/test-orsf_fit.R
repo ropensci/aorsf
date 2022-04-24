@@ -585,9 +585,9 @@ test_that(
 
    # expect the difference between estimated and true time is < 2 second.
    expect_lt(diff_abs, 2)
-   # expect that the difference is not greater than 1/2 the
+   # expect that the difference is not greater than 2x the
    # magnitude of the actual time it took to fit the forest
-   expect_lt(diff_rel, 1)
+   expect_lt(diff_rel, 2)
 
   }
  }
