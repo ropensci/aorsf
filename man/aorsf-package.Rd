@@ -23,6 +23,7 @@ Useful links:
 Other contributors:
 \itemize{
   \item Nicholas Pajewski [contributor]
+  \item Sawyer Welden \email{swelden@wakehealth.edu} [contributor]
 }
 
 }

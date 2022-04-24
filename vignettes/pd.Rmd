@@ -71,8 +71,8 @@ ice_data <- orsf_pd_ice(object = orsf_fit,
                        pd_spec = list(copper = seq(45, 130, by = 10)),
                        expand_grid = TRUE)
 
-ice_data[id_row %in% c(1:30)] |> 
- ggplot(aes(x=copper, y=pred, group=id_row)) + 
+ggplot(ice_data[id_row %in% c(1:30)]) +
+ aes(x=copper, y=pred, group=id_row) +
  geom_line() +
  labs(y = 'Predicted risk',
      x = 'Urine Copper',
