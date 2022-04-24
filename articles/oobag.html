@@ -124,8 +124,8 @@
 <span class="co"># what is the output from this function?</span>
 <span class="va">fit</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span>
 <span class="co">#&gt;           [,1]</span>
-<span class="co">#&gt; [1,] 0.8439258</span></code></pre></div>
-<p>The out-of-bag estimate of Harrell’s C-statistic (the default method to evaluate out-of-bag predictions) is 0.8439258.</p>
+<span class="co">#&gt; [1,] 0.8376224</span></code></pre></div>
+<p>The out-of-bag estimate of Harrell’s C-statistic (the default method to evaluate out-of-bag predictions) is 0.8376224.</p>
 </div>
 <div class="section level2">
 <h2 id="monitoring-out-of-bag-error">Monitoring out-of-bag error<a class="anchor" aria-label="anchor" href="#monitoring-out-of-bag-error"></a>
@@ -169,7 +169,7 @@
 <code class="sourceCode R">
 <span class="fu">oobag_fun_brier</span><span class="op">(</span>y_mat <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">data_train</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'time'</span>, <span class="st">'status'</span><span class="op">)</span><span class="op">]</span>,
                 s_vec <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">surv_oobag</span><span class="op">)</span>
-<span class="co">#&gt; [1] 0.1875114</span></code></pre></div>
+<span class="co">#&gt; [1] 0.183614</span></code></pre></div>
 <p>Second, you can pass your function into <code><a href="../reference/orsf.html">orsf()</a></code>, and it will be used in place of Harrell’s C-statistic:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
@@ -277,14 +277,14 @@
                  importance <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
 
 <span class="va">fit_sroc</span><span class="op">$</span><span class="va">importance</span>
-<span class="co">#&gt;          chol          bili       protime       albumin      platelet </span>
-<span class="co">#&gt;  0.0298460266  0.0296788944  0.0120476063  0.0118587417  0.0103271847 </span>
-<span class="co">#&gt;      hepato_1     edema_0.5         sex_f     ascites_1         stage </span>
-<span class="co">#&gt;  0.0081079167  0.0013772109 -0.0002519984 -0.0030397195 -0.0039025562 </span>
-<span class="co">#&gt;          trig     spiders_1           ast      alk.phos   trt_placebo </span>
-<span class="co">#&gt; -0.0043923608 -0.0047083026 -0.0047714878 -0.0059132513 -0.0059412095 </span>
-<span class="co">#&gt;           age       edema_1        copper </span>
-<span class="co">#&gt; -0.0095000879 -0.0098401541 -0.0214792710</span></code></pre></div>
+<span class="co">#&gt;          bili           ast      platelet         stage           age </span>
+<span class="co">#&gt;  0.0797834331  0.0607833141  0.0345145813  0.0338304372  0.0302623423 </span>
+<span class="co">#&gt;       albumin        copper         sex_f       protime      hepato_1 </span>
+<span class="co">#&gt;  0.0290325904  0.0218160271  0.0187829459  0.0147273386  0.0137998307 </span>
+<span class="co">#&gt;     ascites_1     spiders_1       edema_1   trt_placebo     edema_0.5 </span>
+<span class="co">#&gt;  0.0079037079  0.0048340595  0.0004910474 -0.0018313051 -0.0041752460 </span>
+<span class="co">#&gt;          trig          chol      alk.phos </span>
+<span class="co">#&gt; -0.0042189524 -0.0066059837 -0.0111049733</span></code></pre></div>
 <div class="section level3">
 <h3 id="multiple-functions-for-negation-importance">Multiple functions for negation importance<a class="anchor" aria-label="anchor" href="#multiple-functions-for-negation-importance"></a>
 </h3>
@@ -298,23 +298,23 @@
 
 <span class="co"># use default technique (harrell's C-statistic)</span>
 <span class="fu"><a href="../reference/orsf_vi_negate.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span>
-<span class="co">#&gt;          bili           age       protime       ascites       albumin </span>
-<span class="co">#&gt;  0.0151594082  0.0131277349  0.0087518233  0.0075536570  0.0070848093 </span>
-<span class="co">#&gt;        copper       spiders         stage         edema           sex </span>
-<span class="co">#&gt;  0.0059908314  0.0056261721  0.0050531361  0.0042270711  0.0035944989 </span>
-<span class="co">#&gt;           ast        hepato          trig          chol           trt </span>
-<span class="co">#&gt;  0.0020316733  0.0007814128  0.0004688477 -0.0009376954 -0.0015107314 </span>
-<span class="co">#&gt;      alk.phos      platelet </span>
-<span class="co">#&gt; -0.0027609919 -0.0036986872</span>
+<span class="co">#&gt;           age          bili        copper           sex       ascites </span>
+<span class="co">#&gt;  0.0133882059  0.0113565326  0.0094290477  0.0093769535  0.0086476349 </span>
+<span class="co">#&gt;       protime           ast         stage       spiders         edema </span>
+<span class="co">#&gt;  0.0082308814  0.0051573244  0.0050010419  0.0031256512  0.0029222358 </span>
+<span class="co">#&gt;       albumin          trig      platelet        hepato          chol </span>
+<span class="co">#&gt;  0.0010418837  0.0006251302 -0.0006772244 -0.0008335070 -0.0020837675 </span>
+<span class="co">#&gt;           trt      alk.phos </span>
+<span class="co">#&gt; -0.0023963326 -0.0035424047</span>
 
 <span class="co"># use C-statistic from survivalROC</span>
 <span class="fu"><a href="../reference/orsf_vi_negate.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">fit</span>, oobag_fun <span class="op">=</span> <span class="va">oobag_fun_sroc</span><span class="op">)</span>
-<span class="co">#&gt;         bili      albumin          sex       hepato      protime        stage </span>
-<span class="co">#&gt;  0.041329889  0.029134753  0.028061078  0.017059803  0.015343183  0.014655285 </span>
-<span class="co">#&gt;          ast     platelet         trig         chol      ascites        edema </span>
-<span class="co">#&gt;  0.014372892  0.008860463  0.006871779  0.006376759  0.002113874  0.001012163 </span>
-<span class="co">#&gt;          age     alk.phos      spiders       copper          trt </span>
-<span class="co">#&gt; -0.002264545 -0.005208604 -0.005919478 -0.007153830 -0.015752371</span></code></pre></div>
+<span class="co">#&gt;         bili          sex      protime       hepato        stage        edema </span>
+<span class="co">#&gt;  0.021268120  0.019525841  0.009586224  0.009453026  0.008792764  0.005703481 </span>
+<span class="co">#&gt;     alk.phos          ast      ascites      albumin     platelet         chol </span>
+<span class="co">#&gt;  0.005474635  0.004482676  0.003084651  0.002999400  0.001780634 -0.001813805 </span>
+<span class="co">#&gt;      spiders          age       copper         trig          trt </span>
+<span class="co">#&gt; -0.002076022 -0.002140102 -0.003430813 -0.005176837 -0.015241196</span></code></pre></div>
 <p>There are some discrepancies between methods in the ranking of important variables. A simulation study to determine which method of estimating out-of-bag error does a better job of discriminating between important and unimportant variables would be helpful.</p>
 </div>
 </div>
@@ -327,7 +327,7 @@
 <span class="va">surv_oobag</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">surv_oobag</span>
 
 <span class="va">surv_oobag</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span>
-<span class="co">#&gt; [1] 0.01600476 0.45197508 0.18853361 0.18680884 0.37141733</span></code></pre></div>
+<span class="co">#&gt; [1] 0.009398034 0.447004210 0.197734187 0.244841269 0.263879605</span></code></pre></div>
 <p>Some notes to remember when evaluating out-of-bag error with <code>surv_oobag</code>:</p>
 <ul>
 <li><p>the <code>oobag_time</code> input in <code><a href="../reference/orsf.html">orsf()</a></code> determines the prediction horizon for out-of-bag predictions. The prediction horizon is a critical input for evaluation of predictions with time-to-event outcomes.</p></li>
