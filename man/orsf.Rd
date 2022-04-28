@@ -167,6 +167,67 @@ fit <- orsf(pbc_orsf, formula = Surv(time, status) ~ . - id)
 
 print(fit)
 
+# more specific parameters
+
+fit_custom <- orsf(pbc_orsf,
+                   formula = time + status ~ . - id,
+                   mtry = 2,
+                   oobag_time = 4000,
+                   oobag_eval_every = 50)
+
+# 10 oobag error values are computed  b/c oob error
+# is assessed every 50 trees (50, 100, ..., 500)
+fit_custom$eval_oobag$stat_values
+
+# make your own oobag function:
+# (this is an R implementation of Harrell's C
+# stat, which is what orsf uses by default)
+
+oobag_c_harrell <- function(y_mat, s_vec){
+ time = y_mat[, 1]
+ status = y_mat[, 2]
+ events = which(status == 1)
+ k = nrow(y_mat)
+ total <- 0
+ concordant <- 0
+ for(i in events){
+  if(i+1 <= k){
+   for(j in seq(i+1, k)){
+    if(time[j] > time[i]){
+     total <- total + 1
+     if(s_vec[j] > s_vec[i]){
+      concordant <- concordant + 1
+     } else if (s_vec[j] == s_vec[i]){
+      concordant <- concordant + 0.5
+     }
+    }
+   }
+  }
+ }
+ concordant / total
+}
+
+# tree_seeds lets you grow each tree with the seed it corresponds to
+# (nice way to make sure my R oobag function gives the same answer
+# as the internal C oobag function)
+
+fit_custom_oobag <- orsf(pbc_orsf,
+                         formula = Surv(time, status) ~ . - id,
+                         oobag_fun = oobag_c_harrell,
+                         n_tree = 10,
+                         tree_seeds = 1:10)
+
+fit_standard_oobag <- orsf(pbc_orsf,
+                           formula = Surv(time, status) ~ . - id,
+                           n_tree = 10,
+                           tree_seeds = 1:10)
+
+fit_standard_oobag$eval_oobag$stat_values
+
+fit_custom_oobag$eval_oobag$stat_values
+
+# summarize, view partial dependence for the 5 most important variables.
+
 smry <- orsf_summarize_uni(fit, n_variables = 5)
 
 smry
@@ -220,8 +281,8 @@ aorsf_eval <- aorsf_data |>
    getElement('AUC')
  )
 
-# C-stat: 0.816
-aorsf_eval
+# C-stat: 0.81465
+aorsf_eval$auc
 
 }
 
