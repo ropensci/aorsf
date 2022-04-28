@@ -1,11 +1,11 @@
 pandoc: 2.7.3
-pkgdown: 2.0.2
+pkgdown: 2.0.3
 pkgdown_sha: ~
 articles:
   aorsf: aorsf.html
   oobag: oobag.html
   pd: pd.html
-last_built: 2022-04-24T14:25Z
+last_built: 2022-04-28T00:26Z
 urls:
   reference: https://bcjaeger.github.io/aorsf/reference
   article: https://bcjaeger.github.io/aorsf/articles
