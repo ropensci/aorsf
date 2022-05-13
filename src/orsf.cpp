@@ -2817,6 +2817,22 @@ List ostree_fit(Function f_beta){
 
        break;
 
+      case 'U' :
+
+       xx = wrap(x_node);
+       yy = wrap(y_node);
+       ww = wrap(w_node);
+       colnames(yy) = yy_names;
+
+       beta_placeholder = f_beta(xx, yy, ww);
+
+       beta_fit = mat(beta_placeholder.begin(),
+                      beta_placeholder.nrow(),
+                      beta_placeholder.ncol(),
+                      false);
+
+       break;
+
       }
 
 

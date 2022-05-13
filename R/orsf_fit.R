@@ -190,7 +190,7 @@
 #'   [orsf_control_cph] because coefficients in the Newton Raphson scoring
 #'   algorithm may become unstable when the number of covariates is
 #'   greater than or equal to the number of events. This reduction does not
-#'   occur when using [orsf_control_net].#'
+#'   occur when using [orsf_control_net].
 #' @srrstats {G1.3} *define oblique and axis based decision trees*
 #'
 #'
@@ -478,6 +478,14 @@ orsf <- function(data_train,
    control_net <- control
    control_cph <- orsf_control_cph(do_scale = FALSE)
    f_beta      <- penalized_cph
+  },
+
+  "custom" = {
+
+   control_net <- orsf_control_net()
+   control_cph <- orsf_control_cph(do_scale = FALSE)
+   f_beta      <- control$beta_fun
+
   }
 
  )
@@ -749,7 +757,8 @@ orsf <- function(data_train,
   f_beta            = f_beta,
   type_beta_        = switch(orsf_type,
                              'cph' = 'C',
-                             'net' = 'N'),
+                             'net' = 'N',
+                             'custom' = 'U'),
   f_oobag_eval      = f_oobag_eval,
   type_oobag_eval_  = type_oobag_eval
  )

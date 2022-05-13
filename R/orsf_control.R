@@ -62,6 +62,8 @@
 #'
 #' @export
 #'
+#' @family orsf_control
+#'
 #' @references
 #'
 #' Therneau T.M., Grambsch P.M. (2000) The Cox Model. In: Modeling Survival
@@ -117,10 +119,11 @@ orsf_control_cph <- function(method = 'efron',
 #'  [orsf] that indicates the number of variables chosen at random prior to
 #'  finding a linear combination of those variables.
 #'
-#' @return an object of class `'aorsf_control'`, which should be used as
-#'  an input for the `control` argument of [orsf].
+#' @inherit orsf_control_cph return
 #'
 #' @export
+#'
+#' @family orsf_control
 #'
 #' @references
 #'
@@ -149,6 +152,62 @@ orsf_control_net <- function(alpha = 1/2,
   class = 'aorsf_control',
   type = 'net'
  )
+
+}
+
+#' Custom control of oblique decision trees
+#'
+#' @param beta_fun (_function_) a function to define coefficients used
+#'  in linear combinations of predictor variables. `beta_fun` must accept
+#'  three inputs named `x_node`, `y_node` and `w_node`, and should expect
+#'  the following types and dimensions:
+#'
+#' - `x_node` (_matrix_; n rows, p columns)
+#' - `y_node` (_matrix_; n rows, 2 columns)
+#' - `w_node` (_matrix_; n rows, 1 column)
+#'
+#' In addition, `beta_fun` must return a matrix with p rows and 1 column. If
+#'  any of these conditions are not met, `orsf_control_custom()` will let
+#'  you know.
+#'
+#'
+#' @inherit orsf_control_cph return
+#'
+#' @export
+#'
+#' @family orsf_control
+#'
+#' @examples
+#'
+#' # fit an oblique random survival forest using random coefficients to
+#' # generate linear combinations of predictor variables. First, define
+#' # a function that supplies the random coefficients:
+#'
+#' f <- function(x_node, y_node, w_node) { matrix(runif(ncol(x_node)), ncol=1) }
+#'
+#' # next, plug the function into orsf_control_custom(), which is in turn
+#' # passed into orsf():
+#'
+#' fit_rando <- orsf(pbc_orsf,
+#'                   Surv(time, status) ~ .,
+#'                   control = orsf_control_custom(beta_fun = f),
+#'                   n_tree = 500)
+#'
+#' # last, check the out-of-bag performance.
+#' # it's surprising how well the random approach works.
+#'
+#' fit_rando$eval_oobag
+
+orsf_control_custom <- function(beta_fun){
+
+ check_beta_fun(beta_fun)
+
+ structure(
+  .Data = list(beta_fun = beta_fun),
+  class = 'aorsf_control',
+  type = 'custom'
+ )
+
 
 }
 

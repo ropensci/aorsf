@@ -38,4 +38,16 @@ test_that("output has expected items", {
 
 })
 
+pbc_units_badclass <- pbc_units
+class(attr(pbc_units_badclass$bili, 'units')) <- 'bad_units'
+
+
+test_that('only symbolic units are allowed', {
+
+ expect_error(unit_info(pbc_units_badclass, 'bili'), 'symbolic_units')
+
+})
+
+
+
 

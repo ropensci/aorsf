@@ -1421,4 +1421,77 @@ check_oobag_fun <- function(oobag_fun){
 
 }
 
+check_beta_fun <- function(beta_fun){
+
+ beta_fun_args <- names(formals(beta_fun))
+
+ if(length(beta_fun_args) != 3) stop(
+  "beta_fun should have 3 input arguments but instead has ",
+  length(beta_fun_args),
+  call. = FALSE
+ )
+
+ arg_names_expected <- c("x_node",
+                         "y_node",
+                         "w_node")
+
+ arg_names_refer <- c('first', 'second', 'third')
+
+ for(i in seq_along(arg_names_expected)){
+  if(beta_fun_args[i] != arg_names_expected[i])
+   stop(
+    "the ", arg_names_refer[i], " input argument of beta_fun ",
+    "should be named '", arg_names_expected[i],"' ",
+    "but is instead named '", beta_fun_args[i], "'",
+    call. = FALSE
+   )
+ }
+
+ .x_node <- matrix(seq(-1, 1, length.out = 300), ncol = 3)
+
+ test_time <- seq(from = 1, to = 5, length.out = 100)
+ test_status <- rep(c(0,1), each = 50)
+ .y_node <- cbind(time = test_time, status = test_status)
+
+ .w_node <- matrix(rep(c(1,2,3,4), each = 25), ncol = 1)
+
+ test_output <- try(beta_fun(.x_node, .y_node, .w_node),
+                    silent = FALSE)
+
+ if(is_error(test_output)){
+
+  stop("beta_fun encountered an error when it was tested. ",
+       "Please make sure your beta_fun works for this case:\n\n",
+       ".x_node <- matrix(seq(-1, 1, length.out = 300), ncol = 3)\n\n",
+       "test_time <- seq(from = 1, to = 5, length.out = 100)\n",
+       "test_status <- rep(c(0,1), each = 50)\n",
+       ".y_node <- cbind(time = test_time, status = test_status)\n\n",
+       ".w_node <- matrix(rep(c(1,2,3,4), each = 25), ncol = 1)\n\n",
+       "test_output <- beta_fun(.x_node, .y_node, .w_node)\n\n",
+       "test_output should be a numeric matrix with 1 column and",
+       " with nrow(test_output) = ncol(.x_node)",
+       call. = FALSE)
+
+ }
+
+ if(!is.matrix(test_output)) stop(
+  "beta_fun should return a matrix output but instead returns ",
+  "output of type ", class(test_output)[1],
+  call. = FALSE
+ )
+
+ if(ncol(test_output) != 1) stop(
+  "beta_fun should return a matrix with 1 column but instead ",
+  " returns a matrix with ", ncol(test_output), " columns.",
+  call. = FALSE
+ )
+
+ if(nrow(test_output) != ncol(.x_node)) stop(
+  "beta_fun should return a matrix with 1 row for each column in x_node ",
+  "but instead returns a matrix with ", nrow(test_output), " rows ",
+  "in a testing case where x_node has ", ncol(.x_node), " columns",
+  call. = FALSE
+ )
+
+}
 
