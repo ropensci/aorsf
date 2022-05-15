@@ -8,4 +8,6 @@
 
 # aorsf 0.0.1
 
+* Added `orsf_control_custom()`, which allows users to submit custom functions for identifying linear combinations of inputs while growing oblique decision trees.
+
 * To be filled in as ROpenSci review continues
