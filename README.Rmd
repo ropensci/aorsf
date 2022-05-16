@@ -31,7 +31,7 @@ knitr::opts_chunk$set(
 
 ## Why aorsf?
 
-- over 500 times faster than `obliqueRSF`.
+- over 400 times faster than `obliqueRSF`.
 
 - accurate predictions for time-to-event outcomes.
 
