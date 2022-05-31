@@ -42,9 +42,10 @@ f <- function(x_node, y_node, w_node) { matrix(runif(ncol(x_node)), ncol=1) }
 fit_rando <- orsf(pbc_orsf,
                   Surv(time, status) ~ .,
                   control = orsf_control_custom(beta_fun = f),
-                  n_tree = 50)
+                  n_tree = 500)
 
-# last, be surprised by how well this approach does!
+# last, check the out-of-bag performance.
+# it's surprising how well the random approach works.
 
 fit_rando$eval_oobag
 }

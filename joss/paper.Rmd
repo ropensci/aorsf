@@ -21,7 +21,7 @@ authors:
     orcid: 0000-0000-0000-0000
     affiliation: 1
 affiliations:
- - name: Wake Forest School of Medicine
+ - name: Wake Forest University School of Medicine
    index: 1
 citation_author: Jaeger et. al.
 date: 11 May 2022
@@ -34,65 +34,82 @@ journal: JOSS
 
 # Summary
 
-The random forest (RF) is a supervised learning method that combines predictions from a large set of decision trees [@breiman2001random]. To de-correlate decision trees in the RF, random subsets of training data are used to grow each tree and a subset of randomly selected predictor variables is considered at each non-terminal node in the trees. In @breiman2001random, RFs grown with axis based trees and oblique trees are described. Axis-based trees split non-terminal nodes using individual predictor variables whereas oblique trees use a linear combination of variables. Although oblique RFs outperform their axis-based counterparts in prediction tasks [@menze2011oblique], they are also more computationally intensive and less easily interpreted. Thus, software packages have focused mostly on axis based RFs, with few packages supporting oblique RFs, and even fewer supporting oblique random survival forests (ORSFs; @jaeger2019oblique). 
-
-``aorsf`` is an R package optimized for fitting, interpreting, and computing predictions with ORSFs. Extensions of core features are supported by allowing users to supply their own function to identify a linear combination of inputs when growing oblique trees. The target audience includes both __practitioners__ aiming to develop an accurate and interpretable risk prediction model (e.g., see @segar2021development) and __researchers__ who want to conduct experiments comparing different techniques for identifying linear combinations of predictor variables in a controlled environment (e.g., see @katuwal2020heterogeneous). Key features of ``aorsf`` include computational efficiency compared to existing software, extensive unit and integration testing that ensure cross-platform consistency and reproducibility, and user-friendly documentation paired with an application programming interface that facilitates proper usage of the core algorithms. Interpretation is facilitated by partial dependence and negation importance, a novel method for variable importance designed for compatibility with oblique decision trees.
+The random survival forest (RSF) is a supervised learning method for right-censored time-to-event data that combines predictions from a large set of survival decision trees [@ishwaran2008random]. Similar to random forests for classification and regression [@breiman2001random], trees in the RSF are de-correlated by using random subsets of training data to grow each tree and considering a random subset of predictor variables at each non-terminal node. Decision trees in the RSF may be axis based or oblique [@jaeger2019oblique]. Axis-based trees split non-terminal nodes using individual predictor variables, whereas oblique trees use a linear combination of variables. Although the oblique RSF proposed by @jaeger2019oblique generally outperformed the axis-based RSF in prediction tasks, the time to fit an oblique RSF was about 200 times that of the axis based RSF, making it difficult to use the oblique RSF in applied settings. 
+``aorsf`` is an R package optimized for supervised learning with oblique RSFs. Extensions of ``aorsf``'s core features are supported by allowing users to supply their own function to identify a linear combination of inputs when growing oblique survival trees. The target audience includes both __analysts__ aiming to develop an accurate risk prediction model (e.g., see @segar2021development) and __researchers__ who want to conduct experiments comparing different techniques for identifying linear combinations of predictor variables (e.g., see @katuwal2020heterogeneous). Key features of ``aorsf`` include computational efficiency compared to existing software, extensive unit and integration testing that ensure cross-platform consistency and reproducibility, and user-friendly documentation paired with an application programming interface that facilitates proper usage of the core algorithms. Future development of ``aorsf`` will focus on  methods to interpret oblique RSFs, including methods for variable importance compatible with oblique decision trees.
 
 # Existing software 
 
-The `obliqueRF` R package supports classification and regression using oblique random forests but does not support survival analysis. The `ranger` and `randomForestSRC` packages support survival analysis but not oblique decision trees. The ``obliqueRSF`` R package is currently the only software available to fit ORSFs. Penalized Cox regression models are used to identify linear combinations of inputs. ``aorsf`` is a re-write of the `obliqueRSF` package, with a focus on computational efficiency and flexibility. For example, ``aorsf`` allows oblique decision trees to be grown using Newton Raphson scoring (the default), penalized Cox regression, or a user-defined function.
+The `obliqueRF` and `RLT` R packages support oblique classification and regression random forests but not oblique RSFs. The `ranger` and `randomForestSRC` packages support axis based RSFs but not oblique RSFs. The ``obliqueRSF`` R package fits oblique RSFs, but its computational inefficiency is a barrier in applied settings. ``aorsf`` is a re-write of the `obliqueRSF` package, with a focus on computational efficiency and flexibility, allowing users to grow oblique RSFs using Newton Raphson scoring (the default), penalized Cox regression (the default method for `obliqueRSF`), or a user-defined function to identify linear combinations of variables. 
 
 # Newton Raphson scoring
 
 The default routine for creating linear combinations of predictor variables in ``aorsf`` applies Newton Raphson scoring to the partial likelihood function of the Cox regression model. ``aorsf`` uses the same approach as the `survival` package to complete this estimation procedure efficiently. Full details on the steps involved have been made available by @therneau_survival_2022. Briefly, a vector of estimated regression coefficients, $\hat{\beta}$, is updated in each step of the procedure based on its first derivative, $U(\hat{\beta})$, and second derivative, $H(\hat{\beta})$: 
 
 $$ \hat{\beta}^{k+1} =  \hat{\beta}^{k} + U(\hat{\beta} = \hat{\beta}^{k})\, H^{-1}(\hat{\beta} = \hat{\beta}^{k})$$
-While it is standard practice in statistical modeling to iterate until a convergence threshold is met, the default approach in ``aorsf`` only completes one iteration. Our decision to implement this design is based on three points. First, while completing more iterations reduces bias in the regression coefficients, it generally amounts to little or no gain in prediction accuracy for the RF due to the bias-variance trade-off. Second, computing $U$ and $H$ requires computation and exponentiation of the vector $X\hat{\beta}$, where $X$ is the matrix of predictor values, but these steps can be skipped on the first iteration if an initial value of $\hat{\beta} = 0$ is assumed, allowing for a reduction in required computation. Third, using only one iteration with a starting value of 0 for $\hat{\beta}$ ensures numerical stability by avoiding exponentiation of large numbers, which can occur in later iterations depending on the scale of variables in $X$.
-
+While it is standard practice in statistical modeling to iterate until a convergence threshold is met, the default approach in ``aorsf`` only completes one iteration. The rationale for this approach is based on three points. First, while completing more iterations reduces bias in the regression coefficients, it generally amounts to little or no gain in prediction accuracy for the oblique RSF due to the bias-variance trade-off. Second, computing $U$ and $H$ requires computation and exponentiation of the vector $X\hat{\beta}$, where $X$ is the matrix of predictor values, but these steps can be skipped on the first iteration if an initial value of $\hat{\beta} = 0$ is chosen, allowing for a reduction in required computation. Third, using only one iteration with a starting value of 0 for $\hat{\beta}$ ensures numerical stability by avoiding exponentiation of large numbers, which can occur in later iterations depending on the scale of variables in $X$.
 
 # Computational efficiency
 
-The increased efficiency of ``aorsf`` versus `obliqueRSF` results from improved memory management and using Newton Raphson scoring instead of penalized Cox regression (the default approach in `obliqueRSF`). The benchmark below shows ``aorsf`` is about 3 times faster than `obliqueRSF` when both packages use penalized regression and about 400 times faster when ``aorsf`` uses Newton Raphson scoring, suggesting that the increased efficiency of ``aorsf`` is largely attributable to its use of Newton Raphson scoring.
+The increased efficiency of ``aorsf`` versus `obliqueRSF` results from improved memory management and Newton Raphson scoring. The benchmark below shows ``aorsf`` is about 3 times faster than `obliqueRSF` when both packages use penalized regression and about 400 times faster when ``aorsf`` uses Newton Raphson scoring, suggesting that the increased efficiency of ``aorsf`` is largely attributable to its use of Newton Raphson scoring.
 
 ```{r, cache=TRUE}
 
+library(randomForestSRC)
 library(microbenchmark)
 library(obliqueRSF)
+library(parallelly)
+library(tidyverse)
 library(aorsf)
+library(knitr)
+library(kableExtra)
 
-options(microbenchmark.unit="relative")
+# limit parallel computation to 4 cores
+options(mc.cores = 4L)
 
 data_bench <- pbc_orsf
 data_bench$id <- NULL
 
-microbenchmark(
+bm <- microbenchmark(
  
- obliqueRSF = ORSF(data = data_bench, 
+ obliqueRSF = ORSF(data = data_bench,
                    verbose = FALSE,
                    compute_oob_predictions = FALSE,
-                   ntree = 100),
- 
+                   ntree = 1),
+
  aorsf_net = orsf(data_train = data_bench,
                   formula = time + status ~ .,
                   control = orsf_control_net(),
                   oobag_pred = FALSE,
-                  n_tree = 100),
+                  n_tree = 1),
+ 
+ randomForestSRC = rfsrc(Surv(time, status) ~ ., 
+                         data = data_bench, 
+                         samptype = 'swr',
+                         perf.type = 'none',
+                         ntree = 1),
  
  aorsf = orsf(data_train = data_bench,
               formula = time + status ~ .,
               oobag_pred = FALSE,
-              n_tree = 100),
+              n_tree = 1),
  
- times = 100
+ times = 1
  
 )
 
+summary(bm) |> 
+ as_tibble() |> 
+ select(expr, mean) |> 
+ mutate(mean_relative = mean / mean[expr == 'aorsf']) |> 
+ kable(col.names = c("R package", "milliseconds", "ratio")) |> 
+ add_header_above(header = c(" ", "Time to fit" = 2)) |> 
+ kable_styling()
 
 ```
 
 
 # Acknowledgements
 
-The development of this software was supported by the Center for Biomedical Informatics at Wake Forest School of Medicine.
+The development of this software was supported by the Center for Biomedical Informatics at Wake Forest University School of Medicine.
 
 # References

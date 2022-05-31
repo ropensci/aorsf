@@ -157,7 +157,7 @@ are at least 2 events per predictor variable. This occurs when using
 \link{orsf_control_cph} because coefficients in the Newton Raphson scoring
 algorithm may become unstable when the number of covariates is
 greater than or equal to the number of events. This reduction does not
-occur when using \link{orsf_control_net}.#'
+occur when using \link{orsf_control_net}.
 }
 \examples{
 
