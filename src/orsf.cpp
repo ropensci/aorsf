@@ -162,7 +162,7 @@ mat
  x_node,
  y_node,
  x_pred,
- x_mean,
+ // x_mean,
  vmat,
  cmat,
  cmat2,
@@ -2433,7 +2433,7 @@ void ostree_size_buffer(){
  // }
 
  betas.insert_cols(betas.n_cols, 10);
- x_mean.insert_cols(x_mean.n_cols, 10);
+ // x_mean.insert_cols(x_mean.n_cols, 10);
  col_indices.insert_cols(col_indices.n_cols, 10);
  children_left.insert_rows(children_left.size(), 10);
  cutpoints.insert_rows(cutpoints.size(), 10);
@@ -2598,7 +2598,7 @@ arma::uvec ostree_pred_leaf_testthat(List& tree,
 List ostree_fit(Function f_beta){
 
  betas.fill(0);
- x_mean.fill(0);
+ // x_mean.fill(0);
  col_indices.fill(0);
  cutpoints.fill(0);
  children_left.fill(0);
@@ -2957,7 +2957,7 @@ List ostree_fit(Function f_beta){
 
     for(i = 0; i < n_cols_to_sample; i++){
      betas.at(i, *node) = beta_fit[i];
-     x_mean.at(i, *node) = x_transforms(i, 0);
+     // x_mean.at(i, *node) = x_transforms(i, 0);
      col_indices.at(i, *node) = cols_node[i];
     }
 
@@ -3000,7 +3000,7 @@ List ostree_fit(Function f_beta){
 
    _["betas"] = betas.cols(span(0, nodes_max_true)),
 
-   _["x_mean"] = x_mean.cols(span(0, nodes_max_true)),
+   // _["x_mean"] = x_mean.cols(span(0, nodes_max_true)),
 
    _["col_indices"] = conv_to<imat>::from(
     col_indices.cols(span(0, nodes_max_true))
@@ -3164,7 +3164,7 @@ List orsf_fit(NumericMatrix& x,
  nodes_max_guess = std::ceil(0.5 * n_rows / leaf_min_events);
 
  betas.zeros(mtry, nodes_max_guess);
- x_mean.zeros(mtry, nodes_max_guess);
+ // x_mean.zeros(mtry, nodes_max_guess);
  col_indices.zeros(mtry, nodes_max_guess);
  cutpoints.zeros(nodes_max_guess);
  children_left.zeros(nodes_max_guess);
