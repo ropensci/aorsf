@@ -3098,7 +3098,7 @@ List orsf_fit(NumericMatrix& x,
 
  if(cph_iter_max > 1) cph_do_scale = true;
 
- if(type_beta == 'N') cph_do_scale = false;
+ if((type_beta == 'N') || (type_beta == 'U')) cph_do_scale = false;
 
  if(oobag_pred){
 
