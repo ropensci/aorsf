@@ -101,5 +101,7 @@ Byron C. Jaeger, D. Leann Long, Dustin M. Long, Mario Sims, Jeff M. Szychowski, 
 
 ## Funding
 
-This software receives financial support from the Center for Biomedical Informatics, Wake Forest School of Medicine.
+The developers of `aorsf` receive financial support from the Center for Biomedical Informatics, Wake Forest University School of Medicine. We also receive support from the National Center for Advancing Translational Sciences of the National Institutes of Health under Award Number UL1TR001420. 
+
+The content is solely the responsibility of the authors and does not necessarily represent the official views of the National Institutes of Health.
 

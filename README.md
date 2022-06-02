@@ -76,14 +76,14 @@ How about interpreting the fit?
 
     ``` r
     orsf_vi_negate(fit)
-    #>          bili           age        copper       ascites       protime 
-    #>  1.390915e-02  1.213795e-02  8.387164e-03  6.511773e-03  6.199208e-03 
-    #>         stage           sex        hepato         edema       albumin 
-    #>  4.428006e-03  4.375912e-03  3.490310e-03  3.170303e-03  2.240050e-03 
-    #>       spiders           trt      alk.phos           ast          trig 
-    #>  1.041884e-03  1.562826e-04  5.209419e-05 -1.198166e-03 -1.250260e-03 
-    #>      platelet          chol 
-    #> -1.406543e-03 -5.782455e-03
+    #>          bili           age           sex        copper       ascites 
+    #>  0.0160971036  0.0120858512  0.0084392582  0.0068243384  0.0055740779 
+    #>       spiders         stage         edema        hepato           ast 
+    #>  0.0052094186  0.0043238175  0.0022673374  0.0021358616  0.0012502605 
+    #>      platelet       albumin          chol          trig       protime 
+    #>  0.0005209419  0.0003646593  0.0001562826 -0.0001562826 -0.0010939779 
+    #>      alk.phos           trt 
+    #> -0.0015107314 -0.0040112523
     ```
 
 -   use `orsf_pd_ice()` or `orsf_pd_summary()` for individual or
@@ -93,11 +93,11 @@ How about interpreting the fit?
     orsf_pd_summary(fit, pd_spec = list(bili = c(1:5)))
     #>     bili      mean        lwr      medn       upr
     #>    <int>     <num>      <num>     <num>     <num>
-    #> 1:     1 0.2327332 0.01715402 0.1278394 0.8629424
-    #> 2:     2 0.2803282 0.03730412 0.1726425 0.8873881
-    #> 3:     3 0.3399960 0.06581874 0.2534968 0.9011461
-    #> 4:     4 0.3936117 0.10559414 0.3220519 0.9190984
-    #> 5:     5 0.4360391 0.13796185 0.3741413 0.9339884
+    #> 1:     1 0.2309318 0.01708277 0.1168329 0.8542309
+    #> 2:     2 0.2801009 0.04071749 0.1739319 0.8854798
+    #> 3:     3 0.3378653 0.07326663 0.2480462 0.9002184
+    #> 4:     4 0.3923115 0.10844580 0.3137873 0.9213191
+    #> 5:     5 0.4341055 0.13426231 0.3711324 0.9299818
     ```
 
 -   use `orsf_summarize_uni()` to show the top predictor variables in an
@@ -116,44 +116,43 @@ How about interpreting the fit?
     #>         |---------------- risk ----------------|
     #>   Value      Mean    Median     25th %    75th %
     #>  <char>     <num>     <num>      <num>     <num>
-    #>    0.80 0.2276726 0.1248961 0.05111495 0.3557978
-    #>    1.40 0.2473343 0.1394002 0.06143315 0.3806993
-    #>    3.52 0.3692963 0.2953896 0.17716271 0.5528412
+    #>    0.80 0.2256092 0.1153241 0.04558336 0.3588942
+    #>    1.40 0.2461640 0.1313467 0.06323910 0.3871898
+    #>    3.52 0.3671496 0.2847901 0.16566117 0.5423875
     #> 
     #> -- age (VI Rank: 2) -----------------------------
     #> 
     #>         |---------------- risk ----------------|
     #>   Value      Mean    Median     25th %    75th %
     #>  <char>     <num>     <num>      <num>     <num>
-    #>    41.5 0.2713199 0.1407412 0.04671284 0.4618216
-    #>    49.7 0.2984502 0.1723371 0.05323084 0.5051649
-    #>    56.6 0.3316576 0.2264977 0.07716886 0.5633089
+    #>    41.5 0.2701663 0.1369651 0.04236446 0.4578859
+    #>    49.7 0.2966234 0.1673933 0.05118979 0.5077654
+    #>    56.6 0.3277697 0.2096862 0.07272597 0.5657241
     #> 
-    #> -- copper (VI Rank: 3) --------------------------
-    #> 
-    #>         |---------------- risk ----------------|
-    #>   Value      Mean    Median     25th %    75th %
-    #>  <char>     <num>     <num>      <num>     <num>
-    #>    42.8 0.2640370 0.1344469 0.04820217 0.4572128
-    #>    74.0 0.2812038 0.1607180 0.05813276 0.4765200
-    #>     129 0.3299795 0.2238479 0.09849015 0.5367875
-    #> 
-    #> -- ascites (VI Rank: 4) -------------------------
-    #> 
-    #>         |---------------- risk ----------------|
-    #>   Value      Mean   Median    25th %    75th %
-    #>  <char>     <num>    <num>     <num>     <num>
-    #>       0 0.2942636 0.160008 0.0501474 0.5045309
-    #>       1 0.4547808 0.373920 0.2533511 0.6365145
-    #> 
-    #> -- protime (VI Rank: 5) -------------------------
+    #> -- sex (VI Rank: 3) -----------------------------
     #> 
     #>         |---------------- risk ----------------|
     #>   Value      Mean    Median     25th %    75th %
     #>  <char>     <num>     <num>      <num>     <num>
-    #>    10.0 0.2820317 0.1483283 0.04867649 0.4915174
-    #>    10.6 0.2947320 0.1590040 0.05496065 0.5056502
-    #>    11.2 0.3154625 0.1938762 0.06724748 0.5468626
+    #>       m 0.3485034 0.2425707 0.10799689 0.5822585
+    #>       f 0.2914514 0.1429063 0.05327824 0.5329945
+    #> 
+    #> -- copper (VI Rank: 4) --------------------------
+    #> 
+    #>         |---------------- risk ----------------|
+    #>   Value      Mean    Median     25th %    75th %
+    #>  <char>     <num>     <num>      <num>     <num>
+    #>    42.8 0.2625758 0.1362109 0.04630979 0.4659081
+    #>    74.0 0.2767632 0.1496957 0.05403858 0.4821049
+    #>     129 0.3274266 0.2137786 0.09872470 0.5488018
+    #> 
+    #> -- ascites (VI Rank: 5) -------------------------
+    #> 
+    #>         |---------------- risk ----------------|
+    #>   Value      Mean    Median     25th %    75th %
+    #>  <char>     <num>     <num>      <num>     <num>
+    #>       0 0.2916558 0.1506221 0.05413326 0.5223010
+    #>       1 0.4545639 0.3665732 0.25809619 0.6536201
     #> 
     #>  Predicted risk at time t = 1788 for top 5 predictors
     ```
@@ -168,5 +167,12 @@ Szychowski, Yuan-I Min, Leslie A. Mcclure, George Howard, Noah Simon
 
 ## Funding
 
-This software receives financial support from the Center for Biomedical
-Informatics, Wake Forest School of Medicine.
+The developers of `aorsf` receive financial support from the Center for
+Biomedical Informatics, Wake Forest University School of Medicine. We
+also receive support from the National Center for Advancing
+Translational Sciences of the National Institutes of Health under Award
+Number UL1TR001420.
+
+The content is solely the responsibility of the authors and does not
+necessarily represent the official views of the National Institutes of
+Health.
