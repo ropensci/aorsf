@@ -1031,7 +1031,7 @@ arma::vec newtraph_cph(){
    temp1 = R::pchisq(pow(beta_current[i], 2) / vmat.at(i, i),
                      1, false, false);
 
-   if(temp1 < 0.10) vi_pval_numer[cols_node[i]]++;
+   if(temp1 < 0.01) vi_pval_numer[cols_node[i]]++;
 
   }
 
