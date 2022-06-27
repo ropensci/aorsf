@@ -396,6 +396,7 @@
 #' @srrstats {ML5.2b} *Documentation includes examples of how to save and re-load trained model objects for their re-use.*
 #'
 #' # save and re-load aorsf models for later use:
+#' \dontrun{
 #'
 #' file_temp <- tempfile("aorsf_fit", fileext = ".rds")
 #'
@@ -413,6 +414,7 @@
 #'
 #' attr(aorsf_fit, 'f_beta')
 #' attr(aorsf_fit_read_in, 'f_beta')
+#' }
 #'
 orsf <- function(data_train,
                  formula,
