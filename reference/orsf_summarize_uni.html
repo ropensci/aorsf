@@ -74,9 +74,13 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>object</dt>
 <dd><p>(<em>aorsf</em>) an oblique random survival forest (ORSF; see <a href="orsf.html">orsf</a>).</p></dd>
+
+
 <dt>n_variables</dt>
 <dd><p>(<em>integer</em>) how many variables should be summarized?
 Setting this input to a lower number will improve computation time.</p></dd>
+
+
 <dt>pred_horizon</dt>
 <dd><p>(<em>double</em>) a single time or a vector of times
 indicating the prediction horizon. Predicted risk or survival values
@@ -85,17 +89,24 @@ baseline to the prediction horizon, respectively. All <code>pred_horizon</code>
 values must not exceed the maximum follow-up time in <code>object</code>'s
 training data. Also, <code>pred_horizon</code> values must be entered in
 ascending order.</p></dd>
+
+
 <dt>risk</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, predicted risk is returned. If <code>FALSE</code>,
 predicted survival (i.e., 1-risk) is returned.</p></dd>
+
+
 <dt>importance_type</dt>
 <dd><p>(<em>character</em>) which method to use for variable
 importance. Valid input values are 'anova' and 'negate'.
 See <a href="orsf_vi_negate.html">orsf_vi_negate</a> for details on these methods.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>an object of class 'aorsf_summary'</p>
+    
+
+<p>an object of class 'aorsf_summary'</p>
     </div>
 
     <div class="section level2">
@@ -109,24 +120,25 @@ See <a href="orsf_vi_negate.html">orsf_vi_negate</a> for details on these method
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- risk ----------------|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.80 0.2280833 0.1216637 0.04497263 0.3664275</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1.40 0.2463939 0.1346245 0.05795330 0.3879364</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   3.52 0.3619273 0.2804873 0.16784074 0.5299787</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.80 0.2312730 0.1299305 0.04816761 0.3572767</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1.40 0.2493511 0.1425147 0.06209104 0.3816845</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3.52 0.3626593 0.2814077 0.16674457 0.5303323</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -- age (VI Rank: 2) ----------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- risk ----------------|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   41.5 0.2662365 0.1295418 0.04166943 0.4535835</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   49.7 0.2934663 0.1626556 0.04520634 0.5023328</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   56.6 0.3244147 0.1994280 0.06898124 0.5463531</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   41.5 0.2724829 0.1470664 0.04641622 0.4775637</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   49.7 0.2963686 0.1646715 0.05406330 0.5262906</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   56.6 0.3261919 0.2140108 0.07183963 0.5667790</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- ascites (VI Rank: 3) ------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- albumin (VI Rank: 3) ------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- risk ----------------|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0 0.2900735 0.1614733 0.04682649 0.5155707</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      1 0.4637704 0.3855666 0.27795310 0.6287785</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3.31 0.3143112 0.1800583 0.05920517 0.5510315</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3.54 0.2917292 0.1544221 0.05130032 0.5233709</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3.77 0.2772444 0.1483269 0.04931398 0.4935037</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Predicted risk at time t = 1788 for top 3 predictors </span>
 <span class="r-in"></span>
@@ -141,7 +153,7 @@ See <a href="orsf_vi_negate.html">orsf_vi_negate</a> for details on these method
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
     </footer></div>

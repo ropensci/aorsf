@@ -77,7 +77,7 @@
   oobag_time <span class="op">=</span> <span class="cn">NULL</span>,
   oobag_eval_every <span class="op">=</span> <span class="va">n_tree</span>,
   oobag_fun <span class="op">=</span> <span class="cn">NULL</span>,
-  importance <span class="op">=</span> <span class="cn">FALSE</span>,
+  importance <span class="op">=</span> <span class="st">"anova"</span>,
   tree_seeds <span class="op">=</span> <span class="cn">NULL</span>,
   attach_data <span class="op">=</span> <span class="cn">TRUE</span>,
   no_fit <span class="op">=</span> <span class="cn">FALSE</span>
@@ -90,20 +90,30 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>data_train</dt>
 <dd><p>(<em>data.frame</em>) that will be used to grow the forest.</p></dd>
+
+
 <dt>formula</dt>
 <dd><p>(<em>formula</em>) a formula object, with the response on the left
 of a <code>~</code> operator, and the terms on the right (see details). Variables
 on the right hand size of the <code>~</code> can be numeric, integer, or factor
 variables. Factors may be ordered or unordered.</p></dd>
+
+
 <dt>control</dt>
 <dd><p>An <code>aorsf_control</code> object, created with <a href="orsf_control_net.html">orsf_control_net</a>
 or <a href="orsf_control_cph.html">orsf_control_cph</a>. Default is <code>control = orsf_control_cph()</code>.</p></dd>
+
+
 <dt>n_tree</dt>
 <dd><p>(<em>integer</em>) the number of trees to grow.
 Default is <code>n_tree = 500.</code></p></dd>
+
+
 <dt>n_split</dt>
 <dd><p>(<em>integer</em>) the number of cut-points assessed when splitting
 a node in decision trees. Default is <code>n_split = 5</code>.</p></dd>
+
+
 <dt>n_retry</dt>
 <dd><p>(<em>integer</em>) when a node can be split, but the current
 linear combination of inputs is unable to provide a valid split, <code>orsf</code>
@@ -111,30 +121,46 @@ will try again with a new linear combination based on a different set
 of randomly selected predictors, up to <code>n_retry</code> pred_horizon. When
 <code>n_retry = 0</code> the retry mechanic is not applied.
 Default is <code>n_retry = 0</code>.</p></dd>
+
+
 <dt>mtry</dt>
 <dd><p>(<em>integer</em>) Number of variables randomly selected as candidates
 for splitting a node. The default is the smallest integer greater than
 the square root of the number of features, i.e.,
 <code>mtry = ceiling(sqrt(number of predictors))</code></p></dd>
+
+
 <dt>leaf_min_events</dt>
 <dd><p>(<em>integer</em>) minimum number of events in a
 leaf node. Default is <code>leaf_min_events = 1</code></p></dd>
+
+
 <dt>leaf_min_obs</dt>
 <dd><p>(<em>integer</em>) minimum number of observations in a
 leaf node. Default is <code>leaf_min_obs = 5</code></p></dd>
+
+
 <dt>split_min_events</dt>
 <dd><p>(<em>integer</em>) minimum number of events required
 to split a node. Default is <code>split_min_events = 5</code></p></dd>
+
+
 <dt>split_min_obs</dt>
 <dd><p>(<em>integer</em>) minimum number of observations required
 to split a node. Default is <code>split_min_obs = 10</code>.</p></dd>
+
+
 <dt>oobag_pred</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code> out-of-bag predictions are returned
 in the <code>aorsf</code> object. Default is <code>TRUE</code>.</p></dd>
+
+
 <dt>oobag_time</dt>
 <dd><p>(<em>numeric</em>) A numeric value indicating what time
 should be used for out-of-bag predictions. Default is the median
 of the observed pred_horizon, i.e., <code>oobag_time = median(time)</code>.</p></dd>
+
+
 <dt>oobag_eval_every</dt>
 <dd><p>(<em>integer</em>) The out-of-bag performance of the
 ensemble will be checked every <code>oobag_eval_every</code> trees. So, if
@@ -142,6 +168,8 @@ ensemble will be checked every <code>oobag_eval_every</code> trees. So, if
 after growing the 10th tree, the 20th tree, and so on. Default
 is <code>oobag_eval_every = n_tree</code>, so that out-of-bag performance is
 assessed once after growing all the trees.</p></dd>
+
+
 <dt>oobag_fun</dt>
 <dd><p>(<em>function</em>) When <code>oobag_fun</code> = <code>NULL</code> (the default),
 out-of-bag predictions are evaluated using Harrell's C-statistic.
@@ -151,14 +179,19 @@ must have two inputs: <code>y_mat</code> and <code>s_vec</code>. The input <code
 presumed to be a matrix with two columns named <code>time</code> (first column)
 and <code>status</code> (second column). The input <code>s_vec</code> is presumed to be a
 numeric vector containing predicted survival probabilities for <code>y_mat</code>.</p></dd>
+
+
 <dt>importance</dt>
-<dd><p>(<em>logical</em>) if <code>TRUE</code>, variable importance will be
-computed using <em>negation</em> importance. With negation importance,
-all coefficients for a given variable are multiplied by -1 and
-then the out-of-bag error for the forest is re-computed. The greater
-the degradation of the forest's error, the more important the variable.
-Default is <code>FALSE</code>. Note that if <code>oobag_fun</code> is specified above, it
-will be used in the computation of negation importance.</p></dd>
+<dd><p>(<em>character</em>) Indicate method for variable importance:</p><ul><li><p>'none': no variable importance is computed.</p></li>
+<li><p>'anova': use the analysis of variance (ANOVA) method</p></li>
+<li><p>'negate': compute negation importance</p></li>
+<li><p>'permute': compute permutation importance</p></li>
+</ul><p>See details for descriptions of the available methods.
+Note that if <code>oobag_fun</code> is specified above, it will be used in the
+computation of negation importance or permutation importance, but it
+will not have any role for ANOVA importance.</p></dd>
+
+
 <dt>tree_seeds</dt>
 <dd><p>(<em>integer vector</em>) if specified, random seeds will be set
 using the values in <code>tree_seeds[i]</code>  before growing tree i. Two forests
@@ -169,22 +202,31 @@ between two random forests more meaningful, since the out-of-bag
 performance of a random forest depends somewhat on the observations
 picked in out-of-bag samples. If <code>tree_seeds</code> is <code>NULL</code> (the default),
 no seeds are set during the training process.</p></dd>
+
+
 <dt>attach_data</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, a copy of the training
 data will be attached to the output. This is helpful if you
 plan on using functions like <a href="orsf_pd_summary.html">orsf_pd_summary</a> to interpret the fitted
 forest using its training data. Default is <code>TRUE</code>.</p></dd>
+
+
 <dt>no_fit</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, pre-processing steps are defined and
 parametrized, but training is not initiated. The object returned can be
 directly submitted to <code>orsf_train()</code> so long as <code>attach_data</code> is <code>TRUE</code>.</p></dd>
+
+
 <dt>object</dt>
 <dd><p>an untrained aorsf object, created by setting
 <code>no_fit = TRUE</code> in <code>orsf()</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>an accelerated oblique RSF object (<code>aorsf</code>)</p>
+    
+
+<p>an accelerated oblique RSF object (<code>aorsf</code>)</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -243,7 +285,7 @@ DOI: 10.1001/jama.1982.03320430047030</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
     </footer></div>

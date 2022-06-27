@@ -79,6 +79,8 @@ equivalent. Valid options are 'breslow' and 'efron'. The Efron
 approximation is the default because it is more accurate when dealing
 with tied event times and has similar computational efficiency compared
 to the Breslow method.</p></dd>
+
+
 <dt>eps</dt>
 <dd><p>(<em>double</em>) When using Newton Raphson scoring to identify
 linear combinations of inputs, iteration continues in the algorithm
@@ -86,11 +88,15 @@ until the relative change in  the log partial likelihood is less than
 <code>eps</code>, or the absolute change is less than <code>sqrt(eps)</code>. Must be positive.
 A default value of 1e-09 is used for consistency with
 <a href="https://rdrr.io/pkg/survival/man/coxph.control.html" class="external-link">survival::coxph.control</a>.</p></dd>
+
+
 <dt>iter_max</dt>
 <dd><p>(<em>integer</em>) When using Newton Raphson scoring to identify
 linear combinations of inputs, iteration continues until convergence
 (see <code>eps</code> above) or the number of attempted iterations is equal to
 <code>iter_max</code>. A default value of 1 is used for computational efficiency.</p></dd>
+
+
 <dt>pval_max</dt>
 <dd><p>(<em>double</em>) The maximum p-value allowed for a regression
 coefficient to remain non-zero. If the p-value for a given coefficient
@@ -99,16 +105,21 @@ no longer plays a role in the linear combination of inputs. Setting
 <code>pval_max</code> to 1 (the default) ensures that each of the <code>mtry</code> randomly
 selected predictor variables will get a non-zero coefficient in the
 linear combination of inputs.</p></dd>
+
+
 <dt>do_scale</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, values of predictors will be
 scaled prior to running Newton Raphson scoring. Setting to <code>FALSE</code> will
 reduce computation time but will also make the regression unstable, which
 is why the default value is <code>TRUE</code>. For stability, <code>orsf</code> will only let
 you set this input to <code>FALSE</code> if you also set <code>iter_max</code> to 1.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>an object of class <code>'aorsf_control'</code>, which should be used as
+    
+
+<p>an object of class <code>'aorsf_control'</code>, which should be used as
 an input for the <code>control</code> argument of <a href="orsf.html">orsf</a>.</p>
     </div>
     <div class="section level2">
@@ -156,7 +167,7 @@ Springer, New York, NY. DOI: 10.1007/978-1-4757-3294-8_3</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
     </footer></div>

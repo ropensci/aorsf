@@ -90,12 +90,16 @@
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>object</dt>
 <dd><p>(<em>aorsf</em>) An accelerated oblique random survival forest model.</p></dd>
+
+
 <dt>pd_data</dt>
 <dd><p>(<em>data frame</em>) that will be used to compute partial
 dependence. If <code>NULL</code>, then the training data of <code>object</code> will be
 used. If the training data were not attached to <code>object</code>
 (see <code>attach_data</code> input in <a href="orsf.html">orsf</a>), an error will be triggered.</p>
 <p>@srrstats G2.1a explicit secondary documentation of expectations on data types of all vector inputs</p></dd>
+
+
 <dt>pd_spec</dt>
 <dd><p>(<em>named list</em> or <em>data.frame</em>). If <code>pd_spec</code> is a named list,
 Each item in the list should be a vector of values that will be used as
@@ -104,6 +108,8 @@ list should indicate which variable will be modified to take the
 corresponding values. If <code>pd_spec</code> is a <code>data.frame</code>, columns will
 indicate variable names, values will indicate variable values, and
 partial dependence will be computed using the inputs on each row.</p></dd>
+
+
 <dt>pred_horizon</dt>
 <dd><p>(<em>double</em>) a single time or a vector of times
 indicating the prediction horizon. Predicted risk or survival values
@@ -112,38 +118,53 @@ baseline to the prediction horizon, respectively. All <code>pred_horizon</code>
 values must not exceed the maximum follow-up time in <code>object</code>'s
 training data. Also, <code>pred_horizon</code> values must be entered in
 ascending order.</p></dd>
+
+
 <dt>expand_grid</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, partial dependence will be
 computed at all possible combinations of inputs in <code>pd_spec</code>. If
 <code>FALSE</code>, partial dependence will be computed for each variable
 in <code>pd_spec</code>, separately.</p></dd>
+
+
 <dt>prob_values</dt>
 <dd><p>(<em>numeric</em>) a vector of values between 0 and 1,
 indicating what quantiles will be used to summarize the partial
 dependence values at each set of inputs. <code>prob_values</code> should
 have the same length as <code>prob_labels</code>.</p></dd>
+
+
 <dt>prob_labels</dt>
 <dd><p>(<em>character</em>) a vector of labels with the same length
 as <code>prob_values</code>, with each label indicating what the corresponding
 value in <code>prob_values</code> should be labelled as in summarized outputs.
 <code>prob_labels</code> should have the same length as <code>prob_values</code>.</p></dd>
+
+
 <dt>oobag</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, then partial dependence will be
 computed using the out of bag training data. You should set
 <code>oobag = TRUE</code> if you are computing partial dependence using the
 training data for <code>object</code>.</p></dd>
+
+
 <dt>risk</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, predicted risk is returned. If <code>FALSE</code>,
 predicted survival (i.e., 1-risk) is returned.</p></dd>
+
+
 <dt>boundary_checks</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, <code>pd_spec</code> will be vetted
 to make sure the requested values are between the 10th and 90th
 percentile in the object's training data. If <code>FALSE</code>, these checks are
 skipped.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>a <code>data.table</code> containing summarized partial dependence
+    
+
+<p>a <code>data.table</code> containing summarized partial dependence
 values if using <code>orsf_pd_summery</code> or individual conditional
 expectation (ICE) partial dependence if using <code>orsf_pd_ice</code>.</p>
     </div>
@@ -155,12 +176,12 @@ expectation (ICE) partial dependence if using <code>orsf_pd_ice</code>.</p>
 <span class="r-in"></span>
 <span class="r-in"><span class="fu">orsf_pd_summary</span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">4</span>,<span class="fl">5</span>,<span class="fl">6</span><span class="op">)</span><span class="op">)</span>, pred_horizon <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    bili      mean         lwr       medn       upr</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:    1 0.1321560 0.004843792 0.04981493 0.7067058</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:    2 0.1576130 0.010756406 0.07284775 0.7386498</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:    3 0.1928021 0.023649748 0.11419841 0.7658139</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:    4 0.2228831 0.036921796 0.14900112 0.7892018</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:    5 0.2471874 0.053792577 0.17160041 0.8076044</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:    6 0.2695027 0.070229584 0.20404973 0.8221564</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:    1 0.1339491 0.005033241 0.05432229 0.7382333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:    2 0.1570898 0.012680185 0.07931386 0.7781034</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:    3 0.1903398 0.025332288 0.11180118 0.7952167</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:    4 0.2219717 0.042967693 0.14580802 0.8138049</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:    5 0.2494886 0.062974706 0.17824994 0.8242851</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:    6 0.2709349 0.080758621 0.20143322 0.8298890</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co"># more points for a plot</span></span>
 <span class="r-in"><span class="va">pd_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">6</span>, length.out <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span></span>
@@ -168,12 +189,12 @@ expectation (ICE) partial dependence if using <code>orsf_pd_ice</code>.</p>
 <span class="r-in"></span>
 <span class="r-in"><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data_ice</span><span class="op">)</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    id_variable id_row bili       pred</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:           1      1    1 0.75212953</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:           1      2    1 0.04616246</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:           1      3    1 0.36956658</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:           1      4    1 0.15896699</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:           1      5    1 0.05646699</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:           1      6    1 0.01498265</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:           1      1    1 0.79915844</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:           1      2    1 0.05165055</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:           1      3    1 0.36262543</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:           1      4    1 0.18335900</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:           1      5    1 0.05552584</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:           1      6    1 0.02174736</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span class="r-in"></span>
@@ -196,7 +217,7 @@ expectation (ICE) partial dependence if using <code>orsf_pd_ice</code>.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
     </footer></div>
