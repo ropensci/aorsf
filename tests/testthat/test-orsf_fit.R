@@ -210,12 +210,12 @@ test_that(
 
 fit_with_vi <- orsf(data_train = pbc_orsf,
                     formula = Surv(time, status) ~ . - id,
-                    importance = TRUE,
+                    importance = 'negate',
                     n_tree = 50)
 
 fit_no_vi <- orsf(data_train = pbc_orsf,
                   formula = Surv(time, status) ~ . - id,
-                  importance = FALSE,
+                  importance = 'none',
                   n_tree = 50)
 
 no_miss_list <- function(l){
@@ -267,8 +267,10 @@ test_that(
   y_mat <- as.matrix(fit_no_vi$data_train[, c('time', 'status')])
   s_vec <- fit_no_vi$surv_oobag
 
-  tt <- survival::concordancefit(y = Surv(pbc_orsf$time, pbc_orsf$status),
-                                 x = fit_no_vi$surv_oobag)
+  tt <- survival::concordancefit(
+   y = survival::Surv(pbc_orsf$time, pbc_orsf$status),
+   x = fit_no_vi$surv_oobag
+  )
 
   denom <- sum(tt$count[c('concordant',
                           'discordant',
@@ -450,9 +452,6 @@ test_that(
   expect_equal(fit_orsf$surv_oobag,
                fit_orsf_scale$surv_oobag)
 
-  expect_equal(fit_orsf$signif_means,
-               fit_orsf_scale$signif_means)
-
   expect_equal(fit_orsf$forest[[1]]$leaf_nodes,
                fit_orsf_scale$forest[[1]]$leaf_nodes)
 
@@ -569,7 +568,7 @@ test_that(
 
    object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
                   n_tree = .n_tree, no_fit = TRUE,
-                  importance = .n_tree == 100)
+                  importance = 'anova')
    set.seed(89)
    time_estimated <- orsf_time_to_train(object, n_tree_subset = 50)
 
@@ -614,10 +613,6 @@ test_that(
 test_that(
  desc = "results are similar after adding trivial noise",
  code = {
-
-  expect_true(
-   max(abs(fit_orsf$signif_means-fit_orsf_noise$signif_means)) < 0.025
-  )
 
   expect_true(
    abs(fit_orsf$eval_oobag$stat_values - fit_orsf_noise$eval_oobag$stat_values) < 0.01

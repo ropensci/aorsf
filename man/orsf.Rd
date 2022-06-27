@@ -21,7 +21,7 @@ orsf(
   oobag_time = NULL,
   oobag_eval_every = n_tree,
   oobag_fun = NULL,
-  importance = FALSE,
+  importance = "anova",
   tree_seeds = NULL,
   attach_data = TRUE,
   no_fit = FALSE
@@ -93,13 +93,18 @@ presumed to be a matrix with two columns named \code{time} (first column)
 and \code{status} (second column). The input \code{s_vec} is presumed to be a
 numeric vector containing predicted survival probabilities for \code{y_mat}.}
 
-\item{importance}{(\emph{logical}) if \code{TRUE}, variable importance will be
-computed using \emph{negation} importance. With negation importance,
-all coefficients for a given variable are multiplied by -1 and
-then the out-of-bag error for the forest is re-computed. The greater
-the degradation of the forest's error, the more important the variable.
-Default is \code{FALSE}. Note that if \code{oobag_fun} is specified above, it
-will be used in the computation of negation importance.}
+\item{importance}{(\emph{character}) Indicate method for variable importance:
+\itemize{
+\item 'none': no variable importance is computed.
+\item 'anova': use the analysis of variance (ANOVA) method
+\item 'negate': compute negation importance
+\item 'permute': compute permutation importance
+}
+
+See details for descriptions of the available methods.
+Note that if \code{oobag_fun} is specified above, it will be used in the
+computation of negation importance or permutation importance, but it
+will not have any role for ANOVA importance.}
 
 \item{tree_seeds}{(\emph{integer vector}) if specified, random seeds will be set
 using the values in \code{tree_seeds[i]}  before growing tree i. Two forests

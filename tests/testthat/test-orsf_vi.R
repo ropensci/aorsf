@@ -143,13 +143,18 @@ pbc_vi$junk_cat <- factor(
 set.seed(32987)
 fit <- orsf(pbc_vi,
             formula = Surv(time, status) ~ age + sex + bili + junk + junk_cat,
-            importance = TRUE,
+            importance = "negate",
             oobag_eval_every = 100)
+
+fit_anova <- orsf(pbc_vi,
+                  formula = Surv(time, status) ~ age + sex + bili + junk + junk_cat,
+                  importance = "anova",
+                  oobag_eval_every = 100)
 
 set.seed(32987)
 fit_no_vi <- orsf(pbc_vi,
                   formula = Surv(time, status) ~ age + sex + bili + junk + junk_cat,
-                  importance = FALSE,
+                  importance = "none",
                   oobag_eval_every = 100)
 
 
@@ -162,11 +167,12 @@ test_that(
    orsf_vi_negate(fit, group_factors = FALSE)
   )
 
-  anova_importance <- orsf_vi_anova(fit, group_factors = FALSE)
+  expect_error(orsf_vi_anova(fit, group_factors = FALSE),
+               regexp = "ANOVA")
 
   expect_equal(
-   sort(as.numeric(fit$signif_means), decreasing = TRUE),
-   as.numeric(anova_importance)
+   sort(as.numeric(fit_anova$importance), decreasing = TRUE),
+   as.numeric(orsf_vi_anova(fit_anova, group_factors = FALSE))
   )
 
  }
@@ -186,15 +192,13 @@ test_that(
 test_that(
  desc = "anova importance picks the right variable",
  code = {
-  expect_gt(fit$signif_means['bili', ], fit$signif_means['junk', ])
-  expect_gt(fit$signif_means['bili', ], fit$signif_means['junk_cat_b', ])
-  expect_gt(fit$signif_means['bili', ], fit$signif_means['junk_cat_c', ])
-  expect_gt(fit$signif_means['bili', ], fit$signif_means['junk_cat_d', ])
-  expect_gt(fit$signif_means['bili', ], fit$signif_means['junk_cat_e', ])
+  expect_gt(fit_anova$importance['bili'], fit_anova$importance['junk'])
+  expect_gt(fit_anova$importance['bili'], fit_anova$importance['junk_cat_b'])
+  expect_gt(fit_anova$importance['bili'], fit_anova$importance['junk_cat_c'])
+  expect_gt(fit_anova$importance['bili'], fit_anova$importance['junk_cat_d'])
+  expect_gt(fit_anova$importance['bili'], fit_anova$importance['junk_cat_e'])
  }
 )
-
-fit$eval_oobag$stat_values
 
 test_that(
  desc = 'cstat from last run of orsf is reproducible',

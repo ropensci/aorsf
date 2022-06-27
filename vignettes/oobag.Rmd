@@ -208,7 +208,7 @@ length(test_output) == 1
 
 ## User-supplied functions for negation importance.
 
-Negation importance is based on the out-of-bag error, so of course you may be curious about what negation importance would be if it were computed using different statistics. The workflow for doing this is exactly the same as the example above, except we have to specify `importance = TRUE` when we fit our model. Also, to speed up computations, I am not going to monitor out-of-bag error here.
+Negation importance is based on the out-of-bag error, so of course you may be curious about what negation importance would be if it were computed using different statistics. The workflow for doing this is exactly the same as the example above, except we have to specify `importance = 'negate'` when we fit our model. Also, to speed up computations, I am not going to monitor out-of-bag error here.
 
 ```{r}
 
@@ -217,7 +217,7 @@ fit_sroc <- orsf(data_train = pbc_orsf,
                  n_tree = 50,
                  oobag_time = 3500,
                  oobag_fun = oobag_fun_sroc,
-                 importance = TRUE)
+                 importance = 'negate')
 
 fit_sroc$importance
 
@@ -240,6 +240,9 @@ orsf_vi_negate(fit)
 
 # use C-statistic from survivalROC
 orsf_vi_negate(fit, oobag_fun = oobag_fun_sroc)
+
+# you can also use custom functions for permutation importance
+orsf_vi_permute(fit, oobag_fun = oobag_fun_sroc)
 
 ```
 

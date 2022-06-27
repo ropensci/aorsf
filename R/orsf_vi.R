@@ -56,6 +56,11 @@ orsf_vi_negate <- function(object, group_factors = TRUE, oobag_fun = NULL){
  orsf_vi_(object, group_factors, type_vi = 'negate', oobag_fun = oobag_fun)
 }
 
+#' @rdname orsf_vi_negate
+#' @export
+orsf_vi_permute <- function(object, group_factors = TRUE, oobag_fun = NULL){
+ orsf_vi_(object, group_factors, type_vi = 'permute', oobag_fun = oobag_fun)
+}
 
 #' @rdname orsf_vi_negate
 #' @export
@@ -77,81 +82,16 @@ orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
  if(!is_aorsf(object)) stop("object must inherit from 'aorsf' class.",
                             call. = FALSE)
 
+ if(get_importance(object) != 'anova' && type_vi == 'anova')
+  stop("ANOVA importance can only be computed while an orsf object",
+       " is being fitted. To get ANOVA importance values, re-grow your",
+       " orsf object with importance = 'anova'",
+       call. = FALSE)
 
- switch(type_vi,
-
-  'anova' = {
-   out <- object$signif_means
-  },
-
-  'negate' = {
-
-   if(!contains_oobag(object)){
-    stop("cannot compute negation importance if the aorsf object does",
-         " not have out-of-bag error (see oobag_pred in ?orsf).",
-         call. = FALSE)
-   }
-
-   if(contains_vi(object) && is.null(oobag_fun)){
-
-    out <- matrix(object$importance, ncol = 1)
-    rownames(out) <- names(object$importance)
-
-
-   } else {
-
-    if(is.null(oobag_fun)){
-
-     f_oobag_eval <- function(x) x
-     type_oobag_eval <- 'H'
-
-    } else {
-
-     check_oobag_fun(oobag_fun)
-     f_oobag_eval <- oobag_fun
-     type_oobag_eval <- 'U'
-
-    }
-
-    y <- as.matrix(object$data_train[, get_names_y(object)])
-
-    # Put data in the same order that it was in when object was fit
-    sorted <- order(y[, 1], -y[, 2])
-
-    x <- as.matrix(
-     ref_code(x_data = object$data_train,
-              fi = get_fctr_info(object),
-              names_x_data = get_names_x(object))
-    )
-
-    if(is.null(oobag_fun)) {
-
-     last_eval_stat <-
-      last_value(object$eval_oobag$stat_values[, 1, drop=TRUE])
-
-    } else {
-
-     last_eval_stat <-
-      f_oobag_eval(y_mat = y, s_vec = object$surv_oobag)
-
-    }
-
-
-    out <- orsf_oob_vi(x = x[sorted, ],
-                       y = y[sorted, ],
-                       last_eval_stat = last_eval_stat,
-                       forest = object$forest,
-                       time_pred_ = object$pred_horizon,
-                       f_oobag_eval = f_oobag_eval,
-                       type_oobag_eval_ = type_oobag_eval)
-
-    rownames(out) <- colnames(x)
-
-   }
-
-  }
-
- )
+ out <- switch(type_vi,
+               'anova' = as.matrix(object$importance),
+               'negate' = orsf_vi_oobag_(object, type_vi, oobag_fun),
+               'permute' = orsf_vi_oobag_(object, type_vi, oobag_fun))
 
  if(group_factors) {
 
@@ -166,7 +106,6 @@ orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
     f_wts <- 1
 
     if(length(f_lvls) > 2){
-     # browser()
      f_wts <- prop.table(x = table(object$data_train[[f]])[-1])
     }
 
@@ -187,7 +126,91 @@ orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
 
 }
 
+#' Variable importance oobag working function
+#'
+#' used to pass data and function specification to C++
+#'
+#' @inheritParams orsf_vi_
+#'
+#' @noRd
+#'
+orsf_vi_oobag_ <- function(object, type_vi, oobag_fun){
 
+ if(!contains_oobag(object)){
+  stop("cannot compute ",
+       switch(type_vi, 'negate' = 'negation', 'permute' = 'permutation'),
+       " importance if the aorsf object does not have out-of-bag error",
+       " (see oobag_pred in ?orsf).",
+       call. = FALSE)
+ }
+
+ if(contains_vi(object) &&
+    is.null(oobag_fun) &&
+    get_importance(object) == type_vi){
+
+  out <- matrix(object$importance, ncol = 1)
+
+  rownames(out) <- names(object$importance)
+
+  return(out)
+
+ }
+
+ if(is.null(oobag_fun)){
+
+  f_oobag_eval <- function(x) x
+  type_oobag_eval <- 'H'
+
+ } else {
+
+  check_oobag_fun(oobag_fun)
+  f_oobag_eval <- oobag_fun
+  type_oobag_eval <- 'U'
+
+ }
+
+ y <- as.matrix(object$data_train[, get_names_y(object)])
+
+ # Put data in the same order that it was in when object was fit
+ sorted <- order(y[, 1], -y[, 2])
+
+ x <- as.matrix(
+  ref_code(x_data = object$data_train,
+           fi = get_fctr_info(object),
+           names_x_data = get_names_x(object))
+ )
+
+ if(is.null(oobag_fun)) {
+
+  last_eval_stat <-
+   last_value(object$eval_oobag$stat_values[, 1, drop=TRUE])
+
+ } else {
+
+  last_eval_stat <-
+   f_oobag_eval(y_mat = y, s_vec = object$surv_oobag)
+
+ }
+
+ f_oobag_vi <- switch(
+  type_vi,
+  'negate' = orsf_oob_negate_vi,
+  'permute' = orsf_oob_permute_vi
+ )
+
+ out <- f_oobag_vi(x = x[sorted, ],
+                   y = y[sorted, ],
+                   last_eval_stat = last_eval_stat,
+                   forest = object$forest,
+                   time_pred_ = object$pred_horizon,
+                   f_oobag_eval = f_oobag_eval,
+                   type_oobag_eval_ = type_oobag_eval)
+
+ rownames(out) <- colnames(x)
+
+ out
+
+}
 
 
 

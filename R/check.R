@@ -872,6 +872,26 @@ check_orsf_inputs <- function(data_train,
 
  }
 
+ if(!is.null(importance)){
+
+  check_arg_type(arg_value = importance,
+                 arg_name = 'importance',
+                 expected_type = 'character')
+
+  check_arg_length(arg_value = importance,
+                   arg_name = 'importance',
+                   expected_length = 1)
+
+  check_arg_is_valid(arg_value = importance,
+                     arg_name = 'importance',
+                     valid_options = c("none",
+                                       "anova",
+                                       "negate",
+                                       "permute"))
+
+
+ }
+
  if(!is.null(tree_seeds)){
 
   check_arg_type(arg_value = tree_seeds,

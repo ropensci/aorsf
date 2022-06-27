@@ -2,10 +2,13 @@
 % Please edit documentation in R/orsf_vi.R
 \name{orsf_vi_negate}
 \alias{orsf_vi_negate}
+\alias{orsf_vi_permute}
 \alias{orsf_vi_anova}
 \title{ORSF variable importance}
 \usage{
 orsf_vi_negate(object, group_factors = TRUE, oobag_fun = NULL)
+
+orsf_vi_permute(object, group_factors = TRUE, oobag_fun = NULL)
 
 orsf_vi_anova(object, group_factors = TRUE)
 }

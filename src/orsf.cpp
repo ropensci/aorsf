@@ -67,7 +67,7 @@ int
  net_df_target,
  oobag_eval_every;
 
-char type_beta, type_oobag_eval;
+char type_beta, type_oobag_eval, oobag_importance_type;
 
 // armadillo unsigned integers
 uword
@@ -1026,16 +1026,20 @@ arma::vec newtraph_cph(){
 
   // if(verbose > 0) Rcout << "un-scaled beta: " << beta_current[i] << std::endl;
 
-  if(beta_current.at(i) != 0){
+  if(oobag_importance_type == 'A'){
 
-   temp1 = R::pchisq(pow(beta_current[i], 2) / vmat.at(i, i),
-                     1, false, false);
+   if(beta_current.at(i) != 0){
 
-   if(temp1 < 0.01) vi_pval_numer[cols_node[i]]++;
+    temp1 = R::pchisq(pow(beta_current[i], 2) / vmat.at(i, i),
+                      1, false, false);
+
+    if(temp1 < 0.01) vi_pval_numer[cols_node[i]]++;
+
+   }
+
+   vi_pval_denom[cols_node[i]]++;
 
   }
-
-  vi_pval_denom[cols_node[i]]++;
 
   // if(temp1 > cph_pval_max){
   //  beta_current[i] = 0;
@@ -2770,8 +2774,6 @@ List ostree_fit(Function f_beta){
 
       if(cph_do_scale){
        x_node_scale();
-      } else {
-       x_node_means();
       }
 
       // if(verbose > 0){
@@ -3045,6 +3047,7 @@ List orsf_fit(NumericMatrix& x,
               const double&  oobag_time_,
               const int&     oobag_eval_every_,
               const bool&    oobag_importance_,
+              const char&    oobag_importance_type_,
               IntegerVector& tree_seeds,
               const int&     max_retry_,
               Function       f_beta,
@@ -3073,28 +3076,29 @@ List orsf_fit(NumericMatrix& x,
  //  Rcout << std::endl << std::endl << std::endl;
  // }
 
- n_split            = n_split_;
- mtry               = mtry_;
- leaf_min_events    = leaf_min_events_;
- leaf_min_obs       = leaf_min_obs_;
- split_min_events   = split_min_events_;
- split_min_obs      = split_min_obs_;
- cph_method         = cph_method_;
- cph_eps            = cph_eps_;
- cph_iter_max       = cph_iter_max_;
- cph_pval_max       = cph_pval_max_;
- cph_do_scale       = cph_do_scale_;
- net_alpha          = net_alpha_;
- net_df_target      = net_df_target_;
- oobag_pred         = oobag_pred_;
- oobag_eval_every   = oobag_eval_every_;
- oobag_eval_counter = 0;
- oobag_importance   = oobag_importance_;
- use_tree_seed      = tree_seeds.length() > 0;
- max_retry          = max_retry_;
- type_beta          = type_beta_;
- type_oobag_eval    = type_oobag_eval_;
- temp1              = 1.0 / n_rows;
+ n_split               = n_split_;
+ mtry                  = mtry_;
+ leaf_min_events       = leaf_min_events_;
+ leaf_min_obs          = leaf_min_obs_;
+ split_min_events      = split_min_events_;
+ split_min_obs         = split_min_obs_;
+ cph_method            = cph_method_;
+ cph_eps               = cph_eps_;
+ cph_iter_max          = cph_iter_max_;
+ cph_pval_max          = cph_pval_max_;
+ cph_do_scale          = cph_do_scale_;
+ net_alpha             = net_alpha_;
+ net_df_target         = net_df_target_;
+ oobag_pred            = oobag_pred_;
+ oobag_eval_every      = oobag_eval_every_;
+ oobag_eval_counter    = 0;
+ oobag_importance      = oobag_importance_;
+ oobag_importance_type = oobag_importance_type_;
+ use_tree_seed         = tree_seeds.length() > 0;
+ max_retry             = max_retry_;
+ type_beta             = type_beta_;
+ type_oobag_eval       = type_oobag_eval_;
+ temp1                 = 1.0 / n_rows;
 
  if(cph_iter_max > 1) cph_do_scale = true;
 
@@ -3170,10 +3174,8 @@ List orsf_fit(NumericMatrix& x,
  children_left.zeros(nodes_max_guess);
  leaf_indices.zeros(nodes_max_guess, 3);
 
+ // some great variable names here
  List forest(n_tree);
-
- // sampling with replacement or not?
- // using the same oob index as another forest?
 
  for(tree = 0; tree < n_tree; ){
 
@@ -3284,6 +3286,9 @@ List orsf_fit(NumericMatrix& x,
 
  vec vimp(x_input.n_cols);
 
+ // ANOVA importance
+ if(oobag_importance_type == 'A') vimp = vi_pval_numer / vi_pval_denom;
+
  // if we are computing variable importance, surv_pvec is about
  // to get modified, and we don't want to return the modified
  // version of surv_pvec.
@@ -3317,11 +3322,17 @@ List orsf_fit(NumericMatrix& x,
 
     x_pred = x_input.rows(rows_oobag);
 
+    if(oobag_importance_type == 'P'){
+     x_pred.col(variable) = shuffle(x_pred.col(variable));
+    }
+
     ostree_mem_xfer();
 
-    betas_to_flip = find(col_indices == variable);
 
-    betas.elem( betas_to_flip ) *= (-1);
+    if(oobag_importance_type == 'N'){
+     betas_to_flip = find(col_indices == variable);
+     betas.elem( betas_to_flip ) *= (-1);
+    }
 
     denom_pred(rows_oobag) += 1;
 
@@ -3331,7 +3342,9 @@ List orsf_fit(NumericMatrix& x,
 
     oobag_pred_surv_uni();
 
-    betas.elem( betas_to_flip ) *= (-1);
+    if(oobag_importance_type == 'N'){
+     betas.elem( betas_to_flip ) *= (-1);
+    }
 
    }
 
@@ -3361,7 +3374,6 @@ List orsf_fit(NumericMatrix& x,
 
  }
 
-
  return(
   List::create(
    _["forest"] = forest,
@@ -3369,8 +3381,7 @@ List orsf_fit(NumericMatrix& x,
    _["pred_horizon"] = time_pred,
    _["eval_oobag"] = List::create(_["stat_values"] = eval_oobag,
                                   _["stat_type"]   = type_oobag_eval),
-   _["importance"] = vimp,
-   _["signif_means"] = vi_pval_numer / vi_pval_denom
+   _["importance"] = vimp
   )
  );
 
@@ -3378,13 +3389,13 @@ List orsf_fit(NumericMatrix& x,
 }
 
 // [[Rcpp::export]]
-arma::vec orsf_oob_vi(NumericMatrix& x,
-                      NumericMatrix& y,
-                      List& forest,
-                      const double& last_eval_stat,
-                      const double& time_pred_,
-                      Function      f_oobag_eval,
-                      const char&   type_oobag_eval_){
+arma::vec orsf_oob_negate_vi(NumericMatrix& x,
+                             NumericMatrix& y,
+                             List& forest,
+                             const double& last_eval_stat,
+                             const double& time_pred_,
+                             Function      f_oobag_eval,
+                             const char&   type_oobag_eval_){
 
  x_input = mat(x.begin(), x.nrow(), x.ncol(), false);
  y_input = mat(y.begin(), y.nrow(), y.ncol(), false);
@@ -3431,6 +3442,87 @@ arma::vec orsf_oob_vi(NumericMatrix& x,
    oobag_pred_surv_uni();
 
    betas.elem( betas_to_flip ) *= (-1);
+
+  }
+
+  switch(type_oobag_eval) {
+
+  // H stands for Harrell's C-statistic
+  case 'H' :
+
+   vimp(variable) = last_eval_stat - oobag_c_harrell();
+
+   break;
+
+   // U stands for a user-supplied function
+  case 'U' :
+
+   ww = wrap(surv_pvec);
+
+   vimp(variable) = last_eval_stat - as<double>(f_oobag_eval(y, ww));
+
+   break;
+
+  }
+
+ }
+
+ return(vimp);
+
+}
+
+// [[Rcpp::export]]
+arma::vec orsf_oob_permute_vi(NumericMatrix& x,
+                              NumericMatrix& y,
+                              List& forest,
+                              const double& last_eval_stat,
+                              const double& time_pred_,
+                              Function      f_oobag_eval,
+                              const char&   type_oobag_eval_){
+
+ x_input = mat(x.begin(), x.nrow(), x.ncol(), false);
+ y_input = mat(y.begin(), y.nrow(), y.ncol(), false);
+
+ time_pred = time_pred_;
+ type_oobag_eval = type_oobag_eval_;
+
+ vec vimp(x_input.n_cols);
+
+ uword variable;
+
+ for(variable = 0; variable < x_input.n_cols; ++variable){
+
+  surv_pvec.fill(0);
+  denom_pred.fill(0);
+
+  for(tree = 0; tree < forest.length(); ++tree){
+
+   ostree = forest[tree];
+
+   IntegerMatrix rows_oobag_ = ostree["rows_oobag"];
+
+   rows_oobag = conv_to<uvec>::from(
+    ivec(rows_oobag_.begin(),
+         rows_oobag_.length(),
+         false)
+   );
+
+   x_pred = x_input.rows(rows_oobag);
+
+   x_pred.col(variable) = shuffle(x_pred.col(variable));
+
+   ostree_mem_xfer();
+
+   denom_pred(rows_oobag) += 1;
+
+   leaf_pred.set_size(rows_oobag.size());
+
+   ostree_pred_leaf();
+
+   oobag_pred_surv_uni();
+
+   // x_variable = x_variable_original;
+   // x_input.col(variable) = x_variable;
 
   }
 

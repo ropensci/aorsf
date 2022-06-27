@@ -120,13 +120,16 @@
 #'   and `status` (second column). The input `s_vec` is presumed to be a
 #'   numeric vector containing predicted survival probabilities for `y_mat`.
 #'
-#' @param importance (_logical_) if `TRUE`, variable importance will be
-#'   computed using _negation_ importance. With negation importance,
-#'   all coefficients for a given variable are multiplied by -1 and
-#'   then the out-of-bag error for the forest is re-computed. The greater
-#'   the degradation of the forest's error, the more important the variable.
-#'   Default is `FALSE`. Note that if `oobag_fun` is specified above, it
-#'   will be used in the computation of negation importance.
+#' @param importance (_character_) Indicate method for variable importance:
+#'   - 'none': no variable importance is computed.
+#'   - 'anova': use the analysis of variance (ANOVA) method
+#'   - 'negate': compute negation importance
+#'   - 'permute': compute permutation importance
+#'
+#'  See details for descriptions of the available methods.
+#'   Note that if `oobag_fun` is specified above, it will be used in the
+#'   computation of negation importance or permutation importance, but it
+#'   will not have any role for ANOVA importance.
 #'
 #' @param tree_seeds (_integer vector_) if specified, random seeds will be set
 #'   using the values in `tree_seeds[i]`  before growing tree i. Two forests
@@ -426,7 +429,7 @@ orsf <- function(data_train,
                  oobag_time = NULL,
                  oobag_eval_every = n_tree,
                  oobag_fun = NULL,
-                 importance = FALSE,
+                 importance = 'anova',
                  tree_seeds = NULL,
                  attach_data = TRUE,
                  no_fit = FALSE){
@@ -512,7 +515,8 @@ orsf <- function(data_train,
  net_alpha = control_net$net_alpha
  net_df_target = control_net$net_df_target
 
- if(importance && !oobag_pred) oobag_pred <- TRUE # Should I add a warning?
+ if(importance %in% c("permute", "negate") && !oobag_pred)
+  oobag_pred <- TRUE # Should I add a warning?
 
  formula_terms <- suppressWarnings(stats::terms(formula, data=data_train))
 
@@ -527,7 +531,6 @@ orsf <- function(data_train,
  if(length(names_y_data) != 2)
   stop("formula must have two variables (time & status) as the response",
        call. = FALSE)
-
 
  types_y_data <- vector(mode = 'character', length = 2)
 
@@ -750,7 +753,12 @@ orsf <- function(data_train,
   oobag_pred_       = oobag_pred,
   oobag_time_       = oobag_time,
   oobag_eval_every_ = oobag_eval_every,
-  oobag_importance_ = importance,
+  oobag_importance_ = importance %in% c("negate", "permute"),
+  oobag_importance_type_ = switch(importance,
+                                  "none" = "O",
+                                  "anova" = "A",
+                                  "negate" = "N",
+                                  "permute" = "P"),
   #' @srrstats {G2.4a} *converting to integer in case R does that thing where it assumes the integer values you gave it are supposed to be doubles*
   tree_seeds        = as.integer(tree_seeds),
   max_retry_        = n_retry,
@@ -765,14 +773,11 @@ orsf <- function(data_train,
 
  orsf_out$data_train <- if(attach_data) data_train else NULL
 
- if(importance){
+ if(importance != 'none'){
   rownames(orsf_out$importance) <- colnames(x)
   orsf_out$importance <-
    rev(orsf_out$importance[order(orsf_out$importance), , drop=TRUE])
  }
-
- # ANOVA importance is computed whether importance is true or not.
- rownames(orsf_out$signif_means) <- colnames(x)
 
  if(oobag_pred){
 
@@ -1015,7 +1020,12 @@ orsf_train_ <- function(object,
   oobag_pred_       = get_oobag_pred(object),
   oobag_time_       = object$pred_horizon,
   oobag_eval_every_ = oobag_eval_every,
-  oobag_importance_ = get_importance(object),
+  oobag_importance_ = get_importance(object) != 'none',
+  oobag_importance_type_ = switch(get_importance(object),
+                                  "none" = "O",
+                                  "anova" = "A",
+                                  "negate" = "N",
+                                  "permute" = "P"),
   tree_seeds        = as.integer(get_tree_seeds(object)),
   max_retry_        = get_n_retry(object),
   f_beta            = get_f_beta(object),
@@ -1032,9 +1042,8 @@ orsf_train_ <- function(object,
  object$pred_horizon <- orsf_out$pred_horizon
  object$eval_oobag   <- orsf_out$eval_oobag
  object$importance   <- orsf_out$importance
- object$signif_means <- orsf_out$signif_means
 
- if(get_importance(object)){
+ if(get_importance(object) != 'none'){
 
   rownames(object$importance) <- colnames(x)
 
