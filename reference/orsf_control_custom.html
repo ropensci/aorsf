@@ -61,7 +61,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">orsf_control_custom</span><span class="op">(</span><span class="va">beta_fun</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orsf_control_custom</span><span class="op">(</span><span class="va">beta_fun</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -94,28 +94,28 @@ an input for the <code>control</code> argument of <a href="orsf.html">orsf</a>.<
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="co"># fit an oblique random survival forest using random coefficients to</span></span>
-<span class="r-in"><span class="co"># generate linear combinations of predictor variables. First, define</span></span>
-<span class="r-in"><span class="co"># a function that supplies the random coefficients:</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">f</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x_node</span>, <span class="va">y_node</span>, <span class="va">w_node</span><span class="op">)</span> <span class="op">{</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">x_node</span><span class="op">)</span><span class="op">)</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span> <span class="op">}</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># next, plug the function into orsf_control_custom(), which is in turn</span></span>
-<span class="r-in"><span class="co"># passed into orsf():</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">fit_rando</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>,</span>
-<span class="r-in">                  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span>,</span>
-<span class="r-in">                  control <span class="op">=</span> <span class="fu">orsf_control_custom</span><span class="op">(</span>beta_fun <span class="op">=</span> <span class="va">f</span><span class="op">)</span>,</span>
-<span class="r-in">                  n_tree <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># last, check the out-of-bag performance.</span></span>
-<span class="r-in"><span class="co"># it's surprising how well the random approach works.</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">fit_rando</span><span class="op">$</span><span class="va">eval_oobag</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># fit an oblique random survival forest using random coefficients to</span></span></span>
+<span class="r-in"><span><span class="co"># generate linear combinations of predictor variables. First, define</span></span></span>
+<span class="r-in"><span><span class="co"># a function that supplies the random coefficients:</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x_node</span>, <span class="va">y_node</span>, <span class="va">w_node</span><span class="op">)</span> <span class="op">{</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">x_node</span><span class="op">)</span><span class="op">)</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span> <span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># next, plug the function into orsf_control_custom(), which is in turn</span></span></span>
+<span class="r-in"><span><span class="co"># passed into orsf():</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">fit_rando</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>,</span></span>
+<span class="r-in"><span>                  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span>,</span></span>
+<span class="r-in"><span>                  control <span class="op">=</span> <span class="fu">orsf_control_custom</span><span class="op">(</span>beta_fun <span class="op">=</span> <span class="va">f</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                  n_tree <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># last, check the out-of-bag performance.</span></span></span>
+<span class="r-in"><span><span class="co"># it's surprising how well the random approach works.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">fit_rando</span><span class="op">$</span><span class="va">eval_oobag</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $stat_values</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.7679725</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.7812044</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $stat_type</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Harrell's C-statistic"</span>

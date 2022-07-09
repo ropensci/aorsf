@@ -61,7 +61,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">orsf_control_net</span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="fl">2</span>, df_target <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orsf_control_net</span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="fl">2</span>, df_target <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -100,15 +100,15 @@ an input for the <code>control</code> argument of <a href="orsf.html">orsf</a>.<
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="co"># orsf_control_net() is considerably slower than orsf_control_cph(),</span></span>
-<span class="r-in"><span class="co"># The example uses n_tree = 25 so that my examples run faster,</span></span>
-<span class="r-in"><span class="co"># but you should use at least 500 trees in applied settings.</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span>data_train <span class="op">=</span> <span class="va">pbc_orsf</span>,</span>
-<span class="r-in">     formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
-<span class="r-in">     n_tree <span class="op">=</span> <span class="fl">25</span>,</span>
-<span class="r-in">     control <span class="op">=</span> <span class="fu">orsf_control_net</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># orsf_control_net() is considerably slower than orsf_control_cph(),</span></span></span>
+<span class="r-in"><span><span class="co"># The example uses n_tree = 25 so that my examples run faster,</span></span></span>
+<span class="r-in"><span><span class="co"># but you should use at least 500 trees in applied settings.</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span>data_train <span class="op">=</span> <span class="va">pbc_orsf</span>,</span></span>
+<span class="r-in"><span>     formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span></span>
+<span class="r-in"><span>     n_tree <span class="op">=</span> <span class="fl">25</span>,</span></span>
+<span class="r-in"><span>     control <span class="op">=</span> <span class="fu">orsf_control_net</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---------- Oblique random survival forest</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           N observations: 276</span>
@@ -116,10 +116,10 @@ an input for the <code>control</code> argument of <a href="orsf.html">orsf</a>.<
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  N trees: 25</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       N predictors total: 17</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    N predictors per node: 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Average leaves per tree: 15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Average leaves per tree: 17</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Min observations in leaf: 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       Min events in leaf: 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           OOB stat value: 0.56</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           OOB stat value: 0.51</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            OOB stat type: Harrell's C-statistic</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -----------------------------------------</span>

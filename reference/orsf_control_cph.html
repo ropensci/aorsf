@@ -61,13 +61,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">orsf_control_cph</span><span class="op">(</span>
-  method <span class="op">=</span> <span class="st">"efron"</span>,
-  eps <span class="op">=</span> <span class="fl">1e-09</span>,
-  iter_max <span class="op">=</span> <span class="fl">1</span>,
-  pval_max <span class="op">=</span> <span class="fl">1</span>,
-  do_scale <span class="op">=</span> <span class="cn">TRUE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orsf_control_cph</span><span class="op">(</span>method <span class="op">=</span> <span class="st">"efron"</span>, eps <span class="op">=</span> <span class="fl">1e-09</span>, iter_max <span class="op">=</span> <span class="fl">1</span>, do_scale <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -95,16 +89,6 @@ A default value of 1e-09 is used for consistency with
 linear combinations of inputs, iteration continues until convergence
 (see <code>eps</code> above) or the number of attempted iterations is equal to
 <code>iter_max</code>. A default value of 1 is used for computational efficiency.</p></dd>
-
-
-<dt>pval_max</dt>
-<dd><p>(<em>double</em>) The maximum p-value allowed for a regression
-coefficient to remain non-zero. If the p-value for a given coefficient
-is above the maximum, the coefficient is set to zero and the variable
-no longer plays a role in the linear combination of inputs. Setting
-<code>pval_max</code> to 1 (the default) ensures that each of the <code>mtry</code> randomly
-selected predictor variables will get a non-zero coefficient in the
-linear combination of inputs.</p></dd>
 
 
 <dt>do_scale</dt>
@@ -137,10 +121,10 @@ Springer, New York, NY. DOI: 10.1007/978-1-4757-3294-8_3</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"></span>
-<span class="r-in"><span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span>data_train <span class="op">=</span> <span class="va">pbc_orsf</span>,</span>
-<span class="r-in">     formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
-<span class="r-in">     control <span class="op">=</span> <span class="fu">orsf_control_cph</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span>data_train <span class="op">=</span> <span class="va">pbc_orsf</span>,</span></span>
+<span class="r-in"><span>     formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span></span>
+<span class="r-in"><span>     control <span class="op">=</span> <span class="fu">orsf_control_cph</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---------- Oblique random survival forest</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           N observations: 276</span>
@@ -148,14 +132,14 @@ Springer, New York, NY. DOI: 10.1007/978-1-4757-3294-8_3</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  N trees: 500</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       N predictors total: 17</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    N predictors per node: 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Average leaves per tree: 19</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Average leaves per tree: 24</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Min observations in leaf: 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       Min events in leaf: 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           OOB stat value: 0.84</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            OOB stat type: Harrell's C-statistic</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -----------------------------------------</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
