@@ -52,8 +52,8 @@ double
  leaf_min_events,
  split_min_events,
  split_min_obs,
+ split_min_stat,
  time_pred,
- cph_pval_max,
  ll_second,
  ll_init,
  net_alpha;
@@ -1041,13 +1041,6 @@ arma::vec newtraph_cph(){
 
   }
 
-  // if(temp1 > cph_pval_max){
-  //  beta_current[i] = 0;
-   // if(verbose > 1){
-   //  Rcout<<"dropping coef "<<i<<" to 0; p = "<<temp1<<std::endl;
-   // }
-  // }
-
  }
 
  // if(verbose > 1) Rcout << std::endl;
@@ -1063,7 +1056,6 @@ arma::vec newtraph_cph_testthat(NumericMatrix& x_in,
                                 NumericVector& w_in,
                                 int method,
                                 double cph_eps_,
-                                double pval_max,
                                 int iter_max){
 
 
@@ -1077,7 +1069,6 @@ arma::vec newtraph_cph_testthat(NumericMatrix& x_in,
  cph_eps = cph_eps_;
  cph_iter_max = iter_max;
  n_vars = x_node.n_cols;
- cph_pval_max = pval_max;
 
  vi_pval_numer.zeros(x_node.n_cols);
  vi_pval_denom.zeros(x_node.n_cols);
@@ -1476,7 +1467,7 @@ double lrt_multi(){
  // if the log-rank test does not detect a difference at 0.05 alpha,
  // maybe it's not a good idea to split this node.
 
- if(stat_best < 3.841459) return(R_PosInf);
+ if(stat_best < split_min_stat) return(R_PosInf);
 
  // if(verbose > 1){
  //  Rcout << "Best LRT stat: " << stat_best << std::endl;
@@ -3036,10 +3027,10 @@ List orsf_fit(NumericMatrix& x,
               const double&  leaf_min_obs_,
               const double&  split_min_events_,
               const double&  split_min_obs_,
+              const double&  split_min_stat_,
               const int&     cph_method_,
               const double&  cph_eps_,
               const int&     cph_iter_max_,
-              const double&  cph_pval_max_,
               const bool&    cph_do_scale_,
               const double&  net_alpha_,
               const int&     net_df_target_,
@@ -3082,10 +3073,10 @@ List orsf_fit(NumericMatrix& x,
  leaf_min_obs          = leaf_min_obs_;
  split_min_events      = split_min_events_;
  split_min_obs         = split_min_obs_;
+ split_min_stat        = split_min_stat_;
  cph_method            = cph_method_;
  cph_eps               = cph_eps_;
  cph_iter_max          = cph_iter_max_;
- cph_pval_max          = cph_pval_max_;
  cph_do_scale          = cph_do_scale_;
  net_alpha             = net_alpha_;
  net_df_target         = net_df_target_;
@@ -3127,7 +3118,6 @@ List orsf_fit(NumericMatrix& x,
  //  Rcout << "cph_method: "      << cph_method           << std::endl;
  //  Rcout << "cph_eps: "         << cph_eps              << std::endl;
  //  Rcout << "cph_iter_max: "    << cph_iter_max         << std::endl;
- //  Rcout << "cph_pval_max: "    << cph_pval_max         << std::endl;
  //  Rcout << "-----------------------------------------" << std::endl;
  //  Rcout << std::endl << std::endl;
  // }

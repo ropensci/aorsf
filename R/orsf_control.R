@@ -41,13 +41,6 @@
 #'   (see `eps` above) or the number of attempted iterations is equal to
 #'   `iter_max`. A default value of 1 is used for computational efficiency.
 #'
-#' @param pval_max (_double_) The maximum p-value allowed for a regression
-#'   coefficient to remain non-zero. If the p-value for a given coefficient
-#'   is above the maximum, the coefficient is set to zero and the variable
-#'   no longer plays a role in the linear combination of inputs. Setting
-#'   `pval_max` to 1 (the default) ensures that each of the `mtry` randomly
-#'   selected predictor variables will get a non-zero coefficient in the
-#'   linear combination of inputs.
 #'
 #' @srrstats {ML2.5} *Provide the option to bypass default transformations.*
 #'
@@ -79,20 +72,18 @@
 orsf_control_cph <- function(method = 'efron',
                              eps = 1e-9,
                              iter_max = 1,
-                             pval_max = 1,
                              do_scale = TRUE){
 
 
  #' @srrstats {G2.3b} *ensure input of character parameters is not case dependent*
  method <- tolower(method)
 
- check_control_cph(method, eps, iter_max, pval_max, do_scale)
+ check_control_cph(method, eps, iter_max, do_scale)
 
  structure(
   .Data = list(cph_method = method,
                cph_eps = eps,
                cph_iter_max = iter_max,
-               cph_pval_max = pval_max,
                cph_do_scale = do_scale),
   class = 'aorsf_control',
   type = 'cph'

@@ -4,13 +4,7 @@
 \alias{orsf_control_cph}
 \title{Cox proportional hazards control}
 \usage{
-orsf_control_cph(
-  method = "efron",
-  eps = 1e-09,
-  iter_max = 1,
-  pval_max = 1,
-  do_scale = TRUE
-)
+orsf_control_cph(method = "efron", eps = 1e-09, iter_max = 1, do_scale = TRUE)
 }
 \arguments{
 \item{method}{(\emph{character}) a character string specifying the method
@@ -31,14 +25,6 @@ A default value of 1e-09 is used for consistency with
 linear combinations of inputs, iteration continues until convergence
 (see \code{eps} above) or the number of attempted iterations is equal to
 \code{iter_max}. A default value of 1 is used for computational efficiency.}
-
-\item{pval_max}{(\emph{double}) The maximum p-value allowed for a regression
-coefficient to remain non-zero. If the p-value for a given coefficient
-is above the maximum, the coefficient is set to zero and the variable
-no longer plays a role in the linear combination of inputs. Setting
-\code{pval_max} to 1 (the default) ensures that each of the \code{mtry} randomly
-selected predictor variables will get a non-zero coefficient in the
-linear combination of inputs.}
 
 \item{do_scale}{(\emph{logical}) if \code{TRUE}, values of predictors will be
 scaled prior to running Newton Raphson scoring. Setting to \code{FALSE} will

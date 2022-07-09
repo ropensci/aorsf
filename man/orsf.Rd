@@ -11,12 +11,13 @@ orsf(
   control = orsf_control_cph(),
   n_tree = 500,
   n_split = 5,
-  n_retry = 0,
+  n_retry = 3,
   mtry = NULL,
   leaf_min_events = 1,
   leaf_min_obs = 5,
   split_min_events = 5,
   split_min_obs = 10,
+  split_min_stat = 3.841459,
   oobag_pred = TRUE,
   oobag_time = NULL,
   oobag_eval_every = n_tree,
@@ -51,7 +52,7 @@ linear combination of inputs is unable to provide a valid split, \code{orsf}
 will try again with a new linear combination based on a different set
 of randomly selected predictors, up to \code{n_retry} pred_horizon. When
 \code{n_retry = 0} the retry mechanic is not applied.
-Default is \code{n_retry = 0}.}
+Default is \code{n_retry = 3}.}
 
 \item{mtry}{(\emph{integer}) Number of variables randomly selected as candidates
 for splitting a node. The default is the smallest integer greater than
@@ -69,6 +70,10 @@ to split a node. Default is \code{split_min_events = 5}}
 
 \item{split_min_obs}{(\emph{integer}) minimum number of observations required
 to split a node. Default is \code{split_min_obs = 10}.}
+
+\item{split_min_stat}{(double) minimum test statistic required to split
+a node. Default is 3.841459 for the log-rank test, which is roughly
+a p-value of 0.05}
 
 \item{oobag_pred}{(\emph{logical}) if \code{TRUE} out-of-bag predictions are returned
 in the \code{aorsf} object. Default is \code{TRUE}.}

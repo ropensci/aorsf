@@ -15,7 +15,7 @@
 iter_max = 20
 control <- survival::coxph.control(iter.max = iter_max, eps = 1e-8)
 
-run_cph_test <- function(x, y, method, pval_max = 1){
+run_cph_test <- function(x, y, method){
 
  wts <- sample(seq(1:2), size = nrow(x), replace = TRUE)
 
@@ -45,16 +45,13 @@ run_cph_test <- function(x, y, method, pval_max = 1){
                              wts,
                              method = method,
                              cph_eps_ = 1e-8,
-                             iter_max = iter_max,
-                             pval_max = pval_max)
+                             iter_max = iter_max)
 
  rownames(bcj) <- names(tt$coefficients)
  bcj_vec <- bcj[, 1, drop = TRUE]
 
 
  perc_diff <- function(a,b) abs(a-b) / (abs(0.001 + a+b)/2)
-
- tt$coefficients[tt_inf > pval_max] <- 0
 
  # maximum percent difference
  max(perc_diff(tt$coefficients, bcj_vec))

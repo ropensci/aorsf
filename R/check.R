@@ -440,7 +440,7 @@ check_var_types <- function(data, .names, valid_types){
 #'
 #' @noRd
 #'
-check_control_cph <- function(method, eps, iter_max, pval_max, do_scale){
+check_control_cph <- function(method, eps, iter_max, do_scale){
 
  check_arg_type(arg_value = method,
                 arg_name = 'method',
@@ -478,24 +478,6 @@ check_control_cph <- function(method, eps, iter_max, pval_max, do_scale){
  check_arg_length(arg_value = iter_max,
                   arg_name = 'iter_max',
                   expected_length = 1)
-
-
- check_arg_type(arg_value = pval_max,
-                arg_name = 'pval_max',
-                expected_type = 'numeric')
-
- check_arg_gt(arg_value = pval_max,
-              arg_name = 'pval_max',
-              bound = 0)
-
- check_arg_lteq(arg_value = pval_max,
-                arg_name = 'pval_max',
-                bound = 1)
-
- check_arg_length(arg_value = pval_max,
-                  arg_name = 'pval_max',
-                  expected_length = 1)
-
 
  check_arg_type(arg_value = do_scale,
                 arg_name = 'do_scale',
@@ -575,6 +557,7 @@ check_orsf_inputs <- function(data_train,
                               leaf_min_obs,
                               split_min_events,
                               split_min_obs,
+                              split_min_stat,
                               oobag_pred,
                               oobag_time,
                               oobag_eval_every,
@@ -819,6 +802,23 @@ check_orsf_inputs <- function(data_train,
                    expected_length = 1)
 
  }
+
+ if(!is.null(split_min_stat)){
+
+  check_arg_type(arg_value = split_min_stat,
+                 arg_name = 'split_min_stat',
+                 expected_type = 'numeric')
+
+  check_arg_gteq(arg_value = split_min_stat,
+                 arg_name = 'split_min_stat',
+                 bound = 0)
+
+  check_arg_length(arg_value = split_min_stat,
+                   arg_name = 'split_min_stat',
+                   expected_length = 1)
+
+ }
+
 
  if(!is.null(oobag_pred)){
 

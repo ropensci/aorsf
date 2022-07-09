@@ -67,7 +67,7 @@
 #'  will try again with a new linear combination based on a different set
 #'  of randomly selected predictors, up to `n_retry` pred_horizon. When
 #'  `n_retry = 0` the retry mechanic is not applied.
-#'  Default is `n_retry = 0`.
+#'  Default is `n_retry = 3`.
 #'
 #' @param mtry (_integer_) Number of variables randomly selected as candidates
 #'   for splitting a node. The default is the smallest integer greater than
@@ -86,6 +86,9 @@
 #' @param split_min_obs (_integer_) minimum number of observations required
 #'   to split a node. Default is `split_min_obs = 10`.
 #'
+#' @param split_min_stat (double) minimum test statistic required to split
+#'   a node. Default is 3.841459 for the log-rank test, which is roughly
+#'   a p-value of 0.05
 #'
 #' @param oobag_pred (_logical_) if `TRUE` out-of-bag predictions are returned
 #'   in the `aorsf` object. Default is `TRUE`.
@@ -421,12 +424,13 @@ orsf <- function(data_train,
                  control = orsf_control_cph(),
                  n_tree = 500,
                  n_split = 5,
-                 n_retry = 0,
+                 n_retry = 3,
                  mtry = NULL,
                  leaf_min_events = 1,
                  leaf_min_obs = 5,
                  split_min_events = 5,
                  split_min_obs = 10,
+                 split_min_stat = 3.841459,
                  oobag_pred = TRUE,
                  oobag_time = NULL,
                  oobag_eval_every = n_tree,
@@ -450,6 +454,7 @@ orsf <- function(data_train,
   leaf_min_obs = leaf_min_obs,
   split_min_events = split_min_events,
   split_min_obs = split_min_obs,
+  split_min_stat = split_min_stat,
   oobag_pred = oobag_pred,
   oobag_time = oobag_time,
   oobag_eval_every = oobag_eval_every,
@@ -511,7 +516,6 @@ orsf <- function(data_train,
  cph_method = control_cph$cph_method
  cph_eps = control_cph$cph_eps
  cph_iter_max = control_cph$cph_iter_max
- cph_pval_max = control_cph$cph_pval_max
  cph_do_scale = control_cph$cph_do_scale
 
  net_alpha = control_net$net_alpha
@@ -643,7 +647,7 @@ orsf <- function(data_train,
 
  if(is.null(net_df_target)) net_df_target <- mtry
 
- # TODO: warn instead?
+ # warn instead?
  if(net_df_target > mtry)
   stop("net_df_target = ", net_df_target,
        " must be <= mtry, which is ", mtry,
@@ -743,12 +747,12 @@ orsf <- function(data_train,
   leaf_min_obs_     = leaf_min_obs,
   split_min_events_ = split_min_events,
   split_min_obs_    = split_min_obs,
+  split_min_stat_   = split_min_stat,
   cph_method_       = switch(tolower(cph_method),
                              'breslow' = 0,
                              'efron'   = 1),
   cph_eps_          = cph_eps, #
   cph_iter_max_     = cph_iter_max,
-  cph_pval_max_     = cph_pval_max,
   cph_do_scale_     = cph_do_scale,
   net_alpha_        = net_alpha,
   net_df_target_    = net_df_target,
@@ -834,10 +838,10 @@ orsf <- function(data_train,
  attr(orsf_out, 'leaf_min_obs')     <- leaf_min_obs
  attr(orsf_out, 'split_min_events') <- split_min_events
  attr(orsf_out, 'split_min_obs')    <- split_min_obs
+ attr(orsf_out, 'split_min_stat')   <- split_min_stat
  attr(orsf_out, 'cph_method')       <- cph_method
  attr(orsf_out, 'cph_eps')          <- cph_eps
  attr(orsf_out, 'cph_iter_max')     <- cph_iter_max
- attr(orsf_out, 'cph_pval_max')     <- cph_pval_max
  attr(orsf_out, 'cph_do_scale')     <- cph_do_scale
  attr(orsf_out, 'net_alpha')        <- net_alpha
  attr(orsf_out, 'net_df_target')    <- net_df_target
@@ -1010,12 +1014,12 @@ orsf_train_ <- function(object,
   leaf_min_obs_     = get_leaf_min_obs(object),
   split_min_events_ = get_split_min_events(object),
   split_min_obs_    = get_split_min_obs(object),
+  split_min_stat_   = get_split_min_stat(object),
   cph_method_       = switch(tolower(get_cph_method(object)),
                              'breslow' = 0,
                              'efron'   = 1),
   cph_eps_          = get_cph_eps(object), #
   cph_iter_max_     = get_cph_iter_max(object),
-  cph_pval_max_     = get_cph_pval_max(object),
   cph_do_scale_     = get_cph_do_scale(object),
   net_alpha_        = get_net_alpha(object),
   net_df_target_    = get_net_df_target(object),
