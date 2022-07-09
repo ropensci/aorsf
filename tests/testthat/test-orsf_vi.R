@@ -162,6 +162,7 @@ test_that(
  desc = 'orsf_vi_ identical to fit importance',
  code = {
 
+  # does this fail on mac?
   expect_equal(
    fit$importance,
    orsf_vi_negate(fit, group_factors = FALSE)
