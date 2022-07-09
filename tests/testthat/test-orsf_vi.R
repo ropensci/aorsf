@@ -162,10 +162,9 @@ test_that(
  desc = 'orsf_vi_ identical to fit importance',
  code = {
 
-  # does this fail on mac?
   expect_equal(
-   fit$importance,
-   orsf_vi_negate(fit, group_factors = FALSE)
+   fit$importance, # TODO: something going on with name order here.
+   orsf_vi_negate(fit, group_factors = FALSE)[names(fit$importance)]
   )
 
   expect_error(orsf_vi_anova(fit, group_factors = FALSE),
