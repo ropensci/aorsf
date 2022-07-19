@@ -236,67 +236,6 @@ fit_standard_oobag$eval_oobag$stat_values
 
 fit_custom_oobag$eval_oobag$stat_values
 
-# summarize, view partial dependence for the 5 most important variables.
-
-smry <- orsf_summarize_uni(fit, n_variables = 5)
-
-smry
-
-\dontrun{requires too many external packages
-
-# --------------------------------------------------------------------------
-# a standard internal validation workflow using aorsf and tidymodels
-# --------------------------------------------------------------------------
-
-
-library(tidymodels)
-library(tidyverse)
-library(survivalROC)
-library(aorsf)
-
-set.seed(329)
-
-# a recipe to impute missing values instead of discarding them.
-# (this is for illustration only. pbc_orsf does not have missing values)
-
-imputer <- recipe(x = pbc_orsf, time + status ~ .) |>
- step_impute_mean(all_numeric_predictors()) |>
- step_impute_mode(all_nominal_predictors()) |>
- step_rm(id)
-
-
-# 10-fold cross validation; make a container for the pre-processed data
-analyses <- vfold_cv(data = pbc_orsf, v = 10) |>
- mutate(recipe = map(splits, ~prep(imputer, training = training(.x))),
-        data_train = map(recipe, juice),
-        data_test = map2(splits, recipe, ~bake(.y, new_data = testing(.x))))
-
-# 10-fold cross validation; train models and compute test predictions
-aorsf_data <- analyses |>
- select(data_train, data_test) |>
- mutate(fit = map(data_train, orsf, formula = time + status ~ .),
-        pred = map2(fit, data_test, predict, pred_horizon = 3500),
-        pred = map(pred, as.numeric))
-
-# testing sets are small, so pool them and compute 1 overall C-stat.
-aorsf_eval <- aorsf_data |>
- select(data_test, pred) |>
- unnest(cols = everything()) |>
- summarize(
-  auc = survivalROC(Stime = time,
-                    status = status,
-                    marker = pred,
-                    predict.time = 3500,
-                    span = 0.25*n()^(-0.20)) |>
-   getElement('AUC')
- )
-
-# C-stat: 0.81465
-aorsf_eval$auc
-
-}
-
-
 }
 \references{
 Breiman L. Random forests. \emph{Machine learning}. 2001 Oct;45(1):5-32.

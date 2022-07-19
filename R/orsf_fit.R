@@ -259,7 +259,6 @@
 #' Evaluating the Yield of Medical Tests. *JAMA*. 1982;247(18):2543–2546.
 #' DOI: 10.1001/jama.1982.03320430047030
 #'
-#'
 #' @export
 #'
 #' @srrstats {ML1.6b} *Explicit example showing how missing values may be imputed rather than discarded.*
@@ -267,6 +266,8 @@
 #' @srrstats {ML6.1} *clearly document how aorsf can be embedded within a typical full ML workflow.*
 #'
 #' @srrstats {ML6.1a} *Embed aorsf within a full workflow using tidymodels, tidyverse, and survivalROC.*
+#'
+#' @srrstats {ML5.2b} *Documentation includes examples of how to save and re-load trained model objects for their re-use.*
 #'
 #' @examples
 #'
@@ -335,90 +336,92 @@
 #'
 #' fit_custom_oobag$eval_oobag$stat_values
 #'
-#' # summarize, view partial dependence for the 5 most important variables.
-#'
-#' smry <- orsf_summarize_uni(fit, n_variables = 5)
-#'
-#' smry
-#'
-#' \dontrun{requires too many external packages
-#'
-#' # --------------------------------------------------------------------------
-#' # a standard internal validation workflow using aorsf and tidymodels
-#' # --------------------------------------------------------------------------
-#'
-#'
-#' library(tidymodels)
-#' library(tidyverse)
-#' library(survivalROC)
-#' library(aorsf)
-#'
-#' set.seed(329)
-#'
-#' # a recipe to impute missing values instead of discarding them.
-#' # (this is for illustration only. pbc_orsf does not have missing values)
-#'
-#' imputer <- recipe(x = pbc_orsf, time + status ~ .) |>
-#'  step_impute_mean(all_numeric_predictors()) |>
-#'  step_impute_mode(all_nominal_predictors()) |>
-#'  step_rm(id)
-#'
-#'
-#' # 10-fold cross validation; make a container for the pre-processed data
-#' analyses <- vfold_cv(data = pbc_orsf, v = 10) |>
-#'  mutate(recipe = map(splits, ~prep(imputer, training = training(.x))),
-#'         data_train = map(recipe, juice),
-#'         data_test = map2(splits, recipe, ~bake(.y, new_data = testing(.x))))
-#'
-#' # 10-fold cross validation; train models and compute test predictions
-#' aorsf_data <- analyses |>
-#'  select(data_train, data_test) |>
-#'  mutate(fit = map(data_train, orsf, formula = time + status ~ .),
-#'         pred = map2(fit, data_test, predict, pred_horizon = 3500),
-#'         pred = map(pred, as.numeric))
-#'
-#' # testing sets are small, so pool them and compute 1 overall C-stat.
-#' aorsf_eval <- aorsf_data |>
-#'  select(data_test, pred) |>
-#'  unnest(cols = everything()) |>
-#'  summarize(
-#'   auc = survivalROC(Stime = time,
-#'                     status = status,
-#'                     marker = pred,
-#'                     predict.time = 3500,
-#'                     span = 0.25*n()^(-0.20)) |>
-#'    getElement('AUC')
-#'  )
-#'
-#' # C-stat: 0.81465
-#' aorsf_eval$auc
-#'
-#' }
-#'
-#'
-#' @srrstats {ML5.2b} *Documentation includes examples of how to save and re-load trained model objects for their re-use.*
-#'
-#' # save and re-load aorsf models for later use:
-#' \dontrun{
-#'
-#' file_temp <- tempfile("aorsf_fit", fileext = ".rds")
-#'
-#' # save a single object to file
-#' saveRDS(aorsf_fit, file_temp)
-#'
-#' # restore it under a different name
-#' aorsf_fit_read_in <- readRDS(file_temp)
-#'
-#' # compare the original with the loaded fit.
-#' identical(aorsf_fit$forest, aorsf_fit_read_in$forest)
-#'
-#' # note: attributes of orsf_fit and orsf_fit_read_in are not identical;
-#' # specifically env of f_beta and f_oobag_eval
-#'
-#' attr(aorsf_fit, 'f_beta')
-#' attr(aorsf_fit_read_in, 'f_beta')
-#' }
-#'
+
+# runs fine but pkgdown doesn't render it in examples - move to vignette?
+# # summarize, view partial dependence for the 5 most important variables.
+#
+# smry <- orsf_summarize_uni(fit, n_variables = 5)
+#
+# smry
+#
+# \dontrun{requires too many external packages
+#
+# # --------------------------------------------------------------------------
+# # a standard internal validation workflow using aorsf and tidymodels
+# # --------------------------------------------------------------------------
+#
+#
+# library(tidymodels)
+# library(tidyverse)
+# library(survivalROC)
+# library(aorsf)
+#
+# set.seed(329)
+#
+# # a recipe to impute missing values instead of discarding them.
+# # (this is for illustration only. pbc_orsf does not have missing values)
+#
+# imputer <- recipe(x = pbc_orsf, time + status ~ .) |>
+#  step_impute_mean(all_numeric_predictors()) |>
+#  step_impute_mode(all_nominal_predictors()) |>
+#  step_rm(id)
+#
+#
+# # 10-fold cross validation; make a container for the pre-processed data
+# analyses <- vfold_cv(data = pbc_orsf, v = 10) |>
+#  mutate(recipe = map(splits, ~prep(imputer, training = training(.x))),
+#         data_train = map(recipe, juice),
+#         data_test = map2(splits, recipe, ~bake(.y, new_data = testing(.x))))
+#
+# # 10-fold cross validation; train models and compute test predictions
+# aorsf_data <- analyses |>
+#  select(data_train, data_test) |>
+#  mutate(fit = map(data_train, orsf, formula = time + status ~ .),
+#         pred = map2(fit, data_test, predict, pred_horizon = 3500),
+#         pred = map(pred, as.numeric))
+#
+# # testing sets are small, so pool them and compute 1 overall C-stat.
+# aorsf_eval <- aorsf_data |>
+#  select(data_test, pred) |>
+#  unnest(cols = everything()) |>
+#  summarize(
+#   auc = survivalROC(Stime = time,
+#                     status = status,
+#                     marker = pred,
+#                     predict.time = 3500,
+#                     span = 0.25*n()^(-0.20)) |>
+#    getElement('AUC')
+#  )
+#
+# # C-stat: 0.81465
+# aorsf_eval$auc
+#
+# }
+#
+#
+#
+# # save and re-load aorsf models for later use:
+# \dontrun{
+#
+# file_temp <- tempfile("aorsf_fit", fileext = ".rds")
+#
+# # save a single object to file
+# saveRDS(fit, file_temp)
+#
+# # restore it under a different name
+# aorsf_fit_read_in <- readRDS(file_temp)
+#
+# # compare the original with the loaded fit.
+# identical(fit$forest, aorsf_fit_read_in$forest)
+#
+# # note: attributes of orsf_fit and orsf_fit_read_in are not identical;
+# # specifically env of f_beta and f_oobag_eval
+#
+# attr(fit, 'f_beta')
+# attr(aorsf_fit_read_in, 'f_beta')
+# }
+#
+
 orsf <- function(data_train,
                  formula,
                  control = orsf_control_cph(),
