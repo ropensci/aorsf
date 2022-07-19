@@ -131,7 +131,9 @@ in <code>pd_spec</code>, separately.</p></dd>
 <dd><p>(<em>numeric</em>) a vector of values between 0 and 1,
 indicating what quantiles will be used to summarize the partial
 dependence values at each set of inputs. <code>prob_values</code> should
-have the same length as <code>prob_labels</code>.</p></dd>
+have the same length as <code>prob_labels</code>. The quantiles are calculated
+based on predictions from <code>object</code> at each set of values indicated
+by <code>pd_spec</code>.</p></dd>
 
 
 <dt>prob_labels</dt>
