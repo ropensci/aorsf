@@ -19,6 +19,12 @@
 #'
 #' @return an object of class 'aorsf_summary'
 #'
+#' @details if `pred_horizon` is left unspecified, the median value of
+#'    the time-to-event variable in `object`'s training data will be used.
+#'    It is recommended to always specify your own prediction horizon,
+#'    as the median time may not be an especially meaningful horizon to
+#'    compute predicted risk values at.
+#'
 #' @export
 #'
 #' @examples

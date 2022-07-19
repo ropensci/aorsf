@@ -97,7 +97,7 @@ variable_importance
 
 ### Partial dependence
 
-`edema == 1` may modify the effect of `bili`. We can use the `orsf_pd_summary()` function (pd = partial dependence) to explore how these variables influence the expected prediction from ORSF.
+`edema == 1` may modify the effect of `bili`. We can use the `orsf_pd_summary()` function (pd = partial dependence) to explore how these variables influence the expected prediction from ORSF. Below, we look at partial dependence at a prediction horizon of 5 years.
 
 ```{r}
 
@@ -110,14 +110,16 @@ pd_spec <- list(edema = c("0", "0.5", "1"),
 # in the list (this can be turned off with expand_grid = FALSE)
 pd_data <- orsf_pd_summary(object = orsf_fit, 
                            pd_spec = pd_spec,
-                           expand_grid = TRUE)
+                           expand_grid = TRUE, 
+                           pred_horizon = 365.25 * 5)
 
 ggplot(pd_data) +
  aes(x = bili, y = mean, col = edema) +
  geom_line() + 
  labs(y = 'Predicted risk',
       x = 'Bilirubin',
-      title = 'Partial dependence of bilirubin and edema')
+      title = 'Partial dependence of bilirubin and edema') +
+ scale_y_continuous(limits = c(0, 1))
 
 ```
 
@@ -152,7 +154,8 @@ ggplot(pd_data_aligned) +
  geom_line() + 
  labs(y = 'Predictions centered at Bilirubin = 0.6',
       x = 'Bilirubin',
-      title = 'Interaction between bilirubin and edema')
+      title = 'Interaction between bilirubin and edema') + 
+ scale_y_continuous(limits = c(0, 1))
 
 ```
 
@@ -173,7 +176,9 @@ The interaction p-value of 0.0208 above should not be interpreted in the usual w
 Getting straight to variable importance and partial dependence in a direct way can often be helpful in exploratory analyses. When you want a lot of information for just a little code, `orsf_summarize_uni()` is the tool for you:
 
 ```{r}
-orsf_summarize_uni(orsf_fit, n_variables = 5)
+orsf_summarize_uni(orsf_fit, 
+                   n_variables = 5, 
+                   pred_horizon = 365.25 * 5)
 ```
 
 ## What about the original ORSF?
@@ -189,7 +194,7 @@ orsf_net <- orsf(data_train = pbc_orsf,
 
 ```
 
-`net` forests fit a lot faster than the original ORSF function in `obliqueRSF`. However, `net` forests are still about 100 times slower than `cph` ones:
+`net` forests fit a lot faster than the original ORSF function in `obliqueRSF`. However, `net` forests are still much slower than `cph` ones:
 
 ```{r}
 
