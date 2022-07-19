@@ -108,6 +108,14 @@ See <a href="orsf_vi_negate.html">orsf_vi_negate</a> for details on these method
 
 <p>an object of class 'aorsf_summary'</p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>if <code>pred_horizon</code> is left unspecified, the median value of
+the time-to-event variable in <code>object</code>'s training data will be used.
+It is recommended to always specify your own prediction horizon,
+as the median time may not be an especially meaningful horizon to
+compute predicted risk values at.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
