@@ -18,8 +18,8 @@
 <link rel="apple-touch-icon" type="image/png" sizes="76x76" href="apple-touch-icon-76x76.png">
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="apple-touch-icon-60x60.png">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.1.0/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.1.0/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Accelerated Oblique Random Survival Forests">
 <meta property="og:description" content="Fit, interpret, and make predictions with oblique random
@@ -87,7 +87,8 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header">
-<img src="logo.png" class="logo" alt=""><h1 id="aorsf">aorsf<a class="anchor" aria-label="anchor" href="#aorsf"></a>
+<img src="logo.png" class="logo" alt=""><h1 id="aorsf-">aorsf 
+<a class="anchor" aria-label="anchor" href="#aorsf-"></a>
 </h1>
 </div>
 <!-- badges: start -->
@@ -129,7 +130,7 @@
 <span><span class="co">#&gt;                  N trees: 500</span></span>
 <span><span class="co">#&gt;       N predictors total: 17</span></span>
 <span><span class="co">#&gt;    N predictors per node: 5</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 19</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 24</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;       Min events in leaf: 1</span></span>
 <span><span class="co">#&gt;           OOB stat value: 0.84</span></span>
@@ -142,26 +143,25 @@
 <p>use <code><a href="reference/orsf_vi_negate.html">orsf_vi_negate()</a></code> and <code><a href="reference/orsf_vi_negate.html">orsf_vi_anova()</a></code> for variable importance</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi_negate.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          bili           age           sex        copper       ascites </span></span>
-<span><span class="co">#&gt;  0.0160971036  0.0120858512  0.0084392582  0.0068243384  0.0055740779 </span></span>
-<span><span class="co">#&gt;       spiders         stage         edema        hepato           ast </span></span>
-<span><span class="co">#&gt;  0.0052094186  0.0043238175  0.0022673374  0.0021358616  0.0012502605 </span></span>
-<span><span class="co">#&gt;      platelet       albumin          chol          trig       protime </span></span>
-<span><span class="co">#&gt;  0.0005209419  0.0003646593  0.0001562826 -0.0001562826 -0.0010939779 </span></span>
-<span><span class="co">#&gt;      alk.phos           trt </span></span>
-<span><span class="co">#&gt; -0.0015107314 -0.0040112523</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili           age       protime       ascites       albumin </span></span>
+<span><span class="co">#&gt;  0.0129714524  0.0125026047  0.0085955407  0.0063554907  0.0061992082 </span></span>
+<span><span class="co">#&gt;       spiders           sex        copper         edema           ast </span></span>
+<span><span class="co">#&gt;  0.0057303605  0.0049489477  0.0044280058  0.0027783566  0.0018753907 </span></span>
+<span><span class="co">#&gt;        hepato          trig         stage      alk.phos      platelet </span></span>
+<span><span class="co">#&gt;  0.0018232965  0.0016670140  0.0005209419 -0.0006772244 -0.0008856012 </span></span>
+<span><span class="co">#&gt;          chol           trt </span></span>
+<span><span class="co">#&gt; -0.0016670140 -0.0025526151</span></span></code></pre></div>
 </li>
 <li>
 <p>use <code><a href="reference/orsf_pd_summary.html">orsf_pd_ice()</a></code> or <code><a href="reference/orsf_pd_summary.html">orsf_pd_summary()</a></code> for individual or aggregated partial dependence values.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_pd_summary.html">orsf_pd_summary</a></span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     bili      mean        lwr      medn       upr</span></span>
-<span><span class="co">#&gt;    &lt;int&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     1 0.2309318 0.01708277 0.1168329 0.8542309</span></span>
-<span><span class="co">#&gt; 2:     2 0.2801009 0.04071749 0.1739319 0.8854798</span></span>
-<span><span class="co">#&gt; 3:     3 0.3378653 0.07326663 0.2480462 0.9002184</span></span>
-<span><span class="co">#&gt; 4:     4 0.3923115 0.10844580 0.3137873 0.9213191</span></span>
-<span><span class="co">#&gt; 5:     5 0.4341055 0.13426231 0.3711324 0.9299818</span></span></code></pre></div>
+<span><span class="co">#&gt;    bili      mean        lwr      medn       upr</span></span>
+<span><span class="co">#&gt; 1:    1 0.2376652 0.01286480 0.1331328 0.8669733</span></span>
+<span><span class="co">#&gt; 2:    2 0.2904995 0.04154464 0.1889294 0.8943053</span></span>
+<span><span class="co">#&gt; 3:    3 0.3441193 0.06285072 0.2538335 0.9146453</span></span>
+<span><span class="co">#&gt; 4:    4 0.3973732 0.10091026 0.3247072 0.9271855</span></span>
+<span><span class="co">#&gt; 5:    5 0.4424865 0.14005297 0.3807676 0.9315099</span></span></code></pre></div>
 </li>
 <li>
 <p>use <code><a href="reference/orsf_summarize_uni.html">orsf_summarize_uni()</a></code> to show the top predictor variables in an ORSF model and the expected predicted risk at specific values of those predictors. (The term ‘uni’ is short for univariate.)</p>
@@ -172,48 +172,44 @@
 <span></span>
 <span><span class="fu"><a href="reference/orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">fit</span>, n_variables <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- bili (VI Rank: 1) ----------------------------</span></span>
+<span><span class="co">#&gt; -- bili (VI Rank: 1) ---------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;         |---------------- risk ----------------|</span></span>
-<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;    0.80 0.2256092 0.1153241 0.04558336 0.3588942</span></span>
-<span><span class="co">#&gt;    1.40 0.2461640 0.1313467 0.06323910 0.3871898</span></span>
-<span><span class="co">#&gt;    3.52 0.3671496 0.2847901 0.16566117 0.5423875</span></span>
+<span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;   0.80 0.2337275 0.1267164 0.04190426 0.3716894</span></span>
+<span><span class="co">#&gt;   1.40 0.2526511 0.1452163 0.05476829 0.3998048</span></span>
+<span><span class="co">#&gt;   3.52 0.3730196 0.2841226 0.16033444 0.5673070</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- age (VI Rank: 2) -----------------------------</span></span>
+<span><span class="co">#&gt; -- age (VI Rank: 2) ----------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;         |---------------- risk ----------------|</span></span>
-<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;    41.5 0.2701663 0.1369651 0.04236446 0.4578859</span></span>
-<span><span class="co">#&gt;    49.7 0.2966234 0.1673933 0.05118979 0.5077654</span></span>
-<span><span class="co">#&gt;    56.6 0.3277697 0.2096862 0.07272597 0.5657241</span></span>
+<span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;   41.5 0.2736650 0.1332843 0.04270990 0.4575449</span></span>
+<span><span class="co">#&gt;   49.7 0.2993351 0.1656678 0.04910598 0.5203980</span></span>
+<span><span class="co">#&gt;   56.6 0.3314766 0.2113831 0.06956163 0.5472662</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- sex (VI Rank: 3) -----------------------------</span></span>
+<span><span class="co">#&gt; -- protime (VI Rank: 3) ------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;         |---------------- risk ----------------|</span></span>
-<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;       m 0.3485034 0.2425707 0.10799689 0.5822585</span></span>
-<span><span class="co">#&gt;       f 0.2914514 0.1429063 0.05327824 0.5329945</span></span>
+<span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;   10.0 0.2815397 0.1430703 0.04704506 0.4987604</span></span>
+<span><span class="co">#&gt;   10.6 0.2947893 0.1526181 0.05252053 0.5393637</span></span>
+<span><span class="co">#&gt;   11.2 0.3176024 0.1831842 0.06925762 0.5566000</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- copper (VI Rank: 4) --------------------------</span></span>
+<span><span class="co">#&gt; -- ascites (VI Rank: 4) ------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;         |---------------- risk ----------------|</span></span>
-<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;    42.8 0.2625758 0.1362109 0.04630979 0.4659081</span></span>
-<span><span class="co">#&gt;    74.0 0.2767632 0.1496957 0.05403858 0.4821049</span></span>
-<span><span class="co">#&gt;     129 0.3274266 0.2137786 0.09872470 0.5488018</span></span>
+<span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;      0 0.2954662 0.1462719 0.04778412 0.5409697</span></span>
+<span><span class="co">#&gt;      1 0.4597940 0.3742798 0.25999819 0.6551916</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- ascites (VI Rank: 5) -------------------------</span></span>
+<span><span class="co">#&gt; -- albumin (VI Rank: 5) ------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;         |---------------- risk ----------------|</span></span>
-<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;       0 0.2916558 0.1506221 0.05413326 0.5223010</span></span>
-<span><span class="co">#&gt;       1 0.4545639 0.3665732 0.25809619 0.6536201</span></span>
+<span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;   3.31 0.3176012 0.1789175 0.05525473 0.5785138</span></span>
+<span><span class="co">#&gt;   3.54 0.2934144 0.1527704 0.04236004 0.5225606</span></span>
+<span><span class="co">#&gt;   3.77 0.2791547 0.1412617 0.04199867 0.4937002</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Predicted risk at time t = 1788 for top 5 predictors</span></span></code></pre></div>
 </li>
@@ -291,7 +287,7 @@
 
 <div class="pkgdown-footer-right">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
     </footer>
