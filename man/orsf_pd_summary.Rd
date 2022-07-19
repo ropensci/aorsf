@@ -63,7 +63,9 @@ in \code{pd_spec}, separately.}
 \item{prob_values}{(\emph{numeric}) a vector of values between 0 and 1,
 indicating what quantiles will be used to summarize the partial
 dependence values at each set of inputs. \code{prob_values} should
-have the same length as \code{prob_labels}.}
+have the same length as \code{prob_labels}. The quantiles are calculated
+based on predictions from \code{object} at each set of values indicated
+by \code{pd_spec}.}
 
 \item{prob_labels}{(\emph{character}) a vector of labels with the same length
 as \code{prob_values}, with each label indicating what the corresponding

@@ -34,7 +34,9 @@
 #' @param prob_values (_numeric_) a vector of values between 0 and 1,
 #'   indicating what quantiles will be used to summarize the partial
 #'   dependence values at each set of inputs. `prob_values` should
-#'   have the same length as `prob_labels`.
+#'   have the same length as `prob_labels`. The quantiles are calculated
+#'   based on predictions from `object` at each set of values indicated
+#'   by `pd_spec`.
 #'
 #' @param prob_labels (_character_) a vector of labels with the same length
 #'   as `prob_values`, with each label indicating what the corresponding

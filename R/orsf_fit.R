@@ -533,7 +533,9 @@ orsf <- function(data_train,
   stop("formula must have a response", call. = FALSE)
 
  if(length(attr(formula_terms, 'term.labels')) < 2)
-  stop("formula must have at least 2 predictors", call. = FALSE)
+  stop("formula must have at least 2 predictors. ",
+       "(Can't make a linear combination of predictors if there is only one.)",
+       call. = FALSE)
 
  names_y_data <- all.vars(formula[[2]])
 
