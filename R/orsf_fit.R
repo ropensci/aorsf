@@ -422,6 +422,10 @@
 # }
 #
 
+# API CHANGE PLAN:
+# - data_train -> data
+# - oobag_time -> oobag_pred_horizon
+
 orsf <- function(data_train,
                  formula,
                  control = orsf_control_cph(),
