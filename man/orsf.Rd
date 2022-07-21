@@ -80,7 +80,7 @@ in the \code{aorsf} object. Default is \code{TRUE}.}
 
 \item{oobag_time}{(\emph{numeric}) A numeric value indicating what time
 should be used for out-of-bag predictions. Default is the median
-of the observed pred_horizon, i.e., \code{oobag_time = median(time)}.}
+of the observed times, i.e., \code{oobag_time = median(time)}.}
 
 \item{oobag_eval_every}{(\emph{integer}) The out-of-bag performance of the
 ensemble will be checked every \code{oobag_eval_every} trees. So, if

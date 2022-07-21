@@ -731,7 +731,7 @@ orsf <- function(data_train,
  x_sort <- x[sorted, ]
  y_sort <- y[sorted, ]
 
- #' @srrstats {ML2.3} *Values associated with transformations are recorded in the object returned by orsf(), specifically in object$forest[[<insert tree number>]]$x_mean*
+ #' @srrstats {ML2.3} *Values associated with transformations are recorded in the object returned by orsf()*
  #'
  #' @srrstats {ML1.3} *Input data are partitioned as training (in-bag) and test (out-of-bag) data within orsf_fit().*
  #'
