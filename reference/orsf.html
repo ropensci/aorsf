@@ -165,7 +165,7 @@ in the <code>aorsf</code> object. Default is <code>TRUE</code>.</p></dd>
 <dt>oobag_time</dt>
 <dd><p>(<em>numeric</em>) A numeric value indicating what time
 should be used for out-of-bag predictions. Default is the median
-of the observed pred_horizon, i.e., <code>oobag_time = median(time)</code>.</p></dd>
+of the observed times, i.e., <code>oobag_time = median(time)</code>.</p></dd>
 
 
 <dt>oobag_eval_every</dt>
@@ -297,7 +297,7 @@ DOI: 10.1001/jama.1982.03320430047030</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Average leaves per tree: 24</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Min observations in leaf: 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       Min events in leaf: 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           OOB stat value: 0.84</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           OOB stat value: 0.85</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            OOB stat type: Harrell's C-statistic</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -----------------------------------------</span>
@@ -314,16 +314,16 @@ DOI: 10.1001/jama.1982.03320430047030</p>
 <span class="r-in"><span><span class="co"># is assessed every 50 trees (50, 100, ..., 500)</span></span></span>
 <span class="r-in"><span><span class="va">fit_custom</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8209002</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.8276203</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.8322567</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.8389248</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.8369452</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.8361117</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.8374140</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.8401229</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.8389769</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.8394978</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8252761</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.8309544</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.8333507</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.8359033</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.8372578</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.8400708</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.8388206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.8381955</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.8373099</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.8378829</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># make your own oobag function:</span></span></span>
 <span class="r-in"><span><span class="co"># (this is an R implementation of Harrell's C</span></span></span>
