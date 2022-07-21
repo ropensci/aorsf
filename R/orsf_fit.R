@@ -95,7 +95,7 @@
 #'
 #' @param oobag_time (_numeric_) A numeric value indicating what time
 #'   should be used for out-of-bag predictions. Default is the median
-#'   of the observed pred_horizon, i.e., `oobag_time = median(time)`.
+#'   of the observed times, i.e., `oobag_time = median(time)`.
 #'
 #' @srrstats {ML4.1b} *The value of out-of-bag error can be returned for every oobag_eval_every step.*
 #'
@@ -715,7 +715,7 @@ orsf <- function(data_train,
 
   if(oobag_time <= 0)
 
-   stop("Out of bag prediction time (oobag_time) must be > 0",
+   stop("Out of bag prediction horizon (oobag_time) must be > 0",
         call. = FALSE)
 
  } else {
