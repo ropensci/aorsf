@@ -10,3 +10,4 @@
 ^\.github$
 ^logo\.png$
 ^joss$
+^codemeta\.json$
