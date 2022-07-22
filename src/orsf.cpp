@@ -3035,7 +3035,7 @@ List orsf_fit(NumericMatrix& x,
               const double&  net_alpha_,
               const int&     net_df_target_,
               const bool&    oobag_pred_,
-              const double&  oobag_time_,
+              const double&  oobag_pred_horizon_,
               const int&     oobag_eval_every_,
               const bool&    oobag_importance_,
               const char&    oobag_importance_type_,
@@ -3097,7 +3097,7 @@ List orsf_fit(NumericMatrix& x,
 
  if(oobag_pred){
 
-  time_pred = oobag_time_;
+  time_pred = oobag_pred_horizon_;
 
   if(time_pred == 0) time_pred = median(y_input.col(0));
 

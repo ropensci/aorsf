@@ -44,7 +44,7 @@
 #'
 #' @srrstats {ML1.1} *Training data are labelled as "train".*
 #'
-#' @param data_train (_data.frame_) that will be used to grow the forest.
+#' @param data (_data.frame_) that will be used to grow the forest.
 #'
 #' @srrstats {G2.5} factors used as predictors can be ordered and un-ordered.
 #'
@@ -93,9 +93,9 @@
 #' @param oobag_pred (_logical_) if `TRUE` out-of-bag predictions are returned
 #'   in the `aorsf` object. Default is `TRUE`.
 #'
-#' @param oobag_time (_numeric_) A numeric value indicating what time
+#' @param oobag_pred_horizon (_numeric_) A numeric value indicating what time
 #'   should be used for out-of-bag predictions. Default is the median
-#'   of the observed times, i.e., `oobag_time = median(time)`.
+#'   of the observed times, i.e., `oobag_pred_horizon = median(time)`.
 #'
 #' @srrstats {ML4.1b} *The value of out-of-bag error can be returned for every oobag_eval_every step.*
 #'
@@ -282,7 +282,7 @@
 #' fit_custom <- orsf(pbc_orsf,
 #'                    formula = time + status ~ . - id,
 #'                    mtry = 2,
-#'                    oobag_time = 4000,
+#'                    oobag_pred_horizon = 4000,
 #'                    oobag_eval_every = 50)
 #'
 #' # 10 oobag error values are computed  b/c oob error
@@ -370,13 +370,13 @@
 # # 10-fold cross validation; make a container for the pre-processed data
 # analyses <- vfold_cv(data = pbc_orsf, v = 10) |>
 #  mutate(recipe = map(splits, ~prep(imputer, training = training(.x))),
-#         data_train = map(recipe, juice),
+#         data = map(recipe, juice),
 #         data_test = map2(splits, recipe, ~bake(.y, new_data = testing(.x))))
 #
 # # 10-fold cross validation; train models and compute test predictions
 # aorsf_data <- analyses |>
-#  select(data_train, data_test) |>
-#  mutate(fit = map(data_train, orsf, formula = time + status ~ .),
+#  select(data, data_test) |>
+#  mutate(fit = map(data, orsf, formula = time + status ~ .),
 #         pred = map2(fit, data_test, predict, pred_horizon = 3500),
 #         pred = map(pred, as.numeric))
 #
@@ -422,11 +422,7 @@
 # }
 #
 
-# API CHANGE PLAN:
-# - data_train -> data
-# - oobag_time -> oobag_pred_horizon
-
-orsf <- function(data_train,
+orsf <- function(data,
                  formula,
                  control = orsf_control_cph(),
                  n_tree = 500,
@@ -439,7 +435,7 @@ orsf <- function(data_train,
                  split_min_obs = 10,
                  split_min_stat = 3.841459,
                  oobag_pred = TRUE,
-                 oobag_time = NULL,
+                 oobag_pred_horizon = NULL,
                  oobag_eval_every = n_tree,
                  oobag_fun = NULL,
                  importance = 'anova',
@@ -450,7 +446,7 @@ orsf <- function(data_train,
  #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
 
  check_orsf_inputs(
-  data_train = data_train,
+  data = data,
   formula = formula,
   control = control,
   n_tree = n_tree,
@@ -463,7 +459,7 @@ orsf <- function(data_train,
   split_min_obs = split_min_obs,
   split_min_stat = split_min_stat,
   oobag_pred = oobag_pred,
-  oobag_time = oobag_time,
+  oobag_pred_horizon = oobag_pred_horizon,
   oobag_eval_every = oobag_eval_every,
   importance = importance,
   tree_seeds = tree_seeds,
@@ -531,7 +527,7 @@ orsf <- function(data_train,
  if(importance %in% c("permute", "negate") && !oobag_pred)
   oobag_pred <- TRUE # Should I add a warning?
 
- formula_terms <- suppressWarnings(stats::terms(formula, data=data_train))
+ formula_terms <- suppressWarnings(stats::terms(formula, data=data))
 
  if(attr(formula_terms, 'response') == 0)
   stop("formula must have a response", call. = FALSE)
@@ -550,20 +546,20 @@ orsf <- function(data_train,
  types_y_data <- vector(mode = 'character', length = 2)
 
  for(i in seq_along(types_y_data)){
-  types_y_data[i] <- class(data_train[[ names_y_data[i] ]])[1]
+  types_y_data[i] <- class(data[[ names_y_data[i] ]])[1]
  }
 
  unit_y_names <- names_y_data[types_y_data == 'units']
 
- ui_y <- unit_info(data = data_train, .names = unit_y_names)
+ ui_y <- unit_info(data = data, .names = unit_y_names)
 
  names_x_data <- attr(formula_terms, 'term.labels')
 
- names_not_found <- setdiff(c(names_y_data, names_x_data), names(data_train))
+ names_not_found <- setdiff(c(names_y_data, names_x_data), names(data))
 
  if(!is_empty(names_not_found)){
   msg <- paste0(
-   "variables in formula were not found in data_train: ",
+   "variables in formula were not found in data: ",
    paste_collapse(names_not_found, last = ' and ')
   )
   stop(msg, call. = FALSE)
@@ -572,11 +568,11 @@ orsf <- function(data_train,
  # I think this isn't needed. leaving it commented out just in case.
  # names_x_in_f <- rownames(attr(formula_terms, 'factors'))[-1]
  #
- # names_strange <- setdiff(names_x_in_f, names(data_train))
+ # names_strange <- setdiff(names_x_in_f, names(data))
  #
  # if(!is_empty(names_strange)){
  #  msg <- paste0(
- #   "variables in formula were not found in data_train: ",
+ #   "variables in formula were not found in data: ",
  #   paste_collapse(names_strange, last = ' and ')
  #  )
  #  warning(msg, call. = FALSE)
@@ -586,7 +582,7 @@ orsf <- function(data_train,
 
  #' @srrstats {G2.11} *I cannot write code for every possible vector class to ensure that the vector data will be safely coerced into a a valid class and the attributes will be stored in the orsf_out object. It is much easier and safer for the user to convert a few columns to numeric or factor than it is for me to attempt writing code that will safely coerce every type of vector. That being said, I do find units columns to be helpful and I've written some code to make them an allowable class in input data.*
 
- types_x_data <- check_var_types(data_train,
+ types_x_data <- check_var_types(data,
                                  names_x_data,
                                  valid_types = c('numeric',
                                                  'integer',
@@ -603,9 +599,9 @@ orsf <- function(data_train,
 
  #' @srrstats {ML1.6} *do not admit missing values, and implement explicit pre-processing routines to identify whether data has any missing values. Throw errors appropriately and informatively when passed data contain missing values.*
 
- if(any(is.na(select_cols(data_train, c(names_y_data, names_x_data))))){
+ if(any(is.na(select_cols(data, c(names_y_data, names_x_data))))){
 
-  stop("Please remove missing values from data_train, or impute them.",
+  stop("Please remove missing values from data, or impute them.",
        call. = FALSE)
 
  }
@@ -614,28 +610,28 @@ orsf <- function(data_train,
 
  for(i in c(names_y_data, names_x_data)){
 
-  if(any(is.infinite(data_train[[i]]))){
+  if(any(is.infinite(data[[i]]))){
    stop("Please remove infinite values from ", i, ".",
         call. = FALSE)
   }
 
   # nan values trigger is.na(), so this probably isnt needed.
-  # if(any(is.nan(data_train[[i]]))){
+  # if(any(is.nan(data[[i]]))){
   #  stop("Please remove NaN values from ", i, ".",
   #       call. = FALSE)
   # }
 
  }
 
- fctr_check(data_train, names_x_data)
- fctr_id_check(data_train, names_x_data)
+ fctr_check(data, names_x_data)
+ fctr_id_check(data, names_x_data)
 
- fi <- fctr_info(data_train, names_x_data)
+ fi <- fctr_info(data, names_x_data)
 
 
  unit_x_names <- names_x_data[types_x_data == 'units']
 
- ui_x <- unit_info(data = data_train, .names = unit_x_names)
+ ui_x <- unit_info(data = data, .names = unit_x_names)
 
  names_x_numeric <- grep(pattern = "^integer$|^numeric$|^units$",
                          x = types_x_data)
@@ -644,13 +640,13 @@ orsf <- function(data_train,
 
  if(!is_empty(names_x_numeric)){
   numeric_bounds <-
-   sapply(select_cols(data_train, names_x_data[names_x_numeric]),
+   sapply(select_cols(data, names_x_data[names_x_numeric]),
           FUN = stats::quantile,
           probs = c(0.10, 0.25, 0.50, 0.75, 0.90))
  }
 
- y  <- as.matrix(select_cols(data_train, names_y_data))
- x  <- as.matrix(ref_code(data_train, fi, names_x_data))
+ y  <- as.matrix(select_cols(data, names_y_data))
+ x  <- as.matrix(ref_code(data, fi, names_x_data))
 
  if(is.null(mtry)) mtry <- ceiling(sqrt(ncol(x)))
 
@@ -715,17 +711,17 @@ orsf <- function(data_train,
               bound = nrow(x),
               append_to_msg = "(number of observations)")
 
- if(!is.null(oobag_time)){
+ if(!is.null(oobag_pred_horizon)){
 
-  if(oobag_time <= 0)
+  if(oobag_pred_horizon <= 0)
 
-   stop("Out of bag prediction horizon (oobag_time) must be > 0",
+   stop("Out of bag prediction horizon (oobag_pred_horizon) must be > 0",
         call. = FALSE)
 
  } else {
 
-  # sneaky way to tell orsf.cpp to make its own oobag_time
-  oobag_time <- 0
+  # sneaky way to tell orsf.cpp to make its own oobag_pred_horizon
+  oobag_pred_horizon <- 0
 
  }
 
@@ -766,7 +762,7 @@ orsf <- function(data_train,
   net_alpha_        = net_alpha,
   net_df_target_    = net_df_target,
   oobag_pred_       = oobag_pred,
-  oobag_time_       = oobag_time,
+  oobag_pred_horizon_       = oobag_pred_horizon,
   oobag_eval_every_ = oobag_eval_every,
   oobag_importance_ = importance %in% c("negate", "permute"),
   oobag_importance_type_ = switch(importance,
@@ -786,7 +782,7 @@ orsf <- function(data_train,
   type_oobag_eval_  = type_oobag_eval
  )
 
- orsf_out$data_train <- if(attach_data) data_train else NULL
+ orsf_out$data <- if(attach_data) data else NULL
 
  if(importance != 'none'){
   rownames(orsf_out$importance) <- colnames(x)
@@ -813,11 +809,11 @@ orsf <- function(data_train,
 
  } else {
 
-  if(oobag_time == 0)
+  if(oobag_pred_horizon == 0)
   # this would get added by orsf_fit if oobag_pred was TRUE
    orsf_out$pred_horizon <- stats::median(y[, 1])
   else
-   orsf_out$pred_horizon <- oobag_time
+   orsf_out$pred_horizon <- oobag_pred_horizon
 
  }
 
@@ -927,9 +923,9 @@ orsf_time_to_train <- function(object, n_tree_subset = 50){
 
  time_preproc_start <- Sys.time()
 
- y  <- as.matrix(select_cols(object$data_train, get_names_y(object)))
+ y  <- as.matrix(select_cols(object$data, get_names_y(object)))
 
- x  <- as.matrix(ref_code(object$data_train,
+ x  <- as.matrix(ref_code(object$data,
                           get_fctr_info(object),
                           get_names_x(object, ref_code_names = FALSE)))
 
@@ -984,18 +980,18 @@ orsf_train_ <- function(object,
   stop("object has already been trained", call. = FALSE)
  }
 
- if(is.null(object$data_train)){
+ if(is.null(object$data)){
   stop("object must have training data attached.",
        " Set attach_data = TRUE in orsf()",
        call. = FALSE)
  }
 
  if(is.null(y)){
-  y  <- as.matrix(select_cols(object$data_train, get_names_y(object)))
+  y  <- as.matrix(select_cols(object$data, get_names_y(object)))
  }
 
  if(is.null(x)){
-  x  <- as.matrix(ref_code(object$data_train,
+  x  <- as.matrix(ref_code(object$data,
                            get_fctr_info(object),
                            get_names_x(object, ref_code_names = FALSE)))
  }
@@ -1033,7 +1029,7 @@ orsf_train_ <- function(object,
   net_alpha_        = get_net_alpha(object),
   net_df_target_    = get_net_df_target(object),
   oobag_pred_       = get_oobag_pred(object),
-  oobag_time_       = object$pred_horizon,
+  oobag_pred_horizon_       = object$pred_horizon,
   oobag_eval_every_ = oobag_eval_every,
   oobag_importance_ = get_importance(object) != 'none',
   oobag_importance_type_ = switch(get_importance(object),

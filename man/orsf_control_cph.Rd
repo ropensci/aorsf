@@ -41,7 +41,7 @@ Cox proportional hazards control
 }
 \examples{
 
-orsf(data_train = pbc_orsf,
+orsf(data = pbc_orsf,
      formula = Surv(time, status) ~ . - id,
      control = orsf_control_cph())
 

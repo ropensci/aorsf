@@ -37,7 +37,7 @@ First fit an accelerated ORSF model on `pbc_orsf`, a modification of the Mayo Cl
 
 set.seed(123)
 
-orsf_fit <- orsf(data_train = pbc_orsf,
+orsf_fit <- orsf(data = pbc_orsf,
                  formula = Surv(time, status) ~ . -id,
                  n_tree = 2500)
 

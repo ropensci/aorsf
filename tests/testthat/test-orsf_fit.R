@@ -76,7 +76,7 @@ test_that(
  desc = 'formula inputs are vetted',
  code = {
 
-  expect_error(orsf(pbc_temp, f1), 'not found in data_train')
+  expect_error(orsf(pbc_temp, f1), 'not found in data')
   expect_error(orsf(pbc_temp, f2), 'at least 2 predictors')
   expect_error(orsf(pbc_temp, f3), 'unrecognized')
   expect_error(orsf(pbc_temp, f4), 'unrecognized')
@@ -208,12 +208,12 @@ test_that(
 
 )
 
-fit_with_vi <- orsf(data_train = pbc_orsf,
+fit_with_vi <- orsf(data = pbc_orsf,
                     formula = Surv(time, status) ~ . - id,
                     importance = 'negate',
                     n_tree = 50)
 
-fit_no_vi <- orsf(data_train = pbc_orsf,
+fit_no_vi <- orsf(data = pbc_orsf,
                   formula = Surv(time, status) ~ . - id,
                   importance = 'none',
                   n_tree = 50)
@@ -264,7 +264,7 @@ test_that(
  desc = 'oobag error is reproducible from an aorsf object',
  code = {
 
-  y_mat <- as.matrix(fit_no_vi$data_train[, c('time', 'status')])
+  y_mat <- as.matrix(fit_no_vi$data[, c('time', 'status')])
   s_vec <- fit_no_vi$surv_oobag
 
   tt <- survival::concordancefit(
@@ -514,7 +514,7 @@ test_that(
   bad_tree_seeds <- c(1,2,3)
 
   expect_error(
-   orsf(data_train = pbc_orsf,
+   orsf(data = pbc_orsf,
         formula = time+status~.-id,
         n_tree = 10,
         mtry = 2,
@@ -522,19 +522,19 @@ test_that(
    regexp = 'the number of trees'
   )
 
-  fit_1 <- orsf(data_train = pbc_orsf,
+  fit_1 <- orsf(data = pbc_orsf,
                 formula = time+status~.-id,
                 n_tree = 10,
                 mtry = 2,
                 tree_seeds = tree_seeds)
 
-  fit_2 <- orsf(data_train = pbc_orsf,
+  fit_2 <- orsf(data = pbc_orsf,
                 formula = time+status~.-id,
                 n_tree = 10,
                 mtry = 6,
                 tree_seeds = tree_seeds)
 
-  fit_3 <- orsf(data_train = pbc_orsf,
+  fit_3 <- orsf(data = pbc_orsf,
                 formula = time+status~.-id,
                 n_tree = 10,
                 mtry = 6,
@@ -650,11 +650,11 @@ test_that(
   expect_equal(fit_orsf, fit_orsf_read_in)
 
   p1=predict(fit_orsf,
-             new_data = fit_orsf$data_train,
+             new_data = fit_orsf$data,
              pred_horizon = 1000)
 
   p2=predict(fit_orsf_read_in,
-             new_data = fit_orsf_read_in$data_train,
+             new_data = fit_orsf_read_in$data,
              pred_horizon = 1000)
 
   expect_equal(p1, p2)
@@ -682,12 +682,12 @@ test_that(
    split_min_events = c(6, 9),
    split_min_obs = 15,
    oobag_pred = c(TRUE, FALSE),
-   oobag_time = c(2000, 4000)
+   oobag_pred_horizon = c(2000, 4000)
   )
 
   for(i in seq(nrow(inputs))){
 
-   fit_cph <- orsf(data_train = pbc_orsf,
+   fit_cph <- orsf(data = pbc_orsf,
                    formula = time + status ~ . - id,
                    control = orsf_control_cph(),
                    n_tree = inputs$n_tree[i],
@@ -699,7 +699,7 @@ test_that(
                    split_min_events = inputs$split_min_events[i],
                    split_min_obs = inputs$split_min_obs[i],
                    oobag_pred = inputs$oobag_pred[i],
-                   oobag_time = inputs$oobag_time[i])
+                   oobag_pred_horizon = inputs$oobag_pred_horizon[i])
 
    expect_s3_class(fit_cph, class = 'aorsf')
    expect_equal(get_n_tree(fit_cph), inputs$n_tree[i])
@@ -711,7 +711,7 @@ test_that(
    expect_equal(get_split_min_events(fit_cph), inputs$split_min_events[i])
    expect_equal(get_split_min_obs(fit_cph), inputs$split_min_obs[i])
    expect_equal(get_oobag_pred(fit_cph), inputs$oobag_pred[i])
-   expect_equal(fit_cph$pred_horizon, inputs$oobag_time[i])
+   expect_equal(fit_cph$pred_horizon, inputs$oobag_pred_horizon[i])
 
    expect_length(fit_cph$forest, n = get_n_tree(fit_cph))
 
@@ -720,7 +720,7 @@ test_that(
     expect_equal(nrow(fit_cph$surv_oobag), get_n_obs(fit_cph))
    }
 
-   fit_net <- orsf(data_train = pbc_orsf,
+   fit_net <- orsf(data = pbc_orsf,
                    formula = time + status ~ . - id,
                    control = orsf_control_net(),
                    n_tree = 1,
@@ -732,7 +732,7 @@ test_that(
                    split_min_events = inputs$split_min_events[i],
                    split_min_obs = inputs$split_min_obs[i],
                    oobag_pred = inputs$oobag_pred[i],
-                   oobag_time = inputs$oobag_time[i])
+                   oobag_pred_horizon = inputs$oobag_pred_horizon[i])
 
    expect_s3_class(fit_net, class = 'aorsf')
    expect_equal(get_n_tree(fit_net), inputs$n_tree[i])
@@ -744,7 +744,7 @@ test_that(
    expect_equal(get_split_min_events(fit_net), inputs$split_min_events[i])
    expect_equal(get_split_min_obs(fit_net), inputs$split_min_obs[i])
    expect_equal(get_oobag_pred(fit_net), inputs$oobag_pred[i])
-   expect_equal(fit_net$pred_horizon, inputs$oobag_time[i])
+   expect_equal(fit_net$pred_horizon, inputs$oobag_pred_horizon[i])
 
    if(inputs$oobag_pred[i]){
     expect_length(fit_net$eval_oobag$stat_values, 1)
@@ -757,12 +757,12 @@ test_that(
    desc = 'if oobag time is unspecified, pred horizon = median(time)',
    code = {
 
-    fit_1 <- orsf(data_train = pbc_orsf,
+    fit_1 <- orsf(data = pbc_orsf,
                   formula = time + status ~ . - id,
                   n_tree = 1,
                   oobag_pred = TRUE)
 
-    fit_2 <- orsf(data_train = pbc_orsf,
+    fit_2 <- orsf(data = pbc_orsf,
                   formula = time + status ~ . - id,
                   n_tree = 1,
                   oobag_pred = FALSE)

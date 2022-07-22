@@ -206,7 +206,7 @@ test_that(
 
   c_target <- last_value(fit$eval_oobag$stat_values)
   c_estimate <- oobag_c_harrell(
-   y_mat = as.matrix(fit$data_train[, c('time', 'status')]),
+   y_mat = as.matrix(fit$data[, c('time', 'status')]),
    s_vec = fit$surv_oobag
   )
 

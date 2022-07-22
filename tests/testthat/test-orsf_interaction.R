@@ -1,7 +1,7 @@
 
 # NOT USED FOR NOW
 
-#' object <- orsf(data_train = pbc_orsf,
+#' object <- orsf(data = pbc_orsf,
 #'                formula = Surv(time, status) ~ . - id,
 #'                n_tree = 200)
 #'

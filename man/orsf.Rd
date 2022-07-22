@@ -6,7 +6,7 @@
 \title{Oblique Random Survival Forest (ORSF)}
 \usage{
 orsf(
-  data_train,
+  data,
   formula,
   control = orsf_control_cph(),
   n_tree = 500,
@@ -19,7 +19,7 @@ orsf(
   split_min_obs = 10,
   split_min_stat = 3.841459,
   oobag_pred = TRUE,
-  oobag_time = NULL,
+  oobag_pred_horizon = NULL,
   oobag_eval_every = n_tree,
   oobag_fun = NULL,
   importance = "anova",
@@ -31,7 +31,7 @@ orsf(
 orsf_train(object)
 }
 \arguments{
-\item{data_train}{(\emph{data.frame}) that will be used to grow the forest.}
+\item{data}{(\emph{data.frame}) that will be used to grow the forest.}
 
 \item{formula}{(\emph{formula}) a formula object, with the response on the left
 of a \code{~} operator, and the terms on the right (see details). Variables
@@ -78,9 +78,9 @@ a p-value of 0.05}
 \item{oobag_pred}{(\emph{logical}) if \code{TRUE} out-of-bag predictions are returned
 in the \code{aorsf} object. Default is \code{TRUE}.}
 
-\item{oobag_time}{(\emph{numeric}) A numeric value indicating what time
+\item{oobag_pred_horizon}{(\emph{numeric}) A numeric value indicating what time
 should be used for out-of-bag predictions. Default is the median
-of the observed times, i.e., \code{oobag_time = median(time)}.}
+of the observed times, i.e., \code{oobag_pred_horizon = median(time)}.}
 
 \item{oobag_eval_every}{(\emph{integer}) The out-of-bag performance of the
 ensemble will be checked every \code{oobag_eval_every} trees. So, if
@@ -182,7 +182,7 @@ print(fit)
 fit_custom <- orsf(pbc_orsf,
                    formula = time + status ~ . - id,
                    mtry = 2,
-                   oobag_time = 4000,
+                   oobag_pred_horizon = 4000,
                    oobag_eval_every = 50)
 
 # 10 oobag error values are computed  b/c oob error

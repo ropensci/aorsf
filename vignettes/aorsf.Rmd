@@ -47,7 +47,7 @@ library(ggplot2)
 
 set.seed(329)
 
-orsf_fit <- orsf(data_train = pbc_orsf, 
+orsf_fit <- orsf(data = pbc_orsf, 
                  formula = Surv(time, status) ~ . - id, 
                  n_tree = 2500)
 
@@ -55,7 +55,7 @@ orsf_fit
 
 ```
 
-you may notice that the first input of `aorsf` is `data_train`. This is a design choice that makes it easier to use `orsf` with pipes (i.e., `%>%` or `|>`). For instance,
+you may notice that the first input of `aorsf` is `data`. This is a design choice that makes it easier to use `orsf` with pipes (i.e., `%>%` or `|>`). For instance,
 
 ```{r, eval=FALSE}
 library(dplyr)
@@ -187,7 +187,7 @@ The original ORSF (i.e., `obliqueRSF`) used `glmnet` to find linear combinations
 
 ```{r}
 
-orsf_net <- orsf(data_train = pbc_orsf, 
+orsf_net <- orsf(data = pbc_orsf, 
                  formula = Surv(time, status) ~ . - id, 
                  control = orsf_control_net(),
                  n_tree = 50)
@@ -201,7 +201,7 @@ orsf_net <- orsf(data_train = pbc_orsf,
 # tracking how long it takes to fit 50 glmnet trees
 print(
  t1 <- system.time(
-  orsf(data_train = pbc_orsf, 
+  orsf(data = pbc_orsf, 
        formula = Surv(time, status) ~ . - id, 
        control = orsf_control_net(),
        n_tree = 50)
@@ -211,7 +211,7 @@ print(
 # and how long it takes to fit 50 cph trees
 print(
  t2 <- system.time(
-  orsf(data_train = pbc_orsf, 
+  orsf(data = pbc_orsf, 
        formula = Surv(time, status) ~ . - id, 
        control = orsf_control_cph(),
        n_tree = 50)

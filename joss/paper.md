@@ -77,7 +77,7 @@ bm <- microbenchmark(
                    compute_oob_predictions = FALSE,
                    ntree = 1),
 
- aorsf_net = orsf(data_train = data_bench,
+ aorsf_net = orsf(data = data_bench,
                   formula = time + status ~ .,
                   control = orsf_control_net(),
                   oobag_pred = FALSE,
@@ -89,7 +89,7 @@ bm <- microbenchmark(
                          perf.type = 'none',
                          ntree = 1),
  
- aorsf = orsf(data_train = data_bench,
+ aorsf = orsf(data = data_bench,
               formula = time + status ~ .,
               oobag_pred = FALSE,
               n_tree = 1),

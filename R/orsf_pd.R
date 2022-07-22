@@ -250,18 +250,18 @@ orsf_pd_ <- function(object,
   warning(
    "pd_data should be NULL when computing out-of-bag partial dependence,",
    " i.e., when oobag = TRUE. the pd_data input will be ignored and instead",
-   " object$data_train will be used to compute out-of-bag partial dependence.",
+   " object$data will be used to compute out-of-bag partial dependence.",
    " If you want to compute partial dependence on new data, set oobag = FALSE",
    call. = FALSE
   )
 
-  pd_data <- object$data_train
+  pd_data <- object$data
 
  }
 
 
 
- if(is.null(pd_data)) pd_data <- object$data_train
+ if(is.null(pd_data)) pd_data <- object$data
 
  if(is.null(pd_data)) stop("training data were not found in object. ",
                            "did you use attach_data = FALSE when ",

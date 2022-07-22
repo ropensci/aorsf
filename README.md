@@ -50,7 +50,7 @@ The `orsf()` function is used to fit ORSFs. Printing the output from
 ``` r
 library(aorsf)
 
-fit <- orsf(data_train = pbc_orsf,
+fit <- orsf(data = pbc_orsf,
             formula = Surv(time, status) ~ . - id)
 
 print(fit)

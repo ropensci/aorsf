@@ -106,7 +106,7 @@ orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
     f_wts <- 1
 
     if(length(f_lvls) > 2){
-     f_wts <- prop.table(x = table(object$data_train[[f]])[-1])
+     f_wts <- prop.table(x = table(object$data[[f]])[-1])
     }
 
     f_vi <- sum(out[f_rows] * f_wts)
@@ -169,13 +169,13 @@ orsf_vi_oobag_ <- function(object, type_vi, oobag_fun){
 
  }
 
- y <- as.matrix(object$data_train[, get_names_y(object)])
+ y <- as.matrix(object$data[, get_names_y(object)])
 
  # Put data in the same order that it was in when object was fit
  sorted <- order(y[, 1], -y[, 2])
 
  x <- as.matrix(
-  ref_code(x_data = object$data_train,
+  ref_code(x_data = object$data,
            fi = get_fctr_info(object),
            names_x_data = get_names_x(object))
  )

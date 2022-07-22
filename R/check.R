@@ -546,7 +546,7 @@ check_control_net <- function(alpha, df_target){
 #'
 #' @noRd
 #'
-check_orsf_inputs <- function(data_train,
+check_orsf_inputs <- function(data,
                               formula,
                               control,
                               n_tree,
@@ -559,23 +559,23 @@ check_orsf_inputs <- function(data_train,
                               split_min_obs,
                               split_min_stat,
                               oobag_pred,
-                              oobag_time,
+                              oobag_pred_horizon,
                               oobag_eval_every,
                               importance,
                               tree_seeds,
                               attach_data){
 
- if(!is.null(data_train)){
+ if(!is.null(data)){
 
-  check_arg_is(arg_value = data_train,
-               arg_name = 'data_train',
+  check_arg_is(arg_value = data,
+               arg_name = 'data',
                expected_class = 'data.frame')
 
   # Minimum event numbers are checked later.
   # Also, later we check to make sure there are at least 2 columns.
   # We specify ncol > 0 here to make the error message that users will
   # receive more specific.
-  if(nrow(data_train) == 0 || ncol(data_train) ==  0){
+  if(nrow(data) == 0 || ncol(data) ==  0){
    stop("training data are empty",
         call. = FALSE)
   }
@@ -588,7 +588,7 @@ check_orsf_inputs <- function(data_train,
  # will detect blanks with >1 empty characters
 
  blank_names <- grepl(pattern = '^\\s*$',
-                      x = names(data_train))
+                      x = names(data))
 
  if(any(blank_names)){
 
@@ -608,14 +608,14 @@ check_orsf_inputs <- function(data_train,
  }
 
  ns_names <- grepl(pattern = '[^a-zA-Z0-9\\.\\_]+',
-                   x = names(data_train))
+                   x = names(data))
 
  if(any(ns_names)){
 
   last <- ifelse(sum(ns_names) == 2, ' and ', ', and ')
 
   stop("Non-standard names detected in training data: ",
-       paste_collapse(x = names(data_train)[ns_names],
+       paste_collapse(x = names(data)[ns_names],
                       last = last),
        call. = FALSE)
 
@@ -832,18 +832,18 @@ check_orsf_inputs <- function(data_train,
 
  }
 
- if(!is.null(oobag_time)){
+ if(!is.null(oobag_pred_horizon)){
 
-  check_arg_type(arg_value = oobag_time,
-                 arg_name = 'oobag_time',
+  check_arg_type(arg_value = oobag_pred_horizon,
+                 arg_name = 'oobag_pred_horizon',
                  expected_type = 'numeric')
 
-  check_arg_length(arg_value = oobag_time,
-                   arg_name = 'oobag_time',
+  check_arg_length(arg_value = oobag_pred_horizon,
+                   arg_name = 'oobag_pred_horizon',
                    expected_length = 1)
 
-  check_arg_gt(arg_value = oobag_time,
-               arg_name = 'oobag_time',
+  check_arg_gt(arg_value = oobag_pred_horizon,
+               arg_name = 'oobag_pred_horizon',
                bound = 0)
 
  }

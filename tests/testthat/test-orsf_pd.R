@@ -1,11 +1,11 @@
 
 object <- orsf(formula = Surv(time, status) ~ . - id,
-               data_train = pbc_orsf,
+               data = pbc_orsf,
                mtry = 5,
                n_split = 10,
                n_tree = 500,
                oobag_pred = F,
-               oobag_time = 2500,
+               oobag_pred_horizon = 2500,
                leaf_min_obs = 10)
 
 test_that(

@@ -65,7 +65,7 @@
 #'
 #' @examples
 #'
-#' orsf(data_train = pbc_orsf,
+#' orsf(data = pbc_orsf,
 #'      formula = Surv(time, status) ~ . - id,
 #'      control = orsf_control_cph())
 #'
@@ -127,7 +127,7 @@ orsf_control_cph <- function(method = 'efron',
 #' # The example uses n_tree = 25 so that my examples run faster,
 #' # but you should use at least 500 trees in applied settings.
 #'
-#' orsf(data_train = pbc_orsf,
+#' orsf(data = pbc_orsf,
 #'      formula = Surv(time, status) ~ . - id,
 #'      n_tree = 25,
 #'      control = orsf_control_net())

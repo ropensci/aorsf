@@ -36,9 +36,9 @@ Let's fit an oblique random survival forest and plot the distribution of the ens
 
 ```{r}
 
-fit <- orsf(data_train = pbc_orsf, 
+fit <- orsf(data = pbc_orsf, 
             formula = Surv(time, status) ~ . - id,
-            oobag_time = 3500)
+            oobag_pred_horizon = 3500)
 
 hist(fit$surv_oobag, 
      main = 'Ensemble out-of-bag survival predictions at t=3,500')
@@ -65,10 +65,10 @@ As each out-of-bag data set contains about one-third of the training set, the ou
 
 ```{r}
 
-fit <- orsf(data_train = pbc_orsf,
+fit <- orsf(data = pbc_orsf,
             formula = Surv(time, status) ~ . - id,
             n_tree = 50,
-            oobag_time = 3500,
+            oobag_pred_horizon = 3500,
             oobag_eval_every = 1)
 
 plot(
@@ -104,7 +104,7 @@ There are two ways to apply your own function to compute out-of-bag error. First
 
 ```{r}
 
-oobag_fun_brier(y_mat = fit$data_train[, c('time', 'status')],
+oobag_fun_brier(y_mat = fit$data[, c('time', 'status')],
                 s_vec = fit$surv_oobag)
 
 ```
@@ -113,10 +113,10 @@ Second, you can pass your function into `orsf()`, and it will be used in place o
 
 ```{r}
 
-fit <- orsf(data_train = pbc_orsf,
+fit <- orsf(data = pbc_orsf,
             formula = Surv(time, status) ~ . - id,
             n_tree = 50,
-            oobag_time = 3500,
+            oobag_pred_horizon = 3500,
             oobag_fun = oobag_fun_brier,
             oobag_eval_every = 1)
 
@@ -155,10 +155,10 @@ oobag_fun_sroc <- function(y_mat, s_vec){
 
 }
 
-fit <- orsf(data_train = pbc_orsf,
+fit <- orsf(data = pbc_orsf,
             formula = Surv(time, status) ~ . - id,
             n_tree = 50,
-            oobag_time = 3500,
+            oobag_pred_horizon = 3500,
             oobag_fun = oobag_fun_sroc,
             oobag_eval_every = 1)
 
@@ -212,10 +212,10 @@ Negation importance is based on the out-of-bag error, so of course you may be cu
 
 ```{r}
 
-fit_sroc <- orsf(data_train = pbc_orsf,
+fit_sroc <- orsf(data = pbc_orsf,
                  formula = Surv(time, status) ~ . - id,
                  n_tree = 50,
-                 oobag_time = 3500,
+                 oobag_pred_horizon = 3500,
                  oobag_fun = oobag_fun_sroc,
                  importance = 'negate')
 
@@ -230,10 +230,10 @@ If you'd like to compute several types of negation importance for the same model
 
 ```{r}
 
-fit <- orsf(data_train = pbc_orsf,
+fit <- orsf(data = pbc_orsf,
             formula = Surv(time, status) ~ . - id,
             n_tree = 500,
-            oobag_time = 3500)
+            oobag_pred_horizon = 3500)
 
 # use default technique (harrell's C-statistic)
 orsf_vi_negate(fit)
@@ -262,7 +262,7 @@ surv_oobag[1:5, ]
 
 Some notes to remember when evaluating out-of-bag error with `surv_oobag`: 
 
-- the `oobag_time` input in `orsf()` determines the prediction horizon for out-of-bag predictions. The prediction horizon is a critical input for evaluation of predictions with time-to-event outcomes. 
+- the `oobag_pred_horizon` input in `orsf()` determines the prediction horizon for out-of-bag predictions. The prediction horizon is a critical input for evaluation of predictions with time-to-event outcomes. 
 
 - Some functions expect predicted risk (i.e., 1 - predicted survival), others expect predicted survival. 
 
