@@ -26,11 +26,19 @@ test_that("inputs are vetted", {
 
  expect_error(orsf_control_custom(f_bad_4), 'matrix output')
 
- f_bad_5 <- function(x_node, y_node, w_node){
-  stop("IDK WHAT TO DO", call. = FALSE)
+ # seems like this one can throw off github actions?
+ if (Sys.getenv("run_all_aorsf_tests") == 'yes') {
+
+  f_bad_5 <- function(x_node, y_node, w_node){
+   stop("IDK WHAT TO DO", call. = FALSE)
+  }
+
+  expect_error(orsf_control_custom(f_bad_5), "encountered an error")
+
  }
 
- expect_error(orsf_control_custom(f_bad_5), "encountered an error")
+
+
 
  f <- function(x_node, y_node, w_node) { matrix(runif(ncol(x_node)), ncol=1) }
 

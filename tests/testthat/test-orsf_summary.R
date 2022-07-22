@@ -76,12 +76,16 @@ test_that("output is normal", {
 
 })
 
+
 test_that(
- desc = "print doesn't cause an error?",
+ desc = "print doesn't cause an error",
  code = {
-  expect_invisible(print(smry_1))
+  # we don't need this printing out on the testthat report.
+  expect_invisible(p <- capture.output(print(smry_1)))
  }
 )
+
+
 
 test_that("bad inputs caught", {
 
