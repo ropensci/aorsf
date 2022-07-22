@@ -106,7 +106,7 @@ numeric vector containing predicted survival probabilities for \code{y_mat}.}
 \item 'permute': compute permutation importance
 }
 
-See details for descriptions of the available methods.
+See \link{orsf_vi_negate} for descriptions of the available methods.
 Note that if \code{oobag_fun} is specified above, it will be used in the
 computation of negation importance or permutation importance, but it
 will not have any role for ANOVA importance.}

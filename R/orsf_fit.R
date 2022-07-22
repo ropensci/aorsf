@@ -129,7 +129,7 @@
 #'   - 'negate': compute negation importance
 #'   - 'permute': compute permutation importance
 #'
-#'  See details for descriptions of the available methods.
+#'  See [orsf_vi_negate] for descriptions of the available methods.
 #'   Note that if `oobag_fun` is specified above, it will be used in the
 #'   computation of negation importance or permutation importance, but it
 #'   will not have any role for ANOVA importance.
