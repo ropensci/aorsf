@@ -62,7 +62,7 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orsf</span><span class="op">(</span></span>
-<span>  <span class="va">data_train</span>,</span>
+<span>  <span class="va">data</span>,</span>
 <span>  <span class="va">formula</span>,</span>
 <span>  control <span class="op">=</span> <span class="fu"><a href="orsf_control_cph.html">orsf_control_cph</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  n_tree <span class="op">=</span> <span class="fl">500</span>,</span>
@@ -75,7 +75,7 @@
 <span>  split_min_obs <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  split_min_stat <span class="op">=</span> <span class="fl">3.841459</span>,</span>
 <span>  oobag_pred <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  oobag_time <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  oobag_pred_horizon <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  oobag_eval_every <span class="op">=</span> <span class="va">n_tree</span>,</span>
 <span>  oobag_fun <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  importance <span class="op">=</span> <span class="st">"anova"</span>,</span>
@@ -89,7 +89,7 @@
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>data_train</dt>
+    <dl><dt>data</dt>
 <dd><p>(<em>data.frame</em>) that will be used to grow the forest.</p></dd>
 
 
@@ -162,10 +162,10 @@ a p-value of 0.05</p></dd>
 in the <code>aorsf</code> object. Default is <code>TRUE</code>.</p></dd>
 
 
-<dt>oobag_time</dt>
+<dt>oobag_pred_horizon</dt>
 <dd><p>(<em>numeric</em>) A numeric value indicating what time
 should be used for out-of-bag predictions. Default is the median
-of the observed times, i.e., <code>oobag_time = median(time)</code>.</p></dd>
+of the observed times, i.e., <code>oobag_pred_horizon = median(time)</code>.</p></dd>
 
 
 <dt>oobag_eval_every</dt>
@@ -297,7 +297,7 @@ DOI: 10.1001/jama.1982.03320430047030</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Average leaves per tree: 24</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Min observations in leaf: 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       Min events in leaf: 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           OOB stat value: 0.85</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           OOB stat value: 0.84</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            OOB stat type: Harrell's C-statistic</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -----------------------------------------</span>
@@ -307,23 +307,23 @@ DOI: 10.1001/jama.1982.03320430047030</p>
 <span class="r-in"><span><span class="va">fit_custom</span> <span class="op">&lt;-</span> <span class="fu">orsf</span><span class="op">(</span><span class="va">pbc_orsf</span>,</span></span>
 <span class="r-in"><span>                   formula <span class="op">=</span> <span class="va">time</span> <span class="op">+</span> <span class="va">status</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span></span>
 <span class="r-in"><span>                   mtry <span class="op">=</span> <span class="fl">2</span>,</span></span>
-<span class="r-in"><span>                   oobag_time <span class="op">=</span> <span class="fl">4000</span>,</span></span>
+<span class="r-in"><span>                   oobag_pred_horizon <span class="op">=</span> <span class="fl">4000</span>,</span></span>
 <span class="r-in"><span>                   oobag_eval_every <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># 10 oobag error values are computed  b/c oob error</span></span></span>
 <span class="r-in"><span><span class="co"># is assessed every 50 trees (50, 100, ..., 500)</span></span></span>
 <span class="r-in"><span><span class="va">fit_custom</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8252761</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.8309544</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.8333507</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.8359033</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.8372578</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.8400708</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.8388206</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.8381955</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.8373099</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.8378829</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8327256</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.8329339</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.8373099</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.8368931</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.8388206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.8407481</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.8394457</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.8391332</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.8385080</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.8380913</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># make your own oobag function:</span></span></span>
 <span class="r-in"><span><span class="co"># (this is an R implementation of Harrell's C</span></span></span>
