@@ -50,63 +50,7 @@ While it is standard practice in statistical modeling to iterate until a converg
 
 # Computational efficiency
 
-The increased efficiency of ``aorsf`` versus `obliqueRSF` results from improved memory management and Newton Raphson scoring. The benchmark below shows ``aorsf`` is about 3 times faster than `obliqueRSF` when both packages use penalized regression and about 400 times faster when ``aorsf`` uses Newton Raphson scoring, suggesting that the increased efficiency of ``aorsf`` is largely attributable to its use of Newton Raphson scoring.
-
-```{r, cache=TRUE}
-
-library(randomForestSRC)
-library(microbenchmark)
-library(obliqueRSF)
-library(parallelly)
-library(tidyverse)
-library(aorsf)
-library(knitr)
-library(kableExtra)
-
-# limit parallel computation to 4 cores
-options(mc.cores = 4L)
-
-data_bench <- pbc_orsf
-data_bench$id <- NULL
-
-bm <- microbenchmark(
- 
- obliqueRSF = ORSF(data = data_bench,
-                   verbose = FALSE,
-                   compute_oob_predictions = FALSE,
-                   ntree = 1),
-
- aorsf_net = orsf(data = data_bench,
-                  formula = time + status ~ .,
-                  control = orsf_control_net(),
-                  oobag_pred = FALSE,
-                  n_tree = 1),
- 
- randomForestSRC = rfsrc(Surv(time, status) ~ ., 
-                         data = data_bench, 
-                         samptype = 'swr',
-                         perf.type = 'none',
-                         ntree = 1),
- 
- aorsf = orsf(data = data_bench,
-              formula = time + status ~ .,
-              oobag_pred = FALSE,
-              n_tree = 1),
- 
- times = 1
- 
-)
-
-summary(bm) |> 
- as_tibble() |> 
- select(expr, mean) |> 
- mutate(mean_relative = mean / mean[expr == 'aorsf']) |> 
- kable(col.names = c("R package", "milliseconds", "ratio")) |> 
- add_header_above(header = c(" ", "Time to fit" = 2)) |> 
- kable_styling()
-
-```
-
+The increased efficiency of ``aorsf`` versus `obliqueRSF` results from improved memory management and Newton Raphson scoring. In general benchmarks of prediction accuracy and computational efficiency, ``aorsf`` has matched or exceeded the prediction accuracy of `obliqueRSF` with approximately 500-fold faster computing times. 
 
 # Acknowledgements
 

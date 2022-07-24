@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999994 (MiKTeX 22.3) (preloaded format=xelatex 2022.5.11)  17 MAY 2022 00:16
+This is XeTeX, Version 3.141592653-2.6-0.999994 (MiKTeX 22.3) (preloaded format=xelatex 2022.5.11)  22 JUL 2022 09:52
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1084,179 +1084,37 @@ Package: framed 2011/10/22 v 0.96: framed or shaded text with page breaks
 \cslhangindent=\skip92
 \csllabelwidth=\skip93
 \cslentryspacingunit=\skip94
-
-(C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty
-Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
-\heavyrulewidth=\dimen291
-\lightrulewidth=\dimen292
-\cmidrulewidth=\dimen293
-\belowrulesep=\dimen294
-\belowbottomsep=\dimen295
-\aboverulesep=\dimen296
-\abovetopsep=\dimen297
-\cmidrulesep=\dimen298
-\cmidrulekern=\dimen299
-\defaultaddspace=\dimen300
-\@cmidla=\count466
-\@cmidlb=\count467
-\@aboverulesep=\dimen301
-\@belowrulesep=\dimen302
-\@thisruleclass=\count468
-\@lastruleclass=\count469
-\@thisrulewidth=\dimen303
-) (C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/tools\longtable.sty
-Package: longtable 2021-09-01 v4.17 Multi-page Table package (DPC)
-\LTleft=\skip95
-\LTright=\skip96
-\LTpre=\skip97
-\LTpost=\skip98
-\LTchunksize=\count470
-\LTcapwidth=\dimen304
-\LT@head=\box76
-\LT@firsthead=\box77
-\LT@foot=\box78
-\LT@lastfoot=\box79
-\LT@gbox=\box80
-\LT@cols=\count471
-\LT@rows=\count472
-\c@LT@tables=\count473
-\c@LT@chunks=\count474
-\LT@p@ftn=\toks43
-) (C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty
-Package: array 2021/10/04 v2.5f Tabular extension package (FMi)
-\col@sep=\dimen305
-\ar@mcellbox=\box81
-\extrarowheight=\dimen306
-\NC@list=\toks44
-\extratabsurround=\skip99
-\backup@length=\skip100
-\ar@cellbox=\box82
-)
-(C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/multirow\multirow.sty
-Package: multirow 2021/03/15 v2.8 Span multiple rows of a table
-\multirow@colwidth=\skip101
-\multirow@cntb=\count475
-\multirow@dima=\skip102
-\bigstrutjot=\dimen307
-) (C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/wrapfig\wrapfig.sty
-\wrapoverhang=\dimen308
-\WF@size=\dimen309
-\c@WF@wrappedlines=\count476
-\WF@box=\box83
-\WF@everypar=\toks45
-Package: wrapfig 2003/01/31  v 3.6
-) (C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/float\float.sty
-Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count477
-\float@exts=\toks46
-\float@box=\box84
-\@float@everytoks=\toks47
-\@floatcapt=\box85
-)
-(C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/colortbl\colortbl.sty
-Package: colortbl 2020/01/04 v1.0e Color table columns (DPC)
-\everycr=\toks48
-\minrowclearance=\skip103
-)
-(C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/pdflscape\pdflscape.s
-ty
-Package: pdflscape 2019/12/05 v0.12 Display of landscape pages in PDF (HO)
-(C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/graphics\lscape.sty
-Package: lscape 2020/05/28 v3.02 Landscape Pages (DPC)
-)
-Package pdflscape Info: Auto-detected driver: dvipdfm (xetex) on input line 98.
-
-) (C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/tabu\tabu.sty
-Package: tabu 2019/01/11 v2.9 - flexible LaTeX tabulars (FC+tabu-fixed)
-
-(C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/varwidth\varwidth.sty
-Package: varwidth 2009/03/30 ver 0.92;  Variable-width minipages
-\@vwid@box=\box86
-\sift@deathcycles=\count478
-\@vwid@loff=\dimen310
-\@vwid@roff=\dimen311
-)
-\c@taburow=\count479
-\tabu@nbcols=\count480
-\tabu@cnt=\count481
-\tabu@Xcol=\count482
-\tabu@alloc=\count483
-\tabu@nested=\count484
-\tabu@target=\dimen312
-\tabu@spreadtarget=\dimen313
-\tabu@naturalX=\dimen314
-\tabucolX=\dimen315
-\tabu@Xsum=\dimen316
-\extrarowdepth=\dimen317
-\abovetabulinesep=\dimen318
-\belowtabulinesep=\dimen319
-\tabustrutrule=\dimen320
-\tabu@thebody=\toks49
-\tabu@footnotes=\toks50
-\tabu@box=\box87
-\tabu@arstrutbox=\box88
-\tabu@hleads=\box89
-\tabu@vleads=\box90
-\tabu@cellskip=\skip104
-)
-(C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/threeparttable\threep
-arttable.sty
-Package: threeparttable 2003/06/13  v 3.0
-\@tempboxb=\box91
-)
-(C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/threeparttablex\three
-parttablex.sty
-Package: threeparttablex 2013/07/23 v0.3 by daleif
-\TPTL@width=\skip105
-) (C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/ulem\ulem.sty
-\UL@box=\box92
-\UL@hyphenbox=\box93
-\UL@skip=\skip106
-\UL@hook=\toks51
-\UL@height=\dimen321
-\UL@pe=\count485
-\UL@pixel=\dimen322
-\ULC@box=\box94
-Package: ulem 2019/11/18
-\ULdepth=\dimen323
-)
-(C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/makecell\makecell.sty
-Package: makecell 2009/08/03 V0.1e Managing of Tab Column Heads and Cells
-\rotheadsize=\dimen324
-\c@nlinenum=\count486
-\TeXr@lab=\toks52
-)
-\@quotelevel=\count487
-\@quotereset=\count488
+\@quotelevel=\count466
+\@quotereset=\count467
 (paper.aux)
 \openout1 = `paper.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 283.
-LaTeX Font Info:    ... okay on input line 283.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 283.
-LaTeX Font Info:    ... okay on input line 283.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 283.
-LaTeX Font Info:    ... okay on input line 283.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 283.
-LaTeX Font Info:    ... okay on input line 283.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 283.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 269.
+LaTeX Font Info:    ... okay on input line 269.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 269.
+LaTeX Font Info:    ... okay on input line 269.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 269.
+LaTeX Font Info:    ... okay on input line 269.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 269.
+LaTeX Font Info:    ... okay on input line 269.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 269.
 LaTeX Font Info:    Trying to load font information for TS1+cmr on input line 2
-83.
+69.
 (C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/base\ts1cmr.fd
 File: ts1cmr.fd 2019/12/16 v2.5j Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 283.
-LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 283.
-LaTeX Font Info:    ... okay on input line 283.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 283.
-LaTeX Font Info:    ... okay on input line 283.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 283.
-LaTeX Font Info:    ... okay on input line 283.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 283.
-LaTeX Font Info:    ... okay on input line 283.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 283.
-LaTeX Font Info:    ... okay on input line 283.
-Package hyperref Info: Link coloring ON on input line 283.
+LaTeX Font Info:    ... okay on input line 269.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 269.
+LaTeX Font Info:    ... okay on input line 269.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 269.
+LaTeX Font Info:    ... okay on input line 269.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 269.
+LaTeX Font Info:    ... okay on input line 269.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 269.
+LaTeX Font Info:    ... okay on input line 269.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 269.
+LaTeX Font Info:    ... okay on input line 269.
+Package hyperref Info: Link coloring ON on input line 269.
 (C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
 Package: nameref 2021-04-02 v2.47 Cross-referencing by name of section
 
@@ -1267,24 +1125,16 @@ Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
 itlestring.sty
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
-\c@section@level=\count489
+\c@section@level=\count468
 )
-LaTeX Info: Redefining \ref on input line 283.
-LaTeX Info: Redefining \pageref on input line 283.
-LaTeX Info: Redefining \nameref on input line 283.
+LaTeX Info: Redefining \ref on input line 269.
+LaTeX Info: Redefining \pageref on input line 269.
+LaTeX Info: Redefining \nameref on input line 269.
 (paper.out) (paper.out)
 \@outlinefile=\write6
 \openout6 = `paper.out'.
 
 Package caption Info: Begin \AtBeginDocument code.
-Package caption Info: float package is loaded.
-Package caption Info: longtable package is loaded.
-
-(C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/caption\ltcaption.sty
-Package: ltcaption 2021/01/08 v1.4c longtable captions (AR)
-)
-Package caption Info: threeparttable package is loaded.
-Package caption Info: wrapfig package is loaded.
 Package caption Info: End \AtBeginDocument code.
 Package biblatex Info: Trying to load language 'english'...
 Package biblatex Info: ... file 'english.lbx' found.
@@ -1302,8 +1152,8 @@ Package biblatex Info: Automatic encoding selection.
 Package biblatex Info: Trying to load bibliographic data...
 Package biblatex Info: ... file 'paper.bbl' not found.
 No file paper.bbl.
-Package biblatex Info: Reference section=0 on input line 283.
-Package biblatex Info: Reference segment=0 on input line 283.
+Package biblatex Info: Reference section=0 on input line 269.
+Package biblatex Info: Reference segment=0 on input line 269.
 *geometry* driver: auto-detecting
 *geometry* detected driver: xetex
 *geometry* verbose mode - [ preamble ] result:
@@ -1338,11 +1188,11 @@ Package biblatex Info: Reference segment=0 on input line 283.
 * \@reversemargintrue
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-LaTeX Info: Redefining \microtypecontext on input line 283.
-Package microtype Info: Applying patch `item' on input line 283.
-Package microtype Info: Applying patch `toc' on input line 283.
-Package microtype Info: Applying patch `eqnum' on input line 283.
-Package microtype Info: Applying patch `footnote' on input line 283.
+LaTeX Info: Redefining \microtypecontext on input line 269.
+Package microtype Info: Applying patch `item' on input line 269.
+Package microtype Info: Applying patch `toc' on input line 269.
+Package microtype Info: Applying patch `eqnum' on input line 269.
+Package microtype Info: Applying patch `footnote' on input line 269.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using protrusion set `basicmath'.
 Package microtype Info: No adjustment of tracking.
@@ -1362,7 +1212,7 @@ Package microtype Info: Loading generic protrusion settings for font family
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
 (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msa on input line 284
+LaTeX Font Info:    Trying to load font information for U+msa on input line 270
 .
 (C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
@@ -1370,7 +1220,7 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 g
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 284
+LaTeX Font Info:    Trying to load font information for U+msb on input line 270
 .
 (C:\Users\bjaeger\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
@@ -1379,21 +1229,21 @@ g
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
 
-Package hyperref Warning: Suppressing link with empty target on input line 310.
+Package hyperref Warning: Suppressing link with empty target on input line 296.
 
 
 
-Package hyperref Warning: Suppressing link with empty target on input line 310.
+Package hyperref Warning: Suppressing link with empty target on input line 296.
 
 
 
-Package hyperref Warning: Suppressing link with empty target on input line 310.
+Package hyperref Warning: Suppressing link with empty target on input line 296.
 
 
-File: C:/Users/bjaeger/AppData/Local/R/win-library/4.2/rticles/rmarkdown/templa
-tes/joss/resources/JOSS-logo.png Graphic file (type bmp)
-<C:/Users/bjaeger/AppData/Local/R/win-library/4.2/rticles/rmarkdown/templates/j
-oss/resources/JOSS-logo.png>
+File: C:/Users/bjaeger/Documents/R/win-library/4.1/rticles/rmarkdown/templates/
+joss/resources/JOSS-logo.png Graphic file (type bmp)
+<C:/Users/bjaeger/Documents/R/win-library/4.1/rticles/rmarkdown/templates/joss/
+resources/JOSS-logo.png>
 
 Package fancyhdr Warning: \headheight is too small (62.59596pt): 
 (fancyhdr)                Make it at least 63.55022pt, for example:
@@ -1403,16 +1253,16 @@ Package fancyhdr Warning: \headheight is too small (62.59596pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.95425pt}.
 
 LaTeX Font Info:    Font shape `TU/lmss/m/it' in size <8> not available
-(Font)              Font shape `TU/lmss/m/sl' tried instead on input line 373.
+(Font)              Font shape `TU/lmss/m/sl' tried instead on input line 359.
 [1
 
 ]
 LaTeX Font Info:    Font shape `TU/lmtt/bx/n' in size <10> not available
-(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 447.
-File: C:/Users/bjaeger/AppData/Local/R/win-library/4.2/rticles/rmarkdown/templa
-tes/joss/resources/JOSS-logo.png Graphic file (type bmp)
-<C:/Users/bjaeger/AppData/Local/R/win-library/4.2/rticles/rmarkdown/templates/j
-oss/resources/JOSS-logo.png>
+(Font)              Font shape `TU/lmtt/b/n' tried instead on input line 432.
+File: C:/Users/bjaeger/Documents/R/win-library/4.1/rticles/rmarkdown/templates/
+joss/resources/JOSS-logo.png Graphic file (type bmp)
+<C:/Users/bjaeger/Documents/R/win-library/4.1/rticles/rmarkdown/templates/joss/
+resources/JOSS-logo.png>
 
 Package fancyhdr Warning: \headheight is too small (62.59596pt): 
 (fancyhdr)                Make it at least 63.55022pt, for example:
@@ -1422,10 +1272,10 @@ Package fancyhdr Warning: \headheight is too small (62.59596pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.95425pt}.
 
 [2]
-File: C:/Users/bjaeger/AppData/Local/R/win-library/4.2/rticles/rmarkdown/templa
-tes/joss/resources/JOSS-logo.png Graphic file (type bmp)
-<C:/Users/bjaeger/AppData/Local/R/win-library/4.2/rticles/rmarkdown/templates/j
-oss/resources/JOSS-logo.png>
+File: C:/Users/bjaeger/Documents/R/win-library/4.1/rticles/rmarkdown/templates/
+joss/resources/JOSS-logo.png Graphic file (type bmp)
+<C:/Users/bjaeger/Documents/R/win-library/4.1/rticles/rmarkdown/templates/joss/
+resources/JOSS-logo.png>
 
 Package fancyhdr Warning: \headheight is too small (62.59596pt): 
 (fancyhdr)                Make it at least 63.55022pt, for example:
@@ -1435,16 +1285,16 @@ Package fancyhdr Warning: \headheight is too small (62.59596pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.95425pt}.
 
 [3]
-Overfull \hbox (29.73135pt too wide) in paragraph at lines 514--518
+Overfull \hbox (29.73135pt too wide) in paragraph at lines 499--503
 [][]$[][][][][] [] [] [] [][][][][][] [] [][][] [] [][][][][][][][] [] [][][][]
 [][][][] [] [][][][] [] [][][][][][][][][][][][][][][][][][][][][][][][][][][][
 ][][][][][][][][][][][][] []
  []
 
-File: C:/Users/bjaeger/AppData/Local/R/win-library/4.2/rticles/rmarkdown/templa
-tes/joss/resources/JOSS-logo.png Graphic file (type bmp)
-<C:/Users/bjaeger/AppData/Local/R/win-library/4.2/rticles/rmarkdown/templates/j
-oss/resources/JOSS-logo.png>
+File: C:/Users/bjaeger/Documents/R/win-library/4.1/rticles/rmarkdown/templates/
+joss/resources/JOSS-logo.png Graphic file (type bmp)
+<C:/Users/bjaeger/Documents/R/win-library/4.1/rticles/rmarkdown/templates/joss/
+resources/JOSS-logo.png>
 
 Package fancyhdr Warning: \headheight is too small (62.59596pt): 
 (fancyhdr)                Make it at least 63.55022pt, for example:
@@ -1461,12 +1311,12 @@ Package logreq Info: Writing requests to 'paper.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 37884 strings out of 410931
- 757792 string characters out of 2822571
- 1553677 words of memory out of 3000000
- 58114 multiletter control sequences out of 15000+600000
- 476237 words of font info for 77 fonts, out of 8000000 for 9000
+ 36229 strings out of 410931
+ 731439 string characters out of 2822571
+ 1522569 words of memory out of 3000000
+ 56505 multiletter control sequences out of 15000+600000
+ 476131 words of font info for 76 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 84i,12n,81p,1196b,848s stack positions out of 10000i,1000n,20000p,200000b,80000s
+ 84i,12n,81p,1196b,846s stack positions out of 10000i,1000n,20000p,200000b,80000s
 
 Output written on paper.pdf (4 pages).

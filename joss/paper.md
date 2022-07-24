@@ -65,7 +65,6 @@ library(kableExtra)
 
 # limit parallel computation to 4 cores
 options(mc.cores = 4L)
-# options(microbenchmark.unit="relative")
 
 data_bench <- pbc_orsf
 data_bench$id <- NULL
@@ -115,13 +114,13 @@ summary(bm) |>
 \cline{2-3}
 R package & milliseconds & ratio\\
 \hline
-obliqueRSF & 138.2179 & 11.793034\\
+obliqueRSF & 255.1031 & 15.566077\\
 \hline
-aorsf\_net & 37.0067 & 3.157487\\
+aorsf\_net & 113.0421 & 6.897690\\
 \hline
-randomForestSRC & 17.3158 & 1.477420\\
+randomForestSRC & 27.8371 & 1.698586\\
 \hline
-aorsf & 11.7203 & 1.000000\\
+aorsf & 16.3884 & 1.000000\\
 \hline
 \end{tabular}
 \end{table}
