@@ -9,6 +9,7 @@ orsf(
   data,
   formula,
   control = orsf_control_cph(),
+  weights = NULL,
   n_tree = 500,
   n_split = 5,
   n_retry = 3,
@@ -40,6 +41,12 @@ variables. Factors may be ordered or unordered.}
 
 \item{control}{An \code{aorsf_control} object, created with \link{orsf_control_net}
 or \link{orsf_control_cph}. Default is \code{control = orsf_control_cph()}.}
+
+\item{weights}{(\emph{double}) an optional vector of weights. If given, this
+input should be a vector with length equal to the number of rows in
+\code{data}. The values in \code{weights} are treated like replication weights,
+i.e., a weight value of 2 is the same thing as having 2 rows in \code{data},
+each containing a copy of the corresponding person's data.}
 
 \item{n_tree}{(\emph{integer}) the number of trees to grow.
 Default is \code{n_tree = 500.}}

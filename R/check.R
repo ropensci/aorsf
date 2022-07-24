@@ -549,6 +549,7 @@ check_control_net <- function(alpha, df_target){
 check_orsf_inputs <- function(data,
                               formula,
                               control,
+                              weights,
                               n_tree,
                               n_split,
                               n_retry,
@@ -652,6 +653,28 @@ check_orsf_inputs <- function(data,
  check_arg_is(arg_value = control,
               arg_name = 'control',
               expected_class = 'aorsf_control')
+
+ if(!is.null(weights)){
+
+  check_arg_type(arg_value = weights,
+                 arg_name = 'weights',
+                 expected_type = 'numeric')
+
+  check_arg_gteq(arg_value = weights,
+                 arg_name = 'weights',
+                 bound = 0)
+
+  if(length(weights) != nrow(data)){
+
+   stop('weights should have length <', nrow(data),
+        "> (the number of observations in data)",
+        "but instead has length <", length(weights), ">",
+        call. = FALSE)
+
+  }
+
+
+ }
 
  if(!is.null(n_tree)){
 

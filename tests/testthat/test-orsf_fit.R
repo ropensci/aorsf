@@ -790,3 +790,24 @@ test_that(
   )
  }
 )
+
+set.seed(329)
+
+fit_unwtd <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+
+fit_wtd <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
+                weights = pbc_orsf$id)
+
+# using weights should make the trees much deeper:
+expect_gt(get_n_leaves_mean(fit_wtd),
+          get_n_leaves_mean(fit_unwtd))
+
+# and in this case less accurate b/c the weights were random and extreme
+expect_lt(
+ fit_wtd$eval_oobag$stat_values,
+ fit_unwtd$eval_oobag$stat_values
+)
+
+
+
+

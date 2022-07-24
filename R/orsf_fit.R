@@ -56,6 +56,15 @@
 #' @param control An `aorsf_control` object, created with [orsf_control_net]
 #'  or [orsf_control_cph]. Default is `control = orsf_control_cph()`.
 #'
+#' @param weights (_double_) an optional vector of weights. If given, this
+#'   input should be a vector with length equal to the number of rows in
+#'   `data`. The values in `weights` are treated like replication weights,
+#'   i.e., a weight value of 2 is the same thing as having 2 observations
+#'   in `data`, each containing a copy of the corresponding person's data.
+#'   __Use this input cautiously__, as `orsf` will count the number of
+#'   observations and events prior to growing a node for a tree, so higher
+#'   values in `weights` will lead to deeper trees.
+#'
 #' @param n_tree (_integer_) the number of trees to grow.
 #' Default is `n_tree = 500.`
 #'
@@ -425,6 +434,7 @@
 orsf <- function(data,
                  formula,
                  control = orsf_control_cph(),
+                 weights = NULL,
                  n_tree = 500,
                  n_split = 5,
                  n_retry = 3,
@@ -449,6 +459,7 @@ orsf <- function(data,
   data = data,
   formula = formula,
   control = control,
+  weights = weights, #TODO: write checks here
   n_tree = n_tree,
   n_split = n_split,
   n_retry = n_retry,
@@ -465,6 +476,8 @@ orsf <- function(data,
   tree_seeds = tree_seeds,
   attach_data = attach_data
  )
+
+ if(is.null(weights)) weights <- double()
 
  orsf_type <- attr(control, 'type')
 
@@ -564,19 +577,6 @@ orsf <- function(data,
   )
   stop(msg, call. = FALSE)
  }
-
- # I think this isn't needed. leaving it commented out just in case.
- # names_x_in_f <- rownames(attr(formula_terms, 'factors'))[-1]
- #
- # names_strange <- setdiff(names_x_in_f, names(data))
- #
- # if(!is_empty(names_strange)){
- #  msg <- paste0(
- #   "variables in formula were not found in data: ",
- #   paste_collapse(names_strange, last = ' and ')
- #  )
- #  warning(msg, call. = FALSE)
- # }
 
  #' @srrstats {G2.7} *aorsf accepts as input numeric and categorical predictor variables, including those with unit class. I do not think it is necessary to incorporate any other type of input, since it is relatively straightforward to convert data into a numeric or categorical format.*
 
@@ -745,6 +745,7 @@ orsf <- function(data,
  orsf_out <- orsf_fit(
   x                 = x_sort,
   y                 = y_sort,
+  weights           = if(length(weights) > 0) weights[sorted] else weights,
   n_tree            = if(no_fit) 0 else n_tree,
   n_split_          = n_split,
   mtry_             = mtry,
@@ -860,6 +861,7 @@ orsf <- function(data,
  attr(orsf_out, 'oobag_pred')       <- oobag_pred
  attr(orsf_out, 'oobag_eval_every') <- oobag_eval_every
  attr(orsf_out, 'importance')       <- importance
+ attr(orsf_out, 'weights_user')     <- weights
 
  attr(orsf_out, 'tree_seeds') <- if(is.null(tree_seeds)) c() else tree_seeds
 
@@ -1009,9 +1011,12 @@ orsf_train_ <- function(object,
 
  oobag_eval_every <- min(n_tree, get_oobag_eval_every(object))
 
+ weights <- get_weights_user(object)
+
  orsf_out <- orsf_fit(
   x                 = x_sort,
   y                 = y_sort,
+  weights           = if(length(weights) > 0) weights[sorted] else weights,
   n_tree            = n_tree,
   n_split_          = get_n_split(object),
   mtry_             = get_mtry(object),

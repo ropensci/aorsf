@@ -118,6 +118,7 @@ vec
  cutpoints,
  w_input,
  w_inbag,
+ w_user,
  w_node,
  group,
  u,
@@ -3020,6 +3021,7 @@ List ostree_fit(Function f_beta){
 // [[Rcpp::export]]
 List orsf_fit(NumericMatrix& x,
               NumericMatrix& y,
+              NumericVector& weights,
               const int&     n_tree,
               const int&     n_split_,
               const int&     mtry_,
@@ -3050,6 +3052,8 @@ List orsf_fit(NumericMatrix& x,
  // convert inputs into arma objects
  x_input = mat(x.begin(), x.nrow(), x.ncol(), false);
  y_input = mat(y.begin(), y.nrow(), y.ncol(), false);
+
+ w_user = vec(weights.begin(), weights.length(), false);
 
  // these change later in ostree_fit()
  n_rows = x_input.n_rows;
@@ -3180,7 +3184,12 @@ List orsf_fit(NumericMatrix& x,
 
   if(use_tree_seed) set_seed_r(tree_seeds[tree]);
 
-  w_input    = as<vec>(sample(s, n_rows, true, probs));
+  w_input = as<vec>(sample(s, n_rows, true, probs));
+
+  // if the user gives a weight vector, then each bootstrap weight
+  // should be multiplied by the corresponding user weight.
+  if(w_user.size() > 0) w_input = w_input % w_user;
+
   rows_oobag = find(w_input == 0);
   rows_inbag = regspace<uvec>(0, n_rows-1);
   rows_inbag = std_setdiff(rows_inbag, rows_oobag);
