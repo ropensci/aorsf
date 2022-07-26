@@ -148,14 +148,13 @@ orsf_summarize_uni <- function(object,
  pd_output$importance <- rep(importance[levels(f)[name_rep$values]],
                              times = name_rep$lengths)
 
- rs <- table.glue::round_spec()
- rs <- table.glue::round_using_magnitude(rspec = rs,
-                                         digits = c(2, 1, 0),
-                                         breaks = c(10, 100, Inf))
+ # pd_output$value <- ifelse(test = is.na(value),
+ #                           yes = as.character(level),
+ #                           no = round_magnitude(value))
 
  pd_output[, value := fifelse(test = is.na(value),
                               yes = as.character(level),
-                              no = table.glue::table_value(value, rspec = rs))]
+                              no = round_magnitude(value))]
 
  # if a := is used inside a function with no DT[] before the end of the
  # function, then the next time DT or print(DT) is typed at the prompt,

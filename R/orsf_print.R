@@ -28,7 +28,7 @@ print.aorsf <- function(x, ...){
  info_n_events        <- get_n_events(x)
  info_n_tree          <- get_n_tree(x)
  info_max_time        <- get_max_time(x)
- info_n_leaves_mean   <- table.glue::table_value(get_n_leaves_mean(x))
+ info_n_leaves_mean   <- round_magnitude(get_n_leaves_mean(x))
  info_mtry            <- get_mtry(x)
  info_names_x         <- get_names_x(x)
  info_leaf_min_obs    <- get_leaf_min_obs(x)
@@ -43,9 +43,7 @@ print.aorsf <- function(x, ...){
   info_oobag_stat <- "Not estimated"
 
   if(is_trained(x)){
-   info_oobag_stat <- table.glue::table_value(
-    last_value(x$eval_oobag$stat_values)
-   )
+   info_oobag_stat <- round_magnitude(last_value(x$eval_oobag$stat_values))
   }
 
 

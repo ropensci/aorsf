@@ -33,7 +33,6 @@ LinkingTo:
     Rcpp,
     RcppArmadillo
 Imports: 
-    table.glue,
     Rcpp,
     data.table
 URL: https://github.com/bcjaeger/aorsf,

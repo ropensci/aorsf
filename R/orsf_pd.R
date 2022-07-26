@@ -310,7 +310,7 @@ orsf_pd_ <- function(object,
 
    if(!is_empty(vals_above_stop)){
     vals_above_list <- paste_collapse(
-     table.glue::table_value(pd_spec[[.name]][vals_above_stop]),
+     round_magnitude(pd_spec[[.name]][vals_above_stop]),
      last = ' and '
     )
 
@@ -323,7 +323,7 @@ orsf_pd_ <- function(object,
    if(!is_empty(vals_below_stop)){
 
     vals_below_list <- paste_collapse(
-     table.glue::table_value(pd_spec[[.name]][vals_below_stop]),
+     round_magnitude(pd_spec[[.name]][vals_below_stop]),
      last = ' and '
     )
 
