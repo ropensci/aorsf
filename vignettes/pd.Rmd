@@ -23,8 +23,6 @@ library(aorsf)
 library(ggplot2)
 ```
 
-This article is under construction
-
 ## Background: Partial dependence
 
 Partial dependence plots show the average marginal effect a combination of features imparts on predicted risk. Individual conditional expectation plots narrow the focus to individual datapoints. 
