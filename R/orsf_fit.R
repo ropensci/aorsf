@@ -529,13 +529,12 @@ orsf <- function(data,
 
  }
 
- cph_method = control_cph$cph_method
- cph_eps = control_cph$cph_eps
- cph_iter_max = control_cph$cph_iter_max
- cph_do_scale = control_cph$cph_do_scale
-
- net_alpha = control_net$net_alpha
- net_df_target = control_net$net_df_target
+ cph_method <- control_cph$cph_method
+ cph_eps <- control_cph$cph_eps
+ cph_iter_max <- control_cph$cph_iter_max
+ cph_do_scale <- control_cph$cph_do_scale
+ net_alpha <- control_net$net_alpha
+ net_df_target <- control_net$net_df_target
 
  if(importance %in% c("permute", "negate") && !oobag_pred)
   oobag_pred <- TRUE # Should I add a warning?
