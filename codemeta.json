@@ -8,7 +8,7 @@
   "codeRepository": "https://github.com/bcjaeger/aorsf",
   "issueTracker": "https://github.com/bcjaeger/aorsf/issues",
   "license": "https://spdx.org/licenses/MIT",
-  "version": "0.0.0.9000",
+  "version": "0.0.1",
   "programmingLanguage": {
     "@type": "ComputerLanguage",
     "name": "R",
@@ -29,6 +29,12 @@
       "@type": "Person",
       "givenName": "Nicholas",
       "familyName": "Pajewski"
+    },
+    {
+      "@type": "Person",
+      "givenName": "Sawyer",
+      "familyName": "Welden",
+      "email": "swelden@wakehealth.edu"
     }
   ],
   "maintainer": [
@@ -154,18 +160,6 @@
   "softwareRequirements": {
     "1": {
       "@type": "SoftwareApplication",
-      "identifier": "table.glue",
-      "name": "table.glue",
-      "provider": {
-        "@id": "https://cran.r-project.org",
-        "@type": "Organization",
-        "name": "Comprehensive R Archive Network (CRAN)",
-        "url": "https://cran.r-project.org"
-      },
-      "sameAs": "https://CRAN.R-project.org/package=table.glue"
-    },
-    "2": {
-      "@type": "SoftwareApplication",
       "identifier": "Rcpp",
       "name": "Rcpp",
       "provider": {
@@ -176,7 +170,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=Rcpp"
     },
-    "3": {
+    "2": {
       "@type": "SoftwareApplication",
       "identifier": "data.table",
       "name": "data.table",
@@ -188,7 +182,7 @@
       },
       "sameAs": "https://CRAN.R-project.org/package=data.table"
     },
-    "4": {
+    "3": {
       "@type": "SoftwareApplication",
       "identifier": "R",
       "name": "R",
@@ -196,7 +190,7 @@
     },
     "SystemRequirements": null
   },
-  "fileSize": "8749.814KB",
+  "fileSize": "9141.536KB",
   "citation": [
     {
       "@type": "ScholarlyArticle",
@@ -262,5 +256,15 @@
         }
       }
     }
-  ]
+  ],
+  "releaseNotes": "https://github.com/bcjaeger/aorsf/blob/master/NEWS.md",
+  "readme": "https://github.com/bcjaeger/aorsf/blob/master/README.md",
+  "contIntegration": ["https://app.codecov.io/gh/bcjaeger/aorsf?branch=master", "https://github.com/bcjaeger/aorsf/actions", "https://github.com/bcjaeger/aorsf/actions?query=workflow%3Apkgcheck"],
+  "developmentStatus": "https://www.repostatus.org/#wip",
+  "review": {
+    "@type": "Review",
+    "url": "https://github.com/ropensci/software-review/issues/532",
+    "provider": "https://ropensci.org"
+  },
+  "keywords": ["r", "rstats", "data-science"]
 }

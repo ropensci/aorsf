@@ -11,3 +11,4 @@
 ^logo\.png$
 ^joss$
 ^codemeta\.json$
+^cran-comments\.md$
