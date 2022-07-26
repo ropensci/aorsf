@@ -17,7 +17,7 @@ A data frame with 276 rows and 20 variables:
 \item{hepato}{presence of hepatomegaly or enlarged liver}
 \item{spiders}{blood vessel malformations in the skin}
 \item{edema}{0 no edema, 0.5 untreated or successfully treated, 1 edema despite diuretic therapy}
-\item{bili}{serum bilirunbin (mg/dl)}
+\item{bili}{serum bilirubin (mg/dl)}
 \item{chol}{serum cholesterol (mg/dl)}
 \item{albumin}{serum albumin (g/dl)}
 \item{copper}{urine copper (ug/day)}
