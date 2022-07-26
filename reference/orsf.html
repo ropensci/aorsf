@@ -110,8 +110,11 @@ or <a href="orsf_control_cph.html">orsf_control_cph</a>. Default is <code>contro
 <dd><p>(<em>double</em>) an optional vector of weights. If given, this
 input should be a vector with length equal to the number of rows in
 <code>data</code>. The values in <code>weights</code> are treated like replication weights,
-i.e., a weight value of 2 is the same thing as having 2 rows in <code>data</code>,
-each containing a copy of the corresponding person's data.</p></dd>
+i.e., a weight value of 2 is the same thing as having 2 observations
+in <code>data</code>, each containing a copy of the corresponding person's data.
+<strong>Use this input cautiously</strong>, as <code>orsf</code> will count the number of
+observations and events prior to growing a node for a tree, so higher
+values in <code>weights</code> will lead to deeper trees.</p></dd>
 
 
 <dt>n_tree</dt>
@@ -323,16 +326,16 @@ DOI: 10.1001/jama.1982.03320430047030</p>
 <span class="r-in"><span><span class="co"># is assessed every 50 trees (50, 100, ..., 500)</span></span></span>
 <span class="r-in"><span><span class="va">fit_custom</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8291050</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.8327777</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.8320483</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.8335591</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.8349135</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.8304334</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.8321525</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.8318921</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.8330902</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.8336633</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8071473</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.8293915</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.8375703</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.8356949</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.8342884</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.8368931</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.8381955</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.8385080</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.8363722</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.8374140</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># make your own oobag function:</span></span></span>
 <span class="r-in"><span><span class="co"># (this is an R implementation of Harrell's C</span></span></span>
