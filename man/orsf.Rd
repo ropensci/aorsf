@@ -45,8 +45,11 @@ or \link{orsf_control_cph}. Default is \code{control = orsf_control_cph()}.}
 \item{weights}{(\emph{double}) an optional vector of weights. If given, this
 input should be a vector with length equal to the number of rows in
 \code{data}. The values in \code{weights} are treated like replication weights,
-i.e., a weight value of 2 is the same thing as having 2 rows in \code{data},
-each containing a copy of the corresponding person's data.}
+i.e., a weight value of 2 is the same thing as having 2 observations
+in \code{data}, each containing a copy of the corresponding person's data.
+\strong{Use this input cautiously}, as \code{orsf} will count the number of
+observations and events prior to growing a node for a tree, so higher
+values in \code{weights} will lead to deeper trees.}
 
 \item{n_tree}{(\emph{integer}) the number of trees to grow.
 Default is \code{n_tree = 500.}}
