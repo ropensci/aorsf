@@ -27,7 +27,7 @@ library(ggplot2)
 
 Partial dependence plots show the average marginal effect a combination of features imparts on predicted risk. Individual conditional expectation plots narrow the focus to individual datapoints. 
 
-## Getting partial dependance from an `aorsf` object
+## Getting partial dependence from an `aorsf` object
 
 First fit an accelerated ORSF model on `pbc_orsf`, a modification of the Mayo Clinic Primary Biliary Cholangitis data:
 

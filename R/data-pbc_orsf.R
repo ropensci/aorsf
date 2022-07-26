@@ -33,7 +33,7 @@
 #'   \item{ast}{aspartate aminotransferase, once called SGOT (U/ml)}
 #'   \item{trig}{triglycerides (mg/dl)}
 #'   \item{platelet}{platelet count}
-#'   \item{protime}{standardised blood clotting time}
+#'   \item{protime}{standardized blood clotting time}
 #'   \item{stage}{histologic stage of disease (needs biopsy)}
 #' }
 #' @source T Therneau and P Grambsch (2000), Modeling Survival Data: Extending the Cox Model, Springer-Verlag, New York. ISBN: 0-387-98784-3.
