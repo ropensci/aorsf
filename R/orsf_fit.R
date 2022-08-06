@@ -545,7 +545,7 @@ orsf <- function(data,
   stop("formula must have a response", call. = FALSE)
 
  if(length(attr(formula_terms, 'term.labels')) < 2)
-  stop("formula must have at least 2 predictors. ",
+  stop("formula must have at least 2 predictors.\n",
        "(Can't make a linear combination of predictors if there is only one.)",
        call. = FALSE)
 

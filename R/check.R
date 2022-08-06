@@ -415,12 +415,12 @@ check_var_types <- function(data, .names, valid_types){
   vars_to_list <- .names[bad_vars]
   types_to_list <- var_types[bad_vars]
 
-  meat <- paste0('<', vars_to_list, '> has type <',
+  meat <- paste0(' <', vars_to_list, '> has type <',
                  types_to_list, '>', collapse = '\n')
 
-  msg <- paste("some variables have unsupported type:\n",
-               meat, '\n supported types are',
-               paste_collapse(valid_types, last = ' and '))
+  msg <- paste0("some variables have unsupported type:\n",
+                meat, '\nsupported types are ',
+                paste_collapse(valid_types, last = ' and '))
 
   stop(msg, call. = FALSE)
 
