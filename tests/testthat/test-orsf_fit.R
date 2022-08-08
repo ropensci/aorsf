@@ -657,7 +657,7 @@ test_that(
   )
 
   expect_true(
-   max(abs(fit_orsf$surv_oobag-fit_orsf_noise$surv_oobag)) < 0.1
+   mean(abs(fit_orsf$surv_oobag-fit_orsf_noise$surv_oobag)) < 0.1
   )
 
  }
