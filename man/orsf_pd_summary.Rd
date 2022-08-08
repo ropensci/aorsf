@@ -10,11 +10,11 @@ orsf_pd_summary(
   pd_data = NULL,
   pd_spec,
   pred_horizon = NULL,
+  pred_type = "risk",
   expand_grid = TRUE,
   prob_values = c(0.025, 0.5, 0.975),
   prob_labels = c("lwr", "medn", "upr"),
   oobag = TRUE,
-  risk = TRUE,
   boundary_checks = TRUE
 )
 
@@ -23,9 +23,9 @@ orsf_pd_ice(
   pd_data = NULL,
   pd_spec,
   pred_horizon = NULL,
+  pred_type = "risk",
   expand_grid = TRUE,
   oobag = TRUE,
-  risk = TRUE,
   boundary_checks = TRUE
 )
 }
@@ -48,12 +48,15 @@ indicate variable names, values will indicate variable values, and
 partial dependence will be computed using the inputs on each row.}
 
 \item{pred_horizon}{(\emph{double}) a single time or a vector of times
-indicating the prediction horizon. Predicted risk or survival values
-will indicate the probability of having an event or surviving from
-baseline to the prediction horizon, respectively. All \code{pred_horizon}
-values must not exceed the maximum follow-up time in \code{object}'s
-training data. Also, \code{pred_horizon} values must be entered in
-ascending order.}
+indicating the time(s) that predicted risk or survival probabilities
+will be computed at.}
+
+\item{pred_type}{(\emph{character}) the type of predictions to return. Valid
+options are
+\itemize{
+\item 'risk' : probability of having an event at or before \code{pred_horizon}.
+\item 'survival' : 1 - risk.
+}}
 
 \item{expand_grid}{(\emph{logical}) if \code{TRUE}, partial dependence will be
 computed at all possible combinations of inputs in \code{pd_spec}. If
@@ -76,9 +79,6 @@ value in \code{prob_values} should be labelled as in summarized outputs.
 computed using the out of bag training data. You should set
 \code{oobag = TRUE} if you are computing partial dependence using the
 training data for \code{object}.}
-
-\item{risk}{(\emph{logical}) if \code{TRUE}, predicted risk is returned. If \code{FALSE},
-predicted survival (i.e., 1-risk) is returned.}
 
 \item{boundary_checks}{(\emph{logical}) if \code{TRUE}, \code{pd_spec} will be vetted
 to make sure the requested values are between the 10th and 90th

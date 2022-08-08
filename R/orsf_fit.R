@@ -44,7 +44,7 @@
 #'
 #' @srrstats {ML1.1} *Training data are labelled as "train".*
 #'
-#' @param data (_data.frame_) that will be used to grow the forest.
+#' @param data (_data.frame_) that contains the relevant variables.
 #'
 #' @srrstats {G2.5} factors used as predictors can be ordered and un-ordered.
 #'
@@ -126,11 +126,7 @@
 #' @param oobag_fun (_function_) When `oobag_fun` = `NULL` (the default),
 #'   out-of-bag predictions are evaluated using Harrell's C-statistic.
 #'   If a value for `oobag_fun` is provided, it will be used in place of
-#'   Harrell's C-statistic to evaluate out-of-bag predictions. The function
-#'   must have two inputs: `y_mat` and `s_vec`. The input `y_mat` is
-#'   presumed to be a matrix with two columns named `time` (first column)
-#'   and `status` (second column). The input `s_vec` is presumed to be a
-#'   numeric vector containing predicted survival probabilities for `y_mat`.
+#'   Harrell's C-statistic to evaluate out-of-bag predictions. See details.
 #'
 #' @param importance (_character_) Indicate method for variable importance:
 #'   - 'none': no variable importance is computed.
@@ -139,9 +135,6 @@
 #'   - 'permute': compute permutation importance
 #'
 #'  See [orsf_vi_negate] for descriptions of the available methods.
-#'   Note that if `oobag_fun` is specified above, it will be used in the
-#'   computation of negation importance or permutation importance, but it
-#'   will not have any role for ANOVA importance.
 #'
 #' @param tree_seeds (_integer vector_) if specified, random seeds will be set
 #'   using the values in `tree_seeds[i]`  before growing tree i. Two forests
@@ -206,8 +199,16 @@
 #'   algorithm may become unstable when the number of covariates is
 #'   greater than or equal to the number of events. This reduction does not
 #'   occur when using [orsf_control_net].
-#' @srrstats {G1.3} *define oblique and axis based decision trees*
 #'
+#' *oobag_fun*: The function must have two inputs: `y_mat` and `s_vec`.
+#'  - The input `y_mat` is presumed to be a matrix with two columns
+#'      named `time` (first column) and `status` (second column).
+#'  - The input `s_vec` is presumed to be a numeric vector containing
+#'      predicted survival probabilities for `y_mat`.
+#'
+#' If `oobag_fun` is specified, it will be used in the
+#'  computation of negation importance or permutation importance, but it
+#'  will not have any role for ANOVA importance.
 #'
 #' __What is an oblique decision tree?__
 #'

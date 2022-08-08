@@ -32,7 +32,7 @@ orsf(
 orsf_train(object)
 }
 \arguments{
-\item{data}{(\emph{data.frame}) that will be used to grow the forest.}
+\item{data}{(\emph{data.frame}) that contains the relevant variables.}
 
 \item{formula}{(\emph{formula}) a formula object, with the response on the left
 of a \code{~} operator, and the terms on the right (see details). Variables
@@ -102,11 +102,7 @@ assessed once after growing all the trees.}
 \item{oobag_fun}{(\emph{function}) When \code{oobag_fun} = \code{NULL} (the default),
 out-of-bag predictions are evaluated using Harrell's C-statistic.
 If a value for \code{oobag_fun} is provided, it will be used in place of
-Harrell's C-statistic to evaluate out-of-bag predictions. The function
-must have two inputs: \code{y_mat} and \code{s_vec}. The input \code{y_mat} is
-presumed to be a matrix with two columns named \code{time} (first column)
-and \code{status} (second column). The input \code{s_vec} is presumed to be a
-numeric vector containing predicted survival probabilities for \code{y_mat}.}
+Harrell's C-statistic to evaluate out-of-bag predictions. See details.}
 
 \item{importance}{(\emph{character}) Indicate method for variable importance:
 \itemize{
@@ -116,10 +112,7 @@ numeric vector containing predicted survival probabilities for \code{y_mat}.}
 \item 'permute': compute permutation importance
 }
 
-See \link{orsf_vi_negate} for descriptions of the available methods.
-Note that if \code{oobag_fun} is specified above, it will be used in the
-computation of negation importance or permutation importance, but it
-will not have any role for ANOVA importance.}
+See \link{orsf_vi_negate} for descriptions of the available methods.}
 
 \item{tree_seeds}{(\emph{integer vector}) if specified, random seeds will be set
 using the values in \code{tree_seeds[i]}  before growing tree i. Two forests
@@ -178,6 +171,38 @@ are at least 2 events per predictor variable. This occurs when using
 algorithm may become unstable when the number of covariates is
 greater than or equal to the number of events. This reduction does not
 occur when using \link{orsf_control_net}.
+
+\emph{oobag_fun}: The function must have two inputs: \code{y_mat} and \code{s_vec}.
+\itemize{
+\item The input \code{y_mat} is presumed to be a matrix with two columns
+named \code{time} (first column) and \code{status} (second column).
+\item The input \code{s_vec} is presumed to be a numeric vector containing
+predicted survival probabilities for \code{y_mat}.
+}
+
+If \code{oobag_fun} is specified, it will be used in the
+computation of negation importance or permutation importance, but it
+will not have any role for ANOVA importance.
+
+\strong{What is an oblique decision tree?}
+
+Decision trees are developed by splitting a set of training data into two
+new subsets, with the goal of having more similarity within the new subsets
+than between them. This splitting process is repeated on the resulting
+subsets of data until a stopping criterion is met. When the new subsets of
+data are formed based on a single predictor, the decision tree is said to
+be axis-based because the splits of the data appear perpendicular to the
+axis of the predictor. When linear combinations of variables are used
+instead of a single variable, the tree is oblique because the splits of
+the data are neither parallel nor at a right angle to the axis
+
+\emph{Figure} : Decision trees for classification with axis-based splitting
+(left) and oblique splitting (right). Cases are orange squares; controls
+are purple circles. Both trees partition the predictor space defined by
+variables X1 and X2, but the oblique splits do a better job of separating
+the two classes.
+
+\if{html}{\figure{tree_axis_v_oblique.png}{options: width=95\%}}
 }
 \examples{
 

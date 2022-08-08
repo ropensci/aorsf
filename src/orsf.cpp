@@ -3564,23 +3564,6 @@ arma::mat orsf_pred_uni(List& forest,
  leaf_pred.set_size(x_pred.n_rows);
  surv_pvec.zeros(x_pred.n_rows);
 
- // if(compute_median){
- //
- //  surv_pmat.zeros(forest.length(), x_pred.n_rows);
- //
- //  for(tree = 0; tree < forest.length(); ++tree){
- //   ostree = forest[tree];
- //   ostree_mem_xfer();
- //   ostree_pred_leaf();
- //   new_pred_surv_uni_median();
- //  }
- //
- //  for(i = 0; i < x_pred.n_rows; i++){
- //   surv_pvec[i] = median(surv_pmat.col(i));
- //  }
- //
- // }
-
   for(tree = 0; tree < forest.length(); ++tree){
    ostree = forest[tree];
    ostree_mem_xfer();
@@ -3612,26 +3595,6 @@ arma::mat orsf_pred_multi(List& forest,
  // but do matter for surv_pmat
  leaf_pred.set_size(x_pred.n_rows);
  surv_pmat.zeros(x_pred.n_rows, times_pred.size());
-
- // if(compute_median){
- //
- //  surv_pcube.zeros(forest.length(), x_pred.n_rows, times_pred.size());
- //
- //  for(tree = 0; tree < forest.length(); ++tree){
- //   ostree = forest[tree];
- //   ostree_mem_xfer();
- //   ostree_pred_leaf();
- //   new_pred_surv_multi_median();
- //  }
- //
- //  for(i = 0; i < x_pred.n_rows; i++){
- //   for(j = 0; j < times_pred.size(); j++){
- //    surv_pmat(i, j) = median(surv_pcube.slice(j).col(i));
- //   }
- //  }
- //
- // }
-
 
   for(tree = 0; tree < forest.length(); ++tree){
    ostree = forest[tree];

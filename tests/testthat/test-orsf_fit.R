@@ -433,44 +433,68 @@ pbc_noise[, vars] <- sapply(pbc_noise[, vars], add_noise)
 
 pbc_scale[, vars] <- sapply(pbc_scale[, vars], change_scale)
 
-set.seed(89)
-fit_orsf <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 10)
-set.seed(89)
-fit_orsf_2 <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 10)
-set.seed(89)
-fit_orsf_noise <- orsf(pbc_noise, Surv(time, status) ~ . - id, n_tree = 10)
-set.seed(89)
-fit_orsf_scale <- orsf(pbc_scale, Surv(time, status) ~ . - id, n_tree = 10)
+fit_orsf <- orsf(pbc_orsf,
+                 Surv(time, status) ~ . - id,
+                 n_tree = 10,
+                 tree_seeds = 1:10)
+
+fit_orsf_2 <- orsf(pbc_orsf,
+                   Surv(time, status) ~ . - id,
+                   n_tree = 10,
+                   tree_seeds = 1:10)
+
+fit_orsf_noise <- orsf(pbc_noise,
+                       Surv(time, status) ~ . - id,
+                       n_tree = 10,
+                       tree_seeds = 1:10)
+
+fit_orsf_scale <- orsf(pbc_scale,
+                       Surv(time, status) ~ . - id,
+                       n_tree = 10,
+                       tree_seeds = 1:10)
 
 #' @srrstats {ML7.1} *Demonstrate effect of numeric scaling of input data.*
 test_that(
- desc = 'scaling inputs does not impact model behavior',
+ desc = 'scaling/noising inputs does not impact model behavior',
  code = {
+
   expect_equal(fit_orsf$eval_oobag$stat_values,
                fit_orsf_scale$eval_oobag$stat_values)
+
+  expect_equal(fit_orsf$eval_oobag$stat_values,
+               fit_orsf_2$eval_oobag$stat_values)
+
+  expect_equal(fit_orsf$eval_oobag$stat_values,
+               fit_orsf_noise$eval_oobag$stat_values)
 
   expect_equal(fit_orsf$surv_oobag,
                fit_orsf_scale$surv_oobag)
 
+  expect_equal(fit_orsf$surv_oobag,
+               fit_orsf_2$surv_oobag)
+
+  expect_equal(fit_orsf$surv_oobag,
+               fit_orsf_noise$surv_oobag)
+
+  expect_equal(fit_orsf$forest[[1]]$leaf_nodes,
+               fit_orsf_2$forest[[1]]$leaf_nodes)
+
   expect_equal(fit_orsf$forest[[1]]$leaf_nodes,
                fit_orsf_scale$forest[[1]]$leaf_nodes)
+
+  expect_equal(fit_orsf$forest[[1]]$leaf_nodes,
+               fit_orsf_noise$forest[[1]]$leaf_nodes)
 
  }
 )
 
 # testing the seed behavior when no_fit is TRUE. You should get the same
 # forest whether you train with orsf() or with orsf_train().
+
 object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-               n_tree = 10, no_fit = TRUE)
-set.seed(89)
-time_estimated <- orsf_time_to_train(object)
+               n_tree = 10, no_fit = TRUE, tree_seeds = 1:10)
 
-set.seed(89)
-time_true_start <- Sys.time()
 fit_orsf_3 <- orsf_train(object)
-time_true_stop <- Sys.time()
-
-time_true <- time_true_stop - time_true_start
 
 test_that(
  desc = 'results are identical if a forest is fitted under the same random seed',
@@ -582,11 +606,11 @@ test_that(
    diff_abs <- abs(as.numeric(time_true - time_estimated))
    diff_rel <- diff_abs / as.numeric(time_true)
 
-   # expect the difference between estimated and true time is < 2 second.
-   expect_lt(diff_abs, 2)
-   # expect that the difference is not greater than 2x the
+   # expect the difference between estimated and true time is < 5 second.
+   expect_lt(diff_abs, 5)
+   # expect that the difference is not greater than 5x the
    # magnitude of the actual time it took to fit the forest
-   expect_lt(diff_rel, 2)
+   expect_lt(diff_rel, 5)
 
   }
  }

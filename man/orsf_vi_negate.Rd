@@ -23,11 +23,7 @@ individual factor levels will be returned.}
 \item{oobag_fun}{(\emph{function}) When \code{oobag_fun} = \code{NULL} (the default),
 out-of-bag predictions are evaluated using Harrell's C-statistic.
 If a value for \code{oobag_fun} is provided, it will be used in place of
-Harrell's C-statistic to evaluate out-of-bag predictions. The function
-must have two inputs: \code{y_mat} and \code{s_vec}. The input \code{y_mat} is
-presumed to be a matrix with two columns named \code{time} (first column)
-and \code{status} (second column). The input \code{s_vec} is presumed to be a
-numeric vector containing predicted survival probabilities for \code{y_mat}.}
+Harrell's C-statistic to evaluate out-of-bag predictions. See details.}
 }
 \value{
 a named vector. Names indicate predictors, values indicate importance.

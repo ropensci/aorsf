@@ -33,7 +33,10 @@ test_that(
   expect_true(all(p1 <= 1) && all(p1 >= 0))
  })
 
-p2 <- predict(aorsf, new_data = new_data, pred_horizon = 1000, risk = FALSE)
+p2 <- predict(aorsf,
+              new_data = new_data,
+              pred_horizon = 1000,
+              pred_type = 'survival')
 
 test_that(
  desc = 'risk is inverse of survival',

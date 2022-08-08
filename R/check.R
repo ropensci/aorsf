@@ -961,8 +961,7 @@ check_pd_inputs <- function(object,
                             expand_grid = NULL,
                             prob_values = NULL,
                             prob_labels = NULL,
-                            oobag = NULL,
-                            risk = NULL){
+                            oobag = NULL){
 
  check_arg_is(arg_value = object,
               arg_name = 'object',
@@ -1012,18 +1011,6 @@ check_pd_inputs <- function(object,
 
   check_arg_length(arg_value = oobag,
                    arg_name = 'oobag',
-                   expected_length = 1)
-
- }
-
- if(!is.null(risk)){
-
-  check_arg_type(arg_value = risk,
-                 arg_name = 'risk',
-                 expected_type = 'logical')
-
-  check_arg_length(arg_value = risk,
-                   arg_name = 'risk',
                    expected_length = 1)
 
  }
@@ -1298,7 +1285,7 @@ check_units <- function(new_data, ui_train) {
 #'
 #' @noRd
 
-check_predict <- function(object, new_data, pred_horizon, risk){
+check_predict <- function(object, new_data, pred_horizon, pred_type){
 
  if(!is.null(new_data)){
 
@@ -1325,15 +1312,19 @@ check_predict <- function(object, new_data, pred_horizon, risk){
 
  }
 
- if(!is.null(risk)){
+ if(!is.null(pred_type)){
 
-  check_arg_type(arg_value = risk,
-                 arg_name = 'risk',
-                 expected_type = 'logical')
+  check_arg_type(arg_value = pred_type,
+                 arg_name = 'pred_type',
+                 expected_type = 'character')
 
-  check_arg_length(arg_value = risk,
-                   arg_name = 'risk',
+  check_arg_length(arg_value = pred_type,
+                   arg_name = 'pred_type',
                    expected_length = 1)
+
+  check_arg_is_valid(arg_value = pred_type,
+                     arg_name = 'pred_type',
+                     valid_options = c("risk", "survival"))
 
  }
 

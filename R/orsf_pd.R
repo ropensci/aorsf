@@ -84,11 +84,11 @@ orsf_pd_summary <- function(object,
                             pd_data = NULL,
                             pd_spec,
                             pred_horizon = NULL,
+                            pred_type = 'risk',
                             expand_grid = TRUE,
                             prob_values = c(0.025, 0.50, 0.975),
                             prob_labels = c('lwr', 'medn', 'upr'),
                             oobag = TRUE,
-                            risk = TRUE,
                             boundary_checks = TRUE){
 
  if(length(pred_horizon) > 1){
@@ -101,11 +101,11 @@ orsf_pd_summary <- function(object,
      pd_data         = pd_data,
      pd_spec         = pd_spec,
      pred_horizon    = .pred_horizon,
+     pred_type            = pred_type,
      expand_grid     = expand_grid,
      prob_values     = prob_values,
      prob_labels     = prob_labels,
      oobag           = oobag,
-     risk            = risk,
      boundary_checks = boundary_checks)
    }
   )
@@ -120,28 +120,27 @@ orsf_pd_summary <- function(object,
 
  }
 
- check_pd_inputs(object = object,
+ check_pd_inputs(object      = object,
                  expand_grid = expand_grid,
                  prob_values = prob_values,
                  prob_labels = prob_labels,
-                 oobag = oobag,
-                 risk = risk)
+                 oobag       = oobag)
 
  if(length(prob_values) != length(prob_labels)){
   stop("prob_values and prob_labels must have the same length.",
        call. = FALSE)
  }
 
- orsf_pd_(object = object,
-          pd_data = pd_data,
-          pd_spec = pd_spec,
-          pred_horizon = pred_horizon,
-          type_output = 'smry',
-          type_input = if(expand_grid) 'grid' else 'loop',
-          prob_values = prob_values,
-          prob_labels = prob_labels,
-          oobag = oobag,
-          risk = risk,
+ orsf_pd_(object          = object,
+          pd_data         = pd_data,
+          pd_spec         = pd_spec,
+          pred_horizon    = pred_horizon,
+          pred_type            = pred_type,
+          type_output     = 'smry',
+          type_input      = if(expand_grid) 'grid' else 'loop',
+          prob_values     = prob_values,
+          prob_labels     = prob_labels,
+          oobag           = oobag,
           boundary_checks = boundary_checks)
 
 }
@@ -152,9 +151,9 @@ orsf_pd_ice <- function(object,
                         pd_data = NULL,
                         pd_spec,
                         pred_horizon = NULL,
+                        pred_type = 'risk',
                         expand_grid = TRUE,
                         oobag = TRUE,
-                        risk = TRUE,
                         boundary_checks = TRUE){
 
 
@@ -168,10 +167,11 @@ orsf_pd_ice <- function(object,
      pd_data         = pd_data,
      pd_spec         = pd_spec,
      pred_horizon    = .pred_horizon,
+     pred_type            = pred_type,
      expand_grid     = expand_grid,
      oobag           = oobag,
-     risk            = risk,
-     boundary_checks = boundary_checks)
+     boundary_checks = boundary_checks
+    )
    }
   )
 
@@ -185,21 +185,21 @@ orsf_pd_ice <- function(object,
 
  }
 
- check_pd_inputs(object = object,
+ check_pd_inputs(object      = object,
                  expand_grid = expand_grid,
-                 oobag = oobag,
-                 risk = risk)
+                 oobag       = oobag)
 
- orsf_pd_(object = object,
-          pd_data = pd_data,
-          pd_spec = pd_spec,
-          pred_horizon = pred_horizon,
-          type_output = 'ice',
-          type_input = if(expand_grid) 'grid' else 'loop',
-          prob_values = c(0.025, 0.50, 0.975),
-          prob_labels = c('lwr', 'medn', 'upr'),
-          oobag = oobag,
-          risk = risk,
+ # prob_ args are not used, but need to be something
+ orsf_pd_(object          = object,
+          pd_data         = pd_data,
+          pd_spec         = pd_spec,
+          pred_horizon    = pred_horizon,
+          pred_type            = pred_type,
+          type_output     = 'ice',
+          type_input      = if(expand_grid) 'grid' else 'loop',
+          prob_values     = c(0.025, 0.50, 0.975),
+          prob_labels     = c('lwr', 'medn', 'upr'),
+          oobag           = oobag,
           boundary_checks = boundary_checks)
 
 }
@@ -224,12 +224,12 @@ orsf_pd_ <- function(object,
                      pd_data,
                      pd_spec,
                      pred_horizon,
+                     pred_type,
                      type_output,
                      type_input,
                      prob_values,
                      prob_labels,
                      oobag,
-                     risk,
                      boundary_checks){
 
  if(is.null(pred_horizon)) pred_horizon <- object$pred_horizon
@@ -269,7 +269,7 @@ orsf_pd_ <- function(object,
 
 
 
- check_predict(object, pd_data, pred_horizon, risk)
+ check_predict(object, pd_data, pred_horizon, pred_type)
 
  if(is_empty(pd_spec)){
 
@@ -353,8 +353,8 @@ orsf_pd_ <- function(object,
 
  x_new <- as.matrix(
   ref_code(x_data = pd_data,
-          fi = get_fctr_info(object),
-          names_x_data = get_names_x(object))
+           fi = get_fctr_info(object),
+           names_x_data = get_names_x(object))
  )
 
 
@@ -370,6 +370,7 @@ orsf_pd_ <- function(object,
                           "FALSE_ice" = pd_new_ice,
                           "FALSE_smry" = pd_new_smry)
 
+ risk <- pred_type == 'risk'
 
  pd_fun_structure(object,
                   x_new,

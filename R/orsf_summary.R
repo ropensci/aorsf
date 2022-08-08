@@ -8,14 +8,11 @@
 #'   an ORSF provides data on the importance of individual variables and the
 #'   expected predicted risk at designated values of the variables.
 #'
+#' @inheritParams orsf
 #' @inheritParams predict.aorsf
 #'
 #' @param n_variables (_integer_) how many variables should be summarized?
-#'   Setting this input to a lower number will improve computation time.
-#'
-#' @param importance_type (_character_) which method to use for variable
-#'   importance. Valid input values are 'anova' and 'negate'.
-#'   See [orsf_vi_negate] for details on these methods.
+#'   Setting this input to a lower number will reduce computation time.
 #'
 #' @return an object of class 'aorsf_summary'
 #'
@@ -36,8 +33,8 @@
 orsf_summarize_uni <- function(object,
                                n_variables = NULL,
                                pred_horizon = NULL,
-                               risk = TRUE,
-                               importance_type = 'negate'){
+                               pred_type = 'risk',
+                               importance = 'negate'){
 
  # for CRAN check:
  medn <- name <- value <- level <- variable <- NULL
@@ -92,21 +89,36 @@ orsf_summarize_uni <- function(object,
 
  if(is.null(pred_horizon)) pred_horizon <- object$pred_horizon
 
+
+ check_arg_type(arg_value = pred_type,
+                arg_name = 'pred_type',
+                expected_type = 'character')
+
+ check_arg_length(arg_value = pred_type,
+                  arg_name = 'pred_type',
+                  expected_length = 1)
+
+ check_arg_is_valid(arg_value = pred_type,
+                    arg_name = 'pred_type',
+                    valid_options = c("risk", "survival"))
+
+
  x_numeric_key <- get_numeric_bounds(object)
 
  fctr_info <- get_fctr_info(object)
 
  n_obs <- get_n_obs(object)
 
- importance <- switch(
-  importance_type,
+ vi <- switch(
+  importance,
   'anova' = orsf_vi_anova(object, group_factors = TRUE),
-  'negate' = orsf_vi_negate(object, group_factors = TRUE)
+  'negate' = orsf_vi_negate(object, group_factors = TRUE),
+  'permute' = orsf_vi_permute(object, group_factors = TRUE)
  )
 
- if(is.null(n_variables)) n_variables <- length(importance)
+ if(is.null(n_variables)) n_variables <- length(vi)
 
- pd_spec <- list_init(names(importance)[seq(n_variables)])
+ pd_spec <- list_init(names(vi)[seq(n_variables)])
 
  for(x_name in names(pd_spec)){
 
@@ -129,7 +141,7 @@ orsf_summarize_uni <- function(object,
  pd_output <- orsf_pd_summary(object = object,
                               pd_spec = pd_spec,
                               expand_grid = FALSE,
-                              risk = risk,
+                              pred_type = pred_type,
                               prob_values = c(0.25, 0.50, 0.75),
                               pred_horizon = pred_horizon)
 
@@ -145,7 +157,7 @@ orsf_summarize_uni <- function(object,
 
  name_rep <- rle(as.integer(f))
 
- pd_output$importance <- rep(importance[levels(f)[name_rep$values]],
+ pd_output$importance <- rep(vi[levels(f)[name_rep$values]],
                              times = name_rep$lengths)
 
  # pd_output$value <- ifelse(test = is.na(value),
@@ -172,7 +184,7 @@ orsf_summarize_uni <- function(object,
 
  structure(
   .Data = list(dt = pd_output,
-               risk = risk,
+               pred_type = pred_type,
                pred_horizon = pred_horizon),
   class = 'aorsf_summary_uni'
  )
@@ -207,7 +219,7 @@ print.aorsf_summary_uni <- function(x, n_variables = NULL, ...){
 
  if(is.null(n_variables)) n_variables <- length(unique(x$dt$variable))
 
- risk_or_surv <- if(x$risk) "risk" else "survival"
+ risk_or_surv <- if(x$pred_type == 'risk') "risk" else "survival"
 
  msg_btm <- paste("Predicted", risk_or_surv,
                   "at time t =", x$pred_horizon,

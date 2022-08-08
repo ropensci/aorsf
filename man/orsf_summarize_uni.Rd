@@ -8,30 +8,37 @@ orsf_summarize_uni(
   object,
   n_variables = NULL,
   pred_horizon = NULL,
-  risk = TRUE,
-  importance_type = "negate"
+  pred_type = "risk",
+  importance = "negate"
 )
 }
 \arguments{
-\item{object}{(\emph{aorsf}) an oblique random survival forest (ORSF; see \link{orsf}).}
+\item{object}{an untrained aorsf object, created by setting
+\code{no_fit = TRUE} in \code{orsf()}.}
 
 \item{n_variables}{(\emph{integer}) how many variables should be summarized?
-Setting this input to a lower number will improve computation time.}
+Setting this input to a lower number will reduce computation time.}
 
 \item{pred_horizon}{(\emph{double}) a single time or a vector of times
-indicating the prediction horizon. Predicted risk or survival values
-will indicate the probability of having an event or surviving from
-baseline to the prediction horizon, respectively. All \code{pred_horizon}
-values must not exceed the maximum follow-up time in \code{object}'s
-training data. Also, \code{pred_horizon} values must be entered in
-ascending order.}
+indicating the time(s) that predicted risk or survival probabilities
+will be computed at.}
 
-\item{risk}{(\emph{logical}) if \code{TRUE}, predicted risk is returned. If \code{FALSE},
-predicted survival (i.e., 1-risk) is returned.}
+\item{pred_type}{(\emph{character}) the type of predictions to return. Valid
+options are
+\itemize{
+\item 'risk' : probability of having an event at or before \code{pred_horizon}.
+\item 'survival' : 1 - risk.
+}}
 
-\item{importance_type}{(\emph{character}) which method to use for variable
-importance. Valid input values are 'anova' and 'negate'.
-See \link{orsf_vi_negate} for details on these methods.}
+\item{importance}{(\emph{character}) Indicate method for variable importance:
+\itemize{
+\item 'none': no variable importance is computed.
+\item 'anova': use the analysis of variance (ANOVA) method
+\item 'negate': compute negation importance
+\item 'permute': compute permutation importance
+}
+
+See \link{orsf_vi_negate} for descriptions of the available methods.}
 }
 \value{
 an object of class 'aorsf_summary'

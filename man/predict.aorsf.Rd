@@ -4,7 +4,7 @@
 \alias{predict.aorsf}
 \title{Predict risk or survival}
 \usage{
-\method{predict}{aorsf}(object, new_data, pred_horizon, risk = TRUE, ...)
+\method{predict}{aorsf}(object, new_data, pred_horizon, pred_type = "risk", ...)
 }
 \arguments{
 \item{object}{(\emph{aorsf}) an oblique random survival forest (ORSF; see \link{orsf}).}
@@ -15,25 +15,30 @@ Also, factors in \code{new_data} must not have levels that were not in the
 data used to train \code{object}. Last, missing data are not supported.}
 
 \item{pred_horizon}{(\emph{double}) a single time or a vector of times
-indicating the prediction horizon. Predicted risk or survival values
-will indicate the probability of having an event or surviving from
-baseline to the prediction horizon, respectively. All \code{pred_horizon}
-values must not exceed the maximum follow-up time in \code{object}'s
-training data. Also, \code{pred_horizon} values must be entered in
-ascending order.}
+indicating the time(s) that predicted risk or survival probabilities
+will be computed at.}
 
-\item{risk}{(\emph{logical}) if \code{TRUE}, predicted risk is returned. If \code{FALSE},
-predicted survival (i.e., 1-risk) is returned.}
+\item{pred_type}{(\emph{character}) the type of predictions to return. Valid
+options are
+\itemize{
+\item 'risk' : probability of having an event at or before \code{pred_horizon}.
+\item 'survival' : 1 - risk.
+}}
 
 \item{...}{not used.}
 }
 \value{
 a \code{matrix} of predictions. Column \code{j} of the matrix corresponds
-to value \code{j} in \code{pred_horizon}. Row \code{i} of the matrix corresponds to row \code{i}
-in \code{new_data}.
+to value \code{j} in \code{pred_horizon}. Row \code{i} of the matrix corresponds to
+row \code{i} in \code{new_data}.
 }
 \description{
 Predict risk or survival
+}
+\details{
+\code{pred_horizon} values must not exceed the maximum follow-up time in
+\code{object}'s training data. Also, \code{pred_horizon} values must be entered
+in ascending order.
 }
 \examples{
 

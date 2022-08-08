@@ -6,16 +6,15 @@ object <- orsf(pbc_orsf,
                oobag_pred = TRUE)
 
 n_variables <- 3
-risk <- FALSE
 
 smry_1 <- orsf_summarize_uni(object,
                              n_variables = n_variables,
-                             risk = risk)
+                             pred_type = 'survival')
 
 smry_2 <- orsf_summarize_uni(object,
                              pred_horizon = 1000,
                              n_variables = NULL,
-                             risk = risk)
+                             pred_type = 'survival')
 
 
 no_miss_list <- function(l){
@@ -41,7 +40,7 @@ test_that("output is normal", {
  expect_s3_class(smry_1, class = 'aorsf_summary_uni')
  expect_true(length(unique(smry_1$dt$variable)) == n_variables)
  expect_true(smry_1$pred_horizon == object$pred_horizon)
- expect_true(smry_1$risk == risk)
+ expect_true(smry_1$pred_type == 'survival')
 
  rows_categorical_variables <- smry_1$dt$variable %in% fi$cols
  rows_numeric_variables <- !rows_categorical_variables
@@ -69,7 +68,7 @@ test_that("output is normal", {
  expect_error(orsf_summarize_uni(object,
                                  pred_horizon = 1e10,
                                  n_variables = n_variables,
-                                 risk = risk),
+                                 pred_type = 'survival'),
               regexp = 'max time')
 
 
@@ -90,7 +89,7 @@ test_that(
 test_that("bad inputs caught", {
 
  expect_error(
-  orsf_summarize_uni(object, n_variables = 50, risk = risk),
+  orsf_summarize_uni(object, n_variables = 50, pred_type = 'risk'),
   "total number of predictors"
  )
 
