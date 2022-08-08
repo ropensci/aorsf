@@ -433,25 +433,29 @@ pbc_noise[, vars] <- sapply(pbc_noise[, vars], add_noise)
 
 pbc_scale[, vars] <- sapply(pbc_scale[, vars], change_scale)
 
+set.seed(329)
+
 fit_orsf <- orsf(pbc_orsf,
                  Surv(time, status) ~ . - id,
-                 n_tree = 10,
-                 tree_seeds = 1:10)
+                 n_tree = 10)
+
+set.seed(329)
 
 fit_orsf_2 <- orsf(pbc_orsf,
                    Surv(time, status) ~ . - id,
-                   n_tree = 10,
-                   tree_seeds = 1:10)
+                   n_tree = 10)
+
+set.seed(329)
 
 fit_orsf_noise <- orsf(pbc_noise,
                        Surv(time, status) ~ . - id,
-                       n_tree = 10,
-                       tree_seeds = 1:10)
+                       n_tree = 10)
+
+set.seed(329)
 
 fit_orsf_scale <- orsf(pbc_scale,
                        Surv(time, status) ~ . - id,
-                       n_tree = 10,
-                       tree_seeds = 1:10)
+                       n_tree = 10)
 
 #' @srrstats {ML7.1} *Demonstrate effect of numeric scaling of input data.*
 test_that(
@@ -491,8 +495,11 @@ test_that(
 # testing the seed behavior when no_fit is TRUE. You should get the same
 # forest whether you train with orsf() or with orsf_train().
 
+
 object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-               n_tree = 10, no_fit = TRUE, tree_seeds = 1:10)
+               n_tree = 10, no_fit = TRUE)
+
+set.seed(329)
 
 fit_orsf_3 <- orsf_train(object)
 
