@@ -434,51 +434,57 @@ pbc_noise[, vars] <- sapply(pbc_noise[, vars], add_noise)
 pbc_scale[, vars] <- sapply(pbc_scale[, vars], change_scale)
 
 set.seed(329)
-
-fit_orsf <- orsf(pbc_orsf,
-                 Surv(time, status) ~ . - id,
-                 n_tree = 10)
-
+fit_orsf <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 set.seed(329)
-
-fit_orsf_2 <- orsf(pbc_orsf,
-                   Surv(time, status) ~ . - id,
-                   n_tree = 10)
-
+fit_orsf_2 <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 set.seed(329)
-
-fit_orsf_noise <- orsf(pbc_noise,
-                       Surv(time, status) ~ . - id,
-                       n_tree = 10)
-
+fit_orsf_noise <- orsf(pbc_noise, Surv(time, status) ~ . - id)
 set.seed(329)
-
-fit_orsf_scale <- orsf(pbc_scale,
-                       Surv(time, status) ~ . - id,
-                       n_tree = 10)
+fit_orsf_scale <- orsf(pbc_scale, Surv(time, status) ~ . - id)
 
 #' @srrstats {ML7.1} *Demonstrate effect of numeric scaling of input data.*
 test_that(
  desc = 'scaling/noising inputs does not impact model behavior',
  code = {
 
-  expect_equal(fit_orsf$eval_oobag$stat_values,
-               fit_orsf_scale$eval_oobag$stat_values)
+  expect_lt(
+   abs(
+    fit_orsf$eval_oobag$stat_values -
+    fit_orsf_scale$eval_oobag$stat_values
+   ),
+   0.01
+  )
 
-  expect_equal(fit_orsf$eval_oobag$stat_values,
-               fit_orsf_2$eval_oobag$stat_values)
+  expect_lt(
+   abs(
+    fit_orsf$eval_oobag$stat_values -
+     fit_orsf_2$eval_oobag$stat_values
+   ),
+   0.01
+  )
 
-  expect_equal(fit_orsf$eval_oobag$stat_values,
-               fit_orsf_noise$eval_oobag$stat_values)
+  expect_lt(
+   abs(
+    fit_orsf$eval_oobag$stat_values -
+     fit_orsf_noise$eval_oobag$stat_values
+   ),
+   0.01
+  )
 
-  # expect_equal(fit_orsf$surv_oobag,
-  #              fit_orsf_scale$surv_oobag)
-  #
-  #   expect_equal(fit_orsf$surv_oobag,
-  #                fit_orsf_2$surv_oobag)
-  #
-  #   expect_equal(fit_orsf$surv_oobag,
-  #                fit_orsf_noise$surv_oobag)
+  expect_lt(
+   mean(abs(fit_orsf$surv_oobag - fit_orsf_scale$surv_oobag)),
+   0.1
+  )
+
+  expect_lt(
+   mean(abs(fit_orsf$surv_oobag - fit_orsf_2$surv_oobag)),
+   0.1
+  )
+
+  expect_lt(
+   mean(abs(fit_orsf$surv_oobag - fit_orsf_noise$surv_oobag)),
+   0.1
+  )
 
   expect_equal(fit_orsf$forest[[1]]$leaf_nodes,
                fit_orsf_2$forest[[1]]$leaf_nodes)
