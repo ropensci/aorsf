@@ -429,6 +429,8 @@ pbc_scale <- pbc_orsf
 
 vars <- c('bili', 'chol', 'albumin', 'copper', 'alk.phos', 'ast')
 
+set.seed(730)
+
 pbc_noise[, vars] <- sapply(pbc_noise[, vars], add_noise)
 
 pbc_scale[, vars] <- sapply(pbc_scale[, vars], change_scale)
