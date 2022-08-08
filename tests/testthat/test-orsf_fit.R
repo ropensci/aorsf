@@ -502,8 +502,7 @@ test_that(
 # forest whether you train with orsf() or with orsf_train().
 
 
-object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-               n_tree = 10, no_fit = TRUE)
+object <- orsf(pbc_orsf, Surv(time, status) ~ . - id, no_fit = TRUE)
 
 set.seed(329)
 
