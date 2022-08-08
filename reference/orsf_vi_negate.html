@@ -88,11 +88,7 @@ individual factor levels will be returned.</p></dd>
 <dd><p>(<em>function</em>) When <code>oobag_fun</code> = <code>NULL</code> (the default),
 out-of-bag predictions are evaluated using Harrell's C-statistic.
 If a value for <code>oobag_fun</code> is provided, it will be used in place of
-Harrell's C-statistic to evaluate out-of-bag predictions. The function
-must have two inputs: <code>y_mat</code> and <code>s_vec</code>. The input <code>y_mat</code> is
-presumed to be a matrix with two columns named <code>time</code> (first column)
-and <code>status</code> (second column). The input <code>s_vec</code> is presumed to be a
-numeric vector containing predicted survival probabilities for <code>y_mat</code>.</p></dd>
+Harrell's C-statistic to evaluate out-of-bag predictions. See details.</p></dd>
 
 </dl></div>
     <div class="section level2">

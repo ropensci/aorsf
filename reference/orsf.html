@@ -91,7 +91,7 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>data</dt>
-<dd><p>(<em>data.frame</em>) that will be used to grow the forest.</p></dd>
+<dd><p>(<em>data.frame</em>) that contains the relevant variables.</p></dd>
 
 
 <dt>formula</dt>
@@ -193,11 +193,7 @@ assessed once after growing all the trees.</p></dd>
 <dd><p>(<em>function</em>) When <code>oobag_fun</code> = <code>NULL</code> (the default),
 out-of-bag predictions are evaluated using Harrell's C-statistic.
 If a value for <code>oobag_fun</code> is provided, it will be used in place of
-Harrell's C-statistic to evaluate out-of-bag predictions. The function
-must have two inputs: <code>y_mat</code> and <code>s_vec</code>. The input <code>y_mat</code> is
-presumed to be a matrix with two columns named <code>time</code> (first column)
-and <code>status</code> (second column). The input <code>s_vec</code> is presumed to be a
-numeric vector containing predicted survival probabilities for <code>y_mat</code>.</p></dd>
+Harrell's C-statistic to evaluate out-of-bag predictions. See details.</p></dd>
 
 
 <dt>importance</dt>
@@ -205,10 +201,7 @@ numeric vector containing predicted survival probabilities for <code>y_mat</code
 <li><p>'anova': use the analysis of variance (ANOVA) method</p></li>
 <li><p>'negate': compute negation importance</p></li>
 <li><p>'permute': compute permutation importance</p></li>
-</ul><p>See <a href="orsf_vi_negate.html">orsf_vi_negate</a> for descriptions of the available methods.
-Note that if <code>oobag_fun</code> is specified above, it will be used in the
-computation of negation importance or permutation importance, but it
-will not have any role for ANOVA importance.</p></dd>
+</ul><p>See <a href="orsf_vi_negate.html">orsf_vi_negate</a> for descriptions of the available methods.</p></dd>
 
 
 <dt>tree_seeds</dt>
@@ -274,6 +267,29 @@ are at least 2 events per predictor variable. This occurs when using
 algorithm may become unstable when the number of covariates is
 greater than or equal to the number of events. This reduction does not
 occur when using <a href="orsf_control_net.html">orsf_control_net</a>.</p>
+<p><em>oobag_fun</em>: The function must have two inputs: <code>y_mat</code> and <code>s_vec</code>.</p><ul><li><p>The input <code>y_mat</code> is presumed to be a matrix with two columns
+named <code>time</code> (first column) and <code>status</code> (second column).</p></li>
+<li><p>The input <code>s_vec</code> is presumed to be a numeric vector containing
+predicted survival probabilities for <code>y_mat</code>.</p></li>
+</ul><p>If <code>oobag_fun</code> is specified, it will be used in the
+computation of negation importance or permutation importance, but it
+will not have any role for ANOVA importance.</p>
+<p><strong>What is an oblique decision tree?</strong></p>
+<p>Decision trees are developed by splitting a set of training data into two
+new subsets, with the goal of having more similarity within the new subsets
+than between them. This splitting process is repeated on the resulting
+subsets of data until a stopping criterion is met. When the new subsets of
+data are formed based on a single predictor, the decision tree is said to
+be axis-based because the splits of the data appear perpendicular to the
+axis of the predictor. When linear combinations of variables are used
+instead of a single variable, the tree is oblique because the splits of
+the data are neither parallel nor at a right angle to the axis</p>
+<p><em>Figure</em> : Decision trees for classification with axis-based splitting
+(left) and oblique splitting (right). Cases are orange squares; controls
+are purple circles. Both trees partition the predictor space defined by
+variables X1 and X2, but the oblique splits do a better job of separating
+the two classes.</p>
+<p><img src="figures/tree_axis_v_oblique.png" width="95%"></p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -326,16 +342,16 @@ DOI: 10.1001/jama.1982.03320430047030</p>
 <span class="r-in"><span><span class="co"># is assessed every 50 trees (50, 100, ..., 500)</span></span></span>
 <span class="r-in"><span><span class="va">fit_custom</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8279329</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.8294957</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.8367368</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.8364763</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.8377266</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.8382996</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.8396020</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.8397583</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.8379871</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.8381955</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8273599</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.8368931</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.8311627</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.8363201</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.8350177</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.8366847</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.8398625</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.8414253</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.8418421</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.8432486</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># make your own oobag function:</span></span></span>
 <span class="r-in"><span><span class="co"># (this is an R implementation of Harrell's C</span></span></span>

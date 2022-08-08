@@ -66,11 +66,11 @@
 <span>  pd_data <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">pd_spec</span>,</span>
 <span>  pred_horizon <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pred_type <span class="op">=</span> <span class="st">"risk"</span>,</span>
 <span>  expand_grid <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  prob_values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.5</span>, <span class="fl">0.975</span><span class="op">)</span>,</span>
 <span>  prob_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lwr"</span>, <span class="st">"medn"</span>, <span class="st">"upr"</span><span class="op">)</span>,</span>
 <span>  oobag <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  risk <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  boundary_checks <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -79,9 +79,9 @@
 <span>  pd_data <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">pd_spec</span>,</span>
 <span>  pred_horizon <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pred_type <span class="op">=</span> <span class="st">"risk"</span>,</span>
 <span>  expand_grid <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  oobag <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  risk <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  boundary_checks <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -112,12 +112,15 @@ partial dependence will be computed using the inputs on each row.</p></dd>
 
 <dt>pred_horizon</dt>
 <dd><p>(<em>double</em>) a single time or a vector of times
-indicating the prediction horizon. Predicted risk or survival values
-will indicate the probability of having an event or surviving from
-baseline to the prediction horizon, respectively. All <code>pred_horizon</code>
-values must not exceed the maximum follow-up time in <code>object</code>'s
-training data. Also, <code>pred_horizon</code> values must be entered in
-ascending order.</p></dd>
+indicating the time(s) that predicted risk or survival probabilities
+will be computed at.</p></dd>
+
+
+<dt>pred_type</dt>
+<dd><p>(<em>character</em>) the type of predictions to return. Valid
+options are</p><ul><li><p>'risk' : probability of having an event at or before <code>pred_horizon</code>.</p></li>
+<li><p>'survival' : 1 - risk.</p></li>
+</ul></dd>
 
 
 <dt>expand_grid</dt>
@@ -148,11 +151,6 @@ value in <code>prob_values</code> should be labelled as in summarized outputs.
 computed using the out of bag training data. You should set
 <code>oobag = TRUE</code> if you are computing partial dependence using the
 training data for <code>object</code>.</p></dd>
-
-
-<dt>risk</dt>
-<dd><p>(<em>logical</em>) if <code>TRUE</code>, predicted risk is returned. If <code>FALSE</code>,
-predicted survival (i.e., 1-risk) is returned.</p></dd>
 
 
 <dt>boundary_checks</dt>
