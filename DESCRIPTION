@@ -34,7 +34,8 @@ LinkingTo:
     RcppArmadillo
 Imports: 
     Rcpp,
-    data.table
+    data.table,
+    utils
 URL: https://github.com/bcjaeger/aorsf,
     https://bcjaeger.github.io/aorsf
 BugReports: https://github.com/bcjaeger/aorsf/issues
@@ -49,6 +50,7 @@ Suggests:
     rmarkdown,
     glmnet,
     covr,
-    units
+    units,
+    tibble
 Config/testthat/edition: 3
 VignetteBuilder: knitr

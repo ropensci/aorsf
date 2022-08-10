@@ -25,7 +25,7 @@ options are
 \item 'survival' : 1 - risk.
 }}
 
-\item{...}{not used.}
+\item{...}{not currently used.}
 }
 \value{
 a \code{matrix} of predictions. Column \code{j} of the matrix corresponds
