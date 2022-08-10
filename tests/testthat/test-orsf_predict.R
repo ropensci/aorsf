@@ -53,7 +53,7 @@ test_that(
                       pred_horizon = 1000,
                       pred_type = 'survival')
 
-   expect_equal(p2_1row, p2[i], ignore_attr = TRUE)
+   expect_equal(p2_1row, p2[i], ignore_attr = TRUE, tolerance = 0.015)
   }
  }
 )

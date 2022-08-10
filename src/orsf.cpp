@@ -313,6 +313,8 @@ void leaf_kaplan(const arma::mat& y,
  }
 
 
+ // TODO: ADD CUMULATIVE HAZARD FUNCTION HERE
+ // (https://www.randomforestsrc.org/articles/survival.html#in-bag-ib-estimator-1)
  // reset for kaplan meier loop
  n_risk = sum(w);
  person = 0;
@@ -2245,8 +2247,8 @@ void new_pred_surv_uni_mean(){
    }
   }
 
-  leaf_node = leaf_nodes.rows(leaf_indices(i, 1),
-                              leaf_indices(i, 2));
+  leaf_node = leaf_nodes.rows(leaf_indices.at(i, 1),
+                              leaf_indices.at(i, 2));
 
   // if(verbose > 1){
   //  Rcout << "leaf_node:" << std::endl << leaf_node << std::endl;
@@ -2254,10 +2256,10 @@ void new_pred_surv_uni_mean(){
 
   i = 0;
 
-  if(time_pred < leaf_node(leaf_node.n_rows - 1, 0)){
+  if(time_pred < leaf_node.at(leaf_node.n_rows - 1, 0)){
 
    for(; i < leaf_node.n_rows; i++){
-    if (leaf_node(i, 0) > time_pred){
+    if (leaf_node.at(i, 0) > time_pred){
 
      if(i == 0){
 
@@ -2278,15 +2280,15 @@ void new_pred_surv_uni_mean(){
 
      break;
 
-    } else if (leaf_node(i, 0) == time_pred){
-     temp1 = leaf_node(i, 1);
+    } else if (leaf_node.at(i, 0) == time_pred){
+     temp1 = leaf_node.at(i, 1);
      break;
     }
    }
 
-  } else if (time_pred == leaf_node(leaf_node.n_rows - 1, 0)){
+  } else if (time_pred == leaf_node.at(leaf_node.n_rows - 1, 0)){
 
-   temp1 = leaf_node(leaf_node.n_rows - 1, 1);
+   temp1 = leaf_node.at(leaf_node.n_rows - 1, 1);
 
   } else {
 
