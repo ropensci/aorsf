@@ -161,6 +161,8 @@
 #'   parametrized, but training is not initiated. The object returned can be
 #'   directly submitted to `orsf_train()` so long as `attach_data` is `TRUE`.
 #'
+#' @param ... not currently used.
+#'
 #' @param object an untrained aorsf object, created by setting
 #'   `no_fit = TRUE` in `orsf()`.
 #'
@@ -480,6 +482,11 @@ orsf <- function(data,
   tree_seeds = tree_seeds,
   attach_data = attach_data
  )
+
+ .dots <- list(...)
+ if(!is_empty(.dots))
+  dot_abort(.dots = names(.dots),
+            .args = setdiff(names(formals(orsf)), '...'))
 
  if(is.null(weights)) weights <- double()
 

@@ -817,7 +817,7 @@ test_that(
 )
 
 test_that(
- desc = "recipes and lists can be plugged into orsf",
+ desc = "lists can be plugged into orsf",
  code = {
 
   pbc_list <- as.list(pbc_orsf)
@@ -825,15 +825,16 @@ test_that(
   pbc_list_bad$trt <- pbc_list_bad$trt[1:3]
   pbc_list_bad$age <- pbc_list_bad$age[1:5]
 
-  recipe <- recipes::recipe(pbc_orsf, formula = time + status ~ .) %>%
-   recipes::step_rm(id) %>%
-   recipes::step_scale(recipes::all_numeric_predictors())
-
-  recipe_prepped <- recipes::prep(recipe)
-
-  fit_recipe <- orsf(recipe_prepped, Surv(time, status) ~ .)
-
-  expect_s3_class(fit_recipe, 'aorsf')
+  # only run locally - I don't want to list recipes in suggests
+  # recipe <- recipes::recipe(pbc_orsf, formula = time + status ~ .) %>%
+  #  recipes::step_rm(id) %>%
+  #  recipes::step_scale(recipes::all_numeric_predictors())
+  #
+  # recipe_prepped <- recipes::prep(recipe)
+  #
+  # fit_recipe <- orsf(recipe_prepped, Surv(time, status) ~ .)
+  #
+  # expect_s3_class(fit_recipe, 'aorsf')
 
   fit_list <- orsf(pbc_list, Surv(time, status) ~ .)
 

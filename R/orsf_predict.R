@@ -27,7 +27,7 @@
 #'   - 'risk' : probability of having an event at or before `pred_horizon`.
 #'   - 'survival' : 1 - risk.
 #'
-#' @param ... not used.
+#' @param ... not currently used.
 #'
 #' @return a `matrix` of predictions. Column `j` of the matrix corresponds
 #'   to value `j` in `pred_horizon`. Row `i` of the matrix corresponds to
@@ -74,28 +74,9 @@ predict.aorsf <- function(object,
  # these arguments are mistaken input names since ... isn't used.
 
  .dots <- list(...)
-
- if(!is_empty(.dots)){
-
-  .names <- names(.dots)
-
-  if("newdata" %in% .names){
-   .names[.names=='newdata'] <- paste("newdata - did you mean new_data?")
-  }
-
-  if("horizon" %in% .names){
-   .names[.names=='horizon'] <- paste("horizon - did you mean pred_horizon?")
-  }
-
-  if("type" %in% .names){
-   .names[.names=='type'] <- paste("type - did you mean pred_type?")
-  }
-
-  stop("the following arguments were not recognized:\n",
-       paste(.names, collapse = '\n'),
-       call. = FALSE)
-
- }
+ if(!is_empty(.dots))
+  dot_abort(.dots = names(.dots),
+            .args = setdiff(names(formals(predict.aorsf)), '...'))
 
  # TODO: Throw error if an argument is not used, i.e., .dots is not empty
 
