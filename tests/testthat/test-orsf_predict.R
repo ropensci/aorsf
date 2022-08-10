@@ -43,6 +43,65 @@ test_that(
  code = {expect_true(all(p1 == 1 - p2))}
 )
 
+test_that(
+ desc = 'predictions do not depend on observations in the data',
+ code = {
+
+  for(i in seq(nrow(new_data))){
+   p2_1row <- predict(aorsf,
+                      new_data = new_data[i,],
+                      pred_horizon = 1000,
+                      pred_type = 'survival')
+
+   expect_equal(p2_1row, p2[i], ignore_attr = TRUE)
+  }
+ }
+)
+
+
+test_that(
+ 'predictions do not depend on order of the data',
+ code = {
+
+  new_order <- sample(nrow(new_data), replace = F)
+
+  preds <- predict(aorsf,
+                   new_data = new_data[new_order, ],
+                   pred_horizon = 1000,
+                   pred_type = 'survival')
+
+  expect_equal(preds, p2[new_order], ignore_attr = TRUE)
+
+ }
+)
+
+test_that(
+ "mistakenly named inputs are caught",
+ code = {
+
+  expect_error(
+   predict(aorsf, newdata = new_data, pred_horizon = 1000),
+   regexp = 'newdata'
+  )
+
+  expect_error(
+   predict(aorsf, newdata = new_data, horizon = 1000),
+   regexp = 'horizon'
+  )
+
+  expect_error(
+   predict(aorsf, newdata = new_data, horizon = 1000, type = 'risk'),
+   regexp = 'type'
+  )
+
+  expect_error(
+   predict(aorsf, OK = 'risk'),
+   regexp = 'OK'
+  )
+
+ }
+)
+
 #' @srrstats {G5.8, G5.8a} **Edge condition tests** *Zero-length data produce expected behaviour*
 
 test_that(

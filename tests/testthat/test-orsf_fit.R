@@ -1,50 +1,3 @@
-oobag_c_harrell <- function(y_mat, s_vec){
-
- sorted <- order(y_mat[, 1], -y_mat[, 2])
-
- y_mat <- y_mat[sorted, ]
- s_vec <- s_vec[sorted]
-
- time = y_mat[, 1]
- status = y_mat[, 2]
- events = which(status == 1)
-
- k = nrow(y_mat)
-
- total <- 0
- concordant <- 0
-
- for(i in events){
-
-  if(i+1 <= k){
-
-   for(j in seq(i+1, k)){
-
-    if(time[j] > time[i]){
-
-     total <- total + 1
-
-     if(s_vec[j] > s_vec[i]){
-
-      concordant <- concordant + 1
-
-     } else if (s_vec[j] == s_vec[i]){
-
-      concordant <- concordant + 0.5
-
-     }
-
-    }
-
-   }
-
-  }
-
- }
-
- concordant / total
-
-}
 
 #' @srrstats {G5.0} *tests use the PBC data, a standard set that has been widely studied and disseminated in other R package (e.g., survival and randomForestSRC)*
 
@@ -431,9 +384,11 @@ vars <- c('bili', 'chol', 'albumin', 'copper', 'alk.phos', 'ast')
 
 set.seed(730)
 
-pbc_noise[, vars] <- sapply(pbc_noise[, vars], add_noise)
+for(i in vars){
+ pbc_noise[[i]] <- add_noise(pbc_noise[[i]])
+ pbc_scale[[i]] <- change_scale(pbc_scale[[i]])
+}
 
-pbc_scale[, vars] <- sapply(pbc_scale[, vars], change_scale)
 
 set.seed(329)
 fit_orsf <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
@@ -711,10 +666,11 @@ test_that(
 
   #' @srrstats {ML7.9a} *form combinations of inputs using `expand.grid()`.*
   inputs <- expand.grid(
+   data_format = c('plain', 'tibble', 'data.table'),
    n_tree = 1,
    n_split = 1,
    n_retry = c(0, 3),
-   mtry = c(2, 12),
+   mtry = 4,
    leaf_min_events = c(1, 3),
    leaf_min_obs = c(5, 10),
    split_min_events = c(6, 9),
@@ -725,7 +681,14 @@ test_that(
 
   for(i in seq(nrow(inputs))){
 
-   fit_cph <- orsf(data = pbc_orsf,
+   data_fun <- switch(
+    as.character(inputs$data_format[i]),
+    'plain' = function(x) x,
+    'tibble' = tibble::as_tibble,
+    'data.table' = as.data.table
+   )
+
+   fit_cph <- orsf(data = data_fun(pbc_orsf),
                    formula = time + status ~ . - id,
                    control = orsf_control_cph(),
                    n_tree = inputs$n_tree[i],
@@ -815,7 +778,7 @@ test_that(
 )
 
 pbc_temp <- pbc_orsf
-pbc_temp$list_col <- list(a=1)
+pbc_temp$list_col <- list(list(a=1))
 
 #' @srrstats {G2.12} *pre-processing identifies list columns and throws informative error*
 
@@ -836,16 +799,52 @@ fit_unwtd <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 fit_wtd <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
                 weights = pbc_orsf$id)
 
-# using weights should make the trees much deeper:
-expect_gt(get_n_leaves_mean(fit_wtd),
-          get_n_leaves_mean(fit_unwtd))
+test_that(
+ desc = 'weights work as intended',
+ code = {
 
-# and in this case less accurate b/c the weights were random and extreme
-expect_lt(
- fit_wtd$eval_oobag$stat_values,
- fit_unwtd$eval_oobag$stat_values
+  # using weights should make the trees much deeper:
+  expect_gt(get_n_leaves_mean(fit_wtd),
+            get_n_leaves_mean(fit_unwtd))
+
+  # and in this case less accurate b/c the weights were random and extreme
+  expect_lt(
+   fit_wtd$eval_oobag$stat_values,
+   fit_unwtd$eval_oobag$stat_values
+  )
+
+ }
 )
 
+test_that(
+ desc = "recipes and lists can be plugged into orsf",
+ code = {
 
+  pbc_list <- as.list(pbc_orsf)
+  pbc_list_bad <- pbc_list
+  pbc_list_bad$trt <- pbc_list_bad$trt[1:3]
+  pbc_list_bad$age <- pbc_list_bad$age[1:5]
+
+  recipe <- recipes::recipe(pbc_orsf, formula = time + status ~ .) %>%
+   recipes::step_rm(id) %>%
+   recipes::step_scale(recipes::all_numeric_predictors())
+
+  recipe_prepped <- recipes::prep(recipe)
+
+  fit_recipe <- orsf(recipe_prepped, Surv(time, status) ~ .)
+
+  expect_s3_class(fit_recipe, 'aorsf')
+
+  fit_list <- orsf(pbc_list, Surv(time, status) ~ .)
+
+  expect_s3_class(fit_list, 'aorsf')
+
+  expect_error(
+   orsf(pbc_list_bad, Surv(time, status) ~ .),
+   regexp = 'unable to cast data'
+  )
+
+ }
+)
 
 

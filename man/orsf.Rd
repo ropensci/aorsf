@@ -26,7 +26,8 @@ orsf(
   importance = "anova",
   tree_seeds = NULL,
   attach_data = TRUE,
-  no_fit = FALSE
+  no_fit = FALSE,
+  ...
 )
 
 orsf_train(object)

@@ -431,7 +431,6 @@
 # attr(aorsf_fit_read_in, 'f_beta')
 # }
 #
-
 orsf <- function(data,
                  formula,
                  control = orsf_control_cph(),
@@ -452,15 +451,19 @@ orsf <- function(data,
                  importance = 'anova',
                  tree_seeds = NULL,
                  attach_data = TRUE,
-                 no_fit = FALSE){
+                 no_fit = FALSE,
+                 ...){
 
  #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
+
+ if(!is.data.frame(data))
+  data <- orsf_data_prep(data)
 
  check_orsf_inputs(
   data = data,
   formula = formula,
   control = control,
-  weights = weights, #TODO: write checks here
+  weights = weights,
   n_tree = n_tree,
   n_split = n_split,
   n_retry = n_retry,
@@ -811,7 +814,7 @@ orsf <- function(data,
  } else {
 
   if(oobag_pred_horizon == 0)
-  # this would get added by orsf_fit if oobag_pred was TRUE
+   # this would get added by orsf_fit if oobag_pred was TRUE
    orsf_out$pred_horizon <- stats::median(y[, 1])
   else
    orsf_out$pred_horizon <- oobag_pred_horizon
@@ -870,8 +873,60 @@ orsf <- function(data,
 
  orsf_out
 
+}
+
+
+orsf_data_prep <- function(data, ...){
+ UseMethod('orsf_data_prep')
+}
+
+orsf_data_prep.list <- function(data, ...){
+
+ lengths <- vapply(data, length, integer(1))
+
+ if(! all(lengths == lengths[1])){
+
+  length_tbl <- table(lengths)
+  length_mode <- as.numeric(names(length_tbl)[which.max(length_tbl)])
+
+  mismatch <- lengths[names(which(lengths != length_mode))]
+
+  mismatch <-
+   paste(" -", names(mismatch),
+         'has length', mismatch,
+         collapse = '\n')
+
+  mismatch <-
+   paste(mismatch,
+         '\n - all other variables have length ', length_mode,
+         sep = '')
+
+  stop("unable to cast data (a list) into a data.frame.\n",
+       mismatch, call. = FALSE)
+
+ }
+
+ data <-
+  tryCatch(as.data.frame(data), error = function(e) e$message)
+
+ if(!is.data.frame(data)){
+  stop("Could not coerce data (a list) into a data.frame object.\n",
+       "Running as.data.frame(data) ",
+       "produced this error message:\n\"", data_cast, "\"",
+       call. = FALSE)
+ }
+
+ data
 
 }
+
+orsf_data_prep.recipe <- function(data, ...){
+
+ getElement(data, 'template')
+
+}
+
+
 
 #' @srrstats {ML2.0a} *objects returned from orsf() with no_fit = TRUE can be directly submitted to orsf_train to train the model specification.*
 #'

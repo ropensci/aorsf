@@ -70,6 +70,35 @@ predict.aorsf <- function(object,
 
  names_x_data <- get_names_x(object)
 
+ # catch any arguments that didn't match and got relegated to ...
+ # these arguments are mistaken input names since ... isn't used.
+
+ .dots <- list(...)
+
+ if(!is_empty(.dots)){
+
+  .names <- names(.dots)
+
+  if("newdata" %in% .names){
+   .names[.names=='newdata'] <- paste("newdata - did you mean new_data?")
+  }
+
+  if("horizon" %in% .names){
+   .names[.names=='horizon'] <- paste("horizon - did you mean pred_horizon?")
+  }
+
+  if("type" %in% .names){
+   .names[.names=='type'] <- paste("type - did you mean pred_type?")
+  }
+
+  stop("the following arguments were not recognized:\n",
+       paste(.names, collapse = '\n'),
+       call. = FALSE)
+
+ }
+
+ # TODO: Throw error if an argument is not used, i.e., .dots is not empty
+
  if(any(is.na(new_data[, intersect(names_x_data, names(new_data))]))){
   stop("Please remove missing values from new_data, or impute them.",
        call. = FALSE)
