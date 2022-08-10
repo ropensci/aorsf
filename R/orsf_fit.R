@@ -919,7 +919,7 @@ orsf_data_prep.list <- function(data, ...){
  if(!is.data.frame(data)){
   stop("Could not coerce data (a list) into a data.frame object.\n",
        "Running as.data.frame(data) ",
-       "produced this error message:\n\"", data_cast, "\"",
+       "produced this error message:\n\"", data, "\"",
        call. = FALSE)
  }
 
