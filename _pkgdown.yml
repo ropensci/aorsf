@@ -34,6 +34,7 @@ reference:
   - starts_with("orsf_pd")
   - starts_with("orsf_summarize")
   - matches("^print\\.aorsf_summary")
+  - matches("^as\\.data\\.table\\.aorsf_summary")
 - title: Example survival data
   desc: Datasets used in examples and vignettes.
 - contents:
