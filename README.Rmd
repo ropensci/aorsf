@@ -106,7 +106,7 @@ Jaeger (2022) describes `aorsf` in detail, with a summary of the procedures used
 
 Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA, Howard G, Simon N. Oblique random survival forests. The Annals of Applied Statistics. 2019 Sep;13(3):1847-83. URL: https://doi.org/10.1214/19-AOAS1261 DOI: 10.1214/19-AOAS1261
 
-Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar M, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. arXiv e-prints. 2022 Aug 3:arXiv-2208. URL: https://arxiv.org/abs/2208.01129
+Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. arXiv e-prints. 2022 Aug 3:arXiv-2208. URL: https://arxiv.org/abs/2208.01129
 
 ## Funding
 
