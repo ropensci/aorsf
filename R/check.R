@@ -588,25 +588,25 @@ check_control_net <- function(alpha, df_target){
 #'
 #' @noRd
 #'
-check_orsf_inputs <- function(data,
-                              formula,
-                              control,
-                              weights,
-                              n_tree,
-                              n_split,
-                              n_retry,
-                              mtry,
-                              leaf_min_events,
-                              leaf_min_obs,
-                              split_min_events,
-                              split_min_obs,
-                              split_min_stat,
-                              oobag_pred,
-                              oobag_pred_horizon,
-                              oobag_eval_every,
-                              importance,
-                              tree_seeds,
-                              attach_data){
+check_orsf_inputs <- function(data = NULL,
+                              formula = NULL,
+                              control = NULL,
+                              weights = NULL,
+                              n_tree = NULL,
+                              n_split = NULL,
+                              n_retry = NULL,
+                              mtry = NULL,
+                              leaf_min_events = NULL,
+                              leaf_min_obs = NULL,
+                              split_min_events = NULL,
+                              split_min_obs = NULL,
+                              split_min_stat = NULL,
+                              oobag_pred = NULL,
+                              oobag_pred_horizon = NULL,
+                              oobag_eval_every = NULL,
+                              importance = NULL,
+                              tree_seeds = NULL,
+                              attach_data = NULL){
 
  if(!is.null(data)){
 
@@ -623,46 +623,48 @@ check_orsf_inputs <- function(data,
         call. = FALSE)
   }
 
+  #' @srrstats {G2.9} issue diagnostic messages for blank column names. In this case, no fixes are applied. Instead, the user is notified by an error message.
+
+  # check for blanks first b/c the check for non-standard symbols
+  # will detect blanks with >1 empty characters
+
+  blank_names <- grepl(pattern = '^\\s*$',
+                       x = names(data))
+
+  if(any(blank_names)){
+
+   s_if_plural_blank_otherwise <- ""
+
+   to_list <- which(blank_names)
+
+   if(length(to_list) > 1) s_if_plural_blank_otherwise <- "s"
+
+   last <- ifelse(length(to_list) == 2, ' and ', ', and ')
+
+   stop("Blank or empty names detected in training data: see column",
+        s_if_plural_blank_otherwise, " ",
+        paste_collapse(x = to_list, last = last),
+        call. = FALSE)
+
+  }
+
+  ns_names <- grepl(pattern = '[^a-zA-Z0-9\\.\\_]+',
+                    x = names(data))
+
+  if(any(ns_names)){
+
+   last <- ifelse(sum(ns_names) == 2, ' and ', ', and ')
+
+   stop("Non-standard names detected in training data: ",
+        paste_collapse(x = names(data)[ns_names],
+                       last = last),
+        call. = FALSE)
+
+  }
+
  }
 
- #' @srrstats {G2.9} issue diagnostic messages for blank column names. In this case, no fixes are applied. Instead, the user is notified by an error message.
 
- # check for blanks first b/c the check for non-standard symbols
- # will detect blanks with >1 empty characters
-
- blank_names <- grepl(pattern = '^\\s*$',
-                      x = names(data))
-
- if(any(blank_names)){
-
-  s_if_plural_blank_otherwise <- ""
-
-  to_list <- which(blank_names)
-
-  if(length(to_list) > 1) s_if_plural_blank_otherwise <- "s"
-
-  last <- ifelse(length(to_list) == 2, ' and ', ', and ')
-
-  stop("Blank or empty names detected in training data: see column",
-       s_if_plural_blank_otherwise, " ",
-       paste_collapse(x = to_list, last = last),
-       call. = FALSE)
-
- }
-
- ns_names <- grepl(pattern = '[^a-zA-Z0-9\\.\\_]+',
-                   x = names(data))
-
- if(any(ns_names)){
-
-  last <- ifelse(sum(ns_names) == 2, ' and ', ', and ')
-
-  stop("Non-standard names detected in training data: ",
-       paste_collapse(x = names(data)[ns_names],
-                      last = last),
-       call. = FALSE)
-
- }
 
 
  if(!is.null(formula)){
@@ -692,9 +694,13 @@ check_orsf_inputs <- function(data,
 
  }
 
- check_arg_is(arg_value = control,
-              arg_name = 'control',
-              expected_class = 'aorsf_control')
+ if(!is.null(control)){
+
+  check_arg_is(arg_value = control,
+               arg_name = 'control',
+               expected_class = 'aorsf_control')
+
+ }
 
  if(!is.null(weights)){
 
@@ -1327,7 +1333,10 @@ check_units <- function(new_data, ui_train) {
 #'
 #' @noRd
 
-check_predict <- function(object, new_data, pred_horizon, pred_type){
+check_predict <- function(object,
+                          new_data = NULL,
+                          pred_horizon = NULL,
+                          pred_type = NULL){
 
  if(!is.null(new_data)){
 
@@ -1340,6 +1349,56 @@ check_predict <- function(object, new_data, pred_horizon, pred_type){
         call. = FALSE)
   }
 
+  ui_train <- get_unit_info(object)
+
+  # check unit info for new data if training data had unit variables
+  if(!is_empty(ui_train)) check_units(new_data, ui_train)
+
+  check_new_data_names(new_data  = new_data,
+                       ref_names = get_names_x(object),
+                       label_new = "new_data",
+                       label_ref = 'training data')
+
+  check_new_data_types(new_data  = new_data,
+                       ref_names = get_names_x(object),
+                       ref_types = get_types_x(object),
+                       label_new = "new_data",
+                       label_ref = 'training data')
+
+  check_new_data_fctrs(new_data  = new_data,
+                       names_x   = get_names_x(object),
+                       fi_ref    = get_fctr_info(object),
+                       label_new = "new_data")
+
+  #' @srrstats {G2.6} *ensure that one-dimensional inputs are appropriately pre-processed. aorsf does not deal with missing data as many other R packages are very good at dealing with it.*
+
+  #' @srrstats {G2.13} *check for missing data as part of initial pre-processing prior to passing data to analytic algorithms.*
+
+  #' @srrstats {G2.15} *Never pass data with potential missing values to any base routines.*
+
+  if(any(is.na(new_data[, get_names_x(object)]))){
+   stop("Please remove missing values from new_data, or impute them.",
+        call. = FALSE)
+  }
+
+  #' @srrstats {G2.16} *Throw hard errors if undefined values are detected.*
+
+  for(i in c(get_names_x(object))){
+
+   if(any(is.infinite(new_data[[i]]))){
+    stop("Please remove infinite values from ", i, ".",
+         call. = FALSE)
+   }
+
+   # NaN values trigger is.na(), so this probaly isn't needed.
+   # if(any(is.nan(new_data[[i]]))){
+   #  stop("Please remove NaN values from ", i, ".",
+   #       call. = FALSE)
+   # }
+
+  }
+
+
  }
 
  if(!is.null(pred_horizon)){
@@ -1351,6 +1410,22 @@ check_predict <- function(object, new_data, pred_horizon, pred_type){
   check_arg_gt(arg_value = pred_horizon,
                arg_name = 'pred_horizon',
                bound = 0)
+
+  if(any(pred_horizon > get_max_time(object))){
+
+   stop("prediction horizon should ",
+        "be <= max follow-up time ",
+        "observed in training data: ",
+        get_max_time(object),
+        call. = FALSE)
+
+  }
+
+  if(!all(order(pred_horizon) == seq(length(pred_horizon)))){
+   stop("prediction horizons must be entered in ascending order, e.g.,",
+        "pred_horizon = c(5, 10) instead of pred_horizon = c(10, 5)",
+        call. = FALSE)
+  }
 
  }
 
@@ -1367,71 +1442,6 @@ check_predict <- function(object, new_data, pred_horizon, pred_type){
   check_arg_is_valid(arg_value = pred_type,
                      arg_name = 'pred_type',
                      valid_options = c("risk", "survival"))
-
- }
-
- ui_train <- get_unit_info(object)
-
- # check unit info for new data if training data had unit variables
- if(!is_empty(ui_train)) check_units(new_data, ui_train)
-
- if(any(pred_horizon > get_max_time(object))){
-
-  stop("prediction horizon should ",
-       "be <= max follow-up time ",
-       "observed in training data: ",
-       get_max_time(object),
-       call. = FALSE)
-
- }
-
- if(!all(order(pred_horizon) == seq(length(pred_horizon)))){
-  stop("prediction horizons must be entered in ascending order, e.g.,",
-       "pred_horizon = c(5, 10) instead of pred_horizon = c(10, 5)",
-       call. = FALSE)
- }
-
- check_new_data_names(new_data  = new_data,
-                      ref_names = get_names_x(object),
-                      label_new = "new_data",
-                      label_ref = 'training data')
-
- check_new_data_types(new_data  = new_data,
-                      ref_names = get_names_x(object),
-                      ref_types = get_types_x(object),
-                      label_new = "new_data",
-                      label_ref = 'training data')
-
- check_new_data_fctrs(new_data  = new_data,
-                      names_x   = get_names_x(object),
-                      fi_ref    = get_fctr_info(object),
-                      label_new = "new_data")
-
- #' @srrstats {G2.6} *ensure that one-dimensional inputs are appropriately pre-processed. aorsf does not deal with missing data as many other R packages are very good at dealing with it.*
-
- #' @srrstats {G2.13} *check for missing data as part of initial pre-processing prior to passing data to analytic algorithms.*
-
- #' @srrstats {G2.15} *Never pass data with potential missing values to any base routines.*
-
- if(any(is.na(new_data[, get_names_x(object)]))){
-  stop("Please remove missing values from new_data, or impute them.",
-       call. = FALSE)
- }
-
- #' @srrstats {G2.16} *Throw hard errors if undefined values are detected.*
-
- for(i in c(get_names_x(object))){
-
-  if(any(is.infinite(new_data[[i]]))){
-   stop("Please remove infinite values from ", i, ".",
-        call. = FALSE)
-  }
-
-  # NaN values trigger is.na(), so this probaly isn't needed.
-  # if(any(is.nan(new_data[[i]]))){
-  #  stop("Please remove NaN values from ", i, ".",
-  #       call. = FALSE)
-  # }
 
  }
 

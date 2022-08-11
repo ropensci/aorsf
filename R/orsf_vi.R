@@ -2,8 +2,13 @@
 
 #' ORSF variable importance
 #'
-#' Determine the importance of individual variables using 'negation
-#'   importance.' See 'Details' for definition of negation importance.
+#' Estimate the importance of individual variables using oblique random
+#'   survival forests. `orsf_vi()` is a general purpose function to extract
+#'   or compute variable importance (VI) estimates from an `aorsf` object
+#'   (see [orsf]). The three functions `orsf_vi_negate()`, `orsf_vi_permute()`,
+#'   and `orsf_vi_anova()` are convenient wrappers for `orsf_vi()`. The
+#'   way these functions work depends on whether the `object` they are
+#'   given already has VI estimates in it or not (see examples).
 #'
 #' @param object an object of class 'aorsf'.
 #'
@@ -38,12 +43,57 @@
 #'
 #' @examples
 #'
-#' fit <- orsf(pbc_orsf,
-#'             Surv(time, status) ~ . - id,
-#'             oobag_pred = TRUE)
+#' # first workflow -------------------------------------------------------------
+#' # fit an aorsf object using default values, and get the default vi (anova)
 #'
+#' fit_default <- orsf(pbc_orsf,
+#'                     Surv(time, status) ~ . - id)
+#'
+#' # the printed output will indicate the type of vi used
+#' fit_default
+#'
+#' # the 'raw' vi values are stored in fit_default:
+#' fit_default$importance
+#'
+#' # these are 'raw' because the vi values for factors have not been
+#' # aggregated into a single vi value. Currently there is one vi value
+#' # for k-1 levels of a k level factor. For example, you can see edema_1
+#' # and edema_0.5 in the importance values above because edema is a factor
+#' # variable with levels of 0, 0.5, and 1. To get aggregated values of vi
+#' # across all levels of each factor, just call orsf_vi with group_factors
+#' # set to TRUE (the default)
+#' orsf_vi(fit_default)
+#'
+#' # orsf_vi knows that fit_default was fit using anova vi
+#' # to verify this, see that orsf_vi and orsf_vi_anova are the same
+#' orsf_vi_anova(fit_default)
+#'
+#'
+#'
+#' # second workflow ------------------------------------------------------------
+#' # fit an aorsf object without vi, then add vi later
+#'
+#' fit_no_vi <- orsf(pbc_orsf,
+#'                   Surv(time, status) ~ . - id,
+#'                   importance = 'none')
+#'
+#' # Note: you can't call orsf_vi_anova() on fit_no_vi because anova
+#' # VI can only be computed while the forest is being grown.
 #' orsf_vi_negate(fit)
-#' orsf_vi_anova(fit)
+#' orsf_vi_permute(fit)
+#'
+#' # third workflow ------------------------------------------------------------
+#' # fit an aorsf object and compute vi at the same time
+#' fit_permute_vi <- orsf(pbc_orsf,
+#'                        Surv(time, status) ~ . - id,
+#'                        importance = 'permute')
+#'
+#' # get the vi instantly (i.e., it doesn't need to be computed again)
+#' orsf_vi_permute(fit_permute_vi)
+#'
+#' # You can still get negation vi from this fit, but it needs to be computed
+#' orsf_vi_negate(fit_permute_vi)
+#'
 #'
 #' @references
 #'
@@ -52,19 +102,54 @@
 #'  Springer, Berlin, Heidelberg, 2011.
 #'  DOI: 10.1007/978-3-642-23783-6_29
 #'
+#' Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM.
+#' *Accelerated and interpretable oblique random survival forests.*
+#' arXiv e-prints. 2022 Aug 3:arXiv-2208. URL: https://arxiv.org/abs/2208.01129
+#'
+orsf_vi <- function(object,
+                    group_factors = TRUE,
+                    importance = NULL,
+                    oobag_fun = NULL,
+                    ...){
+
+ check_dots(list(...), .f = orsf_vi)
+ check_orsf_inputs(importance = importance)
+
+ type_vi <- get_importance(object)
+
+ if(type_vi == 'none' && is.null(importance))
+  stop("object has no variable importance values to extract and the type ",
+       "of importance to compute is not specified. ",
+       "Try setting importance = 'permute', or 'negate', or 'anova' ",
+       "in orsf() or setting importance = 'permute' or 'negate' in ",
+       "orsf_vi().",
+       call. = FALSE)
+
+ if(!is.null(importance)) type_vi <- importance
+
+ orsf_vi_(object,
+          group_factors = group_factors,
+          type_vi = type_vi,
+          oobag_fun = oobag_fun)
+
+
+}
+
+#' @rdname orsf_vi
+#' @export
 orsf_vi_negate <- function(object, group_factors = TRUE, oobag_fun = NULL, ...){
  check_dots(list(...), .f = orsf_vi_negate)
  orsf_vi_(object, group_factors, type_vi = 'negate', oobag_fun = oobag_fun)
 }
 
-#' @rdname orsf_vi_negate
+#' @rdname orsf_vi
 #' @export
 orsf_vi_permute <- function(object, group_factors = TRUE, oobag_fun = NULL, ...){
  check_dots(list(...), .f = orsf_vi_permute)
  orsf_vi_(object, group_factors, type_vi = 'permute', oobag_fun = oobag_fun)
 }
 
-#' @rdname orsf_vi_negate
+#' @rdname orsf_vi
 #' @export
 orsf_vi_anova <- function(object, group_factors = TRUE, ...){
  check_dots(list(...), .f = orsf_vi_anova)
@@ -97,6 +182,13 @@ orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
                'permute' = orsf_vi_oobag_(object, type_vi, oobag_fun))
 
  if(group_factors) {
+
+  if(is.null(object$data)){
+   stop("training data were not found in object, ",
+        "but are needed to collapse factor importance values. ",
+        "Did you use attach_data = FALSE when ",
+        "running orsf()?", call. = FALSE)
+  }
 
   fi <- get_fctr_info(object)
 
@@ -203,8 +295,8 @@ orsf_vi_oobag_ <- function(object, type_vi, oobag_fun){
 
  out <- f_oobag_vi(x = x[sorted, ],
                    y = y[sorted, ],
-                   last_eval_stat = last_eval_stat,
                    forest = object$forest,
+                   last_eval_stat = last_eval_stat,
                    time_pred_ = object$pred_horizon,
                    f_oobag_eval = f_oobag_eval,
                    type_oobag_eval_ = type_oobag_eval)

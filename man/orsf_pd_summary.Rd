@@ -32,22 +32,24 @@ orsf_pd_ice(
 )
 }
 \arguments{
-\item{object}{(\emph{aorsf}) An accelerated oblique random survival forest model.}
+\item{object}{(\emph{aorsf}) an oblique random survival forest (ORSF; see \link{orsf}).}
 
 \item{pd_data}{(\emph{data frame}) that will be used to compute partial
 dependence. If \code{NULL}, then the training data of \code{object} will be
 used. If the training data were not attached to \code{object}
-(see \code{attach_data} input in \link{orsf}), an error will be triggered.
+(see \code{attach_data} input in \link{orsf}), an error will be triggered.}
 
-@srrstats {G2.1a} explicit secondary documentation of expectations on data types of all vector inputs}
-
-\item{pd_spec}{(\emph{named list} or \emph{data.frame}). If \code{pd_spec} is a named list,
+\item{pd_spec}{(\emph{named list} or \emph{data.frame}).
+\itemize{
+\item If \code{pd_spec} is a named list,
 Each item in the list should be a vector of values that will be used as
 points in the partial dependence function. The name of each item in the
 list should indicate which variable will be modified to take the
-corresponding values. If \code{pd_spec} is a \code{data.frame}, columns will
+corresponding values.
+\item If \code{pd_spec} is a \code{data.frame}, columns will
 indicate variable names, values will indicate variable values, and
-partial dependence will be computed using the inputs on each row.}
+partial dependence will be computed using the inputs on each row.
+}}
 
 \item{pred_horizon}{(\emph{double}) a single time or a vector of times
 indicating the time(s) that predicted risk or survival probabilities
@@ -91,12 +93,15 @@ skipped.}
 (not currently used).}
 }
 \value{
-a \code{data.table} containing summarized partial dependence
-values if using \code{orsf_pd_summery} or individual conditional
-expectation (ICE) partial dependence if using \code{orsf_pd_ice}.
+\itemize{
+\item \code{orsf_pd_summary}: a \code{data.table} containing summarized partial
+dependence values.
+\item \code{orsf_pd_ice}: a \code{data.table} with individual conditional
+expectations (ICE).
+}
 }
 \description{
-ORSF partial dependence
+Compute partial dependence using oblique random survival forests.
 }
 \examples{
 

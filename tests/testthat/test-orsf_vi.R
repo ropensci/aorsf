@@ -146,10 +146,17 @@ fit <- orsf(pbc_vi,
             importance = "negate",
             oobag_eval_every = 100)
 
+set.seed(32987)
 fit_anova <- orsf(pbc_vi,
                   formula = Surv(time, status) ~ age + sex + bili + junk + junk_cat,
                   importance = "anova",
                   oobag_eval_every = 100)
+
+set.seed(32987)
+fit_permute <- orsf(pbc_vi,
+                    formula = Surv(time, status) ~ age + sex + bili + junk + junk_cat,
+                    importance = "permute",
+                    oobag_eval_every = 100)
 
 set.seed(32987)
 fit_no_vi <- orsf(pbc_vi,
@@ -163,9 +170,36 @@ test_that(
  code = {
 
   expect_equal(
-   fit$importance, # TODO: something going on with name order here.
+   fit$importance, # something going on with name order here.
    orsf_vi_negate(fit, group_factors = FALSE)[names(fit$importance)]
   )
+
+  expect_equal(
+   fit$importance,
+   orsf_vi(fit,
+           group_factors = FALSE,
+           importance = 'negate')[names(fit$importance)]
+  )
+
+  # can't extract what isn't there
+  expect_error(orsf_vi(fit_no_vi), regexp = 'no variable importance')
+
+  # general api function matches the expected values of lower-level things
+  expect_equal(orsf_vi(fit_anova, group_factors = F), fit_anova$importance)
+
+  # negation results identical across api funs
+  expect_equal(
+   orsf_vi_negate(fit_no_vi),
+   orsf_vi(fit_no_vi, importance = 'negate')
+  )
+
+  # permutation results identical across api funs using same seed
+  set.seed(329)
+  vi_permute_1 <- orsf_vi_permute(fit_no_vi)
+  set.seed(329)
+  vi_permute_2 <- orsf_vi(fit_no_vi, importance = 'permute')
+
+  expect_equal(vi_permute_2, vi_permute_1)
 
   expect_error(orsf_vi_anova(fit, group_factors = FALSE),
                regexp = "ANOVA")
@@ -197,6 +231,17 @@ test_that(
   expect_gt(fit_anova$importance['bili'], fit_anova$importance['junk_cat_c'])
   expect_gt(fit_anova$importance['bili'], fit_anova$importance['junk_cat_d'])
   expect_gt(fit_anova$importance['bili'], fit_anova$importance['junk_cat_e'])
+ }
+)
+
+test_that(
+ desc = "permutation importance picks the right variable",
+ code = {
+  expect_gt(fit_permute$importance['bili'], fit_anova$importance['junk'])
+  expect_gt(fit_permute$importance['bili'], fit_anova$importance['junk_cat_b'])
+  expect_gt(fit_permute$importance['bili'], fit_anova$importance['junk_cat_c'])
+  expect_gt(fit_permute$importance['bili'], fit_anova$importance['junk_cat_d'])
+  expect_gt(fit_permute$importance['bili'], fit_anova$importance['junk_cat_e'])
  }
 )
 

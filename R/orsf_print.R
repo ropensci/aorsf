@@ -35,6 +35,7 @@ print.aorsf <- function(x, ...){
  info_names_x         <- get_names_x(x)
  info_leaf_min_obs    <- get_leaf_min_obs(x)
  info_leaf_min_events <- get_leaf_min_events(x)
+ info_vi              <- get_importance(x)
 
  info_oobag_type <- info_oobag_stat <- 'none'
 
@@ -69,6 +70,7 @@ print.aorsf <- function(x, ...){
      paste0('      Min events in leaf: ', info_leaf_min_events),
      paste0('          OOB stat value: ', info_oobag_stat     ),
      paste0('           OOB stat type: ', info_oobag_type     ),
+     paste0('     Variable importance: ', info_vi             ),
      '\n-----------------------------------------',
      sep = '\n')
 

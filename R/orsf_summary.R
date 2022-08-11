@@ -14,13 +14,20 @@
 #' @param n_variables (_integer_) how many variables should be summarized?
 #'   Setting this input to a lower number will reduce computation time.
 #'
+#'
 #' @return an object of class 'aorsf_summary'
 #'
-#' @details if `pred_horizon` is left unspecified, the median value of
+#' @details
+#'
+#'  If `pred_horizon` is left unspecified, the median value of
 #'    the time-to-event variable in `object`'s training data will be used.
 #'    It is recommended to always specify your own prediction horizon,
 #'    as the median time may not be an especially meaningful horizon to
 #'    compute predicted risk values at.
+#'
+#'  If `object` already has variable importance values, you can
+#'    safely bypass the computation of variable importance in this function
+#'    by setting importance = 'none'.
 #'
 #' @export
 #'
@@ -28,7 +35,18 @@
 #'
 #' object <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 #'
-#' orsf_summarize_uni(object, n_variables = 3)
+#' # since anova importance was used to make object, we can
+#' # safely say importance = 'none' and skip computation of
+#' # variable importance while running orsf_summarize_uni
+#'
+#' orsf_summarize_uni(object, n_variables = 3, importance = 'none')
+#'
+#' # however, if we want to summarize object according to variables
+#' # ranked by negation importance, we can compute negation importance
+#' # within orsf_summarize_uni() as follows:
+#'
+#' orsf_summarize_uni(object, n_variables = 3, importance = 'negate')
+#'
 #'
 orsf_summarize_uni <- function(object,
                                n_variables = NULL,
@@ -74,44 +92,19 @@ orsf_summarize_uni <- function(object,
 
  }
 
- if(!is.null(pred_horizon)){
-
-  check_arg_type(arg_value = pred_horizon,
-                 arg_name = 'pred_horizon',
-                 expected_type = 'numeric')
-
-  check_arg_gt(arg_value = pred_horizon,
-               arg_name = 'pred_horizon',
-               bound = 0)
-
-  check_arg_lteq(arg_value = pred_horizon,
-                 arg_name = 'pred_horizon',
-                 bound = get_max_time(object),
-                 append_to_msg = '(max time in training data)')
-
- }
+ check_predict(object = object,
+               pred_horizon = pred_horizon,
+               pred_type = pred_type)
 
  if(is.null(pred_horizon)) pred_horizon <- object$pred_horizon
 
+ if(importance == 'none' && get_importance(object) == 'none')
+  stop("importance cannot be 'none' if object does not have variable ",
+       " importance values.", call. = FALSE)
 
- check_arg_type(arg_value = pred_type,
-                arg_name = 'pred_type',
-                expected_type = 'character')
+ check_orsf_inputs(importance = importance)
 
- check_arg_length(arg_value = pred_type,
-                  arg_name = 'pred_type',
-                  expected_length = 1)
-
- check_arg_is_valid(arg_value = pred_type,
-                    arg_name = 'pred_type',
-                    valid_options = c("risk", "survival"))
-
-
- x_numeric_key <- get_numeric_bounds(object)
-
- fctr_info <- get_fctr_info(object)
-
- n_obs <- get_n_obs(object)
+ if(importance == 'none') importance <- get_importance(object)
 
  vi <- switch(
   importance,
@@ -121,6 +114,12 @@ orsf_summarize_uni <- function(object,
  )
 
  if(is.null(n_variables)) n_variables <- length(vi)
+
+ x_numeric_key <- get_numeric_bounds(object)
+
+ fctr_info <- get_fctr_info(object)
+
+ n_obs <- get_n_obs(object)
 
  pd_spec <- list_init(names(vi)[seq(n_variables)])
 
@@ -362,3 +361,34 @@ print.aorsf_summary_uni <- function(x, n_variables = NULL, ...){
           new = .sd_orig)
 
 }
+
+
+
+#' Coerce to data.table
+#'
+#' Convert an 'aorsf_summary' object into a `data.table` object.
+#'
+#' @param x an object of class 'aorsf_summary_uni'
+#'
+#' @param ... not used
+#'
+#' @return a [data.table][data.table::data.table-package]
+#'
+#' @export
+#'
+#' @examples
+#'
+#' object <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+#'
+#' smry <- orsf_summarize_uni(object, n_variables = 3)
+#'
+#' as.data.table(smry)
+#'
+as.data.table.aorsf_summary_uni <- function(x, ...){
+ smry$dt
+}
+
+
+
+
+

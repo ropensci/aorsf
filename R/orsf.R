@@ -134,7 +134,7 @@
 #'   - 'negate': compute negation importance
 #'   - 'permute': compute permutation importance
 #'
-#'  See [orsf_vi_negate] for descriptions of the available methods.
+#'  See [orsf_vi] for descriptions of the available methods.
 #'
 #' @param tree_seeds (_integer vector_) if specified, random seeds will be set
 #'   using the values in `tree_seeds[i]`  before growing tree i. Two forests

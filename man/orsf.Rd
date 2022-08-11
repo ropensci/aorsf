@@ -113,7 +113,7 @@ Harrell's C-statistic to evaluate out-of-bag predictions. See details.}
 \item 'permute': compute permutation importance
 }
 
-See \link{orsf_vi_negate} for descriptions of the available methods.}
+See \link{orsf_vi} for descriptions of the available methods.}
 
 \item{tree_seeds}{(\emph{integer vector}) if specified, random seeds will be set
 using the values in \code{tree_seeds[i]}  before growing tree i. Two forests

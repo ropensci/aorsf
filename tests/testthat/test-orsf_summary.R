@@ -65,14 +65,6 @@ test_that("output is normal", {
 
  expect_true(smry_2$pred_horizon == 1000)
 
- expect_error(orsf_summarize_uni(object,
-                                 pred_horizon = 1e10,
-                                 n_variables = n_variables,
-                                 pred_type = 'survival'),
-              regexp = 'max time')
-
-
-
 })
 
 

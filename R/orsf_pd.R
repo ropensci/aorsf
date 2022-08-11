@@ -3,24 +3,26 @@
 
 #' ORSF partial dependence
 #'
-#' @srrstats {G1.4} *documented with Roxygen*
+#' Compute partial dependence using oblique random survival forests.
 #'
 #' @inheritParams predict.aorsf
-#'
-#' @param object (_aorsf_) An accelerated oblique random survival forest model.
 #'
 #' @param pd_data (_data frame_) that will be used to compute partial
 #'   dependence. If `NULL`, then the training data of `object` will be
 #'   used. If the training data were not attached to `object`
 #'   (see `attach_data` input in [orsf]), an error will be triggered.
 #'
-#'  @srrstats {G2.1a} explicit secondary documentation of expectations on data types of all vector inputs
+#' @srrstats {G2.1a} *explicit secondary documentation of expectations on data types of all vector inputs*
 #'
-#' @param pd_spec (_named list_ or _data.frame_). If `pd_spec` is a named list,
+#' @param pd_spec (_named list_ or _data.frame_).
+#'
+#'  -  If `pd_spec` is a named list,
 #'   Each item in the list should be a vector of values that will be used as
 #'   points in the partial dependence function. The name of each item in the
 #'   list should indicate which variable will be modified to take the
-#'   corresponding values. If `pd_spec` is a `data.frame`, columns will
+#'   corresponding values.
+#'
+#'  - If `pd_spec` is a `data.frame`, columns will
 #'   indicate variable names, values will indicate variable values, and
 #'   partial dependence will be computed using the inputs on each row.
 #'
@@ -56,9 +58,11 @@
 #' @param ... Further arguments passed to or from other methods
 #'   (not currently used).
 #'
-#' @return a `data.table` containing summarized partial dependence
-#'   values if using `orsf_pd_summery` or individual conditional
-#'   expectation (ICE) partial dependence if using `orsf_pd_ice`.
+#' @return
+#'  - `orsf_pd_summary`: a `data.table` containing summarized partial
+#'    dependence values.
+#'  - `orsf_pd_ice`: a `data.table` with individual conditional
+#'    expectations (ICE).
 #'
 #' @export
 #'
@@ -107,7 +111,7 @@ orsf_pd_summary <- function(object,
      pd_data         = pd_data,
      pd_spec         = pd_spec,
      pred_horizon    = .pred_horizon,
-     pred_type            = pred_type,
+     pred_type       = pred_type,
      expand_grid     = expand_grid,
      prob_values     = prob_values,
      prob_labels     = prob_labels,
@@ -141,7 +145,7 @@ orsf_pd_summary <- function(object,
           pd_data         = pd_data,
           pd_spec         = pd_spec,
           pred_horizon    = pred_horizon,
-          pred_type            = pred_type,
+          pred_type       = pred_type,
           type_output     = 'smry',
           type_input      = if(expand_grid) 'grid' else 'loop',
           prob_values     = prob_values,
@@ -175,7 +179,7 @@ orsf_pd_ice <- function(object,
      pd_data         = pd_data,
      pd_spec         = pd_spec,
      pred_horizon    = .pred_horizon,
-     pred_type            = pred_type,
+     pred_type       = pred_type,
      expand_grid     = expand_grid,
      oobag           = oobag,
      boundary_checks = boundary_checks
@@ -202,7 +206,7 @@ orsf_pd_ice <- function(object,
           pd_data         = pd_data,
           pd_spec         = pd_spec,
           pred_horizon    = pred_horizon,
-          pred_type            = pred_type,
+          pred_type       = pred_type,
           type_output     = 'ice',
           type_input      = if(expand_grid) 'grid' else 'loop',
           prob_values     = c(0.025, 0.50, 0.975),
@@ -247,12 +251,6 @@ orsf_pd_ <- function(object,
        "did you use oobag_pred = FALSE when running orsf()?",
        call. = FALSE)
 
- if(length(pred_horizon) > 1){
-  stop("orsf_pd functions only allow 1 prediction time,",
-       " but your pred_horizon input has length ", length(pred_horizon), ".",
-       call. = FALSE)
- }
-
  if(oobag && !is.null(pd_data)){
 
   warning(
@@ -267,17 +265,16 @@ orsf_pd_ <- function(object,
 
  }
 
-
-
  if(is.null(pd_data)) pd_data <- object$data
 
  if(is.null(pd_data)) stop("training data were not found in object. ",
                            "did you use attach_data = FALSE when ",
                            "running orsf()?", call. = FALSE)
 
-
-
- check_predict(object, pd_data, pred_horizon, pred_type)
+ check_predict(object = object,
+               new_data = pd_data,
+               pred_horizon = pred_horizon,
+               pred_type = pred_type)
 
  if(is_empty(pd_spec)){
 

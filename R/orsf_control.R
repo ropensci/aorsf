@@ -47,10 +47,7 @@
 #' @srrstats {ML2.5} *Provide the option to bypass default transformations.*
 #'
 #' @param do_scale (_logical_) if `TRUE`, values of predictors will be
-#'   scaled prior to running Newton Raphson scoring. Setting to `FALSE` will
-#'   reduce computation time but will also make the regression unstable, which
-#'   is why the default value is `TRUE`. For stability, `orsf` will only let
-#'   you set this input to `FALSE` if you also set `iter_max` to 1.
+#'   scaled prior to running Newton Raphson scoring.
 #'
 #' @return an object of class `'aorsf_control'`, which should be used as
 #'  an input for the `control` argument of [orsf].
@@ -58,6 +55,12 @@
 #' @export
 #'
 #' @family orsf_control
+#'
+#' @details
+#'
+#' Setting `do_scale` to `FALSE` will reduce computation time but will also
+#'  make your `orsf` model dependent on the scale of your data, which
+#'  is why the default value is `TRUE`.
 #'
 #' @references
 #'
@@ -97,11 +100,15 @@ orsf_control_cph <- function(method = 'efron',
 
 #' @rdname orsf_control_cph
 #' @export
-orsf_control_fast <- function(iter_max = 1,
-                              do_scale = FALSE,
+orsf_control_fast <- function(method = 'efron',
+                              do_scale = TRUE,
                               ...){
+
  check_dots(list(...), orsf_control_fast)
- orsf_control_cph(iter_max = iter_max, do_scale = do_scale)
+ orsf_control_cph(method = method,
+                  iter_max = 1,
+                  do_scale = do_scale)
+
 }
 
 #' Elastic net control

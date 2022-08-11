@@ -39,7 +39,7 @@ options are
 \item 'permute': compute permutation importance
 }
 
-See \link{orsf_vi_negate} for descriptions of the available methods.}
+See \link{orsf_vi} for descriptions of the available methods.}
 
 \item{...}{not currently used.}
 }
@@ -50,16 +50,31 @@ an object of class 'aorsf_summary'
 ORSF summary of univariate information
 }
 \details{
-if \code{pred_horizon} is left unspecified, the median value of
+If \code{pred_horizon} is left unspecified, the median value of
 the time-to-event variable in \code{object}'s training data will be used.
 It is recommended to always specify your own prediction horizon,
 as the median time may not be an especially meaningful horizon to
 compute predicted risk values at.
+
+If \code{object} already has variable importance values, you can
+safely bypass the computation of variable importance in this function
+by setting importance = 'none'.
 }
 \examples{
 
 object <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 
-orsf_summarize_uni(object, n_variables = 3)
+# since anova importance was used to make object, we can
+# safely say importance = 'none' and skip computation of
+# variable importance while running orsf_summarize_uni
+
+orsf_summarize_uni(object, n_variables = 3, importance = 'none')
+
+# however, if we want to summarize object according to variables
+# ranked by negation importance, we can compute negation importance
+# within orsf_summarize_uni() as follows:
+
+orsf_summarize_uni(object, n_variables = 3, importance = 'negate')
+
 
 }

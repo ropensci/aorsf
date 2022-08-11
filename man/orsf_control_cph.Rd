@@ -13,7 +13,7 @@ orsf_control_cph(
   ...
 )
 
-orsf_control_fast(iter_max = 1, do_scale = FALSE, ...)
+orsf_control_fast(method = "efron", do_scale = TRUE, ...)
 }
 \arguments{
 \item{method}{(\emph{character}) a character string specifying the method
@@ -36,10 +36,7 @@ linear combinations of inputs, iteration continues until convergence
 \code{iter_max}. A default value of 1 is used for computational efficiency.}
 
 \item{do_scale}{(\emph{logical}) if \code{TRUE}, values of predictors will be
-scaled prior to running Newton Raphson scoring. Setting to \code{FALSE} will
-reduce computation time but will also make the regression unstable, which
-is why the default value is \code{TRUE}. For stability, \code{orsf} will only let
-you set this input to \code{FALSE} if you also set \code{iter_max} to 1.}
+scaled prior to running Newton Raphson scoring.}
 
 \item{...}{Further arguments passed to or from other methods
 (not currently used).}
@@ -53,6 +50,11 @@ Use Newton-Raphson scoring to identify linear combinations of input
 variables while fitting an \link{orsf} model. For more details on
 of Newton-Raphson scoring and the Cox proportional hazards
 model, see Therneau and Grambsch (2000).
+}
+\details{
+Setting \code{do_scale} to \code{FALSE} will reduce computation time but will also
+make your \code{orsf} model dependent on the scale of your data, which
+is why the default value is \code{TRUE}.
 }
 \examples{
 
