@@ -12,13 +12,10 @@ authors:
     orcid: 0000-0001-7399-2299
     affiliation: 1 # (Note: multiple affiliations must be quoted)
   - name: Sawyer Welden
-    orcid: 0000-0000-0000-0000
     affiliation: 1
   - name: Kristin Lenoir
-    orcid: 0000-0000-0000-0000
     affiliation: 1
   - name: Nicholas M Pajewski
-    orcid: 0000-0000-0000-0000
     affiliation: 1
 affiliations:
  - name: Wake Forest University School of Medicine
