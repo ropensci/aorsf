@@ -225,10 +225,24 @@ arXiv e-prints. 2022 Aug 3:arXiv-2208. URL: https://arxiv.org/abs/2208.01129</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Note: you can't call orsf_vi_anova() on fit_no_vi because anova</span></span></span>
 <span class="r-in"><span><span class="co"># VI can only be computed while the forest is being grown.</span></span></span>
-<span class="r-in"><span><span class="fu">orsf_vi_negate</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in is_aorsf(object):</span> object 'fit' not found</span>
-<span class="r-in"><span><span class="fu">orsf_vi_permute</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in is_aorsf(object):</span> object 'fit' not found</span>
+<span class="r-in"><span><span class="fu">orsf_vi_negate</span><span class="op">(</span><span class="va">fit_no_vi</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           age          bili        copper           sex         stage </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0152635966  0.0126067931  0.0080745989  0.0069806210  0.0050010419 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       spiders       ascites       protime         edema      platelet </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0043238175  0.0036986872  0.0031256512  0.0021507457  0.0007293186 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        hepato           ast          trig      alk.phos           trt </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0001562826 -0.0004167535 -0.0019795791 -0.0020837675 -0.0027609919 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          chol       albumin </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0031777454 -0.0055219837 </span>
+<span class="r-in"><span><span class="fu">orsf_vi_permute</span><span class="op">(</span><span class="va">fit_no_vi</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          bili           age       ascites          chol        copper </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9.220671e-03  8.491352e-03  4.167535e-03  3.073557e-03  2.552615e-03 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         stage       spiders       albumin       protime           sex </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2.240050e-03  4.688477e-04  3.646593e-04  2.604709e-04 -5.209419e-05 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         edema      alk.phos        hepato           trt           ast </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -1.327161e-04 -9.897895e-04 -1.041884e-03 -1.406543e-03 -1.667014e-03 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          trig </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -2.604709e-03 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># third workflow ------------------------------------------------------------</span></span></span>
 <span class="r-in"><span><span class="co"># fit an aorsf object and compute vi at the same time</span></span></span>
@@ -238,25 +252,25 @@ arXiv e-prints. 2022 Aug 3:arXiv-2208. URL: https://arxiv.org/abs/2208.01129</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># get the vi instantly (i.e., it doesn't need to be computed again)</span></span></span>
 <span class="r-in"><span><span class="fu">orsf_vi_permute</span><span class="op">(</span><span class="va">fit_permute_vi</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          bili           age        copper       albumin       ascites </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0093769535  0.0088560117  0.0060950198  0.0032819337  0.0029172744 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           ast        hepato          chol         stage      platelet </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0023963326  0.0019274849  0.0017712023  0.0017191081  0.0015107314 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       protime         edema           sex      alk.phos       spiders </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0011460721  0.0003894661 -0.0003646593 -0.0006251302 -0.0007293186 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          trig           trt </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0019274849 -0.0039591582 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          bili           age        copper         stage       protime </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0105751198  0.0103667431  0.0072410919  0.0057824547  0.0044801000 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       ascites          chol       spiders           ast       albumin </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0029693686  0.0025526151  0.0025005209  0.0020316733  0.0016149198 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           sex      platelet          trig        hepato         edema </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0013023547  0.0008856012  0.0005730360  0.0004167535 -0.0006945892 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           trt      alk.phos </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0016670140 -0.0026568035 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># You can still get negation vi from this fit, but it needs to be computed</span></span></span>
 <span class="r-in"><span><span class="fu">orsf_vi_negate</span><span class="op">(</span><span class="va">fit_permute_vi</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          bili           age       protime           ast       ascites </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0146384663  0.0128672640  0.0051052303  0.0047926651  0.0042196291 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       spiders         edema           sex        copper        hepato </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0033861221  0.0018778714  0.0013544488  0.0004688477 -0.0002083767 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         stage          chol          trig           trt      platelet </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0007293186 -0.0008335070 -0.0020316733 -0.0020837675 -0.0032298395 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       albumin      alk.phos </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0035944989 -0.0043759116 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          bili           age        copper           sex       ascites </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0130756408  0.0102104605  0.0072931861  0.0048447593  0.0044280058 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         stage       spiders         edema        hepato           ast </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0042717233  0.0029172744  0.0021296599  0.0016670140  0.0014586372 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          chol          trig      alk.phos      platelet           trt </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0010418837  0.0001562826 -0.0003646593 -0.0028130861 -0.0032298395 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       albumin </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.0059908314 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
