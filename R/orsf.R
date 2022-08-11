@@ -267,6 +267,11 @@
 #'   *Annals of applied statistics*. 2019 Sep;13(3):1847-83.
 #'   DOI: 10.1214/19-AOAS1261
 #'
+#' Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar M, Pandey A, Pajewski NM.
+#'   Accelerated and interpretable oblique random survival forests.
+#'   arXiv e-prints. 2022 Aug 3:arXiv-2208.
+#'   URL: https://arxiv.org/abs/2208.01129
+#'
 #' Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA.
 #' Evaluating the Yield of Medical Tests. *JAMA*. 1982;247(18):2543–2546.
 #' DOI: 10.1001/jama.1982.03320430047030

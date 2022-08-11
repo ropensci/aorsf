@@ -21,7 +21,7 @@ predictions with oblique random survival forests (ORSFs).
 
 ## Why aorsf?
 
--   over 400 times faster than `obliqueRSF`.
+-   over 400 times faster than `obliqueRSF` (see Jaeger, 2019).
 
 -   accurate predictions for time-to-event outcomes.
 
@@ -76,14 +76,14 @@ How about interpreting the fit?
 
     ``` r
     orsf_vi_negate(fit)
-    #>          bili           age       protime       ascites       albumin 
-    #>  0.0129714524  0.0125026047  0.0085955407  0.0063554907  0.0061992082 
-    #>       spiders           sex        copper         edema           ast 
-    #>  0.0057303605  0.0049489477  0.0044280058  0.0027783566  0.0018753907 
-    #>        hepato          trig         stage      alk.phos      platelet 
-    #>  0.0018232965  0.0016670140  0.0005209419 -0.0006772244 -0.0008856012 
-    #>          chol           trt 
-    #> -0.0016670140 -0.0025526151
+    #>          bili           sex       protime           age         stage 
+    #>  1.187747e-02  6.720150e-03  6.407585e-03  6.042926e-03  5.730360e-03 
+    #>        copper       spiders       ascites         edema           ast 
+    #>  5.365701e-03  3.177745e-03  2.865180e-03  2.421139e-03  2.135862e-03 
+    #>        hepato          chol      alk.phos           trt       albumin 
+    #>  1.041884e-03  5.209419e-05 -5.209419e-04 -2.135862e-03 -3.021463e-03 
+    #>      platelet 
+    #> -5.834549e-03
     ```
 
 -   use `orsf_pd_ice()` or `orsf_pd_summary()` for individual or
@@ -91,12 +91,13 @@ How about interpreting the fit?
 
     ``` r
     orsf_pd_summary(fit, pd_spec = list(bili = c(1:5)))
-    #>    bili      mean        lwr      medn       upr
-    #> 1:    1 0.2376652 0.01286480 0.1331328 0.8669733
-    #> 2:    2 0.2904995 0.04154464 0.1889294 0.8943053
-    #> 3:    3 0.3441193 0.06285072 0.2538335 0.9146453
-    #> 4:    4 0.3973732 0.10091026 0.3247072 0.9271855
-    #> 5:    5 0.4424865 0.14005297 0.3807676 0.9315099
+    #>     bili      mean        lwr      medn       upr
+    #>    <int>     <num>      <num>     <num>     <num>
+    #> 1:     1 0.2448441 0.01284079 0.1312983 0.8747557
+    #> 2:     2 0.2812156 0.02878862 0.1667878 0.8927174
+    #> 3:     3 0.3202419 0.04351310 0.2171733 0.9050862
+    #> 4:     4 0.3584524 0.06467319 0.2707156 0.9151960
+    #> 5:     5 0.3910040 0.08913003 0.3138446 0.9204218
     ```
 
 -   use `orsf_summarize_uni()` to show the top predictor variables in an
@@ -110,55 +111,71 @@ How about interpreting the fit?
 
     orsf_summarize_uni(object = fit, n_variables = 5)
     #> 
-    #> -- bili (VI Rank: 1) ---------------------------
+    #> -- bili (VI Rank: 1) ----------------------------
     #> 
-    #>        |---------------- risk ----------------|
-    #>  Value      Mean    Median     25th %    75th %
-    #>   0.80 0.2337275 0.1267164 0.04190426 0.3716894
-    #>   1.40 0.2526511 0.1452163 0.05476829 0.3998048
-    #>   3.52 0.3730196 0.2841226 0.16033444 0.5673070
+    #>         |---------------- risk ----------------|
+    #>   Value      Mean    Median     25th %    75th %
+    #>  <char>     <num>     <num>      <num>     <num>
+    #>    0.80 0.2405862 0.1252352 0.04384391 0.3843450
+    #>     1.4 0.2568429 0.1461177 0.05419999 0.4047258
+    #>     3.5 0.3412388 0.2453132 0.12975781 0.5353945
     #> 
-    #> -- age (VI Rank: 2) ----------------------------
+    #> -- sex (VI Rank: 2) -----------------------------
     #> 
-    #>        |---------------- risk ----------------|
-    #>  Value      Mean    Median     25th %    75th %
-    #>   41.5 0.2736650 0.1332843 0.04270990 0.4575449
-    #>   49.7 0.2993351 0.1656678 0.04910598 0.5203980
-    #>   56.6 0.3314766 0.2113831 0.06956163 0.5472662
+    #>         |---------------- risk ----------------|
+    #>   Value      Mean    Median     25th %    75th %
+    #>  <char>     <num>     <num>      <num>     <num>
+    #>       m 0.3507520 0.2415970 0.11829094 0.5454135
+    #>       f 0.2908204 0.1512969 0.04511101 0.5074316
     #> 
-    #> -- protime (VI Rank: 3) ------------------------
+    #> -- protime (VI Rank: 3) -------------------------
     #> 
-    #>        |---------------- risk ----------------|
-    #>  Value      Mean    Median     25th %    75th %
-    #>   10.0 0.2815397 0.1430703 0.04704506 0.4987604
-    #>   10.6 0.2947893 0.1526181 0.05252053 0.5393637
-    #>   11.2 0.3176024 0.1831842 0.06925762 0.5566000
+    #>         |---------------- risk ----------------|
+    #>   Value      Mean    Median     25th %    75th %
+    #>  <char>     <num>     <num>      <num>     <num>
+    #>      10 0.2783060 0.1510614 0.04424733 0.4966815
+    #>      11 0.2900296 0.1579231 0.05008208 0.5068144
+    #>      11 0.3124264 0.1818876 0.06789407 0.5116768
     #> 
-    #> -- ascites (VI Rank: 4) ------------------------
+    #> -- age (VI Rank: 4) -----------------------------
     #> 
-    #>        |---------------- risk ----------------|
-    #>  Value      Mean    Median     25th %    75th %
-    #>      0 0.2954662 0.1462719 0.04778412 0.5409697
-    #>      1 0.4597940 0.3742798 0.25999819 0.6551916
+    #>         |---------------- risk ----------------|
+    #>   Value      Mean    Median     25th %    75th %
+    #>  <char>     <num>     <num>      <num>     <num>
+    #>      42 0.2675298 0.1358725 0.04121726 0.4503862
+    #>      50 0.2916598 0.1720650 0.04691813 0.5062555
+    #>      57 0.3236244 0.2226635 0.06622152 0.5318751
     #> 
-    #> -- albumin (VI Rank: 5) ------------------------
+    #> -- stage (VI Rank: 5) ---------------------------
     #> 
-    #>        |---------------- risk ----------------|
-    #>  Value      Mean    Median     25th %    75th %
-    #>   3.31 0.3176012 0.1789175 0.05525473 0.5785138
-    #>   3.54 0.2934144 0.1527704 0.04236004 0.5225606
-    #>   3.77 0.2791547 0.1412617 0.04199867 0.4937002
+    #>         |---------------- risk ----------------|
+    #>   Value      Mean    Median     25th %    75th %
+    #>  <char>     <num>     <num>      <num>     <num>
+    #>       1 0.2513571 0.1402757 0.04384579 0.4245918
+    #>       2 0.2587388 0.1458657 0.04156162 0.4391262
+    #>       3 0.2829240 0.1528120 0.05249676 0.5021513
+    #>       4 0.3423412 0.2281354 0.08819499 0.5622738
     #> 
     #>  Predicted risk at time t = 1788 for top 5 predictors
     ```
 
+## Comparison to existing software
+
+Jaeger (2022) describes `aorsf` in detail, with a summary of the
+procedures used in the tree fitting algorithm and a general benchmark
+comparing `aorsf` with `obliqueRSF` (and several other learners) in
+terms of prediction accuracy and computational efficiency.
+
 ## References
 
-Byron C. Jaeger, D. Leann Long, Dustin M. Long, Mario Sims, Jeff M.
-Szychowski, Yuan-I Min, Leslie A. Mcclure, George Howard, Noah Simon
-(2019). Oblique Random Survival Forests. Ann. Appl. Stat. 13(3):
-1847-1883. URL <https://doi.org/10.1214/19-AOAS1261> DOI:
-10.1214/19-AOAS1261
+Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA,
+Howard G, Simon N. Oblique random survival forests. The Annals of
+Applied Statistics. 2019 Sep;13(3):1847-83. URL:
+<https://doi.org/10.1214/19-AOAS1261> DOI: 10.1214/19-AOAS1261
+
+Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar M, Pandey A, Pajewski
+NM. Accelerated and interpretable oblique random survival forests. arXiv
+e-prints. 2022 Aug 3:arXiv-2208. URL: <https://arxiv.org/abs/2208.01129>
 
 ## Funding
 
