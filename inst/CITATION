@@ -1,5 +1,26 @@
 citHeader("To cite aorsf in publications use:")
 
+citEntry(
+  entry    = "Article",
+  title    = "Accelerated and interpretable oblique random survival forests",
+  author   = personList(as.person("Byron C. Jaeger"),
+                        as.person("Sawyer Welden"),
+                        as.person("Kristin Lenoir"),
+                        as.person("Jaime L. Speiser"),
+                        as.person("Matthew W. Segar"),
+                        as.person("Ambarish Pandey"),
+                        as.person("Nicholas M. Pajewski")),
+  journal  = "arXiv",
+  year     = "2022",
+  url      = "https://arxiv.org/abs/2208.01129",
+  textVersion = paste(
+   "Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM.",
+   "Accelerated and interpretable oblique random survival forests.",
+   "arXiv e-prints.",
+   "2022 Aug 3:arXiv-2208."
+  )
+)
+
 citEntry(entry = "Article",
   title        = "Oblique Random Survival Forests",
   author       = personList(
@@ -21,9 +42,12 @@ citEntry(entry = "Article",
   url          = "https://doi.org/10.1214/19-AOAS1261",
 
   textVersion  =
-  paste("Byron C. Jaeger, D. Leann Long, Dustin M. Long, Mario Sims, Jeff M. Szychowski, Yuan-I Min, Leslie A. Mcclure, George Howard, Noah Simon (2019).",
+  paste("Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA, Howard G, Simon N.",
         "Oblique Random Survival Forests.",
-        "Ann. Appl. Stat. 13(3): 1847-1883.",
+        "The Annals of Applied Statistics.",
+        "13(3): 1847-1883.",
         "URL https://doi.org/10.1214/19-AOAS1261",
-        "DOI: 10.1214/19-AOAS1261")
+        "DOI: 10.1214/19-AOAS1261"),
+  header = "if orsf_control_net() is used please additionally cite:"
 )
+
