@@ -653,9 +653,11 @@ orsf <- function(data,
 
  if(!is_empty(names_x_numeric)){
   numeric_bounds <-
-   sapply(select_cols(data, names_x_data[names_x_numeric]),
+   vapply(select_cols(data, names_x_data[names_x_numeric]),
           FUN = stats::quantile,
-          probs = c(0.10, 0.25, 0.50, 0.75, 0.90))
+          probs = c(0.10, 0.25, 0.50, 0.75, 0.90),
+          # returned value has length = length(probs)
+          FUN.VALUE = numeric(5))
  }
 
  y  <- as.matrix(select_cols(data, names_y_data))
@@ -835,7 +837,9 @@ orsf <- function(data,
 
  if(!no_fit) {
   n_leaves_mean <-
-   mean(sapply(orsf_out$forest, function(t) nrow(t$leaf_node_index)))
+   mean(vapply(orsf_out$forest,
+               function(t) nrow(t$leaf_node_index),
+               FUN.VALUE = integer(1)))
  }
 
 
@@ -1151,9 +1155,10 @@ orsf_train_ <- function(object,
 
  }
 
- attr(object, "n_leaves_mean") <- mean(
-  sapply(object$forest, function(t) nrow(t$leaf_node_index))
- )
+ attr(object, "n_leaves_mean") <-
+  mean(vapply(orsf_out$forest,
+              function(t) nrow(t$leaf_node_index),
+              FUN.VALUE = integer(1)))
 
  attr(object, 'trained') <- TRUE
 
