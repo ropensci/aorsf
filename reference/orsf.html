@@ -307,6 +307,10 @@ DOI: 10.1214/08-AOAS169</p>
 Mcclure LA, Howard G, Simon N. Oblique random survival forests.
 <em>Annals of applied statistics</em>. 2019 Sep;13(3):1847-83.
 DOI: 10.1214/19-AOAS1261</p>
+<p>Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar M, Pandey A, Pajewski NM.
+Accelerated and interpretable oblique random survival forests.
+arXiv e-prints. 2022 Aug 3:arXiv-2208.
+URL: https://arxiv.org/abs/2208.01129</p>
 <p>Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA.
 Evaluating the Yield of Medical Tests. <em>JAMA</em>. 1982;247(18):2543–2546.
 DOI: 10.1001/jama.1982.03320430047030</p>
@@ -330,7 +334,7 @@ DOI: 10.1001/jama.1982.03320430047030</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Average leaves per tree: 24</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Min observations in leaf: 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       Min events in leaf: 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           OOB stat value: 0.84</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           OOB stat value: 0.83</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            OOB stat type: Harrell's C-statistic</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -----------------------------------------</span>
@@ -347,16 +351,16 @@ DOI: 10.1001/jama.1982.03320430047030</p>
 <span class="r-in"><span><span class="co"># is assessed every 50 trees (50, 100, ..., 500)</span></span></span>
 <span class="r-in"><span><span class="va">fit_custom</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8169410</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.8258491</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.8262138</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.8279329</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.8314232</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.8315274</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.8337675</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.8342884</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.8342884</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.8354866</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8182955</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.8284018</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.8336633</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.8369973</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.8387685</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.8384038</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.8374140</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.8377266</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.8351219</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.8366847</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># make your own oobag function:</span></span></span>
 <span class="r-in"><span><span class="co"># (this is an R implementation of Harrell's C</span></span></span>
