@@ -66,7 +66,7 @@ orsf_fit <- pbc_orsf |>
 
 ```
 
-In addition to their reputation for slow computing, oblique decision trees are considered less interpretable than their axis-based counterparts. The opinionated developer of `aorsf` disagrees with this sentiment, and has included routines in `aorsf` that use coefficients from linear combinations of input variables to estimate variable importance and identify pair-wise interactions.
+In addition to their reputation for slow computing, oblique decision trees are considered less interpretable than their axis-based counterparts. `aorsf` includes routines that use coefficients from linear combinations of input variables to estimate variable importance.
 
 ### Variable importance
 
@@ -81,19 +81,6 @@ variable_importance <- orsf_vi_negate(orsf_fit)
 variable_importance
 
 ```
-
-
-<!-- ### Variable interaction -->
-
-<!-- ORSF's two-way interaction score for a pair of predictors is the proportion of variability in the coefficient of one predictor explained by the mean of the other. If one predictor's coefficient is highly correlated with another predictor's mean value, the two-way interaction score will be high (maximum value of the score is 1). If there is no correlation between the coefficient of one predictor and the mean value of another, the two-way interaction score will be low (minimum value of the score is 0). -->
-
-<!-- ```{r} -->
-
-<!-- variable_interaction <- orsf_interaction(orsf_fit) -->
-
-<!-- variable_interaction[1:5, ] -->
-
-<!-- ``` -->
 
 ### Partial dependence
 
@@ -122,54 +109,6 @@ ggplot(pd_data) +
  scale_y_continuous(limits = c(0, 1))
 
 ```
-
-The presence of edema clearly impacts predicted risk, which makes it hard to see the interaction effect in this plot. Let's align the partial dependence values for the edema subgroups so that each curve will start at a value of 0 
-
-```{r}
-
-# aligning predictions at lowest value of bili
-min_ed_0 <- with(pd_data, mean[edema == "0"   & bili == 0.6])
-min_ed_1 <- with(pd_data, mean[edema == "0.5" & bili == 0.6])
-min_ed_2 <- with(pd_data, mean[edema == "1"   & bili == 0.6])
-
-pd_data_aligned <-
- within(pd_data, {
-  value <- mean
-  value[edema == "0" ] <- value[edema == "0" ] - min_ed_0
-  value[edema == "0.5"] <- value[edema == "0.5"] - min_ed_1
-  value[edema == "1" ] <- value[edema == "1" ] - min_ed_2
- })
-
-head(pd_data_aligned)
-
-
-```
-
-With the aligned partial dependence values we can see the interaction effect clearly. Increasing bilirubin solicits a greater increase in predicted risk for patients with no edema (`edema == 0`), untreated edema (`edema == 0.5`), or successfully treated edema (`edema == 0.5`) compared to patients with therapy-resistant edema (`edema == 1`). 
-
-```{r}
-
-ggplot(pd_data_aligned) +
- aes(x = bili, y = value, col = edema) +
- geom_line() + 
- labs(y = 'Predictions centered at Bilirubin = 0.6',
-      x = 'Bilirubin',
-      title = 'Interaction between bilirubin and edema') + 
- scale_y_continuous(limits = c(0, 1))
-
-```
-
-The similarity in trajectories for patients with `edema == 0` and `edema == 0.5` suggests that `edema == 1` has the strongest modifying effect of bilirubin. As a sanity check, we can fit a Cox regression model and conduct a likelihood ratio test for this interaction: 
-
-```{r}
-
-library(survival)
-
-anova(coxph(Surv(time,status) ~ edema * bili, data = pbc_orsf))
-
-```
-
-The interaction p-value of 0.0208 above should not be interpreted in the usual way because it was not an apriori hypothesis, (I used other software to score every pairwise interaction in the data and picked one with a strong score). However, it is nice to see that an interaction identified by ORSF's partial dependence function is also identified with a traditional modeling strategy.
 
 ### Summarize ORSF models
 
