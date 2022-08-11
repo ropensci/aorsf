@@ -79,8 +79,8 @@
 #'
 #' # Note: you can't call orsf_vi_anova() on fit_no_vi because anova
 #' # VI can only be computed while the forest is being grown.
-#' orsf_vi_negate(fit)
-#' orsf_vi_permute(fit)
+#' orsf_vi_negate(fit_no_vi)
+#' orsf_vi_permute(fit_no_vi)
 #'
 #' # third workflow ------------------------------------------------------------
 #' # fit an aorsf object and compute vi at the same time
