@@ -137,6 +137,7 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <span><span class="co">#&gt;       Min events in leaf: 1</span></span>
 <span><span class="co">#&gt;           OOB stat value: 0.84</span></span>
 <span><span class="co">#&gt;            OOB stat type: Harrell's C-statistic</span></span>
+<span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -----------------------------------------</span></span></code></pre></div>
 <p>you may notice that the first input of <code>aorsf</code> is <code>data</code>. This is a design choice that makes it easier to use <code>orsf</code> with pipes (i.e., <code>%&gt;%</code> or <code>|&gt;</code>). For instance,</p>
@@ -156,7 +157,7 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 </ul>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">variable_importance</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_vi_negate.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span></span>
+<span><span class="va">variable_importance</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">variable_importance</span></span>
 <span><span class="co">#&gt;          bili           age           sex        copper       ascites </span></span>
@@ -327,7 +328,7 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <span> <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   2.513   0.000   2.512</span></span>
+<span><span class="co">#&gt;   2.789   0.001   2.789</span></span>
 <span></span>
 <span><span class="co"># and how long it takes to fit 50 cph trees</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
@@ -339,11 +340,11 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <span> <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   0.053   0.000   0.054</span></span>
+<span><span class="co">#&gt;    0.06    0.00    0.06</span></span>
 <span></span>
 <span><span class="va">t1</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">t2</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span></span>
 <span><span class="co">#&gt;  elapsed </span></span>
-<span><span class="co">#&gt; 46.51852</span></span></code></pre></div>
+<span><span class="co">#&gt; 46.48333</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="aorsf-and-other-machine-learning-software">aorsf and other machine learning software<a class="anchor" aria-label="anchor" href="#aorsf-and-other-machine-learning-software"></a>

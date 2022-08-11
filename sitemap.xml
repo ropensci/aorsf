@@ -37,6 +37,9 @@
     <loc>https://bcjaeger.github.io/aorsf/reference/aorsf-package.html</loc>
   </url>
   <url>
+    <loc>https://bcjaeger.github.io/aorsf/reference/as.data.table.aorsf_summary_uni.html</loc>
+  </url>
+  <url>
     <loc>https://bcjaeger.github.io/aorsf/reference/index.html</loc>
   </url>
   <url>
@@ -64,7 +67,7 @@
     <loc>https://bcjaeger.github.io/aorsf/reference/orsf_time_to_train.html</loc>
   </url>
   <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_vi_negate.html</loc>
+    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_vi.html</loc>
   </url>
   <url>
     <loc>https://bcjaeger.github.io/aorsf/reference/pbc_orsf.html</loc>

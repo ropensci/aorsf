@@ -78,7 +78,7 @@ model, see Therneau and Grambsch (2000).</p>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">orsf_control_fast</span><span class="op">(</span>iter_max <span class="op">=</span> <span class="fl">1</span>, do_scale <span class="op">=</span> <span class="cn">FALSE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">orsf_control_fast</span><span class="op">(</span>method <span class="op">=</span> <span class="st">"efron"</span>, do_scale <span class="op">=</span> <span class="cn">TRUE</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -110,10 +110,7 @@ linear combinations of inputs, iteration continues until convergence
 
 <dt>do_scale</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, values of predictors will be
-scaled prior to running Newton Raphson scoring. Setting to <code>FALSE</code> will
-reduce computation time but will also make the regression unstable, which
-is why the default value is <code>TRUE</code>. For stability, <code>orsf</code> will only let
-you set this input to <code>FALSE</code> if you also set <code>iter_max</code> to 1.</p></dd>
+scaled prior to running Newton Raphson scoring.</p></dd>
 
 
 <dt>...</dt>
@@ -127,6 +124,12 @@ you set this input to <code>FALSE</code> if you also set <code>iter_max</code> t
 
 <p>an object of class <code>'aorsf_control'</code>, which should be used as
 an input for the <code>control</code> argument of <a href="orsf.html">orsf</a>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Setting <code>do_scale</code> to <code>FALSE</code> will reduce computation time but will also
+make your <code>orsf</code> model dependent on the scale of your data, which
+is why the default value is <code>TRUE</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -159,6 +162,7 @@ Springer, New York, NY. DOI: 10.1007/978-1-4757-3294-8_3</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       Min events in leaf: 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           OOB stat value: 0.84</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            OOB stat type: Harrell's C-statistic</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      Variable importance: anova</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -----------------------------------------</span>
 <span class="r-in"><span></span></span>
