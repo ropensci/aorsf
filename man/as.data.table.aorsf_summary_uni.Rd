@@ -19,6 +19,8 @@ Convert an 'aorsf_summary' object into a \code{data.table} object.
 }
 \examples{
 
+library(data.table)
+
 object <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 
 smry <- orsf_summarize_uni(object, n_variables = 3)

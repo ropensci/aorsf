@@ -378,6 +378,8 @@ print.aorsf_summary_uni <- function(x, n_variables = NULL, ...){
 #'
 #' @examples
 #'
+#' library(data.table)
+#'
 #' object <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 #'
 #' smry <- orsf_summarize_uni(object, n_variables = 3)
@@ -385,7 +387,7 @@ print.aorsf_summary_uni <- function(x, n_variables = NULL, ...){
 #' as.data.table(smry)
 #'
 as.data.table.aorsf_summary_uni <- function(x, ...){
- smry$dt
+ x$dt
 }
 
 
