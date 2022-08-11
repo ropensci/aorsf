@@ -11,7 +11,9 @@
 #' @srrstats {G1.4} *documented with Roxygen*
 #'
 #' @param x an object of class 'aorsf'
-#' @param ... not used
+#'
+#' @param ... Further arguments passed to or from other methods
+#'   (not currently used).
 #'
 #' @return nothing - just print output to console
 #' @export

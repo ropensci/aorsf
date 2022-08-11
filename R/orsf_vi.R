@@ -52,19 +52,22 @@
 #'  Springer, Berlin, Heidelberg, 2011.
 #'  DOI: 10.1007/978-3-642-23783-6_29
 #'
-orsf_vi_negate <- function(object, group_factors = TRUE, oobag_fun = NULL){
+orsf_vi_negate <- function(object, group_factors = TRUE, oobag_fun = NULL, ...){
+ check_dots(list(...), .f = orsf_vi_negate)
  orsf_vi_(object, group_factors, type_vi = 'negate', oobag_fun = oobag_fun)
 }
 
 #' @rdname orsf_vi_negate
 #' @export
-orsf_vi_permute <- function(object, group_factors = TRUE, oobag_fun = NULL){
+orsf_vi_permute <- function(object, group_factors = TRUE, oobag_fun = NULL, ...){
+ check_dots(list(...), .f = orsf_vi_permute)
  orsf_vi_(object, group_factors, type_vi = 'permute', oobag_fun = oobag_fun)
 }
 
 #' @rdname orsf_vi_negate
 #' @export
-orsf_vi_anova <- function(object, group_factors = TRUE){
+orsf_vi_anova <- function(object, group_factors = TRUE, ...){
+ check_dots(list(...), .f = orsf_vi_anova)
  orsf_vi_(object, group_factors, type_vi = 'anova', oobag_fun = NULL)
 }
 

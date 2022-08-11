@@ -378,6 +378,48 @@ check_arg_is <- function(arg_value, arg_name, expected_class){
 }
 
 
+#' check mis-typed arguments
+#'
+#' @param .dots ... from a call to .f
+#' @param .f the function being called
+#'
+#' @return an error if you have mis-typed an arg
+#' @noRd
+
+check_dots <- function(.dots, .f){
+
+ if(!is_empty(.dots)){
+
+  .args <- setdiff(names(formals(.f)), '...')
+  .dots <- names(.dots)
+
+  for(i in seq_along(.dots)){
+
+   .match_indices <- utils::adist(x = .dots[i],
+                                  y = .args,
+                                  fixed = TRUE,
+                                  costs = c(ins = 1,
+                                            del = 1,
+                                            sub = 2))
+
+   .match_index <- which.min(.match_indices)
+
+   .dots[i] <- paste('  ', .dots[i],
+                     ' is unrecognized - did you mean ',
+                     .args[.match_index], '?', sep = '')
+  }
+
+
+  stop("there were unrecognized arguments:\n",
+       paste(.dots, collapse = '\n'),
+       call. = FALSE)
+
+ }
+
+}
+
+
+
 #' Check variable types
 #'
 #' @srrstats {G2.1} *types of variables in input data are vetted here.*

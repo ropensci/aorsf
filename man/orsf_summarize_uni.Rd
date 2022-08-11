@@ -9,7 +9,8 @@ orsf_summarize_uni(
   n_variables = NULL,
   pred_horizon = NULL,
   pred_type = "risk",
-  importance = "negate"
+  importance = "negate",
+  ...
 )
 }
 \arguments{
@@ -39,6 +40,8 @@ options are
 }
 
 See \link{orsf_vi_negate} for descriptions of the available methods.}
+
+\item{...}{not currently used.}
 }
 \value{
 an object of class 'aorsf_summary'

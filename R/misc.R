@@ -99,5 +99,3 @@ paste_collapse <- function(x, sep=', ', last = ' or '){
  library.dynam.unload("aorsf", libpath)
 }
 
-
-

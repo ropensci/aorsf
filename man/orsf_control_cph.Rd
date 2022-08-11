@@ -2,9 +2,18 @@
 % Please edit documentation in R/orsf_control.R
 \name{orsf_control_cph}
 \alias{orsf_control_cph}
+\alias{orsf_control_fast}
 \title{Cox proportional hazards control}
 \usage{
-orsf_control_cph(method = "efron", eps = 1e-09, iter_max = 1, do_scale = TRUE)
+orsf_control_cph(
+  method = "efron",
+  eps = 1e-09,
+  iter_max = 20,
+  do_scale = TRUE,
+  ...
+)
+
+orsf_control_fast(iter_max = 1, do_scale = FALSE, ...)
 }
 \arguments{
 \item{method}{(\emph{character}) a character string specifying the method
@@ -31,13 +40,19 @@ scaled prior to running Newton Raphson scoring. Setting to \code{FALSE} will
 reduce computation time but will also make the regression unstable, which
 is why the default value is \code{TRUE}. For stability, \code{orsf} will only let
 you set this input to \code{FALSE} if you also set \code{iter_max} to 1.}
+
+\item{...}{Further arguments passed to or from other methods
+(not currently used).}
 }
 \value{
 an object of class \code{'aorsf_control'}, which should be used as
 an input for the \code{control} argument of \link{orsf}.
 }
 \description{
-Cox proportional hazards control
+Use Newton-Raphson scoring to identify linear combinations of input
+variables while fitting an \link{orsf} model. For more details on
+of Newton-Raphson scoring and the Cox proportional hazards
+model, see Therneau and Grambsch (2000).
 }
 \examples{
 

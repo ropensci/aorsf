@@ -458,6 +458,8 @@ orsf <- function(data,
 
  #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
 
+ check_dots(list(...), .f = orsf)
+
  if(!is.data.frame(data))
   data <- orsf_data_prep(data)
 
@@ -483,10 +485,6 @@ orsf <- function(data,
   attach_data = attach_data
  )
 
- .dots <- list(...)
- if(!is_empty(.dots))
-  dot_abort(.dots = names(.dots),
-            .args = setdiff(names(formals(orsf)), '...'))
 
  if(is.null(weights)) weights <- double()
 
@@ -513,14 +511,14 @@ orsf <- function(data,
    }
 
    control_net <- control
-   control_cph <- orsf_control_cph(do_scale = FALSE)
+   control_cph <- orsf_control_cph(do_scale = FALSE, iter_max = 1)
    f_beta      <- penalized_cph
   },
 
   "custom" = {
 
    control_net <- orsf_control_net()
-   control_cph <- orsf_control_cph(do_scale = FALSE)
+   control_cph <- orsf_control_cph(do_scale = FALSE, iter_max = 1)
    f_beta      <- control$beta_fun
 
   }

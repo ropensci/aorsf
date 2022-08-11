@@ -25,7 +25,8 @@ options are
 \item 'survival' : 1 - risk.
 }}
 
-\item{...}{not currently used.}
+\item{...}{Further arguments passed to or from other methods
+(not currently used).}
 }
 \value{
 a \code{matrix} of predictions. Column \code{j} of the matrix corresponds

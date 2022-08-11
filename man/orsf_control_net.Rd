@@ -4,7 +4,7 @@
 \alias{orsf_control_net}
 \title{Elastic net control}
 \usage{
-orsf_control_net(alpha = 1/2, df_target = NULL)
+orsf_control_net(alpha = 1/2, df_target = NULL, ...)
 }
 \arguments{
 \item{alpha}{The elastic net mixing parameter. A value of 1 gives the
@@ -16,6 +16,9 @@ alpha value prior to splitting a node.}
 Note: this has to be less than \code{mtry}, which is a separate argument in
 \link{orsf} that indicates the number of variables chosen at random prior to
 finding a linear combination of those variables.}
+
+\item{...}{Further arguments passed to or from other methods
+(not currently used).}
 }
 \value{
 an object of class \code{'aorsf_control'}, which should be used as

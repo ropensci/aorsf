@@ -27,7 +27,8 @@
 #'   - 'risk' : probability of having an event at or before `pred_horizon`.
 #'   - 'survival' : 1 - risk.
 #'
-#' @param ... not currently used.
+#' @param ... Further arguments passed to or from other methods
+#'   (not currently used).
 #'
 #' @return a `matrix` of predictions. Column `j` of the matrix corresponds
 #'   to value `j` in `pred_horizon`. Row `i` of the matrix corresponds to
@@ -66,17 +67,14 @@ predict.aorsf <- function(object,
                           pred_type = 'risk',
                           ...){
 
- #' @srrstats {G2.13} *check for missing data as part of initial pre-processing prior to passing data to analytic algorithms.*
+ check_dots(list(...), .f = predict.aorsf)
 
+ #' @srrstats {G2.13} *check for missing data as part of initial pre-processing prior to passing data to analytic algorithms.*
  names_x_data <- get_names_x(object)
 
  # catch any arguments that didn't match and got relegated to ...
  # these arguments are mistaken input names since ... isn't used.
 
- .dots <- list(...)
- if(!is_empty(.dots))
-  dot_abort(.dots = names(.dots),
-            .args = setdiff(names(formals(predict.aorsf)), '...'))
 
  # TODO: Throw error if an argument is not used, i.e., .dots is not empty
 

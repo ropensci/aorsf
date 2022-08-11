@@ -1,4 +1,83 @@
 
+# misc functions used for tests ----
+
+oobag_c_harrell <- function(y_mat, s_vec){
+
+ sorted <- order(y_mat[, 1], -y_mat[, 2])
+
+ y_mat <- y_mat[sorted, ]
+ s_vec <- s_vec[sorted]
+
+ time = y_mat[, 1]
+ status = y_mat[, 2]
+ events = which(status == 1)
+
+ k = nrow(y_mat)
+
+ total <- 0
+ concordant <- 0
+
+ for(i in events){
+
+  if(i+1 <= k){
+
+   for(j in seq(i+1, k)){
+
+    if(time[j] > time[i]){
+
+     total <- total + 1
+
+     if(s_vec[j] > s_vec[i]){
+
+      concordant <- concordant + 1
+
+     } else if (s_vec[j] == s_vec[i]){
+
+      concordant <- concordant + 0.5
+
+     }
+
+    }
+
+   }
+
+  }
+
+ }
+
+ concordant / total
+
+}
+
+cstat_bcj <- function(y_mat, s_vec){
+
+ sorted <- order( y_mat[, 1], -y_mat[, 2])
+ oobag_c_harrell_testthat(y_mat[sorted, ], s_vec[sorted, ])
+
+}
+
+no_miss_list <- function(l){
+
+ sapply(l, function(x){
+
+  if(is.list(x)) {return(no_miss_list(x))}
+
+  any(is.na(x)) | any(is.nan(x)) | any(is.infinite(x))
+
+ })
+
+}
+
+add_noise <- function(x, eps = .Machine$double.eps){
+ x + rnorm(length(x), mean = 0, sd = eps)
+}
+
+change_scale <- function(x, mult_by = 10){
+ x * mult_by
+}
+
+# begin tests -----
+
 #' @srrstats {G5.0} *tests use the PBC data, a standard set that has been widely studied and disseminated in other R package (e.g., survival and randomForestSRC)*
 
 # catch bad inputs, give informative error
@@ -58,6 +137,8 @@ test_that(
   expect_error(orsf(pbc_orsf, f, mtry = 5000), 'should be <=')
   expect_error(orsf(pbc_orsf, f, leaf_min_events = 5000), 'should be <=')
   expect_error(orsf(pbc_orsf, f, leaf_min_obs = 5000), 'should be <=')
+  expect_error(orsf(pbc_orsf, f, attachData = TRUE), 'attach_data?')
+  expect_error(orsf(pbc_orsf, f, Control = 0), 'control?')
 
   pbc_temp$date_var <- Sys.Date()
   expect_error(orsf(pbc_temp, f), 'unsupported type')
@@ -70,7 +151,7 @@ test_that(
  code = {
 
   cntrl <- orsf_control_net(df_target = 10)
-  expect_error(orsf(pbc_orsf, f, cntrl), 'must be <= mtry')
+  expect_error(orsf(pbc_orsf, formula = f, control = cntrl), 'must be <= mtry')
 
  }
 )
@@ -171,17 +252,6 @@ fit_no_vi <- orsf(data = pbc_orsf,
                   importance = 'none',
                   n_tree = 50)
 
-no_miss_list <- function(l){
-
- sapply(l, function(x){
-
-  if(is.list(x)) {return(no_miss_list(x))}
-
-  any(is.na(x)) | any(is.nan(x)) | any(is.infinite(x))
-
- })
-
-}
 
 #' @srrstats {G5.3} *Explicit test expected to return objects containing no missing (`NA`) or undefined (`NaN`, `Inf`) values are explicitly tested.*
 
@@ -206,12 +276,10 @@ test_that(
  }
 )
 
-cstat_bcj <- function(y_mat, s_vec){
 
- sorted <- order( y_mat[, 1], -y_mat[, 2])
- oobag_c_harrell_testthat(y_mat[sorted, ], s_vec[sorted, ])
 
-}
+
+
 
 test_that(
  desc = 'oobag error is reproducible from an aorsf object',
@@ -369,14 +437,6 @@ test_that(
 #' @srrstats {G5.9a} *Adding trivial noise to data does not meaningfully change results*
 #' @srrstats {G5.9b} *Running under different random seeds gives identifal results*
 
-add_noise <- function(x, eps = .Machine$double.eps){
- x + rnorm(length(x), mean = 0, sd = eps)
-}
-
-change_scale <- function(x, mult_by = 10){
- x * mult_by
-}
-
 pbc_noise <- pbc_orsf
 pbc_scale <- pbc_orsf
 
@@ -389,15 +449,20 @@ for(i in vars){
  pbc_scale[[i]] <- change_scale(pbc_scale[[i]])
 }
 
+ctrl <- orsf_control_cph()
 
 set.seed(329)
-fit_orsf <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+fit_orsf <-
+ orsf(pbc_orsf, Surv(time, status) ~ . - id, control = ctrl)
 set.seed(329)
-fit_orsf_2 <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+fit_orsf_2 <-
+ orsf(pbc_orsf, Surv(time, status) ~ . - id, control = ctrl)
 set.seed(329)
-fit_orsf_noise <- orsf(pbc_noise, Surv(time, status) ~ . - id)
+fit_orsf_noise <-
+ orsf(pbc_noise, Surv(time, status) ~ . - id, control = ctrl)
 set.seed(329)
-fit_orsf_scale <- orsf(pbc_scale, Surv(time, status) ~ . - id)
+fit_orsf_scale <-
+ orsf(pbc_scale, Surv(time, status) ~ . - id, control = ctrl)
 
 #' @srrstats {ML7.1} *Demonstrate effect of numeric scaling of input data.*
 test_that(
@@ -427,6 +492,7 @@ test_that(
    ),
    0.01
   )
+
 
   expect_lt(
    mean(abs(fit_orsf$surv_oobag - fit_orsf_scale$surv_oobag)),

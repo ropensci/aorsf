@@ -6,11 +6,11 @@
 \alias{orsf_vi_anova}
 \title{ORSF variable importance}
 \usage{
-orsf_vi_negate(object, group_factors = TRUE, oobag_fun = NULL)
+orsf_vi_negate(object, group_factors = TRUE, oobag_fun = NULL, ...)
 
-orsf_vi_permute(object, group_factors = TRUE, oobag_fun = NULL)
+orsf_vi_permute(object, group_factors = TRUE, oobag_fun = NULL, ...)
 
-orsf_vi_anova(object, group_factors = TRUE)
+orsf_vi_anova(object, group_factors = TRUE, ...)
 }
 \arguments{
 \item{object}{an object of class 'aorsf'.}
@@ -24,6 +24,8 @@ individual factor levels will be returned.}
 out-of-bag predictions are evaluated using Harrell's C-statistic.
 If a value for \code{oobag_fun} is provided, it will be used in place of
 Harrell's C-statistic to evaluate out-of-bag predictions. See details.}
+
+\item{...}{not currently used.}
 }
 \value{
 a named vector. Names indicate predictors, values indicate importance.

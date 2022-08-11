@@ -9,7 +9,8 @@
 \arguments{
 \item{x}{an object of class 'aorsf'}
 
-\item{...}{not used}
+\item{...}{Further arguments passed to or from other methods
+(not currently used).}
 }
 \value{
 nothing - just print output to console

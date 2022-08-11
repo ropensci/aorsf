@@ -53,6 +53,9 @@
 #'  percentile in the object's training data. If `FALSE`, these checks are
 #'  skipped.
 #'
+#' @param ... Further arguments passed to or from other methods
+#'   (not currently used).
+#'
 #' @return a `data.table` containing summarized partial dependence
 #'   values if using `orsf_pd_summery` or individual conditional
 #'   expectation (ICE) partial dependence if using `orsf_pd_ice`.
@@ -89,7 +92,10 @@ orsf_pd_summary <- function(object,
                             prob_values = c(0.025, 0.50, 0.975),
                             prob_labels = c('lwr', 'medn', 'upr'),
                             oobag = TRUE,
-                            boundary_checks = TRUE){
+                            boundary_checks = TRUE,
+                            ...){
+
+ check_dots(list(...), orsf_pd_summary)
 
  if(length(pred_horizon) > 1){
 
@@ -154,8 +160,10 @@ orsf_pd_ice <- function(object,
                         pred_type = 'risk',
                         expand_grid = TRUE,
                         oobag = TRUE,
-                        boundary_checks = TRUE){
+                        boundary_checks = TRUE,
+                        ...){
 
+ check_dots(list(...), orsf_pd_ice)
 
  if(length(pred_horizon) > 1){
 

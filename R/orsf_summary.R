@@ -34,7 +34,11 @@ orsf_summarize_uni <- function(object,
                                n_variables = NULL,
                                pred_horizon = NULL,
                                pred_type = 'risk',
-                               importance = 'negate'){
+                               importance = 'negate',
+                               ...){
+
+
+ check_dots(list(...), .f = orsf_summarize_uni)
 
  # for CRAN check:
  medn <- name <- value <- level <- variable <- NULL
@@ -200,7 +204,8 @@ orsf_summarize_uni <- function(object,
 #'
 #' @param n_variables The number of variables to print
 #'
-#' @param ... not used
+#' @param ... Further arguments passed to or from other methods
+#'   (not currently used).
 #'
 #' @return nothing - output is printed to console.
 #'
@@ -216,6 +221,7 @@ orsf_summarize_uni <- function(object,
 #'
 print.aorsf_summary_uni <- function(x, n_variables = NULL, ...){
 
+ check_dots(list(...), .f = print.aorsf_summary_uni)
 
  if(is.null(n_variables)) n_variables <- length(unique(x$dt$variable))
 

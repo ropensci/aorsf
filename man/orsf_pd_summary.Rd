@@ -15,7 +15,8 @@ orsf_pd_summary(
   prob_values = c(0.025, 0.5, 0.975),
   prob_labels = c("lwr", "medn", "upr"),
   oobag = TRUE,
-  boundary_checks = TRUE
+  boundary_checks = TRUE,
+  ...
 )
 
 orsf_pd_ice(
@@ -26,7 +27,8 @@ orsf_pd_ice(
   pred_type = "risk",
   expand_grid = TRUE,
   oobag = TRUE,
-  boundary_checks = TRUE
+  boundary_checks = TRUE,
+  ...
 )
 }
 \arguments{
@@ -84,6 +86,9 @@ training data for \code{object}.}
 to make sure the requested values are between the 10th and 90th
 percentile in the object's training data. If \code{FALSE}, these checks are
 skipped.}
+
+\item{...}{Further arguments passed to or from other methods
+(not currently used).}
 }
 \value{
 a \code{data.table} containing summarized partial dependence

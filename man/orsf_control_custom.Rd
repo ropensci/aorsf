@@ -4,7 +4,7 @@
 \alias{orsf_control_custom}
 \title{Custom control of oblique decision trees}
 \usage{
-orsf_control_custom(beta_fun)
+orsf_control_custom(beta_fun, ...)
 }
 \arguments{
 \item{beta_fun}{(\emph{function}) a function to define coefficients used
@@ -20,6 +20,9 @@ the following types and dimensions:
 In addition, \code{beta_fun} must return a matrix with p rows and 1 column. If
 any of these conditions are not met, \code{orsf_control_custom()} will let
 you know.}
+
+\item{...}{Further arguments passed to or from other methods
+(not currently used).}
 }
 \value{
 an object of class \code{'aorsf_control'}, which should be used as
