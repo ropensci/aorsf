@@ -51,7 +51,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Oblique Random Survival Forest (ORSF)</h1>
-      <small class="dont-index">Source: <a href="https://github.com/bcjaeger/aorsf/blob/HEAD/R/orsf_fit.R" class="external-link"><code>R/orsf_fit.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/bcjaeger/aorsf/blob/HEAD/R/orsf.R" class="external-link"><code>R/orsf.R</code></a></small>
       <div class="d-none name"><code>orsf.Rd</code></div>
     </div>
 
@@ -347,16 +347,16 @@ DOI: 10.1001/jama.1982.03320430047030</p>
 <span class="r-in"><span><span class="co"># is assessed every 50 trees (50, 100, ..., 500)</span></span></span>
 <span class="r-in"><span><span class="va">fit_custom</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8313190</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.8387164</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.8390811</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.8398104</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.8407481</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.8404876</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.8433007</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.8422067</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.8421546</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.8409044</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8345489</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.8372057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.8379350</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.8366847</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.8372578</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.8387164</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.8357470</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.8371015</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.8383517</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.8382476</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># make your own oobag function:</span></span></span>
 <span class="r-in"><span><span class="co"># (this is an R implementation of Harrell's C</span></span></span>
@@ -403,11 +403,11 @@ DOI: 10.1001/jama.1982.03320430047030</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">fit_standard_oobag</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.7689102</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.7736768</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">fit_custom_oobag</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.7689102</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.7736768</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

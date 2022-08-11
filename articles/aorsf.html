@@ -159,14 +159,14 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <span><span class="va">variable_importance</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_vi_negate.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">variable_importance</span></span>
-<span><span class="co">#&gt;          bili           age       ascites       protime        copper </span></span>
-<span><span class="co">#&gt;  0.0134923942  0.0085434466  0.0057824547  0.0046363826  0.0037507814 </span></span>
-<span><span class="co">#&gt;       spiders         edema         stage           sex           ast </span></span>
-<span><span class="co">#&gt;  0.0036465930  0.0028751029  0.0022921442  0.0016670140  0.0012502605 </span></span>
-<span><span class="co">#&gt;        hepato      alk.phos          chol          trig           trt </span></span>
-<span><span class="co">#&gt; -0.0003125651 -0.0012502605 -0.0017191081 -0.0018232965 -0.0026568035 </span></span>
-<span><span class="co">#&gt;      platelet </span></span>
-<span><span class="co">#&gt; -0.0028130861</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili           age           sex        copper       ascites </span></span>
+<span><span class="co">#&gt;  0.0131798291  0.0099499896  0.0070848093  0.0058866431  0.0043759116 </span></span>
+<span><span class="co">#&gt;       spiders       protime         edema           ast       albumin </span></span>
+<span><span class="co">#&gt;  0.0030214628  0.0025526151  0.0017811250  0.0010939779 -0.0004688477 </span></span>
+<span><span class="co">#&gt;        hepato          chol      alk.phos          trig      platelet </span></span>
+<span><span class="co">#&gt; -0.0011460721 -0.0015628256 -0.0019795791 -0.0028130861 -0.0041154407 </span></span>
+<span><span class="co">#&gt;           trt </span></span>
+<span><span class="co">#&gt; -0.0041675349</span></span></code></pre></div>
 <!-- ### Variable interaction -->
 <!-- ORSF's two-way interaction score for a pair of predictors is the proportion of variability in the coefficient of one predictor explained by the mean of the other. If one predictor's coefficient is highly correlated with another predictor's mean value, the two-way interaction score will be high (maximum value of the score is 1). If there is no correlation between the coefficient of one predictor and the mean value of another, the two-way interaction score will be low (minimum value of the score is 0). -->
 <!-- ```{r} -->
@@ -218,12 +218,12 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pd_data_aligned</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    edema bili      mean        lwr      medn       upr       value</span></span>
-<span><span class="co">#&gt; 1:     0  0.6 0.2149491 0.01080575 0.1137336 0.7657705 0.000000000</span></span>
-<span><span class="co">#&gt; 2:   0.5  0.6 0.2741353 0.03608109 0.1817965 0.7841916 0.000000000</span></span>
-<span><span class="co">#&gt; 3:     1  0.6 0.3871624 0.16876186 0.3089575 0.8766335 0.000000000</span></span>
-<span><span class="co">#&gt; 4:     0  0.7 0.2164976 0.01087216 0.1138735 0.7712087 0.001548474</span></span>
-<span><span class="co">#&gt; 5:   0.5  0.7 0.2762397 0.03626453 0.1829204 0.7878749 0.002104399</span></span>
-<span><span class="co">#&gt; 6:     1  0.7 0.3886400 0.16936039 0.3116935 0.8779078 0.001477504</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:     0  0.6 0.2266744 0.01287514 0.1214981 0.7871914 0.000000000</span></span>
+<span><span class="co">#&gt; 2:   0.5  0.6 0.2852734 0.03248376 0.1933980 0.8173701 0.000000000</span></span>
+<span><span class="co">#&gt; 3:     1  0.6 0.3799071 0.13871873 0.3001124 0.8881621 0.000000000</span></span>
+<span><span class="co">#&gt; 4:     0  0.7 0.2283674 0.01303515 0.1239015 0.7900881 0.001692965</span></span>
+<span><span class="co">#&gt; 5:   0.5  0.7 0.2870619 0.03309127 0.1972545 0.8189820 0.001788530</span></span>
+<span><span class="co">#&gt; 6:     1  0.7 0.3815893 0.13883942 0.3030895 0.8888457 0.001682143</span></span></code></pre></div>
 <p>With the aligned partial dependence values we can see the interaction effect clearly. Increasing bilirubin solicits a greater increase in predicted risk for patients with no edema (<code>edema == 0</code>), untreated edema (<code>edema == 0.5</code>), or successfully treated edema (<code>edema == 0.5</code>) compared to patients with therapy-resistant edema (<code>edema == 1</code>).</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -267,40 +267,39 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;   0.80 0.2321709 0.1250703 0.04511286 0.3822285</span></span>
-<span><span class="co">#&gt;    1.4 0.2526454 0.1452361 0.05893072 0.4017982</span></span>
-<span><span class="co">#&gt;    3.5 0.3716990 0.2879513 0.16520375 0.5483311</span></span>
+<span><span class="co">#&gt;   0.80 0.2429583 0.1284750 0.04840256 0.3928055</span></span>
+<span><span class="co">#&gt;    1.4 0.2596384 0.1457900 0.05914073 0.4120615</span></span>
+<span><span class="co">#&gt;    3.5 0.3458558 0.2498307 0.13723033 0.5227983</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -- age (VI Rank: 2) ----------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;     42 0.2738421 0.1429054 0.04190491 0.4670137</span></span>
-<span><span class="co">#&gt;     50 0.3012377 0.1711906 0.04922133 0.5312928</span></span>
-<span><span class="co">#&gt;     57 0.3324703 0.2206562 0.07135028 0.5659502</span></span>
+<span><span class="co">#&gt;     42 0.2674831 0.1409063 0.04296130 0.4512338</span></span>
+<span><span class="co">#&gt;     50 0.2945834 0.1737065 0.05097475 0.5017808</span></span>
+<span><span class="co">#&gt;     57 0.3276076 0.2193830 0.07385959 0.5367037</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- ascites (VI Rank: 3) ------------------------</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
-<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;      0 0.2962853 0.1559449 0.04856002 0.5312403</span></span>
-<span><span class="co">#&gt;      1 0.4707099 0.3853747 0.27346654 0.6542754</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- protime (VI Rank: 4) ------------------------</span></span>
+<span><span class="co">#&gt; -- sex (VI Rank: 3) ----------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;     10 0.2836244 0.1532223 0.04709130 0.5059426</span></span>
-<span><span class="co">#&gt;     11 0.2956075 0.1611090 0.05140038 0.5249728</span></span>
-<span><span class="co">#&gt;     11 0.3168198 0.1890442 0.06756468 0.5346692</span></span>
+<span><span class="co">#&gt;      m 0.3560382 0.2469748 0.12206421 0.5731464</span></span>
+<span><span class="co">#&gt;      f 0.2912662 0.1552082 0.05092011 0.5253999</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- copper (VI Rank: 5) -------------------------</span></span>
+<span><span class="co">#&gt; -- copper (VI Rank: 4) -------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;     43 0.2656012 0.1388691 0.04530208 0.4752255</span></span>
-<span><span class="co">#&gt;     74 0.2823505 0.1590903 0.05506762 0.5037839</span></span>
-<span><span class="co">#&gt;    129 0.3358382 0.2179729 0.10527331 0.5494800</span></span>
+<span><span class="co">#&gt;     43 0.2626844 0.1415148 0.04755781 0.4371901</span></span>
+<span><span class="co">#&gt;     74 0.2792341 0.1554124 0.05827489 0.4609205</span></span>
+<span><span class="co">#&gt;    129 0.3265006 0.2159967 0.10072831 0.5345941</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- ascites (VI Rank: 5) ------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;      0 0.2931932 0.1576125 0.05434581 0.5253999</span></span>
+<span><span class="co">#&gt;      1 0.4279745 0.3372134 0.21379450 0.6286554</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Predicted risk at time t = 1826.25 for top 5 predictors</span></span></code></pre></div>
 </div>
@@ -328,7 +327,7 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <span> <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   3.467   0.000   3.467</span></span>
+<span><span class="co">#&gt;   3.233   0.000   3.232</span></span>
 <span></span>
 <span><span class="co"># and how long it takes to fit 50 cph trees</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
@@ -340,11 +339,11 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <span> <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   0.027   0.000   0.027</span></span>
+<span><span class="co">#&gt;    0.06    0.00    0.06</span></span>
 <span></span>
 <span><span class="va">t1</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">t2</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span></span>
 <span><span class="co">#&gt;  elapsed </span></span>
-<span><span class="co">#&gt; 128.4074</span></span></code></pre></div>
+<span><span class="co">#&gt; 53.86667</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="aorsf-and-other-machine-learning-software">aorsf and other machine learning software<a class="anchor" aria-label="anchor" href="#aorsf-and-other-machine-learning-software"></a>

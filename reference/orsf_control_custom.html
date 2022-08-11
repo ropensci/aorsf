@@ -61,7 +61,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orsf_control_custom</span><span class="op">(</span><span class="va">beta_fun</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orsf_control_custom</span><span class="op">(</span><span class="va">beta_fun</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -76,6 +76,11 @@ the following types and dimensions:</p><ul><li><p><code>x_node</code> (<em>matri
 </ul><p>In addition, <code>beta_fun</code> must return a matrix with p rows and 1 column. If
 any of these conditions are not met, <code>orsf_control_custom()</code> will let
 you know.</p></dd>
+
+
+<dt>...</dt>
+<dd><p>Further arguments passed to or from other methods
+(not currently used).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -115,7 +120,7 @@ an input for the <code>control</code> argument of <a href="orsf.html">orsf</a>.<
 <span class="r-in"><span><span class="va">fit_rando</span><span class="op">$</span><span class="va">eval_oobag</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $stat_values</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.7833924</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.7823505</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $stat_type</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Harrell's C-statistic"</span>

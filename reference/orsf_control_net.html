@@ -61,7 +61,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orsf_control_net</span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="fl">2</span>, df_target <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orsf_control_net</span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="fl">2</span>, df_target <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -78,6 +78,11 @@ alpha value prior to splitting a node.</p></dd>
 Note: this has to be less than <code>mtry</code>, which is a separate argument in
 <a href="orsf.html">orsf</a> that indicates the number of variables chosen at random prior to
 finding a linear combination of those variables.</p></dd>
+
+
+<dt>...</dt>
+<dd><p>Further arguments passed to or from other methods
+(not currently used).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -116,10 +121,10 @@ an input for the <code>control</code> argument of <a href="orsf.html">orsf</a>.<
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  N trees: 25</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       N predictors total: 17</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    N predictors per node: 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Average leaves per tree: 24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Average leaves per tree: 16</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Min observations in leaf: 5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       Min events in leaf: 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           OOB stat value: 0.56</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           OOB stat value: 0.57</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            OOB stat type: Harrell's C-statistic</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -----------------------------------------</span>
