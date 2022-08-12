@@ -1,6 +1,6 @@
 
 
-#' Predict risk or survival
+#' Predict using oblique random survival forest
 #'
 #' @srrstats {G1.4} *documented with Roxygen*
 #' @srrstats {ML1.1} *using the terms 'train' and 'test'.*

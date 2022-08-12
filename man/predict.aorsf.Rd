@@ -2,7 +2,7 @@
 % Please edit documentation in R/orsf_predict.R
 \name{predict.aorsf}
 \alias{predict.aorsf}
-\title{Predict risk or survival}
+\title{Predict using oblique random survival forest}
 \usage{
 \method{predict}{aorsf}(object, new_data, pred_horizon, pred_type = "risk", ...)
 }
@@ -34,7 +34,7 @@ to value \code{j} in \code{pred_horizon}. Row \code{i} of the matrix corresponds
 row \code{i} in \code{new_data}.
 }
 \description{
-Predict risk or survival
+Predict using oblique random survival forest
 }
 \details{
 \code{pred_horizon} values must not exceed the maximum follow-up time in

@@ -1,3 +1,18 @@
+#' Oblique Random Survival Forest (ORSF)
+#'
+#' The oblique random survival forest (ORSF) is an extension of the RSF
+#'   algorithm developed by Ishwaran et al and maintained in the
+#'   `RandomForestSRC` package. The difference between ORSF and RSF is
+#'   that ORSF uses linear combinations of input variables whereas RSF
+#'   uses a single variable when growing new nodes in survival decision trees.
+#'   A linear combination is an expression constructed from a set of terms
+#'   by multiplying each term by a constant and adding the results (e.g.
+#'   a linear combination of x and y would be any expression of the form
+#'   ax + by, where a and b are constants). For more details on the ORSF
+#'   algorithm, see Jaeger et al, 2019. The `orsf()` function implements a
+#'   novel algorithm that speeds up the ORSF algorithm described by Jaeger
+#'   et al (see details).
+#'
 #' @srrstats {G1.4} *documented with Roxygen*
 #' @srrstats {G1.1} *aorsf is an improvement of the ORSF algorithm implemented in obliqueRSF, which was an extension of Hemant Ishwaran's random survival forest.*
 #' @srrstats {G1.3} *linear combinations of inputs defined.*
@@ -22,22 +37,13 @@
 #' @srrstats {ML3.0} *Model specification can be implemented prior to actual model fitting or training*
 #' @srrstats {ML3.0a} *As pre-processing, model specification, and training are controlled by the orsf() function, an input parameter (no_fit) enables models to be specified yet not fitted.*
 #' @srrstats {ML3.0c} *when no_fit=TRUE, orsf() will return an object that can be directly trained using orsf_train().*
-
-
-#' Oblique Random Survival Forest (ORSF)
+#' @srrstats {ML1.6a} *Explain why missing values are not admitted.*
+#' @srrstats {G1.0} *Jaeger et al describes the ORSF algorithm that aorsf is based on. Note: aorsf uses a different approach to create linear combinations of inputs for speed reasons, but orsf_control_net() allows users to make ensembles that are very similar to obliqueRSF::ORSF().*
+#' @srrstats {ML1.6b} *Explicit example showing how missing values may be imputed rather than discarded.*
+#' @srrstats {ML6.1} *clearly document how aorsf can be embedded within a typical full ML workflow.*
+#' @srrstats {ML6.1a} *Embed aorsf within a full workflow using tidymodels, tidyverse, and survivalROC.*
+#' @srrstats {ML5.2b} *Documentation includes examples of how to save and re-load trained model objects for their re-use.*
 #'
-#' The oblique random survival forest (ORSF) is an extension of the RSF
-#'   algorithm developed by Ishwaran et al and maintained in the
-#'   `RandomForestSRC` package. The difference between ORSF and RSF is
-#'   that ORSF uses linear combinations of input variables whereas RSF
-#'   uses a single variable when growing new nodes in survival decision trees.
-#'   A linear combination is an expression constructed from a set of terms
-#'   by multiplying each term by a constant and adding the results (e.g.
-#'   a linear combination of x and y would be any expression of the form
-#'   ax + by, where a and b are constants). For more details on the ORSF
-#'   algorithm, see Jaeger et al, 2019. The `orsf()` function implements a
-#'   novel algorithm that speeds up the ORSF algorithm described by Jaeger
-#'   et al (see details).
 #'
 #' @param data (_data.frame_) that contains the relevant variables.
 #'
@@ -228,10 +234,7 @@
 #' In random forests, each tree is grown with a bootstrapped version of the training set. Because bootstrap samples are selected with replacement, each bootstrapped training set contains about two-thirds of instances in the original training set. The 'out-of-bag' data are instances that are _not_ in the bootstrapped training set. Each tree in the random forest can make predictions for its out-of-bag data, and the out-of-bag predictions can be aggregated to make an ensemble out-of-bag prediction. Since the out-of-bag data are not used to grow the tree, the accuracy of the ensemble out-of-bag predictions approximate the generalization error of the random forest. Generalization error refers to the error of a random forest's predictions when it is applied to predict outcomes for data that were not used to train it, i.e., testing data.
 #'
 #' __Missing data__
-#' @srrstats {ML1.6a} *Explain why missing values are not admitted.*
 #' Data passed to aorsf functions are not allowed to have missing values. A user should impute missing values using an R package with that purpose, such as `recipes` or `mlr3pipelines`. Other software such as `xgboost` send data with missing values down a decision tree based on whichever direction minimizes a specified error function. While this technique is very effective for axis-based decision trees, it is not clear how it should be applied in the case of oblique decision trees. For example, what should be done if three variables were used to split a node and one of these three variable has a missing value? In this case, mean imputation of the missing variable may be the best option.
-#'
-#' @srrstats {G1.0} *Jaeger et al describes the ORSF algorithm that aorsf is based on. Note: aorsf uses a different approach to create linear combinations of inputs for speed reasons, but orsf_control_net() allows users to make ensembles that are very similar to obliqueRSF::ORSF().*
 #'
 #' @references
 #'
@@ -257,14 +260,6 @@
 #' DOI: 10.1001/jama.1982.03320430047030
 #'
 #' @export
-#'
-#' @srrstats {ML1.6b} *Explicit example showing how missing values may be imputed rather than discarded.*
-#'
-#' @srrstats {ML6.1} *clearly document how aorsf can be embedded within a typical full ML workflow.*
-#'
-#' @srrstats {ML6.1a} *Embed aorsf within a full workflow using tidymodels, tidyverse, and survivalROC.*
-#'
-#' @srrstats {ML5.2b} *Documentation includes examples of how to save and re-load trained model objects for their re-use.*
 #'
 #' @examples
 #'
@@ -333,91 +328,60 @@
 #'
 #' fit_custom_oobag$eval_oobag$stat_values
 #'
-
-# runs fine but pkgdown doesn't render it in examples - move to vignette?
-# # summarize, view partial dependence for the 5 most important variables.
-#
-# smry <- orsf_summarize_uni(fit, n_variables = 5)
-#
-# smry
-#
-# \dontrun{requires too many external packages
-#
-# # --------------------------------------------------------------------------
-# # a standard internal validation workflow using aorsf and tidymodels
-# # --------------------------------------------------------------------------
-#
-#
-# library(tidymodels)
-# library(tidyverse)
-# library(survivalROC)
-# library(aorsf)
-#
-# set.seed(329)
-#
-# # a recipe to impute missing values instead of discarding them.
-# # (this is for illustration only. pbc_orsf does not have missing values)
-#
-# imputer <- recipe(x = pbc_orsf, time + status ~ .) |>
-#  step_impute_mean(all_numeric_predictors()) |>
-#  step_impute_mode(all_nominal_predictors()) |>
-#  step_rm(id)
-#
-#
-# # 10-fold cross validation; make a container for the pre-processed data
-# analyses <- vfold_cv(data = pbc_orsf, v = 10) |>
-#  mutate(recipe = map(splits, ~prep(imputer, training = training(.x))),
-#         data = map(recipe, juice),
-#         data_test = map2(splits, recipe, ~bake(.y, new_data = testing(.x))))
-#
-# # 10-fold cross validation; train models and compute test predictions
-# aorsf_data <- analyses |>
-#  select(data, data_test) |>
-#  mutate(fit = map(data, orsf, formula = time + status ~ .),
-#         pred = map2(fit, data_test, predict, pred_horizon = 3500),
-#         pred = map(pred, as.numeric))
-#
-# # testing sets are small, so pool them and compute 1 overall C-stat.
-# aorsf_eval <- aorsf_data |>
-#  select(data_test, pred) |>
-#  unnest(cols = everything()) |>
-#  summarize(
-#   auc = survivalROC(Stime = time,
-#                     status = status,
-#                     marker = pred,
-#                     predict.time = 3500,
-#                     span = 0.25*n()^(-0.20)) |>
-#    getElement('AUC')
-#  )
-#
-# # C-stat: 0.81465
-# aorsf_eval$auc
-#
-# }
-#
-#
-#
-# # save and re-load aorsf models for later use:
-# \dontrun{
-#
-# file_temp <- tempfile("aorsf_fit", fileext = ".rds")
-#
-# # save a single object to file
-# saveRDS(fit, file_temp)
-#
-# # restore it under a different name
-# aorsf_fit_read_in <- readRDS(file_temp)
-#
-# # compare the original with the loaded fit.
-# identical(fit$forest, aorsf_fit_read_in$forest)
-#
-# # note: attributes of orsf_fit and orsf_fit_read_in are not identical;
-# # specifically env of f_beta and f_oobag_eval
-#
-# attr(fit, 'f_beta')
-# attr(aorsf_fit_read_in, 'f_beta')
-# }
-#
+#'
+#' \dontrun{requires too many external packages
+#'
+#' # --------------------------------------------------------------------------
+#' # a standard internal validation workflow using aorsf and tidymodels
+#' # --------------------------------------------------------------------------
+#'
+#'
+#' library(tidymodels)
+#' library(tidyverse)
+#' library(survivalROC)
+#' library(aorsf)
+#'
+#' set.seed(329)
+#'
+#' # a recipe to impute missing values instead of discarding them.
+#' # (this is for illustration only. pbc_orsf does not have missing values)
+#'
+#' imputer <- recipe(x = pbc_orsf, time + status ~ .) |>
+#'  step_impute_mean(all_numeric_predictors()) |>
+#'  step_impute_mode(all_nominal_predictors()) |>
+#'  step_rm(id)
+#'
+#'
+#' # 10-fold cross validation; make a container for the pre-processed data
+#' analyses <- vfold_cv(data = pbc_orsf, v = 10) |>
+#'  mutate(recipe = map(splits, ~prep(imputer, training = training(.x))),
+#'         data = map(recipe, juice),
+#'         data_test = map2(splits, recipe, ~bake(.y, new_data = testing(.x))))
+#'
+#' # 10-fold cross validation; train models and compute test predictions
+#' aorsf_data <- analyses |>
+#'  select(data, data_test) |>
+#'  mutate(fit = map(data, orsf, formula = time + status ~ .),
+#'         pred = map2(fit, data_test, predict, pred_horizon = 3500),
+#'         pred = map(pred, as.numeric))
+#'
+#' # testing sets are small, so pool them and compute 1 overall C-stat.
+#' aorsf_eval <- aorsf_data |>
+#'  select(data_test, pred) |>
+#'  unnest(cols = everything()) |>
+#'  summarize(
+#'   auc = survivalROC(Stime = time,
+#'                     status = status,
+#'                     marker = pred,
+#'                     predict.time = 3500,
+#'                     span = 0.25*n()^(-0.20)) |>
+#'    getElement('AUC')
+#'  )
+#'
+#' # C-stat: 0.81465
+#' aorsf_eval$auc
+#'
+#' }
 orsf <- function(data,
                  formula,
                  control = orsf_control_cph(),

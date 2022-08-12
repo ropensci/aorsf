@@ -14,7 +14,7 @@ orsf_summarize_uni(
 )
 }
 \arguments{
-\item{object}{an untrained aorsf object, created by setting
+\item{object}{an untrained 'aorsf' object, created by setting
 \code{no_fit = TRUE} in \code{orsf()}.}
 
 \item{n_variables}{(\emph{integer}) how many variables should be summarized?
