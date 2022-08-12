@@ -191,10 +191,12 @@ assessed once after growing all the trees.</p></dd>
 
 
 <dt>oobag_fun</dt>
-<dd><p>(<em>function</em>) When <code>oobag_fun</code> = <code>NULL</code> (the default),
+<dd><p>(<em>function</em>) A function to be measure the accuracy of
+out-of-bag predictions. When <code>oobag_fun</code> = <code>NULL</code> (the default),
 out-of-bag predictions are evaluated using Harrell's C-statistic.
-If a value for <code>oobag_fun</code> is provided, it will be used in place of
-Harrell's C-statistic to evaluate out-of-bag predictions. See details.</p></dd>
+For more details see the
+<a href="https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions">vignette</a>
+on out-of-bag predictions:</p></dd>
 
 
 <dt>importance</dt>
@@ -202,7 +204,7 @@ Harrell's C-statistic to evaluate out-of-bag predictions. See details.</p></dd>
 <li><p>'anova': use the analysis of variance (ANOVA) method</p></li>
 <li><p>'negate': compute negation importance</p></li>
 <li><p>'permute': compute permutation importance</p></li>
-</ul><p>See <a href="orsf_vi.html">orsf_vi</a> for descriptions of the available methods.</p></dd>
+</ul></dd>
 
 
 <dt>tree_seeds</dt>
@@ -231,7 +233,8 @@ directly submitted to <code>orsf_train()</code> so long as <code>attach_data</co
 
 
 <dt>...</dt>
-<dd><p>not currently used.</p></dd>
+<dd><p>Further arguments passed to or from other methods
+(not currently used).</p></dd>
 
 
 <dt>object</dt>
@@ -279,6 +282,7 @@ predicted survival probabilities for <code>y_mat</code>.</p></li>
 </ul><p>If <code>oobag_fun</code> is specified, it will be used in the
 computation of negation importance or permutation importance, but it
 will not have any role for ANOVA importance.</p>
+<p><em>importance</em>: See <a href="orsf_vi.html">orsf_vi</a> for descriptions of the available methods.</p>
 <p><strong>What is an oblique decision tree?</strong></p>
 <p>Decision trees are developed by splitting a set of training data into two
 new subsets, with the goal of having more similarity within the new subsets
@@ -352,16 +356,16 @@ DOI: 10.1001/jama.1982.03320430047030</p>
 <span class="r-in"><span><span class="co"># is assessed every 50 trees (50, 100, ..., 500)</span></span></span>
 <span class="r-in"><span><span class="va">fit_custom</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8115232</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.8296520</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.8287143</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.8314753</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.8315795</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.8318400</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.8319442</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.8318400</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.8318921</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.8346010</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8225932</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.8216816</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.8280892</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.8340800</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.8353303</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.8347572</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.8358512</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.8367889</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.8361638</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.8369452</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># make your own oobag function:</span></span></span>
 <span class="r-in"><span><span class="co"># (this is an R implementation of Harrell's C</span></span></span>
