@@ -39,7 +39,8 @@ options are
 \item 'permute': compute permutation importance
 }}
 
-\item{...}{not currently used.}
+\item{...}{Further arguments passed to or from other methods
+(not currently used).}
 }
 \value{
 an object of class 'aorsf_summary'

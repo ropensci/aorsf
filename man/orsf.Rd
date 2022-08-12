@@ -132,7 +132,8 @@ forest using its training data. Default is \code{TRUE}.}
 parametrized, but training is not initiated. The object returned can be
 directly submitted to \code{orsf_train()} so long as \code{attach_data} is \code{TRUE}.}
 
-\item{...}{not currently used.}
+\item{...}{Further arguments passed to or from other methods
+(not currently used).}
 
 \item{object}{an untrained aorsf object, created by setting
 \code{no_fit = TRUE} in \code{orsf()}.}

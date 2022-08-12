@@ -159,7 +159,8 @@
 #'   parametrized, but training is not initiated. The object returned can be
 #'   directly submitted to `orsf_train()` so long as `attach_data` is `TRUE`.
 #'
-#' @param ... not currently used.
+#' @param ... Further arguments passed to or from other methods
+#'   (not currently used).
 #'
 #' @param object an untrained aorsf object, created by setting
 #'   `no_fit = TRUE` in `orsf()`.

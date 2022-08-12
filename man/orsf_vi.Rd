@@ -36,7 +36,8 @@ out-of-bag predictions are evaluated using Harrell's C-statistic.
 If a value for \code{oobag_fun} is provided, it will be used in place of
 Harrell's C-statistic to evaluate out-of-bag predictions. See details.}
 
-\item{...}{not currently used.}
+\item{...}{Further arguments passed to or from other methods
+(not currently used).}
 }
 \value{
 a named vector. Names indicate predictors, values indicate importance.
