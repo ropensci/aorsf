@@ -29,9 +29,7 @@ individual factor levels will be returned.}
 \item 'anova': use the analysis of variance (ANOVA) method
 \item 'negate': compute negation importance
 \item 'permute': compute permutation importance
-}
-
-See \link{orsf_vi} for descriptions of the available methods.}
+}}
 
 \item{oobag_fun}{(\emph{function}) When \code{oobag_fun} = \code{NULL} (the default),
 out-of-bag predictions are evaluated using Harrell's C-statistic.
@@ -61,13 +59,17 @@ how much the model's performance changes. The worse the model's
 performance after negating coefficients for a given variable,
 the more important the variable.
 
+\strong{permutation importance}: Each variable is assessed separately by
+randomly permuting the variable's values and then determining
+how much the model's performance changes. The worse the model's
+performance after permuting the values of a given variable,
+the more important the variable.
+
 \strong{ANOVA importance}: ANOVA importance computes a p-value for each
 coefficient in each linear combination of variables in each decision
-tree of an oRF. Following the definition proposed by Menze et al,
-ANOVA importance in aorsf for an individual variable is the proportion
-of times a p-value for its coefficient is < 0.10.
-
-\strong{Disclaimer}: Negation importance is currently in development and its routine may be tweaked in future updates. ANOVA importance has been published by Menze et al. and is in a more stable lifecycle than negation importance.
+tree of an oblique random forest. Following the definition proposed by
+Menze et al, ANOVA importance in aorsf for an individual variable is
+the proportion of times a p-value for its coefficient is < 0.01.
 }
 \examples{
 

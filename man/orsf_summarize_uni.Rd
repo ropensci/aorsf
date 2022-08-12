@@ -37,9 +37,7 @@ options are
 \item 'anova': use the analysis of variance (ANOVA) method
 \item 'negate': compute negation importance
 \item 'permute': compute permutation importance
-}
-
-See \link{orsf_vi} for descriptions of the available methods.}
+}}
 
 \item{...}{not currently used.}
 }

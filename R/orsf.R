@@ -134,8 +134,6 @@
 #'   - 'negate': compute negation importance
 #'   - 'permute': compute permutation importance
 #'
-#'  See [orsf_vi] for descriptions of the available methods.
-#'
 #' @param tree_seeds (_integer vector_) if specified, random seeds will be set
 #'   using the values in `tree_seeds[i]`  before growing tree i. Two forests
 #'   grown with the same number of trees and the same seeds will have the exact
@@ -211,6 +209,8 @@
 #' If `oobag_fun` is specified, it will be used in the
 #'  computation of negation importance or permutation importance, but it
 #'  will not have any role for ANOVA importance.
+#'
+#' _importance_: See [orsf_vi] for descriptions of the available methods.
 #'
 #' __What is an oblique decision tree?__
 #'

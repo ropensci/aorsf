@@ -31,13 +31,18 @@
 #'  performance after negating coefficients for a given variable,
 #'  the more important the variable.
 #'
+#' __permutation importance__: Each variable is assessed separately by
+#'  randomly permuting the variable's values and then determining
+#'  how much the model's performance changes. The worse the model's
+#'  performance after permuting the values of a given variable,
+#'  the more important the variable.
+#'
 #' __ANOVA importance__: ANOVA importance computes a p-value for each
 #' coefficient in each linear combination of variables in each decision
-#' tree of an oRF. Following the definition proposed by Menze et al,
-#' ANOVA importance in aorsf for an individual variable is the proportion
-#' of times a p-value for its coefficient is < 0.10.
+#' tree of an oblique random forest. Following the definition proposed by
+#' Menze et al, ANOVA importance in aorsf for an individual variable is
+#' the proportion of times a p-value for its coefficient is < 0.01.
 #'
-#' __Disclaimer__: Negation importance is currently in development and its routine may be tweaked in future updates. ANOVA importance has been published by Menze et al. and is in a more stable lifecycle than negation importance.
 #'
 #' @export
 #'

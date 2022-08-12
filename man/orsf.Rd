@@ -111,9 +111,7 @@ Harrell's C-statistic to evaluate out-of-bag predictions. See details.}
 \item 'anova': use the analysis of variance (ANOVA) method
 \item 'negate': compute negation importance
 \item 'permute': compute permutation importance
-}
-
-See \link{orsf_vi} for descriptions of the available methods.}
+}}
 
 \item{tree_seeds}{(\emph{integer vector}) if specified, random seeds will be set
 using the values in \code{tree_seeds[i]}  before growing tree i. Two forests
@@ -186,6 +184,8 @@ predicted survival probabilities for \code{y_mat}.
 If \code{oobag_fun} is specified, it will be used in the
 computation of negation importance or permutation importance, but it
 will not have any role for ANOVA importance.
+
+\emph{importance}: See \link{orsf_vi} for descriptions of the available methods.
 
 \strong{What is an oblique decision tree?}
 
