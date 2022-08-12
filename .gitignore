@@ -5,5 +5,5 @@
 .DS_Store
 inst/doc
 docs
-^src-i386$
+src-i386
 ^cran-comments\.md$
