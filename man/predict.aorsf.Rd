@@ -43,7 +43,6 @@ in ascending order.
 }
 \examples{
 
-#' @srrstats {ML1.1} using the terms 'train' and 'test'.
 
 # indices of data used for training the model
 train <- seq(1, nrow(pbc_orsf), by = 2)

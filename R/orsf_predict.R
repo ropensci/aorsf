@@ -3,12 +3,12 @@
 #' Predict risk or survival
 #'
 #' @srrstats {G1.4} *documented with Roxygen*
-#'
+#' @srrstats {ML1.1} *using the terms 'train' and 'test'.*
 #' @srrstats {G2.0a} *specified expectations for length of `pred_horizon`. In general, inputs of length > 1 have the term 'vector' in their description, and inputs of length 1 just have the expected type.*
+#' @srrstats {ML1.1} *The term 'new_data' are used instead of data_test. There are two reasons for this. First, I am making an effort to be consistent with tidymodels. Second, there is a possibility that users will use predict() without the intention of testing their model, e.g., for interpretation.*
 #'
 #' @param object (_aorsf_) an oblique random survival forest (ORSF; see [orsf]).
 #'
-#' @srrstats {ML1.1} *The term 'new_data' are used instead of data_test. There are two reasons for this. First, I am making an effort to be consistent with tidymodels. Second, there is a possibility that users will use predict() without the intention of testing their model, e.g., for interpretation.*
 #'
 #' @param new_data (_data.frame_) data to compute predictions for. Must have
 #'   the same columns with equivalent types as the data used to train `object`.
@@ -42,9 +42,9 @@
 #'
 #' @export
 #'
+#'
 #' @examples
 #'
-#' #' @srrstats {ML1.1} using the terms 'train' and 'test'.
 #'
 #' # indices of data used for training the model
 #' train <- seq(1, nrow(pbc_orsf), by = 2)
