@@ -124,8 +124,8 @@
 <span><span class="co"># what is the output from this function?</span></span>
 <span><span class="va">fit</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span>
 <span><span class="co">#&gt;           [,1]</span></span>
-<span><span class="co">#&gt; [1,] 0.8345489</span></span></code></pre></div>
-<p>The out-of-bag estimate of Harrell’s C-statistic (the default method to evaluate out-of-bag predictions) is 0.8345489.</p>
+<span><span class="co">#&gt; [1,] 0.8394978</span></span></code></pre></div>
+<p>The out-of-bag estimate of Harrell’s C-statistic (the default method to evaluate out-of-bag predictions) is 0.8394978.</p>
 </div>
 <div class="section level2">
 <h2 id="monitoring-out-of-bag-error">Monitoring out-of-bag error<a class="anchor" aria-label="anchor" href="#monitoring-out-of-bag-error"></a>
@@ -169,7 +169,7 @@
 <code class="sourceCode R"><span></span>
 <span><span class="fu">oobag_fun_brier</span><span class="op">(</span>y_mat <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'time'</span>, <span class="st">'status'</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>                s_vec <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">surv_oobag</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.1869077</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.1891315</span></span></code></pre></div>
 <p>Second, you can pass your function into <code><a href="../reference/orsf.html">orsf()</a></code>, and it will be used in place of Harrell’s C-statistic:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -277,14 +277,12 @@
 <span>                 importance <span class="op">=</span> <span class="st">'negate'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit_sroc</span><span class="op">$</span><span class="va">importance</span></span>
-<span><span class="co">#&gt;           ast       albumin          bili           age     edema_0.5 </span></span>
-<span><span class="co">#&gt;  0.0307137526  0.0235594486  0.0183989728  0.0129158451  0.0052622798 </span></span>
-<span><span class="co">#&gt;       edema_1       protime     spiders_1      alk.phos     ascites_1 </span></span>
-<span><span class="co">#&gt;  0.0050834077  0.0036309063  0.0013135472  0.0010532686 -0.0007883035 </span></span>
-<span><span class="co">#&gt;      platelet          chol      hepato_1        copper          trig </span></span>
-<span><span class="co">#&gt; -0.0012287747 -0.0074571906 -0.0081650057 -0.0118111944 -0.0133780904 </span></span>
-<span><span class="co">#&gt;         sex_f   trt_placebo         stage </span></span>
-<span><span class="co">#&gt; -0.0139344509 -0.0194133778 -0.0204086153</span></span></code></pre></div>
+<span><span class="co">#&gt;      albumin         bili        sex_f        stage       copper     platelet </span></span>
+<span><span class="co">#&gt;  0.077970491  0.053502412  0.042570703  0.032859925  0.023681184  0.015742769 </span></span>
+<span><span class="co">#&gt;     alk.phos          ast    ascites_1      protime    edema_0.5         trig </span></span>
+<span><span class="co">#&gt;  0.012667408  0.004124891  0.002992887  0.001444664 -0.002749257 -0.004572633 </span></span>
+<span><span class="co">#&gt;      edema_1         chol     hepato_1          age  trt_placebo    spiders_1 </span></span>
+<span><span class="co">#&gt; -0.004935197 -0.005468338 -0.005783378 -0.008015845 -0.010205257 -0.019444386</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="multiple-functions-for-negation-importance">Multiple functions for negation importance<a class="anchor" aria-label="anchor" href="#multiple-functions-for-negation-importance"></a>
 </h3>
@@ -298,36 +296,34 @@
 <span></span>
 <span><span class="co"># use default technique (harrell's C-statistic)</span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          bili           age       spiders       protime        copper </span></span>
-<span><span class="co">#&gt;  0.0173473640  0.0082308814  0.0077620338  0.0076578454  0.0065117733 </span></span>
-<span><span class="co">#&gt;       ascites           sex        hepato           ast         edema </span></span>
-<span><span class="co">#&gt;  0.0063033965  0.0044280058  0.0032298395  0.0030214628  0.0023876502 </span></span>
-<span><span class="co">#&gt;         stage      platelet           trt          chol          trig </span></span>
-<span><span class="co">#&gt;  0.0015107314 -0.0002083767 -0.0010939779 -0.0014586372 -0.0023442384 </span></span>
-<span><span class="co">#&gt;      alk.phos </span></span>
-<span><span class="co">#&gt; -0.0045842884</span></span>
+<span><span class="co">#&gt;          bili           age       protime       ascites       albumin </span></span>
+<span><span class="co">#&gt;  0.0160971036  0.0127630756  0.0077099396  0.0050531361  0.0039591582 </span></span>
+<span><span class="co">#&gt;       spiders         stage         edema        hepato           ast </span></span>
+<span><span class="co">#&gt;  0.0015628256  0.0014065430  0.0003361315 -0.0007293186 -0.0009897895 </span></span>
+<span><span class="co">#&gt;           sex           trt          chol      platelet      alk.phos </span></span>
+<span><span class="co">#&gt; -0.0017191081 -0.0024484268 -0.0045842884 -0.0049489477 -0.0060429256 </span></span>
+<span><span class="co">#&gt;          trig </span></span>
+<span><span class="co">#&gt; -0.0066680558</span></span>
 <span></span>
 <span><span class="co"># use C-statistic from survivalROC</span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">fit</span>, oobag_fun <span class="op">=</span> <span class="va">oobag_fun_sroc</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          bili           sex       albumin        hepato       ascites </span></span>
-<span><span class="co">#&gt;  0.0362413554  0.0246323138  0.0185503162  0.0066604444  0.0059537575 </span></span>
-<span><span class="co">#&gt;      alk.phos         edema      platelet       spiders          trig </span></span>
-<span><span class="co">#&gt;  0.0034360691  0.0005654941  0.0000406982 -0.0014692645 -0.0018222478 </span></span>
-<span><span class="co">#&gt;       protime           ast          chol         stage           trt </span></span>
-<span><span class="co">#&gt; -0.0020056742 -0.0034333040 -0.0065837289 -0.0095741932 -0.0152138792 </span></span>
-<span><span class="co">#&gt;           age        copper </span></span>
-<span><span class="co">#&gt; -0.0153357415 -0.0222501686</span></span>
+<span><span class="co">#&gt;         bili         trig      albumin       hepato      protime          ast </span></span>
+<span><span class="co">#&gt;  0.044040307  0.010720110  0.008858130  0.008092038  0.005819786  0.005602622 </span></span>
+<span><span class="co">#&gt;      ascites         chol      spiders       copper        edema     platelet </span></span>
+<span><span class="co">#&gt;  0.001981294  0.001918618 -0.002232170 -0.002264818 -0.002605429 -0.003349785 </span></span>
+<span><span class="co">#&gt;     alk.phos          age        stage          sex          trt </span></span>
+<span><span class="co">#&gt; -0.003836187 -0.004362295 -0.005598464 -0.005742270 -0.026967663</span></span>
 <span></span>
 <span><span class="co"># you can also use custom functions for permutation importance</span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">fit</span>, oobag_fun <span class="op">=</span> <span class="va">oobag_fun_sroc</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          bili        hepato          chol       albumin          trig </span></span>
-<span><span class="co">#&gt;  0.0222778046  0.0093427333  0.0087366481  0.0074875136  0.0065858016 </span></span>
-<span><span class="co">#&gt;         edema         stage       protime        copper       ascites </span></span>
-<span><span class="co">#&gt;  0.0058216450  0.0054886870  0.0030691920  0.0030610317  0.0019497779 </span></span>
-<span><span class="co">#&gt;           ast      alk.phos       spiders      platelet           age </span></span>
-<span><span class="co">#&gt;  0.0001551438 -0.0055070732 -0.0055325426 -0.0068803045 -0.0122136876 </span></span>
-<span><span class="co">#&gt;           trt           sex </span></span>
-<span><span class="co">#&gt; -0.0124478342 -0.0145476569</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili       albumin         stage          trig        hepato </span></span>
+<span><span class="co">#&gt;  0.0230150455  0.0147100448  0.0140945824  0.0131563835  0.0100000849 </span></span>
+<span><span class="co">#&gt;       protime           ast      alk.phos          chol      platelet </span></span>
+<span><span class="co">#&gt;  0.0077365445  0.0074099261  0.0041125068  0.0022818367  0.0020825741 </span></span>
+<span><span class="co">#&gt;       ascites           sex       spiders        copper         edema </span></span>
+<span><span class="co">#&gt;  0.0017979087  0.0013544122  0.0010621163  0.0002401903 -0.0008396348 </span></span>
+<span><span class="co">#&gt;           trt           age </span></span>
+<span><span class="co">#&gt; -0.0023475760 -0.0104431292</span></span></code></pre></div>
 <p>There are some discrepancies between methods in the ranking of important variables. A simulation study to determine which method of estimating out-of-bag error does a better job of discriminating between important and unimportant variables would be helpful.</p>
 </div>
 </div>
@@ -340,7 +336,7 @@
 <span><span class="va">surv_oobag</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">surv_oobag</span></span>
 <span></span>
 <span><span class="va">surv_oobag</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span></span>
-<span><span class="co">#&gt; [1] 0.01319157 0.39723738 0.19224678 0.20429199 0.32819427</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.0128288 0.4537037 0.2110200 0.2213650 0.3746593</span></span></code></pre></div>
 <p>Some notes to remember when evaluating out-of-bag error with <code>surv_oobag</code>:</p>
 <ul>
 <li><p>the <code>oobag_pred_horizon</code> input in <code><a href="../reference/orsf.html">orsf()</a></code> determines the prediction horizon for out-of-bag predictions. The prediction horizon is a critical input for evaluation of predictions with time-to-event outcomes.</p></li>
