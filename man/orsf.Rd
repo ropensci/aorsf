@@ -100,10 +100,12 @@ after growing the 10th tree, the 20th tree, and so on. Default
 is \code{oobag_eval_every = n_tree}, so that out-of-bag performance is
 assessed once after growing all the trees.}
 
-\item{oobag_fun}{(\emph{function}) When \code{oobag_fun} = \code{NULL} (the default),
+\item{oobag_fun}{(\emph{function}) A function to be measure the accuracy of
+out-of-bag predictions. When \code{oobag_fun} = \code{NULL} (the default),
 out-of-bag predictions are evaluated using Harrell's C-statistic.
-If a value for \code{oobag_fun} is provided, it will be used in place of
-Harrell's C-statistic to evaluate out-of-bag predictions. See details.}
+For more details see the
+\href{https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions}{vignette}
+on out-of-bag predictions:}
 
 \item{importance}{(\emph{character}) Indicate method for variable importance:
 \itemize{

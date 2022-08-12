@@ -123,10 +123,13 @@
 #'
 #' @srrstats {ML5.4b} *It is possible to submit custom metrics to a model assessment function, and the ability to do so is clearly documented. The "Out-of-bag predictions and evaluation" vignette provides example code.*
 #'
-#' @param oobag_fun (_function_) When `oobag_fun` = `NULL` (the default),
+#' @param oobag_fun (_function_) A function to be measure the accuracy of
+#'   out-of-bag predictions. When `oobag_fun` = `NULL` (the default),
 #'   out-of-bag predictions are evaluated using Harrell's C-statistic.
-#'   If a value for `oobag_fun` is provided, it will be used in place of
-#'   Harrell's C-statistic to evaluate out-of-bag predictions. See details.
+#'   For more details see the
+#'   [vignette](https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions)
+#'   on out-of-bag predictions:
+#'
 #'
 #' @param importance (_character_) Indicate method for variable importance:
 #'   - 'none': no variable importance is computed.
