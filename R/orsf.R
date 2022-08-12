@@ -1,33 +1,30 @@
+#' @srrstats {G1.4} *documented with Roxygen*
+#' @srrstats {G1.1} *aorsf is an improvement of the ORSF algorithm implemented in obliqueRSF, which was an extension of Hemant Ishwaran's random survival forest.*
+#' @srrstats {G1.3} *linear combinations of inputs defined.*
+#' @srrstats {G1.5} *orsf() will be used in publications to benchmark performance of the aorsf package in computation speed and prediction accuracy.*
+#' @srrstats {G1.6} *orsf() should be used to compare performance claims with other packages.*
+#' @srrstats {G2.1} *Inputs have indication of type in parentheticals. This format is used in all exported functions.*
+#' @srrstats {G5.2a} *messages produced here (e.g., with `stop()`, `warning()`, `message()`) are unique and make effort to highlight the specific data elements that cause the error*
+#' @srrstats {G2.0a} *secondary documentation of arg lengths. When an input has length 1, a parenthetical gives the specific type of value it should be and uses a singular description (e.g., an integer). When inputs have length > 1, a vector description is used (e.g., integer vector)*
+#' @srrstats {ML3.3} *Properties and behaviours of aorsf models are explicitly compared with objects produced by other ML software in the "Introduction to aorsf" vignette.*
+#' @srrstats {ML4.0} *orsf() is a unified single-function interface to model training. orsf_train() is able to receive as input an untrained model specified by orsf() when no_fit = TRUE. Models with categorically different specifications are able to be submitted to the same model training function.*
+#' @srrstats {ML5.2, ML5.2a} *The structure and functionality of trained aorsf objects is documented through vignettes. In particular, basic functionality extending from the aorsf class is explicitly described in the "Introduction to aorsf" vignette, and additional functionality is documented in the "Out-of-bag predictions and evaluation" and "Compute partial dependence with ORSF" vignettes. Each vignettes demonstrates functionality clearly with example code.*
+#' @srrstats {ML5.3} *Assessment of model performance is implemented through out-of-bag error, which is finalized after a model is trained*
+#' @srrstats {ML5.4} *The "Out-of-bag predictions and evaluation" vignette shows how to implement built-in or user-specified functions for this functionality.*
+#' @srrstats {ML1.1} *Training data are labelled as "train".*
+#' @srrstats {G2.5} *factors used as predictors can be ordered and un-ordered.*
+#' @srrstats {ML4.1b} *The value of out-of-bag error can be returned for every oobag_eval_every step.*
+#' @srrstats {ML4.2} *The extraction of out-of-bag error is explicitly documented with example code in the "Out-of-bag predictions and evaluation" vignette.*
+#' @srrstats {ML3.5b} *Users can specify the kind of loss function to assess distance between model estimates and desired output. This is discussed in detail in the "Out-of-bag predictions and evaluation" vignette.*
+#' @srrstats {ML5.4a} *Harrell's C-statistic, an internally utilized metric for model performance, is clearly and distinctly documented and cited.*
+#' @srrstats {ML5.4b} *It is possible to submit custom metrics to a model assessment function, and the ability to do so is clearly documented. The "Out-of-bag predictions and evaluation" vignette provides example code.*
+#' @srrstats {ML2.0, ML2.0b} *orsf() enables pre-processing steps to be defined and parametrized without fitting a model when no_fit is TRUE, returning an object with a defined class minimally intended to implement a default `print` method which summarizes the model specifications.*
+#' @srrstats {ML3.0} *Model specification can be implemented prior to actual model fitting or training*
+#' @srrstats {ML3.0a} *As pre-processing, model specification, and training are controlled by the orsf() function, an input parameter (no_fit) enables models to be specified yet not fitted.*
+#' @srrstats {ML3.0c} *when no_fit=TRUE, orsf() will return an object that can be directly trained using orsf_train().*
 
 
 #' Oblique Random Survival Forest (ORSF)
-#'
-#' @srrstats {G1.4} *documented with Roxygen*
-#'
-#' @srrstats {G1.1} *aorsf is an improvement of the ORSF algorithm implemented in obliqueRSF, which was an extension of Hemant Ishwaran's random survival forest.*
-#'
-#' @srrstats {G1.3} *linear combinations of inputs defined.*
-#'
-#' @srrstats {G1.5} *orsf() will be used in publications to benchmark performance of the aorsf package in computation speed and prediction accuracy.*
-#'
-#' @srrstats {G1.6} *orsf() should be used to compare performance claims with other packages.*
-#'
-#'
-#' @srrstats {G2.1} *Inputs have indicatigiton of type in parentheticals. This format is used in all exported functions.*
-#'
-#' @srrstats {G5.2a} *messages produced here (e.g., with `stop()`, `warning()`, `message()`) are unique and make effort to highlight the specific data elements that cause the error*
-#'
-#' @srrstats {G2.0a} *secondary documentation of arg lengths. When an input has length 1, a parenthetical gives the specific type of value it should be and uses a singular description (e.g., an integer). When inputs have length > 1, a vector description is used (e.g., integer vector)*
-#'
-#' @srrstats {ML3.3} *Properties and behaviours of aorsf models are explicitly compared with objects produced by other ML software in the "Introduction to aorsf" vignette.*
-#'
-#' @srrstats {ML4.0} *orsf() is a unified single-function interface to model training. orsf_train() is able to receive as input an untrained model specified by orsf() when no_fit = TRUE. Models with categorically different specifications are able to be submitted to the same model training function.*
-#'
-#' @srrstats {ML5.2, ML5.2a} *The structure and functionality of trained aorsf objects is documented through vignettes. In particular, basic functionality extending from the aorsf class is explicitly described in the "Introduction to aorsf" vignette, and additional functionality is documented in the "Out-of-bag predictions and evaluation" and "Compute partial dependence with ORSF" vignettes. Each vignettes demonstrates functionality clearly with example code.*
-#'
-#' @srrstats {ML5.3} *Assessment of model performance is implemented through out-of-bag error, which is finalized after a model is trained*
-#'
-#' @srrstats {ML5.4} *The "Out-of-bag predictions and evaluation" vignette shows how to implement built-in or user-specified functions for this functionality.*
 #'
 #' The oblique random survival forest (ORSF) is an extension of the RSF
 #'   algorithm developed by Ishwaran et al and maintained in the
@@ -42,11 +39,7 @@
 #'   novel algorithm that speeds up the ORSF algorithm described by Jaeger
 #'   et al (see details).
 #'
-#' @srrstats {ML1.1} *Training data are labelled as "train".*
-#'
 #' @param data (_data.frame_) that contains the relevant variables.
-#'
-#' @srrstats {G2.5} factors used as predictors can be ordered and un-ordered.
 #'
 #' @param formula (_formula_) a formula object, with the response on the left
 #'   of a `~` operator, and the terms on the right (see details). Variables
@@ -106,10 +99,6 @@
 #'   should be used for out-of-bag predictions. Default is the median
 #'   of the observed times, i.e., `oobag_pred_horizon = median(time)`.
 #'
-#' @srrstats {ML4.1b} *The value of out-of-bag error can be returned for every oobag_eval_every step.*
-#'
-#' @srrstats {ML4.2} *The extraction of out-of-bag error is explicitly documented with example code in the "Out-of-bag predictions and evaluation" vignette.*
-#'
 #' @param oobag_eval_every (_integer_) The out-of-bag performance of the
 #'   ensemble will be checked every `oobag_eval_every` trees. So, if
 #'   `oobag_eval_every = 10`, then out-of-bag performance is checked
@@ -117,19 +106,12 @@
 #'   is `oobag_eval_every = n_tree`, so that out-of-bag performance is
 #'   assessed once after growing all the trees.
 #'
-#' @srrstats {ML3.5b} *Users can specify the kind of loss function to assess distance between model estimates and desired output. This is discussed in detail in the "Out-of-bag predictions and evaluation" vignette.*
-#'
-#' @srrstats {ML5.4a} *Harrell's C-statistic, an internally utilized metric for model performance, is clearly and distinctly documented and cited.*
-#'
-#' @srrstats {ML5.4b} *It is possible to submit custom metrics to a model assessment function, and the ability to do so is clearly documented. The "Out-of-bag predictions and evaluation" vignette provides example code.*
-#'
 #' @param oobag_fun (_function_) A function to be measure the accuracy of
 #'   out-of-bag predictions. When `oobag_fun` = `NULL` (the default),
 #'   out-of-bag predictions are evaluated using Harrell's C-statistic.
 #'   For more details see the
 #'   [vignette](https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions)
 #'   on out-of-bag predictions:
-#'
 #'
 #' @param importance (_character_) Indicate method for variable importance:
 #'   - 'none': no variable importance is computed.
@@ -152,12 +134,6 @@
 #'   plan on using functions like [orsf_pd_summary] to interpret the fitted
 #'   forest using its training data. Default is `TRUE`.
 #'
-#' @srrstats {ML2.0, ML2.0b} *orsf() enables pre-processing steps to be defined and parametrized without fitting a model when no_fit is TRUE, returning an object with a defined class minimally intended to implement a default `print` method which summarizes the model specifications.*
-#'
-#' @srrstats {ML3.0} *Model specification can be implemented prior to actual model fitting or training*
-#' @srrstats {ML3.0a} *As pre-processing, model specification, and training are controlled by the orsf() function, an input parameter (no_fit) enables models to be specified yet not fitted.*
-#' @srrstats {ML3.0c} *when no_fit=TRUE, orsf() will return an object that can be directly trained using orsf_train().*
-#'
 #' @param no_fit (_logical_) if `TRUE`, pre-processing steps are defined and
 #'   parametrized, but training is not initiated. The object returned can be
 #'   directly submitted to `orsf_train()` so long as `attach_data` is `TRUE`.
@@ -165,7 +141,7 @@
 #' @param ... Further arguments passed to or from other methods
 #'   (not currently used).
 #'
-#' @param object an untrained aorsf object, created by setting
+#' @param object an untrained 'aorsf' object, created by setting
 #'   `no_fit = TRUE` in `orsf()`.
 #'
 #' @srrstats {ML5.0} *The result of applying orsf training processes results in a single model object.*
