@@ -55,9 +55,11 @@
 #'                     Surv(time, status) ~ . - id)
 #'
 #' # the printed output will indicate the type of vi used
+#'
 #' fit_default
 #'
 #' # the 'raw' vi values are stored in fit_default:
+#'
 #' fit_default$importance
 #'
 #' # these are 'raw' because the vi values for factors have not been
@@ -67,10 +69,12 @@
 #' # variable with levels of 0, 0.5, and 1. To get aggregated values of vi
 #' # across all levels of each factor, just call orsf_vi with group_factors
 #' # set to TRUE (the default)
+#'
 #' orsf_vi(fit_default)
 #'
 #' # orsf_vi knows that fit_default was fit using anova vi
 #' # to verify this, see that orsf_vi and orsf_vi_anova are the same
+#'
 #' orsf_vi_anova(fit_default)
 #'
 #'
@@ -84,19 +88,24 @@
 #'
 #' # Note: you can't call orsf_vi_anova() on fit_no_vi because anova
 #' # VI can only be computed while the forest is being grown.
+#'
 #' orsf_vi_negate(fit_no_vi)
+#'
 #' orsf_vi_permute(fit_no_vi)
 #'
 #' # third workflow ------------------------------------------------------------
 #' # fit an aorsf object and compute vi at the same time
+#'
 #' fit_permute_vi <- orsf(pbc_orsf,
 #'                        Surv(time, status) ~ . - id,
 #'                        importance = 'permute')
 #'
 #' # get the vi instantly (i.e., it doesn't need to be computed again)
+#'
 #' orsf_vi_permute(fit_permute_vi)
 #'
 #' # You can still get negation vi from this fit, but it needs to be computed
+#'
 #' orsf_vi_negate(fit_permute_vi)
 #'
 #'
