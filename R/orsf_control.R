@@ -105,10 +105,6 @@ orsf_control_fast <- function(method = 'efron',
 #'   (see `eps` above) or the number of attempted iterations is equal to
 #'   `iter_max`.
 #'
-#' @param do_scale (_logical_) if `TRUE`, values of predictors will be
-#'   scaled prior to each instance of Newton Raphson scoring, using summary
-#'   values from the data in the current node of the decision tree.
-#'
 #' @param ... Further arguments passed to or from other methods
 #'   (not currently used).
 #'

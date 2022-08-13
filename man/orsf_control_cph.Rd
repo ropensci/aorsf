@@ -28,10 +28,6 @@ linear combinations of inputs, iteration continues until convergence
 
 \item{...}{Further arguments passed to or from other methods
 (not currently used).}
-
-\item{do_scale}{(\emph{logical}) if \code{TRUE}, values of predictors will be
-scaled prior to each instance of Newton Raphson scoring, using summary
-values from the data in the current node of the decision tree.}
 }
 \value{
 an object of class \code{'aorsf_control'}, which should be used as

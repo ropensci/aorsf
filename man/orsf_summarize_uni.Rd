@@ -2,7 +2,7 @@
 % Please edit documentation in R/orsf_summary.R
 \name{orsf_summarize_uni}
 \alias{orsf_summarize_uni}
-\title{ORSF summary of univariate information}
+\title{ORSF summary; univariate}
 \usage{
 orsf_summarize_uni(
   object,
@@ -14,8 +14,7 @@ orsf_summarize_uni(
 )
 }
 \arguments{
-\item{object}{an untrained 'aorsf' object, created by setting
-\code{no_fit = TRUE} in \code{orsf()}.}
+\item{object}{(\emph{aorsf}) an oblique random survival forest (ORSF; see \link{orsf}).}
 
 \item{n_variables}{(\emph{integer}) how many variables should be summarized?
 Setting this input to a lower number will reduce computation time.}
@@ -43,10 +42,14 @@ options are
 (not currently used).}
 }
 \value{
-an object of class 'aorsf_summary'
+an object of class 'aorsf_summary', which includes data on
+\itemize{
+\item importance of individual predictors.
+\item expected values of predictions at specific values of predictors.
+}
 }
 \description{
-ORSF summary of univariate information
+Summarize the univariate information from an ORSF object
 }
 \details{
 If \code{pred_horizon} is left unspecified, the median value of

@@ -2,7 +2,7 @@
 % Please edit documentation in R/orsf_control.R
 \name{orsf_control_fast}
 \alias{orsf_control_fast}
-\title{Fast ORSF control}
+\title{Accelerated ORSF control}
 \usage{
 orsf_control_fast(method = "efron", do_scale = TRUE, ...)
 }
@@ -26,7 +26,7 @@ an object of class \code{'aorsf_control'}, which should be used as
 an input for the \code{control} argument of \link{orsf}.
 }
 \description{
-Fast ORSF control
+Accelerated ORSF control
 }
 \details{
 For more details on of Newton-Raphson scoring and the Cox proportional

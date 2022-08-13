@@ -1,21 +1,19 @@
 
-#' ORSF summary of univariate information
+#' ORSF summary; univariate
 #'
-#' @srrstats {G1.4} *documented with Roxygen*
+#' @description Summarize the univariate information from an ORSF object
 #'
-#' ORSF's linear combinations of inputs can be used to provide helpful data
-#'   about individual variables. Summarizing the univariate information from
-#'   an ORSF provides data on the importance of individual variables and the
-#'   expected predicted risk at designated values of the variables.
+#' @inheritParams predict.aorsf
 #'
 #' @inheritParams orsf
-#' @inheritParams predict.aorsf
 #'
 #' @param n_variables (_integer_) how many variables should be summarized?
 #'   Setting this input to a lower number will reduce computation time.
 #'
+#' @return an object of class 'aorsf_summary', which includes data on
 #'
-#' @return an object of class 'aorsf_summary'
+#' - importance of individual predictors.
+#' - expected values of predictions at specific values of predictors.
 #'
 #' @details
 #'
