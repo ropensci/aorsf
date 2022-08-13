@@ -6,12 +6,34 @@
 #'   survival forests.
 #'
 #' @inheritParams predict.aorsf
-#' @inheritParams orsf
 #'
 #' @param group_factors (_logical_) if `TRUE`, the importance of factor
 #'   variables will be reported overall by aggregating the importance
 #'   of individual levels of the factor. If `FALSE`, the importance of
 #'   individual factor levels will be returned.
+#'
+#' @param importance `r roxy_importance_header()`
+#' - `r roxy_importance_none()`
+#' - `r roxy_importance_anova()`
+#' - `r roxy_importance_negate()`
+#' - `r roxy_importance_permute()`
+#'
+#' @param oobag_fun `r roxy_oobag_fun_header()` after negating coefficients
+#'   (if importance = 'negate') or permuting the values of a predictor
+#'   (if importance = 'permute')
+#' - `r roxy_oobag_fun_default()`
+#' - `r roxy_oobag_fun_user()`
+#'     + `r roxy_oobag_fun_inputs()`
+#'     + `r roxy_oobag_fun_ymat()`
+#'     + `r roxy_oobag_fun_svec()`
+#'     + `r roxy_oobag_fun_return()`
+#'     + the same `oobag_fun` should have been used when you created `object`
+#'       so that the initial value of out-of-bag prediction accuracy is
+#'       consistent with the values that will be computed while variable
+#'       importance is estimated.
+#'
+#' For more details, see the out-of-bag
+#' [vignette](https://bcjaeger.github.io/aorsf/articles/oobag.html).
 #'
 #' @section Variable importance methods:
 #'
@@ -27,10 +49,10 @@
 #'  performance after permuting the values of a given variable,
 #'  the more important the variable.
 #'
-#' __ANOVA importance__: ANOVA importance computes a p-value for each
+#' __analysis of variance (ANOVA) importance__: computes a p-value for each
 #' coefficient in each linear combination of variables in each decision
 #' tree of an oblique random forest. Following the definition proposed by
-#' Menze et al, ANOVA importance in aorsf for an individual variable is
+#' Menze et al, ANOVA importance for an individual predictor variable is
 #' the proportion of times a p-value for its coefficient is < 0.01.
 #'
 #' @return `orsf_vi` functions return a named numeric vector.
@@ -61,7 +83,7 @@
 #'
 #' @examples
 #'
-#' # first workflow ----------------------------------------------------------
+#' # first example ----------------------------------------------------------
 #'
 #' # fit an aorsf object using default values, and get the default vi (anova)
 #'
@@ -92,8 +114,7 @@
 #' orsf_vi_anova(fit_default)
 #'
 #'
-#'
-#' # second workflow ---------------------------------------------------------
+#' # second example ---------------------------------------------------------
 #'
 #' # fit an aorsf object without vi, then add vi later
 #'
@@ -108,7 +129,7 @@
 #'
 #' orsf_vi_permute(fit_no_vi)
 #'
-#' # third workflow ----------------------------------------------------------
+#' # third example ----------------------------------------------------------
 #'
 #' # fit an aorsf object and compute vi at the same time
 #'
@@ -127,14 +148,15 @@
 #'
 #' @references
 #'
-#' Menze, Bjoern H., et al. On oblique random forests.
-#' *Joint European Conference on Machine Learning and Knowledge Discovery in Databases*.
-#'  Springer, Berlin, Heidelberg, 2011.
-#'  DOI: 10.1007/978-3-642-23783-6_29
 #'
-#' Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM.
-#' *Accelerated and interpretable oblique random survival forests.*
-#' arXiv e-prints. 2022 Aug 3:arXiv-2208. URL: https://arxiv.org/abs/2208.01129
+#' `r roxy_cite_harrell_1982()`
+#'
+#' `r roxy_cite_breiman_2001()`
+#'
+#' `r roxy_cite_menze_2011()`
+#'
+#' `r roxy_cite_jaeger_2022()`
+#'
 #'
 orsf_vi <- function(object,
                     group_factors = TRUE,

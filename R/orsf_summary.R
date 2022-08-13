@@ -5,10 +5,16 @@
 #'
 #' @inheritParams predict.aorsf
 #'
-#' @inheritParams orsf
-#'
 #' @param n_variables (_integer_) how many variables should be summarized?
 #'   Setting this input to a lower number will reduce computation time.
+#'
+#' @param importance `r roxy_importance_header()`
+#' - `r roxy_importance_none()`
+#' - `r roxy_importance_anova()`
+#' - `r roxy_importance_negate()`
+#' - `r roxy_importance_permute()`
+#'
+#' For details on these methods, see [orsf_vi].
 #'
 #' @return an object of class 'aorsf_summary', which includes data on
 #'

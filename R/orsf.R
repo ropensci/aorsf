@@ -1,3 +1,4 @@
+
 #' Oblique Random Survival Forest (ORSF)
 #'
 #' Fit an oblique random survival forest
@@ -52,17 +53,18 @@
 #'    criteria is met.
 #'
 #'  - [orsf_control_net] uses `glmnet` to identify linear combinations of
-#'    predictors, similar to [obliqueRSF][obliqueRSF::ORSF].
+#'    predictors, similar to Jaeger (2019).
 #'
 #'  - [orsf_control_custom] allows the user to apply their own function
 #'    to create linear combinations of predictors.
 #'
-#' @param weights (_numeric vector_) Optional. If given, this
-#'   input should be a vector with length equal to the number of rows in
-#'   `data`. The values in `weights` are treated like replication weights,
-#'   i.e., a weight value of 2 is the same thing as having 2 observations
-#'   in `data`, each containing a copy of the corresponding person's data.
-#'   __Use this input cautiously__, as `orsf` will count the number of
+#' @param weights (_numeric vector_) Optional. If given, this input should
+#'   have length equal to `nrow(data)`. Values in `weights` are treated like
+#'   replication weights, i.e., a value of 2 is the same thing as having 2
+#'   observations in `data`, each containing a copy of the corresponding
+#'   person's data.
+#'
+#'   *Use* `weights` *cautiously*, as `orsf` will count the number of
 #'   observations and events prior to growing a node for a tree, so higher
 #'   values in `weights` will lead to deeper trees.
 #'
@@ -114,18 +116,22 @@
 #'   is `oobag_eval_every = n_tree`, so that out-of-bag performance is
 #'   assessed once after growing all the trees.
 #'
-#' @param oobag_fun (_function_) A function to be measure the accuracy of
-#'   out-of-bag predictions. When `oobag_fun` = `NULL` (the default),
-#'   out-of-bag predictions are evaluated using Harrell's C-statistic.
-#'   For more details see the
-#'   [vignette](https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions)
-#'   on out-of-bag predictions:
+#' @param oobag_fun `r roxy_oobag_fun_header()` every `oobag_eval_every` trees.
+#' - `r roxy_oobag_fun_default()`
+#' - `r roxy_oobag_fun_user()`
+#'     + `r roxy_oobag_fun_inputs()`
+#'     + `r roxy_oobag_fun_ymat()`
+#'     + `r roxy_oobag_fun_svec()`
+#'     + `r roxy_oobag_fun_return()`
+#' For more details, see the out-of-bag [vignette](https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions).
 #'
-#' @param importance (_character_) Indicate method for variable importance:
-#'   - 'none': no variable importance is computed.
-#'   - 'anova': use the analysis of variance (ANOVA) method
-#'   - 'negate': compute negation importance
-#'   - 'permute': compute permutation importance
+#' @param importance `r roxy_importance_header()`
+#' - `r roxy_importance_none()`
+#' - `r roxy_importance_anova()`
+#' - `r roxy_importance_negate()`
+#' - `r roxy_importance_permute()`
+#'
+#' For details on these methods, see [orsf_vi].
 #'
 #' @param tree_seeds (_integer vector_) if specified, random seeds will be set
 #'   using the values in `tree_seeds[i]`  before growing tree i. Two forests
@@ -172,7 +178,7 @@
 #'
 #' @section Details on inputs:
 #'
-#' _formula_:
+#' **formula**:
 #'
 #' - The response in `formula` can be a survival
 #'   object as returned by the [Surv][survival::Surv] function,
@@ -187,7 +193,7 @@
 #'   writing `status + time ~ .` will make `orsf` assume your
 #'   `status` variable is actually the `time` variable.
 #'
-#' _mtry_:
+#' **mtry**:
 #'
 #' The `mtry` parameter may be temporarily reduced to ensure there
 #'   are at least 2 events per predictor variable. This occurs when using
@@ -196,23 +202,11 @@
 #'   greater than or equal to the number of events. This reduction does not
 #'   occur when using [orsf_control_net].
 #'
-#' *oobag_fun*:
-#'
-#' `oobag_fun` must have two inputs: `y_mat` and `s_vec`.
-#'
-#'  - The input `y_mat` is presumed to be a matrix with two columns
-#'      named `time` (first column) and `status` (second column).
-#'
-#'  - The input `s_vec` is presumed to be a numeric vector containing
-#'      predicted survival probabilities for `y_mat`.
+#' **oobag_fun**:
 #'
 #' If `oobag_fun` is specified, it will be used in to compute negation
 #'  importance or permutation importance, but it will not have any role
 #'  for ANOVA importance.
-#'
-#' _importance_:
-#'
-#' See [orsf_vi] for descriptions of the available methods.
 #'
 #' @section What is an oblique decision tree?:
 #'
@@ -271,26 +265,15 @@
 #'
 #' @references
 #'
-#' Breiman L. Random forests. *Machine learning*. 2001 Oct;45(1):5-32.
-#'   DOI: 10.1023/A:1010933404324
+#' `r roxy_cite_harrell_1982()`
 #'
-#' Ishwaran H, Kogalur UB, Blackstone EH, Lauer MS. Random survival forests.
-#'   *Annals of applied statistics*. 2008 Sep;2(3):841-60.
-#'   DOI: 10.1214/08-AOAS169
+#' `r roxy_cite_breiman_2001()`
 #'
-#' Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI,
-#'   Mcclure LA, Howard G, Simon N. Oblique random survival forests.
-#'   *Annals of applied statistics*. 2019 Sep;13(3):1847-83.
-#'   DOI: 10.1214/19-AOAS1261
+#' `r roxy_cite_ishwaran_2008()`
 #'
-#' Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar M, Pandey A, Pajewski NM.
-#'   Accelerated and interpretable oblique random survival forests.
-#'   arXiv e-prints. 2022 Aug 3:arXiv-2208.
-#'   URL: https://arxiv.org/abs/2208.01129
+#' `r roxy_cite_jaeger_2019()`
 #'
-#' Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA.
-#' Evaluating the Yield of Medical Tests. *JAMA*. 1982;247(18):2543–2546.
-#' DOI: 10.1001/jama.1982.03320430047030
+#' `r roxy_cite_jaeger_2022()`
 #'
 #' @export
 #'

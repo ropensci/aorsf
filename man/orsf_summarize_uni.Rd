@@ -33,10 +33,12 @@ options are
 \item{importance}{(\emph{character}) Indicate method for variable importance:
 \itemize{
 \item 'none': no variable importance is computed.
-\item 'anova': use the analysis of variance (ANOVA) method
+\item 'anova': compute analysis of variance (ANOVA) importance
 \item 'negate': compute negation importance
 \item 'permute': compute permutation importance
-}}
+}
+
+For details on these methods, see \link{orsf_vi}.}
 
 \item{...}{Further arguments passed to or from other methods
 (not currently used).}

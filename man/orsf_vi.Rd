@@ -26,17 +26,31 @@ individual factor levels will be returned.}
 \item{importance}{(\emph{character}) Indicate method for variable importance:
 \itemize{
 \item 'none': no variable importance is computed.
-\item 'anova': use the analysis of variance (ANOVA) method
+\item 'anova': compute analysis of variance (ANOVA) importance
 \item 'negate': compute negation importance
 \item 'permute': compute permutation importance
 }}
 
-\item{oobag_fun}{(\emph{function}) A function to be measure the accuracy of
-out-of-bag predictions. When \code{oobag_fun} = \code{NULL} (the default),
-out-of-bag predictions are evaluated using Harrell's C-statistic.
-For more details see the
-\href{https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions}{vignette}
-on out-of-bag predictions:}
+\item{oobag_fun}{(\emph{function}) to be used for evaluating out-of-bag prediction accuracy after negating coefficients
+(if importance = 'negate') or permuting the values of a predictor
+(if importance = 'permute')
+\itemize{
+\item When \code{oobag_fun = NULL} (the default), Harrell's C-statistic (1982) is used to evaluate accuracy.
+\item if you use your own \code{oobag_fun} note the following:
+\itemize{
+\item \code{oobag_fun} should have two inputs: \code{y_mat} and \code{s_vec}
+\item \code{y_mat} is a two column matrix with first column named 'time', second named 'status'
+\item \code{s_vec} is a numeric vector containing predicted survival probabilities.
+\item \code{oobag_fun} should return a numeric output of length 1
+\item the same \code{oobag_fun} should have been used when you created \code{object}
+so that the initial value of out-of-bag prediction accuracy is
+consistent with the values that will be computed while variable
+importance is estimated.
+}
+}
+
+For more details, see the out-of-bag
+\href{https://bcjaeger.github.io/aorsf/articles/oobag.html}{vignette}.}
 
 \item{...}{Further arguments passed to or from other methods
 (not currently used).}
@@ -84,16 +98,16 @@ how much the model's performance changes. The worse the model's
 performance after permuting the values of a given variable,
 the more important the variable.
 
-\strong{ANOVA importance}: ANOVA importance computes a p-value for each
+\strong{analysis of variance (ANOVA) importance}: computes a p-value for each
 coefficient in each linear combination of variables in each decision
 tree of an oblique random forest. Following the definition proposed by
-Menze et al, ANOVA importance in aorsf for an individual variable is
+Menze et al, ANOVA importance for an individual predictor variable is
 the proportion of times a p-value for its coefficient is < 0.01.
 }
 
 \examples{
 
-# first workflow ----------------------------------------------------------
+# first example ----------------------------------------------------------
 
 # fit an aorsf object using default values, and get the default vi (anova)
 
@@ -124,8 +138,7 @@ orsf_vi(fit_default)
 orsf_vi_anova(fit_default)
 
 
-
-# second workflow ---------------------------------------------------------
+# second example ---------------------------------------------------------
 
 # fit an aorsf object without vi, then add vi later
 
@@ -140,7 +153,7 @@ orsf_vi_negate(fit_no_vi)
 
 orsf_vi_permute(fit_no_vi)
 
-# third workflow ----------------------------------------------------------
+# third example ----------------------------------------------------------
 
 # fit an aorsf object and compute vi at the same time
 
@@ -159,12 +172,11 @@ orsf_vi_negate(fit_permute_vi)
 
 }
 \references{
-Menze, Bjoern H., et al. On oblique random forests.
-\emph{Joint European Conference on Machine Learning and Knowledge Discovery in Databases}.
-Springer, Berlin, Heidelberg, 2011.
-DOI: 10.1007/978-3-642-23783-6_29
+Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. Evaluating the Yield of Medical Tests. \emph{JAMA} 1982; 247(18):2543-2546. DOI: 10.1001/jama.1982.03320430047030
 
-Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM.
-\emph{Accelerated and interpretable oblique random survival forests.}
-arXiv e-prints. 2022 Aug 3:arXiv-2208. URL: https://arxiv.org/abs/2208.01129
+Breiman L. Random forests. \emph{Machine learning} 2001 Oct; 45(1):5-32. DOI: 10.1023/A:1010933404324
+
+Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. Joint European Conference on Machine Learning and Knowledge Discovery in Databases. \emph{JAMA} 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29
+
+Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{arXiv e-prints} 2022 Aug; arXiv-2208. URL: https://arxiv.org/abs/2208.01129
 }

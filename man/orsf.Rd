@@ -50,17 +50,18 @@ Raphson scoring to identify a linear combination of predictors.
 \item \link{orsf_control_cph} uses Newton Raphson scoring until a convergence
 criteria is met.
 \item \link{orsf_control_net} uses \code{glmnet} to identify linear combinations of
-predictors, similar to \link[obliqueRSF:ORSF]{obliqueRSF}.
+predictors, similar to Jaeger (2019).
 \item \link{orsf_control_custom} allows the user to apply their own function
 to create linear combinations of predictors.
 }}
 
-\item{weights}{(\emph{numeric vector}) Optional. If given, this
-input should be a vector with length equal to the number of rows in
-\code{data}. The values in \code{weights} are treated like replication weights,
-i.e., a weight value of 2 is the same thing as having 2 observations
-in \code{data}, each containing a copy of the corresponding person's data.
-\strong{Use this input cautiously}, as \code{orsf} will count the number of
+\item{weights}{(\emph{numeric vector}) Optional. If given, this input should
+have length equal to \code{nrow(data)}. Values in \code{weights} are treated like
+replication weights, i.e., a value of 2 is the same thing as having 2
+observations in \code{data}, each containing a copy of the corresponding
+person's data.
+
+\emph{Use} \code{weights} \emph{cautiously}, as \code{orsf} will count the number of
 observations and events prior to growing a node for a tree, so higher
 values in \code{weights} will lead to deeper trees.}
 
@@ -112,20 +113,28 @@ after growing the 10th tree, the 20th tree, and so on. Default
 is \code{oobag_eval_every = n_tree}, so that out-of-bag performance is
 assessed once after growing all the trees.}
 
-\item{oobag_fun}{(\emph{function}) A function to be measure the accuracy of
-out-of-bag predictions. When \code{oobag_fun} = \code{NULL} (the default),
-out-of-bag predictions are evaluated using Harrell's C-statistic.
-For more details see the
-\href{https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions}{vignette}
-on out-of-bag predictions:}
+\item{oobag_fun}{(\emph{function}) to be used for evaluating out-of-bag prediction accuracy every \code{oobag_eval_every} trees.
+\itemize{
+\item When \code{oobag_fun = NULL} (the default), Harrell's C-statistic (1982) is used to evaluate accuracy.
+\item if you use your own \code{oobag_fun} note the following:
+\itemize{
+\item \code{oobag_fun} should have two inputs: \code{y_mat} and \code{s_vec}
+\item \code{y_mat} is a two column matrix with first column named 'time', second named 'status'
+\item \code{s_vec} is a numeric vector containing predicted survival probabilities.
+\item \code{oobag_fun} should return a numeric output of length 1
+For more details, see the out-of-bag \href{https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions}{vignette}.
+}
+}}
 
 \item{importance}{(\emph{character}) Indicate method for variable importance:
 \itemize{
 \item 'none': no variable importance is computed.
-\item 'anova': use the analysis of variance (ANOVA) method
+\item 'anova': compute analysis of variance (ANOVA) importance
 \item 'negate': compute negation importance
 \item 'permute': compute permutation importance
-}}
+}
+
+For details on these methods, see \link{orsf_vi}.}
 
 \item{tree_seeds}{(\emph{integer vector}) if specified, random seeds will be set
 using the values in \code{tree_seeds[i]}  before growing tree i. Two forests
@@ -173,7 +182,7 @@ Terry M. Therneau that fits Cox proportional hazards models
 \section{Details on inputs}{
 
 
-\emph{formula}:
+\strong{formula}:
 \itemize{
 \item The response in \code{formula} can be a survival
 object as returned by the \link[survival:Surv]{Surv} function,
@@ -187,7 +196,7 @@ writing \code{status + time ~ .} will make \code{orsf} assume your
 \code{status} variable is actually the \code{time} variable.
 }
 
-\emph{mtry}:
+\strong{mtry}:
 
 The \code{mtry} parameter may be temporarily reduced to ensure there
 are at least 2 events per predictor variable. This occurs when using
@@ -196,23 +205,11 @@ algorithm may become unstable when the number of covariates is
 greater than or equal to the number of events. This reduction does not
 occur when using \link{orsf_control_net}.
 
-\emph{oobag_fun}:
-
-\code{oobag_fun} must have two inputs: \code{y_mat} and \code{s_vec}.
-\itemize{
-\item The input \code{y_mat} is presumed to be a matrix with two columns
-named \code{time} (first column) and \code{status} (second column).
-\item The input \code{s_vec} is presumed to be a numeric vector containing
-predicted survival probabilities for \code{y_mat}.
-}
+\strong{oobag_fun}:
 
 If \code{oobag_fun} is specified, it will be used in to compute negation
 importance or permutation importance, but it will not have any role
 for ANOVA importance.
-
-\emph{importance}:
-
-See \link{orsf_vi} for descriptions of the available methods.
 }
 
 \section{What is an oblique decision tree?}{
@@ -346,24 +343,13 @@ fit_custom_oobag$eval_oobag$stat_values
 
 }
 \references{
-Breiman L. Random forests. \emph{Machine learning}. 2001 Oct;45(1):5-32.
-DOI: 10.1023/A:1010933404324
+Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. Evaluating the Yield of Medical Tests. \emph{JAMA} 1982; 247(18):2543-2546. DOI: 10.1001/jama.1982.03320430047030
 
-Ishwaran H, Kogalur UB, Blackstone EH, Lauer MS. Random survival forests.
-\emph{Annals of applied statistics}. 2008 Sep;2(3):841-60.
-DOI: 10.1214/08-AOAS169
+Breiman L. Random forests. \emph{Machine learning} 2001 Oct; 45(1):5-32. DOI: 10.1023/A:1010933404324
 
-Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI,
-Mcclure LA, Howard G, Simon N. Oblique random survival forests.
-\emph{Annals of applied statistics}. 2019 Sep;13(3):1847-83.
-DOI: 10.1214/19-AOAS1261
+Ishwaran H, Kogalur UB, Blackstone EH, Lauer MS. Random survival forests. \emph{Annals of applied statistics} 2008 Sep; 2(3):841-60. DOI: 10.1214/08-AOAS169
 
-Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar M, Pandey A, Pajewski NM.
-Accelerated and interpretable oblique random survival forests.
-arXiv e-prints. 2022 Aug 3:arXiv-2208.
-URL: https://arxiv.org/abs/2208.01129
+Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA, Howard G, Simon N. Oblique random survival forests. \emph{Annals of applied statistics} 2019 Sep; 13(3):1847-83. DOI: 10.1214/19-AOAS1261
 
-Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA.
-Evaluating the Yield of Medical Tests. \emph{JAMA}. 1982;247(18):2543–2546.
-DOI: 10.1001/jama.1982.03320430047030
+Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{arXiv e-prints} 2022 Aug; arXiv-2208. URL: https://arxiv.org/abs/2208.01129
 }
