@@ -127,6 +127,7 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <span><span class="va">orsf_fit</span></span>
 <span><span class="co">#&gt; ---------- Oblique random survival forest</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                ORSF type: Accelerated</span></span>
 <span><span class="co">#&gt;           N observations: 276</span></span>
 <span><span class="co">#&gt;                 N events: 111</span></span>
 <span><span class="co">#&gt;                  N trees: 2500</span></span>
@@ -162,40 +163,40 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          bili           age           sex        copper       ascites </span></span>
-<span><span class="co">#&gt;  0.0131798291  0.0099499896  0.0070848093  0.0058866431  0.0043759116 </span></span>
-<span><span class="co">#&gt;       spiders       protime         edema           ast       albumin </span></span>
-<span><span class="co">#&gt;  0.0030214628  0.0025526151  0.0017811250  0.0010939779 -0.0004688477 </span></span>
-<span><span class="co">#&gt;        hepato          chol      alk.phos          trig      platelet </span></span>
-<span><span class="co">#&gt; -0.0011460721 -0.0015628256 -0.0019795791 -0.0028130861 -0.0041154407 </span></span>
-<span><span class="co">#&gt;           trt </span></span>
-<span><span class="co">#&gt; -0.0041675349</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili           age       ascites       protime        copper </span></span>
+<span><span class="co">#&gt;  0.0134923942  0.0085434466  0.0057824547  0.0046363826  0.0037507814 </span></span>
+<span><span class="co">#&gt;       spiders         edema         stage           sex           ast </span></span>
+<span><span class="co">#&gt;  0.0036465930  0.0028751029  0.0022921442  0.0016670140  0.0012502605 </span></span>
+<span><span class="co">#&gt;        hepato      alk.phos          chol          trig           trt </span></span>
+<span><span class="co">#&gt; -0.0003125651 -0.0012502605 -0.0017191081 -0.0018232965 -0.0026568035 </span></span>
+<span><span class="co">#&gt;      platelet </span></span>
+<span><span class="co">#&gt; -0.0028130861</span></span></code></pre></div>
 </li>
 <li>
 <p>You can also compute variable importance using permutation, a more classical approach.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          bili           age        copper       ascites         stage </span></span>
-<span><span class="co">#&gt;  0.0090122942  0.0079704105  0.0058866431  0.0027609919  0.0025526151 </span></span>
-<span><span class="co">#&gt;          chol       albumin       protime           sex       spiders </span></span>
-<span><span class="co">#&gt;  0.0025005209  0.0018232965  0.0011981663  0.0007814128  0.0007293186 </span></span>
-<span><span class="co">#&gt;           ast      platelet         edema        hepato      alk.phos </span></span>
-<span><span class="co">#&gt;  0.0006251302 -0.0003646593 -0.0004291569 -0.0007293186 -0.0011981663 </span></span>
-<span><span class="co">#&gt;          trig           trt </span></span>
-<span><span class="co">#&gt; -0.0015107314 -0.0029172744</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili           age         stage        copper       albumin </span></span>
+<span><span class="co">#&gt;  0.0122421338  0.0090122942  0.0042717233  0.0039591582  0.0039070640 </span></span>
+<span><span class="co">#&gt;       ascites          chol       protime         edema        hepato </span></span>
+<span><span class="co">#&gt;  0.0025005209  0.0022400500  0.0021358616  0.0006635807  0.0006251302 </span></span>
+<span><span class="co">#&gt;       spiders           ast      alk.phos      platelet           sex </span></span>
+<span><span class="co">#&gt;  0.0004688477 -0.0001041884 -0.0001562826 -0.0006772244 -0.0007814128 </span></span>
+<span><span class="co">#&gt;           trt          trig </span></span>
+<span><span class="co">#&gt; -0.0015107314 -0.0017712023</span></span></code></pre></div>
 </li>
 <li>
 <p>A faster alternative to permutation and negation importance is ANOVA importance, which computes the proportion of times each variable obtains a low p-value (p &lt; 0.01) while the forest is grown.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    ascites       bili      edema     copper    albumin        age      stage </span></span>
-<span><span class="co">#&gt; 0.30967826 0.24619998 0.21284981 0.17863634 0.15186989 0.14669863 0.14480409 </span></span>
-<span><span class="co">#&gt;    protime    spiders     hepato       chol        sex        ast       trig </span></span>
-<span><span class="co">#&gt; 0.12863221 0.12539359 0.12171568 0.11761006 0.11391341 0.11385624 0.07588287 </span></span>
-<span><span class="co">#&gt;   alk.phos        trt   platelet </span></span>
-<span><span class="co">#&gt; 0.06324233 0.06046357 0.05202554</span></span></code></pre></div>
+<span><span class="co">#&gt;    ascites       bili      edema     copper        age    albumin    protime </span></span>
+<span><span class="co">#&gt; 0.37535240 0.28802725 0.25071311 0.19946642 0.18231113 0.17848411 0.15620772 </span></span>
+<span><span class="co">#&gt;      stage       chol        ast    spiders        sex     hepato       trig </span></span>
+<span><span class="co">#&gt; 0.14307743 0.14234894 0.12985129 0.12727497 0.11925957 0.11285150 0.10276701 </span></span>
+<span><span class="co">#&gt;   alk.phos   platelet        trt </span></span>
+<span><span class="co">#&gt; 0.09960634 0.07668127 0.06754044</span></span></code></pre></div>
 </li>
 </ul>
 </div>
@@ -274,39 +275,40 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;   0.80 0.2429583 0.1284750 0.04840256 0.3928055</span></span>
-<span><span class="co">#&gt;    1.4 0.2596384 0.1457900 0.05914073 0.4120615</span></span>
-<span><span class="co">#&gt;    3.5 0.3458558 0.2498307 0.13723033 0.5227983</span></span>
+<span><span class="co">#&gt;   0.80 0.2321709 0.1250703 0.04511286 0.3822285</span></span>
+<span><span class="co">#&gt;    1.4 0.2526454 0.1452361 0.05893072 0.4017982</span></span>
+<span><span class="co">#&gt;    3.5 0.3716990 0.2879513 0.16520375 0.5483311</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -- age (VI Rank: 2) ----------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;     42 0.2674831 0.1409063 0.04296130 0.4512338</span></span>
-<span><span class="co">#&gt;     50 0.2945834 0.1737065 0.05097475 0.5017808</span></span>
-<span><span class="co">#&gt;     57 0.3276076 0.2193830 0.07385959 0.5367037</span></span>
+<span><span class="co">#&gt;     42 0.2738421 0.1429054 0.04190491 0.4670137</span></span>
+<span><span class="co">#&gt;     50 0.3012377 0.1711906 0.04922133 0.5312928</span></span>
+<span><span class="co">#&gt;     57 0.3324703 0.2206562 0.07135028 0.5659502</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- sex (VI Rank: 3) ----------------------------</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
-<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;      m 0.3560382 0.2469748 0.12206421 0.5731464</span></span>
-<span><span class="co">#&gt;      f 0.2912662 0.1552082 0.05092011 0.5253999</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- copper (VI Rank: 4) -------------------------</span></span>
+<span><span class="co">#&gt; -- ascites (VI Rank: 3) ------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;     43 0.2626844 0.1415148 0.04755781 0.4371901</span></span>
-<span><span class="co">#&gt;     74 0.2792341 0.1554124 0.05827489 0.4609205</span></span>
-<span><span class="co">#&gt;    129 0.3265006 0.2159967 0.10072831 0.5345941</span></span>
+<span><span class="co">#&gt;      0 0.2962853 0.1559449 0.04856002 0.5312403</span></span>
+<span><span class="co">#&gt;      1 0.4707099 0.3853747 0.27346654 0.6542754</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- ascites (VI Rank: 5) ------------------------</span></span>
+<span><span class="co">#&gt; -- protime (VI Rank: 4) ------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;      0 0.2931932 0.1576125 0.05434581 0.5253999</span></span>
-<span><span class="co">#&gt;      1 0.4279745 0.3372134 0.21379450 0.6286554</span></span>
+<span><span class="co">#&gt;     10 0.2836244 0.1532223 0.04709130 0.5059426</span></span>
+<span><span class="co">#&gt;     11 0.2956075 0.1611090 0.05140038 0.5249728</span></span>
+<span><span class="co">#&gt;     11 0.3168198 0.1890442 0.06756468 0.5346692</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- copper (VI Rank: 5) -------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;     43 0.2656012 0.1388691 0.04530208 0.4752255</span></span>
+<span><span class="co">#&gt;     74 0.2823505 0.1590903 0.05506762 0.5037839</span></span>
+<span><span class="co">#&gt;    129 0.3358382 0.2179729 0.10527331 0.5494800</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Predicted risk at time t = 1826.25 for top 5 predictors</span></span></code></pre></div>
 </div>
@@ -334,7 +336,7 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <span> <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   2.905   0.000   2.905</span></span>
+<span><span class="co">#&gt;   3.115   0.000   3.115</span></span>
 <span></span>
 <span><span class="co"># and how long it takes to fit 50 cph trees</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
@@ -346,11 +348,11 @@ Decision trees for classification with axis-based splitting (left) and oblique s
 <span> <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   0.051   0.000   0.051</span></span>
+<span><span class="co">#&gt;   0.053   0.000   0.054</span></span>
 <span></span>
 <span><span class="va">t1</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">t2</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span></span>
 <span><span class="co">#&gt;  elapsed </span></span>
-<span><span class="co">#&gt; 56.96078</span></span></code></pre></div>
+<span><span class="co">#&gt; 57.68519</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="aorsf-and-other-machine-learning-software">aorsf and other machine learning software<a class="anchor" aria-label="anchor" href="#aorsf-and-other-machine-learning-software"></a>
