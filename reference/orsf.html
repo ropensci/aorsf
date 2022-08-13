@@ -111,19 +111,19 @@ Raphson scoring to identify a linear combination of predictors.</p></li>
 <li><p><a href="orsf_control_cph.html">orsf_control_cph</a> uses Newton Raphson scoring until a convergence
 criteria is met.</p></li>
 <li><p><a href="orsf_control_net.html">orsf_control_net</a> uses <code>glmnet</code> to identify linear combinations of
-predictors, similar to obliqueRSF.</p></li>
+predictors, similar to Jaeger (2019).</p></li>
 <li><p><a href="orsf_control_custom.html">orsf_control_custom</a> allows the user to apply their own function
 to create linear combinations of predictors.</p></li>
 </ul></dd>
 
 
 <dt>weights</dt>
-<dd><p>(<em>numeric vector</em>) Optional. If given, this
-input should be a vector with length equal to the number of rows in
-<code>data</code>. The values in <code>weights</code> are treated like replication weights,
-i.e., a weight value of 2 is the same thing as having 2 observations
-in <code>data</code>, each containing a copy of the corresponding person's data.
-<strong>Use this input cautiously</strong>, as <code>orsf</code> will count the number of
+<dd><p>(<em>numeric vector</em>) Optional. If given, this input should
+have length equal to <code>nrow(data)</code>. Values in <code>weights</code> are treated like
+replication weights, i.e., a value of 2 is the same thing as having 2
+observations in <code>data</code>, each containing a copy of the corresponding
+person's data.</p>
+<p><em>Use</em> <code>weights</code> <em>cautiously</em>, as <code>orsf</code> will count the number of
 observations and events prior to growing a node for a tree, so higher
 values in <code>weights</code> will lead to deeper trees.</p></dd>
 
@@ -201,20 +201,22 @@ assessed once after growing all the trees.</p></dd>
 
 
 <dt>oobag_fun</dt>
-<dd><p>(<em>function</em>) A function to be measure the accuracy of
-out-of-bag predictions. When <code>oobag_fun</code> = <code>NULL</code> (the default),
-out-of-bag predictions are evaluated using Harrell's C-statistic.
-For more details see the
-<a href="https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions">vignette</a>
-on out-of-bag predictions:</p></dd>
+<dd><p>(<em>function</em>) to be used for evaluating out-of-bag prediction accuracy every <code>oobag_eval_every</code> trees.</p><ul><li><p>When <code>oobag_fun = NULL</code> (the default), Harrell's C-statistic (1982) is used to evaluate accuracy.</p></li>
+<li><p>if you use your own <code>oobag_fun</code> note the following:</p><ul><li><p><code>oobag_fun</code> should have two inputs: <code>y_mat</code> and <code>s_vec</code></p></li>
+<li><p><code>y_mat</code> is a two column matrix with first column named 'time', second named 'status'</p></li>
+<li><p><code>s_vec</code> is a numeric vector containing predicted survival probabilities.</p></li>
+<li><p><code>oobag_fun</code> should return a numeric output of length 1
+For more details, see the out-of-bag <a href="https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions">vignette</a>.</p></li>
+</ul></li>
+</ul></dd>
 
 
 <dt>importance</dt>
 <dd><p>(<em>character</em>) Indicate method for variable importance:</p><ul><li><p>'none': no variable importance is computed.</p></li>
-<li><p>'anova': use the analysis of variance (ANOVA) method</p></li>
+<li><p>'anova': compute analysis of variance (ANOVA) importance</p></li>
 <li><p>'negate': compute negation importance</p></li>
 <li><p>'permute': compute permutation importance</p></li>
-</ul></dd>
+</ul><p>For details on these methods, see <a href="orsf_vi.html">orsf_vi</a>.</p></dd>
 
 
 <dt>tree_seeds</dt>
@@ -276,7 +278,7 @@ Terry M. Therneau that fits Cox proportional hazards models
     
 
 
-<p><em>formula</em>:</p><ul><li><p>The response in <code>formula</code> can be a survival
+<p><strong>formula</strong>:</p><ul><li><p>The response in <code>formula</code> can be a survival
 object as returned by the <a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a> function,
 but can also just be the time and status variables. I.e.,
 <code>Surv(time, status) ~ .</code> works just like <code>time + status ~ .</code></p></li>
@@ -286,23 +288,17 @@ variables in <code>data</code> (omitting those on the left hand side of
 <li><p>The order of variables in the left hand side matters. i.e.,
 writing <code>status + time ~ .</code> will make <code>orsf</code> assume your
 <code>status</code> variable is actually the <code>time</code> variable.</p></li>
-</ul><p><em>mtry</em>:</p>
+</ul><p><strong>mtry</strong>:</p>
 <p>The <code>mtry</code> parameter may be temporarily reduced to ensure there
 are at least 2 events per predictor variable. This occurs when using
 <a href="orsf_control_cph.html">orsf_control_cph</a> because coefficients in the Newton Raphson scoring
 algorithm may become unstable when the number of covariates is
 greater than or equal to the number of events. This reduction does not
 occur when using <a href="orsf_control_net.html">orsf_control_net</a>.</p>
-<p><em>oobag_fun</em>:</p>
-<p><code>oobag_fun</code> must have two inputs: <code>y_mat</code> and <code>s_vec</code>.</p><ul><li><p>The input <code>y_mat</code> is presumed to be a matrix with two columns
-named <code>time</code> (first column) and <code>status</code> (second column).</p></li>
-<li><p>The input <code>s_vec</code> is presumed to be a numeric vector containing
-predicted survival probabilities for <code>y_mat</code>.</p></li>
-</ul><p>If <code>oobag_fun</code> is specified, it will be used in to compute negation
+<p><strong>oobag_fun</strong>:</p>
+<p>If <code>oobag_fun</code> is specified, it will be used in to compute negation
 importance or permutation importance, but it will not have any role
 for ANOVA importance.</p>
-<p><em>importance</em>:</p>
-<p>See <a href="orsf_vi.html">orsf_vi</a> for descriptions of the available methods.</p>
     </div>
     <div class="section level2">
     <h2 id="what-is-an-oblique-decision-tree-">What is an oblique decision tree?<a class="anchor" aria-label="anchor" href="#what-is-an-oblique-decision-tree-"></a></h2>
@@ -370,22 +366,11 @@ may be the best option.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>Breiman L. Random forests. <em>Machine learning</em>. 2001 Oct;45(1):5-32.
-DOI: 10.1023/A:1010933404324</p>
-<p>Ishwaran H, Kogalur UB, Blackstone EH, Lauer MS. Random survival forests.
-<em>Annals of applied statistics</em>. 2008 Sep;2(3):841-60.
-DOI: 10.1214/08-AOAS169</p>
-<p>Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI,
-Mcclure LA, Howard G, Simon N. Oblique random survival forests.
-<em>Annals of applied statistics</em>. 2019 Sep;13(3):1847-83.
-DOI: 10.1214/19-AOAS1261</p>
-<p>Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar M, Pandey A, Pajewski NM.
-Accelerated and interpretable oblique random survival forests.
-arXiv e-prints. 2022 Aug 3:arXiv-2208.
-URL: https://arxiv.org/abs/2208.01129</p>
-<p>Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA.
-Evaluating the Yield of Medical Tests. <em>JAMA</em>. 1982;247(18):2543–2546.
-DOI: 10.1001/jama.1982.03320430047030</p>
+    <p>Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. Evaluating the Yield of Medical Tests. <em>JAMA</em> 1982; 247(18):2543-2546. DOI: 10.1001/jama.1982.03320430047030</p>
+<p>Breiman L. Random forests. <em>Machine learning</em> 2001 Oct; 45(1):5-32. DOI: 10.1023/A:1010933404324</p>
+<p>Ishwaran H, Kogalur UB, Blackstone EH, Lauer MS. Random survival forests. <em>Annals of applied statistics</em> 2008 Sep; 2(3):841-60. DOI: 10.1214/08-AOAS169</p>
+<p>Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA, Howard G, Simon N. Oblique random survival forests. <em>Annals of applied statistics</em> 2019 Sep; 13(3):1847-83. DOI: 10.1214/19-AOAS1261</p>
+<p>Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. <em>arXiv e-prints</em> 2022 Aug; arXiv-2208. URL: https://arxiv.org/abs/2208.01129</p>
     </div>
 
     <div class="section level2">
@@ -425,16 +410,16 @@ DOI: 10.1001/jama.1982.03320430047030</p>
 <span class="r-in"><span><span class="co"># is assessed every 50 trees (50, 100, ..., 500)</span></span></span>
 <span class="r-in"><span><span class="va">fit_custom</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8289227</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.8435091</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.8410606</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.8414253</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.8422067</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.8414253</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.8415295</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.8417379</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.8413211</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.8419462</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8418941</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.8425193</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.8401229</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.8404355</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.8367368</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.8396541</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.8401229</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.8399667</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.8385080</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.8381434</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># make your own oobag function:</span></span></span>
 <span class="r-in"><span><span class="co"># (this is an R implementation of Harrell's C</span></span></span>

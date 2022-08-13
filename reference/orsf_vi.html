@@ -88,19 +88,27 @@ individual factor levels will be returned.</p></dd>
 
 <dt>importance</dt>
 <dd><p>(<em>character</em>) Indicate method for variable importance:</p><ul><li><p>'none': no variable importance is computed.</p></li>
-<li><p>'anova': use the analysis of variance (ANOVA) method</p></li>
+<li><p>'anova': compute analysis of variance (ANOVA) importance</p></li>
 <li><p>'negate': compute negation importance</p></li>
 <li><p>'permute': compute permutation importance</p></li>
 </ul></dd>
 
 
 <dt>oobag_fun</dt>
-<dd><p>(<em>function</em>) A function to be measure the accuracy of
-out-of-bag predictions. When <code>oobag_fun</code> = <code>NULL</code> (the default),
-out-of-bag predictions are evaluated using Harrell's C-statistic.
-For more details see the
-<a href="https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions">vignette</a>
-on out-of-bag predictions:</p></dd>
+<dd><p>(<em>function</em>) to be used for evaluating out-of-bag prediction accuracy after negating coefficients
+(if importance = 'negate') or permuting the values of a predictor
+(if importance = 'permute')</p><ul><li><p>When <code>oobag_fun = NULL</code> (the default), Harrell's C-statistic (1982) is used to evaluate accuracy.</p></li>
+<li><p>if you use your own <code>oobag_fun</code> note the following:</p><ul><li><p><code>oobag_fun</code> should have two inputs: <code>y_mat</code> and <code>s_vec</code></p></li>
+<li><p><code>y_mat</code> is a two column matrix with first column named 'time', second named 'status'</p></li>
+<li><p><code>s_vec</code> is a numeric vector containing predicted survival probabilities.</p></li>
+<li><p><code>oobag_fun</code> should return a numeric output of length 1</p></li>
+<li><p>the same <code>oobag_fun</code> should have been used when you created <code>object</code>
+so that the initial value of out-of-bag prediction accuracy is
+consistent with the values that will be computed while variable
+importance is estimated.</p></li>
+</ul></li>
+</ul><p>For more details, see the out-of-bag
+<a href="https://bcjaeger.github.io/aorsf/articles/oobag.html">vignette</a>.</p></dd>
 
 
 <dt>...</dt>
@@ -146,27 +154,24 @@ randomly permuting the variable's values and then determining
 how much the model's performance changes. The worse the model's
 performance after permuting the values of a given variable,
 the more important the variable.</p>
-<p><strong>ANOVA importance</strong>: ANOVA importance computes a p-value for each
+<p><strong>analysis of variance (ANOVA) importance</strong>: computes a p-value for each
 coefficient in each linear combination of variables in each decision
 tree of an oblique random forest. Following the definition proposed by
-Menze et al, ANOVA importance in aorsf for an individual variable is
+Menze et al, ANOVA importance for an individual predictor variable is
 the proportion of times a p-value for its coefficient is &lt; 0.01.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>Menze, Bjoern H., et al. On oblique random forests.
-<em>Joint European Conference on Machine Learning and Knowledge Discovery in Databases</em>.
-Springer, Berlin, Heidelberg, 2011.
-DOI: 10.1007/978-3-642-23783-6_29</p>
-<p>Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM.
-<em>Accelerated and interpretable oblique random survival forests.</em>
-arXiv e-prints. 2022 Aug 3:arXiv-2208. URL: https://arxiv.org/abs/2208.01129</p>
+    <p>Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. Evaluating the Yield of Medical Tests. <em>JAMA</em> 1982; 247(18):2543-2546. DOI: 10.1001/jama.1982.03320430047030</p>
+<p>Breiman L. Random forests. <em>Machine learning</em> 2001 Oct; 45(1):5-32. DOI: 10.1023/A:1010933404324</p>
+<p>Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. Joint European Conference on Machine Learning and Knowledge Discovery in Databases. <em>JAMA</em> 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29</p>
+<p>Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. <em>arXiv e-prints</em> 2022 Aug; arXiv-2208. URL: https://arxiv.org/abs/2208.01129</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># first workflow ----------------------------------------------------------</span></span></span>
+<span class="r-in"><span><span class="co"># first example ----------------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># fit an aorsf object using default values, and get the default vi (anova)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -231,8 +236,7 @@ arXiv e-prints. 2022 Aug 3:arXiv-2208. URL: https://arxiv.org/abs/2208.01129</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 0.09697602 0.07740750 0.06253474 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># second workflow ---------------------------------------------------------</span></span></span>
+<span class="r-in"><span><span class="co"># second example ---------------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># fit an aorsf object without vi, then add vi later</span></span></span>
 <span class="r-in"><span></span></span>
@@ -263,7 +267,7 @@ arXiv e-prints. 2022 Aug 3:arXiv-2208. URL: https://arxiv.org/abs/2208.01129</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      alk.phos </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -0.0011460721 </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># third workflow ----------------------------------------------------------</span></span></span>
+<span class="r-in"><span><span class="co"># third example ----------------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># fit an aorsf object and compute vi at the same time</span></span></span>
 <span class="r-in"><span></span></span>
