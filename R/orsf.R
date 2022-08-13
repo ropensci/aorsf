@@ -11,6 +11,7 @@
 #' @srrstats {G2.1} *Inputs have indication of type in parentheticals. This format is used in all exported functions.*
 #' @srrstats {G5.2a} *messages produced here (e.g., with `stop()`, `warning()`, `message()`) are unique and make effort to highlight the specific data elements that cause the error*
 #' @srrstats {G2.0a} *secondary documentation of arg lengths. When an input has length 1, a parenthetical gives the specific type of value it should be and uses a singular description (e.g., an integer). When inputs have length > 1, a vector description is used (e.g., integer vector)*
+#' @srrstats {ML1.0} *Documentation includes a subsection that makes clear conceptual distinction between train and test data*
 #' @srrstats {ML3.3} *Properties and behaviours of aorsf models are explicitly compared with objects produced by other ML software in the "Introduction to aorsf" vignette.*
 #' @srrstats {ML4.0} *orsf() is a unified single-function interface to model training. orsf_train() is able to receive as input an untrained model specified by orsf() when no_fit = TRUE. Models with categorically different specifications are able to be submitted to the same model training function.*
 #' @srrstats {ML5.2, ML5.2a} *The structure and functionality of trained aorsf objects is documented through vignettes. In particular, basic functionality extending from the aorsf class is explicitly described in the "Introduction to aorsf" vignette, and additional functionality is documented in the "Out-of-bag predictions and evaluation" and "Compute partial dependence with ORSF" vignettes. Each vignettes demonstrates functionality clearly with example code.*
@@ -30,6 +31,7 @@
 #' @srrstats {ML1.6a} *Explain why missing values are not admitted.*
 #' @srrstats {G1.0} *Jaeger et al describes the ORSF algorithm that aorsf is based on. Note: aorsf uses a different approach to create linear combinations of inputs for speed reasons, but orsf_control_net() allows users to make ensembles that are very similar to obliqueRSF::ORSF().*
 #' @srrstats {ML1.6b} *Explicit example showing how missing values may be imputed rather than discarded.*
+#' @srrstats {ML6.0} *Reference section explicitly links to aorsf-bench, which includes training and testing stages, and which clearly indicates a need for distinct training and test data sets.*
 #' @srrstats {ML6.1} *clearly document how aorsf can be embedded within a typical full ML workflow.*
 #' @srrstats {ML6.1a} *Embed aorsf within a full workflow using tidymodels, tidyverse, and survivalROC.*
 #' @srrstats {ML5.2b} *Documentation includes examples of how to save and re-load trained model objects for their re-use.*
