@@ -482,56 +482,73 @@ check_var_types <- function(data, .names, valid_types){
 #'
 #' @noRd
 #'
-check_control_cph <- function(method, eps, iter_max, do_scale){
-
- check_arg_type(arg_value = method,
-                arg_name = 'method',
-                expected_type = 'character')
-
- check_arg_is_valid(arg_value = method,
-                    arg_name = 'method',
-                    valid_options = c("breslow", "efron"))
+check_control_cph <- function(method = NULL,
+                              eps = NULL,
+                              iter_max = NULL,
+                              do_scale = NULL){
 
 
- check_arg_type(arg_value = eps,
-                arg_name = 'eps',
-                expected_type = 'numeric')
+ if(!is.null(method)){
 
- check_arg_gt(arg_value = eps,
-              arg_name = 'eps',
-              bound = 0)
+  check_arg_type(arg_value = method,
+                 arg_name = 'method',
+                 expected_type = 'character')
 
- check_arg_length(arg_value = eps,
-                  arg_name = 'eps',
-                  expected_length = 1)
+  check_arg_is_valid(arg_value = method,
+                     arg_name = 'method',
+                     valid_options = c("breslow", "efron"))
 
+ }
 
- check_arg_type(arg_value = iter_max,
-                arg_name = 'iter_max',
-                expected_type = 'numeric')
+ if(!is.null(eps)){
+  check_arg_type(arg_value = eps,
+                 arg_name = 'eps',
+                 expected_type = 'numeric')
 
- check_arg_is_integer(arg_value = iter_max,
-                      arg_name = 'iter_max')
+  check_arg_gt(arg_value = eps,
+               arg_name = 'eps',
+               bound = 0)
 
- check_arg_gteq(arg_value = iter_max,
-                arg_name = 'iter_max',
-                bound = 1)
+  check_arg_length(arg_value = eps,
+                   arg_name = 'eps',
+                   expected_length = 1)
+ }
 
- check_arg_length(arg_value = iter_max,
-                  arg_name = 'iter_max',
-                  expected_length = 1)
+ if(!is.null(iter_max)){
+  check_arg_type(arg_value = iter_max,
+                 arg_name = 'iter_max',
+                 expected_type = 'numeric')
 
- check_arg_type(arg_value = do_scale,
-                arg_name = 'do_scale',
-                expected_type = 'logical')
+  check_arg_is_integer(arg_value = iter_max,
+                       arg_name = 'iter_max')
 
- check_arg_length(arg_value = do_scale,
-                  arg_name = 'do_scale',
-                  expected_length = 1)
+  check_arg_gteq(arg_value = iter_max,
+                 arg_name = 'iter_max',
+                 bound = 1)
 
- if(!do_scale && iter_max > 1){
-  stop("do_scale must be TRUE when iter_max > 1",
-       call. = FALSE)
+  check_arg_length(arg_value = iter_max,
+                   arg_name = 'iter_max',
+                   expected_length = 1)
+ }
+
+ if(!is.null(do_scale)){
+  check_arg_type(arg_value = do_scale,
+                 arg_name = 'do_scale',
+                 expected_type = 'logical')
+
+  check_arg_length(arg_value = do_scale,
+                   arg_name = 'do_scale',
+                   expected_length = 1)
+
+  if(!is.null(iter_max)){
+
+   if(!do_scale && iter_max > 1){
+    stop("do_scale must be TRUE when iter_max > 1",
+         call. = FALSE)
+   }
+
+  }
+
  }
 
 }

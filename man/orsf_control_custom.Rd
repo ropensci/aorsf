@@ -55,6 +55,7 @@ fit_rando$eval_oobag
 \seealso{
 linear combination control functions
 \code{\link{orsf_control_cph}()},
+\code{\link{orsf_control_fast}()},
 \code{\link{orsf_control_net}()}
 }
 \concept{orsf_control}

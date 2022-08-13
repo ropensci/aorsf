@@ -44,6 +44,7 @@ Simon N, Friedman J, Hastie T, Tibshirani R. Regularization paths for Cox’s pr
 \seealso{
 linear combination control functions
 \code{\link{orsf_control_cph}()},
-\code{\link{orsf_control_custom}()}
+\code{\link{orsf_control_custom}()},
+\code{\link{orsf_control_fast}()}
 }
 \concept{orsf_control}

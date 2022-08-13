@@ -9,7 +9,6 @@
 #'
 #' @param object (_aorsf_) an oblique random survival forest (ORSF; see [orsf]).
 #'
-#'
 #' @param new_data (_data.frame_) data to compute predictions for. Must have
 #'   the same columns with equivalent types as the data used to train `object`.
 #'   Also, factors in `new_data` must not have levels that were not in the

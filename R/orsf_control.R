@@ -1,12 +1,19 @@
 
 
 
-#' Cox proportional hazards control
+#' Accelerated ORSF control
 #'
-#' Use Newton-Raphson scoring to identify linear combinations of input
-#'   variables while fitting an [orsf] model. For more details on
-#'   of Newton-Raphson scoring and the Cox proportional hazards
-#'   model, see Therneau and Grambsch (2000).
+#' @srrstats {ML3.5} *The orsf_control_ function family allows users to control optimization algorithms used to grow random forests*
+#' @srrstats {G1.4} *documented with Roxygen*
+#' @srrstats {ML2.4} *Default values of all transformations are explicitly documented.*
+#' @srrstats {G1.3} *clarify Newton-Raphson scoring and Cox PH.*
+#' @srrstats {ML3.5a} *Specify Newton-Raphson scoring or penalized regression as the type of algorithm used to explore the search space, i.e., the space of possible linear combinations*
+#' @srrstats {ML3.6, ML3.6a} *Implement usage of multiple ways of exploring search space*
+#' @srrstats {G3.0} *use eps to avoid comparing floating point numbers for equality*
+#' @srrstats {ML2.5} *Provide the option to bypass default transformations.*
+#'
+#' Use a single iteration of Newton-Raphson scoring to identify linear
+#' combinations of predictors while fitting an [orsf] model.
 #'
 #' @param method (_character_) a character string specifying the method
 #'   for tie handling. If there are no ties, all the methods are
@@ -15,19 +22,76 @@
 #'   with tied event times and has similar computational efficiency compared
 #'   to the Breslow method.
 #'
-#' @srrstats {ML3.5} *The orsf_control_ function family allows users to control optimization algorithms used to grow random forests*
+#' @param do_scale (_logical_) if `TRUE`, values of predictors will be
+#'   scaled prior to each instance of Newton Raphson scoring, using summary
+#'   values from the data in the current node of the decision tree.
 #'
-#' @srrstats {G1.4} *documented with Roxygen*
+#' @param ... Further arguments passed to or from other methods
+#'   (not currently used).
 #'
-#' @srrstats {ML2.4} *Default values of all transformations are explicitly documented.*
+#' @return an object of class `'aorsf_control'`, which should be used as
+#'  an input for the `control` argument of [orsf].
 #'
-#' @srrstats {G1.3} *clarify Newton-Raphson scoring and Cox PH.*
+#' @export
 #'
-#' @srrstats {ML3.5a} *Specify Newton-Raphson scoring or penalized regression as the type of algorithm used to explore the search space, i.e., the space of possible linear combinations*
+#' @family orsf_control
 #'
-#' @srrstats {ML3.6, ML3.6a} *Implement usage of multiple ways of exploring search space*
+#' @details
 #'
-#' @srrstats {G3.0} *use eps to avoid comparing floating point numbers for equality*
+#'  For more details on of Newton-Raphson scoring and the Cox proportional
+#'  hazards model, see Therneau and Grambsch (2000).
+#'
+#' Adjust `do_scale` _at your own risk_. Setting `do_scale = FALSE` will
+#'  reduce computation time but will also make the `orsf` model dependent
+#'  on the scale of your data, which is why the default value is `TRUE`. It
+#'  would be a good idea to center and scale your predictors prior to running
+#'  `orsf()` if you plan on setting `do_scale = FALSE`.
+#'
+#' @references
+#'
+#' Therneau T.M., Grambsch P.M. (2000) The Cox Model. In: Modeling Survival
+#'   Data: Extending the Cox Model. Statistics for Biology and Health.
+#'   Springer, New York, NY. DOI: 10.1007/978-1-4757-3294-8_3
+#'
+#' @examples
+#'
+#' orsf(data = pbc_orsf,
+#'      formula = Surv(time, status) ~ . - id,
+#'      control = orsf_control_fast())
+#'
+orsf_control_fast <- function(method = 'efron',
+                              do_scale = TRUE,
+                              ...){
+
+ check_dots(list(...), orsf_control_fast)
+
+ check_control_cph(method = method, do_scale = do_scale)
+
+ structure(
+  .Data = list(cph_method = method,
+               cph_eps = 1e-9,
+               cph_iter_max = 1,
+               cph_do_scale = do_scale),
+  class = 'aorsf_control',
+  type = 'fast'
+ )
+
+}
+
+
+#' Cox proportional hazards ORSF control
+#'
+#'
+#' Use the coefficients from a proportional hazards model
+#'  to create linear combinations of predictor variables
+#'  while fitting an [orsf] model.
+#'
+#' @param method (_character_) a character string specifying the method
+#'   for tie handling. If there are no ties, all the methods are
+#'   equivalent. Valid options are 'breslow' and 'efron'. The Efron
+#'   approximation is the default because it is more accurate when dealing
+#'   with tied event times and has similar computational efficiency compared
+#'   to the Breslow method.
 #'
 #' @param eps (_double_) When using Newton Raphson scoring to identify
 #'   linear combinations of inputs, iteration continues in the algorithm
@@ -39,16 +103,14 @@
 #' @param iter_max (_integer_) When using Newton Raphson scoring to identify
 #'   linear combinations of inputs, iteration continues until convergence
 #'   (see `eps` above) or the number of attempted iterations is equal to
-#'   `iter_max`. A default value of 1 is used for computational efficiency.
-#'
-#' @param ... Further arguments passed to or from other methods
-#'   (not currently used).
-#'
-#' @srrstats {ML2.5} *Provide the option to bypass default transformations.*
+#'   `iter_max`.
 #'
 #' @param do_scale (_logical_) if `TRUE`, values of predictors will be
 #'   scaled prior to each instance of Newton Raphson scoring, using summary
 #'   values from the data in the current node of the decision tree.
+#'
+#' @param ... Further arguments passed to or from other methods
+#'   (not currently used).
 #'
 #' @return an object of class `'aorsf_control'`, which should be used as
 #'  an input for the `control` argument of [orsf].
@@ -59,11 +121,8 @@
 #'
 #' @details
 #'
-#' __Adjust `do_scale` at your own risk__. Setting `do_scale = FALSE` will
-#'  reduce computation time but will also make the `orsf` model dependent
-#'  on the scale of your data, which is why the default value is `TRUE`. It
-#'  would be a good idea to center and scale your predictors prior to running
-#'  `orsf()` if you plan on setting `do_scale = FALSE`.
+#'  For more details on of Newton-Raphson scoring and the Cox proportional
+#'  hazards model, see Therneau and Grambsch (2000).
 #'
 #' @references
 #'
@@ -80,7 +139,6 @@
 orsf_control_cph <- function(method = 'efron',
                              eps = 1e-9,
                              iter_max = 20,
-                             do_scale = TRUE,
                              ...){
 
 
@@ -88,29 +146,19 @@ orsf_control_cph <- function(method = 'efron',
  method <- tolower(method)
 
  check_dots(list(...), orsf_control_cph)
- check_control_cph(method, eps, iter_max, do_scale)
+
+ check_control_cph(method = method,
+                   eps = eps,
+                   iter_max = iter_max)
 
  structure(
   .Data = list(cph_method = method,
                cph_eps = eps,
                cph_iter_max = iter_max,
-               cph_do_scale = do_scale),
+               cph_do_scale = TRUE),
   class = 'aorsf_control',
   type = 'cph'
  )
-
-}
-
-#' @rdname orsf_control_cph
-#' @export
-orsf_control_fast <- function(method = 'efron',
-                              do_scale = TRUE,
-                              ...){
-
- check_dots(list(...), orsf_control_fast)
- orsf_control_cph(method = method,
-                  iter_max = 1,
-                  do_scale = do_scale)
 
 }
 

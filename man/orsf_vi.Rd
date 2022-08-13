@@ -16,7 +16,7 @@ orsf_vi_permute(object, group_factors = TRUE, oobag_fun = NULL, ...)
 orsf_vi_anova(object, group_factors = TRUE, ...)
 }
 \arguments{
-\item{object}{an object of class 'aorsf'.}
+\item{object}{(\emph{aorsf}) an oblique random survival forest (ORSF; see \link{orsf}).}
 
 \item{group_factors}{(\emph{logical}) if \code{TRUE}, the importance of factor
 variables will be reported overall by aggregating the importance
@@ -42,20 +42,36 @@ on out-of-bag predictions:}
 (not currently used).}
 }
 \value{
-a named vector. Names indicate predictors, values indicate importance.
-The vector is sorted from highest to lowest value, with higher values
-indicating higher importance.
+\code{orsf_vi} functions return a named numeric vector.
+\itemize{
+\item Names of the vector are the predictor variables used by \code{object}
+\item Values of the vector are the estimated importance of the given predictor.
+}
+
+The returned vector is sorted from highest to lowest value, with higher
+values indicating higher importance.
 }
 \description{
 Estimate the importance of individual variables using oblique random
-survival forests. \code{orsf_vi()} is a general purpose function to extract
-or compute variable importance (VI) estimates from an \code{aorsf} object
-(see \link{orsf}). The three functions \code{orsf_vi_negate()}, \code{orsf_vi_permute()},
-and \code{orsf_vi_anova()} are convenient wrappers for \code{orsf_vi()}. The
-way these functions work depends on whether the \code{object} they are
-given already has VI estimates in it or not (see examples).
+survival forests.
 }
 \details{
+When an \code{aorsf} object is fitted with importance = 'anova', 'negate', or
+'permute', the output will have a vector of importance values based on
+the requested type of importance. However, you may still want to call
+\code{orsf_vi()} on this output if you want to group factor levels into one
+overall importance value.
+
+\code{orsf_vi()} is a general purpose function to extract or compute variable
+importance estimates from an \code{aorsf} object (see \link{orsf}).
+\code{orsf_vi_negate()}, \code{orsf_vi_permute()}, and \code{orsf_vi_anova()} are wrappers
+for \code{orsf_vi()}. The way these functions work depends on whether the
+\code{object} they are given already has variable importance estimates in it
+or not (see examples).
+}
+\section{Variable importance methods}{
+
+
 \strong{negation importance}: Each variable is assessed separately by
 multiplying the variable's coefficients by -1 and then determining
 how much the model's performance changes. The worse the model's
@@ -74,9 +90,11 @@ tree of an oblique random forest. Following the definition proposed by
 Menze et al, ANOVA importance in aorsf for an individual variable is
 the proportion of times a p-value for its coefficient is < 0.01.
 }
+
 \examples{
 
-# first workflow -------------------------------------------------------------
+# first workflow ----------------------------------------------------------
+
 # fit an aorsf object using default values, and get the default vi (anova)
 
 fit_default <- orsf(pbc_orsf,
@@ -107,7 +125,8 @@ orsf_vi_anova(fit_default)
 
 
 
-# second workflow ------------------------------------------------------------
+# second workflow ---------------------------------------------------------
+
 # fit an aorsf object without vi, then add vi later
 
 fit_no_vi <- orsf(pbc_orsf,
@@ -121,7 +140,8 @@ orsf_vi_negate(fit_no_vi)
 
 orsf_vi_permute(fit_no_vi)
 
-# third workflow ------------------------------------------------------------
+# third workflow ----------------------------------------------------------
+
 # fit an aorsf object and compute vi at the same time
 
 fit_permute_vi <- orsf(pbc_orsf,

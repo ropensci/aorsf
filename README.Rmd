@@ -34,7 +34,7 @@ knitr::opts_chunk$set(
 
 ## Why aorsf?
 
-- over 400 times faster than `obliqueRSF` (see Jaeger, 2019).
+- Hundreds of times faster than `obliqueRSF` (see Jaeger, 2019).
 
 - accurate predictions for time-to-event outcomes.
 
@@ -101,6 +101,8 @@ How about interpreting the fit?
 ## Comparison to existing software
 
 Jaeger (2022) describes `aorsf` in detail, with a summary of the procedures used in the tree fitting algorithm and a general benchmark comparing `aorsf` with `obliqueRSF` (and several other learners) in terms of prediction accuracy and computational efficiency. 
+
+
 
 ## References
 

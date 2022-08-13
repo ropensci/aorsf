@@ -8,7 +8,7 @@
 orsf(
   data,
   formula,
-  control = orsf_control_cph(),
+  control = orsf_control_fast(),
   weights = NULL,
   n_tree = 500,
   n_split = 5,
@@ -33,16 +33,27 @@ orsf(
 orsf_train(object)
 }
 \arguments{
-\item{data}{(\emph{data.frame}) that contains the relevant variables.}
+\item{data}{(\emph{data.frame}, \link[tibble:tibble-package]{tibble}, or
+\link[data.table:data.table]{data.table}) that contains the
+relevant variables.}
 
 \item{formula}{(\emph{formula}) The response on the left hand side should
-include a time variable, followed by a status variable (see examples).
-The terms on the right are names of predictor variables. A \code{.}
-symbol on the right hand side is short-hand for using all variables
-in \code{data} as predictors.}
+include a time variable, followed by a status variable, and may be
+written inside a call to \link[survival:Surv]{Surv} (see examples).
+The terms on the right are names of predictor variables.}
 
-\item{control}{An \code{aorsf_control} object, created with \link{orsf_control_net}
-or \link{orsf_control_cph}. Default is \code{control = orsf_control_cph()}.}
+\item{control}{(\emph{aorsf_control}) An object returned from one of the
+\link[=orsf_control_cph]{orsf_control} functions:
+\itemize{
+\item \link{orsf_control_fast} (the default) uses a single iteration of Newton
+Raphson scoring to identify a linear combination of predictors.
+\item \link{orsf_control_cph} uses Newton Raphson scoring until a convergence
+criteria is met.
+\item \link{orsf_control_net} uses \code{glmnet} to identify linear combinations of
+predictors, similar to \link[obliqueRSF:ORSF]{obliqueRSF}.
+\item \link{orsf_control_custom} allows the user to apply their own function
+to create linear combinations of predictors.
+}}
 
 \item{weights}{(\emph{numeric vector}) Optional. If given, this
 input should be a vector with length equal to the number of rows in
@@ -145,18 +156,7 @@ directly submitted to \code{orsf_train()} so long as \code{attach_data} is \code
 an accelerated oblique RSF object (\code{aorsf})
 }
 \description{
-The oblique random survival forest (ORSF) is an extension of the RSF
-algorithm developed by Ishwaran et al and maintained in the
-\code{RandomForestSRC} package. The difference between ORSF and RSF is
-that ORSF uses linear combinations of input variables whereas RSF
-uses a single variable when growing new nodes in survival decision trees.
-A linear combination is an expression constructed from a set of terms
-by multiplying each term by a constant and adding the results (e.g.
-a linear combination of x and y would be any expression of the form
-ax + by, where a and b are constants). For more details on the ORSF
-algorithm, see Jaeger et al, 2019. The \code{orsf()} function implements a
-novel algorithm that speeds up the ORSF algorithm described by Jaeger
-et al (see details).
+Fit an oblique random survival forest
 }
 \details{
 This function is based on and highly similar to the \code{ORSF} function
@@ -169,26 +169,36 @@ inputs rather than performing penalized regression using routines in
 function applies is an adaptation of the C++ routine developed by
 Terry M. Therneau that fits Cox proportional hazards models
 (see \code{\link[survival:coxph]{survival::coxph()}} and more specifically \code{\link[survival:agreg.fit]{survival::coxph.fit()}}).
+}
+\section{Details on inputs}{
 
-\strong{Some comments on inputs}
 
-\emph{formula}: The response in \code{formula} can be a survival
-object as returned by the \link[survival:Surv]{survival::Surv} function,
-but can also just be the time and status variables.
-For example, \code{Surv(time, status) ~ .} works just like
-\code{time + status ~ .}. The only thing that can break this
-input is putting the variables in the wrong order, i.e.,
+\emph{formula}:
+\itemize{
+\item The response in \code{formula} can be a survival
+object as returned by the \link[survival:Surv]{Surv} function,
+but can also just be the time and status variables. I.e.,
+\code{Surv(time, status) ~ .} works just like \code{time + status ~ .}
+\item A \code{.} symbol on the right hand side is short-hand for using all
+variables in \code{data} (omitting those on the left hand side of
+\code{formula}) as predictors.
+\item The order of variables in the left hand side matters. i.e.,
 writing \code{status + time ~ .} will make \code{orsf} assume your
 \code{status} variable is actually the \code{time} variable.
+}
 
-\emph{mtry}: The \code{mtry} parameter may be temporarily reduced to ensure there
+\emph{mtry}:
+
+The \code{mtry} parameter may be temporarily reduced to ensure there
 are at least 2 events per predictor variable. This occurs when using
 \link{orsf_control_cph} because coefficients in the Newton Raphson scoring
 algorithm may become unstable when the number of covariates is
 greater than or equal to the number of events. This reduction does not
 occur when using \link{orsf_control_net}.
 
-\emph{oobag_fun}: The function must have two inputs: \code{y_mat} and \code{s_vec}.
+\emph{oobag_fun}:
+
+\code{oobag_fun} must have two inputs: \code{y_mat} and \code{s_vec}.
 \itemize{
 \item The input \code{y_mat} is presumed to be a matrix with two columns
 named \code{time} (first column) and \code{status} (second column).
@@ -196,13 +206,17 @@ named \code{time} (first column) and \code{status} (second column).
 predicted survival probabilities for \code{y_mat}.
 }
 
-If \code{oobag_fun} is specified, it will be used in the
-computation of negation importance or permutation importance, but it
-will not have any role for ANOVA importance.
+If \code{oobag_fun} is specified, it will be used in to compute negation
+importance or permutation importance, but it will not have any role
+for ANOVA importance.
 
-\emph{importance}: See \link{orsf_vi} for descriptions of the available methods.
+\emph{importance}:
 
-\strong{What is an oblique decision tree?}
+See \link{orsf_vi} for descriptions of the available methods.
+}
+
+\section{What is an oblique decision tree?}{
+
 
 Decision trees are developed by splitting a set of training data into two
 new subsets, with the goal of having more similarity within the new subsets
@@ -222,6 +236,47 @@ the two classes.
 
 \if{html}{\figure{tree_axis_v_oblique.png}{options: width=95\%}}
 }
+
+\section{What is a random forest?}{
+
+
+Random forests are collections of de-correlated decision trees.
+Predictions from each tree are aggregated to make an ensemble
+prediction for the forest. For more details, see Breiman at el, 2001.
+}
+
+\section{Training, out-of-bag error, and testing}{
+
+
+In random forests, each tree is grown with a bootstrapped version of
+the training set. Because bootstrap samples are selected with replacement,
+each bootstrapped training set contains about two-thirds of instances in
+the original training set. The 'out-of-bag' data are instances that are
+\emph{not} in the bootstrapped training set. Each tree in the random forest
+can make predictions for its out-of-bag data, and the out-of-bag
+predictions can be aggregated to make an ensemble out-of-bag prediction.
+Since the out-of-bag data are not used to grow the tree, the accuracy of
+the ensemble out-of-bag predictions approximate the generalization error
+of the random forest. Generalization error refers to the error of a
+random forest's predictions when it is applied to predict outcomes for
+data that were not used to train it, i.e., testing data.
+}
+
+\section{Missing data}{
+
+
+Data passed to aorsf functions are not allowed to have missing values.
+A user should impute missing values using an R package with that purpose,
+such as \code{recipes} or \code{mlr3pipelines}. Other software such as \code{xgboost} send
+data with missing values down a decision tree based on whichever direction
+minimizes a specified error function. While this technique is very effective
+for axis-based decision trees, it is not clear how it should be applied in
+the case of oblique decision trees. For example, what should be done if
+three variables were used to split a node and one of these three variable
+has a missing value? In this case, mean imputation of the missing variable
+may be the best option.
+}
+
 \examples{
 
 # standard workflow for model development: fit and interpret
@@ -289,60 +344,6 @@ fit_standard_oobag$eval_oobag$stat_values
 
 fit_custom_oobag$eval_oobag$stat_values
 
-
-\dontrun{requires too many external packages
-
-# --------------------------------------------------------------------------
-# a standard internal validation workflow using aorsf and tidymodels
-# --------------------------------------------------------------------------
-
-
-library(tidymodels)
-library(tidyverse)
-library(survivalROC)
-library(aorsf)
-
-set.seed(329)
-
-# a recipe to impute missing values instead of discarding them.
-# (this is for illustration only. pbc_orsf does not have missing values)
-
-imputer <- recipe(x = pbc_orsf, time + status ~ .) |>
- step_impute_mean(all_numeric_predictors()) |>
- step_impute_mode(all_nominal_predictors()) |>
- step_rm(id)
-
-
-# 10-fold cross validation; make a container for the pre-processed data
-analyses <- vfold_cv(data = pbc_orsf, v = 10) |>
- mutate(recipe = map(splits, ~prep(imputer, training = training(.x))),
-        data = map(recipe, juice),
-        data_test = map2(splits, recipe, ~bake(.y, new_data = testing(.x))))
-
-# 10-fold cross validation; train models and compute test predictions
-aorsf_data <- analyses |>
- select(data, data_test) |>
- mutate(fit = map(data, orsf, formula = time + status ~ .),
-        pred = map2(fit, data_test, predict, pred_horizon = 3500),
-        pred = map(pred, as.numeric))
-
-# testing sets are small, so pool them and compute 1 overall C-stat.
-aorsf_eval <- aorsf_data |>
- select(data_test, pred) |>
- unnest(cols = everything()) |>
- summarize(
-  auc = survivalROC(Stime = time,
-                    status = status,
-                    marker = pred,
-                    predict.time = 3500,
-                    span = 0.25*n()^(-0.20)) |>
-   getElement('AUC')
- )
-
-# C-stat: 0.81465
-aorsf_eval$auc
-
-}
 }
 \references{
 Breiman L. Random forests. \emph{Machine learning}. 2001 Oct;45(1):5-32.

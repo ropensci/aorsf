@@ -1,17 +1,6 @@
 #' Oblique Random Survival Forest (ORSF)
 #'
-#' The oblique random survival forest (ORSF) is an extension of the RSF
-#'   algorithm developed by Ishwaran et al and maintained in the
-#'   `RandomForestSRC` package. The difference between ORSF and RSF is
-#'   that ORSF uses linear combinations of input variables whereas RSF
-#'   uses a single variable when growing new nodes in survival decision trees.
-#'   A linear combination is an expression constructed from a set of terms
-#'   by multiplying each term by a constant and adding the results (e.g.
-#'   a linear combination of x and y would be any expression of the form
-#'   ax + by, where a and b are constants). For more details on the ORSF
-#'   algorithm, see Jaeger et al, 2019. The `orsf()` function implements a
-#'   novel algorithm that speeds up the ORSF algorithm described by Jaeger
-#'   et al (see details).
+#' Fit an oblique random survival forest
 #'
 #' @srrstats {G1.4} *documented with Roxygen*
 #' @srrstats {G1.1} *aorsf is an improvement of the ORSF algorithm implemented in obliqueRSF, which was an extension of Hemant Ishwaran's random survival forest.*
@@ -44,17 +33,29 @@
 #' @srrstats {ML6.1a} *Embed aorsf within a full workflow using tidymodels, tidyverse, and survivalROC.*
 #' @srrstats {ML5.2b} *Documentation includes examples of how to save and re-load trained model objects for their re-use.*
 #'
-#'
-#' @param data (_data.frame_) that contains the relevant variables.
+#' @param data (_data.frame_, [tibble][tibble::tibble-package], or
+#'  [data.table][data.table::data.table-package]) that contains the
+#'  relevant variables.
 #'
 #' @param formula (_formula_) The response on the left hand side should
-#'   include a time variable, followed by a status variable (see examples).
-#'   The terms on the right are names of predictor variables. A `.`
-#'   symbol on the right hand side is short-hand for using all variables
-#'   in `data` as predictors.
+#'   include a time variable, followed by a status variable, and may be
+#'   written inside a call to [Surv][survival::Surv] (see examples).
+#'   The terms on the right are names of predictor variables.
 #'
-#' @param control An `aorsf_control` object, created with [orsf_control_net]
-#'  or [orsf_control_cph]. Default is `control = orsf_control_cph()`.
+#' @param control (*aorsf_control*) An object returned from one of the
+#'  [orsf_control][aorsf::orsf_control_cph] functions:
+#'
+#'  - [orsf_control_fast] (the default) uses a single iteration of Newton
+#'    Raphson scoring to identify a linear combination of predictors.
+#'
+#'  - [orsf_control_cph] uses Newton Raphson scoring until a convergence
+#'    criteria is met.
+#'
+#'  - [orsf_control_net] uses `glmnet` to identify linear combinations of
+#'    predictors, similar to [obliqueRSF][obliqueRSF::ORSF].
+#'
+#'  - [orsf_control_custom] allows the user to apply their own function
+#'    to create linear combinations of predictors.
 #'
 #' @param weights (_numeric vector_) Optional. If given, this
 #'   input should be a vector with length equal to the number of rows in
@@ -169,37 +170,51 @@
 #'   (see [survival::coxph()] and more specifically [survival::coxph.fit()]).
 #'
 #'
-#' __Some comments on inputs__
+#' @section Details on inputs:
 #'
-#' _formula_: The response in `formula` can be a survival
-#'   object as returned by the [survival::Surv] function,
-#'   but can also just be the time and status variables.
-#'   For example, `Surv(time, status) ~ .` works just like
-#'   `time + status ~ .`. The only thing that can break this
-#'   input is putting the variables in the wrong order, i.e.,
+#' _formula_:
+#'
+#' - The response in `formula` can be a survival
+#'   object as returned by the [Surv][survival::Surv] function,
+#'   but can also just be the time and status variables. I.e.,
+#'   `Surv(time, status) ~ .` works just like `time + status ~ .`
+#'
+#' - A `.` symbol on the right hand side is short-hand for using all
+#'   variables in `data` (omitting those on the left hand side of
+#'   `formula`) as predictors.
+#'
+#' - The order of variables in the left hand side matters. i.e.,
 #'   writing `status + time ~ .` will make `orsf` assume your
 #'   `status` variable is actually the `time` variable.
 #'
-#' _mtry_: The `mtry` parameter may be temporarily reduced to ensure there
+#' _mtry_:
+#'
+#' The `mtry` parameter may be temporarily reduced to ensure there
 #'   are at least 2 events per predictor variable. This occurs when using
 #'   [orsf_control_cph] because coefficients in the Newton Raphson scoring
 #'   algorithm may become unstable when the number of covariates is
 #'   greater than or equal to the number of events. This reduction does not
 #'   occur when using [orsf_control_net].
 #'
-#' *oobag_fun*: The function must have two inputs: `y_mat` and `s_vec`.
+#' *oobag_fun*:
+#'
+#' `oobag_fun` must have two inputs: `y_mat` and `s_vec`.
+#'
 #'  - The input `y_mat` is presumed to be a matrix with two columns
 #'      named `time` (first column) and `status` (second column).
+#'
 #'  - The input `s_vec` is presumed to be a numeric vector containing
 #'      predicted survival probabilities for `y_mat`.
 #'
-#' If `oobag_fun` is specified, it will be used in the
-#'  computation of negation importance or permutation importance, but it
-#'  will not have any role for ANOVA importance.
+#' If `oobag_fun` is specified, it will be used in to compute negation
+#'  importance or permutation importance, but it will not have any role
+#'  for ANOVA importance.
 #'
-#' _importance_: See [orsf_vi] for descriptions of the available methods.
+#' _importance_:
 #'
-#' __What is an oblique decision tree?__
+#' See [orsf_vi] for descriptions of the available methods.
+#'
+#' @section What is an oblique decision tree?:
 #'
 #' Decision trees are developed by splitting a set of training data into two
 #'  new subsets, with the goal of having more similarity within the new subsets
@@ -211,7 +226,6 @@
 #'  instead of a single variable, the tree is oblique because the splits of
 #'  the data are neither parallel nor at a right angle to the axis
 #'
-#'
 #' _Figure_ : Decision trees for classification with axis-based splitting
 #'  (left) and oblique splitting (right). Cases are orange squares; controls
 #'  are purple circles. Both trees partition the predictor space defined by
@@ -220,22 +234,40 @@
 #'
 #' \if{html}{\figure{tree_axis_v_oblique.png}{options: width=95\%}}
 #'
-#' @srrstats {G1.3} *clarify the term 'random forest'*
 #'
-#' __What is a random forest?__
+#' @section What is a random forest?:
 #'
-#' Random forests are collections of de-correlated decision trees. Predictions from each tree are aggregated to make an ensemble prediction for the forest. For more details, see Breiman at el, 2001.
+#' Random forests are collections of de-correlated decision trees.
+#'   Predictions from each tree are aggregated to make an ensemble
+#'   prediction for the forest. For more details, see Breiman at el, 2001.
 #'
-#' @srrstats {ML1.0} *Make a clear conceptual distinction between training and test data*
+#' @section Training, out-of-bag error, and testing:
 #'
-#' @srrstats {ML6.0} *Make explicit reference to a workflow which separates training and testing stages, and which clearly indicates a need for distinct training and test data sets.*
+#' In random forests, each tree is grown with a bootstrapped version of
+#'   the training set. Because bootstrap samples are selected with replacement,
+#'   each bootstrapped training set contains about two-thirds of instances in
+#'   the original training set. The 'out-of-bag' data are instances that are
+#'   _not_ in the bootstrapped training set. Each tree in the random forest
+#'   can make predictions for its out-of-bag data, and the out-of-bag
+#'   predictions can be aggregated to make an ensemble out-of-bag prediction.
+#'   Since the out-of-bag data are not used to grow the tree, the accuracy of
+#'   the ensemble out-of-bag predictions approximate the generalization error
+#'   of the random forest. Generalization error refers to the error of a
+#'   random forest's predictions when it is applied to predict outcomes for
+#'   data that were not used to train it, i.e., testing data.
 #'
-#' __Training, out-of-bag error, and testing__
+#' @section Missing data:
 #'
-#' In random forests, each tree is grown with a bootstrapped version of the training set. Because bootstrap samples are selected with replacement, each bootstrapped training set contains about two-thirds of instances in the original training set. The 'out-of-bag' data are instances that are _not_ in the bootstrapped training set. Each tree in the random forest can make predictions for its out-of-bag data, and the out-of-bag predictions can be aggregated to make an ensemble out-of-bag prediction. Since the out-of-bag data are not used to grow the tree, the accuracy of the ensemble out-of-bag predictions approximate the generalization error of the random forest. Generalization error refers to the error of a random forest's predictions when it is applied to predict outcomes for data that were not used to train it, i.e., testing data.
-#'
-#' __Missing data__
-#' Data passed to aorsf functions are not allowed to have missing values. A user should impute missing values using an R package with that purpose, such as `recipes` or `mlr3pipelines`. Other software such as `xgboost` send data with missing values down a decision tree based on whichever direction minimizes a specified error function. While this technique is very effective for axis-based decision trees, it is not clear how it should be applied in the case of oblique decision trees. For example, what should be done if three variables were used to split a node and one of these three variable has a missing value? In this case, mean imputation of the missing variable may be the best option.
+#' Data passed to aorsf functions are not allowed to have missing values.
+#'   A user should impute missing values using an R package with that purpose,
+#'   such as `recipes` or `mlr3pipelines`. Other software such as `xgboost` send
+#'   data with missing values down a decision tree based on whichever direction
+#'   minimizes a specified error function. While this technique is very effective
+#'   for axis-based decision trees, it is not clear how it should be applied in
+#'   the case of oblique decision trees. For example, what should be done if
+#'   three variables were used to split a node and one of these three variable
+#'   has a missing value? In this case, mean imputation of the missing variable
+#'   may be the best option.
 #'
 #' @references
 #'
@@ -329,63 +361,10 @@
 #'
 #' fit_custom_oobag$eval_oobag$stat_values
 #'
-#'
-#' \dontrun{requires too many external packages
-#'
-#' # --------------------------------------------------------------------------
-#' # a standard internal validation workflow using aorsf and tidymodels
-#' # --------------------------------------------------------------------------
-#'
-#'
-#' library(tidymodels)
-#' library(tidyverse)
-#' library(survivalROC)
-#' library(aorsf)
-#'
-#' set.seed(329)
-#'
-#' # a recipe to impute missing values instead of discarding them.
-#' # (this is for illustration only. pbc_orsf does not have missing values)
-#'
-#' imputer <- recipe(x = pbc_orsf, time + status ~ .) |>
-#'  step_impute_mean(all_numeric_predictors()) |>
-#'  step_impute_mode(all_nominal_predictors()) |>
-#'  step_rm(id)
-#'
-#'
-#' # 10-fold cross validation; make a container for the pre-processed data
-#' analyses <- vfold_cv(data = pbc_orsf, v = 10) |>
-#'  mutate(recipe = map(splits, ~prep(imputer, training = training(.x))),
-#'         data = map(recipe, juice),
-#'         data_test = map2(splits, recipe, ~bake(.y, new_data = testing(.x))))
-#'
-#' # 10-fold cross validation; train models and compute test predictions
-#' aorsf_data <- analyses |>
-#'  select(data, data_test) |>
-#'  mutate(fit = map(data, orsf, formula = time + status ~ .),
-#'         pred = map2(fit, data_test, predict, pred_horizon = 3500),
-#'         pred = map(pred, as.numeric))
-#'
-#' # testing sets are small, so pool them and compute 1 overall C-stat.
-#' aorsf_eval <- aorsf_data |>
-#'  select(data_test, pred) |>
-#'  unnest(cols = everything()) |>
-#'  summarize(
-#'   auc = survivalROC(Stime = time,
-#'                     status = status,
-#'                     marker = pred,
-#'                     predict.time = 3500,
-#'                     span = 0.25*n()^(-0.20)) |>
-#'    getElement('AUC')
-#'  )
-#'
-#' # C-stat: 0.81465
-#' aorsf_eval$auc
-#'
-#' }
+
 orsf <- function(data,
                  formula,
-                 control = orsf_control_cph(),
+                 control = orsf_control_fast(),
                  weights = NULL,
                  n_tree = 500,
                  n_split = 5,
@@ -443,7 +422,16 @@ orsf <- function(data,
  switch(
   orsf_type,
 
+  'fast' = {
+
+   control_net <- orsf_control_net()
+   control_cph <- control
+   f_beta      <- function(x) x
+
+  },
+
   'cph' = {
+
    control_net <- orsf_control_net()
    control_cph <- control
    f_beta      <- function(x) x
@@ -461,14 +449,14 @@ orsf <- function(data,
    }
 
    control_net <- control
-   control_cph <- orsf_control_cph(do_scale = FALSE, iter_max = 1)
+   control_cph <- orsf_control_fast(do_scale = FALSE)
    f_beta      <- penalized_cph
   },
 
   "custom" = {
 
    control_net <- orsf_control_net()
-   control_cph <- orsf_control_cph(do_scale = FALSE, iter_max = 1)
+   control_cph <- orsf_control_fast(do_scale = FALSE)
    f_beta      <- control$beta_fun
 
   }
@@ -717,15 +705,15 @@ orsf <- function(data,
   cph_method_       = switch(tolower(cph_method),
                              'breslow' = 0,
                              'efron'   = 1),
-  cph_eps_          = cph_eps, #
-  cph_iter_max_     = cph_iter_max,
-  cph_do_scale_     = cph_do_scale,
-  net_alpha_        = net_alpha,
-  net_df_target_    = net_df_target,
-  oobag_pred_       = oobag_pred,
-  oobag_pred_horizon_       = oobag_pred_horizon,
-  oobag_eval_every_ = oobag_eval_every,
-  oobag_importance_ = importance %in% c("negate", "permute"),
+  cph_eps_            = cph_eps, #
+  cph_iter_max_       = cph_iter_max,
+  cph_do_scale_       = cph_do_scale,
+  net_alpha_          = net_alpha,
+  net_df_target_      = net_df_target,
+  oobag_pred_         = oobag_pred,
+  oobag_pred_horizon_ = oobag_pred_horizon,
+  oobag_eval_every_   = oobag_eval_every,
+  oobag_importance_   = importance %in% c("negate", "permute"),
   oobag_importance_type_ = switch(importance,
                                   "none" = "O",
                                   "anova" = "A",
@@ -736,6 +724,7 @@ orsf <- function(data,
   max_retry_        = n_retry,
   f_beta            = f_beta,
   type_beta_        = switch(orsf_type,
+                             'fast' = 'C',
                              'cph' = 'C',
                              'net' = 'N',
                              'custom' = 'U'),
@@ -1042,15 +1031,15 @@ orsf_train_ <- function(object,
   cph_method_       = switch(tolower(get_cph_method(object)),
                              'breslow' = 0,
                              'efron'   = 1),
-  cph_eps_          = get_cph_eps(object), #
-  cph_iter_max_     = get_cph_iter_max(object),
-  cph_do_scale_     = get_cph_do_scale(object),
-  net_alpha_        = get_net_alpha(object),
-  net_df_target_    = get_net_df_target(object),
-  oobag_pred_       = get_oobag_pred(object),
-  oobag_pred_horizon_       = object$pred_horizon,
-  oobag_eval_every_ = oobag_eval_every,
-  oobag_importance_ = get_importance(object) != 'none',
+  cph_eps_               = get_cph_eps(object), #
+  cph_iter_max_          = get_cph_iter_max(object),
+  cph_do_scale_          = get_cph_do_scale(object),
+  net_alpha_             = get_net_alpha(object),
+  net_df_target_         = get_net_df_target(object),
+  oobag_pred_            = get_oobag_pred(object),
+  oobag_pred_horizon_    = object$pred_horizon,
+  oobag_eval_every_      = oobag_eval_every,
+  oobag_importance_      = get_importance(object) != 'none',
   oobag_importance_type_ = switch(get_importance(object),
                                   "none" = "O",
                                   "anova" = "A",
@@ -1060,8 +1049,10 @@ orsf_train_ <- function(object,
   max_retry_        = get_n_retry(object),
   f_beta            = get_f_beta(object),
   type_beta_        = switch(get_orsf_type(object),
+                             'fast' = 'C',
                              'cph' = 'C',
-                             'net' = 'N'),
+                             'net' = 'N',
+                             'custom' = 'U'),
   f_oobag_eval      = get_f_oobag_eval(object),
   type_oobag_eval_  = get_type_oobag_eval(object)
  )
