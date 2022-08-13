@@ -35,15 +35,16 @@ orsf_train(object)
 \arguments{
 \item{data}{(\emph{data.frame}) that contains the relevant variables.}
 
-\item{formula}{(\emph{formula}) a formula object, with the response on the left
-of a \code{~} operator, and the terms on the right (see details). Variables
-on the right hand size of the \code{~} can be numeric, integer, or factor
-variables. Factors may be ordered or unordered.}
+\item{formula}{(\emph{formula}) The response on the left hand side should
+include a time variable, followed by a status variable (see examples).
+The terms on the right are names of predictor variables. A \code{.}
+symbol on the right hand side is short-hand for using all variables
+in \code{data} as predictors.}
 
 \item{control}{An \code{aorsf_control} object, created with \link{orsf_control_net}
 or \link{orsf_control_cph}. Default is \code{control = orsf_control_cph()}.}
 
-\item{weights}{(\emph{double}) an optional vector of weights. If given, this
+\item{weights}{(\emph{numeric vector}) Optional. If given, this
 input should be a vector with length equal to the number of rows in
 \code{data}. The values in \code{weights} are treated like replication weights,
 i.e., a weight value of 2 is the same thing as having 2 observations
@@ -65,9 +66,9 @@ of randomly selected predictors, up to \code{n_retry} pred_horizon. When
 \code{n_retry = 0} the retry mechanic is not applied.
 Default is \code{n_retry = 3}.}
 
-\item{mtry}{(\emph{integer}) Number of variables randomly selected as candidates
+\item{mtry}{(\emph{integer}) Number of predictors randomly selected as candidates
 for splitting a node. The default is the smallest integer greater than
-the square root of the number of features, i.e.,
+the square root of the number of total predictors, i.e.,
 \verb{mtry = ceiling(sqrt(number of predictors))}}
 
 \item{leaf_min_events}{(\emph{integer}) minimum number of events in a
@@ -77,10 +78,10 @@ leaf node. Default is \code{leaf_min_events = 1}}
 leaf node. Default is \code{leaf_min_obs = 5}}
 
 \item{split_min_events}{(\emph{integer}) minimum number of events required
-to split a node. Default is \code{split_min_events = 5}}
+in a node to consider splitting it. Default is \code{split_min_events = 5}}
 
 \item{split_min_obs}{(\emph{integer}) minimum number of observations required
-to split a node. Default is \code{split_min_obs = 10}.}
+in a node to consider splitting it. Default is \code{split_min_obs = 10}.}
 
 \item{split_min_stat}{(double) minimum test statistic required to split
 a node. Default is 3.841459 for the log-rank test, which is roughly

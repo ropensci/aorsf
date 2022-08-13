@@ -47,15 +47,16 @@
 #'
 #' @param data (_data.frame_) that contains the relevant variables.
 #'
-#' @param formula (_formula_) a formula object, with the response on the left
-#'   of a `~` operator, and the terms on the right (see details). Variables
-#'   on the right hand size of the `~` can be numeric, integer, or factor
-#'   variables. Factors may be ordered or unordered.
+#' @param formula (_formula_) The response on the left hand side should
+#'   include a time variable, followed by a status variable (see examples).
+#'   The terms on the right are names of predictor variables. A `.`
+#'   symbol on the right hand side is short-hand for using all variables
+#'   in `data` as predictors.
 #'
 #' @param control An `aorsf_control` object, created with [orsf_control_net]
 #'  or [orsf_control_cph]. Default is `control = orsf_control_cph()`.
 #'
-#' @param weights (_double_) an optional vector of weights. If given, this
+#' @param weights (_numeric vector_) Optional. If given, this
 #'   input should be a vector with length equal to the number of rows in
 #'   `data`. The values in `weights` are treated like replication weights,
 #'   i.e., a weight value of 2 is the same thing as having 2 observations
@@ -77,9 +78,9 @@
 #'  `n_retry = 0` the retry mechanic is not applied.
 #'  Default is `n_retry = 3`.
 #'
-#' @param mtry (_integer_) Number of variables randomly selected as candidates
+#' @param mtry (_integer_) Number of predictors randomly selected as candidates
 #'   for splitting a node. The default is the smallest integer greater than
-#'   the square root of the number of features, i.e.,
+#'   the square root of the number of total predictors, i.e.,
 #'   `mtry = ceiling(sqrt(number of predictors))`
 #'
 #' @param leaf_min_events (_integer_) minimum number of events in a
@@ -89,10 +90,10 @@
 #'   leaf node. Default is `leaf_min_obs = 5`
 #'
 #' @param split_min_events (_integer_) minimum number of events required
-#'   to split a node. Default is `split_min_events = 5`
+#'   in a node to consider splitting it. Default is `split_min_events = 5`
 #'
 #' @param split_min_obs (_integer_) minimum number of observations required
-#'   to split a node. Default is `split_min_obs = 10`.
+#'   in a node to consider splitting it. Default is `split_min_obs = 10`.
 #'
 #' @param split_min_stat (double) minimum test statistic required to split
 #'   a node. Default is 3.841459 for the log-rank test, which is roughly

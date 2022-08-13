@@ -3,7 +3,12 @@
 
 #' ORSF partial dependence
 #'
-#' Compute partial dependence using oblique random survival forests.
+#' @srrstats {G2.1a} *explicit secondary documentation of expectations on data types of all vector inputs*
+#' @srrstats {G2.0a} *documenting length by indicating these inputs are vectors and that they must have the same length as the other.*
+#'
+#' Compute partial dependence using oblique random survival forests. A
+#'  [vignette](https://bcjaeger.github.io/aorsf/articles/pd.html)
+#'  covers the basics of partial dependence with extended examples.
 #'
 #' @inheritParams predict.aorsf
 #'
@@ -12,7 +17,6 @@
 #'   used. If the training data were not attached to `object`
 #'   (see `attach_data` input in [orsf]), an error will be triggered.
 #'
-#' @srrstats {G2.1a} *explicit secondary documentation of expectations on data types of all vector inputs*
 #'
 #' @param pd_spec (_named list_ or _data.frame_).
 #'
@@ -31,7 +35,6 @@
 #'   `FALSE`, partial dependence will be computed for each variable
 #'   in `pd_spec`, separately.
 #'
-#' @srrstats {G2.0a} *documenting length by indicating these inputs are vectors and that they must have the same length as the other.*
 #'
 #' @param prob_values (_numeric_) a vector of values between 0 and 1,
 #'   indicating what quantiles will be used to summarize the partial

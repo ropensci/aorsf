@@ -36,7 +36,8 @@ linear combinations of inputs, iteration continues until convergence
 \code{iter_max}. A default value of 1 is used for computational efficiency.}
 
 \item{do_scale}{(\emph{logical}) if \code{TRUE}, values of predictors will be
-scaled prior to running Newton Raphson scoring.}
+scaled prior to each instance of Newton Raphson scoring, using summary
+values from the data in the current node of the decision tree.}
 
 \item{...}{Further arguments passed to or from other methods
 (not currently used).}
@@ -52,9 +53,11 @@ of Newton-Raphson scoring and the Cox proportional hazards
 model, see Therneau and Grambsch (2000).
 }
 \details{
-Setting \code{do_scale} to \code{FALSE} will reduce computation time but will also
-make your \code{orsf} model dependent on the scale of your data, which
-is why the default value is \code{TRUE}.
+\strong{Adjust \code{do_scale} at your own risk}. Setting \code{do_scale = FALSE} will
+reduce computation time but will also make the \code{orsf} model dependent
+on the scale of your data, which is why the default value is \code{TRUE}. It
+would be a good idea to center and scale your predictors prior to running
+\code{orsf()} if you plan on setting \code{do_scale = FALSE}.
 }
 \examples{
 

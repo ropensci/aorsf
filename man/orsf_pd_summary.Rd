@@ -101,7 +101,7 @@ expectations (ICE).
 }
 }
 \description{
-Compute partial dependence using oblique random survival forests.
+ORSF partial dependence
 }
 \examples{
 

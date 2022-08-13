@@ -47,7 +47,8 @@
 #' @srrstats {ML2.5} *Provide the option to bypass default transformations.*
 #'
 #' @param do_scale (_logical_) if `TRUE`, values of predictors will be
-#'   scaled prior to running Newton Raphson scoring.
+#'   scaled prior to each instance of Newton Raphson scoring, using summary
+#'   values from the data in the current node of the decision tree.
 #'
 #' @return an object of class `'aorsf_control'`, which should be used as
 #'  an input for the `control` argument of [orsf].
@@ -58,9 +59,11 @@
 #'
 #' @details
 #'
-#' Setting `do_scale` to `FALSE` will reduce computation time but will also
-#'  make your `orsf` model dependent on the scale of your data, which
-#'  is why the default value is `TRUE`.
+#' __Adjust `do_scale` at your own risk__. Setting `do_scale = FALSE` will
+#'  reduce computation time but will also make the `orsf` model dependent
+#'  on the scale of your data, which is why the default value is `TRUE`. It
+#'  would be a good idea to center and scale your predictors prior to running
+#'  `orsf()` if you plan on setting `do_scale = FALSE`.
 #'
 #' @references
 #'
