@@ -26,10 +26,9 @@
 #'   scaled prior to each instance of Newton Raphson scoring, using summary
 #'   values from the data in the current node of the decision tree.
 #'
-#' @param ... Further arguments passed to or from other methods
-#'   (not currently used).
+#' @param ... `r roxy_dots()`
 #'
-#' @return an object of class `'aorsf_control'`, which should be used as
+#' @return an object of class `'orsf_control'`, which should be used as
 #'  an input for the `control` argument of [orsf].
 #'
 #' @export
@@ -72,7 +71,7 @@ orsf_control_fast <- function(method = 'efron',
                cph_eps = 1e-9,
                cph_iter_max = 1,
                cph_do_scale = do_scale),
-  class = 'aorsf_control',
+  class = 'orsf_control',
   type = 'fast'
  )
 
@@ -86,12 +85,7 @@ orsf_control_fast <- function(method = 'efron',
 #'  to create linear combinations of predictor variables
 #'  while fitting an [orsf] model.
 #'
-#' @param method (_character_) a character string specifying the method
-#'   for tie handling. If there are no ties, all the methods are
-#'   equivalent. Valid options are 'breslow' and 'efron'. The Efron
-#'   approximation is the default because it is more accurate when dealing
-#'   with tied event times and has similar computational efficiency compared
-#'   to the Breslow method.
+#' @inheritParams orsf_control_fast
 #'
 #' @param eps (_double_) When using Newton Raphson scoring to identify
 #'   linear combinations of inputs, iteration continues in the algorithm
@@ -105,10 +99,7 @@ orsf_control_fast <- function(method = 'efron',
 #'   (see `eps` above) or the number of attempted iterations is equal to
 #'   `iter_max`.
 #'
-#' @param ... Further arguments passed to or from other methods
-#'   (not currently used).
-#'
-#' @return an object of class `'aorsf_control'`, which should be used as
+#' @return an object of class `'orsf_control'`, which should be used as
 #'  an input for the `control` argument of [orsf].
 #'
 #' @export
@@ -152,7 +143,7 @@ orsf_control_cph <- function(method = 'efron',
                cph_eps = eps,
                cph_iter_max = iter_max,
                cph_do_scale = TRUE),
-  class = 'aorsf_control',
+  class = 'orsf_control',
   type = 'cph'
  )
 
@@ -177,8 +168,7 @@ orsf_control_cph <- function(method = 'efron',
 #'  [orsf] that indicates the number of variables chosen at random prior to
 #'  finding a linear combination of those variables.
 #'
-#' @param ... Further arguments passed to or from other methods
-#'   (not currently used).
+#' @param ... `r roxy_dots()`
 #'
 #' @inherit orsf_control_cph return
 #'
@@ -212,7 +202,7 @@ orsf_control_net <- function(alpha = 1/2,
  structure(
   .Data = list(net_alpha = alpha,
                net_df_target = df_target),
-  class = 'aorsf_control',
+  class = 'orsf_control',
   type = 'net'
  )
 
@@ -225,16 +215,15 @@ orsf_control_net <- function(alpha = 1/2,
 #'  three inputs named `x_node`, `y_node` and `w_node`, and should expect
 #'  the following types and dimensions:
 #'
-#' - `x_node` (_matrix_; n rows, p columns)
-#' - `y_node` (_matrix_; n rows, 2 columns)
-#' - `w_node` (_matrix_; n rows, 1 column)
+#' - `x_node` (_matrix_; `n` rows, `p` columns)
+#' - `y_node` (_matrix_; `n` rows, `2` columns)
+#' - `w_node` (_matrix_; `n` rows, `1` column)
 #'
 #' In addition, `beta_fun` must return a matrix with p rows and 1 column. If
 #'  any of these conditions are not met, `orsf_control_custom()` will let
 #'  you know.
 #'
-#' @param ... Further arguments passed to or from other methods
-#'   (not currently used).
+#' @param ... `r roxy_dots()`
 #'
 #' @inherit orsf_control_cph return
 #'
@@ -270,7 +259,7 @@ orsf_control_custom <- function(beta_fun, ...){
 
  structure(
   .Data = list(beta_fun = beta_fun),
-  class = 'aorsf_control',
+  class = 'orsf_control',
   type = 'custom'
  )
 

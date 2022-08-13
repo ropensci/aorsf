@@ -12,20 +12,19 @@ in linear combinations of predictor variables. \code{beta_fun} must accept
 three inputs named \code{x_node}, \code{y_node} and \code{w_node}, and should expect
 the following types and dimensions:
 \itemize{
-\item \code{x_node} (\emph{matrix}; n rows, p columns)
-\item \code{y_node} (\emph{matrix}; n rows, 2 columns)
-\item \code{w_node} (\emph{matrix}; n rows, 1 column)
+\item \code{x_node} (\emph{matrix}; \code{n} rows, \code{p} columns)
+\item \code{y_node} (\emph{matrix}; \code{n} rows, \code{2} columns)
+\item \code{w_node} (\emph{matrix}; \code{n} rows, \code{1} column)
 }
 
 In addition, \code{beta_fun} must return a matrix with p rows and 1 column. If
 any of these conditions are not met, \code{orsf_control_custom()} will let
 you know.}
 
-\item{...}{Further arguments passed to or from other methods
-(not currently used).}
+\item{...}{Further arguments passed to or from other methods (not currently used).}
 }
 \value{
-an object of class \code{'aorsf_control'}, which should be used as
+an object of class \code{'orsf_control'}, which should be used as
 an input for the \code{control} argument of \link{orsf}.
 }
 \description{

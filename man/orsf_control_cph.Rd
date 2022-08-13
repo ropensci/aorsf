@@ -26,11 +26,10 @@ linear combinations of inputs, iteration continues until convergence
 (see \code{eps} above) or the number of attempted iterations is equal to
 \code{iter_max}.}
 
-\item{...}{Further arguments passed to or from other methods
-(not currently used).}
+\item{...}{Further arguments passed to or from other methods (not currently used).}
 }
 \value{
-an object of class \code{'aorsf_control'}, which should be used as
+an object of class \code{'orsf_control'}, which should be used as
 an input for the \code{control} argument of \link{orsf}.
 }
 \description{

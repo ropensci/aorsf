@@ -17,11 +17,10 @@ Note: this has to be less than \code{mtry}, which is a separate argument in
 \link{orsf} that indicates the number of variables chosen at random prior to
 finding a linear combination of those variables.}
 
-\item{...}{Further arguments passed to or from other methods
-(not currently used).}
+\item{...}{Further arguments passed to or from other methods (not currently used).}
 }
 \value{
-an object of class \code{'aorsf_control'}, which should be used as
+an object of class \code{'orsf_control'}, which should be used as
 an input for the \code{control} argument of \link{orsf}.
 }
 \description{

@@ -163,3 +163,11 @@ roxy_cite_menze_2011 <- function(){
 
 }
 
+
+# ... ---------------------------------------------------------------------
+
+roxy_dots <- function(){
+ "Further arguments passed to or from other methods (not currently used)."
+}
+
+

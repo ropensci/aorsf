@@ -45,8 +45,8 @@
 #'   written inside a call to [Surv][survival::Surv] (see examples).
 #'   The terms on the right are names of predictor variables.
 #'
-#' @param control (*aorsf_control*) An object returned from one of the
-#'  [orsf_control][aorsf::orsf_control_cph] functions:
+#' @param control (*orsf_control*) An object returned from one of the
+#'  `orsf_control` functions:
 #'
 #'  - [orsf_control_fast] (the default) uses a single iteration of Newton
 #'    Raphson scoring to identify a linear combination of predictors.
@@ -79,11 +79,10 @@
 #' @param n_retry (_integer_) when a node can be split, but the current
 #'  linear combination of inputs is unable to provide a valid split, `orsf`
 #'  will try again with a new linear combination based on a different set
-#'  of randomly selected predictors, up to `n_retry` pred_horizon. When
-#'  `n_retry = 0` the retry mechanic is not applied.
-#'  Default is `n_retry = 3`.
+#'  of randomly selected predictors, up to `n_retry` times. When
+#'  `n_retry = 0` no retries are allowed. Default is `n_retry = 3`.
 #'
-#' @param mtry (_integer_) Number of predictors randomly selected as candidates
+#' @param mtry (_integer_) Number of predictors randomly included as candidates
 #'   for splitting a node. The default is the smallest integer greater than
 #'   the square root of the number of total predictors, i.e.,
 #'   `mtry = ceiling(sqrt(number of predictors))`
@@ -118,13 +117,13 @@
 #'   is `oobag_eval_every = n_tree`, so that out-of-bag performance is
 #'   assessed once after growing all the trees.
 #'
-#' @param oobag_fun `r roxy_oobag_fun_header()` every `oobag_eval_every` trees.
-#' - `r roxy_oobag_fun_default()`
-#' - `r roxy_oobag_fun_user()`
-#'     + `r roxy_oobag_fun_inputs()`
-#'     + `r roxy_oobag_fun_ymat()`
-#'     + `r roxy_oobag_fun_svec()`
-#'     + `r roxy_oobag_fun_return()`
+#' @param oobag_fun `r roxy_oobag_fun_header()` every `oobag_eval_every`
+#'  trees. `r roxy_oobag_fun_default()`. `r roxy_oobag_fun_user()`
+#'   - `r roxy_oobag_fun_inputs()`
+#'   - `r roxy_oobag_fun_ymat()`
+#'   - `r roxy_oobag_fun_svec()`
+#'   - `r roxy_oobag_fun_return()`
+#'
 #' For more details, see the out-of-bag [vignette](https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions).
 #'
 #' @param importance `r roxy_importance_header()`
@@ -135,27 +134,23 @@
 #'
 #' For details on these methods, see [orsf_vi].
 #'
-#' @param tree_seeds (_integer vector_) if specified, random seeds will be set
-#'   using the values in `tree_seeds[i]`  before growing tree i. Two forests
-#'   grown with the same number of trees and the same seeds will have the exact
-#'   same out-of-bag samples and, in many cases, the same random sets of
-#'   candidate predictors. This design makes comparisons of out-of-bag error
-#'   between two random forests more meaningful, since the out-of-bag
-#'   performance of a random forest depends somewhat on the observations
-#'   picked in out-of-bag samples. If `tree_seeds` is `NULL` (the default),
+#' @param tree_seeds (_integer vector_) Optional. if specified, random seeds
+#'   will be set using the values in `tree_seeds[i]`  before growing tree `i`.
+#'   Two forests grown with the same number of trees and the same seeds will
+#'   have the exact same out-of-bag samples, making out-of-bag error
+#'   estimates of the forests more comparable. If `NULL` (the default),
 #'   no seeds are set during the training process.
 #'
 #' @param attach_data (_logical_) if `TRUE`, a copy of the training
 #'   data will be attached to the output. This is helpful if you
-#'   plan on using functions like [orsf_pd_summary] to interpret the fitted
-#'   forest using its training data. Default is `TRUE`.
+#'   plan on using functions like [orsf_pd_summary] or [orsf_summarize_uni]
+#'   to interpret the forest using its training data. Default is `TRUE`.
 #'
-#' @param no_fit (_logical_) if `TRUE`, pre-processing steps are defined and
-#'   parametrized, but training is not initiated. The object returned can be
+#' @param no_fit (_logical_) if `TRUE`, model fitting steps are defined and
+#'   saved, but training is not initiated. The object returned can be
 #'   directly submitted to `orsf_train()` so long as `attach_data` is `TRUE`.
 #'
-#' @param ... Further arguments passed to or from other methods
-#'   (not currently used).
+#' @param ... `r roxy_dots()`
 #'
 #' @param object an untrained 'aorsf' object, created by setting
 #'   `no_fit = TRUE` in `orsf()`.
@@ -802,7 +797,7 @@ orsf <- function(data,
  attr(orsf_out, 'tree_seeds') <- if(is.null(tree_seeds)) c() else tree_seeds
 
  #' @srrstats {ML5.0a} *orsf output has its own class*
- class(orsf_out) <- "aorsf"
+ class(orsf_out) <- "orsf_fit"
 
  orsf_out
 

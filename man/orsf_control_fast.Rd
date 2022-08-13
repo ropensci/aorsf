@@ -18,11 +18,10 @@ to the Breslow method.}
 scaled prior to each instance of Newton Raphson scoring, using summary
 values from the data in the current node of the decision tree.}
 
-\item{...}{Further arguments passed to or from other methods
-(not currently used).}
+\item{...}{Further arguments passed to or from other methods (not currently used).}
 }
 \value{
-an object of class \code{'aorsf_control'}, which should be used as
+an object of class \code{'orsf_control'}, which should be used as
 an input for the \code{control} argument of \link{orsf}.
 }
 \description{

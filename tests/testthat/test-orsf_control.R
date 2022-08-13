@@ -40,7 +40,7 @@ test_that("inputs are vetted", {
 
  f <- function(x_node, y_node, w_node) { matrix(runif(ncol(x_node)), ncol=1) }
 
- expect_s3_class(orsf_control_custom(f), 'aorsf_control')
+ expect_s3_class(orsf_control_custom(f), 'orsf_control')
 
 
 })

@@ -10,7 +10,7 @@
 #'  [vignette](https://bcjaeger.github.io/aorsf/articles/pd.html)
 #'  covers the basics of partial dependence with extended examples.
 #'
-#' @inheritParams predict.aorsf
+#' @inheritParams predict.orsf_fit
 #'
 #' @param pd_data (_data frame_) that will be used to compute partial
 #'   dependence. If `NULL`, then the training data of `object` will be
@@ -58,14 +58,11 @@
 #'  percentile in the object's training data. If `FALSE`, these checks are
 #'  skipped.
 #'
-#' @param ... Further arguments passed to or from other methods
-#'   (not currently used).
+#' @param ... `r roxy_dots()`
 #'
-#' @return
-#'  - `orsf_pd_summary`: a `data.table` containing summarized partial
-#'    dependence values.
-#'  - `orsf_pd_ice`: a `data.table` with individual conditional
-#'    expectations (ICE).
+#' @return a `data.table` containing
+#'  - `orsf_pd_ice`: individual conditional expectation (ICE) values.
+#'  - `orsf_pd_summary`: summarized ICE values (i.e., partial dependence).
 #'
 #' @export
 #'

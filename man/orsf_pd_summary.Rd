@@ -32,7 +32,7 @@ orsf_pd_ice(
 )
 }
 \arguments{
-\item{object}{(\emph{aorsf}) an oblique random survival forest (ORSF; see \link{orsf}).}
+\item{object}{(\emph{orsf_fit}) an oblique random survival forest (ORSF; see \link{orsf}).}
 
 \item{pd_data}{(\emph{data frame}) that will be used to compute partial
 dependence. If \code{NULL}, then the training data of \code{object} will be
@@ -89,15 +89,13 @@ to make sure the requested values are between the 10th and 90th
 percentile in the object's training data. If \code{FALSE}, these checks are
 skipped.}
 
-\item{...}{Further arguments passed to or from other methods
-(not currently used).}
+\item{...}{Further arguments passed to or from other methods (not currently used).}
 }
 \value{
+a \code{data.table} containing
 \itemize{
-\item \code{orsf_pd_summary}: a \code{data.table} containing summarized partial
-dependence values.
-\item \code{orsf_pd_ice}: a \code{data.table} with individual conditional
-expectations (ICE).
+\item \code{orsf_pd_ice}: individual conditional expectation (ICE) values.
+\item \code{orsf_pd_summary}: summarized ICE values (i.e., partial dependence).
 }
 }
 \description{

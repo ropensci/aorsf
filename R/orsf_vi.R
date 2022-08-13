@@ -5,7 +5,7 @@
 #' Estimate the importance of individual variables using oblique random
 #'   survival forests.
 #'
-#' @inheritParams predict.aorsf
+#' @inheritParams predict.orsf_fit
 #'
 #' @param group_factors (_logical_) if `TRUE`, the importance of factor
 #'   variables will be reported overall by aggregating the importance
@@ -13,7 +13,6 @@
 #'   individual factor levels will be returned.
 #'
 #' @param importance `r roxy_importance_header()`
-#' - `r roxy_importance_none()`
 #' - `r roxy_importance_anova()`
 #' - `r roxy_importance_negate()`
 #' - `r roxy_importance_permute()`
@@ -65,14 +64,14 @@
 #'
 #' @details
 #'
-#' When an `aorsf` object is fitted with importance = 'anova', 'negate', or
+#' When an `orsf_fit` object is fitted with importance = 'anova', 'negate', or
 #'  'permute', the output will have a vector of importance values based on
 #'  the requested type of importance. However, you may still want to call
 #'  `orsf_vi()` on this output if you want to group factor levels into one
 #'  overall importance value.
 #'
 #' `orsf_vi()` is a general purpose function to extract or compute variable
-#'   importance estimates from an `aorsf` object (see [orsf]).
+#'   importance estimates from an `'orsf_fit'` object (see [orsf]).
 #'   `orsf_vi_negate()`, `orsf_vi_permute()`, and `orsf_vi_anova()` are wrappers
 #'   for `orsf_vi()`. The way these functions work depends on whether the
 #'   `object` they are given already has variable importance estimates in it
@@ -85,7 +84,7 @@
 #'
 #' # first example ----------------------------------------------------------
 #'
-#' # fit an aorsf object using default values, and get the default vi (anova)
+#' # fit an ORSF using default values, and get the default vi (anova)
 #'
 #' fit_default <- orsf(pbc_orsf,
 #'                     Surv(time, status) ~ . - id)
@@ -116,7 +115,7 @@
 #'
 #' # second example ---------------------------------------------------------
 #'
-#' # fit an aorsf object without vi, then add vi later
+#' # fit an ORSF without vi, then add vi later
 #'
 #' fit_no_vi <- orsf(pbc_orsf,
 #'                   Surv(time, status) ~ . - id,
@@ -131,7 +130,7 @@
 #'
 #' # third example ----------------------------------------------------------
 #'
-#' # fit an aorsf object and compute vi at the same time
+#' # fit an ORSF and compute vi at the same time
 #'
 #' fit_permute_vi <- orsf(pbc_orsf,
 #'                        Surv(time, status) ~ . - id,
@@ -165,6 +164,13 @@ orsf_vi <- function(object,
                     ...){
 
  check_dots(list(...), .f = orsf_vi)
+
+ # not sure if anyone would ever call orsf_vi(importance = 'none'),
+ # but this is here just for them.
+ if(!is.null(importance)){
+  if(importance == 'none') importance <- NULL
+ }
+
  check_orsf_inputs(importance = importance)
 
  type_vi <- get_importance(object)
@@ -219,7 +225,7 @@ orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
 
  #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
 
- if(!is_aorsf(object)) stop("object must inherit from 'aorsf' class.",
+ if(!is_aorsf(object)) stop("object must inherit from 'orsf_fit' class.",
                             call. = FALSE)
 
  if(get_importance(object) != 'anova' && type_vi == 'anova')
@@ -286,7 +292,7 @@ orsf_vi_oobag_ <- function(object, type_vi, oobag_fun){
  if(!contains_oobag(object)){
   stop("cannot compute ",
        switch(type_vi, 'negate' = 'negation', 'permute' = 'permutation'),
-       " importance if the aorsf object does not have out-of-bag error",
+       " importance if the orsf_fit object does not have out-of-bag error",
        " (see oobag_pred in ?orsf).",
        call. = FALSE)
  }

@@ -14,7 +14,7 @@ orsf_summarize_uni(
 )
 }
 \arguments{
-\item{object}{(\emph{aorsf}) an oblique random survival forest (ORSF; see \link{orsf}).}
+\item{object}{(\emph{orsf_fit}) an oblique random survival forest (ORSF; see \link{orsf}).}
 
 \item{n_variables}{(\emph{integer}) how many variables should be summarized?
 Setting this input to a lower number will reduce computation time.}
@@ -40,11 +40,10 @@ options are
 
 For details on these methods, see \link{orsf_vi}.}
 
-\item{...}{Further arguments passed to or from other methods
-(not currently used).}
+\item{...}{Further arguments passed to or from other methods (not currently used).}
 }
 \value{
-an object of class 'aorsf_summary', which includes data on
+an object of class 'orsf_summary', which includes data on
 \itemize{
 \item importance of individual predictors.
 \item expected values of predictions at specific values of predictors.

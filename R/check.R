@@ -715,7 +715,7 @@ check_orsf_inputs <- function(data = NULL,
 
   check_arg_is(arg_value = control,
                arg_name = 'control',
-               expected_class = 'aorsf_control')
+               expected_class = 'orsf_control')
 
  }
 
@@ -1030,7 +1030,7 @@ check_pd_inputs <- function(object,
 
  check_arg_is(arg_value = object,
               arg_name = 'object',
-              expected_class = 'aorsf')
+              expected_class = 'orsf_fit')
 
  if(!is.null(expand_grid)){
 

@@ -37,7 +37,7 @@ fi <- get_fctr_info(object)
 test_that("output is normal", {
 
 
- expect_s3_class(smry_1, class = 'aorsf_summary_uni')
+ expect_s3_class(smry_1, class = 'orsf_summary_uni')
  expect_true(length(unique(smry_1$dt$variable)) == n_variables)
  expect_true(smry_1$pred_horizon == object$pred_horizon)
  expect_true(smry_1$pred_type == 'survival')

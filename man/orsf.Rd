@@ -42,8 +42,8 @@ include a time variable, followed by a status variable, and may be
 written inside a call to \link[survival:Surv]{Surv} (see examples).
 The terms on the right are names of predictor variables.}
 
-\item{control}{(\emph{aorsf_control}) An object returned from one of the
-\link[=orsf_control_cph]{orsf_control} functions:
+\item{control}{(\emph{orsf_control}) An object returned from one of the
+\code{orsf_control} functions:
 \itemize{
 \item \link{orsf_control_fast} (the default) uses a single iteration of Newton
 Raphson scoring to identify a linear combination of predictors.
@@ -74,11 +74,10 @@ a node in decision trees. Default is \code{n_split = 5}.}
 \item{n_retry}{(\emph{integer}) when a node can be split, but the current
 linear combination of inputs is unable to provide a valid split, \code{orsf}
 will try again with a new linear combination based on a different set
-of randomly selected predictors, up to \code{n_retry} pred_horizon. When
-\code{n_retry = 0} the retry mechanic is not applied.
-Default is \code{n_retry = 3}.}
+of randomly selected predictors, up to \code{n_retry} times. When
+\code{n_retry = 0} no retries are allowed. Default is \code{n_retry = 3}.}
 
-\item{mtry}{(\emph{integer}) Number of predictors randomly selected as candidates
+\item{mtry}{(\emph{integer}) Number of predictors randomly included as candidates
 for splitting a node. The default is the smallest integer greater than
 the square root of the number of total predictors, i.e.,
 \verb{mtry = ceiling(sqrt(number of predictors))}}
@@ -113,18 +112,16 @@ after growing the 10th tree, the 20th tree, and so on. Default
 is \code{oobag_eval_every = n_tree}, so that out-of-bag performance is
 assessed once after growing all the trees.}
 
-\item{oobag_fun}{(\emph{function}) to be used for evaluating out-of-bag prediction accuracy every \code{oobag_eval_every} trees.
-\itemize{
-\item When \code{oobag_fun = NULL} (the default), Harrell's C-statistic (1982) is used to evaluate accuracy.
-\item if you use your own \code{oobag_fun} note the following:
+\item{oobag_fun}{(\emph{function}) to be used for evaluating out-of-bag prediction accuracy every \code{oobag_eval_every}
+trees. When \code{oobag_fun = NULL} (the default), Harrell's C-statistic (1982) is used to evaluate accuracy.. if you use your own \code{oobag_fun} note the following:
 \itemize{
 \item \code{oobag_fun} should have two inputs: \code{y_mat} and \code{s_vec}
 \item \code{y_mat} is a two column matrix with first column named 'time', second named 'status'
 \item \code{s_vec} is a numeric vector containing predicted survival probabilities.
 \item \code{oobag_fun} should return a numeric output of length 1
-For more details, see the out-of-bag \href{https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions}{vignette}.
 }
-}}
+
+For more details, see the out-of-bag \href{https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions}{vignette}.}
 
 \item{importance}{(\emph{character}) Indicate method for variable importance:
 \itemize{
@@ -136,27 +133,23 @@ For more details, see the out-of-bag \href{https://bcjaeger.github.io/aorsf/arti
 
 For details on these methods, see \link{orsf_vi}.}
 
-\item{tree_seeds}{(\emph{integer vector}) if specified, random seeds will be set
-using the values in \code{tree_seeds[i]}  before growing tree i. Two forests
-grown with the same number of trees and the same seeds will have the exact
-same out-of-bag samples and, in many cases, the same random sets of
-candidate predictors. This design makes comparisons of out-of-bag error
-between two random forests more meaningful, since the out-of-bag
-performance of a random forest depends somewhat on the observations
-picked in out-of-bag samples. If \code{tree_seeds} is \code{NULL} (the default),
+\item{tree_seeds}{(\emph{integer vector}) Optional. if specified, random seeds
+will be set using the values in \code{tree_seeds[i]}  before growing tree \code{i}.
+Two forests grown with the same number of trees and the same seeds will
+have the exact same out-of-bag samples, making out-of-bag error
+estimates of the forests more comparable. If \code{NULL} (the default),
 no seeds are set during the training process.}
 
 \item{attach_data}{(\emph{logical}) if \code{TRUE}, a copy of the training
 data will be attached to the output. This is helpful if you
-plan on using functions like \link{orsf_pd_summary} to interpret the fitted
-forest using its training data. Default is \code{TRUE}.}
+plan on using functions like \link{orsf_pd_summary} or \link{orsf_summarize_uni}
+to interpret the forest using its training data. Default is \code{TRUE}.}
 
-\item{no_fit}{(\emph{logical}) if \code{TRUE}, pre-processing steps are defined and
-parametrized, but training is not initiated. The object returned can be
+\item{no_fit}{(\emph{logical}) if \code{TRUE}, model fitting steps are defined and
+saved, but training is not initiated. The object returned can be
 directly submitted to \code{orsf_train()} so long as \code{attach_data} is \code{TRUE}.}
 
-\item{...}{Further arguments passed to or from other methods
-(not currently used).}
+\item{...}{Further arguments passed to or from other methods (not currently used).}
 
 \item{object}{an untrained 'aorsf' object, created by setting
 \code{no_fit = TRUE} in \code{orsf()}.}

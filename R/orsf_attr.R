@@ -62,7 +62,7 @@ is_trained <- function(object) attr(object, 'trained')
 
 #' Determine whether object has oobag estimates
 #'
-#' @param object an object of class 'aorsf'
+#' @param object an object of class 'orsf_fit'
 #'
 #' @return `TRUE` if oobag survival estimates are present, `FALSE` otherwise
 #'
@@ -72,7 +72,7 @@ contains_oobag <- function(object) {!is_empty(object$surv_oobag)}
 
 #' Determine whether object has variable importance estimates
 #'
-#' @param object an object of class 'aorsf'
+#' @param object an object of class 'orsf_fit'
 #'
 #' @return `TRUE` if variable importance estimates are present, `FALSE` otherwise
 #'
@@ -83,7 +83,7 @@ contains_vi <- function(object) get_importance(object) != 'none'
 
 #' Retrieve x-matrix names
 #'
-#' @param object an object of class 'aorsf'
+#' @param object an object of class 'orsf_fit'
 #' @param ref_code_names should the names be ref encoded?
 #'
 #' @return a character vector

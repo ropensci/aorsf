@@ -3,7 +3,7 @@
 #'
 #' @description Summarize the univariate information from an ORSF object
 #'
-#' @inheritParams predict.aorsf
+#' @inheritParams predict.orsf_fit
 #'
 #' @param n_variables (_integer_) how many variables should be summarized?
 #'   Setting this input to a lower number will reduce computation time.
@@ -16,7 +16,7 @@
 #'
 #' For details on these methods, see [orsf_vi].
 #'
-#' @return an object of class 'aorsf_summary', which includes data on
+#' @return an object of class 'orsf_summary', which includes data on
 #'
 #' - importance of individual predictors.
 #' - expected values of predictions at specific values of predictors.
@@ -69,7 +69,7 @@ orsf_summarize_uni <- function(object,
 
  check_arg_is(arg_value = object,
               arg_name = 'object',
-              expected_class = 'aorsf')
+              expected_class = 'orsf_fit')
 
  if(!is.null(n_variables)){
 
@@ -193,7 +193,7 @@ orsf_summarize_uni <- function(object,
   .Data = list(dt = pd_output,
                pred_type = pred_type,
                pred_horizon = pred_horizon),
-  class = 'aorsf_summary_uni'
+  class = 'orsf_summary_uni'
  )
 
 
@@ -203,12 +203,11 @@ orsf_summarize_uni <- function(object,
 #'
 #' @srrstats {G1.4} *documented with Roxygen*
 #'
-#' @param x an object of class 'aorsf_summary'
+#' @param x an object of class 'orsf_summary'
 #'
 #' @param n_variables The number of variables to print
 #'
-#' @param ... Further arguments passed to or from other methods
-#'   (not currently used).
+#' @param ... `r roxy_dots()`
 #'
 #' @return nothing - output is printed to console.
 #'
@@ -222,9 +221,9 @@ orsf_summarize_uni <- function(object,
 #'
 #' print(smry)
 #'
-print.aorsf_summary_uni <- function(x, n_variables = NULL, ...){
+print.orsf_summary_uni <- function(x, n_variables = NULL, ...){
 
- check_dots(list(...), .f = print.aorsf_summary_uni)
+ check_dots(list(...), .f = print.orsf_summary_uni)
 
  if(is.null(n_variables)) n_variables <- length(unique(x$dt$variable))
 
@@ -370,9 +369,9 @@ print.aorsf_summary_uni <- function(x, n_variables = NULL, ...){
 
 #' Coerce to data.table
 #'
-#' Convert an 'aorsf_summary' object into a `data.table` object.
+#' Convert an 'orsf_summary' object into a `data.table` object.
 #'
-#' @param x an object of class 'aorsf_summary_uni'
+#' @param x an object of class 'orsf_summary_uni'
 #'
 #' @param ... not used
 #'
@@ -390,7 +389,7 @@ print.aorsf_summary_uni <- function(x, n_variables = NULL, ...){
 #'
 #' as.data.table(smry)
 #'
-as.data.table.aorsf_summary_uni <- function(x, ...){
+as.data.table.orsf_summary_uni <- function(x, ...){
  x$dt
 }
 

@@ -177,7 +177,7 @@ test_that(
 # # I dont want to suggest pdp package in DESCRIPTION just for testing
 # library(pdp)
 #
-# pred_aorsf <- function(object, newdata) {  # see ?predict.aorsf
+# pred_aorsf <- function(object, newdata) {  # see ?predict.orsf_fit
 #  as.numeric(predict(object, newdata, pred_horizon = 1000))
 # }
 #

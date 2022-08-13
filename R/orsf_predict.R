@@ -7,7 +7,7 @@
 #' @srrstats {G2.0a} *specified expectations for length of `pred_horizon`. In general, inputs of length > 1 have the term 'vector' in their description, and inputs of length 1 just have the expected type.*
 #' @srrstats {ML1.1} *The term 'new_data' are used instead of data_test. There are two reasons for this. First, I am making an effort to be consistent with tidymodels. Second, there is a possibility that users will use predict() without the intention of testing their model, e.g., for interpretation.*
 #'
-#' @param object (_aorsf_) an oblique random survival forest (ORSF; see [orsf]).
+#' @param object (*orsf_fit*) an oblique random survival forest (ORSF; see [orsf]).
 #'
 #' @param new_data (_data.frame_) data to compute predictions for. Must have
 #'   the same columns with equivalent types as the data used to train `object`.
@@ -26,8 +26,7 @@
 #'   - 'risk' : probability of having an event at or before `pred_horizon`.
 #'   - 'survival' : 1 - risk.
 #'
-#' @param ... Further arguments passed to or from other methods
-#'   (not currently used).
+#' @param ... `r roxy_dots()`
 #'
 #' @return a `matrix` of predictions. Column `j` of the matrix corresponds
 #'   to value `j` in `pred_horizon`. Row `i` of the matrix corresponds to
@@ -60,13 +59,13 @@
 #' head(preds)
 #'
 #'
-predict.aorsf <- function(object,
-                          new_data,
-                          pred_horizon,
-                          pred_type = 'risk',
-                          ...){
+predict.orsf_fit <- function(object,
+                             new_data,
+                             pred_horizon,
+                             pred_type = 'risk',
+                             ...){
 
- check_dots(list(...), .f = predict.aorsf)
+ check_dots(list(...), .f = predict.orsf_fit)
 
  #' @srrstats {G2.13} *check for missing data as part of initial pre-processing prior to passing data to analytic algorithms.*
  names_x_data <- get_names_x(object)

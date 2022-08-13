@@ -10,10 +10,9 @@
 #'
 #' @srrstats {G1.4} *documented with Roxygen*
 #'
-#' @param x an object of class 'aorsf'
+#' @param x (*orsf_fit*) an oblique random survival forest (ORSF; see [orsf]).
 #'
-#' @param ... Further arguments passed to or from other methods
-#'   (not currently used).
+#' @param ... `r roxy_dots()`
 #'
 #' @return nothing - just print output to console
 #' @export
@@ -24,7 +23,7 @@
 #'
 #' print(object)
 #'
-print.aorsf <- function(x, ...){
+print.orsf_fit <- function(x, ...){
 
  info_n_obs           <- get_n_obs(x)
  info_n_events        <- get_n_events(x)

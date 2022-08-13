@@ -160,11 +160,11 @@ test_that(
  desc = 'orsf runs with data.table and with net control',
  code = {
 
-  expect_s3_class(orsf(as.data.table(pbc_orsf), f, n_tree = 1), 'aorsf')
+  expect_s3_class(orsf(as.data.table(pbc_orsf), f, n_tree = 1), 'orsf_fit')
 
   expect_s3_class(orsf(as.data.table(pbc_orsf), f,
                        control = orsf_control_net(),
-                       n_tree = 1), 'aorsf')
+                       n_tree = 1), 'orsf_fit')
  }
 )
 
@@ -282,7 +282,7 @@ test_that(
 
 
 test_that(
- desc = 'oobag error is reproducible from an aorsf object',
+ desc = 'oobag error is reproducible from an orsf_fit object',
  code = {
 
   y_mat <- as.matrix(fit_no_vi$data[, c('time', 'status')])
@@ -685,7 +685,7 @@ test_that(
 )
 
 test_that(
- desc = 'aorsf objects can be saved and loaded with saveRDS and readRDS',
+ desc = 'orsf_fit objects can be saved and loaded with saveRDS and readRDS',
  code = {
 
   fil <- tempfile("fit_orsf", fileext = ".rds")
@@ -767,7 +767,7 @@ test_that(
                    oobag_pred = inputs$oobag_pred[i],
                    oobag_pred_horizon = inputs$oobag_pred_horizon[i])
 
-   expect_s3_class(fit_cph, class = 'aorsf')
+   expect_s3_class(fit_cph, class = 'orsf_fit')
    expect_equal(get_n_tree(fit_cph), inputs$n_tree[i])
    expect_equal(get_n_split(fit_cph), inputs$n_split[i])
    expect_equal(get_n_retry(fit_cph), inputs$n_retry[i])
@@ -800,7 +800,7 @@ test_that(
                    oobag_pred = inputs$oobag_pred[i],
                    oobag_pred_horizon = inputs$oobag_pred_horizon[i])
 
-   expect_s3_class(fit_net, class = 'aorsf')
+   expect_s3_class(fit_net, class = 'orsf_fit')
    expect_equal(get_n_tree(fit_net), inputs$n_tree[i])
    expect_equal(get_n_split(fit_net), inputs$n_split[i])
    expect_equal(get_n_retry(fit_net), inputs$n_retry[i])
@@ -899,11 +899,11 @@ test_that(
   #
   # fit_recipe <- orsf(recipe_prepped, Surv(time, status) ~ .)
   #
-  # expect_s3_class(fit_recipe, 'aorsf')
+  # expect_s3_class(fit_recipe, 'orsf_fit')
 
   fit_list <- orsf(pbc_list, Surv(time, status) ~ .)
 
-  expect_s3_class(fit_list, 'aorsf')
+  expect_s3_class(fit_list, 'orsf_fit')
 
   expect_error(
    orsf(pbc_list_bad, Surv(time, status) ~ .),
