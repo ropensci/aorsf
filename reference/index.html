@@ -54,9 +54,9 @@
     </div>
 
     <div class="section level2">
-      <h2 id="fit-oblique-random-survival-forests-orsfs-">Fit oblique random survival forests (ORSFs)<a class="anchor" aria-label="anchor" href="#fit-oblique-random-survival-forests-orsfs-"></a></h2>
+      <h2 id="oblique-random-survival-forests-orsfs-">Oblique random survival forests (ORSFs)<a class="anchor" aria-label="anchor" href="#oblique-random-survival-forests-orsfs-"></a></h2>
       
-      <p class="section-desc"></p><p>Fit ORSF models using cox proportional hazards regression or elastic net proportional hazards regression to identify linear combinations of input variables.</p>
+      <p class="section-desc"></p><p>Fit, inspect, and apply ORSF models</p>
 
       
     </div><div id="" class="section level2">
@@ -71,43 +71,54 @@
         <dd>Oblique Random Survival Forest (ORSF)</dd>
       </dl><dl><dt>
           
-          <code><a href="orsf_control_cph.html">orsf_control_cph()</a></code> 
+          <code><a href="print.orsf_fit.html">print(<i>&lt;orsf_fit&gt;</i>)</a></code> 
         </dt>
-        <dd>Cox proportional hazards ORSF control</dd>
+        <dd>Inspect your ORSF model</dd>
       </dl><dl><dt>
           
-          <code><a href="orsf_control_custom.html">orsf_control_custom()</a></code> 
+          <code><a href="predict.orsf_fit.html">predict(<i>&lt;orsf_fit&gt;</i>)</a></code> 
         </dt>
-        <dd>Custom control of oblique decision trees</dd>
+        <dd>Compute predictions using ORSF</dd>
       </dl><dl><dt>
+          
+          <code><a href="orsf_time_to_train.html">orsf_time_to_train()</a></code> 
+        </dt>
+        <dd>Estimate training time</dd>
+      </dl></div><div class="section level2">
+      <h2 id="control-how-your-orsf-model-works">Control how your ORSF model works<a class="anchor" aria-label="anchor" href="#control-how-your-orsf-model-works"></a></h2>
+      
+      <p class="section-desc"></p><p>Choose how to identify linear combinations of predictors and set tuning parameters for your approach</p>
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
           
           <code><a href="orsf_control_fast.html">orsf_control_fast()</a></code> 
         </dt>
         <dd>Accelerated ORSF control</dd>
       </dl><dl><dt>
           
+          <code><a href="orsf_control_cph.html">orsf_control_cph()</a></code> 
+        </dt>
+        <dd>Cox regression ORSF control</dd>
+      </dl><dl><dt>
+          
           <code><a href="orsf_control_net.html">orsf_control_net()</a></code> 
         </dt>
-        <dd>Elastic net control</dd>
+        <dd>Penalized Cox regression ORSF control</dd>
       </dl><dl><dt>
           
-          <code><a href="orsf_time_to_train.html">orsf_time_to_train()</a></code> 
+          <code><a href="orsf_control_custom.html">orsf_control_custom()</a></code> 
         </dt>
-        <dd>Estimate training time</dd>
-      </dl><dl><dt>
-          
-          <code><a href="predict.aorsf.html">predict(<i>&lt;aorsf&gt;</i>)</a></code> 
-        </dt>
-        <dd>Predict using oblique random survival forest</dd>
-      </dl><dl><dt>
-          
-          <code><a href="print.aorsf.html">print(<i>&lt;aorsf&gt;</i>)</a></code> 
-        </dt>
-        <dd>ORSF presentation</dd>
+        <dd>Custom ORSF control</dd>
       </dl></div><div class="section level2">
       <h2 id="interpret-orsfs">Interpret ORSFs<a class="anchor" aria-label="anchor" href="#interpret-orsfs"></a></h2>
       
-      <p class="section-desc"></p><p>Use data from linear combinations of inputs to determine the importance of individual variables, the degree of interaction between pairs of variables, or the expected prediction from an ORSF model at a given value of one or multiple variables.</p>
+      <p class="section-desc"></p><p>Estimate the importance of individual variables and the expected prediction from an ORSF model for specific predictor variables.</p>
 
       
     </div><div id="" class="section level2">
@@ -132,12 +143,12 @@
         <dd>ORSF summary; univariate</dd>
       </dl><dl><dt>
           
-          <code><a href="print.aorsf_summary_uni.html">print(<i>&lt;aorsf_summary_uni&gt;</i>)</a></code> 
+          <code><a href="print.orsf_summary_uni.html">print(<i>&lt;orsf_summary_uni&gt;</i>)</a></code> 
         </dt>
         <dd>Print ORSF summary</dd>
       </dl><dl><dt>
           
-          <code><a href="as.data.table.aorsf_summary_uni.html">as.data.table(<i>&lt;aorsf_summary_uni&gt;</i>)</a></code> 
+          <code><a href="as.data.table.orsf_summary_uni.html">as.data.table(<i>&lt;orsf_summary_uni&gt;</i>)</a></code> 
         </dt>
         <dd>Coerce to data.table</dd>
       </dl></div><div class="section level2">

@@ -92,8 +92,7 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>data</dt>
-<dd><p>(<em>data.frame</em>, <a href="https://tibble.tidyverse.org/reference/tibble-package.html" class="external-link">tibble</a>, or
-<a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a>) that contains the
+<dd><p>a <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a>, <a href="https://tibble.tidyverse.org/reference/tibble-package.html" class="external-link">tibble</a>, or <a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a> that contains the
 relevant variables.</p></dd>
 
 
@@ -105,8 +104,8 @@ The terms on the right are names of predictor variables.</p></dd>
 
 
 <dt>control</dt>
-<dd><p>(<em>aorsf_control</em>) An object returned from one of the
-<a href="orsf_control_cph.html">orsf_control</a> functions:</p><ul><li><p><a href="orsf_control_fast.html">orsf_control_fast</a> (the default) uses a single iteration of Newton
+<dd><p>(<em>orsf_control</em>) An object returned from one of the
+<code>orsf_control</code> functions:</p><ul><li><p><a href="orsf_control_fast.html">orsf_control_fast</a> (the default) uses a single iteration of Newton
 Raphson scoring to identify a linear combination of predictors.</p></li>
 <li><p><a href="orsf_control_cph.html">orsf_control_cph</a> uses Newton Raphson scoring until a convergence
 criteria is met.</p></li>
@@ -142,13 +141,12 @@ a node in decision trees. Default is <code>n_split = 5</code>.</p></dd>
 <dd><p>(<em>integer</em>) when a node can be split, but the current
 linear combination of inputs is unable to provide a valid split, <code>orsf</code>
 will try again with a new linear combination based on a different set
-of randomly selected predictors, up to <code>n_retry</code> pred_horizon. When
-<code>n_retry = 0</code> the retry mechanic is not applied.
-Default is <code>n_retry = 3</code>.</p></dd>
+of randomly selected predictors, up to <code>n_retry</code> times. Default is
+<code>n_retry = 3</code>. Set <code>n_retry = 0</code> to prevent any retries.</p></dd>
 
 
 <dt>mtry</dt>
-<dd><p>(<em>integer</em>) Number of predictors randomly selected as candidates
+<dd><p>(<em>integer</em>) Number of predictors randomly included as candidates
 for splitting a node. The default is the smallest integer greater than
 the square root of the number of total predictors, i.e.,
 <code>mtry = ceiling(sqrt(number of predictors))</code></p></dd>
@@ -196,19 +194,16 @@ of the observed times, i.e., <code>oobag_pred_horizon = median(time)</code>.</p>
 ensemble will be checked every <code>oobag_eval_every</code> trees. So, if
 <code>oobag_eval_every = 10</code>, then out-of-bag performance is checked
 after growing the 10th tree, the 20th tree, and so on. Default
-is <code>oobag_eval_every = n_tree</code>, so that out-of-bag performance is
-assessed once after growing all the trees.</p></dd>
+is <code>oobag_eval_every = n_tree</code>.</p></dd>
 
 
 <dt>oobag_fun</dt>
-<dd><p>(<em>function</em>) to be used for evaluating out-of-bag prediction accuracy every <code>oobag_eval_every</code> trees.</p><ul><li><p>When <code>oobag_fun = NULL</code> (the default), Harrell's C-statistic (1982) is used to evaluate accuracy.</p></li>
-<li><p>if you use your own <code>oobag_fun</code> note the following:</p><ul><li><p><code>oobag_fun</code> should have two inputs: <code>y_mat</code> and <code>s_vec</code></p></li>
+<dd><p>(<em>function</em>) to be used for evaluating out-of-bag prediction accuracy every <code>oobag_eval_every</code>
+trees. When <code>oobag_fun = NULL</code> (the default), Harrell's C-statistic (1982) is used to evaluate accuracy. if you use your own <code>oobag_fun</code> note the following:</p><ul><li><p><code>oobag_fun</code> should have two inputs: <code>y_mat</code> and <code>s_vec</code></p></li>
 <li><p><code>y_mat</code> is a two column matrix with first column named 'time', second named 'status'</p></li>
 <li><p><code>s_vec</code> is a numeric vector containing predicted survival probabilities.</p></li>
-<li><p><code>oobag_fun</code> should return a numeric output of length 1
-For more details, see the out-of-bag <a href="https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions">vignette</a>.</p></li>
-</ul></li>
-</ul></dd>
+<li><p><code>oobag_fun</code> should return a numeric output of length 1</p></li>
+</ul><p>For more details, see the out-of-bag <a href="https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions">vignette</a>.</p></dd>
 
 
 <dt>importance</dt>
@@ -220,33 +215,29 @@ For more details, see the out-of-bag <a href="https://bcjaeger.github.io/aorsf/a
 
 
 <dt>tree_seeds</dt>
-<dd><p>(<em>integer vector</em>) if specified, random seeds will be set
-using the values in <code>tree_seeds[i]</code>  before growing tree i. Two forests
-grown with the same number of trees and the same seeds will have the exact
-same out-of-bag samples and, in many cases, the same random sets of
-candidate predictors. This design makes comparisons of out-of-bag error
-between two random forests more meaningful, since the out-of-bag
-performance of a random forest depends somewhat on the observations
-picked in out-of-bag samples. If <code>tree_seeds</code> is <code>NULL</code> (the default),
+<dd><p>(<em>integer vector</em>) Optional. if specified, random seeds
+will be set using the values in <code>tree_seeds[i]</code>  before growing tree <code>i</code>.
+Two forests grown with the same number of trees and the same seeds will
+have the exact same out-of-bag samples, making out-of-bag error
+estimates of the forests more comparable. If <code>NULL</code> (the default),
 no seeds are set during the training process.</p></dd>
 
 
 <dt>attach_data</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, a copy of the training
 data will be attached to the output. This is helpful if you
-plan on using functions like <a href="orsf_pd_summary.html">orsf_pd_summary</a> to interpret the fitted
-forest using its training data. Default is <code>TRUE</code>.</p></dd>
+plan on using functions like <a href="orsf_pd_summary.html">orsf_pd_summary</a> or <a href="orsf_summarize_uni.html">orsf_summarize_uni</a>
+to interpret the forest using its training data. Default is <code>TRUE</code>.</p></dd>
 
 
 <dt>no_fit</dt>
-<dd><p>(<em>logical</em>) if <code>TRUE</code>, pre-processing steps are defined and
-parametrized, but training is not initiated. The object returned can be
+<dd><p>(<em>logical</em>) if <code>TRUE</code>, model fitting steps are defined and
+saved, but training is not initiated. The object returned can be
 directly submitted to <code>orsf_train()</code> so long as <code>attach_data</code> is <code>TRUE</code>.</p></dd>
 
 
 <dt>...</dt>
-<dd><p>Further arguments passed to or from other methods
-(not currently used).</p></dd>
+<dd><p>Further arguments passed to or from other methods (not currently used).</p></dd>
 
 
 <dt>object</dt>
@@ -355,14 +346,7 @@ data that were not used to train it, i.e., testing data.</p>
 
 <p>Data passed to aorsf functions are not allowed to have missing values.
 A user should impute missing values using an R package with that purpose,
-such as <code>recipes</code> or <code>mlr3pipelines</code>. Other software such as <code>xgboost</code> send
-data with missing values down a decision tree based on whichever direction
-minimizes a specified error function. While this technique is very effective
-for axis-based decision trees, it is not clear how it should be applied in
-the case of oblique decision trees. For example, what should be done if
-three variables were used to split a node and one of these three variable
-has a missing value? In this case, mean imputation of the missing variable
-may be the best option.</p>
+such as <code>recipes</code> or <code>mlr3pipelines</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -383,7 +367,7 @@ may be the best option.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---------- Oblique random survival forest</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                ORSF type: Accelerated</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      Linear combinations: Accelerated</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           N observations: 276</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 N events: 111</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  N trees: 500</span>
@@ -410,16 +394,16 @@ may be the best option.</p>
 <span class="r-in"><span><span class="co"># is assessed every 50 trees (50, 100, ..., 500)</span></span></span>
 <span class="r-in"><span><span class="va">fit_custom</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>            [,1]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8418941</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.8425193</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.8401229</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.8404355</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.8367368</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.8396541</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.8401229</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.8399667</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.8385080</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.8381434</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.8209002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.8216295</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.8328298</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.8386643</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.8410085</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.8409044</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.8406439</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.8384038</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.8404355</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.8390290</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># make your own oobag function:</span></span></span>
 <span class="r-in"><span><span class="co"># (this is an R implementation of Harrell's C</span></span></span>

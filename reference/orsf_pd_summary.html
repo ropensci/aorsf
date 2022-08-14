@@ -91,7 +91,8 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>object</dt>
-<dd><p>(<em>aorsf</em>) an oblique random survival forest (ORSF; see <a href="orsf.html">orsf</a>).</p></dd>
+<dd><p>(<em>orsf_fit</em>) a trained oblique random survival forest
+(see <a href="orsf.html">orsf</a>).</p></dd>
 
 
 <dt>pd_data</dt>
@@ -114,9 +115,10 @@ partial dependence will be computed using the inputs on each row.</p></li>
 
 
 <dt>pred_horizon</dt>
-<dd><p>(<em>double</em>) a single time or a vector of times
-indicating the time(s) that predicted risk or survival probabilities
-will be computed at.</p></dd>
+<dd><p>(<em>double</em>) a value or vector indicating the time(s)
+that predictions will be calibrated to. E.g., if you were predicting
+risk of incident heart failure within the next 10 years, then
+<code>pred_horizon = 10</code></p></dd>
 
 
 <dt>pred_type</dt>
@@ -164,18 +166,15 @@ skipped.</p></dd>
 
 
 <dt>...</dt>
-<dd><p>Further arguments passed to or from other methods
-(not currently used).</p></dd>
+<dd><p>Further arguments passed to or from other methods (not currently used).</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<ul><li><p><code>orsf_pd_summary</code>: a <code>data.table</code> containing summarized partial
-dependence values.</p></li>
-<li><p><code>orsf_pd_ice</code>: a <code>data.table</code> with individual conditional
-expectations (ICE).</p></li>
+<p>a <code>data.table</code> containing</p><ul><li><p><code>orsf_pd_ice</code>: individual conditional expectation (ICE) values.</p></li>
+<li><p><code>orsf_pd_summary</code>: summarized ICE values (i.e., partial dependence).</p></li>
 </ul></div>
 
     <div class="section level2">

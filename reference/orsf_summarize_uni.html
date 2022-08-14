@@ -74,7 +74,8 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>object</dt>
-<dd><p>(<em>aorsf</em>) an oblique random survival forest (ORSF; see <a href="orsf.html">orsf</a>).</p></dd>
+<dd><p>(<em>orsf_fit</em>) a trained oblique random survival forest
+(see <a href="orsf.html">orsf</a>).</p></dd>
 
 
 <dt>n_variables</dt>
@@ -83,9 +84,10 @@ Setting this input to a lower number will reduce computation time.</p></dd>
 
 
 <dt>pred_horizon</dt>
-<dd><p>(<em>double</em>) a single time or a vector of times
-indicating the time(s) that predicted risk or survival probabilities
-will be computed at.</p></dd>
+<dd><p>(<em>double</em>) a value or vector indicating the time(s)
+that predictions will be calibrated to. E.g., if you were predicting
+risk of incident heart failure within the next 10 years, then
+<code>pred_horizon = 10</code></p></dd>
 
 
 <dt>pred_type</dt>
@@ -104,15 +106,14 @@ options are</p><ul><li><p>'risk' : probability of having an event at or before <
 
 
 <dt>...</dt>
-<dd><p>Further arguments passed to or from other methods
-(not currently used).</p></dd>
+<dd><p>Further arguments passed to or from other methods (not currently used).</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>an object of class 'aorsf_summary', which includes data on</p><ul><li><p>importance of individual predictors.</p></li>
+<p>an object of class 'orsf_summary', which includes data on</p><ul><li><p>importance of individual predictors.</p></li>
 <li><p>expected values of predictions at specific values of predictors.</p></li>
 </ul></div>
     <div class="section level2">

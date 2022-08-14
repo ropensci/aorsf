@@ -76,7 +76,8 @@ survival forests.</p>
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>object</dt>
-<dd><p>(<em>aorsf</em>) an oblique random survival forest (ORSF; see <a href="orsf.html">orsf</a>).</p></dd>
+<dd><p>(<em>orsf_fit</em>) a trained oblique random survival forest
+(see <a href="orsf.html">orsf</a>).</p></dd>
 
 
 <dt>group_factors</dt>
@@ -87,8 +88,7 @@ individual factor levels will be returned.</p></dd>
 
 
 <dt>importance</dt>
-<dd><p>(<em>character</em>) Indicate method for variable importance:</p><ul><li><p>'none': no variable importance is computed.</p></li>
-<li><p>'anova': compute analysis of variance (ANOVA) importance</p></li>
+<dd><p>(<em>character</em>) Indicate method for variable importance:</p><ul><li><p>'anova': compute analysis of variance (ANOVA) importance</p></li>
 <li><p>'negate': compute negation importance</p></li>
 <li><p>'permute': compute permutation importance</p></li>
 </ul></dd>
@@ -112,8 +112,7 @@ importance is estimated.</p></li>
 
 
 <dt>...</dt>
-<dd><p>Further arguments passed to or from other methods
-(not currently used).</p></dd>
+<dd><p>Further arguments passed to or from other methods (not currently used).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -127,13 +126,13 @@ values indicating higher importance.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>When an <code>aorsf</code> object is fitted with importance = 'anova', 'negate', or
+    <p>When an <code>orsf_fit</code> object is fitted with importance = 'anova', 'negate', or
 'permute', the output will have a vector of importance values based on
 the requested type of importance. However, you may still want to call
 <code>orsf_vi()</code> on this output if you want to group factor levels into one
 overall importance value.</p>
 <p><code>orsf_vi()</code> is a general purpose function to extract or compute variable
-importance estimates from an <code>aorsf</code> object (see <a href="orsf.html">orsf</a>).
+importance estimates from an <code>'orsf_fit'</code> object (see <a href="orsf.html">orsf</a>).
 <code>orsf_vi_negate()</code>, <code>orsf_vi_permute()</code>, and <code>orsf_vi_anova()</code> are wrappers
 for <code>orsf_vi()</code>. The way these functions work depends on whether the
 <code>object</code> they are given already has variable importance estimates in it
@@ -164,7 +163,7 @@ the proportion of times a p-value for its coefficient is &lt; 0.01.</p>
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. Evaluating the Yield of Medical Tests. <em>JAMA</em> 1982; 247(18):2543-2546. DOI: 10.1001/jama.1982.03320430047030</p>
 <p>Breiman L. Random forests. <em>Machine learning</em> 2001 Oct; 45(1):5-32. DOI: 10.1023/A:1010933404324</p>
-<p>Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. Joint European Conference on Machine Learning and Knowledge Discovery in Databases. <em>JAMA</em> 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29</p>
+<p>Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. <em>Joint European Conference on Machine Learning and Knowledge Discovery in Databases</em> 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29</p>
 <p>Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. <em>arXiv e-prints</em> 2022 Aug; arXiv-2208. URL: https://arxiv.org/abs/2208.01129</p>
     </div>
 
@@ -173,7 +172,7 @@ the proportion of times a p-value for its coefficient is &lt; 0.01.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># first example ----------------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># fit an aorsf object using default values, and get the default vi (anova)</span></span></span>
+<span class="r-in"><span><span class="co"># fit an ORSF using default values, and get the default vi (anova)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">fit_default</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>,</span></span>
 <span class="r-in"><span>                    <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span></span>
@@ -183,7 +182,7 @@ the proportion of times a p-value for its coefficient is &lt; 0.01.</p>
 <span class="r-in"><span><span class="va">fit_default</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---------- Oblique random survival forest</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                ORSF type: Accelerated</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      Linear combinations: Accelerated</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           N observations: 276</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                 N events: 111</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                  N trees: 500</span>
@@ -238,7 +237,7 @@ the proportion of times a p-value for its coefficient is &lt; 0.01.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># second example ---------------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># fit an aorsf object without vi, then add vi later</span></span></span>
+<span class="r-in"><span><span class="co"># fit an ORSF without vi, then add vi later</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">fit_no_vi</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>,</span></span>
 <span class="r-in"><span>                  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span></span>
@@ -269,7 +268,7 @@ the proportion of times a p-value for its coefficient is &lt; 0.01.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># third example ----------------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># fit an aorsf object and compute vi at the same time</span></span></span>
+<span class="r-in"><span><span class="co"># fit an ORSF and compute vi at the same time</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">fit_permute_vi</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>,</span></span>
 <span class="r-in"><span>                       <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span></span>

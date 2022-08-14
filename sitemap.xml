@@ -37,7 +37,7 @@
     <loc>https://bcjaeger.github.io/aorsf/reference/aorsf-package.html</loc>
   </url>
   <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/as.data.table.aorsf_summary_uni.html</loc>
+    <loc>https://bcjaeger.github.io/aorsf/reference/as.data.table.orsf_summary_uni.html</loc>
   </url>
   <url>
     <loc>https://bcjaeger.github.io/aorsf/reference/index.html</loc>
@@ -76,12 +76,12 @@
     <loc>https://bcjaeger.github.io/aorsf/reference/pbc_orsf.html</loc>
   </url>
   <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/predict.aorsf.html</loc>
+    <loc>https://bcjaeger.github.io/aorsf/reference/predict.orsf_fit.html</loc>
   </url>
   <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/print.aorsf.html</loc>
+    <loc>https://bcjaeger.github.io/aorsf/reference/print.orsf_fit.html</loc>
   </url>
   <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/print.aorsf_summary_uni.html</loc>
+    <loc>https://bcjaeger.github.io/aorsf/reference/print.orsf_summary_uni.html</loc>
   </url>
 </urlset>
