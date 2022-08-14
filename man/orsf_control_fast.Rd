@@ -28,8 +28,8 @@ an input for the \code{control} argument of \link{orsf}.
 Accelerated ORSF control
 }
 \details{
-For more details on of Newton-Raphson scoring and the Cox proportional
-hazards model, see Therneau and Grambsch (2000).
+code from the  \href{https://github.com/therneau/survival/blob/master/src/coxfit6.c}{survival package}
+was modified to make this routine.
 
 Adjust \code{do_scale} \emph{at your own risk}. Setting \code{do_scale = FALSE} will
 reduce computation time but will also make the \code{orsf} model dependent
@@ -43,11 +43,6 @@ orsf(data = pbc_orsf,
      formula = Surv(time, status) ~ . - id,
      control = orsf_control_fast())
 
-}
-\references{
-Therneau T.M., Grambsch P.M. (2000) The Cox Model. In: Modeling Survival
-Data: Extending the Cox Model. Statistics for Biology and Health.
-Springer, New York, NY. DOI: 10.1007/978-1-4757-3294-8_3
 }
 \seealso{
 linear combination control functions

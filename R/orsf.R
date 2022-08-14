@@ -36,8 +36,7 @@
 #' @srrstats {ML6.1a} *Embed aorsf within a full workflow using tidymodels, tidyverse, and survivalROC.*
 #' @srrstats {ML5.2b} *Documentation includes examples of how to save and re-load trained model objects for their re-use.*
 #'
-#' @param data (_data.frame_, [tibble][tibble::tibble-package], or
-#'  [data.table][data.table::data.table-package]) that contains the
+#' @param data a `r roxy_data_allowed()` that contains the
 #'  relevant variables.
 #'
 #' @param formula (_formula_) The response on the left hand side should
@@ -79,8 +78,8 @@
 #' @param n_retry (_integer_) when a node can be split, but the current
 #'  linear combination of inputs is unable to provide a valid split, `orsf`
 #'  will try again with a new linear combination based on a different set
-#'  of randomly selected predictors, up to `n_retry` times. When
-#'  `n_retry = 0` no retries are allowed. Default is `n_retry = 3`.
+#'  of randomly selected predictors, up to `n_retry` times. Default is
+#'  `n_retry = 3`. Set `n_retry = 0` to prevent any retries.
 #'
 #' @param mtry (_integer_) Number of predictors randomly included as candidates
 #'   for splitting a node. The default is the smallest integer greater than
@@ -114,11 +113,10 @@
 #'   ensemble will be checked every `oobag_eval_every` trees. So, if
 #'   `oobag_eval_every = 10`, then out-of-bag performance is checked
 #'   after growing the 10th tree, the 20th tree, and so on. Default
-#'   is `oobag_eval_every = n_tree`, so that out-of-bag performance is
-#'   assessed once after growing all the trees.
+#'   is `oobag_eval_every = n_tree`.
 #'
 #' @param oobag_fun `r roxy_oobag_fun_header()` every `oobag_eval_every`
-#'  trees. `r roxy_oobag_fun_default()`. `r roxy_oobag_fun_user()`
+#'  trees. `r roxy_oobag_fun_default()` `r roxy_oobag_fun_user()`
 #'   - `r roxy_oobag_fun_inputs()`
 #'   - `r roxy_oobag_fun_ymat()`
 #'   - `r roxy_oobag_fun_svec()`
@@ -251,14 +249,7 @@
 #'
 #' Data passed to aorsf functions are not allowed to have missing values.
 #'   A user should impute missing values using an R package with that purpose,
-#'   such as `recipes` or `mlr3pipelines`. Other software such as `xgboost` send
-#'   data with missing values down a decision tree based on whichever direction
-#'   minimizes a specified error function. While this technique is very effective
-#'   for axis-based decision trees, it is not clear how it should be applied in
-#'   the case of oblique decision trees. For example, what should be done if
-#'   three variables were used to split a node and one of these three variable
-#'   has a missing value? In this case, mean imputation of the missing variable
-#'   may be the best option.
+#'   such as `recipes` or `mlr3pipelines`.
 #'
 #' @references
 #'

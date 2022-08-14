@@ -2,7 +2,21 @@
 
 
 
-#' ORSF presentation
+#' Inspect your ORSF model
+#'
+#' Printing an ORSF model tells you:
+#' - Linear combinations: How were these identified?
+#' - N observations: Number of rows in training data
+#' - N events: Number of events in training data
+#' - N trees: Number of trees in the forest
+#' - N predictors total: Total number of columns in the predictor matrix
+#' - N predictors per node: Number of variables used in linear combinations
+#' - Average leaves per tree: A proxy for the depth of your trees
+#' - Min observations in leaf: See `leaf_min_obs` in [orsf]
+#' - Min events in leaf: See `leaf_min_events` in [orsf]
+#' - OOB stat value: Out-of-bag error after fitting all trees
+#' - OOB stat type: How was out-of-bag error computed?
+#' - Variable importance: How was variable importance computed?
 #'
 #' @srrstats {ML3.0d} *object returned by orsf() has a defined class with `print` method that summarises the model specification and other relevant parameters. The output also indicates whether the orsf oject was trained or not.*
 #'
@@ -14,7 +28,8 @@
 #'
 #' @param ... `r roxy_dots()`
 #'
-#' @return nothing - just print output to console
+#' @return `x`, invisibly.
+#'
 #' @export
 #'
 #' @examples
@@ -65,7 +80,7 @@ print.orsf_fit <- function(x, ...){
  }
 
  cat(header,
-     paste0('               ORSF type: ', info_type            ),
+     paste0('     Linear combinations: ', info_type            ),
      paste0('          N observations: ', info_n_obs           ),
      paste0('                N events: ', info_n_events        ),
      paste0('                 N trees: ', info_n_tree          ),

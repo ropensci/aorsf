@@ -33,8 +33,7 @@ orsf(
 orsf_train(object)
 }
 \arguments{
-\item{data}{(\emph{data.frame}, \link[tibble:tibble-package]{tibble}, or
-\link[data.table:data.table]{data.table}) that contains the
+\item{data}{a \link{data.frame}, \link[tibble:tibble-package]{tibble}, or \link[data.table:data.table]{data.table} that contains the
 relevant variables.}
 
 \item{formula}{(\emph{formula}) The response on the left hand side should
@@ -74,8 +73,8 @@ a node in decision trees. Default is \code{n_split = 5}.}
 \item{n_retry}{(\emph{integer}) when a node can be split, but the current
 linear combination of inputs is unable to provide a valid split, \code{orsf}
 will try again with a new linear combination based on a different set
-of randomly selected predictors, up to \code{n_retry} times. When
-\code{n_retry = 0} no retries are allowed. Default is \code{n_retry = 3}.}
+of randomly selected predictors, up to \code{n_retry} times. Default is
+\code{n_retry = 3}. Set \code{n_retry = 0} to prevent any retries.}
 
 \item{mtry}{(\emph{integer}) Number of predictors randomly included as candidates
 for splitting a node. The default is the smallest integer greater than
@@ -109,11 +108,10 @@ of the observed times, i.e., \code{oobag_pred_horizon = median(time)}.}
 ensemble will be checked every \code{oobag_eval_every} trees. So, if
 \code{oobag_eval_every = 10}, then out-of-bag performance is checked
 after growing the 10th tree, the 20th tree, and so on. Default
-is \code{oobag_eval_every = n_tree}, so that out-of-bag performance is
-assessed once after growing all the trees.}
+is \code{oobag_eval_every = n_tree}.}
 
 \item{oobag_fun}{(\emph{function}) to be used for evaluating out-of-bag prediction accuracy every \code{oobag_eval_every}
-trees. When \code{oobag_fun = NULL} (the default), Harrell's C-statistic (1982) is used to evaluate accuracy.. if you use your own \code{oobag_fun} note the following:
+trees. When \code{oobag_fun = NULL} (the default), Harrell's C-statistic (1982) is used to evaluate accuracy. if you use your own \code{oobag_fun} note the following:
 \itemize{
 \item \code{oobag_fun} should have two inputs: \code{y_mat} and \code{s_vec}
 \item \code{y_mat} is a two column matrix with first column named 'time', second named 'status'
@@ -257,14 +255,7 @@ data that were not used to train it, i.e., testing data.
 
 Data passed to aorsf functions are not allowed to have missing values.
 A user should impute missing values using an R package with that purpose,
-such as \code{recipes} or \code{mlr3pipelines}. Other software such as \code{xgboost} send
-data with missing values down a decision tree based on whichever direction
-minimizes a specified error function. While this technique is very effective
-for axis-based decision trees, it is not clear how it should be applied in
-the case of oblique decision trees. For example, what should be done if
-three variables were used to split a node and one of these three variable
-has a missing value? In this case, mean imputation of the missing variable
-may be the best option.
+such as \code{recipes} or \code{mlr3pipelines}.
 }
 
 \examples{

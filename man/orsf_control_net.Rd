@@ -2,20 +2,17 @@
 % Please edit documentation in R/orsf_control.R
 \name{orsf_control_net}
 \alias{orsf_control_net}
-\title{Elastic net control}
+\title{Penalized Cox regression ORSF control}
 \usage{
 orsf_control_net(alpha = 1/2, df_target = NULL, ...)
 }
 \arguments{
-\item{alpha}{The elastic net mixing parameter. A value of 1 gives the
+\item{alpha}{(\emph{double}) The elastic net mixing parameter. A value of 1 gives the
 lasso penalty, and a value of 0 gives the ridge penalty. If multiple
 values of alpha are given, then a penalized model is fit using each
 alpha value prior to splitting a node.}
 
-\item{df_target}{Preferred number of variables used in a linear combination.
-Note: this has to be less than \code{mtry}, which is a separate argument in
-\link{orsf} that indicates the number of variables chosen at random prior to
-finding a linear combination of those variables.}
+\item{df_target}{(\emph{integer}) Preferred number of variables used in a linear combination.}
 
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 }
@@ -24,7 +21,12 @@ an object of class \code{'orsf_control'}, which should be used as
 an input for the \code{control} argument of \link{orsf}.
 }
 \description{
-Elastic net control
+Penalized Cox regression ORSF control
+}
+\details{
+\code{df_target} has to be less than \code{mtry}, which is a separate argument in
+\link{orsf} that indicates the number of variables chosen at random prior to
+finding a linear combination of those variables.
 }
 \examples{
 
@@ -38,7 +40,7 @@ orsf(data = pbc_orsf,
      control = orsf_control_net())
 }
 \references{
-Simon N, Friedman J, Hastie T, Tibshirani R. Regularization paths for Cox’s proportional hazards model via coordinate descent. \emph{Journal of statistical software}. 2011 Mar;39(5):1. DOI: 10.18637/jss.v039.i05
+Simon N, Friedman J, Hastie T, Tibshirani R. Regularization paths for Cox's proportional hazards model via coordinate descent. \emph{Journal of statistical software} 2011 Mar; 39(5):1. DOI: 10.18637/jss.v039.i05
 }
 \seealso{
 linear combination control functions

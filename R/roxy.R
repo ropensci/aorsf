@@ -1,4 +1,17 @@
 
+# data allowed ------------------------------------------------------------
+
+roxy_data_allowed <- function(){
+ paste_collapse(
+  x = c(
+   "[data.frame]",
+   "[tibble][tibble::tibble-package]",
+   "[data.table][data.table::data.table-package]"
+  ),
+  sep = ', ',
+  last = ' or '
+ )
+}
 
 # importance --------------------------------------------------------------
 
@@ -154,11 +167,24 @@ roxy_cite_menze_2011 <- function(){
 
  roxy_cite(
   authors = "Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA",
-  title = "Joint European Conference on Machine Learning and Knowledge Discovery in Databases",
-  journal = "JAMA",
+  title = "On oblique random forests",
+  journal = "Joint European Conference on Machine Learning and Knowledge Discovery in Databases",
   date = "2011 Sep 4",
   number = 'pp. 453-469',
   doi = "10.1007/978-3-642-23783-6_29"
+ )
+
+}
+
+roxy_cite_simon_2011 <- function(){
+
+ roxy_cite(
+  authors = "Simon N, Friedman J, Hastie T, Tibshirani R",
+  title = "Regularization paths for Cox's proportional hazards model via coordinate descent",
+  journal = "Journal of statistical software",
+  date = "2011 Mar",
+  number = '39(5):1',
+  doi = "10.18637/jss.v039.i05"
  )
 
 }

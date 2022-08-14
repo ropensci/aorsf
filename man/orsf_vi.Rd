@@ -16,7 +16,8 @@ orsf_vi_permute(object, group_factors = TRUE, oobag_fun = NULL, ...)
 orsf_vi_anova(object, group_factors = TRUE, ...)
 }
 \arguments{
-\item{object}{(\emph{orsf_fit}) an oblique random survival forest (ORSF; see \link{orsf}).}
+\item{object}{(\emph{orsf_fit}) a trained oblique random survival forest
+(see \link{orsf}).}
 
 \item{group_factors}{(\emph{logical}) if \code{TRUE}, the importance of factor
 variables will be reported overall by aggregating the importance
@@ -174,7 +175,7 @@ Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. Evaluating the Yield of Medi
 
 Breiman L. Random forests. \emph{Machine learning} 2001 Oct; 45(1):5-32. DOI: 10.1023/A:1010933404324
 
-Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. Joint European Conference on Machine Learning and Knowledge Discovery in Databases. \emph{JAMA} 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29
+Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. \emph{Joint European Conference on Machine Learning and Knowledge Discovery in Databases} 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29
 
 Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{arXiv e-prints} 2022 Aug; arXiv-2208. URL: https://arxiv.org/abs/2208.01129
 }

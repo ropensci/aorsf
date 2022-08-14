@@ -2,7 +2,7 @@
 % Please edit documentation in R/orsf_control.R
 \name{orsf_control_custom}
 \alias{orsf_control_custom}
-\title{Custom control of oblique decision trees}
+\title{Custom ORSF control}
 \usage{
 orsf_control_custom(beta_fun, ...)
 }
@@ -28,7 +28,7 @@ an object of class \code{'orsf_control'}, which should be used as
 an input for the \code{control} argument of \link{orsf}.
 }
 \description{
-Custom control of oblique decision trees
+Custom ORSF control
 }
 \examples{
 

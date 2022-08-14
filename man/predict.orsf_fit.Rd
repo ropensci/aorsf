@@ -2,21 +2,21 @@
 % Please edit documentation in R/orsf_predict.R
 \name{predict.orsf_fit}
 \alias{predict.orsf_fit}
-\title{Predict using oblique random survival forest}
+\title{Compute predictions using ORSF}
 \usage{
 \method{predict}{orsf_fit}(object, new_data, pred_horizon, pred_type = "risk", ...)
 }
 \arguments{
-\item{object}{(\emph{orsf_fit}) an oblique random survival forest (ORSF; see \link{orsf}).}
+\item{object}{(\emph{orsf_fit}) a trained oblique random survival forest
+(see \link{orsf}).}
 
-\item{new_data}{(\emph{data.frame}) data to compute predictions for. Must have
-the same columns with equivalent types as the data used to train \code{object}.
-Also, factors in \code{new_data} must not have levels that were not in the
-data used to train \code{object}. Last, missing data are not supported.}
+\item{new_data}{a \link{data.frame}, \link[tibble:tibble-package]{tibble}, or \link[data.table:data.table]{data.table} to compute predictions in.
+Missing data are not currently allowed}
 
-\item{pred_horizon}{(\emph{double}) a single time or a vector of times
-indicating the time(s) that predicted risk or survival probabilities
-will be computed at.}
+\item{pred_horizon}{(\emph{double}) a value or vector indicating the time(s)
+that predictions will be calibrated to. E.g., if you were predicting
+risk of incident heart failure within the next 10 years, then
+\code{pred_horizon = 10}}
 
 \item{pred_type}{(\emph{character}) the type of predictions to return. Valid
 options are
@@ -33,9 +33,14 @@ to value \code{j} in \code{pred_horizon}. Row \code{i} of the matrix corresponds
 row \code{i} in \code{new_data}.
 }
 \description{
-Predict using oblique random survival forest
+Predicted risk or survival (someday also hazard or mortality)
+from an ORSF model.
 }
 \details{
+\code{new_data} must have the same columns with equivalent types as the data
+used to train \code{object}. Also, factors in \code{new_data} must not have levels
+that were not in the data used to train \code{object}.
+
 \code{pred_horizon} values must not exceed the maximum follow-up time in
 \code{object}'s training data. Also, \code{pred_horizon} values must be entered
 in ascending order.

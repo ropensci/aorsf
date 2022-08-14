@@ -15,7 +15,27 @@ aorsf = orsf(formula = time + status  ~ . - id,
 
 new_data <- pbc_orsf[-train, ]
 
+new_data_dt <- as.data.table(new_data)
+new_data_tbl <- tibble::as_tibble(new_data)
+
 p1 <- predict(aorsf, new_data = new_data, pred_horizon = 1000)
+
+
+test_that(
+ desc = 'predictions computed for tibbles, and data.tables',
+ code = {
+
+  p1_dt <- predict(aorsf, new_data = new_data_dt, pred_horizon = 1000)
+  p1_tbl <- predict(aorsf, new_data = new_data_tbl, pred_horizon = 1000)
+
+  expect_equal(p1, p1_dt)
+  expect_equal(p1, p1_tbl)
+
+ }
+
+)
+
+
 p2 <- predict(aorsf, new_data = new_data, pred_horizon = 2000)
 
 p_multi <- predict(aorsf, new_data = new_data, pred_horizon = c(1000, 2000))

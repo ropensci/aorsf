@@ -2,7 +2,7 @@
 % Please edit documentation in R/orsf_control.R
 \name{orsf_control_cph}
 \alias{orsf_control_cph}
-\title{Cox proportional hazards ORSF control}
+\title{Cox regression ORSF control}
 \usage{
 orsf_control_cph(method = "efron", eps = 1e-09, iter_max = 20, ...)
 }
@@ -21,8 +21,7 @@ until the relative change in  the log partial likelihood is less than
 A default value of 1e-09 is used for consistency with
 \link[survival:coxph.control]{survival::coxph.control}.}
 
-\item{iter_max}{(\emph{integer}) When using Newton Raphson scoring to identify
-linear combinations of inputs, iteration continues until convergence
+\item{iter_max}{(\emph{integer}) iteration continues until convergence
 (see \code{eps} above) or the number of attempted iterations is equal to
 \code{iter_max}.}
 
@@ -38,8 +37,8 @@ to create linear combinations of predictor variables
 while fitting an \link{orsf} model.
 }
 \details{
-For more details on of Newton-Raphson scoring and the Cox proportional
-hazards model, see Therneau and Grambsch (2000).
+For more details on the Cox proportional hazards model, see
+\link[survival:coxph]{coxph} and/or Therneau and Grambsch (2000).
 }
 \examples{
 

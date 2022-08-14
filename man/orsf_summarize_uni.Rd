@@ -14,14 +14,16 @@ orsf_summarize_uni(
 )
 }
 \arguments{
-\item{object}{(\emph{orsf_fit}) an oblique random survival forest (ORSF; see \link{orsf}).}
+\item{object}{(\emph{orsf_fit}) a trained oblique random survival forest
+(see \link{orsf}).}
 
 \item{n_variables}{(\emph{integer}) how many variables should be summarized?
 Setting this input to a lower number will reduce computation time.}
 
-\item{pred_horizon}{(\emph{double}) a single time or a vector of times
-indicating the time(s) that predicted risk or survival probabilities
-will be computed at.}
+\item{pred_horizon}{(\emph{double}) a value or vector indicating the time(s)
+that predictions will be calibrated to. E.g., if you were predicting
+risk of incident heart failure within the next 10 years, then
+\code{pred_horizon = 10}}
 
 \item{pred_type}{(\emph{character}) the type of predictions to return. Valid
 options are

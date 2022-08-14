@@ -2,7 +2,7 @@
 % Please edit documentation in R/orsf_print.R
 \name{print.orsf_fit}
 \alias{print.orsf_fit}
-\title{ORSF presentation}
+\title{Inspect your ORSF model}
 \usage{
 \method{print}{orsf_fit}(x, ...)
 }
@@ -12,10 +12,24 @@
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 }
 \value{
-nothing - just print output to console
+\code{x}, invisibly.
 }
 \description{
-ORSF presentation
+Printing an ORSF model tells you:
+\itemize{
+\item Linear combinations: How were these identified?
+\item N observations: Number of rows in training data
+\item N events: Number of events in training data
+\item N trees: Number of trees in the forest
+\item N predictors total: Total number of columns in the predictor matrix
+\item N predictors per node: Number of variables used in linear combinations
+\item Average leaves per tree: A proxy for the depth of your trees
+\item Min observations in leaf: See \code{leaf_min_obs} in \link{orsf}
+\item Min events in leaf: See \code{leaf_min_events} in \link{orsf}
+\item OOB stat value: Out-of-bag error after fitting all trees
+\item OOB stat type: How was out-of-bag error computed?
+\item Variable importance: How was variable importance computed?
+}
 }
 \examples{
 

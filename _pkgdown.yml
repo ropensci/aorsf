@@ -18,23 +18,29 @@ articles:
   - oobag
 
 reference:
-- title: Fit oblique random survival forests (ORSFs)
-  desc: Fit ORSF models using cox proportional hazards regression or elastic net proportional hazards regression to identify linear combinations of input variables.
+- title: Oblique random survival forests (ORSFs)
+  desc: Fit, inspect, and apply ORSF models
 - contents:
   - matches("^orsf$")
-  - starts_with("orsf_control")
+  - matches("^print\\.orsf_fit$")
+  - matches("^predict\\.orsf_fit$")
   - matches("^orsf_time_to_train$")
-  - matches("^predict\\.aorsf$")
-  - matches("^print\\.aorsf$")
+- title: Control how your ORSF model works
+  desc: Choose how to identify linear combinations of predictors and set tuning parameters for your approach
+- contents:
+  - matches("^orsf_control_fast$")
+  - matches("^orsf_control_cph$")
+  - matches("^orsf_control_net$")
+  - matches("^orsf_control_custom$")
 - title: Interpret ORSFs
-  desc: Use data from linear combinations of inputs to determine the importance of individual variables, the degree of interaction between pairs of variables, or the expected prediction from an ORSF model at a given value of one or multiple variables.
+  desc: Estimate the importance of individual variables and the expected prediction from an ORSF model for specific predictor variables.
 - contents:
   - matches("^orsf_vi")
   - matches('^orsf_interaction$')
-  - starts_with("orsf_pd")
-  - starts_with("orsf_summarize")
-  - matches("^print\\.aorsf_summary")
-  - matches("^as\\.data\\.table\\.aorsf_summary")
+  - matches("^orsf_pd")
+  - matches("^orsf_summarize")
+  - matches("^print\\.orsf_summary")
+  - matches("^as\\.data\\.table\\.orsf_summary")
 - title: Example survival data
   desc: Datasets used in examples and vignettes.
 - contents:

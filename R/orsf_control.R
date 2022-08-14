@@ -37,8 +37,8 @@
 #'
 #' @details
 #'
-#'  For more details on of Newton-Raphson scoring and the Cox proportional
-#'  hazards model, see Therneau and Grambsch (2000).
+#'  code from the  [survival package](https://github.com/therneau/survival/blob/master/src/coxfit6.c)
+#'   was modified to make this routine.
 #'
 #' Adjust `do_scale` _at your own risk_. Setting `do_scale = FALSE` will
 #'  reduce computation time but will also make the `orsf` model dependent
@@ -46,11 +46,6 @@
 #'  would be a good idea to center and scale your predictors prior to running
 #'  `orsf()` if you plan on setting `do_scale = FALSE`.
 #'
-#' @references
-#'
-#' Therneau T.M., Grambsch P.M. (2000) The Cox Model. In: Modeling Survival
-#'   Data: Extending the Cox Model. Statistics for Biology and Health.
-#'   Springer, New York, NY. DOI: 10.1007/978-1-4757-3294-8_3
 #'
 #' @examples
 #'
@@ -78,8 +73,7 @@ orsf_control_fast <- function(method = 'efron',
 }
 
 
-#' Cox proportional hazards ORSF control
-#'
+#' Cox regression ORSF control
 #'
 #' Use the coefficients from a proportional hazards model
 #'  to create linear combinations of predictor variables
@@ -94,8 +88,7 @@ orsf_control_fast <- function(method = 'efron',
 #'   A default value of 1e-09 is used for consistency with
 #'   [survival::coxph.control].
 #'
-#' @param iter_max (_integer_) When using Newton Raphson scoring to identify
-#'   linear combinations of inputs, iteration continues until convergence
+#' @param iter_max (_integer_) iteration continues until convergence
 #'   (see `eps` above) or the number of attempted iterations is equal to
 #'   `iter_max`.
 #'
@@ -108,8 +101,11 @@ orsf_control_fast <- function(method = 'efron',
 #'
 #' @details
 #'
-#'  For more details on of Newton-Raphson scoring and the Cox proportional
-#'  hazards model, see Therneau and Grambsch (2000).
+#'  code from the  [survival package](https://github.com/therneau/survival/blob/master/src/coxfit6.c)
+#'   was modified to make this routine.
+#'
+#'  For more details on the Cox proportional hazards model, see
+#'  [coxph][survival::coxph] and/or Therneau and Grambsch (2000).
 #'
 #' @references
 #'
@@ -149,28 +145,31 @@ orsf_control_cph <- function(method = 'efron',
 
 }
 
-#' Elastic net control
+#' Penalized Cox regression ORSF control
 #'
 #' @srrstats {ML3.5a} *Specify regularization of the coxph model as the type of algorithm used to explore the search space*
 #'
 #' @srrstats {ML3.6b} *Use the loss function associated with the penalized coxph model instead of the Newton Raphson scoring algorithm (default).*
-
+#'
 #' Use regularized Cox proportional hazard models to identify linear
 #'   combinations of input variables while fitting an [orsf] model.
 #'
-#' @param alpha The elastic net mixing parameter. A value of 1 gives the
+#' @param alpha (_double_) The elastic net mixing parameter. A value of 1 gives the
 #'  lasso penalty, and a value of 0 gives the ridge penalty. If multiple
 #'  values of alpha are given, then a penalized model is fit using each
 #'  alpha value prior to splitting a node.
 #'
-#' @param df_target Preferred number of variables used in a linear combination.
-#'  Note: this has to be less than `mtry`, which is a separate argument in
-#'  [orsf] that indicates the number of variables chosen at random prior to
-#'  finding a linear combination of those variables.
+#' @param df_target (_integer_) Preferred number of variables used in a linear combination.
 #'
 #' @param ... `r roxy_dots()`
 #'
 #' @inherit orsf_control_cph return
+#'
+#' @details
+#'
+#' `df_target` has to be less than `mtry`, which is a separate argument in
+#'  [orsf] that indicates the number of variables chosen at random prior to
+#'  finding a linear combination of those variables.
 #'
 #' @export
 #'
@@ -178,7 +177,8 @@ orsf_control_cph <- function(method = 'efron',
 #'
 #' @references
 #'
-#'  Simon N, Friedman J, Hastie T, Tibshirani R. Regularization paths for Cox’s proportional hazards model via coordinate descent. *Journal of statistical software*. 2011 Mar;39(5):1. DOI: 10.18637/jss.v039.i05
+#' `r roxy_cite_simon_2011()`
+#'
 #'
 #'
 #' @examples
@@ -208,7 +208,7 @@ orsf_control_net <- function(alpha = 1/2,
 
 }
 
-#' Custom control of oblique decision trees
+#' Custom ORSF control
 #'
 #' @param beta_fun (_function_) a function to define coefficients used
 #'  in linear combinations of predictor variables. `beta_fun` must accept
