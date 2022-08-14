@@ -37,6 +37,9 @@ to create linear combinations of predictor variables
 while fitting an \link{orsf} model.
 }
 \details{
+code from the  \href{https://github.com/therneau/survival/blob/master/src/coxfit6.c}{survival package}
+was modified to make this routine.
+
 For more details on the Cox proportional hazards model, see
 \link[survival:coxph]{coxph} and/or Therneau and Grambsch (2000).
 }

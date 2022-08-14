@@ -30,27 +30,125 @@ an input for the \code{control} argument of \link{orsf}.
 \description{
 Custom ORSF control
 }
-\examples{
+\section{examples}{
+\subsection{Random coefficients}{
 
-# fit an oblique random survival forest using random coefficients to
-# generate linear combinations of predictor variables. First, define
-# a function that supplies the random coefficients:
+Want to fit extremely randomized oblique survival forests? Great! First,
+define a function that supplies the random coefficients:
 
-f <- function(x_node, y_node, w_node) { matrix(runif(ncol(x_node)), ncol=1) }
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{f_rando <- function(x_node, y_node, w_node)\{
+ matrix(runif(ncol(x_node)), ncol=1) 
+\}
+}\if{html}{\out{</div>}}
 
-# next, plug the function into orsf_control_custom(), which is in turn
-# passed into orsf():
+next, plug the function into orsf_control_custom(), which is in turn
+passed into orsf():
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(aorsf)
 
 fit_rando <- orsf(pbc_orsf,
-                  Surv(time, status) ~ .,
-                  control = orsf_control_custom(beta_fun = f),
+                  Surv(time, status) ~ . - id,
+                  control = orsf_control_custom(beta_fun = f_rando),
                   n_tree = 500)
 
-# last, check the out-of-bag performance.
-# it's surprising how well the random approach works.
+fit_rando
+}\if{html}{\out{</div>}}
 
-fit_rando$eval_oobag
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
+## 
+##      Linear combinations: Custom user function
+##           N observations: 276
+##                 N events: 111
+##                  N trees: 500
+##       N predictors total: 17
+##    N predictors per node: 5
+##  Average leaves per tree: 21
+## Min observations in leaf: 5
+##       Min events in leaf: 1
+##           OOB stat value: 0.79
+##            OOB stat type: Harrell's C-statistic
+##      Variable importance: anova
+## 
+## -----------------------------------------
+}\if{html}{\out{</div>}}
 }
+
+\subsection{Principal components}{
+
+Want to use principal component analysis to identify linear combinations
+of predictors? Follow the same steps as above, starting with the
+function to get coefficients:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# use the second principal component to split the node
+
+f_pca <- function(x_node, y_node, w_node) \{ 
+ stats::prcomp(x_node, rank. = 2)$rotation[, 2, drop = FALSE]
+\}
+}\if{html}{\out{</div>}}
+
+Then pass that function into \code{orsf_control_custom()}, which can be
+passed into \code{orsf()}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_pca <- orsf(pbc_orsf,
+                Surv(time, status) ~ . - id,
+                control = orsf_control_custom(beta_fun = f_pca),
+                n_tree = 500)
+}\if{html}{\out{</div>}}
+}
+
+\subsection{Evaluate}{
+
+How well do our two customized ORSFs do? Let’s compute their indices of
+prediction accuracy based on out-of-bag predictions:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(riskRegression)
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## riskRegression version 2022.03.22
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(survival)
+
+risk_preds <- list(rando = 1 - fit_rando$surv_oobag,
+                    pca = 1 - fit_pca$surv_oobag)
+
+sc <- Score(object = risk_preds, 
+            formula = Surv(time, status) ~ 1, 
+            data = pbc_orsf, 
+            summary = 'IPA',
+            times = fit_pca$pred_horizon)
+}\if{html}{\out{</div>}}
+
+The PCA ORSF does quite well!
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{sc$Brier
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## 
+## Results by model:
+## 
+##         model times  Brier  lower  upper    IPA
+##        <fctr> <num> <char> <char> <char> <char>
+## 1: Null model  1788 20.479 18.089 22.869  0.000
+## 2:      rando  1788 13.709 11.522 15.896 33.060
+## 3:        pca  1788 11.557  9.656 13.458 43.568
+## 
+## Results of model comparisons:
+## 
+##    times  model  reference delta.Brier   lower  upper            p
+##    <num> <fctr>     <fctr>      <char>  <char> <char>        <num>
+## 1:  1788  rando Null model      -6.770  -8.868 -4.673 2.494862e-10
+## 2:  1788    pca Null model      -8.922 -10.894 -6.950 7.463386e-19
+## 3:  1788    pca      rando      -2.152  -3.134 -1.169 1.768311e-05
+
+## 
+## NOTE: Values are multiplied by 100 and given in \%.
+
+## NOTE: The lower Brier the better, the higher IPA the better.
+}\if{html}{\out{</div>}}
+}
+}
+
 \seealso{
 linear combination control functions
 \code{\link{orsf_control_cph}()},
