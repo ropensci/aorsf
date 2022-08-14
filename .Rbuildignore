@@ -13,4 +13,4 @@
 ^codemeta\.json$
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
-^Rmd$
+Rmd

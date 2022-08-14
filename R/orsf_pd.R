@@ -6,19 +6,14 @@
 #' @srrstats {G2.1a} *explicit secondary documentation of expectations on data types of all vector inputs*
 #' @srrstats {G2.0a} *documenting length by indicating these inputs are vectors and that they must have the same length as the other.*
 #'
-#' Compute partial dependence using oblique random survival forests. A
-#'  [vignette](https://bcjaeger.github.io/aorsf/articles/pd.html)
-#'  covers the basics of partial dependence with extended examples.
+#' Compute partial dependence for an ORSF model.
+#' `r roxy_pd_explain()`
+#'
+#' `r roxy_pd_oob_explain('partial dependence')`
 #'
 #' @inheritParams predict.orsf_fit
 #'
-#' @param pd_data (_data frame_) that will be used to compute partial
-#'   dependence. If `NULL`, then the training data of `object` will be
-#'   used. If the training data were not attached to `object`
-#'   (see `attach_data` input in [orsf]), an error will be triggered.
-#'
-#'
-#' @param pd_spec (_named list_ or _data.frame_).
+#' @param pd_spec (*named list* or _data.frame_).
 #'
 #'  -  If `pd_spec` is a named list,
 #'   Each item in the list should be a vector of values that will be used as
@@ -48,11 +43,6 @@
 #'   value in `prob_values` should be labelled as in summarized outputs.
 #'   `prob_labels` should have the same length as `prob_values`.
 #'
-#' @param oobag (_logical_) if `TRUE`, then partial dependence will be
-#'   computed using the out of bag training data. You should set
-#'   `oobag = TRUE` if you are computing partial dependence using the
-#'   training data for `object`.
-#'
 #' @param boundary_checks (_logical_) if `TRUE`, `pd_spec` will be vetted
 #'  to make sure the requested values are between the 10th and 90th
 #'  percentile in the object's training data. If `FALSE`, these checks are
@@ -60,164 +50,139 @@
 #'
 #' @param ... `r roxy_dots()`
 #'
-#' @return a `data.table` containing
-#'  - `orsf_ice`: individual conditional expectation (ICE) values.
-#'  - `orsf_pd`: summarized ICE values (i.e., partial dependence).
+#' @return a [data.table][data.table::data.table-package] containing
+#'   partial dependence values for the specified variable(s) at the
+#'   specified prediction horizon(s).
+#'
+#' @includeRmd Rmd/orsf_pd_examples.Rmd
 #'
 #' @export
 #'
-#' @examples
 #'
-#' fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
-#'
-#' orsf_pd(fit, pd_spec = list(bili = c(1,2,3,4,5,6)), pred_horizon = 1000)
-#'
-#' # more points for a plot
-#' pd_spec <- list(bili = seq(1, 6, length.out = 20))
-#' data_ice <- orsf_ice(fit, pd_spec = pd_spec, pred_horizon = c(1000))
-#'
-#' head(data_ice)
-#'
-#' library(ggplot2)
-#'
-#' ggplot(data_ice) +
-#'  aes(x = bili, y = pred, group = id_row) +
-#'  geom_line(alpha = 0.4, color = 'grey') +
-#'  geom_smooth(aes(group = 1), color = 'black', se = FALSE) +
-#'  theme_bw() +
-#'  theme(panel.grid = element_blank())
-
-orsf_pd <- function(object,
-                            pd_data = NULL,
-                            pd_spec,
-                            pred_horizon = NULL,
-                            pred_type = 'risk',
-                            expand_grid = TRUE,
-                            prob_values = c(0.025, 0.50, 0.975),
-                            prob_labels = c('lwr', 'medn', 'upr'),
-                            oobag = TRUE,
-                            boundary_checks = TRUE,
-                            ...){
-
- check_dots(list(...), orsf_pd)
-
- if(length(pred_horizon) > 1){
-
-  out_list <- lapply(
-   X = pred_horizon,
-   FUN = function(.pred_horizon){
-    orsf_pd(
-     object          = object,
-     pd_data         = pd_data,
-     pd_spec         = pd_spec,
-     pred_horizon    = .pred_horizon,
-     pred_type       = pred_type,
-     expand_grid     = expand_grid,
-     prob_values     = prob_values,
-     prob_labels     = prob_labels,
-     oobag           = oobag,
-     boundary_checks = boundary_checks)
-   }
-  )
-
-  names(out_list) <- as.character(pred_horizon)
-
-  return(
-   rbindlist(l = out_list,
-             fill = TRUE,
-             idcol = 'pred_horizon')
-  )
-
- }
-
- check_pd_inputs(object      = object,
-                 expand_grid = expand_grid,
-                 prob_values = prob_values,
-                 prob_labels = prob_labels,
-                 oobag       = oobag)
-
- if(length(prob_values) != length(prob_labels)){
-  stop("prob_values and prob_labels must have the same length.",
-       call. = FALSE)
- }
-
- orsf_pd_(object          = object,
-          pd_data         = pd_data,
-          pd_spec         = pd_spec,
-          pred_horizon    = pred_horizon,
-          pred_type       = pred_type,
-          type_output     = 'smry',
-          type_input      = if(expand_grid) 'grid' else 'loop',
-          prob_values     = prob_values,
-          prob_labels     = prob_labels,
-          oobag           = oobag,
-          boundary_checks = boundary_checks)
-
-}
-
-#' @rdname orsf_pd
-#' @export
-orsf_ice <- function(object,
-                        pd_data = NULL,
+orsf_pd_oob <- function(object,
                         pd_spec,
                         pred_horizon = NULL,
                         pred_type = 'risk',
                         expand_grid = TRUE,
-                        oobag = TRUE,
+                        prob_values = c(0.025, 0.50, 0.975),
+                        prob_labels = c('lwr', 'medn', 'upr'),
                         boundary_checks = TRUE,
                         ...){
 
- check_dots(list(...), orsf_ice)
+ check_dots(list(...), orsf_pd_oob)
 
- if(length(pred_horizon) > 1){
+ orsf_pred_dependence(object = object,
+                      pd_spec = pd_spec,
+                      pd_data = NULL,
+                      pred_horizon = pred_horizon,
+                      pred_type = pred_type,
+                      expand_grid = expand_grid,
+                      prob_values = prob_values,
+                      prob_labels = prob_labels,
+                      boundary_checks = boundary_checks,
+                      oobag = TRUE,
+                      type_output = 'smry')
 
-  out_list <- lapply(
-   X = pred_horizon,
-   FUN = function(.pred_horizon){
-    orsf_ice(
-     object          = object,
-     pd_data         = pd_data,
-     pd_spec         = pd_spec,
-     pred_horizon    = .pred_horizon,
-     pred_type       = pred_type,
-     expand_grid     = expand_grid,
-     oobag           = oobag,
-     boundary_checks = boundary_checks
-    )
-   }
-  )
+}
 
-  names(out_list) <- as.character(pred_horizon)
+#' @rdname orsf_pd_oob
+#' @export
+orsf_pd_new <- function(object,
+                        pd_spec,
+                        new_data,
+                        pred_horizon = NULL,
+                        pred_type = 'risk',
+                        expand_grid = TRUE,
+                        prob_values = c(0.025, 0.50, 0.975),
+                        prob_labels = c('lwr', 'medn', 'upr'),
+                        boundary_checks = TRUE,
+                        ...){
 
-  return(
-   rbindlist(l = out_list,
-             fill = TRUE,
-             idcol = 'pred_horizon')
-  )
+ check_dots(list(...), orsf_pd_new)
 
- }
-
- check_pd_inputs(object      = object,
-                 expand_grid = expand_grid,
-                 oobag       = oobag)
-
- # prob_ args are not used, but need to be something
- orsf_pd_(object          = object,
-          pd_data         = pd_data,
-          pd_spec         = pd_spec,
-          pred_horizon    = pred_horizon,
-          pred_type       = pred_type,
-          type_output     = 'ice',
-          type_input      = if(expand_grid) 'grid' else 'loop',
-          prob_values     = c(0.025, 0.50, 0.975),
-          prob_labels     = c('lwr', 'medn', 'upr'),
-          oobag           = oobag,
-          boundary_checks = boundary_checks)
+ orsf_pred_dependence(object = object,
+                      pd_spec = pd_spec,
+                      pd_data = new_data,
+                      pred_horizon = pred_horizon,
+                      pred_type = pred_type,
+                      expand_grid = expand_grid,
+                      prob_values = prob_values,
+                      prob_labels = prob_labels,
+                      boundary_checks = boundary_checks,
+                      oobag = FALSE,
+                      type_output = 'smry')
 
 }
 
 
-#' delegation function of orsf_pd family
+#' ORSF Individual Conditional Expectations
+#'
+#' Compute individual conditional expectations for an ORSF model.
+#' `r roxy_ice_explain()`
+#'
+#' `r roxy_pd_oob_explain('individual conditional expectations')`
+#'
+#' @inheritParams orsf_pd_oob
+#'
+#' @return a [data.table][data.table::data.table-package] containing
+#'   individual conditional expectations for the specified variable(s) at the
+#'   specified prediction horizon(s).
+#'
+#' @includeRmd Rmd/orsf_ice_examples.Rmd
+#'
+#' @export
+#'
+#'
+orsf_ice_oob <- function(object,
+                         pd_spec,
+                         pred_horizon = NULL,
+                         pred_type = 'risk',
+                         expand_grid = TRUE,
+                         boundary_checks = TRUE,
+                         ...){
+
+ check_dots(list(...), orsf_ice_oob)
+
+ orsf_pred_dependence(object = object,
+                      pd_spec = pd_spec,
+                      pd_data = NULL,
+                      pred_horizon = pred_horizon,
+                      pred_type = pred_type,
+                      expand_grid = expand_grid,
+                      boundary_checks = boundary_checks,
+                      oobag = TRUE,
+                      type_output = 'ice')
+
+}
+
+#' @rdname orsf_ice_oob
+#' @export
+orsf_ice_new <- function(object,
+                         pd_spec,
+                         new_data,
+                         pred_horizon = NULL,
+                         pred_type = 'risk',
+                         expand_grid = TRUE,
+                         boundary_checks = TRUE,
+                         ...){
+
+ check_dots(list(...), orsf_ice_new)
+
+ orsf_pred_dependence(object = object,
+                      pd_spec = pd_spec,
+                      pd_data = new_data,
+                      pred_horizon = pred_horizon,
+                      pred_type = pred_type,
+                      expand_grid = expand_grid,
+                      boundary_checks = boundary_checks,
+                      oobag = FALSE,
+                      type_output = 'ice')
+
+
+}
+
+
+#' delegates the work functions for partial dependence
 #'
 #' this function takes inputs from the main API functions and
 #'   determines which of the lower level functions to call.
@@ -232,129 +197,41 @@ orsf_ice <- function(object,
 #'
 #' @noRd
 
-orsf_pd_ <- function(object,
-                     pd_data,
-                     pd_spec,
-                     pred_horizon,
-                     pred_type,
-                     type_output,
-                     type_input,
-                     prob_values,
-                     prob_labels,
-                     oobag,
-                     boundary_checks){
+orsf_pred_dependence <- function(object,
+                                 pd_data,
+                                 pd_spec,
+                                 pred_horizon,
+                                 pred_type,
+                                 expand_grid,
+                                 prob_values = NULL,
+                                 prob_labels = NULL,
+                                 oobag,
+                                 type_output,
+                                 boundary_checks){
 
- if(is.null(pred_horizon)) pred_horizon <- object$pred_horizon
+ pred_horizon <- infer_pred_horizon(object, pred_horizon)
 
- if(is.null(pred_horizon))
-  stop("pred_horizon was not specified and could not be found in object. ",
-       "did you use oobag_pred = FALSE when running orsf()?",
-       call. = FALSE)
+ if(is.null(prob_values)) prob_values <- c(0.025, 0.50, 0.975)
+ if(is.null(prob_labels)) prob_labels <- c('lwr', 'medn', 'upr')
 
- if(oobag && !is.null(pd_data)){
+ check_pd_inputs(object          = object,
+                 pd_spec         = pd_spec,
+                 expand_grid     = expand_grid,
+                 prob_values     = prob_values,
+                 prob_labels     = prob_labels,
+                 boundary_checks = boundary_checks,
+                 new_data        = pd_data,
+                 pred_type       = pred_type,
+                 pred_horizon    = pred_horizon)
 
-  warning(
-   "pd_data should be NULL when computing out-of-bag partial dependence,",
-   " i.e., when oobag = TRUE. the pd_data input will be ignored and instead",
-   " object$data will be used to compute out-of-bag partial dependence.",
-   " If you want to compute partial dependence on new data, set oobag = FALSE",
-   call. = FALSE
-  )
+ if(oobag && is.null(object$data))
+  stop("no data were found in object. ",
+       "did you use attach_data = FALSE when ",
+       "running orsf()?", call. = FALSE)
 
-  pd_data <- object$data
+ if(oobag) pd_data <- object$data
 
- }
-
- if(is.null(pd_data)) pd_data <- object$data
-
- if(is.null(pd_data)) stop("training data were not found in object. ",
-                           "did you use attach_data = FALSE when ",
-                           "running orsf()?", call. = FALSE)
-
- check_predict(object = object,
-               new_data = pd_data,
-               pred_horizon = pred_horizon,
-               pred_type = pred_type)
-
- if(is_empty(pd_spec)){
-
-   stop("pd_spec is empty", call. = FALSE)
-
- }
-
- if(is_empty(names(pd_spec))){
-
-  stop("pd_spec is unnamed", call. = FALSE)
-
- }
-
- bad_name_index <- which(is.na(match(names(pd_spec), get_names_x(object))))
-
- if(!is_empty(bad_name_index)){
-
-  bad_names <- names(pd_spec)[bad_name_index]
-
-  stop("some variables in pd_spec are not in object's training data: ",
-       paste_collapse(bad_names, last = ' and '),
-       call. = FALSE)
-
- }
-
- numeric_bounds <- get_numeric_bounds(object)
- numeric_names <- intersect(colnames(numeric_bounds), names(pd_spec))
-
- if(!is_empty(numeric_names) && boundary_checks){
-
-  for(.name in numeric_names){
-
-   vals_above_stop <- which(pd_spec[[.name]] > numeric_bounds['90%', .name])
-   vals_below_stop <- which(pd_spec[[.name]] < numeric_bounds['10%', .name])
-
-   boundary_error <- FALSE
-   vals_above_list <- vals_below_list <- " "
-
-   if(!is_empty(vals_above_stop)){
-    vals_above_list <- paste_collapse(
-     round_magnitude(pd_spec[[.name]][vals_above_stop]),
-     last = ' and '
-    )
-
-    boundary_error <- TRUE
-    vals_above_list <-
-     paste0(" (",vals_above_list," > ", numeric_bounds['90%', .name],") ")
-
-   }
-
-   if(!is_empty(vals_below_stop)){
-
-    vals_below_list <- paste_collapse(
-     round_magnitude(pd_spec[[.name]][vals_below_stop]),
-     last = ' and '
-    )
-
-    boundary_error <- TRUE
-
-    vals_below_list <-
-       paste0(" (",vals_below_list," < ", numeric_bounds['10%', .name],") ")
-
-   }
-
-   if(boundary_error)
-    stop("Some values for ",
-         .name,
-         " in pd_spec are above",
-         vals_above_list,
-         "or below",
-         vals_below_list,
-         "90th or 10th percentiles in training data.",
-         " Change pd_spec or set boundary_checks = FALSE",
-         " to prevent this error",
-         call. = FALSE)
-
-  }
-
- }
-
+ type_input <- if(expand_grid) 'grid' else 'loop'
 
  x_new <- as.matrix(
   ref_code(x_data = pd_data,
@@ -377,16 +254,39 @@ orsf_pd_ <- function(object,
 
  risk <- pred_type == 'risk'
 
- pd_fun_structure(object,
-                  x_new,
-                  pd_spec,
-                  pred_horizon,
-                  pd_fun_predict,
-                  type_output,
-                  prob_values,
-                  prob_labels,
-                  oobag,
-                  risk)
+ out_list <- lapply(
+
+  X = pred_horizon,
+
+  FUN = function(.pred_horizon){
+
+   pd_fun_structure(object,
+                    x_new,
+                    pd_spec,
+                    .pred_horizon,
+                    pd_fun_predict,
+                    type_output,
+                    prob_values,
+                    prob_labels,
+                    oobag,
+                    risk)
+
+  }
+
+ )
+
+ names(out_list) <- as.character(pred_horizon)
+
+ out <- rbindlist(l = out_list,
+                  fill = TRUE,
+                  idcol = 'pred_horizon')
+
+ out[, pred_horizon := as.numeric(pred_horizon)]
+
+ # silent print after modify in place
+ out[]
+
+ out
 
 }
 
@@ -441,8 +341,8 @@ pd_grid <- function(object,
                       label_new = "pd_spec")
 
  pd_spec_new <- ref_code(x_data = pd_spec,
-                        fi = get_fctr_info(object),
-                        names_x_data = names(pd_spec))
+                         fi = get_fctr_info(object),
+                         names_x_data = names(pd_spec))
 
  x_cols <- match(names(pd_spec_new), colnames(x_new))
 
@@ -522,8 +422,8 @@ pd_loop <- function(object,
    pd_bind$level <- as.character(pd_spec[[i]])
 
    pd_new <- ref_code(pd_new,
-                     fi = fi,
-                     names_x_data = pd_name)
+                      fi = fi,
+                      names_x_data = pd_name)
   } else {
 
    pd_bind$value <- pd_spec[[i]]

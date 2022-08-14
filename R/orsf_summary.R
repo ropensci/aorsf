@@ -145,12 +145,12 @@ orsf_summarize_uni <- function(object,
 
  }
 
- pd_output <- orsf_pd(object = object,
-                              pd_spec = pd_spec,
-                              expand_grid = FALSE,
-                              pred_type = pred_type,
-                              prob_values = c(0.25, 0.50, 0.75),
-                              pred_horizon = pred_horizon)
+ pd_output <- orsf_pd_oob(object = object,
+                          pd_spec = pd_spec,
+                          expand_grid = FALSE,
+                          pred_type = pred_type,
+                          prob_values = c(0.25, 0.50, 0.75),
+                          pred_horizon = pred_horizon)
 
  fctrs_unordered <- c()
 

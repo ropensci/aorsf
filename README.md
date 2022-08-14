@@ -43,7 +43,10 @@ remotes::install_github("bcjaeger/aorsf")
 
 ## Example
 
-The `orsf()` function is used to fit ORSF ensembles:
+The `orsf()` function can fit several types of ORSF ensembles. My
+personal favorite is the accelerated ORSF because it has a great
+combination of prediction accuracy and computational efficiency (see
+[arXiv paper](https://arxiv.org/abs/2208.01129)).<sup>2</sup>
 
 ``` r
 library(aorsf)
@@ -52,17 +55,12 @@ fit <- orsf(data = pbc_orsf,
             formula = Surv(time, status) ~ . - id)
 ```
 
-The default routine to fit ORSF ensembles is the ‘accelerated’ ORSF - an
-algorithm based on Newton Raphson scoring that does very well in
-benchmarks of prediction accuracy and computational
-efficiency.<sup>2</sup> In addition to the accelerated ORSF, `aorsf` can
-fit a broad range of ORSF ensembles (see ORSF CONTROL VIGNETTE (not yet
-written)).
+ORSF CONTROL VIGNETTE (not yet written).
 
 ### Inspect
 
-Printing the output from `orsf()` will give some descriptive statistics
-about the ensemble.
+Printing the output from `orsf()` will give some information and
+descriptive statistics about the ensemble.
 
 ``` r
 print(fit)
@@ -84,27 +82,31 @@ print(fit)
 #> -----------------------------------------
 ```
 
+See
+[`print.orsf_fit`](https://bcjaeger.github.io/aorsf/reference/print.orsf_fit.html)
+for a description of each line in the printed output.
+
 ### Variable importance
 
 The importance of individual variables can be estimated in three ways
 using `aorsf`:
 
--   **negation**: Each variable is assessed separately by multiplying
-    the variable’s coefficients by -1 and then determining how much the
-    model’s performance changes. The worse the model’s performance after
-    negating coefficients for a given variable, the more important the
-    variable.
+-   **negation<sup>2</sup>**: Each variable is assessed separately by
+    multiplying the variable’s coefficients by -1 and then determining
+    how much the model’s performance changes. The worse the model’s
+    performance after negating coefficients for a given variable, the
+    more important the variable.
 
     ``` r
     orsf_vi_negate(fit)
-    #>           age          bili        copper         stage       protime 
-    #>  0.0151594082  0.0133361117  0.0065638675  0.0060950198  0.0060429256 
-    #>       albumin           sex       spiders       ascites           ast 
-    #>  0.0059387372  0.0058345489  0.0049489477  0.0048447593  0.0035424047 
-    #>         edema        hepato          chol          trig           trt 
-    #>  0.0019498110  0.0006772244 -0.0014065430 -0.0015107314 -0.0019795791 
-    #>      platelet      alk.phos 
-    #> -0.0026568035 -0.0032819337
+    #>          bili           age       ascites       protime         stage 
+    #>  0.0145342780  0.0129193582  0.0059387372  0.0053657012  0.0044280058 
+    #>           sex           ast         edema       spiders        hepato 
+    #>  0.0031256512  0.0030735570  0.0025612975  0.0023963326  0.0015628256 
+    #>          chol           trt       albumin          trig      alk.phos 
+    #> -0.0001041884 -0.0009376954 -0.0018753907 -0.0020316733 -0.0022400500 
+    #>      platelet 
+    #> -0.0050010419
     ```
 
 -   **permutation**: Each variable is assessed separately by randomly
@@ -115,14 +117,14 @@ using `aorsf`:
 
     ``` r
     orsf_vi_permute(fit)
-    #>          bili           age        copper       albumin         stage 
-    #>  1.604501e-02  1.302355e-02  5.261513e-03  3.959158e-03  3.907064e-03 
-    #>       protime       ascites       spiders           sex          trig 
-    #>  3.021463e-03  2.917274e-03  9.897895e-04  4.167535e-04  1.562826e-04 
-    #>         edema        hepato      platelet          chol           trt 
-    #> -4.713284e-05 -1.041884e-04 -1.562826e-04 -4.167535e-04 -6.772244e-04 
-    #>           ast      alk.phos 
-    #> -1.198166e-03 -1.354449e-03
+    #>          bili           age       ascites        copper         stage 
+    #>  0.0109397791  0.0107314024  0.0058866431  0.0052615128  0.0041154407 
+    #>       albumin        hepato       protime           ast          chol 
+    #>  0.0037507814  0.0036465930  0.0022921442  0.0020316733  0.0014586372 
+    #>           sex         edema       spiders      alk.phos      platelet 
+    #>  0.0009376954  0.0005085385  0.0004688477  0.0000000000 -0.0007293186 
+    #>           trt          trig 
+    #> -0.0021358616 -0.0026047093
     ```
 
 -   **analysis of variance (ANOVA)<sup>3</sup>**: A p-value is computed
@@ -132,38 +134,55 @@ using `aorsf`:
 
     ``` r
     orsf_vi_anova(fit)
-    #>    ascites       bili      edema     copper        age    albumin    protime 
-    #> 0.35348226 0.28289811 0.24968033 0.18991641 0.18409387 0.16945107 0.15829608 
-    #>      stage        ast       chol    spiders        sex     hepato       trig 
-    #> 0.13969986 0.13060480 0.12707469 0.12549740 0.11944046 0.11162362 0.10188777 
+    #>    ascites       bili      edema     copper    albumin        age    protime 
+    #> 0.38801054 0.28122545 0.24939489 0.19932782 0.17807174 0.17757256 0.15706127 
+    #>       chol      stage    spiders        ast     hepato        sex       trig 
+    #> 0.14453431 0.14069149 0.13533835 0.11947845 0.11722272 0.11598746 0.10058386 
     #>   alk.phos   platelet        trt 
-    #> 0.09502618 0.07333506 0.05134680
+    #> 0.08801054 0.08376827 0.06616625
     ```
 
-You can also supply your own R function to estimate out-of-bag error
-when using negation or permutation importance (see [oob
+You can supply your own R function to estimate out-of-bag error when
+using negation or permutation importance (see [oob
 vignette](https://bcjaeger.github.io/aorsf/articles/oobag.html)).
 
 ### Partial dependence
 
 `aorsf` can generate individual conditional expectation (ICE) and
-partial dependence:
+partial dependence (PD):
 
--   ICE is the expected predicted value of an ORSF ensemble for an
-    individual observation.
-
--   partial dependence is a multi-variable adjusted expected predicted
-    value of an ORSF ensemble.
+-   ICE shows how the predicted value for an observation changes when a
+    predictor changes. `orsf_ice()`, the function to compute ICE values
+    in `aorsf`, returns ICE for all observations in the data you supply
+    it. (If no data are supplied, the ORSF’s training data are used)
 
     ``` r
-    orsf_pd(fit, pd_spec = list(bili = c(1:5)))
-    #>     bili      mean        lwr      medn       upr
-    #>    <int>     <num>      <num>     <num>     <num>
-    #> 1:     1 0.2338035 0.01359849 0.1221437 0.8637697
-    #> 2:     2 0.2864137 0.03772655 0.1806327 0.8944082
-    #> 3:     3 0.3434524 0.06803086 0.2455590 0.9050007
-    #> 4:     4 0.3949240 0.09451781 0.3250008 0.9312628
-    #> 5:     5 0.4372363 0.13161986 0.3747099 0.9377383
+    # ICE values:
+    # predicted risk for a single observation with respect to bili.
+
+    orsf_ice_oob(fit, pd_spec = list(bili = c(1:5)))[id_row == 2]
+    #>    pred_horizon id_variable id_row  bili       pred
+    #>           <num>       <int>  <int> <int>      <num>
+    #> 1:         1788           1      2     1 0.08949299
+    #> 2:         1788           2      2     2 0.14281718
+    #> 3:         1788           3      2     3 0.21558478
+    #> 4:         1788           4      2     4 0.32627813
+    #> 5:         1788           5      2     5 0.37660385
+    ```
+
+-   PD shows how the **expected** predicted value changes when a
+    predictor changes. PD estimates the relationship between the model’s
+    prediction and a predictor, adjusting for other predictors.
+
+    ``` r
+    orsf_pd_oob(fit, pd_spec = list(bili = c(1:5)))
+    #>    pred_horizon  bili      mean        lwr      medn       upr
+    #>           <num> <int>     <num>      <num>     <num>     <num>
+    #> 1:         1788     1 0.2388058 0.01352057 0.1271245 0.8732819
+    #> 2:         1788     2 0.2892796 0.03851130 0.1873985 0.9092272
+    #> 3:         1788     3 0.3471000 0.07320863 0.2561256 0.9331508
+    #> 4:         1788     4 0.4005475 0.10759175 0.3177516 0.9370998
+    #> 5:         1788     5 0.4425184 0.14229014 0.3797550 0.9448201
     ```
 
 -   use `orsf_summarize_uni()` to show the top predictor variables in an
@@ -177,51 +196,50 @@ partial dependence:
 
     orsf_summarize_uni(object = fit, n_variables = 5)
     #> 
-    #> -- age (VI Rank: 1) -----------------------------
+    #> -- bili (VI Rank: 1) ----------------------------
     #> 
     #>         |---------------- risk ----------------|
     #>   Value      Mean    Median     25th %    75th %
     #>  <char>     <num>     <num>      <num>     <num>
-    #>      42 0.2711144 0.1371126 0.04265667 0.4737754
-    #>      50 0.3007558 0.1661609 0.04900273 0.5097726
-    #>      57 0.3319072 0.2089503 0.07061881 0.5643859
+    #>    0.80 0.2330705 0.1197286 0.04451579 0.3589746
+    #>     1.4 0.2556177 0.1433992 0.06075292 0.3986335
+    #>     3.5 0.3757922 0.2960614 0.16980376 0.5462387
     #> 
-    #> -- bili (VI Rank: 2) ----------------------------
-    #> 
-    #>         |---------------- risk ----------------|
-    #>   Value      Mean    Median     25th %    75th %
-    #>  <char>     <num>     <num>      <num>     <num>
-    #>    0.80 0.2291821 0.1170113 0.04592342 0.3688073
-    #>     1.4 0.2496643 0.1388448 0.06020376 0.4054563
-    #>     3.5 0.3705226 0.2927490 0.16222596 0.5511317
-    #> 
-    #> -- copper (VI Rank: 3) --------------------------
+    #> -- age (VI Rank: 2) -----------------------------
     #> 
     #>         |---------------- risk ----------------|
     #>   Value      Mean    Median     25th %    75th %
     #>  <char>     <num>     <num>      <num>     <num>
-    #>      43 0.2674542 0.1443824 0.04631652 0.4825262
-    #>      74 0.2831247 0.1603985 0.05519124 0.5099932
-    #>     129 0.3336233 0.2247753 0.10327836 0.5373395
+    #>      42 0.2761173 0.1395697 0.04048322 0.4585127
+    #>      50 0.3038888 0.1613333 0.04653317 0.5173196
+    #>      57 0.3317393 0.2132545 0.06578600 0.5537216
     #> 
-    #> -- stage (VI Rank: 4) ---------------------------
-    #> 
-    #>         |---------------- risk ----------------|
-    #>   Value      Mean    Median     25th %    75th %
-    #>  <char>     <num>     <num>      <num>     <num>
-    #>       1 0.2613092 0.1346674 0.04656766 0.4589368
-    #>       2 0.2715204 0.1358854 0.04618129 0.4782684
-    #>       3 0.2942587 0.1557578 0.05312238 0.5204041
-    #>       4 0.3386524 0.2051842 0.08445636 0.5724707
-    #> 
-    #> -- protime (VI Rank: 5) -------------------------
+    #> -- ascites (VI Rank: 3) -------------------------
     #> 
     #>         |---------------- risk ----------------|
     #>   Value      Mean    Median     25th %    75th %
     #>  <char>     <num>     <num>      <num>     <num>
-    #>      10 0.2833402 0.1498676 0.04555345 0.5049473
-    #>      11 0.2960497 0.1602747 0.05321297 0.5378991
-    #>      11 0.3155702 0.1887370 0.06624194 0.5559068
+    #>       0 0.2977296 0.1595002 0.04905852 0.5373169
+    #>       1 0.4731001 0.3866557 0.27719961 0.6610602
+    #> 
+    #> -- protime (VI Rank: 4) -------------------------
+    #> 
+    #>         |---------------- risk ----------------|
+    #>   Value      Mean    Median     25th %    75th %
+    #>  <char>     <num>     <num>      <num>     <num>
+    #>      10 0.2852584 0.1490673 0.04601975 0.5025813
+    #>      11 0.2966223 0.1506002 0.05030526 0.5180246
+    #>      11 0.3190773 0.1811543 0.07063537 0.5511301
+    #> 
+    #> -- stage (VI Rank: 5) ---------------------------
+    #> 
+    #>         |---------------- risk ----------------|
+    #>   Value      Mean    Median     25th %    75th %
+    #>  <char>     <num>     <num>      <num>     <num>
+    #>       1 0.2631046 0.1353130 0.04844881 0.4482245
+    #>       2 0.2726887 0.1399101 0.04656849 0.4720537
+    #>       3 0.2938536 0.1608046 0.05053952 0.5175462
+    #>       4 0.3421659 0.2068753 0.08564739 0.5755682
     #> 
     #>  Predicted risk at time t = 1788 for top 5 predictors
     ```

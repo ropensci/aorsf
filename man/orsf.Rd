@@ -140,7 +140,7 @@ no seeds are set during the training process.}
 
 \item{attach_data}{(\emph{logical}) if \code{TRUE}, a copy of the training
 data will be attached to the output. This is helpful if you
-plan on using functions like \link{orsf_pd} or \link{orsf_summarize_uni}
+plan on using functions like \link{orsf_pd_oob} or \link{orsf_summarize_uni}
 to interpret the forest using its training data. Default is \code{TRUE}.}
 
 \item{no_fit}{(\emph{logical}) if \code{TRUE}, model fitting steps are defined and

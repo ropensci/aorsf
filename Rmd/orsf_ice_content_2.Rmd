@@ -1,0 +1,42 @@
+
+## Visualizing individual conditional expectation curves
+
+Inspecting the individual conditional expectation curves for each observation can help identify whether the model's predictions are reliable (i.e., does the model exhibit the same general predictions when it is applied to new data?) We can create individual conditional expectation curves to assess. First, there are a couple of pre-processing steps to consider:
+
+1. Combine the individual conditional expectation values from the training data with those from the testing data.
+
+  ```{r}
+  
+  library(data.table)
+  
+  data_list <- list(train = ice_train, test = ice_test)
+  
+  data_gg <- rbindlist(data_list, idcol = 'data')
+                       
+  ```
+2. Scale the individual conditional expectations data. I subtract the initial value of predicted risk (i.e., when `bili = 1`) from each observation's conditional expectation values so that every curve starts at 0 and the plot shows the change in predicted risk as a function of `bili`.
+
+  ```{r}
+  
+  data_gg[, pred := pred - pred[bili==1], by = c('data', 'id_row')]
+  
+  ```
+  
+Now we can visualize the curves.
+
+```{r, -orsf_ice}
+
+library(ggplot2)
+
+ggplot(data_gg, aes(x = bili, 
+                    y = pred, 
+                    group = id_row)) + 
+ geom_line(alpha = 0.15) + 
+ labs(y = 'Change in predicted risk') +
+ facet_wrap(~data) +
+ geom_smooth(se = FALSE, aes(group = 1))
+
+```
+
+
+Although there is a higher average predicted risk in the testing data, the slope of the increase in predicted risk as a function of `bili` seems to be the same in the two data sets. Good!

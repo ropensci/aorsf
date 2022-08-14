@@ -30,19 +30,24 @@ an input for the \code{control} argument of \link{orsf}.
 \description{
 Custom ORSF control
 }
-\section{examples}{
+\section{Examples}{
+Two customized functions to identify linear combinations of predictors
+are shown here.
+\itemize{
+\item The first uses random coefficients
+\item The second derives coefficients from principal component analysis.
+}
 \subsection{Random coefficients}{
 
-Want to fit extremely randomized oblique survival forests? Great! First,
-define a function that supplies the random coefficients:
+\code{f_rando()} is our function to get the random coefficients:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{f_rando <- function(x_node, y_node, w_node)\{
  matrix(runif(ncol(x_node)), ncol=1) 
 \}
 }\if{html}{\out{</div>}}
 
-next, plug the function into orsf_control_custom(), which is in turn
-passed into orsf():
+We can plug \code{f_rando} into \code{orsf_control_custom()}, and then pass the
+result into \code{orsf()}:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(aorsf)
 
@@ -75,19 +80,20 @@ fit_rando
 
 \subsection{Principal components}{
 
-Want to use principal component analysis to identify linear combinations
-of predictors? Follow the same steps as above, starting with the
-function to get coefficients:
+Follow the same steps as above, starting with the custom function:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{# use the second principal component to split the node
-
-f_pca <- function(x_node, y_node, w_node) \{ 
- stats::prcomp(x_node, rank. = 2)$rotation[, 2, drop = FALSE]
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{f_pca <- function(x_node, y_node, w_node) \{ 
+ 
+ # estimate two principal components.
+ pca <- stats::prcomp(x_node, rank. = 2)
+ # use the second principal component to split the node
+ pca$rotation[, 2L, drop = FALSE]
+ 
 \}
 }\if{html}{\out{</div>}}
 
-Then pass that function into \code{orsf_control_custom()}, which can be
-passed into \code{orsf()}
+Then plug the function into \code{orsf_control_custom()} and pass the result
+into \code{orsf()}:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_pca <- orsf(pbc_orsf,
                 Surv(time, status) ~ . - id,
@@ -119,7 +125,7 @@ sc <- Score(object = risk_preds,
             times = fit_pca$pred_horizon)
 }\if{html}{\out{</div>}}
 
-The PCA ORSF does quite well!
+The PCA ORSF does quite well! (higher IPA is better)
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{sc$Brier
 }\if{html}{\out{</div>}}
@@ -130,16 +136,16 @@ The PCA ORSF does quite well!
 ##         model times  Brier  lower  upper    IPA
 ##        <fctr> <num> <char> <char> <char> <char>
 ## 1: Null model  1788 20.479 18.089 22.869  0.000
-## 2:      rando  1788 13.638 11.461 15.815 33.406
-## 3:        pca  1788 11.617  9.714 13.520 43.274
+## 2:      rando  1788 13.583 11.445 15.722 33.672
+## 3:        pca  1788 11.735  9.801 13.668 42.698
 ## 
 ## Results of model comparisons:
 ## 
 ##    times  model  reference delta.Brier   lower  upper            p
 ##    <num> <fctr>     <fctr>      <char>  <char> <char>        <num>
-## 1:  1788  rando Null model      -6.841  -8.876 -4.807 4.378390e-11
-## 2:  1788    pca Null model      -8.862 -10.813 -6.911 5.535345e-19
-## 3:  1788    pca      rando      -2.021  -2.939 -1.102 1.611044e-05
+## 1:  1788  rando Null model      -6.896  -8.887 -4.905 1.130130e-11
+## 2:  1788    pca Null model      -8.744 -10.715 -6.773 3.451308e-18
+## 3:  1788    pca      rando      -1.849  -2.798 -0.899 1.351511e-04
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.

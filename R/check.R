@@ -1023,14 +1023,112 @@ check_orsf_inputs <- function(data = NULL,
 #' @noRd
 #'
 check_pd_inputs <- function(object,
+                            pd_spec = NULL,
                             expand_grid = NULL,
                             prob_values = NULL,
                             prob_labels = NULL,
-                            oobag = NULL){
+                            oobag = NULL,
+                            boundary_checks = NULL,
+                            new_data = NULL,
+                            pred_horizon = NULL,
+                            pred_type = NULL){
 
  check_arg_is(arg_value = object,
               arg_name = 'object',
               expected_class = 'orsf_fit')
+
+ if(!is.null(boundary_checks)){
+
+  check_arg_type(arg_value = boundary_checks,
+                 arg_name = 'boundary_checks',
+                 expected_type = 'logical')
+
+  check_arg_length(arg_value = boundary_checks,
+                   arg_name = 'boundary_checks',
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(pd_spec)){
+
+  if(is_empty(pd_spec)){
+   stop("pd_spec is empty", call. = FALSE)
+  }
+
+  if(is_empty(names(pd_spec))){
+   stop("pd_spec is unnamed", call. = FALSE)
+  }
+
+  bad_name_index <- which(is.na(match(names(pd_spec), get_names_x(object))))
+
+  if(!is_empty(bad_name_index)){
+
+   bad_names <- names(pd_spec)[bad_name_index]
+
+   stop("variables in pd_spec are not recognized as predictors in object: ",
+        paste_collapse(bad_names, last = ' and '),
+        call. = FALSE)
+
+  }
+
+  numeric_bounds <- get_numeric_bounds(object)
+  numeric_names <- intersect(colnames(numeric_bounds), names(pd_spec))
+
+  if(is.null(boundary_checks)) boundary_checks <- TRUE
+
+  if(!is_empty(numeric_names) && boundary_checks){
+
+   for(.name in numeric_names){
+
+    vals_above_stop <- which(pd_spec[[.name]] > numeric_bounds['90%', .name])
+    vals_below_stop <- which(pd_spec[[.name]] < numeric_bounds['10%', .name])
+
+    boundary_error <- FALSE
+    vals_above_list <- vals_below_list <- " "
+
+    if(!is_empty(vals_above_stop)){
+     vals_above_list <- paste_collapse(
+      round_magnitude(pd_spec[[.name]][vals_above_stop]),
+      last = ' and '
+     )
+
+     boundary_error <- TRUE
+     vals_above_list <-
+      paste0(" (",vals_above_list," > ", numeric_bounds['90%', .name],") ")
+
+    }
+
+    if(!is_empty(vals_below_stop)){
+
+     vals_below_list <- paste_collapse(
+      round_magnitude(pd_spec[[.name]][vals_below_stop]),
+      last = ' and '
+     )
+
+     boundary_error <- TRUE
+
+     vals_below_list <-
+      paste0(" (",vals_below_list," < ", numeric_bounds['10%', .name],") ")
+
+    }
+
+    if(boundary_error)
+     stop("Some values for ",
+          .name,
+          " in pd_spec are above",
+          vals_above_list,
+          "or below",
+          vals_below_list,
+          "90th or 10th percentiles in training data.",
+          " Change pd_spec or set boundary_checks = FALSE",
+          " to prevent this error",
+          call. = FALSE)
+
+   }
+
+  }
+
+ }
 
  if(!is.null(expand_grid)){
 
@@ -1068,6 +1166,15 @@ check_pd_inputs <- function(object,
 
  }
 
+ if(!is.null(prob_values) && !is.null(prob_labels)){
+
+  if(length(prob_values) != length(prob_labels)){
+   stop("prob_values and prob_labels must have the same length.",
+        call. = FALSE)
+  }
+
+ }
+
  if(!is.null(oobag)){
 
   check_arg_type(arg_value = oobag,
@@ -1079,6 +1186,11 @@ check_pd_inputs <- function(object,
                    expected_length = 1)
 
  }
+
+ check_predict(object = object,
+               new_data = new_data,
+               pred_horizon = pred_horizon,
+               pred_type = pred_type)
 
 }
 
@@ -1597,4 +1709,3 @@ check_beta_fun <- function(beta_fun){
  )
 
 }
-

@@ -141,7 +141,7 @@
 #'
 #' @param attach_data (_logical_) if `TRUE`, a copy of the training
 #'   data will be attached to the output. This is helpful if you
-#'   plan on using functions like [orsf_pd] or [orsf_summarize_uni]
+#'   plan on using functions like [orsf_pd_oob] or [orsf_summarize_uni]
 #'   to interpret the forest using its training data. Default is `TRUE`.
 #'
 #' @param no_fit (_logical_) if `TRUE`, model fitting steps are defined and

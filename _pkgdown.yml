@@ -19,12 +19,13 @@ articles:
 
 reference:
 - title: Oblique random survival forests (ORSFs)
-  desc: Fit, inspect, and apply ORSF models
+  desc: Fit, inspect, summarize, and apply ORSF models
 - contents:
   - matches("^orsf$")
   - matches("^print\\.orsf_fit$")
   - matches("^predict\\.orsf_fit$")
-  - matches("^orsf_time_to_train$")
+  - matches("^orsf_summarize")
+  - matches("^print\\.orsf_summary")
 - title: Control how your ORSF model works
   desc: Choose how to identify linear combinations of predictors and set tuning parameters for your approach
 - contents:
@@ -32,19 +33,24 @@ reference:
   - matches("^orsf_control_cph$")
   - matches("^orsf_control_net$")
   - matches("^orsf_control_custom$")
-- title: Interpret ORSFs
-  desc: Estimate the importance of individual variables and the expected prediction from an ORSF model for specific predictor variables.
+- title: Variable importance
+  desc: Estimate the importance of individual variables using ORSFs
 - contents:
   - matches("^orsf_vi")
-  - matches('^orsf_interaction$')
+- title: Partial dependence and individual conditional expectations
+  desc: Interpret your model by generating partial dependence or individual conditional expectation values. Plotting functions not included (but see examples)
+- contents:
+  - matches("^orsf_ice")
   - matches("^orsf_pd")
-  - matches("^orsf_summarize")
-  - matches("^print\\.orsf_summary")
-  - matches("^as\\.data\\.table\\.orsf_summary")
 - title: Example survival data
   desc: Datasets used in examples and vignettes.
 - contents:
   - matches("^pbc_orsf$")
+- title: Miscellaneous
+  desc: Functions that don't fit neatly into a category above, but are still helpful.
+- contents:
+  - matches("^as\\.data\\.table\\.orsf_summary")
+  - matches("^orsf_time_to_train$")
 - title: Back-end functions
   desc: Techniques used by aorsf that may be helpful in other contexts.
 - contents:

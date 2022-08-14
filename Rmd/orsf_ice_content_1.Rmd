@@ -1,0 +1,34 @@
+
+Begin by fitting an ORSF ensemble:
+
+```{r, child = 'orsf-fit-accelerated.Rmd'}
+
+```
+
+## Individual conditional expectations two ways
+
+You can compute individual conditional expectations two ways using a random forest:
+
+- using out-of-bag predictions for the training data
+
+  ```{r}
+  
+  pd_spec <- list(bili = seq(1, 6, length.out = 10))
+  
+  ice_train <- orsf_ice_oob(fit, pd_spec)
+  
+  ice_train
+  
+  ```
+
+- using predictions for a new set of data
+
+  ```{r}
+  
+  ice_test <- orsf_ice_new(fit, 
+                           new_data = pbc_orsf_test, 
+                           pd_spec = pd_spec)
+  
+  ice_test
+  
+  ```

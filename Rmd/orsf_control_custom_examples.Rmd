@@ -1,0 +1,26 @@
+
+# Examples
+
+```{css, include=FALSE, echo=FALSE}
+
+.sourceLine {
+  display: inline-block;
+}
+
+```
+
+
+```{r, include=FALSE, echo=FALSE}
+
+docs <- c(
+ "orsf_control_custom_content_1.Rmd",
+ "orsf_control_custom_content_2.Rmd",
+ "orsf_control_custom_content_3.Rmd"
+)
+
+```
+
+```{r child = docs}
+
+```
+

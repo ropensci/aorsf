@@ -18,7 +18,7 @@ that predictions will be calibrated to. E.g., if you were predicting
 risk of incident heart failure within the next 10 years, then
 \code{pred_horizon = 10}}
 
-\item{pred_type}{(\emph{character}) the type of predictions to return. Valid
+\item{pred_type}{(\emph{character}) the type of predictions to compute. Valid
 options are
 \itemize{
 \item 'risk' : probability of having an event at or before \code{pred_horizon}.

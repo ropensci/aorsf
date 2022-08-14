@@ -231,7 +231,7 @@ orsf_control_net <- function(alpha = 1/2,
 #'
 #' @family orsf_control
 #'
-#' @includeRmd Rmd/orsf_control_custom.Rmd
+#' @includeRmd Rmd/orsf_control_custom_examples.Rmd
 
 orsf_control_custom <- function(beta_fun, ...){
 

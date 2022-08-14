@@ -22,7 +22,7 @@
 #'   risk of incident heart failure within the next 10 years, then
 #'   `pred_horizon = 10`
 #'
-#' @param pred_type (_character_) the type of predictions to return. Valid
+#' @param pred_type (_character_) the type of predictions to compute. Valid
 #'   options are
 #'
 #'   - 'risk' : probability of having an event at or before `pred_horizon`.

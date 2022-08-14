@@ -1,10 +1,10 @@
 ---
-title: "Compute partial dependence with ORSF"
+title: "Partial dependence and ICE curves with ORSF"
 description: >
   Learn how to interpret ORSF models using partial dependence.
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Compute partial dependence with ORSF}
+  %\VignetteIndexEntry{Partial dependence and ICE curves with ORSF}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,66 +16,30 @@ knitr::opts_chunk$set(
   fig.height = 5, 
   fig.width = 7
 )
-```
 
-```{r setup}
 library(aorsf)
-library(ggplot2)
-```
 
-## Background: Partial dependence
+docs_pd <- c("D:/aorsf/Rmd/orsf_pd_content_1.Rmd",
+             "D:/aorsf/Rmd/orsf_pd_content_2.Rmd")
 
-Partial dependence plots show the average marginal effect a combination of features imparts on predicted risk. Individual conditional expectation plots narrow the focus to individual datapoints. 
-
-## Getting partial dependence from an `aorsf` object
-
-First fit an accelerated ORSF model on `pbc_orsf`, a modification of the Mayo Clinic Primary Biliary Cholangitis data:
-
-```{r}
-
-set.seed(123)
-
-orsf_fit <- orsf(data = pbc_orsf,
-                 formula = Surv(time, status) ~ . -id,
-                 n_tree = 2500)
+docs_ice <- c("D:/aorsf/Rmd/orsf_ice_content_1.Rmd",
+              "D:/aorsf/Rmd/orsf_ice_content_2.Rmd")
 
 ```
 
-To view the partial dependence between predicted risk and the combination of blood vessel malformations in the skin (`spiders`) and urine copper (`copper`), we use `orsf_pd`. The `pd_spec` argument contains the variable values we want to compute partial dependence for. By default `oobag == TRUE`, meaning partial dependence is calculated using the out of bag training data. We keep this set to `TRUE` because we are computing partial dependence using the training data. `expand_grid == TRUE` tells `orsf_pd` to use all combinations of values in `pd_spec`.
+## Partial dependence
 
-```{r}
-pd_spec <- list(spiders = c("0", "1"),
-                copper = seq(45, 130, by = 10))
+`r aorsf:::roxy_pd_explain()`
 
-pd_data <- orsf_pd(object = orsf_fit,
-                           pd_spec = pd_spec,
-                           oobag = TRUE,
-                           expand_grid = TRUE)
+```{r child = docs_pd}
 
-ggplot(pd_data) +
- aes(x = copper, y = mean, col = spiders) +
- geom_line() + 
- labs(y = 'Predicted risk',
-      x = 'Urine Copper',
-      title = 'Partial dependence of copper and spiders')
 ```
 
-Next lets look at Individual Conditional Expectation (ICE). Each instance in the dataset is represented by one line showing change in prediction dependent on change in a feature. While `orsf_ice` allows you to use multiple features, it is recommended to view one at a time. In the plot below we can see how each data point's predicted survival changes as copper changes. 
+## Individual conditional expectations
 
+`r aorsf:::roxy_ice_explain()`
 
-```{r}
+```{r child= docs_ice}
 
-ice_data <- orsf_ice(object = orsf_fit,
-                       pd_spec = list(copper = seq(45, 130, by = 10)),
-                       expand_grid = TRUE)
-
-ggplot(ice_data[id_row %in% c(1:30)]) +
- aes(x=copper, y=pred, group=id_row) +
- geom_line() +
- labs(y = 'Predicted risk',
-     x = 'Urine Copper',
-     title = 'Individual conditional expectation of copper',
-     subtitle = 'Data for 30 patients are shown')
- 
 ```
 
