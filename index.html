@@ -97,9 +97,9 @@
 <h2 id="why-aorsf">Why aorsf?<a class="anchor" aria-label="anchor" href="#why-aorsf"></a>
 </h2>
 <ul>
-<li><p>Hundreds of times faster than <code>obliqueRSF</code> (see Jaeger, 2019).</p></li>
-<li><p>accurate predictions for time-to-event outcomes.</p></li>
-<li><p>negation importance, a novel technique to estimate variable importance for ORSFs.</p></li>
+<li><p>Hundreds of times faster than <code>obliqueRSF</code>.<sup>1</sup></p></li>
+<li><p>Fast and accurate predictions for censored outcomes.<sup>2</sup></p></li>
+<li><p>negation importance, a novel technique to estimate variable importance for ORSFs.<sup>2</sup></p></li>
 <li><p>intuitive API with formula based interface.</p></li>
 <li><p>extensive input checks + informative error messages.</p></li>
 </ul>
@@ -115,14 +115,19 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<p>The <code><a href="reference/orsf.html">orsf()</a></code> function is used to fit ORSFs. Printing the output from <code><a href="reference/orsf.html">orsf()</a></code> will give some descriptive statistics about the ensemble.</p>
+<p>The <code><a href="reference/orsf.html">orsf()</a></code> function is used to fit ORSF ensembles:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bcjaeger/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf</span>,</span>
-<span>            formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf</span>, </span>
+<span>            formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span></code></pre></div>
+<p>The default routine to fit ORSF ensembles is the ‘accelerated’ ORSF - an algorithm based on Newton Raphson scoring that does very well in benchmarks of prediction accuracy and computational efficiency.<sup>2</sup> In addition to the accelerated ORSF, <code>aorsf</code> can fit a broad range of ORSF ensembles (see ORSF CONTROL VIGNETTE (not yet written)).</p>
+<div class="section level3">
+<h3 id="inspect">Inspect<a class="anchor" aria-label="anchor" href="#inspect"></a>
+</h3>
+<p>Printing the output from <code><a href="reference/orsf.html">orsf()</a></code> will give some descriptive statistics about the ensemble.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ---------- Oblique random survival forest</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;      Linear combinations: Accelerated</span></span>
@@ -139,88 +144,129 @@
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -----------------------------------------</span></span></code></pre></div>
-<p>How about interpreting the fit?</p>
+</div>
+<div class="section level3">
+<h3 id="variable-importance">Variable importance<a class="anchor" aria-label="anchor" href="#variable-importance"></a>
+</h3>
+<p>The importance of individual variables can be estimated in three ways using <code>aorsf</code>:</p>
 <ul>
 <li>
-<p>use <code><a href="reference/orsf_vi.html">orsf_vi_negate()</a></code> and <code><a href="reference/orsf_vi.html">orsf_vi_anova()</a></code> for variable importance</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<p><strong>negation</strong>: Each variable is assessed separately by multiplying the variable’s coefficients by -1 and then determining how much the model’s performance changes. The worse the model’s performance after negating coefficients for a given variable, the more important the variable.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          bili           age       protime       spiders       ascites </span></span>
-<span><span class="co">#&gt;  0.0189101896  0.0156282559  0.0073973745  0.0051573244  0.0044280058 </span></span>
-<span><span class="co">#&gt;        copper         stage           ast          trig           sex </span></span>
-<span><span class="co">#&gt;  0.0040633465  0.0034903105  0.0025526151  0.0025005209  0.0018753907 </span></span>
-<span><span class="co">#&gt;         edema        hepato      platelet      alk.phos          chol </span></span>
-<span><span class="co">#&gt;  0.0013978607  0.0007293186 -0.0006772244 -0.0009376954 -0.0014065430 </span></span>
-<span><span class="co">#&gt;           trt </span></span>
-<span><span class="co">#&gt; -0.0019274849</span></span></code></pre></div>
+<span><span class="co">#&gt;           age          bili        copper         stage       protime </span></span>
+<span><span class="co">#&gt;  0.0151594082  0.0133361117  0.0065638675  0.0060950198  0.0060429256 </span></span>
+<span><span class="co">#&gt;       albumin           sex       spiders       ascites           ast </span></span>
+<span><span class="co">#&gt;  0.0059387372  0.0058345489  0.0049489477  0.0048447593  0.0035424047 </span></span>
+<span><span class="co">#&gt;         edema        hepato          chol          trig           trt </span></span>
+<span><span class="co">#&gt;  0.0019498110  0.0006772244 -0.0014065430 -0.0015107314 -0.0019795791 </span></span>
+<span><span class="co">#&gt;      platelet      alk.phos </span></span>
+<span><span class="co">#&gt; -0.0026568035 -0.0032819337</span></span></code></pre></div>
 </li>
 <li>
-<p>use <code><a href="reference/orsf_pd_summary.html">orsf_pd_ice()</a></code> or <code><a href="reference/orsf_pd_summary.html">orsf_pd_summary()</a></code> for individual or aggregated partial dependence values.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p><strong>permutation</strong>: Each variable is assessed separately by randomly permuting the variable’s values and then determining how much the model’s performance changes. The worse the model’s performance after permuting the values of a given variable, the more important the variable.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          bili           age        copper       albumin         stage </span></span>
+<span><span class="co">#&gt;  1.604501e-02  1.302355e-02  5.261513e-03  3.959158e-03  3.907064e-03 </span></span>
+<span><span class="co">#&gt;       protime       ascites       spiders           sex          trig </span></span>
+<span><span class="co">#&gt;  3.021463e-03  2.917274e-03  9.897895e-04  4.167535e-04  1.562826e-04 </span></span>
+<span><span class="co">#&gt;         edema        hepato      platelet          chol           trt </span></span>
+<span><span class="co">#&gt; -4.713284e-05 -1.041884e-04 -1.562826e-04 -4.167535e-04 -6.772244e-04 </span></span>
+<span><span class="co">#&gt;           ast      alk.phos </span></span>
+<span><span class="co">#&gt; -1.198166e-03 -1.354449e-03</span></span></code></pre></div>
+</li>
+<li>
+<p><strong>analysis of variance (ANOVA)<sup>3</sup></strong>: A p-value is computed for each coefficient in each linear combination of variables in each decision tree. Importance for an individual predictor variable is the proportion of times a p-value for its coefficient is &lt; 0.01.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    ascites       bili      edema     copper        age    albumin    protime </span></span>
+<span><span class="co">#&gt; 0.35348226 0.28289811 0.24968033 0.18991641 0.18409387 0.16945107 0.15829608 </span></span>
+<span><span class="co">#&gt;      stage        ast       chol    spiders        sex     hepato       trig </span></span>
+<span><span class="co">#&gt; 0.13969986 0.13060480 0.12707469 0.12549740 0.11944046 0.11162362 0.10188777 </span></span>
+<span><span class="co">#&gt;   alk.phos   platelet        trt </span></span>
+<span><span class="co">#&gt; 0.09502618 0.07333506 0.05134680</span></span></code></pre></div>
+</li>
+</ul>
+<p>You can also supply your own R function to estimate out-of-bag error when using negation or permutation importance (see <a href="https://bcjaeger.github.io/aorsf/articles/oobag.html">oob vignette</a>).</p>
+</div>
+<div class="section level3">
+<h3 id="partial-dependence">Partial dependence<a class="anchor" aria-label="anchor" href="#partial-dependence"></a>
+</h3>
+<p><code>aorsf</code> can generate individual conditional expectation (ICE) and partial dependence:</p>
+<ul>
+<li><p>ICE is the expected predicted value of an ORSF ensemble for an individual observation.</p></li>
+<li>
+<p>partial dependence is a multi-variable adjusted expected predicted value of an ORSF ensemble.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_pd_summary.html">orsf_pd_summary</a></span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     bili      mean        lwr      medn       upr</span></span>
 <span><span class="co">#&gt;    &lt;int&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     1 0.2356302 0.01203499 0.1233501 0.8728360</span></span>
-<span><span class="co">#&gt; 2:     2 0.2872993 0.03491402 0.1809715 0.8968723</span></span>
-<span><span class="co">#&gt; 3:     3 0.3428164 0.05744697 0.2435341 0.9165324</span></span>
-<span><span class="co">#&gt; 4:     4 0.3911216 0.09348188 0.3115675 0.9336801</span></span>
-<span><span class="co">#&gt; 5:     5 0.4323540 0.12792062 0.3634836 0.9436788</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:     1 0.2338035 0.01359849 0.1221437 0.8637697</span></span>
+<span><span class="co">#&gt; 2:     2 0.2864137 0.03772655 0.1806327 0.8944082</span></span>
+<span><span class="co">#&gt; 3:     3 0.3434524 0.06803086 0.2455590 0.9050007</span></span>
+<span><span class="co">#&gt; 4:     4 0.3949240 0.09451781 0.3250008 0.9312628</span></span>
+<span><span class="co">#&gt; 5:     5 0.4372363 0.13161986 0.3747099 0.9377383</span></span></code></pre></div>
 </li>
 <li>
 <p>use <code><a href="reference/orsf_summarize_uni.html">orsf_summarize_uni()</a></code> to show the top predictor variables in an ORSF model and the expected predicted risk at specific values of those predictors. (The term ‘uni’ is short for univariate.)</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># take a look at the top 5 variables </span></span>
 <span><span class="co"># for continuous predictors, see expected risk at 25/50/75th quantile</span></span>
 <span><span class="co"># for categorical predictors, see expected risk in specified category</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">fit</span>, n_variables <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- bili (VI Rank: 1) ----------------------------</span></span>
+<span><span class="co">#&gt; -- age (VI Rank: 1) -----------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;         |---------------- risk ----------------|</span></span>
 <span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
 <span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;    0.80 0.2301513 0.1216147 0.04465412 0.3713734</span></span>
-<span><span class="co">#&gt;     1.4 0.2521101 0.1355369 0.05720828 0.4022439</span></span>
-<span><span class="co">#&gt;     3.5 0.3693030 0.2789399 0.15395771 0.5777261</span></span>
+<span><span class="co">#&gt;      42 0.2711144 0.1371126 0.04265667 0.4737754</span></span>
+<span><span class="co">#&gt;      50 0.3007558 0.1661609 0.04900273 0.5097726</span></span>
+<span><span class="co">#&gt;      57 0.3319072 0.2089503 0.07061881 0.5643859</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- age (VI Rank: 2) -----------------------------</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;         |---------------- risk ----------------|</span></span>
-<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;      42 0.2698680 0.1360924 0.03826626 0.4375958</span></span>
-<span><span class="co">#&gt;      50 0.2984951 0.1646925 0.04567883 0.5237952</span></span>
-<span><span class="co">#&gt;      57 0.3317490 0.2179783 0.06907194 0.5597332</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- protime (VI Rank: 3) -------------------------</span></span>
+<span><span class="co">#&gt; -- bili (VI Rank: 2) ----------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;         |---------------- risk ----------------|</span></span>
 <span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
 <span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;      10 0.2803568 0.1514527 0.04432300 0.5159335</span></span>
-<span><span class="co">#&gt;      11 0.2936656 0.1588985 0.05149954 0.5392990</span></span>
-<span><span class="co">#&gt;      11 0.3162593 0.1932949 0.06516967 0.5436588</span></span>
+<span><span class="co">#&gt;    0.80 0.2291821 0.1170113 0.04592342 0.3688073</span></span>
+<span><span class="co">#&gt;     1.4 0.2496643 0.1388448 0.06020376 0.4054563</span></span>
+<span><span class="co">#&gt;     3.5 0.3705226 0.2927490 0.16222596 0.5511317</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- spiders (VI Rank: 4) -------------------------</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;         |---------------- risk ----------------|</span></span>
-<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;       0 0.2906128 0.1567162 0.04526985 0.5137760</span></span>
-<span><span class="co">#&gt;       1 0.3336593 0.2091174 0.08381937 0.5628989</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- ascites (VI Rank: 5) -------------------------</span></span>
+<span><span class="co">#&gt; -- copper (VI Rank: 3) --------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;         |---------------- risk ----------------|</span></span>
 <span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
 <span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;       0 0.2948807 0.1581709 0.04695869 0.5352667</span></span>
-<span><span class="co">#&gt;       1 0.4622080 0.3779279 0.25267155 0.6586023</span></span>
+<span><span class="co">#&gt;      43 0.2674542 0.1443824 0.04631652 0.4825262</span></span>
+<span><span class="co">#&gt;      74 0.2831247 0.1603985 0.05519124 0.5099932</span></span>
+<span><span class="co">#&gt;     129 0.3336233 0.2247753 0.10327836 0.5373395</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- stage (VI Rank: 4) ---------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;         |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;       1 0.2613092 0.1346674 0.04656766 0.4589368</span></span>
+<span><span class="co">#&gt;       2 0.2715204 0.1358854 0.04618129 0.4782684</span></span>
+<span><span class="co">#&gt;       3 0.2942587 0.1557578 0.05312238 0.5204041</span></span>
+<span><span class="co">#&gt;       4 0.3386524 0.2051842 0.08445636 0.5724707</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- protime (VI Rank: 5) -------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;         |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;      10 0.2833402 0.1498676 0.04555345 0.5049473</span></span>
+<span><span class="co">#&gt;      11 0.2960497 0.1602747 0.05321297 0.5378991</span></span>
+<span><span class="co">#&gt;      11 0.3155702 0.1887370 0.06624194 0.5559068</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Predicted risk at time t = 1788 for top 5 predictors</span></span></code></pre></div>
 </li>
 </ul>
+</div>
 </div>
 <div class="section level2">
 <h2 id="comparison-to-existing-software">Comparison to existing software<a class="anchor" aria-label="anchor" href="#comparison-to-existing-software"></a>
@@ -230,8 +276,11 @@
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<p>Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA, Howard G, Simon N. Oblique random survival forests. The Annals of Applied Statistics. 2019 Sep;13(3):1847-83. URL: <a href="https://doi.org/10.1214/19-AOAS1261" class="external-link uri">https://doi.org/10.1214/19-AOAS1261</a> DOI: 10.1214/19-AOAS1261</p>
-<p>Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. arXiv e-prints. 2022 Aug 3:arXiv-2208. URL: <a href="https://arxiv.org/abs/2208.01129" class="external-link uri">https://arxiv.org/abs/2208.01129</a></p>
+<ol style="list-style-type: decimal">
+<li><p>Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA, Howard G, Simon N. Oblique random survival forests. <em>Annals of applied statistics</em> 2019 Sep; 13(3):1847-83. DOI: 10.1214/19-AOAS1261</p></li>
+<li><p>Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. <em>arXiv e-prints</em> 2022 Aug; arXiv-2208. URL: <a href="https://arxiv.org/abs/2208.01129" class="external-link uri">https://arxiv.org/abs/2208.01129</a></p></li>
+<li><p>Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. <em>Joint European Conference on Machine Learning and Knowledge Discovery in Databases</em> 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29</p></li>
+</ol>
 </div>
 <div class="section level2">
 <h2 id="funding">Funding<a class="anchor" aria-label="anchor" href="#funding"></a>
