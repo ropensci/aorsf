@@ -156,7 +156,7 @@ partial dependence:
     value of an ORSF ensemble.
 
     ``` r
-    orsf_pd_summary(fit, pd_spec = list(bili = c(1:5)))
+    orsf_pd(fit, pd_spec = list(bili = c(1:5)))
     #>     bili      mean        lwr      medn       upr
     #>    <int>     <num>      <num>     <num>     <num>
     #> 1:     1 0.2338035 0.01359849 0.1221437 0.8637697

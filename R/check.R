@@ -1014,7 +1014,7 @@ check_orsf_inputs <- function(data = NULL,
 
 #' Check inputs for orsf_pd()
 #'
-#' @inheritParams orsf_pd_summary
+#' @inheritParams orsf_pd
 #'
 #' @return check functions 'return' errors and the intent is
 #'   to return nothing if nothing is wrong,

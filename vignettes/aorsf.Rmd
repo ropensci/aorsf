@@ -104,7 +104,7 @@ orsf_fit <- pbc_orsf |>
 
 Partial dependence shows the expected prediction from an ORSF model for a given set of predictor values.
 
-- `orsf_pd_summary()` shows summary values of predictions for the given set of predictor values
+- `orsf_pd()` shows summary values of predictions for the given set of predictor values
 
     ```{r}
     
@@ -113,9 +113,9 @@ Partial dependence shows the expected prediction from an ORSF model for a given 
     pd_spec <- list(edema = c("0", "0.5", "1"),
                     bili = seq(0.6, 7.1, by = 0.1))
     
-    # orsf_pd_summary automatically computes pd for all combinations
+    # orsf_pd automatically computes pd for all combinations
     # in the list (this can be turned off with expand_grid = FALSE)
-    pd_data <- orsf_pd_summary(object = orsf_fit, 
+    pd_data <- orsf_pd(object = orsf_fit, 
                                pd_spec = pd_spec,
                                expand_grid = TRUE, 
                                pred_horizon = 365.25 * 5)
@@ -130,7 +130,7 @@ Partial dependence shows the expected prediction from an ORSF model for a given 
     
     ```
 
-- `orsf_pd_ice()` shows predictions for each observation if the specified predictors are fixed at the specified predictor values. 
+- `orsf_ice()` shows predictions for each observation if the specified predictors are fixed at the specified predictor values. 
 
     ```{r}
     
@@ -139,9 +139,9 @@ Partial dependence shows the expected prediction from an ORSF model for a given 
     pd_spec <- list(edema = c("0", "0.5", "1"),
                     bili = seq(0.6, 7.1, by = 0.1))
     
-    # orsf_pd_summary automatically computes pd for all combinations
+    # orsf_pd automatically computes pd for all combinations
     # in the list (this can be turned off with expand_grid = FALSE)
-    pd_data <- orsf_pd_ice(object = orsf_fit, 
+    pd_data <- orsf_ice(object = orsf_fit, 
                            pd_spec = pd_spec,
                            expand_grid = TRUE, 
                            pred_horizon = 365.25 * 5)

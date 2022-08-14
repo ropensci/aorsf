@@ -61,8 +61,8 @@
 #' @param ... `r roxy_dots()`
 #'
 #' @return a `data.table` containing
-#'  - `orsf_pd_ice`: individual conditional expectation (ICE) values.
-#'  - `orsf_pd_summary`: summarized ICE values (i.e., partial dependence).
+#'  - `orsf_ice`: individual conditional expectation (ICE) values.
+#'  - `orsf_pd`: summarized ICE values (i.e., partial dependence).
 #'
 #' @export
 #'
@@ -70,11 +70,11 @@
 #'
 #' fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 #'
-#' orsf_pd_summary(fit, pd_spec = list(bili = c(1,2,3,4,5,6)), pred_horizon = 1000)
+#' orsf_pd(fit, pd_spec = list(bili = c(1,2,3,4,5,6)), pred_horizon = 1000)
 #'
 #' # more points for a plot
 #' pd_spec <- list(bili = seq(1, 6, length.out = 20))
-#' data_ice <- orsf_pd_ice(fit, pd_spec = pd_spec, pred_horizon = c(1000))
+#' data_ice <- orsf_ice(fit, pd_spec = pd_spec, pred_horizon = c(1000))
 #'
 #' head(data_ice)
 #'
@@ -87,7 +87,7 @@
 #'  theme_bw() +
 #'  theme(panel.grid = element_blank())
 
-orsf_pd_summary <- function(object,
+orsf_pd <- function(object,
                             pd_data = NULL,
                             pd_spec,
                             pred_horizon = NULL,
@@ -99,14 +99,14 @@ orsf_pd_summary <- function(object,
                             boundary_checks = TRUE,
                             ...){
 
- check_dots(list(...), orsf_pd_summary)
+ check_dots(list(...), orsf_pd)
 
  if(length(pred_horizon) > 1){
 
   out_list <- lapply(
    X = pred_horizon,
    FUN = function(.pred_horizon){
-    orsf_pd_summary(
+    orsf_pd(
      object          = object,
      pd_data         = pd_data,
      pd_spec         = pd_spec,
@@ -155,9 +155,9 @@ orsf_pd_summary <- function(object,
 
 }
 
-#' @rdname orsf_pd_summary
+#' @rdname orsf_pd
 #' @export
-orsf_pd_ice <- function(object,
+orsf_ice <- function(object,
                         pd_data = NULL,
                         pd_spec,
                         pred_horizon = NULL,
@@ -167,14 +167,14 @@ orsf_pd_ice <- function(object,
                         boundary_checks = TRUE,
                         ...){
 
- check_dots(list(...), orsf_pd_ice)
+ check_dots(list(...), orsf_ice)
 
  if(length(pred_horizon) > 1){
 
   out_list <- lapply(
    X = pred_horizon,
    FUN = function(.pred_horizon){
-    orsf_pd_ice(
+    orsf_ice(
      object          = object,
      pd_data         = pd_data,
      pd_spec         = pd_spec,
@@ -222,7 +222,7 @@ orsf_pd_ice <- function(object,
 #' this function takes inputs from the main API functions and
 #'   determines which of the lower level functions to call.
 #'
-#' @inheritParams orsf_pd_summary
+#' @inheritParams orsf_pd
 #' @param type_output 'ice' or 'smry'.
 #'   this in combination with oobag determines which cpp routine to use.
 #' @param type_input if 'grid', then all combos of pd_data are considered.
@@ -402,7 +402,7 @@ orsf_pd_ <- function(object,
 #'
 #' @return a `data.table` containing summarized partial dependence
 #'   values if using `orsf_pd_summery` or individual conditional
-#'   expectation (ICE) partial dependence if using `orsf_pd_ice`.
+#'   expectation (ICE) partial dependence if using `orsf_ice`.
 #'
 #' @noRd
 
@@ -489,7 +489,7 @@ pd_grid <- function(object,
 #'
 #' @return a `data.table` containing summarized partial dependence
 #'   values if using `orsf_pd_summery` or individual conditional
-#'   expectation (ICE) partial dependence if using `orsf_pd_ice`.
+#'   expectation (ICE) partial dependence if using `orsf_ice`.
 #'
 #' @noRd
 

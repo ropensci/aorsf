@@ -111,13 +111,13 @@ You can also supply your own R function to estimate out-of-bag error when using 
 
 `aorsf` can generate individual conditional expectation (ICE) and partial dependence: 
 
-- ICE is the expected predicted value of an ORSF ensemble for an individual observation.
+- ICE is the expected predicted value for an individual observation. ICE can be used to show how the prediction for an observation changes when a predictor changes.
 
 - partial dependence is a multi-variable adjusted expected predicted value of an ORSF ensemble.
 
   ```{r}
   
-  orsf_pd_summary(fit, pd_spec = list(bili = c(1:5)))
+  orsf_pd(fit, pd_spec = list(bili = c(1:5)))
   
   ```
 

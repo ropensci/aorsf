@@ -41,13 +41,13 @@ orsf_fit <- orsf(data = pbc_orsf,
 
 ```
 
-To view the partial dependence between predicted risk and the combination of blood vessel malformations in the skin (`spiders`) and urine copper (`copper`), we use `orsf_pd_summary`. The `pd_spec` argument contains the variable values we want to compute partial dependence for. By default `oobag == TRUE`, meaning partial dependence is calculated using the out of bag training data. We keep this set to `TRUE` because we are computing partial dependence using the training data. `expand_grid == TRUE` tells `orsf_pd_summary` to use all combinations of values in `pd_spec`.
+To view the partial dependence between predicted risk and the combination of blood vessel malformations in the skin (`spiders`) and urine copper (`copper`), we use `orsf_pd`. The `pd_spec` argument contains the variable values we want to compute partial dependence for. By default `oobag == TRUE`, meaning partial dependence is calculated using the out of bag training data. We keep this set to `TRUE` because we are computing partial dependence using the training data. `expand_grid == TRUE` tells `orsf_pd` to use all combinations of values in `pd_spec`.
 
 ```{r}
 pd_spec <- list(spiders = c("0", "1"),
                 copper = seq(45, 130, by = 10))
 
-pd_data <- orsf_pd_summary(object = orsf_fit,
+pd_data <- orsf_pd(object = orsf_fit,
                            pd_spec = pd_spec,
                            oobag = TRUE,
                            expand_grid = TRUE)
@@ -60,12 +60,12 @@ ggplot(pd_data) +
       title = 'Partial dependence of copper and spiders')
 ```
 
-Next lets look at Individual Conditional Expectation (ICE). Each instance in the dataset is represented by one line showing change in prediction dependent on change in a feature. While `orsf_pd_ice` allows you to use multiple features, it is recommended to view one at a time. In the plot below we can see how each data point's predicted survival changes as copper changes. 
+Next lets look at Individual Conditional Expectation (ICE). Each instance in the dataset is represented by one line showing change in prediction dependent on change in a feature. While `orsf_ice` allows you to use multiple features, it is recommended to view one at a time. In the plot below we can see how each data point's predicted survival changes as copper changes. 
 
 
 ```{r}
 
-ice_data <- orsf_pd_ice(object = orsf_fit,
+ice_data <- orsf_ice(object = orsf_fit,
                        pd_spec = list(copper = seq(45, 130, by = 10)),
                        expand_grid = TRUE)
 

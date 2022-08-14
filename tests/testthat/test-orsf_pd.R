@@ -12,21 +12,21 @@ test_that(
  'pd uses oobag data if asked',
  code = {
   expect_identical(
-   orsf_pd_ice(object,
+   orsf_ice(object,
                pd_data = NULL,
                pd_spec = list(bili = c(0.8)),
                oobag = TRUE),
-   suppressWarnings(orsf_pd_ice(object,
+   suppressWarnings(orsf_ice(object,
                                 pd_data = pbc_orsf,
                                 pd_spec = list(bili = c(0.8)),
                                 oobag = TRUE))
   )
   expect_identical(
-   orsf_pd_summary(object,
+   orsf_pd(object,
                    pd_data = NULL,
                    pd_spec = list(bili = c(0.8)),
                    oobag = TRUE),
-   suppressWarnings(orsf_pd_summary(object,
+   suppressWarnings(orsf_pd(object,
                                     pd_data = pbc_orsf,
                                     pd_spec = list(bili = c(0.8)),
                                     oobag = TRUE))
@@ -40,7 +40,7 @@ test_that(
  desc = 'pd won\'t use incorrect data when oobag is true',
  code = {
   expect_warning(
-   orsf_pd_summary(object,
+   orsf_pd(object,
                    pd_data = pbc_orsf[1:10,],
                    pd_spec = list(bili = c(0.8)),
                    oobag = TRUE)
@@ -57,7 +57,7 @@ test_that(
  "user cant supply empty pd_spec",
  code = {
   expect_error(
-   orsf_pd_ice(object,
+   orsf_ice(object,
                pd_data = pbc_orsf,
                pd_spec = list(),
                pred_horizon = 1000,
@@ -71,7 +71,7 @@ test_that(
  "user cant supply pd_spec with non-matching names",
  code = {
   expect_error(
-   orsf_pd_ice(object,
+   orsf_ice(object,
                pd_data = pbc_orsf,
                pd_spec = list(bili = 1:5,
                               nope = c(1,2),
@@ -92,7 +92,7 @@ test_that(
  "user cant supply pd_spec with values out of bounds",
  code = {
   expect_error(
-   orsf_pd_ice(object,
+   orsf_ice(object,
                pd_data = pbc_orsf,
                pd_spec = list(bili = c(bad_value_lower, 1:10, bad_value_upper)),
                pred_horizon = 1000,
@@ -102,7 +102,7 @@ test_that(
  }
 )
 
-pd_vals_ice <- orsf_pd_ice(
+pd_vals_ice <- orsf_ice(
  object,
  pd_data = pbc_orsf,
  pd_spec = list(bili = 1:4),
@@ -110,7 +110,7 @@ pd_vals_ice <- orsf_pd_ice(
  oobag = FALSE
 )
 
-pd_vals_smry <- orsf_pd_summary(
+pd_vals_smry <- orsf_pd(
  object,
  pd_data = pbc_orsf,
  pd_spec = list(bili = 1:4),
@@ -139,7 +139,7 @@ test_that(
 
  code = {
 
-  pd_smry_multi_horiz <- orsf_pd_summary(
+  pd_smry_multi_horiz <- orsf_pd(
    object,
    pd_spec = list(bili = 1),
    pred_horizon = c(1000, 2000, 3000),
@@ -153,7 +153,7 @@ test_that(
   expect_lte(pd_smry_multi_horiz$medn[1], pd_smry_multi_horiz$medn[2])
   expect_lte(pd_smry_multi_horiz$medn[2], pd_smry_multi_horiz$medn[3])
 
-  pd_ice_multi_horiz <- orsf_pd_ice(
+  pd_ice_multi_horiz <- orsf_ice(
    object,
    pd_spec = list(bili = 1),
    pred_horizon = c(1000, 2000, 3000),
@@ -193,14 +193,14 @@ test_that(
 #
 # pd_spec <- list(bili = 1:5)
 #
-# pd_bcj <- orsf_pd_ice(object,
+# pd_bcj <- orsf_ice(object,
 #                       pd_data = pbc_orsf,
 #                       pd_spec = pd_spec,
 #                       pred_horizon = 1000,
 #                       expand_grid = TRUE,
 #                       oobag = FALSE)
 #
-# pd_smry <- orsf_pd_summary(object,
+# pd_smry <- orsf_pd(object,
 #                            pd_data = pbc_orsf,
 #                            pd_spec = pd_spec,
 #                            pred_horizon = 1000,

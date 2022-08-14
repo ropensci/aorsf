@@ -1,6 +1,7 @@
 
 # NOTE: THIS IS STILL EXPERIMENTAL; I MAY REMOVE IT.
-# (why? Using vip's interaction function works better, but is slower)
+# (why? Using vip's interaction function works better.
+# However, my method is faster - so maybe include this? consider for 0.0.2)
 
 #' ORSF interactions
 #'
@@ -45,9 +46,9 @@
 #' pd_spec <- list(edema = c("0", "0.5", "1"),
 #'                 bili = seq(0.6, 7.1, by = 0.5))
 #'
-#' # orsf_pd_summary automatically computes pd for all combinations
+#' # orsf_pd automatically computes pd for all combinations
 #' # in the list (this can be turned off with expand_grid = FALSE)
-#' pd_data <- orsf_pd_summary(object = fit,
+#' pd_data <- orsf_pd(object = fit,
 #'                            pd_spec = pd_spec,
 #'                            expand_grid = TRUE)
 #'

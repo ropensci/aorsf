@@ -145,7 +145,7 @@ orsf_summarize_uni <- function(object,
 
  }
 
- pd_output <- orsf_pd_summary(object = object,
+ pd_output <- orsf_pd(object = object,
                               pd_spec = pd_spec,
                               expand_grid = FALSE,
                               pred_type = pred_type,

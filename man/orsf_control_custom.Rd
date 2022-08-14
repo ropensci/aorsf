@@ -130,16 +130,16 @@ The PCA ORSF does quite well!
 ##         model times  Brier  lower  upper    IPA
 ##        <fctr> <num> <char> <char> <char> <char>
 ## 1: Null model  1788 20.479 18.089 22.869  0.000
-## 2:      rando  1788 13.709 11.522 15.896 33.060
-## 3:        pca  1788 11.557  9.656 13.458 43.568
+## 2:      rando  1788 13.638 11.461 15.815 33.406
+## 3:        pca  1788 11.617  9.714 13.520 43.274
 ## 
 ## Results of model comparisons:
 ## 
 ##    times  model  reference delta.Brier   lower  upper            p
 ##    <num> <fctr>     <fctr>      <char>  <char> <char>        <num>
-## 1:  1788  rando Null model      -6.770  -8.868 -4.673 2.494862e-10
-## 2:  1788    pca Null model      -8.922 -10.894 -6.950 7.463386e-19
-## 3:  1788    pca      rando      -2.152  -3.134 -1.169 1.768311e-05
+## 1:  1788  rando Null model      -6.841  -8.876 -4.807 4.378390e-11
+## 2:  1788    pca Null model      -8.862 -10.813 -6.911 5.535345e-19
+## 3:  1788    pca      rando      -2.021  -2.939 -1.102 1.611044e-05
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.
