@@ -36,23 +36,11 @@
 #'
 #' @section Variable importance methods:
 #'
-#' __negation importance__: Each variable is assessed separately by
-#'  multiplying the variable's coefficients by -1 and then determining
-#'  how much the model's performance changes. The worse the model's
-#'  performance after negating coefficients for a given variable,
-#'  the more important the variable.
+#' __negation importance__: `r roxy_vi_describe('negate')`
 #'
-#' __permutation importance__: Each variable is assessed separately by
-#'  randomly permuting the variable's values and then determining
-#'  how much the model's performance changes. The worse the model's
-#'  performance after permuting the values of a given variable,
-#'  the more important the variable.
+#' __permutation importance__: `r roxy_vi_describe('permute')`
 #'
-#' __analysis of variance (ANOVA) importance__: computes a p-value for each
-#' coefficient in each linear combination of variables in each decision
-#' tree of an oblique random forest. Following the definition proposed by
-#' Menze et al, ANOVA importance for an individual predictor variable is
-#' the proportion of times a p-value for its coefficient is < 0.01.
+#' __analysis of variance (ANOVA) importance__: `r roxy_vi_describe('anova')`
 #'
 #' @return `orsf_vi` functions return a named numeric vector.
 #'

@@ -33,11 +33,11 @@ knitr::opts_chunk$set(
 
 ## Why aorsf?
 
-- Hundreds of times faster than `obliqueRSF` (see Jaeger, 2019).
+- Hundreds of times faster than `obliqueRSF`.^1^
 
-- accurate predictions for time-to-event outcomes.
+- Fast and accurate predictions for censored outcomes.^2^
 
-- negation importance, a novel technique to estimate variable importance for ORSFs.
+- negation importance, a novel technique to estimate variable importance for ORSFs.^2^
 
 - intuitive API with formula based interface.
 
@@ -51,24 +51,37 @@ You can install the development version of aorsf from [GitHub](https://github.co
 # install.packages("remotes")
 remotes::install_github("bcjaeger/aorsf")
 ```
+
 ## Example
 
-The `orsf()` function is used to fit ORSFs. Printing the output from `orsf()` will give some descriptive statistics about the ensemble.
+The `orsf()` function is used to fit ORSF ensembles: 
 
-```{r example}
+```{r}
 
 library(aorsf)
 
-fit <- orsf(data = pbc_orsf,
+fit <- orsf(data = pbc_orsf, 
             formula = Surv(time, status) ~ . - id)
+
+```
+
+The default routine to fit ORSF ensembles is the 'accelerated' ORSF - an algorithm based on Newton Raphson scoring that does very well in benchmarks of prediction accuracy and computational efficiency.^2^ In addition to the accelerated ORSF, `aorsf` can fit a broad range of ORSF ensembles (see ORSF CONTROL VIGNETTE (not yet written)). 
+
+### Inspect
+
+Printing the output from `orsf()` will give some descriptive statistics about the ensemble.
+
+```{r}
 
 print(fit)
 
 ```
 
-How about interpreting the fit? 
+### Variable importance
 
-- use `orsf_vi_negate()` and `orsf_vi_anova()` for variable importance
+The importance of individual variables can be estimated in three ways using `aorsf`:
+
+- **negation**: `r aorsf:::roxy_vi_describe('negate')`
 
   ```{r}
   
@@ -76,7 +89,31 @@ How about interpreting the fit?
   
   ```
 
-- use `orsf_pd_ice()` or `orsf_pd_summary()` for individual or aggregated partial dependence values. 
+- **permutation**: `r aorsf:::roxy_vi_describe('permute')`
+
+  ```{r}
+  
+  orsf_vi_permute(fit)
+  
+  ```
+  
+- **analysis of variance (ANOVA)^3^**: `r aorsf:::roxy_vi_describe('anova')`
+
+  ```{r}
+  
+  orsf_vi_anova(fit)
+  
+  ```
+
+You can also supply your own R function to estimate out-of-bag error when using negation or permutation importance (see [oob vignette](https://bcjaeger.github.io/aorsf/articles/oobag.html)). 
+
+### Partial dependence
+
+`aorsf` can generate individual conditional expectation (ICE) and partial dependence: 
+
+- ICE is the expected predicted value of an ORSF ensemble for an individual observation.
+
+- partial dependence is a multi-variable adjusted expected predicted value of an ORSF ensemble.
 
   ```{r}
   
@@ -105,9 +142,16 @@ Jaeger (2022) describes `aorsf` in detail, with a summary of the procedures used
 
 ## References
 
-Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA, Howard G, Simon N. Oblique random survival forests. The Annals of Applied Statistics. 2019 Sep;13(3):1847-83. URL: https://doi.org/10.1214/19-AOAS1261 DOI: 10.1214/19-AOAS1261
+```{r results='asis', echo=FALSE}
 
-Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. arXiv e-prints. 2022 Aug 3:arXiv-2208. URL: https://arxiv.org/abs/2208.01129
+cat("1. ", aorsf:::roxy_cite_jaeger_2019(), '\n\n')
+
+cat("2. ", aorsf:::roxy_cite_jaeger_2022(), '\n\n')
+
+cat("3. ", aorsf:::roxy_cite_menze_2011())
+
+```
+
 
 ## Funding
 

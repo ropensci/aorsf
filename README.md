@@ -20,12 +20,12 @@ predictions with oblique random survival forests (ORSFs).
 
 ## Why aorsf?
 
--   Hundreds of times faster than `obliqueRSF` (see Jaeger, 2019).
+-   Hundreds of times faster than `obliqueRSF`.<sup>1</sup>
 
--   accurate predictions for time-to-event outcomes.
+-   Fast and accurate predictions for censored outcomes.<sup>2</sup>
 
 -   negation importance, a novel technique to estimate variable
-    importance for ORSFs.
+    importance for ORSFs.<sup>2</sup>
 
 -   intuitive API with formula based interface.
 
@@ -43,15 +43,28 @@ remotes::install_github("bcjaeger/aorsf")
 
 ## Example
 
-The `orsf()` function is used to fit ORSFs. Printing the output from
-`orsf()` will give some descriptive statistics about the ensemble.
+The `orsf()` function is used to fit ORSF ensembles:
 
 ``` r
 library(aorsf)
 
-fit <- orsf(data = pbc_orsf,
+fit <- orsf(data = pbc_orsf, 
             formula = Surv(time, status) ~ . - id)
+```
 
+The default routine to fit ORSF ensembles is the ‘accelerated’ ORSF - an
+algorithm based on Newton Raphson scoring that does very well in
+benchmarks of prediction accuracy and computational
+efficiency.<sup>2</sup> In addition to the accelerated ORSF, `aorsf` can
+fit a broad range of ORSF ensembles (see ORSF CONTROL VIGNETTE (not yet
+written)).
+
+### Inspect
+
+Printing the output from `orsf()` will give some descriptive statistics
+about the ensemble.
+
+``` r
 print(fit)
 #> ---------- Oblique random survival forest
 #> 
@@ -71,34 +84,86 @@ print(fit)
 #> -----------------------------------------
 ```
 
-How about interpreting the fit?
+### Variable importance
 
--   use `orsf_vi_negate()` and `orsf_vi_anova()` for variable importance
+The importance of individual variables can be estimated in three ways
+using `aorsf`:
+
+-   **negation**: Each variable is assessed separately by multiplying
+    the variable’s coefficients by -1 and then determining how much the
+    model’s performance changes. The worse the model’s performance after
+    negating coefficients for a given variable, the more important the
+    variable.
 
     ``` r
     orsf_vi_negate(fit)
-    #>          bili           age       protime       spiders       ascites 
-    #>  0.0189101896  0.0156282559  0.0073973745  0.0051573244  0.0044280058 
-    #>        copper         stage           ast          trig           sex 
-    #>  0.0040633465  0.0034903105  0.0025526151  0.0025005209  0.0018753907 
-    #>         edema        hepato      platelet      alk.phos          chol 
-    #>  0.0013978607  0.0007293186 -0.0006772244 -0.0009376954 -0.0014065430 
-    #>           trt 
-    #> -0.0019274849
+    #>           age          bili        copper         stage       protime 
+    #>  0.0151594082  0.0133361117  0.0065638675  0.0060950198  0.0060429256 
+    #>       albumin           sex       spiders       ascites           ast 
+    #>  0.0059387372  0.0058345489  0.0049489477  0.0048447593  0.0035424047 
+    #>         edema        hepato          chol          trig           trt 
+    #>  0.0019498110  0.0006772244 -0.0014065430 -0.0015107314 -0.0019795791 
+    #>      platelet      alk.phos 
+    #> -0.0026568035 -0.0032819337
     ```
 
--   use `orsf_pd_ice()` or `orsf_pd_summary()` for individual or
-    aggregated partial dependence values.
+-   **permutation**: Each variable is assessed separately by randomly
+    permuting the variable’s values and then determining how much the
+    model’s performance changes. The worse the model’s performance after
+    permuting the values of a given variable, the more important the
+    variable.
+
+    ``` r
+    orsf_vi_permute(fit)
+    #>          bili           age        copper       albumin         stage 
+    #>  1.604501e-02  1.302355e-02  5.261513e-03  3.959158e-03  3.907064e-03 
+    #>       protime       ascites       spiders           sex          trig 
+    #>  3.021463e-03  2.917274e-03  9.897895e-04  4.167535e-04  1.562826e-04 
+    #>         edema        hepato      platelet          chol           trt 
+    #> -4.713284e-05 -1.041884e-04 -1.562826e-04 -4.167535e-04 -6.772244e-04 
+    #>           ast      alk.phos 
+    #> -1.198166e-03 -1.354449e-03
+    ```
+
+-   **analysis of variance (ANOVA)<sup>3</sup>**: A p-value is computed
+    for each coefficient in each linear combination of variables in each
+    decision tree. Importance for an individual predictor variable is
+    the proportion of times a p-value for its coefficient is \< 0.01.
+
+    ``` r
+    orsf_vi_anova(fit)
+    #>    ascites       bili      edema     copper        age    albumin    protime 
+    #> 0.35348226 0.28289811 0.24968033 0.18991641 0.18409387 0.16945107 0.15829608 
+    #>      stage        ast       chol    spiders        sex     hepato       trig 
+    #> 0.13969986 0.13060480 0.12707469 0.12549740 0.11944046 0.11162362 0.10188777 
+    #>   alk.phos   platelet        trt 
+    #> 0.09502618 0.07333506 0.05134680
+    ```
+
+You can also supply your own R function to estimate out-of-bag error
+when using negation or permutation importance (see [oob
+vignette](https://bcjaeger.github.io/aorsf/articles/oobag.html)).
+
+### Partial dependence
+
+`aorsf` can generate individual conditional expectation (ICE) and
+partial dependence:
+
+-   ICE is the expected predicted value of an ORSF ensemble for an
+    individual observation.
+
+-   partial dependence is a multi-variable adjusted expected predicted
+    value of an ORSF ensemble.
 
     ``` r
     orsf_pd_summary(fit, pd_spec = list(bili = c(1:5)))
     #>     bili      mean        lwr      medn       upr
     #>    <int>     <num>      <num>     <num>     <num>
-    #> 1:     1 0.2356302 0.01203499 0.1233501 0.8728360
-    #> 2:     2 0.2872993 0.03491402 0.1809715 0.8968723
-    #> 3:     3 0.3428164 0.05744697 0.2435341 0.9165324
-    #> 4:     4 0.3911216 0.09348188 0.3115675 0.9336801
-    #> 5:     5 0.4323540 0.12792062 0.3634836 0.9436788
+    #> 1:     1 0.2338035 0.01359849 0.1221437 0.8637697
+    #> 2:     2 0.2864137 0.03772655 0.1806327 0.8944082
+    #> 3:     3 0.3434524 0.06803086 0.2455590 0.9050007
+    #> 4:     4 0.3949240 0.09451781 0.3250008 0.9312628
+    #> 5:     5 0.4372363 0.13161986 0.3747099 0.9377383
     ```
 
 -   use `orsf_summarize_uni()` to show the top predictor variables in an
@@ -112,48 +177,51 @@ How about interpreting the fit?
 
     orsf_summarize_uni(object = fit, n_variables = 5)
     #> 
-    #> -- bili (VI Rank: 1) ----------------------------
+    #> -- age (VI Rank: 1) -----------------------------
     #> 
     #>         |---------------- risk ----------------|
     #>   Value      Mean    Median     25th %    75th %
     #>  <char>     <num>     <num>      <num>     <num>
-    #>    0.80 0.2301513 0.1216147 0.04465412 0.3713734
-    #>     1.4 0.2521101 0.1355369 0.05720828 0.4022439
-    #>     3.5 0.3693030 0.2789399 0.15395771 0.5777261
+    #>      42 0.2711144 0.1371126 0.04265667 0.4737754
+    #>      50 0.3007558 0.1661609 0.04900273 0.5097726
+    #>      57 0.3319072 0.2089503 0.07061881 0.5643859
     #> 
-    #> -- age (VI Rank: 2) -----------------------------
-    #> 
-    #>         |---------------- risk ----------------|
-    #>   Value      Mean    Median     25th %    75th %
-    #>  <char>     <num>     <num>      <num>     <num>
-    #>      42 0.2698680 0.1360924 0.03826626 0.4375958
-    #>      50 0.2984951 0.1646925 0.04567883 0.5237952
-    #>      57 0.3317490 0.2179783 0.06907194 0.5597332
-    #> 
-    #> -- protime (VI Rank: 3) -------------------------
+    #> -- bili (VI Rank: 2) ----------------------------
     #> 
     #>         |---------------- risk ----------------|
     #>   Value      Mean    Median     25th %    75th %
     #>  <char>     <num>     <num>      <num>     <num>
-    #>      10 0.2803568 0.1514527 0.04432300 0.5159335
-    #>      11 0.2936656 0.1588985 0.05149954 0.5392990
-    #>      11 0.3162593 0.1932949 0.06516967 0.5436588
+    #>    0.80 0.2291821 0.1170113 0.04592342 0.3688073
+    #>     1.4 0.2496643 0.1388448 0.06020376 0.4054563
+    #>     3.5 0.3705226 0.2927490 0.16222596 0.5511317
     #> 
-    #> -- spiders (VI Rank: 4) -------------------------
-    #> 
-    #>         |---------------- risk ----------------|
-    #>   Value      Mean    Median     25th %    75th %
-    #>  <char>     <num>     <num>      <num>     <num>
-    #>       0 0.2906128 0.1567162 0.04526985 0.5137760
-    #>       1 0.3336593 0.2091174 0.08381937 0.5628989
-    #> 
-    #> -- ascites (VI Rank: 5) -------------------------
+    #> -- copper (VI Rank: 3) --------------------------
     #> 
     #>         |---------------- risk ----------------|
     #>   Value      Mean    Median     25th %    75th %
     #>  <char>     <num>     <num>      <num>     <num>
-    #>       0 0.2948807 0.1581709 0.04695869 0.5352667
-    #>       1 0.4622080 0.3779279 0.25267155 0.6586023
+    #>      43 0.2674542 0.1443824 0.04631652 0.4825262
+    #>      74 0.2831247 0.1603985 0.05519124 0.5099932
+    #>     129 0.3336233 0.2247753 0.10327836 0.5373395
+    #> 
+    #> -- stage (VI Rank: 4) ---------------------------
+    #> 
+    #>         |---------------- risk ----------------|
+    #>   Value      Mean    Median     25th %    75th %
+    #>  <char>     <num>     <num>      <num>     <num>
+    #>       1 0.2613092 0.1346674 0.04656766 0.4589368
+    #>       2 0.2715204 0.1358854 0.04618129 0.4782684
+    #>       3 0.2942587 0.1557578 0.05312238 0.5204041
+    #>       4 0.3386524 0.2051842 0.08445636 0.5724707
+    #> 
+    #> -- protime (VI Rank: 5) -------------------------
+    #> 
+    #>         |---------------- risk ----------------|
+    #>   Value      Mean    Median     25th %    75th %
+    #>  <char>     <num>     <num>      <num>     <num>
+    #>      10 0.2833402 0.1498676 0.04555345 0.5049473
+    #>      11 0.2960497 0.1602747 0.05321297 0.5378991
+    #>      11 0.3155702 0.1887370 0.06624194 0.5559068
     #> 
     #>  Predicted risk at time t = 1788 for top 5 predictors
     ```
@@ -167,14 +235,20 @@ terms of prediction accuracy and computational efficiency.
 
 ## References
 
-Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA,
-Howard G, Simon N. Oblique random survival forests. The Annals of
-Applied Statistics. 2019 Sep;13(3):1847-83. URL:
-<https://doi.org/10.1214/19-AOAS1261> DOI: 10.1214/19-AOAS1261
+1.  Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure
+    LA, Howard G, Simon N. Oblique random survival forests. *Annals of
+    applied statistics* 2019 Sep; 13(3):1847-83. DOI:
+    10.1214/19-AOAS1261
 
-Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski
-NM. Accelerated and interpretable oblique random survival forests. arXiv
-e-prints. 2022 Aug 3:arXiv-2208. URL: <https://arxiv.org/abs/2208.01129>
+2.  Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A,
+    Pajewski NM. Accelerated and interpretable oblique random survival
+    forests. *arXiv e-prints* 2022 Aug; arXiv-2208. URL:
+    <https://arxiv.org/abs/2208.01129>
+
+3.  Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique
+    random forests. *Joint European Conference on Machine Learning and
+    Knowledge Discovery in Databases* 2011 Sep 4; pp. 453-469. DOI:
+    10.1007/978-3-642-23783-6_29
 
 ## Funding
 
