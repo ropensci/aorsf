@@ -126,20 +126,20 @@ in ascending order.</p>
 <span class="r-in"><span><span class="co"># indices of data used to test the trained model.</span></span></span>
 <span class="r-in"><span><span class="va">test</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">pbc_orsf</span><span class="op">)</span>, by <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span><span class="op">[</span><span class="va">train</span>, <span class="op">]</span>, <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span><span class="op">[</span><span class="va">train</span>, <span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>,</span></span>
 <span class="r-in"><span>                 new_data <span class="op">=</span> <span class="va">pbc_orsf</span><span class="op">[</span><span class="va">test</span>, <span class="op">]</span>,</span></span>
 <span class="r-in"><span>                 pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1500</span>, <span class="fl">2500</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">preds</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             [,1]       [,2]      [,3]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.054967019 0.13825089 0.3334991</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.208588662 0.44738104 0.5969182</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 0.014022281 0.06761939 0.2489436</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 0.076063038 0.20086816 0.4019437</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 0.061714380 0.12217379 0.2392769</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [6,] 0.008770005 0.01430232 0.0847691</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             [,1]       [,2]       [,3]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] 0.045460840 0.12739569 0.31790007</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] 0.182410821 0.43037386 0.59370344</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] 0.010514769 0.07821126 0.22512083</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] 0.066678875 0.20516163 0.40843071</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] 0.068061695 0.13451958 0.25178886</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [6,] 0.007898066 0.01599684 0.09260083</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

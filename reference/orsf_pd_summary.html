@@ -180,16 +180,16 @@ skipped.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">orsf_pd_summary</span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">4</span>,<span class="fl">5</span>,<span class="fl">6</span><span class="op">)</span><span class="op">)</span>, pred_horizon <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    bili      mean         lwr       medn       upr</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:    1 0.1368473 0.002647135 0.05373843 0.7332351</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:    2 0.1624555 0.010347906 0.07794355 0.7648305</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:    3 0.1968191 0.024794500 0.11529830 0.8037206</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:    4 0.2233527 0.037086764 0.14179952 0.8368664</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:    5 0.2459974 0.047456179 0.16838379 0.8447562</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:    6 0.2683466 0.064490724 0.19511925 0.8541614</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:    1 0.1362169 0.003077319 0.04990375 0.7406941</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:    2 0.1613232 0.010909159 0.07537906 0.7576353</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:    3 0.1967830 0.027086006 0.11451161 0.8073377</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:    4 0.2258142 0.040869241 0.14290093 0.8382197</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:    5 0.2521213 0.051753881 0.17617167 0.8459702</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:    6 0.2767221 0.078184743 0.20256071 0.8630594</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># more points for a plot</span></span></span>
 <span class="r-in"><span><span class="va">pd_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">6</span>, length.out <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -197,12 +197,12 @@ skipped.</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">data_ice</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    id_variable id_row bili        pred</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:           1      1    1 0.784989359</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:           1      2    1 0.024393568</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:           1      3    1 0.332707322</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:           1      4    1 0.174907174</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:           1      5    1 0.063437419</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:           1      6    1 0.007804884</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:           1      1    1 0.798147617</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:           1      2    1 0.033281645</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:           1      3    1 0.333617582</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:           1      4    1 0.177329919</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:           1      5    1 0.050092067</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:           1      6    1 0.007807211</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
