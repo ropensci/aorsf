@@ -2,10 +2,21 @@
 % Please edit documentation in R/orsf_pd.R
 \name{orsf_ice_oob}
 \alias{orsf_ice_oob}
+\alias{orsf_ice_inb}
 \alias{orsf_ice_new}
 \title{ORSF Individual Conditional Expectations}
 \usage{
 orsf_ice_oob(
+  object,
+  pd_spec,
+  pred_horizon = NULL,
+  pred_type = "risk",
+  expand_grid = TRUE,
+  boundary_checks = TRUE,
+  ...
+)
+
+orsf_ice_inb(
   object,
   pd_spec,
   pred_horizon = NULL,

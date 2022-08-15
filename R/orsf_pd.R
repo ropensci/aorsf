@@ -87,6 +87,39 @@ orsf_pd_oob <- function(object,
 
 #' @rdname orsf_pd_oob
 #' @export
+orsf_pd_inb <- function(object,
+                        pd_spec,
+                        pred_horizon = NULL,
+                        pred_type = 'risk',
+                        expand_grid = TRUE,
+                        prob_values = c(0.025, 0.50, 0.975),
+                        prob_labels = c('lwr', 'medn', 'upr'),
+                        boundary_checks = TRUE,
+                        ...){
+
+ check_dots(list(...), orsf_pd_inb)
+
+ if(is.null(object$data))
+  stop("no data were found in object. ",
+       "did you use attach_data = FALSE when ",
+       "running orsf()?", call. = FALSE)
+
+ orsf_pred_dependence(object = object,
+                      pd_spec = pd_spec,
+                      pd_data = object$data,
+                      pred_horizon = pred_horizon,
+                      pred_type = pred_type,
+                      expand_grid = expand_grid,
+                      prob_values = prob_values,
+                      prob_labels = prob_labels,
+                      boundary_checks = boundary_checks,
+                      oobag = FALSE,
+                      type_output = 'smry')
+
+}
+
+#' @rdname orsf_pd_oob
+#' @export
 orsf_pd_new <- function(object,
                         pd_spec,
                         new_data,
@@ -151,6 +184,35 @@ orsf_ice_oob <- function(object,
                       expand_grid = expand_grid,
                       boundary_checks = boundary_checks,
                       oobag = TRUE,
+                      type_output = 'ice')
+
+}
+
+#' @rdname orsf_ice_oob
+#' @export
+orsf_ice_inb <- function(object,
+                         pd_spec,
+                         pred_horizon = NULL,
+                         pred_type = 'risk',
+                         expand_grid = TRUE,
+                         boundary_checks = TRUE,
+                         ...){
+
+ check_dots(list(...), orsf_ice_oob)
+
+ if(is.null(object$data))
+  stop("no data were found in object. ",
+       "did you use attach_data = FALSE when ",
+       "running orsf()?", call. = FALSE)
+
+ orsf_pred_dependence(object = object,
+                      pd_spec = pd_spec,
+                      pd_data = object$data,
+                      pred_horizon = pred_horizon,
+                      pred_type = pred_type,
+                      expand_grid = expand_grid,
+                      boundary_checks = boundary_checks,
+                      oobag = FALSE,
                       type_output = 'ice')
 
 }

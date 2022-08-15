@@ -273,10 +273,83 @@ FILL
 library(aorsf)
 library(survival)
 library(tidymodels)
-library(tidyverse)
-library(randomForestSRC)
-library(ranger)
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## -- Attaching packages --------------------------------- tidymodels 0.2.0 --
+
+## v broom        1.0.0     v recipes      1.0.1
+## v dials        0.1.1     v rsample      0.1.1
+## v dplyr        1.0.9     v tibble       3.1.7
+## v ggplot2      3.3.6     v tidyr        1.2.0
+## v infer        1.0.0     v tune         0.2.0
+## v modeldata    0.1.1     v workflows    0.2.6
+## v parsnip      1.0.0     v workflowsets 0.2.1
+## v purrr        0.3.4     v yardstick    0.0.9
+
+## -- Conflicts ------------------------------------ tidymodels_conflicts() --
+## x dplyr::between()      masks aorsf::between()
+## x purrr::discard()      masks scales::discard()
+## x dplyr::filter()       masks stats::filter()
+## x dplyr::first()        masks aorsf::first()
+## x recipes::is_trained() masks aorsf::is_trained()
+## x dplyr::lag()          masks stats::lag()
+## x dplyr::last()         masks aorsf::last()
+## x recipes::step()       masks stats::step()
+## x purrr::transpose()    masks aorsf::transpose()
+## * Search for functions across packages at https://www.tidymodels.org/find/
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(tidyverse)
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## -- Attaching packages ---------------------------------- tidyverse 1.3.1 --
+
+## v readr   2.1.2     v forcats 0.5.1
+## v stringr 1.4.0
+
+## -- Conflicts ------------------------------------- tidyverse_conflicts() --
+## x dplyr::between()    masks aorsf::between()
+## x readr::col_factor() masks scales::col_factor()
+## x purrr::discard()    masks scales::discard()
+## x dplyr::filter()     masks stats::filter()
+## x dplyr::first()      masks aorsf::first()
+## x stringr::fixed()    masks recipes::fixed()
+## x dplyr::lag()        masks stats::lag()
+## x dplyr::last()       masks aorsf::last()
+## x readr::spec()       masks yardstick::spec()
+## x purrr::transpose()  masks aorsf::transpose()
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(randomForestSRC)
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## 
+##  randomForestSRC 3.0.2 
+##  
+##  Type rfsrc.news() to see new features, changes, and bug fixes. 
+## 
+
+## 
+## Attaching package: 'randomForestSRC'
+
+## The following object is masked from 'package:tune':
+## 
+##     tune
+
+## The following object is masked from 'package:purrr':
+## 
+##     partial
+
+## The following object is masked from 'package:parsnip':
+## 
+##     tune
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(ranger)
 library(riskRegression)
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## riskRegression version 2022.03.22
 }\if{html}{\out{</div>}}
 \subsection{Comparing learners}{
 
@@ -300,18 +373,18 @@ analyses
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## #  10-fold cross-validation 
 ## # A tibble: 10 x 5
-##    splits           id     recipe   train               test    
-##    <list>           <chr>  <list>   <list>              <list>  
-##  1 <split [248/28]> Fold01 <recipe> <tibble [248 x 20]> <tibble>
-##  2 <split [248/28]> Fold02 <recipe> <tibble [248 x 20]> <tibble>
-##  3 <split [248/28]> Fold03 <recipe> <tibble [248 x 20]> <tibble>
-##  4 <split [248/28]> Fold04 <recipe> <tibble [248 x 20]> <tibble>
-##  5 <split [248/28]> Fold05 <recipe> <tibble [248 x 20]> <tibble>
-##  6 <split [248/28]> Fold06 <recipe> <tibble [248 x 20]> <tibble>
-##  7 <split [249/27]> Fold07 <recipe> <tibble [249 x 20]> <tibble>
-##  8 <split [249/27]> Fold08 <recipe> <tibble [249 x 20]> <tibble>
-##  9 <split [249/27]> Fold09 <recipe> <tibble [249 x 20]> <tibble>
-## 10 <split [249/27]> Fold10 <recipe> <tibble [249 x 20]> <tibble>
+##    splits           id     recipe   train               test              
+##    <list>           <chr>  <list>   <list>              <list>            
+##  1 <split [248/28]> Fold01 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
+##  2 <split [248/28]> Fold02 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
+##  3 <split [248/28]> Fold03 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
+##  4 <split [248/28]> Fold04 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
+##  5 <split [248/28]> Fold05 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
+##  6 <split [248/28]> Fold06 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
+##  7 <split [249/27]> Fold07 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
+##  8 <split [249/27]> Fold08 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
+##  9 <split [249/27]> Fold09 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
+## 10 <split [249/27]> Fold10 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
 }\if{html}{\out{</div>}}
 
 Define functions for a ‘workflow’ with both \code{randomForestSRC} and
@@ -369,29 +442,29 @@ glimpse(results)
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## Rows: 276
 ## Columns: 23
-## $ id          <int> 21, 22, 23, 28, 52, 67, 79, 99, 104, 111, 115, 152,~
-## $ trt         <fct> placebo, d_penicill_main, placebo, placebo, d_penic~
-## $ age         <dbl> 64.18891, 56.27652, 55.96715, 44.94730, 50.54073, 5~
-## $ sex         <fct> m, f, f, f, m, f, f, m, f, f, f, m, f, f, f, f, f, ~
-## $ ascites     <fct> 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
-## $ hepato      <fct> 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, ~
-## $ spiders     <fct> 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, ~
-## $ edema       <fct> 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
-## $ bili        <dbl> 0.6, 3.4, 17.4, 17.2, 6.0, 1.1, 0.8, 1.8, 1.1, 5.5,~
-## $ chol        <int> 252, 271, 395, 222, 614, 466, 315, 460, 303, 528, 3~
-## $ albumin     <dbl> 3.83, 3.63, 2.94, 3.23, 3.70, 3.91, 4.24, 3.35, 3.6~
-## $ copper      <int> 41, 464, 558, 209, 158, 84, 13, 148, 20, 77, 81, 24~
-## $ alk.phos    <dbl> 843.0, 1376.0, 6064.8, 1975.0, 5084.4, 1787.0, 1637~
-## $ ast         <dbl> 65.10, 120.90, 227.04, 189.10, 206.40, 328.60, 170.~
-## $ trig        <int> 83, 55, 191, 195, 93, 185, 70, 118, 53, 78, 156, 12~
-## $ platelet    <int> 336, 173, 214, 144, 362, 261, 426, 172, 349, 467, 3~
-## $ protime     <dbl> 11.4, 11.6, 11.7, 13.0, 10.6, 10.0, 10.9, 10.2, 11.~
-## $ stage       <ord> 4, 4, 4, 4, 1, 3, 3, 2, 2, 3, 3, 3, 4, 2, 3, 3, 2, ~
-## $ time        <int> 3445, 673, 264, 549, 2386, 2769, 3707, 3820, 3086, ~
-## $ status      <dbl> 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, ~
-## $ pred_aorsf  <dbl> 0.36491173, 0.68970669, 0.98179507, 0.98850628, 0.4~
-## $ pred_rfsrc  <dbl> 0.24242178, 0.47483623, 0.87523838, 0.87005877, 0.5~
-## $ pred_ranger <dbl> 0.22456672, 0.48945363, 0.78824669, 0.78077928, 0.5~
+## $ id          <int> 21, 22, 23, 28, 52, 67, 79, 99, 104, 111, 115, 152, 188, 1~
+## $ trt         <fct> placebo, d_penicill_main, placebo, placebo, d_penicill_mai~
+## $ age         <dbl> 64.18891, 56.27652, 55.96715, 44.94730, 50.54073, 51.28816~
+## $ sex         <fct> m, f, f, f, m, f, f, m, f, f, f, m, f, f, f, f, f, f, f, f~
+## $ ascites     <fct> 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~
+## $ hepato      <fct> 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1~
+## $ spiders     <fct> 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1~
+## $ edema       <fct> 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~
+## $ bili        <dbl> 0.6, 3.4, 17.4, 17.2, 6.0, 1.1, 0.8, 1.8, 1.1, 5.5, 0.7, 2~
+## $ chol        <int> 252, 271, 395, 222, 614, 466, 315, 460, 303, 528, 303, 586~
+## $ albumin     <dbl> 3.83, 3.63, 2.94, 3.23, 3.70, 3.91, 4.24, 3.35, 3.64, 4.18~
+## $ copper      <int> 41, 464, 558, 209, 158, 84, 13, 148, 20, 77, 81, 243, 41, ~
+## $ alk.phos    <dbl> 843.0, 1376.0, 6064.8, 1975.0, 5084.4, 1787.0, 1637.0, 147~
+## $ ast         <dbl> 65.10, 120.90, 227.04, 189.10, 206.40, 328.60, 170.50, 108~
+## $ trig        <int> 83, 55, 191, 195, 93, 185, 70, 118, 53, 78, 156, 126, 98, ~
+## $ platelet    <int> 336, 173, 214, 144, 362, 261, 426, 172, 349, 467, 307, 339~
+## $ protime     <dbl> 11.4, 11.6, 11.7, 13.0, 10.6, 10.0, 10.9, 10.2, 11.1, 10.7~
+## $ stage       <ord> 4, 4, 4, 4, 1, 3, 3, 2, 2, 3, 3, 3, 4, 2, 3, 3, 2, 3, 3, 4~
+## $ time        <int> 3445, 673, 264, 549, 2386, 2769, 3707, 3820, 3086, 2350, 3~
+## $ status      <dbl> 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0~
+## $ pred_aorsf  <dbl> 0.36491173, 0.68970669, 0.98179507, 0.98850628, 0.49299773~
+## $ pred_rfsrc  <dbl> 0.24242178, 0.47483623, 0.87523838, 0.87005877, 0.56744854~
+## $ pred_ranger <dbl> 0.22456672, 0.48945363, 0.78824669, 0.78077928, 0.59343228~
 }\if{html}{\out{</div>}}
 
 And finish by aggregating the predictions and computing performance in

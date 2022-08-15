@@ -2,10 +2,23 @@
 % Please edit documentation in R/orsf_pd.R
 \name{orsf_pd_oob}
 \alias{orsf_pd_oob}
+\alias{orsf_pd_inb}
 \alias{orsf_pd_new}
 \title{ORSF partial dependence}
 \usage{
 orsf_pd_oob(
+  object,
+  pd_spec,
+  pred_horizon = NULL,
+  pred_type = "risk",
+  expand_grid = TRUE,
+  prob_values = c(0.025, 0.5, 0.975),
+  prob_labels = c("lwr", "medn", "upr"),
+  boundary_checks = TRUE,
+  ...
+)
+
+orsf_pd_inb(
   object,
   pd_spec,
   pred_horizon = NULL,
@@ -109,10 +122,25 @@ fit <- orsf(data = pbc_orsf_train,
             formula = Surv(time, status) ~ . - id,
             oobag_pred_horizon = 365.25 * 5)
 }\if{html}{\out{</div>}}
-\subsection{Partial dependence two ways}{
+\subsection{Three ways to compute PD and ICE}{
 
-You can compute partial dependence two ways using a random forest:
+You can compute partial dependence and ICE three ways with \code{aorsf}:
 \itemize{
+\item using in-bag predictions for the training data
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_train <- orsf_pd_inb(fit, pd_spec = list(bili = 1:5))
+
+pd_train
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon  bili      mean        lwr       medn       upr
+##           <num> <int>     <num>      <num>      <num>     <num>
+## 1:      1826.25     1 0.2065186 0.01461416 0.09406926 0.8053158
+## 2:      1826.25     2 0.2352372 0.02673697 0.12477942 0.8206148
+## 3:      1826.25     3 0.2754197 0.04359767 0.17630939 0.8406553
+## 4:      1826.25     4 0.3303309 0.09237920 0.24319095 0.8544871
+## 5:      1826.25     5 0.3841395 0.15224112 0.30174988 0.8663482
+}\if{html}{\out{</div>}}
 \item using out-of-bag predictions for the training data
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_train <- orsf_pd_oob(fit, pd_spec = list(bili = 1:5))
@@ -145,21 +173,18 @@ pd_test
 ## 4:      1826.25     4 0.3743186 0.10474085 0.3501337 0.8619464
 ## 5:      1826.25     5 0.4258793 0.16727203 0.4032790 0.8626002
 }\if{html}{\out{</div>}}
-}
-
-Which should you use? Both!
-\itemize{
-\item out-of-bag partial dependence indicates relationships that the model
-has learned during training. This is helpful if your goal is to
+\item in-bag partial dependence indicates relationships that the model has
+learned during training. This is helpful if your goal is to
 interpret the model.
-\item partial dependence for new data shows how the model predicts
-outcomes for observations it has not seen. This is helpful if you
-want to test your model’s reliability or fairness.
+\item out-of-bag partial dependence indicates relationships that the model
+has learned during training but using the out-of-bag data simulates
+application of the model to new data. if you want to test your
+model’s reliability or fairness in new data but you don’t have
+access to a large testing set.
+\item new data partial dependence shows how the model predicts outcomes
+for observations it has not seen. This is helpful if you want to
+test your model’s reliability or fairness.
 }
-
-A reliable model should give roughly the same partial dependence values
-in its training and testing data, given the size of the training and
-testing data are both sufficient.
 }
 }
 
