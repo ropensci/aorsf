@@ -35,11 +35,4 @@ docs_ice <- c("D:/aorsf/Rmd/orsf_ice_content_1.Rmd",
 
 ```
 
-## Individual conditional expectations
-
-`r aorsf:::roxy_ice_explain()`
-
-```{r child= docs_ice}
-
-```
 
