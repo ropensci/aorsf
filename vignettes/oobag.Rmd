@@ -223,32 +223,7 @@ fit_sroc$importance
 
 ```
 
-### Multiple functions for negation importance
-
-If you'd like to compute several types of negation importance for the same model, that can be done using `orsf_vi_negate()`, which allows you to specify an out-of-bag function just as `orsf()` does:
-
-
-```{r}
-
-fit <- orsf(data = pbc_orsf,
-            formula = Surv(time, status) ~ . - id,
-            n_tree = 500,
-            oobag_pred_horizon = 3500)
-
-# use default technique (harrell's C-statistic)
-orsf_vi_negate(fit)
-
-# use C-statistic from survivalROC
-orsf_vi_negate(fit, oobag_fun = oobag_fun_sroc)
-
-# you can also use custom functions for permutation importance
-orsf_vi_permute(fit, oobag_fun = oobag_fun_sroc)
-
-```
-
-There are some discrepancies between methods in the ranking of important variables. A simulation study to determine which method of estimating out-of-bag error does a better job of discriminating between important and unimportant variables would be helpful.
-
-## I really need to use <package X>
+## I really need to use package X
 
 You can use any package whatsoever to evaluate out-of-bag predictions. You can access the final out-of-bag survival predictions from an `aorsf` model like so:
 
@@ -266,4 +241,4 @@ Some notes to remember when evaluating out-of-bag error with `surv_oobag`:
 
 - Some functions expect predicted risk (i.e., 1 - predicted survival), others expect predicted survival. 
 
-In most cases, you should also be able to use any package whatsoever to compute negation importance. One exception at this point is `riskRegression`. I have experimented with `riskRegression` but found its functions do not work as I would expect them to when I try to run them from C++. I think this may be due to `riskRegression`'s internal use of `data.table` and modification by reference, but I do not have certainty on that yet. 
+In most cases, you should also be able to use any package whatsoever to compute negation importance. One exception at this point is `riskRegression`, one of my favorite packages. I have experimented with `riskRegression` but found its functions do not work as I would expect them to when I try to run them from C++. I think this may be due to `riskRegression`'s internal use of `data.table` and modification by reference, but I do not have certainty on that yet. 

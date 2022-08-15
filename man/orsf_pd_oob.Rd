@@ -108,26 +108,6 @@ pbc_orsf_test <- pbc_orsf[-index_train, ]
 fit <- orsf(data = pbc_orsf_train, 
             formula = Surv(time, status) ~ . - id,
             oobag_pred_horizon = 365.25 * 5)
-
-fit
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
-## 
-##      Linear combinations: Accelerated
-##           N observations: 150
-##                 N events: 52
-##                  N trees: 500
-##       N predictors total: 17
-##    N predictors per node: 5
-##  Average leaves per tree: 12
-## Min observations in leaf: 5
-##       Min events in leaf: 1
-##           OOB stat value: 0.83
-##            OOB stat type: Harrell's C-statistic
-##      Variable importance: anova
-## 
-## -----------------------------------------
 }\if{html}{\out{</div>}}
 \subsection{Partial dependence two ways}{
 

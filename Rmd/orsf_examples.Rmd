@@ -1,0 +1,5 @@
+
+# Examples
+
+the aorsf package is designed to fit into standard modeling analyses, tidymodels workflows, and mlr3 pipelines.
+

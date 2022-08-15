@@ -52,16 +52,25 @@ You can install the development version of aorsf from [GitHub](https://github.co
 remotes::install_github("bcjaeger/aorsf")
 ```
 
-## Example
+## What is an oblique decision tree?
+
+Decision trees are developed by splitting a set of training data into two new subsets, with the goal of having more similarity within the new subsets than between them. The splitting process is repeated on resulting subsets of data until a stopping criterion is met. 
+
+When the new subsets of data are formed based on a single predictor, the decision tree is said to be *axis-based* because the splits of the data appear perpendicular to the axis of the predictor. When linear combinations of variables are used instead of a single variable, the tree is *oblique* because the splits of the data are neither parallel nor at a right angle to the axis. 
+
+**Figure**: Decision trees for classification with axis-based splitting (left) and oblique splitting (right). Cases are orange squares; controls are purple circles. Both trees partition the predictor space defined by variables X1 and X2, but the oblique splits do a better job of separating the two classes.
+
+```{r fig_oblique_v_axis, out.width='100%', echo = FALSE}
+
+knitr::include_graphics('man/figures/tree_axis_v_oblique.png')
+
+```
+
+## Examples
 
 The `orsf()` function can fit several types of ORSF ensembles. My personal favorite is the accelerated ORSF because it has a great combination of prediction accuracy and computational efficiency (see [arXiv paper](https://arxiv.org/abs/2208.01129)).^2^
 
-```{r}
-
-library(aorsf)
-
-fit <- orsf(data = pbc_orsf, 
-            formula = Surv(time, status) ~ . - id)
+```{r, child='Rmd/orsf-fit-accelerated.Rmd'}
 
 ```
 
@@ -73,7 +82,7 @@ Printing the output from `orsf()` will give some information and descriptive sta
 
 ```{r}
 
-print(fit)
+fit
 
 ```
 
@@ -83,7 +92,7 @@ See [`print.orsf_fit`](https://bcjaeger.github.io/aorsf/reference/print.orsf_fit
 
 The importance of individual variables can be estimated in three ways using `aorsf`:
 
-- **negation^2^**: `r aorsf:::roxy_vi_describe('negate')`
+- **negation**^2^: `r aorsf:::roxy_vi_describe('negate')`
 
   ```{r}
   
@@ -99,7 +108,7 @@ The importance of individual variables can be estimated in three ways using `aor
   
   ```
   
-- **analysis of variance (ANOVA)^3^**: `r aorsf:::roxy_vi_describe('anova')`
+- **analysis of variance (ANOVA)**^3^: `r aorsf:::roxy_vi_describe('anova')`
 
   ```{r}
   
@@ -108,6 +117,10 @@ The importance of individual variables can be estimated in three ways using `aor
   ```
 
 You can supply your own R function to estimate out-of-bag error when using negation or permutation importance (see [oob vignette](https://bcjaeger.github.io/aorsf/articles/oobag.html)). 
+
+### Predict
+
+
 
 ### Partial dependence
 

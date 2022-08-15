@@ -15,6 +15,4 @@ fit <- orsf(data = pbc_orsf_train,
             formula = Surv(time, status) ~ . - id,
             oobag_pred_horizon = 365.25 * 5)
 
-fit
-
 ```

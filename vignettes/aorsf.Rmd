@@ -24,15 +24,6 @@ This article covers core features of the `aorsf` package. Separate articles will
 
 The oblique random survival forest (ORSF) is an extension of the axis-based RSF algorithm. Axis based RSFs can be fit with several R packages, including `RandomForestSRC`, `party`, and `ranger`. However, apart from `aorsf` and `obliqueRSF`, few R packages fit ORSFs.
 
-## What is an oblique decision tree?
-
-Decision trees are developed by splitting a set of training data into two new subsets, with the goal of having more similarity within the new subsets than between them. This splitting process is repeated on the resulting subsets of data until a stopping criterion is met. When the new subsets of data are formed based on a single predictor, the decision tree is said to be axis-based because the splits of the data appear perpendicular to the axis of the predictor. When linear combinations of variables are used instead of a single variable, the tree is oblique because the splits of the data are neither parallel nor at a right angle to the axis. 
-
-```{r fig_oblique_v_axis, out.width='100%', echo = FALSE, fig.cap="Decision trees for classification with axis-based splitting (left) and oblique splitting (right). Cases are orange squares; controls are purple circles. Both trees partition the predictor space defined by variables X1 and X2, but the oblique splits do a better job of separating the two classes."}
-
-knitr::include_graphics('tree_axis_v_oblique.png')
-
-```
 
 ## Accelerated ORSF
 
