@@ -43,13 +43,13 @@
 #'
 #' # make a list containing the variable values you
 #' # want to compute partial dependence for
-#' pd_spec <- list(edema = c("0", "0.5", "1"),
+#' pred_spec <- list(edema = c("0", "0.5", "1"),
 #'                 bili = seq(0.6, 7.1, by = 0.5))
 #'
 #' # orsf_pd automatically computes pd for all combinations
 #' # in the list (this can be turned off with expand_grid = FALSE)
 #' pd_data <- orsf_pd(object = fit,
-#'                            pd_spec = pd_spec,
+#'                            pred_spec = pred_spec,
 #'                            expand_grid = TRUE)
 #'
 #' # aligning predictions at lowest value of bili

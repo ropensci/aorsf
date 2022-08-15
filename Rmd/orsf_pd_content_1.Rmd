@@ -13,7 +13,7 @@ You can compute partial dependence and ICE three ways with `aorsf`:
 
   ```{r}
   
-  pd_train <- orsf_pd_inb(fit, pd_spec = list(bili = 1:5))
+  pd_train <- orsf_pd_inb(fit, pred_spec = list(bili = 1:5))
   
   pd_train
   
@@ -23,7 +23,7 @@ You can compute partial dependence and ICE three ways with `aorsf`:
 
   ```{r}
   
-  pd_train <- orsf_pd_oob(fit, pd_spec = list(bili = 1:5))
+  pd_train <- orsf_pd_oob(fit, pred_spec = list(bili = 1:5))
   
   pd_train
   
@@ -35,7 +35,7 @@ You can compute partial dependence and ICE three ways with `aorsf`:
   
   pd_test <- orsf_pd_new(fit, 
                          new_data = pbc_orsf_test, 
-                         pd_spec = list(bili = 1:5))
+                         pred_spec = list(bili = 1:5))
   
   pd_test
   

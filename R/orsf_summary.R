@@ -125,28 +125,28 @@ orsf_summarize_uni <- function(object,
 
  n_obs <- get_n_obs(object)
 
- pd_spec <- list_init(names(vi)[seq(n_variables)])
+ pred_spec <- list_init(names(vi)[seq(n_variables)])
 
- for(x_name in names(pd_spec)){
+ for(x_name in names(pred_spec)){
 
   if(x_name %in% colnames(x_numeric_key)){
 
    #' @srrstats {G2.4b} explicit conversion to continuous values
 
-   pd_spec[[x_name]] <- unique(
+   pred_spec[[x_name]] <- unique(
     as.numeric(x_numeric_key[c('25%','50%','75%'), x_name])
    )
 
   } else if (x_name %in% fctr_info$cols) {
 
-   pd_spec[[x_name]] <- fctr_info$lvls[[x_name]]
+   pred_spec[[x_name]] <- fctr_info$lvls[[x_name]]
 
   }
 
  }
 
  pd_output <- orsf_pd_oob(object = object,
-                          pd_spec = pd_spec,
+                          pred_spec = pred_spec,
                           expand_grid = FALSE,
                           pred_type = pred_type,
                           prob_values = c(0.25, 0.50, 0.75),

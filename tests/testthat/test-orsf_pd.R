@@ -14,29 +14,29 @@ test_that(
  desc = "oob stops if there are no data",
  code = {
   expect_error(
-   orsf_pd_oob(fit_nodat, pd_spec = list(bili = c(0.8))),
+   orsf_pd_oob(fit_nodat, pred_spec = list(bili = c(0.8))),
    regexp = 'no data'
   )
  }
 )
 
 test_that(
- "user cant supply empty pd_spec",
+ "user cant supply empty pred_spec",
  code = {
   expect_error(
    orsf_ice_oob(fit,
-                pd_spec = list()),
-   regexp = 'pd_spec is empty'
+                pred_spec = list()),
+   regexp = 'pred_spec is empty'
   )
  }
 )
 
 test_that(
- "user cant supply pd_spec with non-matching names",
+ "user cant supply pred_spec with non-matching names",
  code = {
   expect_error(
    orsf_ice_oob(fit,
-                pd_spec = list(bili = 1:5,
+                pred_spec = list(bili = 1:5,
                                nope = c(1,2),
                                no_sir = 1),
                 pred_horizon = 1000),
@@ -49,12 +49,12 @@ bad_value_lower <- quantile(pbc_orsf$bili, probs = 0.01)
 bad_value_upper <- quantile(pbc_orsf$bili, probs = 0.99)
 
 test_that(
- "user cant supply pd_spec with values out of bounds",
+ "user cant supply pred_spec with values out of bounds",
  code = {
   expect_error(
    orsf_pd_new(fit,
                new_data = pbc_orsf,
-               pd_spec = list(bili = c(bad_value_lower, 1:10, bad_value_upper)),
+               pred_spec = list(bili = c(bad_value_lower, 1:10, bad_value_upper)),
                pred_horizon = 1000),
    regexp = 'values for bili'
   )
@@ -64,14 +64,14 @@ test_that(
 pd_vals_ice <- orsf_ice_new(
  fit,
  new_data = pbc_orsf,
- pd_spec = list(bili = 1:4),
+ pred_spec = list(bili = 1:4),
  pred_horizon = 1000
 )
 
 pd_vals_smry <- orsf_pd_new(
  fit,
  new_data = pbc_orsf,
- pd_spec = list(bili = 1:4),
+ pred_spec = list(bili = 1:4),
  pred_horizon = 1000
 )
 
@@ -112,7 +112,7 @@ test_that(
 
   pd_smry_multi_horiz <- orsf_pd_oob(
    fit,
-   pd_spec = list(bili = 1),
+   pred_spec = list(bili = 1),
    pred_horizon = c(1000, 2000, 3000)
   )
 
@@ -125,7 +125,7 @@ test_that(
 
   pd_ice_multi_horiz <- orsf_ice_oob(
    fit,
-   pd_spec = list(bili = 1),
+   pred_spec = list(bili = 1),
    pred_horizon = c(1000, 2000, 3000)
   )
 

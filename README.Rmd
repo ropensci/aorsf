@@ -133,7 +133,7 @@ You can supply your own R function to estimate out-of-bag error when using negat
   # ICE values:
   # predicted risk for a single observation with respect to bili.
   
-  orsf_ice_oob(fit, pd_spec = list(bili = c(1:5)))[id_row == 2]
+  orsf_ice_oob(fit, pred_spec = list(bili = c(1:5)))[id_row == 2]
   
   ```
 
@@ -141,7 +141,7 @@ You can supply your own R function to estimate out-of-bag error when using negat
 
   ```{r}
   
-  orsf_pd_oob(fit, pd_spec = list(bili = c(1:5)))
+  orsf_pd_oob(fit, pred_spec = list(bili = c(1:5)))
   
   ```
 

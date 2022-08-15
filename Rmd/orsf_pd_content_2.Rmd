@@ -16,11 +16,11 @@ partial dependence can show the expected value of a model's predictions as a fun
 
 ```{r, -orsf_pd}
 
-pd_spec = list(bili = seq(1, 5, length.out = 20),
+pred_spec = list(bili = seq(1, 5, length.out = 20),
                edema = levels(pbc_orsf_train$edema),
                trt = levels(pbc_orsf$trt))
 
-pd_bili_edema <- orsf_pd_oob(fit, pd_spec)
+pd_bili_edema <- orsf_pd_oob(fit, pred_spec)
 
 library(ggplot2)
 

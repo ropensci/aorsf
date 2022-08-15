@@ -13,9 +13,9 @@ You can compute individual conditional expectations two ways using a random fore
 
   ```{r}
   
-  pd_spec <- list(bili = seq(1, 6, length.out = 10))
+  pred_spec <- list(bili = seq(1, 6, length.out = 10))
   
-  ice_train <- orsf_ice_oob(fit, pd_spec)
+  ice_train <- orsf_ice_oob(fit, pred_spec)
   
   ice_train
   
@@ -27,7 +27,7 @@ You can compute individual conditional expectations two ways using a random fore
   
   ice_test <- orsf_ice_new(fit, 
                            new_data = pbc_orsf_test, 
-                           pd_spec = pd_spec)
+                           pred_spec = pred_spec)
   
   ice_test
   

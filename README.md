@@ -188,7 +188,7 @@ partial dependence (PD):
     # ICE values:
     # predicted risk for a single observation with respect to bili.
 
-    orsf_ice_oob(fit, pd_spec = list(bili = c(1:5)))[id_row == 2]
+    orsf_ice_oob(fit, pred_spec = list(bili = c(1:5)))[id_row == 2]
     #>    pred_horizon id_variable id_row  bili       pred
     #>           <num>       <int>  <int> <int>      <num>
     #> 1:      1826.25           1      2     1 0.05397791
@@ -203,7 +203,7 @@ partial dependence (PD):
     prediction and a predictor, adjusting for other predictors.
 
     ``` r
-    orsf_pd_oob(fit, pd_spec = list(bili = c(1:5)))
+    orsf_pd_oob(fit, pred_spec = list(bili = c(1:5)))
     #>    pred_horizon  bili      mean        lwr       medn       upr
     #>           <num> <int>     <num>      <num>      <num>     <num>
     #> 1:      1826.25     1 0.2075896 0.01389732 0.09063976 0.7998756
