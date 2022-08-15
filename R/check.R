@@ -682,8 +682,6 @@ check_orsf_inputs <- function(data = NULL,
  }
 
 
-
-
  if(!is.null(formula)){
 
   check_arg_is(arg_value = formula,
@@ -695,7 +693,9 @@ check_orsf_inputs <- function(data = NULL,
         call. = FALSE)
   }
 
-  formula_deparsed <- deparse(formula[[3]])
+  formula_deparsed <- deparse1(formula[[3]],
+                               collapse = ' ',
+                               width.cutoff = 500)
 
   for( symbol in c("*", "^", ":", "(", ")", "["," ]", "|", "%") ){
 

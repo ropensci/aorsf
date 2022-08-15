@@ -258,74 +258,220 @@ A user should impute missing values using an R package with that purpose,
 such as \code{recipes} or \code{mlr3pipelines}.
 }
 
-\examples{
+\section{Examples}{
+the aorsf package is designed to fit into standard modeling analyses,
+tidymodels workflows, and mlr3 pipelines.
+\subsection{standard modeling}{
 
-# standard workflow for model development: fit and interpret
-
-fit <- orsf(pbc_orsf, formula = Surv(time, status) ~ . - id)
-
-print(fit)
-
-# more specific parameters
-
-fit_custom <- orsf(pbc_orsf,
-                   formula = time + status ~ . - id,
-                   mtry = 2,
-                   oobag_pred_horizon = 4000,
-                   oobag_eval_every = 50)
-
-# 10 oobag error values are computed  b/c oob error
-# is assessed every 50 trees (50, 100, ..., 500)
-fit_custom$eval_oobag$stat_values
-
-# make your own oobag function:
-# (this is an R implementation of Harrell's C
-# stat, which is what orsf uses by default)
-
-oobag_c_harrell <- function(y_mat, s_vec){
- time = y_mat[, 1]
- status = y_mat[, 2]
- events = which(status == 1)
- k = nrow(y_mat)
- total <- 0
- concordant <- 0
- for(i in events){
-  if(i+1 <= k){
-   for(j in seq(i+1, k)){
-    if(time[j] > time[i]){
-     total <- total + 1
-     if(s_vec[j] > s_vec[i]){
-      concordant <- concordant + 1
-     } else if (s_vec[j] == s_vec[i]){
-      concordant <- concordant + 0.5
-     }
-    }
-   }
-  }
- }
- concordant / total
+FILL
 }
 
-# tree_seeds lets you grow each tree with the seed it corresponds to
-# (nice way to make sure my R oobag function gives the same answer
-# as the internal C oobag function)
+\subsection{tidymodels}{
 
-fit_custom_oobag <- orsf(pbc_orsf,
-                         formula = Surv(time, status) ~ . - id,
-                         oobag_fun = oobag_c_harrell,
-                         n_tree = 10,
-                         tree_seeds = 1:10)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329730)
 
-fit_standard_oobag <- orsf(pbc_orsf,
-                           formula = Surv(time, status) ~ . - id,
-                           n_tree = 10,
-                           tree_seeds = 1:10)
+library(aorsf)
+library(survival)
+library(tidymodels)
+library(tidyverse)
+library(randomForestSRC)
+library(ranger)
+library(riskRegression)
+}\if{html}{\out{</div>}}
+\subsection{Comparing learners}{
 
-fit_standard_oobag$eval_oobag$stat_values
+Start with a recipe to pre-process data
 
-fit_custom_oobag$eval_oobag$stat_values
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{imputer <- recipe(pbc_orsf, formula = time + status ~ .) \%>\% 
+ step_impute_mean(all_numeric_predictors()) \%>\%
+ step_impute_mode(all_nominal_predictors()) 
+}\if{html}{\out{</div>}}
+
+Next create a 10-fold cross validation object and pre-process the data:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# 10-fold cross validation; make a container for the pre-processed data
+analyses <- vfold_cv(data = pbc_orsf, v = 10) \%>\%
+ mutate(recipe = map(splits, ~prep(imputer, training = training(.x))),
+        train = map(recipe, juice),
+        test = map2(splits, recipe, ~bake(.y, new_data = testing(.x))))
+
+analyses
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## #  10-fold cross-validation 
+## # A tibble: 10 x 5
+##    splits           id     recipe   train               test    
+##    <list>           <chr>  <list>   <list>              <list>  
+##  1 <split [248/28]> Fold01 <recipe> <tibble [248 x 20]> <tibble>
+##  2 <split [248/28]> Fold02 <recipe> <tibble [248 x 20]> <tibble>
+##  3 <split [248/28]> Fold03 <recipe> <tibble [248 x 20]> <tibble>
+##  4 <split [248/28]> Fold04 <recipe> <tibble [248 x 20]> <tibble>
+##  5 <split [248/28]> Fold05 <recipe> <tibble [248 x 20]> <tibble>
+##  6 <split [248/28]> Fold06 <recipe> <tibble [248 x 20]> <tibble>
+##  7 <split [249/27]> Fold07 <recipe> <tibble [249 x 20]> <tibble>
+##  8 <split [249/27]> Fold08 <recipe> <tibble [249 x 20]> <tibble>
+##  9 <split [249/27]> Fold09 <recipe> <tibble [249 x 20]> <tibble>
+## 10 <split [249/27]> Fold10 <recipe> <tibble [249 x 20]> <tibble>
+}\if{html}{\out{</div>}}
+
+Define functions for a ‘workflow’ with both \code{randomForestSRC} and
+\code{aorsf}. Obviously this is not the same thing as a \code{tidymodels}
+workflow, but this works well enough. I am working on getting \code{aorsf}
+pulled into the \code{censored} package and I will update this with real
+workflows if that happens!
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{rfsrc_wf <- function(train, test, pred_horizon)\{
+ 
+ rfsrc(formula = Surv(time, status) ~ ., data = as.data.frame(train)) \%>\% 
+  predictRisk(newdata = as.data.frame(test), times = pred_horizon) \%>\% 
+  as.numeric()
+ 
+\}
+
+aorsf_wf <- function(train, test, pred_horizon)\{
+ 
+ train \%>\% 
+  orsf(Surv(time, status) ~ .,) \%>\% 
+  predict(new_data = test, pred_horizon = pred_horizon) \%>\% 
+  as.numeric()
+ 
+\}
+
+ranger_wf <- function(train, test, pred_horizon)\{
+ 
+ ranger(Surv(time, status) ~ ., data = train) \%>\% 
+  predictRisk(newdata = test, times = pred_horizon) \%>\% 
+  as.numeric()
+ 
+\}
+}\if{html}{\out{</div>}}
+
+Run the workflows on each fold:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# 5 year risk prediction
+ph <- 365.25 * 5
+
+results <- analyses \%>\% 
+ transmute(test, 
+           pred_aorsf = map2(train, test, aorsf_wf, pred_horizon = ph),
+           pred_rfsrc = map2(train, test, rfsrc_wf, pred_horizon = ph),
+           pred_ranger = map2(train, test, ranger_wf, pred_horizon = ph))
+}\if{html}{\out{</div>}}
+
+Next unnest each column to get back a \code{tibble} with all of the testing
+data and predictions.
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{results <- results \%>\% 
+ unnest(everything())
+
+glimpse(results)
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## Rows: 276
+## Columns: 23
+## $ id          <int> 21, 22, 23, 28, 52, 67, 79, 99, 104, 111, 115, 152,~
+## $ trt         <fct> placebo, d_penicill_main, placebo, placebo, d_penic~
+## $ age         <dbl> 64.18891, 56.27652, 55.96715, 44.94730, 50.54073, 5~
+## $ sex         <fct> m, f, f, f, m, f, f, m, f, f, f, m, f, f, f, f, f, ~
+## $ ascites     <fct> 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+## $ hepato      <fct> 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, ~
+## $ spiders     <fct> 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, ~
+## $ edema       <fct> 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+## $ bili        <dbl> 0.6, 3.4, 17.4, 17.2, 6.0, 1.1, 0.8, 1.8, 1.1, 5.5,~
+## $ chol        <int> 252, 271, 395, 222, 614, 466, 315, 460, 303, 528, 3~
+## $ albumin     <dbl> 3.83, 3.63, 2.94, 3.23, 3.70, 3.91, 4.24, 3.35, 3.6~
+## $ copper      <int> 41, 464, 558, 209, 158, 84, 13, 148, 20, 77, 81, 24~
+## $ alk.phos    <dbl> 843.0, 1376.0, 6064.8, 1975.0, 5084.4, 1787.0, 1637~
+## $ ast         <dbl> 65.10, 120.90, 227.04, 189.10, 206.40, 328.60, 170.~
+## $ trig        <int> 83, 55, 191, 195, 93, 185, 70, 118, 53, 78, 156, 12~
+## $ platelet    <int> 336, 173, 214, 144, 362, 261, 426, 172, 349, 467, 3~
+## $ protime     <dbl> 11.4, 11.6, 11.7, 13.0, 10.6, 10.0, 10.9, 10.2, 11.~
+## $ stage       <ord> 4, 4, 4, 4, 1, 3, 3, 2, 2, 3, 3, 3, 4, 2, 3, 3, 2, ~
+## $ time        <int> 3445, 673, 264, 549, 2386, 2769, 3707, 3820, 3086, ~
+## $ status      <dbl> 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, ~
+## $ pred_aorsf  <dbl> 0.36491173, 0.68970669, 0.98179507, 0.98850628, 0.4~
+## $ pred_rfsrc  <dbl> 0.24242178, 0.47483623, 0.87523838, 0.87005877, 0.5~
+## $ pred_ranger <dbl> 0.22456672, 0.48945363, 0.78824669, 0.78077928, 0.5~
+}\if{html}{\out{</div>}}
+
+And finish by aggregating the predictions and computing performance in
+the testing data. Note that I am computing one statistic for all
+predictions instead of computing one statistic for each fold. This
+approach is fine when you have smaller testing sets and/or small event
+counts.
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{Score(
+ object = list(aorsf = results$pred_aorsf,
+               rfsrc = results$pred_rfsrc,
+               ranger = results$pred_ranger),
+ formula = Surv(time, status) ~ 1, 
+ data = results, 
+ summary = 'IPA',
+ times = ph
+)
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## 
+## Metric AUC:
+## 
+## Results by model:
+## 
+##     model times    AUC  lower  upper
+##    <fctr> <num> <char> <char> <char>
+## 1:  aorsf  1826   90.6   86.2   95.1
+## 2:  rfsrc  1826   89.7   85.1   94.2
+## 3: ranger  1826   89.6   85.0   94.1
+## 
+## Results of model comparisons:
+## 
+##    times  model reference delta.AUC  lower  upper     p
+##    <num> <fctr>    <fctr>    <char> <char> <char> <num>
+## 1:  1826  rfsrc     aorsf      -1.0   -2.4    0.5   0.2
+## 2:  1826 ranger     aorsf      -1.1   -2.5    0.4   0.2
+## 3:  1826 ranger     rfsrc      -0.1   -1.1    0.9   0.9
+
+## 
+## NOTE: Values are multiplied by 100 and given in \%.
+
+## NOTE: The higher AUC the better.
+
+## 
+## Metric Brier:
+## 
+## Results by model:
+## 
+##         model   times  Brier  lower  upper    IPA
+##        <fctr>   <num> <char> <char> <char> <char>
+## 1: Null model 1826.25   20.5   18.1   22.9    0.0
+## 2:      aorsf 1826.25   10.7    8.4   12.9   47.9
+## 3:      rfsrc 1826.25   11.7    9.6   13.9   42.6
+## 4:     ranger 1826.25   11.8    9.6   13.9   42.6
+## 
+## Results of model comparisons:
+## 
+##      times  model  reference delta.Brier  lower  upper            p
+##      <num> <fctr>     <fctr>      <char> <char> <char>        <num>
+## 1: 1826.25  aorsf Null model        -9.8  -12.5   -7.1 7.733922e-13
+## 2: 1826.25  rfsrc Null model        -8.7  -11.0   -6.5 3.103980e-14
+## 3: 1826.25 ranger Null model        -8.7  -11.1   -6.3 5.368557e-13
+## 4: 1826.25  rfsrc      aorsf         1.1    0.3    1.9 1.014042e-02
+## 5: 1826.25 ranger      aorsf         1.1    0.3    1.9 5.347399e-03
+## 6: 1826.25 ranger      rfsrc         0.0   -0.5    0.5 9.627661e-01
+
+## 
+## NOTE: Values are multiplied by 100 and given in \%.
+
+## NOTE: The lower Brier the better, the higher IPA the better.
+}\if{html}{\out{</div>}}
+
+On inspection, we find the \code{aorsf} workflow obtained slightly higher
+discrimination (AUC) and higher index of prediction accuracy (IPA)
+compared to the others.
+}
 
 }
+}
+
 \references{
 Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. Evaluating the Yield of Medical Tests. \emph{JAMA} 1982; 247(18):2543-2546. DOI: 10.1001/jama.1982.03320430047030
 

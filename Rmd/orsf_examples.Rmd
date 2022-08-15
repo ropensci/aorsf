@@ -3,3 +3,125 @@
 
 the aorsf package is designed to fit into standard modeling analyses, tidymodels workflows, and mlr3 pipelines.
 
+## standard modeling
+
+FILL 
+
+## tidymodels
+
+```{r}
+
+set.seed(329730)
+
+library(aorsf)
+library(survival)
+library(tidymodels)
+library(tidyverse)
+library(randomForestSRC)
+library(ranger)
+library(riskRegression)
+
+```
+
+### Comparing learners
+
+Start with a recipe to pre-process data
+
+```{r}
+
+imputer <- recipe(pbc_orsf, formula = time + status ~ .) %>% 
+ step_impute_mean(all_numeric_predictors()) %>%
+ step_impute_mode(all_nominal_predictors()) 
+
+```
+
+Next create a 10-fold cross validation object and pre-process the data:
+
+```{r}
+
+# 10-fold cross validation; make a container for the pre-processed data
+analyses <- vfold_cv(data = pbc_orsf, v = 10) %>%
+ mutate(recipe = map(splits, ~prep(imputer, training = training(.x))),
+        train = map(recipe, juice),
+        test = map2(splits, recipe, ~bake(.y, new_data = testing(.x))))
+
+analyses
+
+```
+
+Define functions for a 'workflow' with both `randomForestSRC` and `aorsf`. Obviously this is not the same thing as a `tidymodels` workflow, but this works well enough. I am working on getting `aorsf` pulled into the `censored` package and I will update this with real workflows if that happens!
+
+```{r}
+
+rfsrc_wf <- function(train, test, pred_horizon){
+ 
+ rfsrc(formula = Surv(time, status) ~ ., data = as.data.frame(train)) %>% 
+  predictRisk(newdata = as.data.frame(test), times = pred_horizon) %>% 
+  as.numeric()
+ 
+}
+
+aorsf_wf <- function(train, test, pred_horizon){
+ 
+ train %>% 
+  orsf(Surv(time, status) ~ .,) %>% 
+  predict(new_data = test, pred_horizon = pred_horizon) %>% 
+  as.numeric()
+ 
+}
+
+ranger_wf <- function(train, test, pred_horizon){
+ 
+ ranger(Surv(time, status) ~ ., data = train) %>% 
+  predictRisk(newdata = test, times = pred_horizon) %>% 
+  as.numeric()
+ 
+}
+
+
+```
+
+Run the workflows on each fold:
+
+```{r}
+
+# 5 year risk prediction
+ph <- 365.25 * 5
+
+results <- analyses %>% 
+ transmute(test, 
+           pred_aorsf = map2(train, test, aorsf_wf, pred_horizon = ph),
+           pred_rfsrc = map2(train, test, rfsrc_wf, pred_horizon = ph),
+           pred_ranger = map2(train, test, ranger_wf, pred_horizon = ph))
+
+```
+
+Next unnest each column to get back a `tibble` with all of the testing data and predictions.
+
+```{r}
+
+results <- results %>% 
+ unnest(everything())
+
+glimpse(results)
+
+```
+
+And finish by aggregating the predictions and computing performance in the testing data. Note that I am computing one statistic for all predictions instead of computing one statistic for each fold. This approach is fine when you have smaller testing sets and/or small event counts.
+
+```{r}
+
+Score(
+ object = list(aorsf = results$pred_aorsf,
+               rfsrc = results$pred_rfsrc,
+               ranger = results$pred_ranger),
+ formula = Surv(time, status) ~ 1, 
+ data = results, 
+ summary = 'IPA',
+ times = ph
+)
+
+```
+
+On inspection, we find the `aorsf` workflow obtained slightly higher discrimination (AUC) and higher index of prediction accuracy (IPA) compared to the others.
+

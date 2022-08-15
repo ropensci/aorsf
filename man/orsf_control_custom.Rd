@@ -67,7 +67,7 @@ fit_rando
 ##                  N trees: 500
 ##       N predictors total: 17
 ##    N predictors per node: 5
-##  Average leaves per tree: 22
+##  Average leaves per tree: 21
 ## Min observations in leaf: 5
 ##       Min events in leaf: 1
 ##           OOB stat value: 0.79
@@ -108,12 +108,7 @@ How well do our two customized ORSFs do? Let’s compute their indices of
 prediction accuracy based on out-of-bag predictions:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(riskRegression)
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## riskRegression version 2022.03.22
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(survival)
+library(survival)
 
 risk_preds <- list(rando = 1 - fit_rando$surv_oobag,
                     pca = 1 - fit_pca$surv_oobag)
@@ -136,16 +131,16 @@ The PCA ORSF does quite well! (higher IPA is better)
 ##         model times  Brier  lower  upper    IPA
 ##        <fctr> <num> <char> <char> <char> <char>
 ## 1: Null model  1788 20.479 18.089 22.869  0.000
-## 2:      rando  1788 13.547 11.405 15.688 33.851
-## 3:        pca  1788 11.776  9.818 13.735 42.496
+## 2:      rando  1788 13.567 11.405 15.729 33.752
+## 3:        pca  1788 11.695  9.749 13.641 42.892
 ## 
 ## Results of model comparisons:
 ## 
 ##    times  model  reference delta.Brier   lower  upper            p
 ##    <num> <fctr>     <fctr>      <char>  <char> <char>        <num>
-## 1:  1788  rando Null model      -6.932  -8.939 -4.925 1.285104e-11
-## 2:  1788    pca Null model      -8.703 -10.655 -6.751 2.378601e-18
-## 3:  1788    pca      rando      -1.770  -2.656 -0.885 8.887636e-05
+## 1:  1788  rando Null model      -6.912  -8.931 -4.894 1.924798e-11
+## 2:  1788    pca Null model      -8.784 -10.790 -6.778 9.444307e-18
+## 3:  1788    pca      rando      -1.872  -2.851 -0.893 1.785278e-04
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.

@@ -31,6 +31,122 @@ docs_ice <- c("D:/aorsf/Rmd/orsf_ice_content_1.Rmd",
 
 `r aorsf:::roxy_pd_explain()`
 
+Begin by fitting an ORSF ensemble.
+
+```{r}
+
+library(aorsf)
+
+set.seed(329730)
+
+index_train <- sample(nrow(pbc_orsf), 150) 
+
+pbc_orsf_train <- pbc_orsf[index_train, ]
+pbc_orsf_test <- pbc_orsf[-index_train, ]
+
+fit <- orsf(data = pbc_orsf_train, 
+            formula = Surv(time, status) ~ . - id,
+            oobag_pred_horizon = 365.25 * 5)
+
+fit
+
+```
+
+## Partial dependence two ways
+
+You can compute partial dependence two ways using a random forest:
+
+- using out-of-bag predictions for the training data
+
+  ```{r}
+  
+  pd_train <- orsf_pd_oob(fit, pd_spec = list(bili = 1:5))
+  
+  pd_train
+  
+  ```
+
+- using predictions for a new set of data
+
+  ```{r}
+  
+  pd_test <- orsf_pd_new(fit, 
+                         new_data = pbc_orsf_test, 
+                         pd_spec = list(bili = 1:5))
+  
+  pd_test
+  
+  ```
+
+Which should you use? Both!
+
+- out-of-bag partial dependence indicates relationships that the model has learned during training. This is helpful if your goal is to interpret the model.
+
+- partial dependence for new data shows how the model predicts outcomes for observations it has not seen. This is helpful if you want to test your model's reliability or fairness.
+
+A reliable model should give roughly the same partial dependence values in its training and testing data, given the size of the training and testing data are both sufficient. 
+
+## Partial dependence for multiple variables
+
+Let's re-fit our ORSF to all available data before proceeding.
+
+```{r}
+
+set.seed(329730)
+
+fit <- orsf(pbc_orsf, Surv(time, status) ~ . -id)
+
+```
+
+
+partial dependence can show the expected value of a model's predictions as a function of a specific predictor, or as a function of multiple predictors. For instance, we can estimate predicted risk as a joint function of `bili`, `edema`, and `trt`:
+
+```{r, -orsf_pd}
+
+pd_spec = list(bili = seq(1, 5, length.out = 20),
+               edema = levels(pbc_orsf_train$edema),
+               trt = levels(pbc_orsf$trt))
+
+pd_bili_edema <- orsf_pd_oob(fit, pd_spec)
+
+library(ggplot2)
+
+ggplot(pd_bili_edema, aes(x = bili, y = medn, col = trt, linetype = edema)) + 
+ geom_line() + 
+ labs(y = 'Expected predicted risk')
+
+```
+
+From inspection, 
+
+- the model's predictions indicate slightly lower risk for the placebo group, and these do not seem to change much at different values of `bili` or `edema`.
+
+- There is a clear increase in predicted risk with higher levels of `edema` and with higher levels of `bili`
+
+- the slope of predicted risk as a function of `bili` appears highest among patients with `edema` of 0.5. Is the effect of `bili` modified by `edema` being 0.5? A quick sanity check with `coxph` suggests there is.
+
+  ```{r}
+  
+  library(survival)
+  
+  pbc_orsf$edema_05 <- ifelse(pbc_orsf$edema == '0.5', 'yes', 'no')
+  
+  fit_cph <- coxph(Surv(time,status) ~ edema_05 * bili, 
+                   data = pbc_orsf)
+  
+  anova(fit_cph)
+  
+  ```
+  
+```{r, echo = FALSE}
+
+# in case pbc_orsf is used in downstream docs
+
+pbc_orsf$edema_05 <- NULL
+
+```
+
+
 
 ## Individual conditional expectations
 
