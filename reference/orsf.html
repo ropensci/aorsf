@@ -27,7 +27,7 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/pd.html">Partial dependence and ICE curves with ORSF</a>
+    <a class="dropdown-item" href="../articles/pd.html">PD and ICE curves with ORSF</a>
     <a class="dropdown-item" href="../articles/oobag.html">Out-of-bag predictions and evaluation</a>
   </div>
 </li>
@@ -366,11 +366,70 @@ tidymodels workflows, and mlr3 pipelines.</p><div class="section">
 <span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bcjaeger/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://www.randomforestsrc.org/" class="external-link">randomForestSRC</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/imbs-hl/ranger" class="external-link">ranger</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tagteam/riskRegression" class="external-link">riskRegression</a></span><span class="op">)</span></span></code></pre><p></p></div><div class="section">
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## -- Attaching packages --------------------------------- tidymodels 0.2.0 --</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">## v broom        1.0.0     v recipes      1.0.1</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">## v dials        0.1.1     v rsample      0.1.1</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co">## v dplyr        1.0.9     v tibble       3.1.7</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## v ggplot2      3.3.6     v tidyr        1.2.0</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">## v infer        1.0.0     v tune         0.2.0</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">## v modeldata    0.1.1     v workflows    0.2.6</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="co">## v parsnip      1.0.0     v workflowsets 0.2.1</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="co">## v purrr        0.3.4     v yardstick    0.0.9</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co">## -- Conflicts ------------------------------------ tidymodels_conflicts() --</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="co">## x dplyr::between()      masks aorsf::between()</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co">## x purrr::discard()      masks scales::discard()</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a><span class="co">## x dplyr::filter()       masks stats::filter()</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="co">## x dplyr::first()        masks aorsf::first()</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a><span class="co">## x recipes::is_trained() masks aorsf::is_trained()</span></span>
+<span id="cb1-18"><a href="#cb1-18"></a><span class="co">## x dplyr::lag()          masks stats::lag()</span></span>
+<span id="cb1-19"><a href="#cb1-19"></a><span class="co">## x dplyr::last()         masks aorsf::last()</span></span>
+<span id="cb1-20"><a href="#cb1-20"></a><span class="co">## x recipes::step()       masks stats::step()</span></span>
+<span id="cb1-21"><a href="#cb1-21"></a><span class="co">## x purrr::transpose()    masks aorsf::transpose()</span></span>
+<span id="cb1-22"><a href="#cb1-22"></a><span class="co">## * Search for functions across packages at https://www.tidymodels.org/find/</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode r"><pre><code><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## -- Attaching packages ---------------------------------- tidyverse 1.3.1 --</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">## v readr   2.1.2     v forcats 0.5.1</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">## v stringr 1.4.0</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## -- Conflicts ------------------------------------- tidyverse_conflicts() --</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">## x dplyr::between()    masks aorsf::between()</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">## x readr::col_factor() masks scales::col_factor()</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="co">## x purrr::discard()    masks scales::discard()</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="co">## x dplyr::filter()     masks stats::filter()</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="co">## x dplyr::first()      masks aorsf::first()</span></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co">## x stringr::fixed()    masks recipes::fixed()</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="co">## x dplyr::lag()        masks stats::lag()</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co">## x dplyr::last()       masks aorsf::last()</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a><span class="co">## x readr::spec()       masks yardstick::spec()</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="co">## x purrr::transpose()  masks aorsf::transpose()</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode r"><pre><code><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://www.randomforestsrc.org/" class="external-link">randomForestSRC</a></span><span class="op">)</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## </span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">##  randomForestSRC 3.0.2 </span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">##  </span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">##  Type rfsrc.news() to see new features, changes, and bug fixes. </span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co">## </span></span>
+<span id="cb1-6"><a href="#cb1-6"></a></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">## </span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">## Attaching package: 'randomForestSRC'</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a></span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="co">## The following object is masked from 'package:tune':</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="co">## </span></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co">##     tune</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co">## The following object is masked from 'package:purrr':</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a><span class="co">## </span></span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="co">##     partial</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a></span>
+<span id="cb1-18"><a href="#cb1-18"></a><span class="co">## The following object is masked from 'package:parsnip':</span></span>
+<span id="cb1-19"><a href="#cb1-19"></a><span class="co">## </span></span>
+<span id="cb1-20"><a href="#cb1-20"></a><span class="co">##     tune</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode r"><pre><code><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/imbs-hl/ranger" class="external-link">ranger</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tagteam/riskRegression" class="external-link">riskRegression</a></span><span class="op">)</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## riskRegression version 2022.03.22</span></span></code></pre><p></p></div><div class="section">
 <h4 id="comparing-learners">Comparing learners<a class="anchor" aria-label="anchor" href="#comparing-learners"></a></h4>
 
 
@@ -388,18 +447,18 @@ tidymodels workflows, and mlr3 pipelines.</p><div class="section">
 <span><span class="va">analyses</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## #  10-fold cross-validation </span></span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="co">## # A tibble: 10 x 5</span></span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="co">##    splits           id     recipe   train               test    </span></span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="co">##    &lt;list&gt;           &lt;chr&gt;  &lt;list&gt;   &lt;list&gt;              &lt;list&gt;  </span></span>
-<span id="cb1-5"><a href="#cb1-5"></a><span class="co">##  1 &lt;split [248/28]&gt; Fold01 &lt;recipe&gt; &lt;tibble [248 x 20]&gt; &lt;tibble&gt;</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a><span class="co">##  2 &lt;split [248/28]&gt; Fold02 &lt;recipe&gt; &lt;tibble [248 x 20]&gt; &lt;tibble&gt;</span></span>
-<span id="cb1-7"><a href="#cb1-7"></a><span class="co">##  3 &lt;split [248/28]&gt; Fold03 &lt;recipe&gt; &lt;tibble [248 x 20]&gt; &lt;tibble&gt;</span></span>
-<span id="cb1-8"><a href="#cb1-8"></a><span class="co">##  4 &lt;split [248/28]&gt; Fold04 &lt;recipe&gt; &lt;tibble [248 x 20]&gt; &lt;tibble&gt;</span></span>
-<span id="cb1-9"><a href="#cb1-9"></a><span class="co">##  5 &lt;split [248/28]&gt; Fold05 &lt;recipe&gt; &lt;tibble [248 x 20]&gt; &lt;tibble&gt;</span></span>
-<span id="cb1-10"><a href="#cb1-10"></a><span class="co">##  6 &lt;split [248/28]&gt; Fold06 &lt;recipe&gt; &lt;tibble [248 x 20]&gt; &lt;tibble&gt;</span></span>
-<span id="cb1-11"><a href="#cb1-11"></a><span class="co">##  7 &lt;split [249/27]&gt; Fold07 &lt;recipe&gt; &lt;tibble [249 x 20]&gt; &lt;tibble&gt;</span></span>
-<span id="cb1-12"><a href="#cb1-12"></a><span class="co">##  8 &lt;split [249/27]&gt; Fold08 &lt;recipe&gt; &lt;tibble [249 x 20]&gt; &lt;tibble&gt;</span></span>
-<span id="cb1-13"><a href="#cb1-13"></a><span class="co">##  9 &lt;split [249/27]&gt; Fold09 &lt;recipe&gt; &lt;tibble [249 x 20]&gt; &lt;tibble&gt;</span></span>
-<span id="cb1-14"><a href="#cb1-14"></a><span class="co">## 10 &lt;split [249/27]&gt; Fold10 &lt;recipe&gt; &lt;tibble [249 x 20]&gt; &lt;tibble&gt;</span></span></code></pre><p></p></div>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">##    splits           id     recipe   train               test              </span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">##    &lt;list&gt;           &lt;chr&gt;  &lt;list&gt;   &lt;list&gt;              &lt;list&gt;            </span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co">##  1 &lt;split [248/28]&gt; Fold01 &lt;recipe&gt; &lt;tibble [248 x 20]&gt; &lt;tibble [28 x 20]&gt;</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">##  2 &lt;split [248/28]&gt; Fold02 &lt;recipe&gt; &lt;tibble [248 x 20]&gt; &lt;tibble [28 x 20]&gt;</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">##  3 &lt;split [248/28]&gt; Fold03 &lt;recipe&gt; &lt;tibble [248 x 20]&gt; &lt;tibble [28 x 20]&gt;</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">##  4 &lt;split [248/28]&gt; Fold04 &lt;recipe&gt; &lt;tibble [248 x 20]&gt; &lt;tibble [28 x 20]&gt;</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="co">##  5 &lt;split [248/28]&gt; Fold05 &lt;recipe&gt; &lt;tibble [248 x 20]&gt; &lt;tibble [28 x 20]&gt;</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="co">##  6 &lt;split [248/28]&gt; Fold06 &lt;recipe&gt; &lt;tibble [248 x 20]&gt; &lt;tibble [28 x 20]&gt;</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="co">##  7 &lt;split [249/27]&gt; Fold07 &lt;recipe&gt; &lt;tibble [249 x 20]&gt; &lt;tibble [27 x 20]&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co">##  8 &lt;split [249/27]&gt; Fold08 &lt;recipe&gt; &lt;tibble [249 x 20]&gt; &lt;tibble [27 x 20]&gt;</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="co">##  9 &lt;split [249/27]&gt; Fold09 &lt;recipe&gt; &lt;tibble [249 x 20]&gt; &lt;tibble [27 x 20]&gt;</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co">## 10 &lt;split [249/27]&gt; Fold10 &lt;recipe&gt; &lt;tibble [249 x 20]&gt; &lt;tibble [27 x 20]&gt;</span></span></code></pre><p></p></div>
 <p>Define functions for a ‘workflow’ with both <code>randomForestSRC</code> and
 <code>aorsf</code>. Obviously this is not the same thing as a <code>tidymodels</code>
 workflow, but this works well enough. I am working on getting <code>aorsf</code>
@@ -446,29 +505,29 @@ data and predictions.</p>
 <span><span class="fu">glimpse</span><span class="op">(</span><span class="va">results</span><span class="op">)</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## Rows: 276</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="co">## Columns: 23</span></span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="co">## $ id          &lt;int&gt; 21, 22, 23, 28, 52, 67, 79, 99, 104, 111, 115, 152,~</span></span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="co">## $ trt         &lt;fct&gt; placebo, d_penicill_main, placebo, placebo, d_penic~</span></span>
-<span id="cb1-5"><a href="#cb1-5"></a><span class="co">## $ age         &lt;dbl&gt; 64.18891, 56.27652, 55.96715, 44.94730, 50.54073, 5~</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## $ sex         &lt;fct&gt; m, f, f, f, m, f, f, m, f, f, f, m, f, f, f, f, f, ~</span></span>
-<span id="cb1-7"><a href="#cb1-7"></a><span class="co">## $ ascites     &lt;fct&gt; 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~</span></span>
-<span id="cb1-8"><a href="#cb1-8"></a><span class="co">## $ hepato      &lt;fct&gt; 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, ~</span></span>
-<span id="cb1-9"><a href="#cb1-9"></a><span class="co">## $ spiders     &lt;fct&gt; 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, ~</span></span>
-<span id="cb1-10"><a href="#cb1-10"></a><span class="co">## $ edema       &lt;fct&gt; 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~</span></span>
-<span id="cb1-11"><a href="#cb1-11"></a><span class="co">## $ bili        &lt;dbl&gt; 0.6, 3.4, 17.4, 17.2, 6.0, 1.1, 0.8, 1.8, 1.1, 5.5,~</span></span>
-<span id="cb1-12"><a href="#cb1-12"></a><span class="co">## $ chol        &lt;int&gt; 252, 271, 395, 222, 614, 466, 315, 460, 303, 528, 3~</span></span>
-<span id="cb1-13"><a href="#cb1-13"></a><span class="co">## $ albumin     &lt;dbl&gt; 3.83, 3.63, 2.94, 3.23, 3.70, 3.91, 4.24, 3.35, 3.6~</span></span>
-<span id="cb1-14"><a href="#cb1-14"></a><span class="co">## $ copper      &lt;int&gt; 41, 464, 558, 209, 158, 84, 13, 148, 20, 77, 81, 24~</span></span>
-<span id="cb1-15"><a href="#cb1-15"></a><span class="co">## $ alk.phos    &lt;dbl&gt; 843.0, 1376.0, 6064.8, 1975.0, 5084.4, 1787.0, 1637~</span></span>
-<span id="cb1-16"><a href="#cb1-16"></a><span class="co">## $ ast         &lt;dbl&gt; 65.10, 120.90, 227.04, 189.10, 206.40, 328.60, 170.~</span></span>
-<span id="cb1-17"><a href="#cb1-17"></a><span class="co">## $ trig        &lt;int&gt; 83, 55, 191, 195, 93, 185, 70, 118, 53, 78, 156, 12~</span></span>
-<span id="cb1-18"><a href="#cb1-18"></a><span class="co">## $ platelet    &lt;int&gt; 336, 173, 214, 144, 362, 261, 426, 172, 349, 467, 3~</span></span>
-<span id="cb1-19"><a href="#cb1-19"></a><span class="co">## $ protime     &lt;dbl&gt; 11.4, 11.6, 11.7, 13.0, 10.6, 10.0, 10.9, 10.2, 11.~</span></span>
-<span id="cb1-20"><a href="#cb1-20"></a><span class="co">## $ stage       &lt;ord&gt; 4, 4, 4, 4, 1, 3, 3, 2, 2, 3, 3, 3, 4, 2, 3, 3, 2, ~</span></span>
-<span id="cb1-21"><a href="#cb1-21"></a><span class="co">## $ time        &lt;int&gt; 3445, 673, 264, 549, 2386, 2769, 3707, 3820, 3086, ~</span></span>
-<span id="cb1-22"><a href="#cb1-22"></a><span class="co">## $ status      &lt;dbl&gt; 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, ~</span></span>
-<span id="cb1-23"><a href="#cb1-23"></a><span class="co">## $ pred_aorsf  &lt;dbl&gt; 0.36491173, 0.68970669, 0.98179507, 0.98850628, 0.4~</span></span>
-<span id="cb1-24"><a href="#cb1-24"></a><span class="co">## $ pred_rfsrc  &lt;dbl&gt; 0.24242178, 0.47483623, 0.87523838, 0.87005877, 0.5~</span></span>
-<span id="cb1-25"><a href="#cb1-25"></a><span class="co">## $ pred_ranger &lt;dbl&gt; 0.22456672, 0.48945363, 0.78824669, 0.78077928, 0.5~</span></span></code></pre><p></p></div>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">## $ id          &lt;int&gt; 21, 22, 23, 28, 52, 67, 79, 99, 104, 111, 115, 152, 188, 1~</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">## $ trt         &lt;fct&gt; placebo, d_penicill_main, placebo, placebo, d_penicill_mai~</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co">## $ age         &lt;dbl&gt; 64.18891, 56.27652, 55.96715, 44.94730, 50.54073, 51.28816~</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## $ sex         &lt;fct&gt; m, f, f, f, m, f, f, m, f, f, f, m, f, f, f, f, f, f, f, f~</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">## $ ascites     &lt;fct&gt; 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">## $ hepato      &lt;fct&gt; 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1~</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="co">## $ spiders     &lt;fct&gt; 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1~</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="co">## $ edema       &lt;fct&gt; 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="co">## $ bili        &lt;dbl&gt; 0.6, 3.4, 17.4, 17.2, 6.0, 1.1, 0.8, 1.8, 1.1, 5.5, 0.7, 2~</span></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co">## $ chol        &lt;int&gt; 252, 271, 395, 222, 614, 466, 315, 460, 303, 528, 303, 586~</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="co">## $ albumin     &lt;dbl&gt; 3.83, 3.63, 2.94, 3.23, 3.70, 3.91, 4.24, 3.35, 3.64, 4.18~</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co">## $ copper      &lt;int&gt; 41, 464, 558, 209, 158, 84, 13, 148, 20, 77, 81, 243, 41, ~</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a><span class="co">## $ alk.phos    &lt;dbl&gt; 843.0, 1376.0, 6064.8, 1975.0, 5084.4, 1787.0, 1637.0, 147~</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="co">## $ ast         &lt;dbl&gt; 65.10, 120.90, 227.04, 189.10, 206.40, 328.60, 170.50, 108~</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a><span class="co">## $ trig        &lt;int&gt; 83, 55, 191, 195, 93, 185, 70, 118, 53, 78, 156, 126, 98, ~</span></span>
+<span id="cb1-18"><a href="#cb1-18"></a><span class="co">## $ platelet    &lt;int&gt; 336, 173, 214, 144, 362, 261, 426, 172, 349, 467, 307, 339~</span></span>
+<span id="cb1-19"><a href="#cb1-19"></a><span class="co">## $ protime     &lt;dbl&gt; 11.4, 11.6, 11.7, 13.0, 10.6, 10.0, 10.9, 10.2, 11.1, 10.7~</span></span>
+<span id="cb1-20"><a href="#cb1-20"></a><span class="co">## $ stage       &lt;ord&gt; 4, 4, 4, 4, 1, 3, 3, 2, 2, 3, 3, 3, 4, 2, 3, 3, 2, 3, 3, 4~</span></span>
+<span id="cb1-21"><a href="#cb1-21"></a><span class="co">## $ time        &lt;int&gt; 3445, 673, 264, 549, 2386, 2769, 3707, 3820, 3086, 2350, 3~</span></span>
+<span id="cb1-22"><a href="#cb1-22"></a><span class="co">## $ status      &lt;dbl&gt; 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0~</span></span>
+<span id="cb1-23"><a href="#cb1-23"></a><span class="co">## $ pred_aorsf  &lt;dbl&gt; 0.36491173, 0.68970669, 0.98179507, 0.98850628, 0.49299773~</span></span>
+<span id="cb1-24"><a href="#cb1-24"></a><span class="co">## $ pred_rfsrc  &lt;dbl&gt; 0.24242178, 0.47483623, 0.87523838, 0.87005877, 0.56744854~</span></span>
+<span id="cb1-25"><a href="#cb1-25"></a><span class="co">## $ pred_ranger &lt;dbl&gt; 0.22456672, 0.48945363, 0.78824669, 0.78077928, 0.59343228~</span></span></code></pre><p></p></div>
 <p>And finish by aggregating the predictions and computing performance in
 the testing data. Note that I am computing one statistic for all
 predictions instead of computing one statistic for each fold. This

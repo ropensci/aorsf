@@ -27,7 +27,7 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/pd.html">Partial dependence and ICE curves with ORSF</a>
+    <a class="dropdown-item" href="../articles/pd.html">PD and ICE curves with ORSF</a>
     <a class="dropdown-item" href="../articles/oobag.html">Out-of-bag predictions and evaluation</a>
   </div>
 </li>
@@ -62,6 +62,18 @@
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orsf_pd_oob</span><span class="op">(</span></span>
+<span>  <span class="va">object</span>,</span>
+<span>  <span class="va">pd_spec</span>,</span>
+<span>  pred_horizon <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pred_type <span class="op">=</span> <span class="st">"risk"</span>,</span>
+<span>  expand_grid <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  prob_values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.5</span>, <span class="fl">0.975</span><span class="op">)</span>,</span>
+<span>  prob_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lwr"</span>, <span class="st">"medn"</span>, <span class="st">"upr"</span><span class="op">)</span>,</span>
+<span>  boundary_checks <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">orsf_pd_inb</span><span class="op">(</span></span>
 <span>  <span class="va">object</span>,</span>
 <span>  <span class="va">pd_spec</span>,</span>
 <span>  pred_horizon <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -182,10 +194,21 @@ specified prediction horizon(s).</p>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf_train</span>, </span>
 <span>            formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
 <span>            oobag_pred_horizon <span class="op">=</span> <span class="fl">365.25</span> <span class="op">*</span> <span class="fl">5</span><span class="op">)</span></span></code></pre><p></p></div><div class="section">
-<h3 id="partial-dependence-two-ways">Partial dependence two ways<a class="anchor" aria-label="anchor" href="#partial-dependence-two-ways"></a></h3>
+<h3 id="three-ways-to-compute-pd-and-ice">Three ways to compute PD and ICE<a class="anchor" aria-label="anchor" href="#three-ways-to-compute-pd-and-ice"></a></h3>
 
 
-<p>You can compute partial dependence two ways using a random forest:</p><ul><li><p>using out-of-bag predictions for the training data</p>
+<p>You can compute partial dependence and ICE three ways with <code>aorsf</code>:</p><ul><li><p>using in-bag predictions for the training data</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">pd_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_inb</a></span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pd_train</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">##    pred_horizon  bili      mean        lwr       medn       upr</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">##           &lt;num&gt; &lt;int&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">## 1:      1826.25     1 0.2065186 0.01461416 0.09406926 0.8053158</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">## 2:      1826.25     2 0.2352372 0.02673697 0.12477942 0.8206148</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co">## 3:      1826.25     3 0.2754197 0.04359767 0.17630939 0.8406553</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## 4:      1826.25     4 0.3303309 0.09237920 0.24319095 0.8544871</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">## 5:      1826.25     5 0.3841395 0.15224112 0.30174988 0.8663482</span></span></code></pre><p></p></div></li>
+<li><p>using out-of-bag predictions for the training data</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">pd_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_train</span></span></code></pre><p></p></div>
@@ -209,16 +232,18 @@ specified prediction horizon(s).</p>
 <span id="cb1-5"><a href="#cb1-5"></a><span class="co">## 3:      1826.25     3 0.3205550 0.04959123 0.2736161 0.8495418</span></span>
 <span id="cb1-6"><a href="#cb1-6"></a><span class="co">## 4:      1826.25     4 0.3743186 0.10474085 0.3501337 0.8619464</span></span>
 <span id="cb1-7"><a href="#cb1-7"></a><span class="co">## 5:      1826.25     5 0.4258793 0.16727203 0.4032790 0.8626002</span></span></code></pre><p></p></div></li>
-</ul><p>Which should you use? Both!</p><ul><li><p>out-of-bag partial dependence indicates relationships that the model
-has learned during training. This is helpful if your goal is to
+<li><p>in-bag partial dependence indicates relationships that the model has
+learned during training. This is helpful if your goal is to
 interpret the model.</p></li>
-<li><p>partial dependence for new data shows how the model predicts
-outcomes for observations it has not seen. This is helpful if you
-want to test your model’s reliability or fairness.</p></li>
-</ul><p>A reliable model should give roughly the same partial dependence values
-in its training and testing data, given the size of the training and
-testing data are both sufficient.</p>
-</div>
+<li><p>out-of-bag partial dependence indicates relationships that the model
+has learned during training but using the out-of-bag data simulates
+application of the model to new data. if you want to test your
+model’s reliability or fairness in new data but you don’t have
+access to a large testing set.</p></li>
+<li><p>new data partial dependence shows how the model predicts outcomes
+for observations it has not seen. This is helpful if you want to
+test your model’s reliability or fairness.</p></li>
+</ul></div>
 
     </div>
 

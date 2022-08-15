@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="Learn how to interpret ORSF models using partial dependence.
 ">
-<title>Partial dependence and ICE curves with ORSF • aorsf</title>
+<title>PD and ICE curves with ORSF • aorsf</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -18,7 +18,7 @@
 <link href="../deps/bootstrap-5.1.3/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Partial dependence and ICE curves with ORSF">
+<!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="PD and ICE curves with ORSF">
 <meta property="og:description" content="Learn how to interpret ORSF models using partial dependence.
 ">
 <meta property="og:image" content="https://bcjaeger.github.io/aorsf/logo.png">
@@ -53,7 +53,7 @@
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/pd.html">Partial dependence and ICE curves with ORSF</a>
+    <a class="dropdown-item" href="../articles/pd.html">PD and ICE curves with ORSF</a>
     <a class="dropdown-item" href="../articles/oobag.html">Out-of-bag predictions and evaluation</a>
   </div>
 </li>
@@ -83,7 +83,7 @@
 
 <script src="pd_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Partial dependence and ICE curves with ORSF</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>PD and ICE curves with ORSF</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/bcjaeger/aorsf/blob/HEAD/vignettes/pd.Rmd" class="external-link"><code>vignettes/pd.Rmd</code></a></small>
@@ -93,13 +93,15 @@
     
     
 <div class="section level2">
-<h2 id="partial-dependence">Partial dependence<a class="anchor" aria-label="anchor" href="#partial-dependence"></a>
+<h2 id="partial-dependence-pd">Partial dependence (PD)<a class="anchor" aria-label="anchor" href="#partial-dependence-pd"></a>
 </h2>
 <p>Partial dependence shows the expected prediction from a model as a function of a single predictor or multiple predictors. The expectation is marginalized over the values of all other predictors, giving something like a multivariable adjusted estimate of the model’s prediction.</p>
-<p>Begin by fitting an ORSF ensemble.</p>
+<p>Begin by fitting an ORSF ensemble. Set a prediction horizon of 5 years when we fit the ensemble so that any <code>aorsf</code> function that we pass this ensemble to will assume we want to compute predictions at 5 years.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bcjaeger/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pred_horizon</span> <span class="op">&lt;-</span> <span class="fl">365.25</span> <span class="op">*</span> <span class="fl">5</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329730</span><span class="op">)</span></span>
 <span></span>
@@ -110,7 +112,7 @@
 <span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf_train</span>, </span>
 <span>            formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
-<span>            oobag_pred_horizon <span class="op">=</span> <span class="fl">365.25</span> <span class="op">*</span> <span class="fl">5</span><span class="op">)</span></span>
+<span>            oobag_pred_horizon <span class="op">=</span> <span class="va">pred_horizon</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit</span></span>
 <span><span class="co">#&gt; ---------- Oblique random survival forest</span></span>
@@ -131,17 +133,31 @@
 <span><span class="co">#&gt; -----------------------------------------</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="partial-dependence-two-ways">Partial dependence two ways<a class="anchor" aria-label="anchor" href="#partial-dependence-two-ways"></a>
+<h2 id="three-ways-to-compute-pd">Three ways to compute PD<a class="anchor" aria-label="anchor" href="#three-ways-to-compute-pd"></a>
 </h2>
-<p>You can compute partial dependence two ways using a random forest:</p>
+<p>You can compute PD three ways with <code>aorsf</code>:</p>
 <ul>
 <li>
-<p>using out-of-bag predictions for the training data</p>
+<p>using in-bag predictions for the training data</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">pd_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">pd_inb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_inb</a></span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">pd_train</span></span>
+<span><span class="va">pd_inb</span></span>
+<span><span class="co">#&gt;    pred_horizon bili      mean        lwr       medn       upr</span></span>
+<span><span class="co">#&gt; 1:      1826.25    1 0.2065186 0.01461416 0.09406926 0.8053158</span></span>
+<span><span class="co">#&gt; 2:      1826.25    2 0.2352372 0.02673697 0.12477942 0.8206148</span></span>
+<span><span class="co">#&gt; 3:      1826.25    3 0.2754197 0.04359767 0.17630939 0.8406553</span></span>
+<span><span class="co">#&gt; 4:      1826.25    4 0.3303309 0.09237920 0.24319095 0.8544871</span></span>
+<span><span class="co">#&gt; 5:      1826.25    5 0.3841395 0.15224112 0.30174988 0.8663482</span></span></code></pre></div>
+</li>
+<li>
+<p>using out-of-bag predictions for the training data</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">pd_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pd_oob</span></span>
 <span><span class="co">#&gt;    pred_horizon bili      mean        lwr       medn       upr</span></span>
 <span><span class="co">#&gt; 1:      1826.25    1 0.2075896 0.01389732 0.09063976 0.7998756</span></span>
 <span><span class="co">#&gt; 2:      1826.25    2 0.2352634 0.02628113 0.12935779 0.8152149</span></span>
@@ -151,7 +167,7 @@
 </li>
 <li>
 <p>using predictions for a new set of data</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">pd_test</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_new</a></span><span class="op">(</span><span class="va">fit</span>, </span>
 <span>                       new_data <span class="op">=</span> <span class="va">pbc_orsf_test</span>, </span>
@@ -165,25 +181,246 @@
 <span><span class="co">#&gt; 4:      1826.25    4 0.3743186 0.10474085 0.3501337 0.8619464</span></span>
 <span><span class="co">#&gt; 5:      1826.25    5 0.4258793 0.16727203 0.4032790 0.8626002</span></span></code></pre></div>
 </li>
+<li><p>in-bag PD indicates relationships that the model has learned during training. This is helpful if your goal is to interpret the model.</p></li>
+<li><p>out-of-bag PD indicates relationships that the model has learned during training but using the out-of-bag data simulates application of the model to new data. if you want to test your model’s reliability or fairness in new data but you don’t have access to a large testing set.</p></li>
+<li><p>new data PD shows how the model predicts outcomes for observations it has not seen. This is helpful if you want to test your model’s reliability or fairness.</p></li>
 </ul>
-<p>Which should you use? Both!</p>
-<ul>
-<li><p>out-of-bag partial dependence indicates relationships that the model has learned during training. This is helpful if your goal is to interpret the model.</p></li>
-<li><p>partial dependence for new data shows how the model predicts outcomes for observations it has not seen. This is helpful if you want to test your model’s reliability or fairness.</p></li>
-</ul>
-<p>A reliable model should give roughly the same partial dependence values in its training and testing data, given the size of the training and testing data are both sufficient.</p>
-</div>
-<div class="section level2">
-<h2 id="partial-dependence-for-multiple-variables">Partial dependence for multiple variables<a class="anchor" aria-label="anchor" href="#partial-dependence-for-multiple-variables"></a>
-</h2>
-<p>Let’s re-fit our ORSF to all available data before proceeding.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p>Let’s re-fit our ORSF to all available data before proceeding to the next sections.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329730</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span><span class="va">id</span><span class="op">)</span></span></code></pre></div>
-<p>partial dependence can show the expected value of a model’s predictions as a function of a specific predictor, or as a function of multiple predictors. For instance, we can estimate predicted risk as a joint function of <code>bili</code>, <code>edema</code>, and <code>trt</code>:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
+<span>            <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span><span class="va">id</span>,</span>
+<span>            oobag_pred_horizon <span class="op">=</span> <span class="va">pred_horizon</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="one-variable-one-horizon">One variable, one horizon<a class="anchor" aria-label="anchor" href="#one-variable-one-horizon"></a>
+</h2>
+<p>Computing PD for a single variable is straightforward:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">pd_sex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"f"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pd_sex</span></span>
+<span><span class="co">#&gt;    pred_horizon sex      mean        lwr      medn       upr</span></span>
+<span><span class="co">#&gt; 1:      1826.25   m 0.3527805 0.03974647 0.2414356 0.9444124</span></span>
+<span><span class="co">#&gt; 2:      1826.25   f 0.2932127 0.01115776 0.1417599 0.9591495</span></span></code></pre></div>
+<p>The output shows that the expected predicted mortality risk for men is substantially higher than women at 5 years after baseline.</p>
+</div>
+<div class="section level2">
+<h2 id="one-variable-moving-horizon">One variable, moving horizon<a class="anchor" aria-label="anchor" href="#one-variable-moving-horizon"></a>
+</h2>
+<p>What if the effect of a predictor varies over time? PD can show this.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">pd_sex_tv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"f"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                         pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">365</span>, <span class="fl">365</span><span class="op">*</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">pd_sex_tv</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pred_horizon</span>, y <span class="op">=</span> <span class="va">mean</span>, color <span class="op">=</span> <span class="va">sex</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="pd_files/figure-html/unnamed-chunk-8-1.png" width="672"></p>
+<p>From inspection, we can see that males have higher risk than females and the difference in that risk grows over time. This can also be seen by viewing the ratio of expected risk over time:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ratio_tv</span> <span class="op">&lt;-</span> <span class="va">pd_sex_tv</span><span class="op">[</span></span>
+<span> , <span class="fu">.</span><span class="op">(</span>ratio <span class="op">=</span> <span class="va">mean</span><span class="op">[</span><span class="va">sex</span> <span class="op">==</span> <span class="st">'m'</span><span class="op">]</span> <span class="op">/</span> <span class="va">mean</span><span class="op">[</span><span class="va">sex</span> <span class="op">==</span> <span class="st">'f'</span><span class="op">]</span><span class="op">)</span>, by <span class="op">=</span> <span class="va">pred_horizon</span></span>
+<span><span class="op">]</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">ratio_tv</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pred_horizon</span>, y <span class="op">=</span> <span class="va">ratio</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">'grey'</span><span class="op">)</span> <span class="op">+</span> </span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">'black'</span>, se <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span> </span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">'time since baseline'</span>,</span>
+<span>      y <span class="op">=</span> <span class="st">'ratio in expected risk for males versus females'</span><span class="op">)</span></span>
+<span><span class="co">#&gt; `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'</span></span></code></pre></div>
+<p><img src="pd_files/figure-html/unnamed-chunk-9-1.png" width="672"></p>
+</div>
+<div class="section level2">
+<h2 id="multiple-variables-marginally">Multiple variables, marginally<a class="anchor" aria-label="anchor" href="#multiple-variables-marginally"></a>
+</h2>
+<p>If you want to compute PD marginally for multiple variables, just list the variable values in <code>pd_spec</code> and specify <code>expand_grid = FALSE</code>.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">pd_two_vars</span> <span class="op">&lt;-</span>  </span>
+<span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>,</span>
+<span>             pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"f"</span><span class="op">)</span>, bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>,</span>
+<span>             expand_grid <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pd_two_vars</span></span>
+<span><span class="co">#&gt;    pred_horizon variable value level      mean        lwr      medn       upr</span></span>
+<span><span class="co">#&gt; 1:      1826.25      sex    NA     m 0.3527805 0.03974647 0.2414356 0.9444124</span></span>
+<span><span class="co">#&gt; 2:      1826.25      sex    NA     f 0.2932127 0.01115776 0.1417599 0.9591495</span></span>
+<span><span class="co">#&gt; 3:      1826.25     bili     1  &lt;NA&gt; 0.2340055 0.01296442 0.1171454 0.8702835</span></span>
+<span><span class="co">#&gt; 4:      1826.25     bili     2  &lt;NA&gt; 0.2851655 0.03823950 0.1735778 0.9065770</span></span>
+<span><span class="co">#&gt; 5:      1826.25     bili     3  &lt;NA&gt; 0.3431764 0.06659531 0.2542600 0.9238422</span></span>
+<span><span class="co">#&gt; 6:      1826.25     bili     4  &lt;NA&gt; 0.3944246 0.10249873 0.3127158 0.9380414</span></span>
+<span><span class="co">#&gt; 7:      1826.25     bili     5  &lt;NA&gt; 0.4409193 0.14114665 0.3826310 0.9464794</span></span></code></pre></div>
+<p>Now would it be tedious if you wanted to do this for all the variables? You bet. That’s why we made a function for that. As a bonus, the printed output is sorted from most to least important variables.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">pd_smry</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pd_smry</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- bili (VI Rank: 1) -------------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;             0.80 0.2290016 0.1148601 0.04327406 0.3528169</span></span>
+<span><span class="co">#&gt;              1.4 0.2494666 0.1376638 0.05627886 0.3771831</span></span>
+<span><span class="co">#&gt;              3.5 0.3704706 0.2889571 0.15656217 0.5533343</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- age (VI Rank: 2) --------------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;               42 0.2704463 0.1295873 0.04026421 0.4548720</span></span>
+<span><span class="co">#&gt;               50 0.2984843 0.1625962 0.04439149 0.5203701</span></span>
+<span><span class="co">#&gt;               57 0.3281206 0.2112682 0.06424226 0.5718942</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- protime (VI Rank: 3) ----------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;               10 0.2808684 0.1480830 0.04454335 0.5250508</span></span>
+<span><span class="co">#&gt;               11 0.2942878 0.1494827 0.04801608 0.5385037</span></span>
+<span><span class="co">#&gt;               11 0.3174015 0.1848578 0.06474437 0.5605459</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- ascites (VI Rank: 4) ----------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;                0 0.2934430 0.1454747 0.04363005 0.5425820</span></span>
+<span><span class="co">#&gt;                1 0.4700569 0.3779503 0.27402738 0.6487942</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- sex (VI Rank: 5) --------------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;                m 0.3527805 0.2414356 0.10979219 0.5900754</span></span>
+<span><span class="co">#&gt;                f 0.2932127 0.1417599 0.04241247 0.5316942</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- stage (VI Rank: 6) ------------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;                1 0.2617610 0.1370758 0.03951652 0.4547312</span></span>
+<span><span class="co">#&gt;                2 0.2704346 0.1393500 0.03812598 0.4974763</span></span>
+<span><span class="co">#&gt;                3 0.2920387 0.1591362 0.04597153 0.5402843</span></span>
+<span><span class="co">#&gt;                4 0.3395445 0.2171918 0.08134507 0.5906341</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- copper (VI Rank: 7) -----------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;               43 0.2610046 0.1359129 0.04000928 0.4773423</span></span>
+<span><span class="co">#&gt;               74 0.2790426 0.1495856 0.05226547 0.5081557</span></span>
+<span><span class="co">#&gt;              129 0.3335202 0.2176733 0.10000455 0.5464926</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- spiders (VI Rank: 8) ----------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;                0 0.2900268 0.1442807 0.04234382 0.5274333</span></span>
+<span><span class="co">#&gt;                1 0.3349321 0.2164031 0.07881800 0.5616628</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- albumin (VI Rank: 9) ----------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;              3.3 0.3139304 0.1689580 0.04677649 0.5803556</span></span>
+<span><span class="co">#&gt;              3.5 0.2923041 0.1431321 0.04390161 0.5342228</span></span>
+<span><span class="co">#&gt;              3.8 0.2789748 0.1319210 0.04560136 0.4855513</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- edema (VI Rank: 10) -----------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;                0 0.2900221 0.1454747 0.04216106 0.5435162</span></span>
+<span><span class="co">#&gt;              0.5 0.3506983 0.2437012 0.09370586 0.6102717</span></span>
+<span><span class="co">#&gt;                1 0.4375162 0.3381648 0.22289789 0.6563385</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- ast (VI Rank: 11) -------------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;               82 0.2831976 0.1388635 0.04124336 0.5293067</span></span>
+<span><span class="co">#&gt;              117 0.2969493 0.1541120 0.04724622 0.5472410</span></span>
+<span><span class="co">#&gt;              153 0.3174977 0.1715826 0.06233281 0.5819240</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- trig (VI Rank: 12) ------------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;               85 0.2940047 0.1479727 0.04129360 0.5354742</span></span>
+<span><span class="co">#&gt;              108 0.3004809 0.1559818 0.04400752 0.5448964</span></span>
+<span><span class="co">#&gt;              151 0.3132524 0.1782903 0.05679427 0.5430465</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- alk.phos (VI Rank: 13) --------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;              922 0.3018497 0.1551374 0.04519584 0.5536559</span></span>
+<span><span class="co">#&gt;             1278 0.3026628 0.1630816 0.04488732 0.5525483</span></span>
+<span><span class="co">#&gt;             2068 0.3065994 0.1665361 0.05124448 0.5511105</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- hepato (VI Rank: 14) ----------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;                0 0.2854740 0.1450785 0.03921781 0.5230005</span></span>
+<span><span class="co">#&gt;                1 0.3183191 0.1777718 0.06326351 0.5503241</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- chol (VI Rank: 15) ------------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;              250 0.2851192 0.1443172 0.03853663 0.4941613</span></span>
+<span><span class="co">#&gt;              310 0.2927041 0.1602519 0.04444628 0.5196398</span></span>
+<span><span class="co">#&gt;              401 0.3158389 0.1882467 0.07194796 0.5447747</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- platelet (VI Rank: 16) --------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;              200 0.3059458 0.1594746 0.04880371 0.5761188</span></span>
+<span><span class="co">#&gt;              257 0.3009282 0.1541210 0.04620275 0.5619634</span></span>
+<span><span class="co">#&gt;              318 0.2977349 0.1524793 0.04545151 0.5500751</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- trt (VI Rank: 17) -------------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;  d_penicill_main 0.3056548 0.1689712 0.04896262 0.5482101</span></span>
+<span><span class="co">#&gt;          placebo 0.2996642 0.1451760 0.04475777 0.5498884</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Predicted risk at time t = 1826.25 for top 17 predictors</span></span></code></pre></div>
+<p>It’s easy enough to turn this ‘summary’ object into a <code>data.table</code> for downstream plotting and tables.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">pd_smry</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    variable importance Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt; 1:     bili 0.01854553  0.80 0.2290016 0.1148601 0.04327406 0.3528169</span></span>
+<span><span class="co">#&gt; 2:     bili 0.01854553   1.4 0.2494666 0.1376638 0.05627886 0.3771831</span></span>
+<span><span class="co">#&gt; 3:     bili 0.01854553   3.5 0.3704706 0.2889571 0.15656217 0.5533343</span></span>
+<span><span class="co">#&gt; 4:      age 0.00896020    42 0.2704463 0.1295873 0.04026421 0.4548720</span></span>
+<span><span class="co">#&gt; 5:      age 0.00896020    50 0.2984843 0.1625962 0.04439149 0.5203701</span></span>
+<span><span class="co">#&gt; 6:      age 0.00896020    57 0.3281206 0.2112682 0.06424226 0.5718942</span></span>
+<span><span class="co">#&gt;    pred_horizon level</span></span>
+<span><span class="co">#&gt; 1:      1826.25  &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 2:      1826.25  &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 3:      1826.25  &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 4:      1826.25  &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 5:      1826.25  &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 6:      1826.25  &lt;NA&gt;</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="pd-for-multiple-variables">PD for multiple variables<a class="anchor" aria-label="anchor" href="#pd-for-multiple-variables"></a>
+</h2>
+<p>PD can show the expected value of a model’s predictions as a function of a specific predictor, or as a function of multiple predictors. For instance, we can estimate predicted risk as a joint function of <code>bili</code>, <code>edema</code>, and <code>trt</code>:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">pd_spec</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">5</span>, length.out <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>,</span>
 <span>               edema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">pbc_orsf_train</span><span class="op">$</span><span class="va">edema</span><span class="op">)</span>,</span>
@@ -203,7 +440,7 @@
 <li><p>There is a clear increase in predicted risk with higher levels of <code>edema</code> and with higher levels of <code>bili</code></p></li>
 <li>
 <p>the slope of predicted risk as a function of <code>bili</code> appears highest among patients with <code>edema</code> of 0.5. Is the effect of <code>bili</code> modified by <code>edema</code> being 0.5? A quick sanity check with <code>coxph</code> suggests there is.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
 <span></span>
@@ -228,9 +465,50 @@
 </ul>
 </div>
 <div class="section level2">
-<h2 id="individual-conditional-expectations">Individual conditional expectations<a class="anchor" aria-label="anchor" href="#individual-conditional-expectations"></a>
+<h2 id="individual-conditional-expectations-ice">Individual conditional expectations (ICE)<a class="anchor" aria-label="anchor" href="#individual-conditional-expectations-ice"></a>
 </h2>
 <p>Unlike partial dependence, which shows the expected prediction as a function of one or multiple predictors, individual conditional expectations shows the prediction for an individual observation as a function of a predictor.</p>
+<p>Just like PD, we can compute ICE using in-bag, out-of-bag, or testing data, and the same principles apply. We’ll use out-of-bag estimates here.</p>
+</div>
+<div class="section level2">
+<h2 id="visualizing-ice-curves">Visualizing ICE curves<a class="anchor" aria-label="anchor" href="#visualizing-ice-curves"></a>
+</h2>
+<p>Inspecting the ICE curves for each observation can help identify whether there is heterogeneity in a model’s predictions. I.e., does the effect of the variable follow the same pattern for all the data, or are there groups where the variable impacts risk differently?</p>
+<p>I am going to turn off boundary checking in <code>orsf_ice_oob</code> by setting <code>boundary_checks = FALSE</code>, and this will allow me to generate ICE curves that go beyond the 90th percentile of <code>bili</code>.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">pd_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span>, length.out <span class="op">=</span> <span class="fl">25</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ice_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_oob</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">pd_spec</span>, boundary_checks <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>                     </span></code></pre></div>
+<p>For plots, it is helpful to scale the ICEs data. I subtract the initial value of predicted risk (i.e., when <code>bili = 1</code>) from each observation’s conditional expectation values. So,</p>
+<ul>
+<li><p>Every curve start at 0</p></li>
+<li>
+<p>The plot shows <em>change</em> in predicted risk as a function of <code>bili</code>.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">ice_oob</span><span class="op">[</span>, <span class="va">pred</span> <span class="op">:=</span> <span class="va">pred</span> <span class="op">-</span> <span class="va">pred</span><span class="op">[</span><span class="va">bili</span><span class="op">==</span><span class="fl">1</span><span class="op">]</span>, by <span class="op">=</span> <span class="va">id_row</span><span class="op">]</span></span></code></pre></div>
+</li>
+</ul>
+<p>Now we can visualize the curves.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">ice_oob</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">bili</span>, </span>
+<span>                    y <span class="op">=</span> <span class="va">pred</span>, </span>
+<span>                    group <span class="op">=</span> <span class="va">id_row</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.15</span><span class="op">)</span> <span class="op">+</span> </span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">'Change in predicted risk'</span><span class="op">)</span> <span class="op">+</span></span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>se <span class="op">=</span> <span class="cn">FALSE</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>group <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'</span></span></code></pre></div>
+<p><img src="pd_files/figure-html/-orsf_ice-1.png" width="672"></p>
+<p>From inspection of the figure,</p>
+<ul>
+<li><p>Most of the individual slopes cluster around the overall trend - Good!</p></li>
+<li><p>A small number of individual slopes appear to be flat. It may be helpful to investigate this further.</p></li>
+</ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
