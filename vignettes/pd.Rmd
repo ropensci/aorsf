@@ -254,10 +254,16 @@ I am going to turn off boundary checking in `orsf_ice_oob` by setting `boundary_
   pd_spec <- list(bili = seq(1, 10, length.out = 25))
   
   ice_oob <- orsf_ice_oob(fit, pd_spec, boundary_checks = FALSE)
+  
+  ice_oob
                        
   ```
 
-For plots, it is helpful to scale the ICEs data. I subtract the initial value of predicted risk (i.e., when `bili = 1`) from each observation's conditional expectation values. So,
+- `id_variable` is an identifier for the current value of the variable(s) that are in the data. It is redundant if you only have one variable, but helpful if there are multiple variables.
+
+- `id_row` is an identifier for the observation in the original data. It is used to group an observation's predictions together in plots.
+
+For plots, it is helpful to scale the ICE data. I subtract the initial value of predicted risk (i.e., when `bili = 1`) from each observation's conditional expectation values. So,
 
 - Every curve start at 0
 
