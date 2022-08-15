@@ -186,7 +186,7 @@ head(as.data.table(pd_smry))
 ```
 
 
-## PD for multiple variables
+## Multiple variables, jointly
 
 PD can show the expected value of a model's predictions as a function of a specific predictor, or as a function of multiple predictors. For instance, we can estimate predicted risk as a joint function of `bili`, `edema`, and `trt`:
 
