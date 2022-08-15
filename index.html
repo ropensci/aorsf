@@ -59,7 +59,7 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="articles/pd.html">Compute partial dependence with ORSF</a>
+    <a class="dropdown-item" href="articles/pd.html">Partial dependence and ICE curves with ORSF</a>
     <a class="dropdown-item" href="articles/oobag.html">Out-of-bag predictions and evaluation</a>
   </div>
 </li>
@@ -113,37 +113,54 @@
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"bcjaeger/aorsf"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<h2 id="what-is-an-oblique-decision-tree">What is an oblique decision tree?<a class="anchor" aria-label="anchor" href="#what-is-an-oblique-decision-tree"></a>
 </h2>
-<p>The <code><a href="reference/orsf.html">orsf()</a></code> function is used to fit ORSF ensembles:</p>
+<p>Decision trees are developed by splitting a set of training data into two new subsets, with the goal of having more similarity within the new subsets than between them. The splitting process is repeated on resulting subsets of data until a stopping criterion is met.</p>
+<p>When the new subsets of data are formed based on a single predictor, the decision tree is said to be <em>axis-based</em> because the splits of the data appear perpendicular to the axis of the predictor. When linear combinations of variables are used instead of a single variable, the tree is <em>oblique</em> because the splits of the data are neither parallel nor at a right angle to the axis.</p>
+<p><strong>Figure</strong>: Decision trees for classification with axis-based splitting (left) and oblique splitting (right). Cases are orange squares; controls are purple circles. Both trees partition the predictor space defined by variables X1 and X2, but the oblique splits do a better job of separating the two classes.</p>
+<p><img src="reference/figures/tree_axis_v_oblique.png" width="100%"></p>
+</div>
+<div class="section level2">
+<h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
+</h2>
+<p>The <code><a href="reference/orsf.html">orsf()</a></code> function can fit several types of ORSF ensembles. My personal favorite is the accelerated ORSF because it has a great combination of prediction accuracy and computational efficiency (see <a href="https://arxiv.org/abs/2208.01129" class="external-link">arXiv paper</a>).<sup>2</sup></p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bcjaeger/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf</span>, </span>
-<span>            formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span></code></pre></div>
-<p>The default routine to fit ORSF ensembles is the ‘accelerated’ ORSF - an algorithm based on Newton Raphson scoring that does very well in benchmarks of prediction accuracy and computational efficiency.<sup>2</sup> In addition to the accelerated ORSF, <code>aorsf</code> can fit a broad range of ORSF ensembles (see ORSF CONTROL VIGNETTE (not yet written)).</p>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329730</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">index_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">pbc_orsf</span><span class="op">)</span>, <span class="fl">150</span><span class="op">)</span> </span>
+<span></span>
+<span><span class="va">pbc_orsf_train</span> <span class="op">&lt;-</span> <span class="va">pbc_orsf</span><span class="op">[</span><span class="va">index_train</span>, <span class="op">]</span></span>
+<span><span class="va">pbc_orsf_test</span> <span class="op">&lt;-</span> <span class="va">pbc_orsf</span><span class="op">[</span><span class="op">-</span><span class="va">index_train</span>, <span class="op">]</span></span>
+<span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf_train</span>, </span>
+<span>            formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
+<span>            oobag_pred_horizon <span class="op">=</span> <span class="fl">365.25</span> <span class="op">*</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
+<p>ORSF CONTROL VIGNETTE (not yet written).</p>
 <div class="section level3">
 <h3 id="inspect">Inspect<a class="anchor" aria-label="anchor" href="#inspect"></a>
 </h3>
-<p>Printing the output from <code><a href="reference/orsf.html">orsf()</a></code> will give some descriptive statistics about the ensemble.</p>
+<p>Printing the output from <code><a href="reference/orsf.html">orsf()</a></code> will give some information and descriptive statistics about the ensemble.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">fit</span></span>
 <span><span class="co">#&gt; ---------- Oblique random survival forest</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;      Linear combinations: Accelerated</span></span>
-<span><span class="co">#&gt;           N observations: 276</span></span>
-<span><span class="co">#&gt;                 N events: 111</span></span>
+<span><span class="co">#&gt;           N observations: 150</span></span>
+<span><span class="co">#&gt;                 N events: 52</span></span>
 <span><span class="co">#&gt;                  N trees: 500</span></span>
 <span><span class="co">#&gt;       N predictors total: 17</span></span>
 <span><span class="co">#&gt;    N predictors per node: 5</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 24</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 12</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;       Min events in leaf: 1</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.84</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.83</span></span>
 <span><span class="co">#&gt;            OOB stat type: Harrell's C-statistic</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -----------------------------------------</span></span></code></pre></div>
+<p>See <a href="https://bcjaeger.github.io/aorsf/reference/print.orsf_fit.html"><code>print.orsf_fit</code></a> for a description of each line in the printed output.</p>
 </div>
 <div class="section level3">
 <h3 id="variable-importance">Variable importance<a class="anchor" aria-label="anchor" href="#variable-importance"></a>
@@ -151,119 +168,128 @@
 <p>The importance of individual variables can be estimated in three ways using <code>aorsf</code>:</p>
 <ul>
 <li>
-<p><strong>negation</strong>: Each variable is assessed separately by multiplying the variable’s coefficients by -1 and then determining how much the model’s performance changes. The worse the model’s performance after negating coefficients for a given variable, the more important the variable.</p>
+<p><strong>negation</strong><sup>2</sup>: Each variable is assessed separately by multiplying the variable’s coefficients by -1 and then determining how much the model’s performance changes. The worse the model’s performance after negating coefficients for a given variable, the more important the variable.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;           age          bili        copper         stage       protime </span></span>
-<span><span class="co">#&gt;  0.0151594082  0.0133361117  0.0065638675  0.0060950198  0.0060429256 </span></span>
-<span><span class="co">#&gt;       albumin           sex       spiders       ascites           ast </span></span>
-<span><span class="co">#&gt;  0.0059387372  0.0058345489  0.0049489477  0.0048447593  0.0035424047 </span></span>
-<span><span class="co">#&gt;         edema        hepato          chol          trig           trt </span></span>
-<span><span class="co">#&gt;  0.0019498110  0.0006772244 -0.0014065430 -0.0015107314 -0.0019795791 </span></span>
-<span><span class="co">#&gt;      platelet      alk.phos </span></span>
-<span><span class="co">#&gt; -0.0026568035 -0.0032819337</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili           sex           age       ascites         edema </span></span>
+<span><span class="co">#&gt;  0.0152354571  0.0138504155  0.0132568263  0.0059358924  0.0051286110 </span></span>
+<span><span class="co">#&gt;         stage      alk.phos        hepato       protime        copper </span></span>
+<span><span class="co">#&gt;  0.0023743569  0.0011871785  0.0007914523  0.0005935892 -0.0001978631 </span></span>
+<span><span class="co">#&gt;           ast       albumin           trt      platelet          chol </span></span>
+<span><span class="co">#&gt; -0.0005935892 -0.0021764939 -0.0041551247 -0.0043529877 -0.0051444400</span></span></code></pre></div>
 </li>
 <li>
 <p><strong>permutation</strong>: Each variable is assessed separately by randomly permuting the variable’s values and then determining how much the model’s performance changes. The worse the model’s performance after permuting the values of a given variable, the more important the variable.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          bili           age        copper       albumin         stage </span></span>
-<span><span class="co">#&gt;  1.604501e-02  1.302355e-02  5.261513e-03  3.959158e-03  3.907064e-03 </span></span>
-<span><span class="co">#&gt;       protime       ascites       spiders           sex          trig </span></span>
-<span><span class="co">#&gt;  3.021463e-03  2.917274e-03  9.897895e-04  4.167535e-04  1.562826e-04 </span></span>
-<span><span class="co">#&gt;         edema        hepato      platelet          chol           trt </span></span>
-<span><span class="co">#&gt; -4.713284e-05 -1.041884e-04 -1.562826e-04 -4.167535e-04 -6.772244e-04 </span></span>
-<span><span class="co">#&gt;           ast      alk.phos </span></span>
-<span><span class="co">#&gt; -1.198166e-03 -1.354449e-03</span></span></code></pre></div>
+<span><span class="co">#&gt;         bili      ascites          age          sex        edema      albumin </span></span>
+<span><span class="co">#&gt;  0.010091017  0.007716660  0.007320934  0.006727345  0.004337159  0.003561535 </span></span>
+<span><span class="co">#&gt;        stage      protime       hepato         chol      spiders       copper </span></span>
+<span><span class="co">#&gt;  0.003165809  0.002770083  0.002176494  0.001187178 -0.001780768 -0.002176494 </span></span>
+<span><span class="co">#&gt;     platelet          trt         trig </span></span>
+<span><span class="co">#&gt; -0.002572220 -0.004155125 -0.004946577</span></span></code></pre></div>
 </li>
 <li>
-<p><strong>analysis of variance (ANOVA)<sup>3</sup></strong>: A p-value is computed for each coefficient in each linear combination of variables in each decision tree. Importance for an individual predictor variable is the proportion of times a p-value for its coefficient is &lt; 0.01.</p>
+<p><strong>analysis of variance (ANOVA)</strong><sup>3</sup>: A p-value is computed for each coefficient in each linear combination of variables in each decision tree. Importance for an individual predictor variable is the proportion of times a p-value for its coefficient is &lt; 0.01.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    ascites       bili      edema     copper        age    albumin    protime </span></span>
-<span><span class="co">#&gt; 0.35348226 0.28289811 0.24968033 0.18991641 0.18409387 0.16945107 0.15829608 </span></span>
-<span><span class="co">#&gt;      stage        ast       chol    spiders        sex     hepato       trig </span></span>
-<span><span class="co">#&gt; 0.13969986 0.13060480 0.12707469 0.12549740 0.11944046 0.11162362 0.10188777 </span></span>
+<span><span class="co">#&gt;    ascites       bili      edema        sex        age     copper      stage </span></span>
+<span><span class="co">#&gt; 0.35231788 0.33216374 0.31401592 0.22045995 0.19044776 0.18155620 0.16907605 </span></span>
+<span><span class="co">#&gt;        ast     hepato    albumin       chol       trig    protime    spiders </span></span>
+<span><span class="co">#&gt; 0.14183124 0.13736655 0.12611012 0.11461988 0.10847044 0.10697115 0.08802817 </span></span>
 <span><span class="co">#&gt;   alk.phos   platelet        trt </span></span>
-<span><span class="co">#&gt; 0.09502618 0.07333506 0.05134680</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.07943094 0.06150342 0.04411765</span></span></code></pre></div>
 </li>
 </ul>
-<p>You can also supply your own R function to estimate out-of-bag error when using negation or permutation importance (see <a href="https://bcjaeger.github.io/aorsf/articles/oobag.html">oob vignette</a>).</p>
+<p>You can supply your own R function to estimate out-of-bag error when using negation or permutation importance (see <a href="https://bcjaeger.github.io/aorsf/articles/oobag.html">oob vignette</a>).</p>
 </div>
+<div class="section level3"><h3 id="predict">Predict<a class="anchor" aria-label="anchor" href="#predict"></a>
+</h3></div>
 <div class="section level3">
 <h3 id="partial-dependence">Partial dependence<a class="anchor" aria-label="anchor" href="#partial-dependence"></a>
 </h3>
-<p><code>aorsf</code> can generate individual conditional expectation (ICE) and partial dependence:</p>
+<p><code>aorsf</code> can generate individual conditional expectation (ICE) and partial dependence (PD):</p>
 <ul>
-<li><p>ICE is the expected predicted value of an ORSF ensemble for an individual observation.</p></li>
 <li>
-<p>partial dependence is a multi-variable adjusted expected predicted value of an ORSF ensemble.</p>
+<p>ICE shows how the predicted value for an observation changes when a predictor changes. <code>orsf_ice()</code>, the function to compute ICE values in <code>aorsf</code>, returns ICE for all observations in the data you supply it. (If no data are supplied, the ORSF’s training data are used)</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_pd_summary.html">orsf_pd_summary</a></span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     bili      mean        lwr      medn       upr</span></span>
-<span><span class="co">#&gt;    &lt;int&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:     1 0.2338035 0.01359849 0.1221437 0.8637697</span></span>
-<span><span class="co">#&gt; 2:     2 0.2864137 0.03772655 0.1806327 0.8944082</span></span>
-<span><span class="co">#&gt; 3:     3 0.3434524 0.06803086 0.2455590 0.9050007</span></span>
-<span><span class="co">#&gt; 4:     4 0.3949240 0.09451781 0.3250008 0.9312628</span></span>
-<span><span class="co">#&gt; 5:     5 0.4372363 0.13161986 0.3747099 0.9377383</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># ICE values:</span></span>
+<span><span class="co"># predicted risk for a single observation with respect to bili.</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/orsf_ice_oob.html">orsf_ice_oob</a></span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="va">id_row</span> <span class="op">==</span> <span class="fl">2</span><span class="op">]</span></span>
+<span><span class="co">#&gt;    pred_horizon id_variable id_row  bili       pred</span></span>
+<span><span class="co">#&gt;           &lt;num&gt;       &lt;int&gt;  &lt;int&gt; &lt;int&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      1826.25           1      2     1 0.05397791</span></span>
+<span><span class="co">#&gt; 2:      1826.25           2      2     2 0.09138356</span></span>
+<span><span class="co">#&gt; 3:      1826.25           3      2     3 0.12458702</span></span>
+<span><span class="co">#&gt; 4:      1826.25           4      2     4 0.17812030</span></span>
+<span><span class="co">#&gt; 5:      1826.25           5      2     5 0.25564427</span></span></code></pre></div>
+</li>
+<li>
+<p>PD shows how the <strong>expected</strong> predicted value changes when a predictor changes. PD estimates the relationship between the model’s prediction and a predictor, adjusting for other predictors.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    pred_horizon  bili      mean        lwr       medn       upr</span></span>
+<span><span class="co">#&gt;           &lt;num&gt; &lt;int&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      1826.25     1 0.2075896 0.01389732 0.09063976 0.7998756</span></span>
+<span><span class="co">#&gt; 2:      1826.25     2 0.2352634 0.02628113 0.12935779 0.8152149</span></span>
+<span><span class="co">#&gt; 3:      1826.25     3 0.2750782 0.04254451 0.18877830 0.8371582</span></span>
+<span><span class="co">#&gt; 4:      1826.25     4 0.3302680 0.08806724 0.24827784 0.8441472</span></span>
+<span><span class="co">#&gt; 5:      1826.25     5 0.3846734 0.14808075 0.29926304 0.8562432</span></span></code></pre></div>
 </li>
 <li>
 <p>use <code><a href="reference/orsf_summarize_uni.html">orsf_summarize_uni()</a></code> to show the top predictor variables in an ORSF model and the expected predicted risk at specific values of those predictors. (The term ‘uni’ is short for univariate.)</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># take a look at the top 5 variables </span></span>
 <span><span class="co"># for continuous predictors, see expected risk at 25/50/75th quantile</span></span>
 <span><span class="co"># for categorical predictors, see expected risk in specified category</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">fit</span>, n_variables <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- age (VI Rank: 1) -----------------------------</span></span>
+<span><span class="co">#&gt; -- bili (VI Rank: 1) -----------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;         |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;         |----------------- risk -----------------|</span></span>
+<span><span class="co">#&gt;   Value      Mean     Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;    0.70 0.2021325 0.08822768 0.03120946 0.3037762</span></span>
+<span><span class="co">#&gt;     1.3 0.2150109 0.09563599 0.04159316 0.3138399</span></span>
+<span><span class="co">#&gt;     3.2 0.2835993 0.19877449 0.09747990 0.4360340</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- sex (VI Rank: 2) ------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;         |----------------- risk -----------------|</span></span>
 <span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
 <span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;      42 0.2711144 0.1371126 0.04265667 0.4737754</span></span>
-<span><span class="co">#&gt;      50 0.3007558 0.1661609 0.04900273 0.5097726</span></span>
-<span><span class="co">#&gt;      57 0.3319072 0.2089503 0.07061881 0.5643859</span></span>
+<span><span class="co">#&gt;       m 0.3639036 0.2690788 0.15537470 0.5608909</span></span>
+<span><span class="co">#&gt;       f 0.2379669 0.1025245 0.03534165 0.3794900</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- bili (VI Rank: 2) ----------------------------</span></span>
+<span><span class="co">#&gt; -- age (VI Rank: 3) ------------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;         |---------------- risk ----------------|</span></span>
+<span><span class="co">#&gt;         |----------------- risk -----------------|</span></span>
+<span><span class="co">#&gt;   Value      Mean     Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;      41 0.2307407 0.09229274 0.03250819 0.3657784</span></span>
+<span><span class="co">#&gt;      50 0.2478440 0.10323803 0.03373931 0.4087894</span></span>
+<span><span class="co">#&gt;      57 0.2767813 0.14199710 0.04893782 0.4888879</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- ascites (VI Rank: 4) --------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;         |----------------- risk -----------------|</span></span>
+<span><span class="co">#&gt;   Value      Mean    Median    25th %    75th %</span></span>
+<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;       0 0.2504481 0.1128150 0.0368409 0.5055972</span></span>
+<span><span class="co">#&gt;       1 0.4329801 0.3504737 0.2724964 0.5838057</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- edema (VI Rank: 5) ----------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;         |----------------- risk -----------------|</span></span>
 <span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
 <span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;    0.80 0.2291821 0.1170113 0.04592342 0.3688073</span></span>
-<span><span class="co">#&gt;     1.4 0.2496643 0.1388448 0.06020376 0.4054563</span></span>
-<span><span class="co">#&gt;     3.5 0.3705226 0.2927490 0.16222596 0.5511317</span></span>
+<span><span class="co">#&gt;       0 0.2395980 0.1047356 0.03534165 0.5055972</span></span>
+<span><span class="co">#&gt;     0.5 0.3213759 0.2013491 0.10819771 0.5723427</span></span>
+<span><span class="co">#&gt;       1 0.4408370 0.3740121 0.27777420 0.6475894</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- copper (VI Rank: 3) --------------------------</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;         |---------------- risk ----------------|</span></span>
-<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;      43 0.2674542 0.1443824 0.04631652 0.4825262</span></span>
-<span><span class="co">#&gt;      74 0.2831247 0.1603985 0.05519124 0.5099932</span></span>
-<span><span class="co">#&gt;     129 0.3336233 0.2247753 0.10327836 0.5373395</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- stage (VI Rank: 4) ---------------------------</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;         |---------------- risk ----------------|</span></span>
-<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;       1 0.2613092 0.1346674 0.04656766 0.4589368</span></span>
-<span><span class="co">#&gt;       2 0.2715204 0.1358854 0.04618129 0.4782684</span></span>
-<span><span class="co">#&gt;       3 0.2942587 0.1557578 0.05312238 0.5204041</span></span>
-<span><span class="co">#&gt;       4 0.3386524 0.2051842 0.08445636 0.5724707</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- protime (VI Rank: 5) -------------------------</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;         |---------------- risk ----------------|</span></span>
-<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;      10 0.2833402 0.1498676 0.04555345 0.5049473</span></span>
-<span><span class="co">#&gt;      11 0.2960497 0.1602747 0.05321297 0.5378991</span></span>
-<span><span class="co">#&gt;      11 0.3155702 0.1887370 0.06624194 0.5559068</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Predicted risk at time t = 1788 for top 5 predictors</span></span></code></pre></div>
+<span><span class="co">#&gt;  Predicted risk at time t = 1826.25 for top 5 predictors</span></span></code></pre></div>
 </li>
 </ul>
 </div>

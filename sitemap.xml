@@ -58,7 +58,10 @@
     <loc>https://bcjaeger.github.io/aorsf/reference/orsf_control_net.html</loc>
   </url>
   <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_pd_summary.html</loc>
+    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_ice_oob.html</loc>
+  </url>
+  <url>
+    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_pd_oob.html</loc>
   </url>
   <url>
     <loc>https://bcjaeger.github.io/aorsf/reference/orsf_scale_cph.html</loc>

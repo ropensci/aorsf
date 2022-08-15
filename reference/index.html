@@ -27,7 +27,7 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/pd.html">Compute partial dependence with ORSF</a>
+    <a class="dropdown-item" href="../articles/pd.html">Partial dependence and ICE curves with ORSF</a>
     <a class="dropdown-item" href="../articles/oobag.html">Out-of-bag predictions and evaluation</a>
   </div>
 </li>
@@ -56,7 +56,7 @@
     <div class="section level2">
       <h2 id="oblique-random-survival-forests-orsfs-">Oblique random survival forests (ORSFs)<a class="anchor" aria-label="anchor" href="#oblique-random-survival-forests-orsfs-"></a></h2>
       
-      <p class="section-desc"></p><p>Fit, inspect, and apply ORSF models</p>
+      <p class="section-desc"></p><p>Fit, inspect, summarize, and apply ORSF models</p>
 
       
     </div><div id="" class="section level2">
@@ -81,9 +81,14 @@
         <dd>Compute predictions using ORSF</dd>
       </dl><dl><dt>
           
-          <code><a href="orsf_time_to_train.html">orsf_time_to_train()</a></code> 
+          <code><a href="orsf_summarize_uni.html">orsf_summarize_uni()</a></code> 
         </dt>
-        <dd>Estimate training time</dd>
+        <dd>ORSF summary; univariate</dd>
+      </dl><dl><dt>
+          
+          <code><a href="print.orsf_summary_uni.html">print(<i>&lt;orsf_summary_uni&gt;</i>)</a></code> 
+        </dt>
+        <dd>Print ORSF summary</dd>
       </dl></div><div class="section level2">
       <h2 id="control-how-your-orsf-model-works">Control how your ORSF model works<a class="anchor" aria-label="anchor" href="#control-how-your-orsf-model-works"></a></h2>
       
@@ -116,9 +121,9 @@
         </dt>
         <dd>Custom ORSF control</dd>
       </dl></div><div class="section level2">
-      <h2 id="interpret-orsfs">Interpret ORSFs<a class="anchor" aria-label="anchor" href="#interpret-orsfs"></a></h2>
+      <h2 id="variable-importance">Variable importance<a class="anchor" aria-label="anchor" href="#variable-importance"></a></h2>
       
-      <p class="section-desc"></p><p>Estimate the importance of individual variables and the expected prediction from an ORSF model for specific predictor variables.</p>
+      <p class="section-desc"></p><p>Estimate the importance of individual variables using ORSFs</p>
 
       
     </div><div id="" class="section level2">
@@ -131,26 +136,27 @@
           <code><a href="orsf_vi.html">orsf_vi()</a></code> <code><a href="orsf_vi.html">orsf_vi_negate()</a></code> <code><a href="orsf_vi.html">orsf_vi_permute()</a></code> <code><a href="orsf_vi.html">orsf_vi_anova()</a></code> 
         </dt>
         <dd>ORSF variable importance</dd>
+      </dl></div><div class="section level2">
+      <h2 id="partial-dependence-and-individual-conditional-expectations">Partial dependence and individual conditional expectations<a class="anchor" aria-label="anchor" href="#partial-dependence-and-individual-conditional-expectations"></a></h2>
+      
+      <p class="section-desc"></p><p>Interpret your model by generating partial dependence or individual conditional expectation values. Plotting functions not included (but see examples)</p>
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="orsf_ice_oob.html">orsf_ice_oob()</a></code> <code><a href="orsf_ice_oob.html">orsf_ice_new()</a></code> 
+        </dt>
+        <dd>ORSF Individual Conditional Expectations</dd>
       </dl><dl><dt>
           
-          <code><a href="orsf_pd_summary.html">orsf_pd_summary()</a></code> <code><a href="orsf_pd_summary.html">orsf_pd_ice()</a></code> 
+          <code><a href="orsf_pd_oob.html">orsf_pd_oob()</a></code> <code><a href="orsf_pd_oob.html">orsf_pd_new()</a></code> 
         </dt>
         <dd>ORSF partial dependence</dd>
-      </dl><dl><dt>
-          
-          <code><a href="orsf_summarize_uni.html">orsf_summarize_uni()</a></code> 
-        </dt>
-        <dd>ORSF summary; univariate</dd>
-      </dl><dl><dt>
-          
-          <code><a href="print.orsf_summary_uni.html">print(<i>&lt;orsf_summary_uni&gt;</i>)</a></code> 
-        </dt>
-        <dd>Print ORSF summary</dd>
-      </dl><dl><dt>
-          
-          <code><a href="as.data.table.orsf_summary_uni.html">as.data.table(<i>&lt;orsf_summary_uni&gt;</i>)</a></code> 
-        </dt>
-        <dd>Coerce to data.table</dd>
       </dl></div><div class="section level2">
       <h2 id="example-survival-data">Example survival data<a class="anchor" aria-label="anchor" href="#example-survival-data"></a></h2>
       
@@ -167,6 +173,27 @@
           <code><a href="pbc_orsf.html">pbc_orsf</a></code> 
         </dt>
         <dd>Mayo Clinic Primary Biliary Cholangitis Data</dd>
+      </dl></div><div class="section level2">
+      <h2 id="miscellaneous">Miscellaneous<a class="anchor" aria-label="anchor" href="#miscellaneous"></a></h2>
+      
+      <p class="section-desc"></p><p>Functions that don’t fit neatly into a category above, but are still helpful.</p>
+
+      
+    </div><div id="" class="section level2">
+      
+      
+      
+
+      <dl><dt>
+          
+          <code><a href="as.data.table.orsf_summary_uni.html">as.data.table(<i>&lt;orsf_summary_uni&gt;</i>)</a></code> 
+        </dt>
+        <dd>Coerce to data.table</dd>
+      </dl><dl><dt>
+          
+          <code><a href="orsf_time_to_train.html">orsf_time_to_train()</a></code> 
+        </dt>
+        <dd>Estimate training time</dd>
       </dl></div><div class="section level2">
       <h2 id="back-end-functions">Back-end functions<a class="anchor" aria-label="anchor" href="#back-end-functions"></a></h2>
       

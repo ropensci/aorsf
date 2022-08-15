@@ -27,7 +27,7 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/pd.html">Compute partial dependence with ORSF</a>
+    <a class="dropdown-item" href="../articles/pd.html">Partial dependence and ICE curves with ORSF</a>
     <a class="dropdown-item" href="../articles/oobag.html">Out-of-bag predictions and evaluation</a>
   </div>
 </li>
@@ -94,15 +94,26 @@
 <span class="r-in"><span><span class="va">smry</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">object</span>, n_variables <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">smry</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    variable  importance value      mean      medn        lwr       upr level</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:     bili 0.012242134  0.80 0.2280194 0.1228949 0.04530341 0.3645860  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:     bili 0.012242134   1.4 0.2495272 0.1364309 0.06034931 0.3926691  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:     bili 0.012242134   3.5 0.3774226 0.2855167 0.17325579 0.5575391  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:      age 0.010418837    42 0.2761835 0.1327385 0.03815114 0.4685806  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:      age 0.010418837    50 0.3034464 0.1720877 0.04547162 0.5263803  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:      age 0.010418837    57 0.3359123 0.2220297 0.06912463 0.5665569  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7:  ascites 0.005574078     0 0.2985046 0.1483300 0.04588687 0.5512119     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8:  ascites 0.005574078     1 0.4684612 0.3792646 0.26436315 0.6550764     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    variable  importance value      mean      medn        lwr       upr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:     bili 0.013961242  0.80 0.2313124 0.1152675 0.04496652 0.3671172</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:     bili 0.013961242   1.4 0.2535857 0.1468360 0.06203951 0.4030845</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:     bili 0.013961242   3.5 0.3765862 0.2935768 0.17343214 0.5537596</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:      age 0.013909148    42 0.2744162 0.1296475 0.04198156 0.4503321</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:      age 0.013909148    50 0.3020426 0.1582146 0.05069672 0.5034526</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:      age 0.013909148    57 0.3323778 0.2195439 0.06686263 0.5558384</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7:  protime 0.009324859    10 0.2851378 0.1502167 0.04570972 0.5012593</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8:  protime 0.009324859    11 0.2974142 0.1688085 0.05053360 0.5305189</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9:  protime 0.009324859    11 0.3192521 0.1969492 0.06098900 0.5517718</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    pred_horizon level</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9:         1788  &lt;NA&gt;</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
