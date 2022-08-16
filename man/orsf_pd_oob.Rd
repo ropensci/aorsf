@@ -8,7 +8,7 @@
 \usage{
 orsf_pd_oob(
   object,
-  pd_spec,
+  pred_spec,
   pred_horizon = NULL,
   pred_type = "risk",
   expand_grid = TRUE,
@@ -20,7 +20,7 @@ orsf_pd_oob(
 
 orsf_pd_inb(
   object,
-  pd_spec,
+  pred_spec,
   pred_horizon = NULL,
   pred_type = "risk",
   expand_grid = TRUE,
@@ -32,7 +32,7 @@ orsf_pd_inb(
 
 orsf_pd_new(
   object,
-  pd_spec,
+  pred_spec,
   new_data,
   pred_horizon = NULL,
   pred_type = "risk",
@@ -47,14 +47,14 @@ orsf_pd_new(
 \item{object}{(\emph{orsf_fit}) a trained oblique random survival forest
 (see \link{orsf}).}
 
-\item{pd_spec}{(\emph{named list} or \emph{data.frame}).
+\item{pred_spec}{(\emph{named list} or \emph{data.frame}).
 \itemize{
-\item If \code{pd_spec} is a named list,
+\item If \code{pred_spec} is a named list,
 Each item in the list should be a vector of values that will be used as
 points in the partial dependence function. The name of each item in the
 list should indicate which variable will be modified to take the
 corresponding values.
-\item If \code{pd_spec} is a \code{data.frame}, columns will
+\item If \code{pred_spec} is a \code{data.frame}, columns will
 indicate variable names, values will indicate variable values, and
 partial dependence will be computed using the inputs on each row.
 }}
@@ -72,23 +72,23 @@ options are
 }}
 
 \item{expand_grid}{(\emph{logical}) if \code{TRUE}, partial dependence will be
-computed at all possible combinations of inputs in \code{pd_spec}. If
+computed at all possible combinations of inputs in \code{pred_spec}. If
 \code{FALSE}, partial dependence will be computed for each variable
-in \code{pd_spec}, separately.}
+in \code{pred_spec}, separately.}
 
 \item{prob_values}{(\emph{numeric}) a vector of values between 0 and 1,
 indicating what quantiles will be used to summarize the partial
 dependence values at each set of inputs. \code{prob_values} should
 have the same length as \code{prob_labels}. The quantiles are calculated
 based on predictions from \code{object} at each set of values indicated
-by \code{pd_spec}.}
+by \code{pred_spec}.}
 
 \item{prob_labels}{(\emph{character}) a vector of labels with the same length
 as \code{prob_values}, with each label indicating what the corresponding
 value in \code{prob_values} should be labelled as in summarized outputs.
 \code{prob_labels} should have the same length as \code{prob_values}.}
 
-\item{boundary_checks}{(\emph{logical}) if \code{TRUE}, \code{pd_spec} will be vetted
+\item{boundary_checks}{(\emph{logical}) if \code{TRUE}, \code{pred_spec} will be vetted
 to make sure the requested values are between the 10th and 90th
 percentile in the object's training data. If \code{FALSE}, these checks are
 skipped.}
@@ -128,7 +128,7 @@ You can compute partial dependence and ICE three ways with \code{aorsf}:
 \itemize{
 \item using in-bag predictions for the training data
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_train <- orsf_pd_inb(fit, pd_spec = list(bili = 1:5))
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_train <- orsf_pd_inb(fit, pred_spec = list(bili = 1:5))
 
 pd_train
 }\if{html}{\out{</div>}}
@@ -143,7 +143,7 @@ pd_train
 }\if{html}{\out{</div>}}
 \item using out-of-bag predictions for the training data
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_train <- orsf_pd_oob(fit, pd_spec = list(bili = 1:5))
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_train <- orsf_pd_oob(fit, pred_spec = list(bili = 1:5))
 
 pd_train
 }\if{html}{\out{</div>}}
@@ -160,7 +160,7 @@ pd_train
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_test <- orsf_pd_new(fit, 
                        new_data = pbc_orsf_test, 
-                       pd_spec = list(bili = 1:5))
+                       pred_spec = list(bili = 1:5))
 
 pd_test
 }\if{html}{\out{</div>}}

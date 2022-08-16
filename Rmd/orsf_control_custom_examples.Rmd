@@ -1,15 +1,6 @@
 
 # Examples
 
-```{css, include=FALSE, echo=FALSE}
-
-.sourceLine {
-  display: inline-block;
-}
-
-```
-
-
 ```{r, include=FALSE, echo=FALSE}
 
 docs <- c(

@@ -1,13 +1,154 @@
 
 # Examples
 
-the aorsf package is designed to fit into standard modeling analyses, tidymodels workflows, and mlr3 pipelines.
+The entry-point into `aorsf` is the standard call to `orsf()`:
 
-## standard modeling
+```{r}
 
-FILL 
+fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+
+```
+
+printing `fit` provides quick descriptive summaries:
+
+```{r}
+fit
+```
+
+## Model control
+
+For these examples we will make use of the `orsf_control_` functions to build and compare models based on their out-of-bag predictions. We will also standardize the out-of-bag samples using the input argument `tree_seeds`
+
+### Accelerated linear combinations
+
+The accelerated ORSF ensemble is the default because it has a nice balance of computational speed and prediction accuracy. It runs a single iteration of Newton Raphson scoring on the Cox partial likelihood function to find linear combinations of predictors.
+
+
+```{r}
+
+fit_accel <- orsf(pbc_orsf, 
+                  control = orsf_control_fast(),
+                  formula = Surv(time, status) ~ . - id,
+                  tree_seeds = 1:500)
+
+```
+
+### Linear combinations with Cox regression
+
+`orsf_control_cph` runs Cox regression in each non-terminal node of each survival tree, using the regression coefficients to create linear combinations of predictors:
+
+```{r}
+
+fit_cph <- orsf(pbc_orsf, 
+                control = orsf_control_cph(),
+                formula = Surv(time, status) ~ . - id,
+                tree_seeds = 1:500)
+
+```
+
+### Linear combinations with penalized cox regression
+
+`orsf_control_net` runs penalized Cox regression in each non-terminal node of each survival tree, using the regression coefficients to create linear combinations of predictors. This can be really helpful if you want to do feature selection within the node, but it is a lot slower than the other options.
+
+```{r}
+
+fit_net <- orsf(pbc_orsf, 
+                # select 3 predictors out of 5 to be used in
+                # each linear combination of predictors.
+                control = orsf_control_net(df_target = 3),
+                formula = Surv(time, status) ~ . - id,
+                tree_seeds = 1:500)
+
+```
+
+### Linear combinations with your own function 
+
+Let's make two customized functions to identify linear combinations of predictors. 
+
+- The first uses random coefficients
+
+  ```{r}
+  
+  f_rando <- function(x_node, y_node, w_node){
+   matrix(runif(ncol(x_node)), ncol=1) 
+  }
+  
+  ```
+
+- The second derives coefficients from principal component analysis.
+
+  ```{r}
+  
+  f_pca <- function(x_node, y_node, w_node) { 
+   
+   # estimate two principal components.
+   pca <- stats::prcomp(x_node, rank. = 2)
+   # use the second principal component to split the node
+   pca$rotation[, 2L, drop = FALSE]
+   
+  }
+  
+  ```
+
+We can plug these functions into `orsf_control_custom()`, and then pass the result into `orsf()`:
+
+```{r}
+
+fit_rando <- orsf(pbc_orsf,
+                  Surv(time, status) ~ . - id,
+                  control = orsf_control_custom(beta_fun = f_rando),
+                  tree_seeds = 1:500)
+
+fit_pca <- orsf(pbc_orsf,
+                Surv(time, status) ~ . - id,
+                control = orsf_control_custom(beta_fun = f_pca),
+                tree_seeds = 1:500)
+
+```
+
+So which fit seems to work best in this example? Let's find out by evaluating the out-of-bag survival predictions.
+
+```{r}
+
+risk_preds <- list(
+ accel = 1 - fit_accel$surv_oobag,
+ cph   = 1 - fit_cph$surv_oobag,
+ net   = 1 - fit_net$surv_oobag,
+ rando = 1 - fit_rando$surv_oobag,
+ pca   = 1 - fit_pca$surv_oobag
+)
+
+sc <- Score(object = risk_preds, 
+            formula = Surv(time, status) ~ 1, 
+            data = pbc_orsf, 
+            summary = 'IPA',
+            times = fit_accel$pred_horizon)
+
+```
+
+The AUC values, from highest to lowest:
+
+```{r}
+sc$AUC$score[order(-AUC)]
+```
+
+And the indices of prediction accuracy:
+
+```{r}
+sc$Brier$score[order(-IPA), .(model, times, IPA)]
+```
+
+From inspection,
+
+- the PCA approach has the highest discrimination, showing that you can do very well with just a two line custom function.
+
+- the accelerated ORSF has the highest index of prediction accuracy
+
+- the random coefficients generally don't do that well.
 
 ## tidymodels
+
+This example uses `tidymodels` functions but stops short of using an official `tidymodels` workflow. I am working on getting `aorsf` pulled into the `censored` package and I will update this with real workflows if that happens!
 
 ```{r}
 
@@ -23,7 +164,7 @@ library(riskRegression)
 
 ```
 
-### Comparing learners
+### Comparing ORSF with other learners
 
 Start with a recipe to pre-process data
 
@@ -49,14 +190,26 @@ analyses
 
 ```
 
-Define functions for a 'workflow' with both `randomForestSRC` and `aorsf`. Obviously this is not the same thing as a `tidymodels` workflow, but this works well enough. I am working on getting `aorsf` pulled into the `censored` package and I will update this with real workflows if that happens!
+Define functions for a 'workflow' with `randomForestSRC`, `ranger`, and `aorsf`. 
 
 ```{r}
 
 rfsrc_wf <- function(train, test, pred_horizon){
  
- rfsrc(formula = Surv(time, status) ~ ., data = as.data.frame(train)) %>% 
-  predictRisk(newdata = as.data.frame(test), times = pred_horizon) %>% 
+ # rfsrc does not like tibbles, so cast input data into data.frames
+ train <- as.data.frame(train)
+ test <- as.data.frame(test)
+ 
+ rfsrc(formula = Surv(time, status) ~ ., data = train) %>% 
+  predictRisk(newdata = test, times = pred_horizon) %>% 
+  as.numeric()
+ 
+}
+
+ranger_wf <- function(train, test, pred_horizon){
+ 
+ ranger(Surv(time, status) ~ ., data = train) %>% 
+  predictRisk(newdata = test, times = pred_horizon) %>% 
   as.numeric()
  
 }
@@ -70,18 +223,9 @@ aorsf_wf <- function(train, test, pred_horizon){
  
 }
 
-ranger_wf <- function(train, test, pred_horizon){
- 
- ranger(Surv(time, status) ~ ., data = train) %>% 
-  predictRisk(newdata = test, times = pred_horizon) %>% 
-  as.numeric()
- 
-}
-
-
 ```
 
-Run the workflows on each fold:
+Run the 'workflows' on each fold:
 
 ```{r}
 
@@ -123,5 +267,13 @@ Score(
 
 ```
 
-On inspection, we find the `aorsf` workflow obtained slightly higher discrimination (AUC) and higher index of prediction accuracy (IPA) compared to the others.
+From inspection, 
 
+- `aorsf` obtained slightly higher discrimination (AUC)
+- `aorsf` obtained higher index of prediction accuracy (IPA)
+- Way to go, `aorsf`
+
+
+## mlr3 pipelines
+
+this is on hold while `mlr3proba` goes through major updates.

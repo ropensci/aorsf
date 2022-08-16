@@ -18,29 +18,28 @@ knitr::opts_chunk$set(
 )
 ```
 
-This article covers core features of the `aorsf` package. Separate articles will cover these features in more detail. 
+This article covers core features of the `aorsf` package.
 
 ## Background: ORSF
 
-The oblique random survival forest (ORSF) is an extension of the axis-based RSF algorithm. Axis based RSFs can be fit with several R packages, including `RandomForestSRC`, `party`, and `ranger`. However, apart from `aorsf` and `obliqueRSF`, few R packages fit ORSFs.
+The oblique random survival forest (ORSF) is an extension of the axis-based RSF algorithm. 
 
+- See [orsf](https://bcjaeger.github.io/aorsf/reference/orsf.html) for more details on ORSFs.
+
+- see the [arXiv](https://arxiv.org/abs/2208.01129) paper for more details on algorithms used specifically by `aorsf`.
 
 ## Accelerated ORSF
 
-The purpose of `aorsf` ('a' is short for accelerated) is to provide routines to fit ORSFs that will scale adequately to large data sets. For example, `aorsf::orsf()` runs hundreds of times faster than its predecessor, `obliqueRSF::ORSF()`.
-
-To fit an accelerated ORSF model, use the `orsf` function:
+The purpose of `aorsf` ('a' is short for accelerated) is to provide routines to fit ORSFs that will scale adequately to large data sets. The fastest algorithm available in the package is the accelerated ORSF model, which is the default method used by `orsf()`:
 
 ```{r}
 
 library(aorsf)
-library(ggplot2)
 
 set.seed(329)
 
 orsf_fit <- orsf(data = pbc_orsf, 
-                 formula = Surv(time, status) ~ . - id, 
-                 n_tree = 2500)
+                 formula = Surv(time, status) ~ . - id)
 
 orsf_fit
 
@@ -89,16 +88,18 @@ orsf_fit <- pbc_orsf |>
     
     ```
 
+### Partial dependence (PD) 
 
-### Summarize ORSF models
+`r aorsf:::roxy_pd_explain()`
 
-Getting straight to variable importance and partial dependence in a direct way can often be helpful in exploratory analyses. When you want a lot of information for just a little code, `orsf_summarize_uni()` is the tool for you:
+For more on PD, see the [vignette](https://bcjaeger.github.io/aorsf/articles/pd.html)
 
-```{r}
-orsf_summarize_uni(orsf_fit, 
-                   n_variables = 5, 
-                   pred_horizon = 365.25 * 5)
-```
+### Individual conditional expectaions (ICE)
+
+`r aorsf:::roxy_ice_explain()`
+
+For more on ICE, see the [vignette](https://bcjaeger.github.io/aorsf/articles/pd.html#individual-conditional-expectations-ice)
+
 
 ## What about the original ORSF?
 
@@ -144,7 +145,6 @@ t1['elapsed'] / t2['elapsed']
 
 ## aorsf and other machine learning software
 
-Generally, `aorsf` follows conventions set by the R packages `randomForest` and `randomForestSRC`. For example, the `print` method for `aorsf` models is very similar to `randomForestSRC` models, as is the specification of computing variable importance and the objects returned by variable importance functions. Similar to `randomForestSRC`, `aorsf` allows and recommends partial dependence to be estimated using out-of-bag data. 
+The unique feature of `aorsf` is its fast algorithms to fit ORSF ensembles. `RLT` and `obliqueRSF` both fit oblique random survival forests, but `aorsf` does so faster. `ranger` and `randomForestSRC` fit survival forests, but neither package supports oblique splitting. `obliqueRF` fits oblique random forests for classification and regression, but not survival. `PPforest` fits oblique random forests for classification but not survival. 
 
-The unique feature of `aorsf` is fitting oblique random survival forests fast while maintaining strong prediction accuracy. `RLT` and `obliqueRSF` both fit oblique random survival forests, but `aorsf` does so faster. `ranger` and `randomForestSRC` fit survival forests, but neither package supports oblique splitting. `obliqueRF` fits oblique random forests for classification and regression, but not survival. `PPforest` fits oblique random forests for classification but not survival. The default prediction behavior for `aorsf` models is to produce predicted risk at a specific prediction horizon, which is not the default for `ranger`  or `randomForestSRC`.
-
+Note: The default prediction behavior for `aorsf` models is to produce predicted risk at a specific prediction horizon, which is not the default for `ranger`  or `randomForestSRC`. I think this will change in the future, as computing time independent predictions with `aorsf` could be helpful.
