@@ -37,6 +37,7 @@ double
  g_risk,
  temp1,
  temp2,
+ temp3,
  halving,
  stat_current,
  stat_best,
@@ -319,6 +320,7 @@ void leaf_kaplan(const arma::mat& y,
  n_risk = sum(w);
  person = 0;
  temp1 = 1.0;
+ temp3 = 0.0;
 
  do {
 
@@ -342,7 +344,11 @@ void leaf_kaplan(const arma::mat& y,
   if(n_events > 0){
 
    temp1 = temp1 * (n_risk - n_events) / n_risk;
+
+   temp3 = temp3 + n_events / n_risk;
+
    leaf_nodes.at(leaf_node_counter, 1) = temp1;
+   leaf_nodes.at(leaf_node_counter, 2) = temp3;
    leaf_node_counter++;
 
   }
@@ -366,7 +372,7 @@ arma::mat leaf_kaplan_testthat(const arma::mat& y,
                                const arma::vec& w){
 
 
- leaf_nodes.set_size(y.n_rows, 2);
+ leaf_nodes.set_size(y.n_rows, 3);
  leaf_node_counter = 0;
 
  // find the first unique event time
@@ -435,7 +441,7 @@ arma::mat leaf_kaplan_testthat(const arma::mat& y,
 
  } while (leaf_node_counter < i);
 
- leaf_nodes.resize(leaf_node_counter, 2);
+ leaf_nodes.resize(leaf_node_counter, 3);
 
  return(leaf_nodes);
 
@@ -3146,7 +3152,7 @@ List orsf_fit(NumericMatrix& x,
  // ---------------------------------------------
 
  cols_to_sample_01.zeros(n_vars);
- leaf_nodes.zeros(n_rows, 2);
+ leaf_nodes.zeros(n_rows, 3);
 
  if(oobag_pred){
 
