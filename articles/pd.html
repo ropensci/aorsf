@@ -141,7 +141,7 @@
 <p>using in-bag predictions for the training data</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">pd_inb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_inb</a></span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">pd_inb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_inb</a></span><span class="op">(</span><span class="va">fit</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_inb</span></span>
 <span><span class="co">#&gt;    pred_horizon bili      mean        lwr       medn       upr</span></span>
@@ -155,7 +155,7 @@
 <p>using out-of-bag predictions for the training data</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">pd_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">pd_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_oob</span></span>
 <span><span class="co">#&gt;    pred_horizon bili      mean        lwr       medn       upr</span></span>
@@ -171,7 +171,7 @@
 <code class="sourceCode R"><span></span>
 <span><span class="va">pd_test</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_new</a></span><span class="op">(</span><span class="va">fit</span>, </span>
 <span>                       new_data <span class="op">=</span> <span class="va">pbc_orsf_test</span>, </span>
-<span>                       pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
+<span>                       pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_test</span></span>
 <span><span class="co">#&gt;    pred_horizon bili      mean        lwr      medn       upr</span></span>
@@ -200,7 +200,7 @@
 <p>Computing PD for a single variable is straightforward:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">pd_sex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"f"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">pd_sex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"f"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_sex</span></span>
 <span><span class="co">#&gt;    pred_horizon sex      mean        lwr      medn       upr</span></span>
@@ -214,11 +214,11 @@
 <p>What if the effect of a predictor varies over time? PD can show this.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">pd_sex_tv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"f"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span><span class="va">pd_sex_tv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"f"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                         pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">365</span>, <span class="fl">365</span><span class="op">*</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">pd_sex_tv</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pred_horizon</span>, y <span class="op">=</span> <span class="va">mean</span>, color <span class="op">=</span> <span class="va">sex</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">ggplot</span><span class="op">(</span><span class="va">pd_sex_tv</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">pred_horizon</span>, y <span class="op">=</span> <span class="va">mean</span>, color <span class="op">=</span> <span class="va">sex</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span> <span class="fu">geom_line</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pd_files/figure-html/unnamed-chunk-8-1.png" width="672"></p>
 <p>From inspection, we can see that males have higher risk than females and the difference in that risk grows over time. This can also be seen by viewing the ratio of expected risk over time:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -229,10 +229,10 @@
 <span> , <span class="fu">.</span><span class="op">(</span>ratio <span class="op">=</span> <span class="va">mean</span><span class="op">[</span><span class="va">sex</span> <span class="op">==</span> <span class="st">'m'</span><span class="op">]</span> <span class="op">/</span> <span class="va">mean</span><span class="op">[</span><span class="va">sex</span> <span class="op">==</span> <span class="st">'f'</span><span class="op">]</span><span class="op">)</span>, by <span class="op">=</span> <span class="va">pred_horizon</span></span>
 <span><span class="op">]</span></span>
 <span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">ratio_tv</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pred_horizon</span>, y <span class="op">=</span> <span class="va">ratio</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">'grey'</span><span class="op">)</span> <span class="op">+</span> </span>
-<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">'black'</span>, se <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span> </span>
-<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">'time since baseline'</span>,</span>
+<span><span class="fu">ggplot</span><span class="op">(</span><span class="va">ratio_tv</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">pred_horizon</span>, y <span class="op">=</span> <span class="va">ratio</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span> <span class="fu">geom_line</span><span class="op">(</span>color <span class="op">=</span> <span class="st">'grey'</span><span class="op">)</span> <span class="op">+</span> </span>
+<span> <span class="fu">geom_smooth</span><span class="op">(</span>color <span class="op">=</span> <span class="st">'black'</span>, se <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span> </span>
+<span> <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">'time since baseline'</span>,</span>
 <span>      y <span class="op">=</span> <span class="st">'ratio in expected risk for males versus females'</span><span class="op">)</span></span>
 <span><span class="co">#&gt; `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'</span></span></code></pre></div>
 <p><img src="pd_files/figure-html/unnamed-chunk-9-1.png" width="672"></p>
@@ -240,12 +240,12 @@
 <div class="section level2">
 <h2 id="multiple-variables-marginally">Multiple variables, marginally<a class="anchor" aria-label="anchor" href="#multiple-variables-marginally"></a>
 </h2>
-<p>If you want to compute PD marginally for multiple variables, just list the variable values in <code>pd_spec</code> and specify <code>expand_grid = FALSE</code>.</p>
+<p>If you want to compute PD marginally for multiple variables, just list the variable values in <code>pred_spec</code> and specify <code>expand_grid = FALSE</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">pd_two_vars</span> <span class="op">&lt;-</span>  </span>
 <span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>,</span>
-<span>             pd_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"f"</span><span class="op">)</span>, bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>,</span>
+<span>             pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"f"</span><span class="op">)</span>, bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>,</span>
 <span>             expand_grid <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_two_vars</span></span>
@@ -417,16 +417,16 @@
 <span><span class="co">#&gt; 6:      1826.25  &lt;NA&gt;</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="pd-for-multiple-variables">PD for multiple variables<a class="anchor" aria-label="anchor" href="#pd-for-multiple-variables"></a>
+<h2 id="multiple-variables-jointly">Multiple variables, jointly<a class="anchor" aria-label="anchor" href="#multiple-variables-jointly"></a>
 </h2>
 <p>PD can show the expected value of a model’s predictions as a function of a specific predictor, or as a function of multiple predictors. For instance, we can estimate predicted risk as a joint function of <code>bili</code>, <code>edema</code>, and <code>trt</code>:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">pd_spec</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">5</span>, length.out <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>,</span>
+<span><span class="va">pred_spec</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">5</span>, length.out <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>,</span>
 <span>               edema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">pbc_orsf_train</span><span class="op">$</span><span class="va">edema</span><span class="op">)</span>,</span>
 <span>               trt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">pbc_orsf</span><span class="op">$</span><span class="va">trt</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">pd_bili_edema</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">pd_spec</span><span class="op">)</span></span>
+<span><span class="va">pd_bili_edema</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">pred_spec</span><span class="op">)</span></span>
 <span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
@@ -477,11 +477,28 @@
 <p>I am going to turn off boundary checking in <code>orsf_ice_oob</code> by setting <code>boundary_checks = FALSE</code>, and this will allow me to generate ICE curves that go beyond the 90th percentile of <code>bili</code>.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">pd_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span>, length.out <span class="op">=</span> <span class="fl">25</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span>, length.out <span class="op">=</span> <span class="fl">25</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">ice_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_oob</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">pd_spec</span>, boundary_checks <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span>                     </span></code></pre></div>
-<p>For plots, it is helpful to scale the ICEs data. I subtract the initial value of predicted risk (i.e., when <code>bili = 1</code>) from each observation’s conditional expectation values. So,</p>
+<span><span class="va">ice_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_oob</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">pred_spec</span>, boundary_checks <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ice_oob</span></span>
+<span><span class="co">#&gt;       pred_horizon id_variable id_row bili       pred</span></span>
+<span><span class="co">#&gt;    1:      1826.25           1      1    1 0.91930989</span></span>
+<span><span class="co">#&gt;    2:      1826.25           1      2    1 0.10293802</span></span>
+<span><span class="co">#&gt;    3:      1826.25           1      3    1 0.68484802</span></span>
+<span><span class="co">#&gt;    4:      1826.25           1      4    1 0.31939985</span></span>
+<span><span class="co">#&gt;    5:      1826.25           1      5    1 0.07395545</span></span>
+<span><span class="co">#&gt;   ---                                                </span></span>
+<span><span class="co">#&gt; 6896:      1826.25          25    272   10 0.45183506</span></span>
+<span><span class="co">#&gt; 6897:      1826.25          25    273   10 0.46421948</span></span>
+<span><span class="co">#&gt; 6898:      1826.25          25    274   10 0.48277410</span></span>
+<span><span class="co">#&gt; 6899:      1826.25          25    275   10 0.38452767</span></span>
+<span><span class="co">#&gt; 6900:      1826.25          25    276   10 0.51664794</span></span></code></pre></div>
+<ul>
+<li><p><code>id_variable</code> is an identifier for the current value of the variable(s) that are in the data. It is redundant if you only have one variable, but helpful if there are multiple variables.</p></li>
+<li><p><code>id_row</code> is an identifier for the observation in the original data. It is used to group an observation’s predictions together in plots.</p></li>
+</ul>
+<p>For plots, it is helpful to scale the ICE data. I subtract the initial value of predicted risk (i.e., when <code>bili = 1</code>) from each observation’s conditional expectation values. So,</p>
 <ul>
 <li><p>Every curve start at 0</p></li>
 <li>

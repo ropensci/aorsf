@@ -92,27 +92,28 @@
 
     
     
-<p>This article covers core features of the <code>aorsf</code> package. Separate articles will cover these features in more detail.</p>
+<p>This article covers core features of the <code>aorsf</code> package.</p>
 <div class="section level2">
 <h2 id="background-orsf">Background: ORSF<a class="anchor" aria-label="anchor" href="#background-orsf"></a>
 </h2>
-<p>The oblique random survival forest (ORSF) is an extension of the axis-based RSF algorithm. Axis based RSFs can be fit with several R packages, including <code>RandomForestSRC</code>, <code>party</code>, and <code>ranger</code>. However, apart from <code>aorsf</code> and <code>obliqueRSF</code>, few R packages fit ORSFs.</p>
+<p>The oblique random survival forest (ORSF) is an extension of the axis-based RSF algorithm.</p>
+<ul>
+<li><p>See <a href="https://bcjaeger.github.io/aorsf/reference/orsf.html">orsf</a> for more details on ORSFs.</p></li>
+<li><p>see the <a href="https://arxiv.org/abs/2208.01129" class="external-link">arXiv</a> paper for more details on algorithms used specifically by <code>aorsf</code>.</p></li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="accelerated-orsf">Accelerated ORSF<a class="anchor" aria-label="anchor" href="#accelerated-orsf"></a>
 </h2>
-<p>The purpose of <code>aorsf</code> (‘a’ is short for accelerated) is to provide routines to fit ORSFs that will scale adequately to large data sets. For example, <code><a href="../reference/orsf.html">aorsf::orsf()</a></code> runs hundreds of times faster than its predecessor, <code>obliqueRSF::ORSF()</code>.</p>
-<p>To fit an accelerated ORSF model, use the <code>orsf</code> function:</p>
+<p>The purpose of <code>aorsf</code> (‘a’ is short for accelerated) is to provide routines to fit ORSFs that will scale adequately to large data sets. The fastest algorithm available in the package is the accelerated ORSF model, which is the default method used by <code><a href="../reference/orsf.html">orsf()</a></code>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bcjaeger/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">orsf_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf</span>, </span>
-<span>                 formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>, </span>
-<span>                 n_tree <span class="op">=</span> <span class="fl">2500</span><span class="op">)</span></span>
+<span>                 formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">orsf_fit</span></span>
 <span><span class="co">#&gt; ---------- Oblique random survival forest</span></span>
@@ -120,7 +121,7 @@
 <span><span class="co">#&gt;      Linear combinations: Accelerated</span></span>
 <span><span class="co">#&gt;           N observations: 276</span></span>
 <span><span class="co">#&gt;                 N events: 111</span></span>
-<span><span class="co">#&gt;                  N trees: 2500</span></span>
+<span><span class="co">#&gt;                  N trees: 500</span></span>
 <span><span class="co">#&gt;       N predictors total: 17</span></span>
 <span><span class="co">#&gt;    N predictors per node: 5</span></span>
 <span><span class="co">#&gt;  Average leaves per tree: 24</span></span>
@@ -153,28 +154,28 @@
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          bili           age       ascites       protime        copper </span></span>
-<span><span class="co">#&gt;  0.0134923942  0.0085434466  0.0057824547  0.0046363826  0.0037507814 </span></span>
-<span><span class="co">#&gt;       spiders         edema         stage           sex           ast </span></span>
-<span><span class="co">#&gt;  0.0036465930  0.0028751029  0.0022921442  0.0016670140  0.0012502605 </span></span>
-<span><span class="co">#&gt;        hepato      alk.phos          chol          trig           trt </span></span>
-<span><span class="co">#&gt; -0.0003125651 -0.0012502605 -0.0017191081 -0.0018232965 -0.0026568035 </span></span>
-<span><span class="co">#&gt;      platelet </span></span>
-<span><span class="co">#&gt; -0.0028130861</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili           age       protime        copper       ascites </span></span>
+<span><span class="co">#&gt;  0.0143779954  0.0096374245  0.0087518233  0.0061992082  0.0056261721 </span></span>
+<span><span class="co">#&gt;         stage           sex           ast         edema       albumin </span></span>
+<span><span class="co">#&gt;  0.0050531361  0.0047926651  0.0034903105  0.0030512309  0.0023963326 </span></span>
+<span><span class="co">#&gt;       spiders          trig          chol        hepato      platelet </span></span>
+<span><span class="co">#&gt;  0.0009376954 -0.0008856012 -0.0014065430 -0.0024484268 -0.0028130861 </span></span>
+<span><span class="co">#&gt;           trt      alk.phos </span></span>
+<span><span class="co">#&gt; -0.0029172744 -0.0033861221</span></span></code></pre></div>
 </li>
 <li>
 <p>You can also compute variable importance using permutation, a more classical approach.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          bili           age         stage        copper       albumin </span></span>
-<span><span class="co">#&gt;  0.0122421338  0.0090122942  0.0042717233  0.0039591582  0.0039070640 </span></span>
-<span><span class="co">#&gt;       ascites          chol       protime         edema        hepato </span></span>
-<span><span class="co">#&gt;  0.0025005209  0.0022400500  0.0021358616  0.0006635807  0.0006251302 </span></span>
-<span><span class="co">#&gt;       spiders           ast      alk.phos      platelet           sex </span></span>
-<span><span class="co">#&gt;  0.0004688477 -0.0001041884 -0.0001562826 -0.0006772244 -0.0007814128 </span></span>
-<span><span class="co">#&gt;           trt          trig </span></span>
-<span><span class="co">#&gt; -0.0015107314 -0.0017712023</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili           age         stage       protime       albumin </span></span>
+<span><span class="co">#&gt;  0.0109918733  0.0091685768  0.0036986872  0.0034903105  0.0028651802 </span></span>
+<span><span class="co">#&gt;       ascites         edema       spiders          chol           ast </span></span>
+<span><span class="co">#&gt;  0.0028130861  0.0020676431  0.0019274849  0.0017712023  0.0015107314 </span></span>
+<span><span class="co">#&gt;        copper      platelet          trig           sex      alk.phos </span></span>
+<span><span class="co">#&gt;  0.0003125651  0.0001562826 -0.0007293186 -0.0009376954 -0.0010418837 </span></span>
+<span><span class="co">#&gt;        hepato           trt </span></span>
+<span><span class="co">#&gt; -0.0011981663 -0.0025526151</span></span></code></pre></div>
 </li>
 <li>
 <p>A faster alternative to permutation and negation importance is ANOVA importance, which computes the proportion of times each variable obtains a low p-value (p &lt; 0.01) while the forest is grown.</p>
@@ -182,77 +183,39 @@
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    ascites       bili      edema     copper        age    albumin    protime </span></span>
-<span><span class="co">#&gt; 0.37535240 0.28802725 0.25071311 0.19946642 0.18231113 0.17848411 0.15620772 </span></span>
-<span><span class="co">#&gt;      stage       chol        ast    spiders        sex     hepato       trig </span></span>
-<span><span class="co">#&gt; 0.14307743 0.14234894 0.12985129 0.12727497 0.11925957 0.11285150 0.10276701 </span></span>
+<span><span class="co">#&gt; 0.36650652 0.28964613 0.25605884 0.20384514 0.18876042 0.17611863 0.15949300 </span></span>
+<span><span class="co">#&gt;      stage       chol        ast        sex     hepato    spiders       trig </span></span>
+<span><span class="co">#&gt; 0.15136967 0.14789292 0.13086093 0.11822315 0.11744654 0.11611076 0.10882902 </span></span>
 <span><span class="co">#&gt;   alk.phos   platelet        trt </span></span>
-<span><span class="co">#&gt; 0.09960634 0.07668127 0.06754044</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.09948586 0.08489136 0.07035033</span></span></code></pre></div>
 </li>
 </ul>
 </div>
 <div class="section level3">
-<h3 id="summarize-orsf-models">Summarize ORSF models<a class="anchor" aria-label="anchor" href="#summarize-orsf-models"></a>
+<h3 id="partial-dependence-pd">Partial dependence (PD)<a class="anchor" aria-label="anchor" href="#partial-dependence-pd"></a>
 </h3>
-<p>Getting straight to variable importance and partial dependence in a direct way can often be helpful in exploratory analyses. When you want a lot of information for just a little code, <code><a href="../reference/orsf_summarize_uni.html">orsf_summarize_uni()</a></code> is the tool for you:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">orsf_fit</span>, </span>
-<span>                   n_variables <span class="op">=</span> <span class="fl">5</span>, </span>
-<span>                   pred_horizon <span class="op">=</span> <span class="fl">365.25</span> <span class="op">*</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- bili (VI Rank: 1) ---------------------------</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
-<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;   0.80 0.2321709 0.1250703 0.04511286 0.3822285</span></span>
-<span><span class="co">#&gt;    1.4 0.2526454 0.1452361 0.05893072 0.4017982</span></span>
-<span><span class="co">#&gt;    3.5 0.3716990 0.2879513 0.16520375 0.5483311</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- age (VI Rank: 2) ----------------------------</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
-<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;     42 0.2738421 0.1429054 0.04190491 0.4670137</span></span>
-<span><span class="co">#&gt;     50 0.3012377 0.1711906 0.04922133 0.5312928</span></span>
-<span><span class="co">#&gt;     57 0.3324703 0.2206562 0.07135028 0.5659502</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- ascites (VI Rank: 3) ------------------------</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
-<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;      0 0.2962853 0.1559449 0.04856002 0.5312403</span></span>
-<span><span class="co">#&gt;      1 0.4707099 0.3853747 0.27346654 0.6542754</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- protime (VI Rank: 4) ------------------------</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
-<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;     10 0.2836244 0.1532223 0.04709130 0.5059426</span></span>
-<span><span class="co">#&gt;     11 0.2956075 0.1611090 0.05140038 0.5249728</span></span>
-<span><span class="co">#&gt;     11 0.3168198 0.1890442 0.06756468 0.5346692</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- copper (VI Rank: 5) -------------------------</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |---------------- risk ----------------|</span></span>
-<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;     43 0.2656012 0.1388691 0.04530208 0.4752255</span></span>
-<span><span class="co">#&gt;     74 0.2823505 0.1590903 0.05506762 0.5037839</span></span>
-<span><span class="co">#&gt;    129 0.3358382 0.2179729 0.10527331 0.5494800</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Predicted risk at time t = 1826.25 for top 5 predictors</span></span></code></pre></div>
+<p>Partial dependence shows the expected prediction from a model as a function of a single predictor or multiple predictors. The expectation is marginalized over the values of all other predictors, giving something like a multivariable adjusted estimate of the model’s prediction.</p>
+<p>For more on PD, see the <a href="https://bcjaeger.github.io/aorsf/articles/pd.html">vignette</a></p>
+</div>
+<div class="section level3">
+<h3 id="individual-conditional-expectations-ice">Individual conditional expectations (ICE)<a class="anchor" aria-label="anchor" href="#individual-conditional-expectations-ice"></a>
+</h3>
+<p>Unlike partial dependence, which shows the expected prediction as a function of one or multiple predictors, individual conditional expectations shows the prediction for an individual observation as a function of a predictor.</p>
+<p>For more on ICE, see the <a href="https://bcjaeger.github.io/aorsf/articles/pd.html#individual-conditional-expectations-ice">vignette</a></p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="what-about-the-original-orsf">What about the original ORSF?<a class="anchor" aria-label="anchor" href="#what-about-the-original-orsf"></a>
 </h2>
 <p>The original ORSF (i.e., <code>obliqueRSF</code>) used <code>glmnet</code> to find linear combinations of inputs. <code>aorsf</code> allows users to implement this approach using the <code><a href="../reference/orsf_control_net.html">orsf_control_net()</a></code> function:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">orsf_net</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf</span>, </span>
 <span>                 formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>, </span>
 <span>                 control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_net.html">orsf_control_net</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>                 n_tree <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></code></pre></div>
 <p><code>net</code> forests fit a lot faster than the original ORSF function in <code>obliqueRSF</code>. However, <code>net</code> forests are still much slower than <code>cph</code> ones:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># tracking how long it takes to fit 50 glmnet trees</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
@@ -264,7 +227,7 @@
 <span> <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   3.656   0.040   3.697</span></span>
+<span><span class="co">#&gt;    2.08    0.02    2.10</span></span>
 <span></span>
 <span><span class="co"># and how long it takes to fit 50 cph trees</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
@@ -276,17 +239,17 @@
 <span> <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   0.065   0.000   0.065</span></span>
+<span><span class="co">#&gt;   0.055   0.000   0.054</span></span>
 <span></span>
 <span><span class="va">t1</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">t2</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span></span>
 <span><span class="co">#&gt;  elapsed </span></span>
-<span><span class="co">#&gt; 56.87692</span></span></code></pre></div>
+<span><span class="co">#&gt; 38.88889</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="aorsf-and-other-machine-learning-software">aorsf and other machine learning software<a class="anchor" aria-label="anchor" href="#aorsf-and-other-machine-learning-software"></a>
 </h2>
-<p>Generally, <code>aorsf</code> follows conventions set by the R packages <code>randomForest</code> and <code>randomForestSRC</code>. For example, the <code>print</code> method for <code>aorsf</code> models is very similar to <code>randomForestSRC</code> models, as is the specification of computing variable importance and the objects returned by variable importance functions. Similar to <code>randomForestSRC</code>, <code>aorsf</code> allows and recommends partial dependence to be estimated using out-of-bag data.</p>
-<p>The unique feature of <code>aorsf</code> is fitting oblique random survival forests fast while maintaining strong prediction accuracy. <code>RLT</code> and <code>obliqueRSF</code> both fit oblique random survival forests, but <code>aorsf</code> does so faster. <code>ranger</code> and <code>randomForestSRC</code> fit survival forests, but neither package supports oblique splitting. <code>obliqueRF</code> fits oblique random forests for classification and regression, but not survival. <code>PPforest</code> fits oblique random forests for classification but not survival. The default prediction behavior for <code>aorsf</code> models is to produce predicted risk at a specific prediction horizon, which is not the default for <code>ranger</code> or <code>randomForestSRC</code>.</p>
+<p>The unique feature of <code>aorsf</code> is its fast algorithms to fit ORSF ensembles. <code>RLT</code> and <code>obliqueRSF</code> both fit oblique random survival forests, but <code>aorsf</code> does so faster. <code>ranger</code> and <code>randomForestSRC</code> fit survival forests, but neither package supports oblique splitting. <code>obliqueRF</code> fits oblique random forests for classification and regression, but not survival. <code>PPforest</code> fits oblique random forests for classification but not survival.</p>
+<p>Note: The default prediction behavior for <code>aorsf</code> models is to produce predicted risk at a specific prediction horizon, which is not the default for <code>ranger</code> or <code>randomForestSRC</code>. I think this will change in the future, as computing time independent predictions with <code>aorsf</code> could be helpful.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

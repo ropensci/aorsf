@@ -350,87 +350,166 @@ such as <code>recipes</code> or <code>mlr3pipelines</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a></h2>
-    <p>the aorsf package is designed to fit into standard modeling analyses,
-tidymodels workflows, and mlr3 pipelines.</p><div class="section">
-<h3 id="standard-modeling">standard modeling<a class="anchor" aria-label="anchor" href="#standard-modeling"></a></h3>
+    <p>The entry-point into <code>aorsf</code> is the standard call to <code>orsf()</code>:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span></code></pre><p></p></div>
+<p>printing <code>fit</code> provides quick descriptive summaries:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## ---------- Oblique random survival forest</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">## </span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">##      Linear combinations: Accelerated</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">##           N observations: 276</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co">##                 N events: 111</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">##                  N trees: 500</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">##       N predictors total: 17</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">##    N predictors per node: 5</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="co">##  Average leaves per tree: 24</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="co">## Min observations in leaf: 5</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="co">##       Min events in leaf: 1</span></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co">##           OOB stat value: 0.84</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="co">##            OOB stat type: Harrell's C-statistic</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co">##      Variable importance: anova</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a><span class="co">## </span></span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="co">## -----------------------------------------</span></span></code></pre><p></p></div><div class="section">
+<h3 id="model-control">Model control<a class="anchor" aria-label="anchor" href="#model-control"></a></h3>
 
 
-<p>FILL</p>
+<p>For these examples we will make use of the <code>orsf_control_</code> functions to
+build and compare models based on their out-of-bag predictions. We will
+also standardize the out-of-bag samples using the input argument
+<code>tree_seeds</code></p><div class="section">
+<h4 id="accelerated-linear-combinations">Accelerated linear combinations<a class="anchor" aria-label="anchor" href="#accelerated-linear-combinations"></a></h4>
+
+
+<p>The accelerated ORSF ensemble is the default because it has a nice
+balance of computational speed and prediction accuracy. It runs a single
+iteration of Newton Raphson scoring on the Cox partial likelihood
+function to find linear combinations of predictors.</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_accel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
+<span>                  control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_fast.html">orsf_control_fast</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>                  formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
+<span>                  tree_seeds <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">)</span></span></code></pre><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="linear-combinations-with-cox-regression">Linear combinations with Cox regression<a class="anchor" aria-label="anchor" href="#linear-combinations-with-cox-regression"></a></h4>
+
+
+<p><code>orsf_control_cph</code> runs Cox regression in each non-terminal node of each
+survival tree, using the regression coefficients to create linear
+combinations of predictors:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_cph</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
+<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_cph.html">orsf_control_cph</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>                formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
+<span>                tree_seeds <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">)</span></span></code></pre><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="linear-combinations-with-penalized-cox-regression">Linear combinations with penalized cox regression<a class="anchor" aria-label="anchor" href="#linear-combinations-with-penalized-cox-regression"></a></h4>
+
+
+<p><code>orsf_control_net</code> runs penalized Cox regression in each non-terminal
+node of each survival tree, using the regression coefficients to create
+linear combinations of predictors. This can be really helpful if you
+want to do feature selection within the node, but it is a lot slower
+than the other options.</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_net</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
+<span>                <span class="co"># select 3 predictors out of 5 to be used in</span></span>
+<span>                <span class="co"># each linear combination of predictors.</span></span>
+<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_net.html">orsf_control_net</a></span><span class="op">(</span>df_target <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
+<span>                formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
+<span>                tree_seeds <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">)</span></span></code></pre><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="linear-combinations-with-your-own-function">Linear combinations with your own function<a class="anchor" aria-label="anchor" href="#linear-combinations-with-your-own-function"></a></h4>
+
+
+<p>Let’s make two customized functions to identify linear combinations of
+predictors.</p><ul><li><p>The first uses random coefficients</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">f_rando</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x_node</span>, <span class="va">y_node</span>, <span class="va">w_node</span><span class="op">)</span><span class="op">{</span></span>
+<span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">x_node</span><span class="op">)</span><span class="op">)</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span> </span>
+<span><span class="op">}</span></span></code></pre><p></p></div></li>
+<li><p>The second derives coefficients from principal component analysis.</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">f_pca</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x_node</span>, <span class="va">y_node</span>, <span class="va">w_node</span><span class="op">)</span> <span class="op">{</span> </span>
+<span></span>
+<span> <span class="co"># estimate two principal components.</span></span>
+<span> <span class="va">pca</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></span><span class="op">(</span><span class="va">x_node</span>, rank. <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span> <span class="co"># use the second principal component to split the node</span></span>
+<span> <span class="va">pca</span><span class="op">$</span><span class="va">rotation</span><span class="op">[</span>, <span class="fl">2L</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
+<span></span>
+<span><span class="op">}</span></span></code></pre><p></p></div></li>
+</ul><p>We can plug these functions into <code><a href="orsf_control_custom.html">orsf_control_custom()</a></code>, and then pass
+the result into <code>orsf()</code>:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_rando</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>,</span>
+<span>                  <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
+<span>                  control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_custom.html">orsf_control_custom</a></span><span class="op">(</span>beta_fun <span class="op">=</span> <span class="va">f_rando</span><span class="op">)</span>,</span>
+<span>                  tree_seeds <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit_pca</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>,</span>
+<span>                <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
+<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_custom.html">orsf_control_custom</a></span><span class="op">(</span>beta_fun <span class="op">=</span> <span class="va">f_pca</span><span class="op">)</span>,</span>
+<span>                tree_seeds <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">)</span></span></code></pre><p></p></div>
+<p>So which fit seems to work best in this example? Let’s find out by
+evaluating the out-of-bag survival predictions.</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">risk_preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span> accel <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_accel</span><span class="op">$</span><span class="va">surv_oobag</span>,</span>
+<span> cph   <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_cph</span><span class="op">$</span><span class="va">surv_oobag</span>,</span>
+<span> net   <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_net</span><span class="op">$</span><span class="va">surv_oobag</span>,</span>
+<span> rando <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_rando</span><span class="op">$</span><span class="va">surv_oobag</span>,</span>
+<span> pca   <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_pca</span><span class="op">$</span><span class="va">surv_oobag</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">sc</span> <span class="op">&lt;-</span> <span class="fu">Score</span><span class="op">(</span>object <span class="op">=</span> <span class="va">risk_preds</span>, </span>
+<span>            formula <span class="op">=</span> <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fl">1</span>, </span>
+<span>            data <span class="op">=</span> <span class="va">pbc_orsf</span>, </span>
+<span>            summary <span class="op">=</span> <span class="st">'IPA'</span>,</span>
+<span>            times <span class="op">=</span> <span class="va">fit_accel</span><span class="op">$</span><span class="va">pred_horizon</span><span class="op">)</span></span></code></pre><p></p></div>
+<p>The AUC values, from highest to lowest:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">sc</span><span class="op">$</span><span class="va">AUC</span><span class="op">$</span><span class="va">score</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">AUC</span><span class="op">)</span><span class="op">]</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">##     model times       AUC         se     lower     upper</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">##    &lt;fctr&gt; &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">## 1:    pca  1788 0.9140542 0.01962854 0.8755830 0.9525254</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">## 2:  accel  1788 0.9109875 0.02174062 0.8683766 0.9535983</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co">## 3:    net  1788 0.9081592 0.02161885 0.8657871 0.9505314</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## 4:    cph  1788 0.9072690 0.02122339 0.8656719 0.9488660</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">## 5:  rando  1788 0.8681493 0.02418770 0.8207423 0.9155564</span></span></code></pre><p></p></div>
+<p>And the indices of prediction accuracy:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">sc</span><span class="op">$</span><span class="va">Brier</span><span class="op">$</span><span class="va">score</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">IPA</span><span class="op">)</span>, <span class="fu">.</span><span class="op">(</span><span class="va">model</span>, <span class="va">times</span>, <span class="va">IPA</span><span class="op">)</span><span class="op">]</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">##         model times       IPA</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">##        &lt;fctr&gt; &lt;num&gt;     &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">## 1:      accel  1788 0.4893270</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">## 2:        net  1788 0.4842680</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co">## 3:        cph  1788 0.4689101</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## 4:        pca  1788 0.4238639</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">## 5:      rando  1788 0.3395780</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">## 6: Null model  1788 0.0000000</span></span></code></pre><p></p></div>
+<p>From inspection,</p><ul><li><p>the PCA approach has the highest discrimination, showing that you
+can do very well with just a two line custom function.</p></li>
+<li><p>the accelerated ORSF has the highest index of prediction accuracy</p></li>
+<li><p>the random coefficients generally don’t do that well.</p></li>
+</ul></div>
+
+
 </div>
 
 <div class="section">
 <h3 id="tidymodels">tidymodels<a class="anchor" aria-label="anchor" href="#tidymodels"></a></h3>
 
 
+<p>This example uses <code>tidymodels</code> functions but stops short of using an
+official <code>tidymodels</code> workflow. I am working on getting <code>aorsf</code> pulled
+into the <code>censored</code> package and I will update this with real workflows
+if that happens!</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329730</span><span class="op">)</span></span>
 <span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bcjaeger/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## -- Attaching packages --------------------------------- tidymodels 0.2.0 --</span></span>
-<span id="cb1-2"><a href="#cb1-2"></a></span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="co">## v broom        1.0.0     v recipes      1.0.1</span></span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="co">## v dials        0.1.1     v rsample      0.1.1</span></span>
-<span id="cb1-5"><a href="#cb1-5"></a><span class="co">## v dplyr        1.0.9     v tibble       3.1.7</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## v ggplot2      3.3.6     v tidyr        1.2.0</span></span>
-<span id="cb1-7"><a href="#cb1-7"></a><span class="co">## v infer        1.0.0     v tune         0.2.0</span></span>
-<span id="cb1-8"><a href="#cb1-8"></a><span class="co">## v modeldata    0.1.1     v workflows    0.2.6</span></span>
-<span id="cb1-9"><a href="#cb1-9"></a><span class="co">## v parsnip      1.0.0     v workflowsets 0.2.1</span></span>
-<span id="cb1-10"><a href="#cb1-10"></a><span class="co">## v purrr        0.3.4     v yardstick    0.0.9</span></span>
-<span id="cb1-11"><a href="#cb1-11"></a></span>
-<span id="cb1-12"><a href="#cb1-12"></a><span class="co">## -- Conflicts ------------------------------------ tidymodels_conflicts() --</span></span>
-<span id="cb1-13"><a href="#cb1-13"></a><span class="co">## x dplyr::between()      masks aorsf::between()</span></span>
-<span id="cb1-14"><a href="#cb1-14"></a><span class="co">## x purrr::discard()      masks scales::discard()</span></span>
-<span id="cb1-15"><a href="#cb1-15"></a><span class="co">## x dplyr::filter()       masks stats::filter()</span></span>
-<span id="cb1-16"><a href="#cb1-16"></a><span class="co">## x dplyr::first()        masks aorsf::first()</span></span>
-<span id="cb1-17"><a href="#cb1-17"></a><span class="co">## x recipes::is_trained() masks aorsf::is_trained()</span></span>
-<span id="cb1-18"><a href="#cb1-18"></a><span class="co">## x dplyr::lag()          masks stats::lag()</span></span>
-<span id="cb1-19"><a href="#cb1-19"></a><span class="co">## x dplyr::last()         masks aorsf::last()</span></span>
-<span id="cb1-20"><a href="#cb1-20"></a><span class="co">## x recipes::step()       masks stats::step()</span></span>
-<span id="cb1-21"><a href="#cb1-21"></a><span class="co">## x purrr::transpose()    masks aorsf::transpose()</span></span>
-<span id="cb1-22"><a href="#cb1-22"></a><span class="co">## * Search for functions across packages at https://www.tidymodels.org/find/</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode r"><pre><code><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## -- Attaching packages ---------------------------------- tidyverse 1.3.1 --</span></span>
-<span id="cb1-2"><a href="#cb1-2"></a></span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="co">## v readr   2.1.2     v forcats 0.5.1</span></span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="co">## v stringr 1.4.0</span></span>
-<span id="cb1-5"><a href="#cb1-5"></a></span>
-<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## -- Conflicts ------------------------------------- tidyverse_conflicts() --</span></span>
-<span id="cb1-7"><a href="#cb1-7"></a><span class="co">## x dplyr::between()    masks aorsf::between()</span></span>
-<span id="cb1-8"><a href="#cb1-8"></a><span class="co">## x readr::col_factor() masks scales::col_factor()</span></span>
-<span id="cb1-9"><a href="#cb1-9"></a><span class="co">## x purrr::discard()    masks scales::discard()</span></span>
-<span id="cb1-10"><a href="#cb1-10"></a><span class="co">## x dplyr::filter()     masks stats::filter()</span></span>
-<span id="cb1-11"><a href="#cb1-11"></a><span class="co">## x dplyr::first()      masks aorsf::first()</span></span>
-<span id="cb1-12"><a href="#cb1-12"></a><span class="co">## x stringr::fixed()    masks recipes::fixed()</span></span>
-<span id="cb1-13"><a href="#cb1-13"></a><span class="co">## x dplyr::lag()        masks stats::lag()</span></span>
-<span id="cb1-14"><a href="#cb1-14"></a><span class="co">## x dplyr::last()       masks aorsf::last()</span></span>
-<span id="cb1-15"><a href="#cb1-15"></a><span class="co">## x readr::spec()       masks yardstick::spec()</span></span>
-<span id="cb1-16"><a href="#cb1-16"></a><span class="co">## x purrr::transpose()  masks aorsf::transpose()</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode r"><pre><code><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://www.randomforestsrc.org/" class="external-link">randomForestSRC</a></span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## </span></span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="co">##  randomForestSRC 3.0.2 </span></span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="co">##  </span></span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="co">##  Type rfsrc.news() to see new features, changes, and bug fixes. </span></span>
-<span id="cb1-5"><a href="#cb1-5"></a><span class="co">## </span></span>
-<span id="cb1-6"><a href="#cb1-6"></a></span>
-<span id="cb1-7"><a href="#cb1-7"></a><span class="co">## </span></span>
-<span id="cb1-8"><a href="#cb1-8"></a><span class="co">## Attaching package: 'randomForestSRC'</span></span>
-<span id="cb1-9"><a href="#cb1-9"></a></span>
-<span id="cb1-10"><a href="#cb1-10"></a><span class="co">## The following object is masked from 'package:tune':</span></span>
-<span id="cb1-11"><a href="#cb1-11"></a><span class="co">## </span></span>
-<span id="cb1-12"><a href="#cb1-12"></a><span class="co">##     tune</span></span>
-<span id="cb1-13"><a href="#cb1-13"></a></span>
-<span id="cb1-14"><a href="#cb1-14"></a><span class="co">## The following object is masked from 'package:purrr':</span></span>
-<span id="cb1-15"><a href="#cb1-15"></a><span class="co">## </span></span>
-<span id="cb1-16"><a href="#cb1-16"></a><span class="co">##     partial</span></span>
-<span id="cb1-17"><a href="#cb1-17"></a></span>
-<span id="cb1-18"><a href="#cb1-18"></a><span class="co">## The following object is masked from 'package:parsnip':</span></span>
-<span id="cb1-19"><a href="#cb1-19"></a><span class="co">## </span></span>
-<span id="cb1-20"><a href="#cb1-20"></a><span class="co">##     tune</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode r"><pre><code><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/imbs-hl/ranger" class="external-link">ranger</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tagteam/riskRegression" class="external-link">riskRegression</a></span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## riskRegression version 2022.03.22</span></span></code></pre><p></p></div><div class="section">
-<h4 id="comparing-learners">Comparing learners<a class="anchor" aria-label="anchor" href="#comparing-learners"></a></h4>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://www.randomforestsrc.org/" class="external-link">randomForestSRC</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/imbs-hl/ranger" class="external-link">ranger</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tagteam/riskRegression" class="external-link">riskRegression</a></span><span class="op">)</span></span></code></pre><p></p></div><div class="section">
+<h4 id="comparing-orsf-with-other-learners">Comparing ORSF with other learners<a class="anchor" aria-label="anchor" href="#comparing-orsf-with-other-learners"></a></h4>
 
 
 <p>Start with a recipe to pre-process data</p>
@@ -459,15 +538,24 @@ tidymodels workflows, and mlr3 pipelines.</p><div class="section">
 <span id="cb1-12"><a href="#cb1-12"></a><span class="co">##  8 &lt;split [249/27]&gt; Fold08 &lt;recipe&gt; &lt;tibble [249 x 20]&gt; &lt;tibble [27 x 20]&gt;</span></span>
 <span id="cb1-13"><a href="#cb1-13"></a><span class="co">##  9 &lt;split [249/27]&gt; Fold09 &lt;recipe&gt; &lt;tibble [249 x 20]&gt; &lt;tibble [27 x 20]&gt;</span></span>
 <span id="cb1-14"><a href="#cb1-14"></a><span class="co">## 10 &lt;split [249/27]&gt; Fold10 &lt;recipe&gt; &lt;tibble [249 x 20]&gt; &lt;tibble [27 x 20]&gt;</span></span></code></pre><p></p></div>
-<p>Define functions for a ‘workflow’ with both <code>randomForestSRC</code> and
-<code>aorsf</code>. Obviously this is not the same thing as a <code>tidymodels</code>
-workflow, but this works well enough. I am working on getting <code>aorsf</code>
-pulled into the <code>censored</code> package and I will update this with real
-workflows if that happens!</p>
+<p>Define functions for a ‘workflow’ with <code>randomForestSRC</code>, <code>ranger</code>, and
+<code>aorsf</code>.</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">rfsrc_wf</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">train</span>, <span class="va">test</span>, <span class="va">pred_horizon</span><span class="op">)</span><span class="op">{</span></span>
 <span> </span>
-<span> <span class="fu">rfsrc</span><span class="op">(</span>formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">train</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu">predictRisk</span><span class="op">(</span>newdata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">test</span><span class="op">)</span>, times <span class="op">=</span> <span class="va">pred_horizon</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span> <span class="co"># rfsrc does not like tibbles, so cast input data into data.frames</span></span>
+<span> <span class="va">train</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">train</span><span class="op">)</span></span>
+<span> <span class="va">test</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">test</span><span class="op">)</span></span>
+<span> </span>
+<span> <span class="fu">rfsrc</span><span class="op">(</span>formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">train</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu">predictRisk</span><span class="op">(</span>newdata <span class="op">=</span> <span class="va">test</span>, times <span class="op">=</span> <span class="va">pred_horizon</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="op">)</span></span>
+<span> </span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">ranger_wf</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">train</span>, <span class="va">test</span>, <span class="va">pred_horizon</span><span class="op">)</span><span class="op">{</span></span>
+<span> </span>
+<span> <span class="fu">ranger</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">train</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu">predictRisk</span><span class="op">(</span>newdata <span class="op">=</span> <span class="va">test</span>, times <span class="op">=</span> <span class="va">pred_horizon</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="op">)</span></span>
 <span> </span>
 <span><span class="op">}</span></span>
@@ -479,16 +567,8 @@ workflows if that happens!</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span>new_data <span class="op">=</span> <span class="va">test</span>, pred_horizon <span class="op">=</span> <span class="va">pred_horizon</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="op">)</span></span>
 <span> </span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="va">ranger_wf</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">train</span>, <span class="va">test</span>, <span class="va">pred_horizon</span><span class="op">)</span><span class="op">{</span></span>
-<span> </span>
-<span> <span class="fu">ranger</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">train</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu">predictRisk</span><span class="op">(</span>newdata <span class="op">=</span> <span class="va">test</span>, times <span class="op">=</span> <span class="va">pred_horizon</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="op">)</span></span>
-<span> </span>
 <span><span class="op">}</span></span></code></pre><p></p></div>
-<p>Run the workflows on each fold:</p>
+<p>Run the ‘workflows’ on each fold:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="co"># 5 year risk prediction</span></span>
 <span><span class="va">ph</span> <span class="op">&lt;-</span> <span class="fl">365.25</span> <span class="op">*</span> <span class="fl">5</span></span>
 <span></span>
@@ -505,29 +585,29 @@ data and predictions.</p>
 <span><span class="fu">glimpse</span><span class="op">(</span><span class="va">results</span><span class="op">)</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## Rows: 276</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="co">## Columns: 23</span></span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="co">## $ id          &lt;int&gt; 21, 22, 23, 28, 52, 67, 79, 99, 104, 111, 115, 152, 188, 1~</span></span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="co">## $ trt         &lt;fct&gt; placebo, d_penicill_main, placebo, placebo, d_penicill_mai~</span></span>
-<span id="cb1-5"><a href="#cb1-5"></a><span class="co">## $ age         &lt;dbl&gt; 64.18891, 56.27652, 55.96715, 44.94730, 50.54073, 51.28816~</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## $ sex         &lt;fct&gt; m, f, f, f, m, f, f, m, f, f, f, m, f, f, f, f, f, f, f, f~</span></span>
-<span id="cb1-7"><a href="#cb1-7"></a><span class="co">## $ ascites     &lt;fct&gt; 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~</span></span>
-<span id="cb1-8"><a href="#cb1-8"></a><span class="co">## $ hepato      &lt;fct&gt; 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1~</span></span>
-<span id="cb1-9"><a href="#cb1-9"></a><span class="co">## $ spiders     &lt;fct&gt; 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1~</span></span>
-<span id="cb1-10"><a href="#cb1-10"></a><span class="co">## $ edema       &lt;fct&gt; 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~</span></span>
-<span id="cb1-11"><a href="#cb1-11"></a><span class="co">## $ bili        &lt;dbl&gt; 0.6, 3.4, 17.4, 17.2, 6.0, 1.1, 0.8, 1.8, 1.1, 5.5, 0.7, 2~</span></span>
-<span id="cb1-12"><a href="#cb1-12"></a><span class="co">## $ chol        &lt;int&gt; 252, 271, 395, 222, 614, 466, 315, 460, 303, 528, 303, 586~</span></span>
-<span id="cb1-13"><a href="#cb1-13"></a><span class="co">## $ albumin     &lt;dbl&gt; 3.83, 3.63, 2.94, 3.23, 3.70, 3.91, 4.24, 3.35, 3.64, 4.18~</span></span>
-<span id="cb1-14"><a href="#cb1-14"></a><span class="co">## $ copper      &lt;int&gt; 41, 464, 558, 209, 158, 84, 13, 148, 20, 77, 81, 243, 41, ~</span></span>
-<span id="cb1-15"><a href="#cb1-15"></a><span class="co">## $ alk.phos    &lt;dbl&gt; 843.0, 1376.0, 6064.8, 1975.0, 5084.4, 1787.0, 1637.0, 147~</span></span>
-<span id="cb1-16"><a href="#cb1-16"></a><span class="co">## $ ast         &lt;dbl&gt; 65.10, 120.90, 227.04, 189.10, 206.40, 328.60, 170.50, 108~</span></span>
-<span id="cb1-17"><a href="#cb1-17"></a><span class="co">## $ trig        &lt;int&gt; 83, 55, 191, 195, 93, 185, 70, 118, 53, 78, 156, 126, 98, ~</span></span>
-<span id="cb1-18"><a href="#cb1-18"></a><span class="co">## $ platelet    &lt;int&gt; 336, 173, 214, 144, 362, 261, 426, 172, 349, 467, 307, 339~</span></span>
-<span id="cb1-19"><a href="#cb1-19"></a><span class="co">## $ protime     &lt;dbl&gt; 11.4, 11.6, 11.7, 13.0, 10.6, 10.0, 10.9, 10.2, 11.1, 10.7~</span></span>
-<span id="cb1-20"><a href="#cb1-20"></a><span class="co">## $ stage       &lt;ord&gt; 4, 4, 4, 4, 1, 3, 3, 2, 2, 3, 3, 3, 4, 2, 3, 3, 2, 3, 3, 4~</span></span>
-<span id="cb1-21"><a href="#cb1-21"></a><span class="co">## $ time        &lt;int&gt; 3445, 673, 264, 549, 2386, 2769, 3707, 3820, 3086, 2350, 3~</span></span>
-<span id="cb1-22"><a href="#cb1-22"></a><span class="co">## $ status      &lt;dbl&gt; 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0~</span></span>
-<span id="cb1-23"><a href="#cb1-23"></a><span class="co">## $ pred_aorsf  &lt;dbl&gt; 0.36491173, 0.68970669, 0.98179507, 0.98850628, 0.49299773~</span></span>
-<span id="cb1-24"><a href="#cb1-24"></a><span class="co">## $ pred_rfsrc  &lt;dbl&gt; 0.24242178, 0.47483623, 0.87523838, 0.87005877, 0.56744854~</span></span>
-<span id="cb1-25"><a href="#cb1-25"></a><span class="co">## $ pred_ranger &lt;dbl&gt; 0.22456672, 0.48945363, 0.78824669, 0.78077928, 0.59343228~</span></span></code></pre><p></p></div>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">## $ id          &lt;int&gt; 21, 22, 23, 28, 52, 67, 79, 99, 104, 111, 115, 152, 1~</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">## $ trt         &lt;fct&gt; placebo, d_penicill_main, placebo, placebo, d_penicil~</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co">## $ age         &lt;dbl&gt; 64.18891, 56.27652, 55.96715, 44.94730, 50.54073, 51.~</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## $ sex         &lt;fct&gt; m, f, f, f, m, f, f, m, f, f, f, m, f, f, f, f, f, f,~</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">## $ ascites     &lt;fct&gt; 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">## $ hepato      &lt;fct&gt; 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1,~</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="co">## $ spiders     &lt;fct&gt; 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0,~</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="co">## $ edema       &lt;fct&gt; 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="co">## $ bili        &lt;dbl&gt; 0.6, 3.4, 17.4, 17.2, 6.0, 1.1, 0.8, 1.8, 1.1, 5.5, 0~</span></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co">## $ chol        &lt;int&gt; 252, 271, 395, 222, 614, 466, 315, 460, 303, 528, 303~</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="co">## $ albumin     &lt;dbl&gt; 3.83, 3.63, 2.94, 3.23, 3.70, 3.91, 4.24, 3.35, 3.64,~</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co">## $ copper      &lt;int&gt; 41, 464, 558, 209, 158, 84, 13, 148, 20, 77, 81, 243,~</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a><span class="co">## $ alk.phos    &lt;dbl&gt; 843.0, 1376.0, 6064.8, 1975.0, 5084.4, 1787.0, 1637.0~</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="co">## $ ast         &lt;dbl&gt; 65.10, 120.90, 227.04, 189.10, 206.40, 328.60, 170.50~</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a><span class="co">## $ trig        &lt;int&gt; 83, 55, 191, 195, 93, 185, 70, 118, 53, 78, 156, 126,~</span></span>
+<span id="cb1-18"><a href="#cb1-18"></a><span class="co">## $ platelet    &lt;int&gt; 336, 173, 214, 144, 362, 261, 426, 172, 349, 467, 307~</span></span>
+<span id="cb1-19"><a href="#cb1-19"></a><span class="co">## $ protime     &lt;dbl&gt; 11.4, 11.6, 11.7, 13.0, 10.6, 10.0, 10.9, 10.2, 11.1,~</span></span>
+<span id="cb1-20"><a href="#cb1-20"></a><span class="co">## $ stage       &lt;ord&gt; 4, 4, 4, 4, 1, 3, 3, 2, 2, 3, 3, 3, 4, 2, 3, 3, 2, 3,~</span></span>
+<span id="cb1-21"><a href="#cb1-21"></a><span class="co">## $ time        &lt;int&gt; 3445, 673, 264, 549, 2386, 2769, 3707, 3820, 3086, 23~</span></span>
+<span id="cb1-22"><a href="#cb1-22"></a><span class="co">## $ status      &lt;dbl&gt; 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1,~</span></span>
+<span id="cb1-23"><a href="#cb1-23"></a><span class="co">## $ pred_aorsf  &lt;dbl&gt; 0.36491173, 0.68970669, 0.98179507, 0.98850628, 0.492~</span></span>
+<span id="cb1-24"><a href="#cb1-24"></a><span class="co">## $ pred_rfsrc  &lt;dbl&gt; 0.24242178, 0.47483623, 0.87523838, 0.87005877, 0.567~</span></span>
+<span id="cb1-25"><a href="#cb1-25"></a><span class="co">## $ pred_ranger &lt;dbl&gt; 0.22456672, 0.48945363, 0.78824669, 0.78077928, 0.593~</span></span></code></pre><p></p></div>
 <p>And finish by aggregating the predictions and computing performance in
 the testing data. Note that I am computing one statistic for all
 predictions instead of computing one statistic for each fold. This
@@ -593,12 +673,19 @@ counts.</p>
 <span id="cb1-49"><a href="#cb1-49"></a><span class="co">## </span><span class="al">NOTE</span><span class="co">: Values are multiplied by 100 and given in %.</span></span>
 <span id="cb1-50"><a href="#cb1-50"></a></span>
 <span id="cb1-51"><a href="#cb1-51"></a><span class="co">## </span><span class="al">NOTE</span><span class="co">: The lower Brier the better, the higher IPA the better.</span></span></code></pre><p></p></div>
-<p>On inspection, we find the <code>aorsf</code> workflow obtained slightly higher
-discrimination (AUC) and higher index of prediction accuracy (IPA)
-compared to the others.</p>
+<p>From inspection,</p><ul><li><p><code>aorsf</code> obtained slightly higher discrimination (AUC)</p></li>
+<li><p><code>aorsf</code> obtained higher index of prediction accuracy (IPA)</p></li>
+<li><p>Way to go, <code>aorsf</code></p></li>
+</ul></div>
+
+
 </div>
 
+<div class="section">
+<h3 id="mlr-pipelines">mlr3 pipelines<a class="anchor" aria-label="anchor" href="#mlr-pipelines"></a></h3>
 
+
+<p>this is on hold while <code>mlr3proba</code> goes through major updates.</p>
 </div>
 
     </div>
