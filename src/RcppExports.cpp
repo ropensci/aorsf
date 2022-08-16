@@ -176,36 +176,36 @@ BEGIN_RCPP
 END_RCPP
 }
 // orsf_pred_uni
-arma::mat orsf_pred_uni(List& forest, NumericMatrix& x_new, double time_dbl, bool return_risk);
-RcppExport SEXP _aorsf_orsf_pred_uni(SEXP forestSEXP, SEXP x_newSEXP, SEXP time_dblSEXP, SEXP return_riskSEXP) {
+arma::mat orsf_pred_uni(List& forest, NumericMatrix& x_new, double time_dbl, char pred_type);
+RcppExport SEXP _aorsf_orsf_pred_uni(SEXP forestSEXP, SEXP x_newSEXP, SEXP time_dblSEXP, SEXP pred_typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List& >::type forest(forestSEXP);
     Rcpp::traits::input_parameter< NumericMatrix& >::type x_new(x_newSEXP);
     Rcpp::traits::input_parameter< double >::type time_dbl(time_dblSEXP);
-    Rcpp::traits::input_parameter< bool >::type return_risk(return_riskSEXP);
-    rcpp_result_gen = Rcpp::wrap(orsf_pred_uni(forest, x_new, time_dbl, return_risk));
+    Rcpp::traits::input_parameter< char >::type pred_type(pred_typeSEXP);
+    rcpp_result_gen = Rcpp::wrap(orsf_pred_uni(forest, x_new, time_dbl, pred_type));
     return rcpp_result_gen;
 END_RCPP
 }
 // orsf_pred_multi
-arma::mat orsf_pred_multi(List& forest, NumericMatrix& x_new, NumericVector& time_vec, bool return_risk);
-RcppExport SEXP _aorsf_orsf_pred_multi(SEXP forestSEXP, SEXP x_newSEXP, SEXP time_vecSEXP, SEXP return_riskSEXP) {
+arma::mat orsf_pred_multi(List& forest, NumericMatrix& x_new, NumericVector& time_vec, char pred_type);
+RcppExport SEXP _aorsf_orsf_pred_multi(SEXP forestSEXP, SEXP x_newSEXP, SEXP time_vecSEXP, SEXP pred_typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List& >::type forest(forestSEXP);
     Rcpp::traits::input_parameter< NumericMatrix& >::type x_new(x_newSEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type time_vec(time_vecSEXP);
-    Rcpp::traits::input_parameter< bool >::type return_risk(return_riskSEXP);
-    rcpp_result_gen = Rcpp::wrap(orsf_pred_multi(forest, x_new, time_vec, return_risk));
+    Rcpp::traits::input_parameter< char >::type pred_type(pred_typeSEXP);
+    rcpp_result_gen = Rcpp::wrap(orsf_pred_multi(forest, x_new, time_vec, pred_type));
     return rcpp_result_gen;
 END_RCPP
 }
 // pd_new_smry
-arma::mat pd_new_smry(List& forest, NumericMatrix& x_new_, IntegerVector& x_cols_, NumericMatrix& x_vals_, NumericVector& probs_, const double time_dbl, const bool return_risk);
-RcppExport SEXP _aorsf_pd_new_smry(SEXP forestSEXP, SEXP x_new_SEXP, SEXP x_cols_SEXP, SEXP x_vals_SEXP, SEXP probs_SEXP, SEXP time_dblSEXP, SEXP return_riskSEXP) {
+arma::mat pd_new_smry(List& forest, NumericMatrix& x_new_, IntegerVector& x_cols_, NumericMatrix& x_vals_, NumericVector& probs_, const double time_dbl, char pred_type);
+RcppExport SEXP _aorsf_pd_new_smry(SEXP forestSEXP, SEXP x_new_SEXP, SEXP x_cols_SEXP, SEXP x_vals_SEXP, SEXP probs_SEXP, SEXP time_dblSEXP, SEXP pred_typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -215,14 +215,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix& >::type x_vals_(x_vals_SEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type probs_(probs_SEXP);
     Rcpp::traits::input_parameter< const double >::type time_dbl(time_dblSEXP);
-    Rcpp::traits::input_parameter< const bool >::type return_risk(return_riskSEXP);
-    rcpp_result_gen = Rcpp::wrap(pd_new_smry(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk));
+    Rcpp::traits::input_parameter< char >::type pred_type(pred_typeSEXP);
+    rcpp_result_gen = Rcpp::wrap(pd_new_smry(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, pred_type));
     return rcpp_result_gen;
 END_RCPP
 }
 // pd_oob_smry
-arma::mat pd_oob_smry(List& forest, NumericMatrix& x_new_, IntegerVector& x_cols_, NumericMatrix& x_vals_, NumericVector& probs_, const double time_dbl, const bool return_risk);
-RcppExport SEXP _aorsf_pd_oob_smry(SEXP forestSEXP, SEXP x_new_SEXP, SEXP x_cols_SEXP, SEXP x_vals_SEXP, SEXP probs_SEXP, SEXP time_dblSEXP, SEXP return_riskSEXP) {
+arma::mat pd_oob_smry(List& forest, NumericMatrix& x_new_, IntegerVector& x_cols_, NumericMatrix& x_vals_, NumericVector& probs_, const double time_dbl, char pred_type);
+RcppExport SEXP _aorsf_pd_oob_smry(SEXP forestSEXP, SEXP x_new_SEXP, SEXP x_cols_SEXP, SEXP x_vals_SEXP, SEXP probs_SEXP, SEXP time_dblSEXP, SEXP pred_typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -232,14 +232,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix& >::type x_vals_(x_vals_SEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type probs_(probs_SEXP);
     Rcpp::traits::input_parameter< const double >::type time_dbl(time_dblSEXP);
-    Rcpp::traits::input_parameter< const bool >::type return_risk(return_riskSEXP);
-    rcpp_result_gen = Rcpp::wrap(pd_oob_smry(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk));
+    Rcpp::traits::input_parameter< char >::type pred_type(pred_typeSEXP);
+    rcpp_result_gen = Rcpp::wrap(pd_oob_smry(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, pred_type));
     return rcpp_result_gen;
 END_RCPP
 }
 // pd_new_ice
-arma::mat pd_new_ice(List& forest, NumericMatrix& x_new_, IntegerVector& x_cols_, NumericMatrix& x_vals_, NumericVector& probs_, const double time_dbl, const bool return_risk);
-RcppExport SEXP _aorsf_pd_new_ice(SEXP forestSEXP, SEXP x_new_SEXP, SEXP x_cols_SEXP, SEXP x_vals_SEXP, SEXP probs_SEXP, SEXP time_dblSEXP, SEXP return_riskSEXP) {
+arma::mat pd_new_ice(List& forest, NumericMatrix& x_new_, IntegerVector& x_cols_, NumericMatrix& x_vals_, NumericVector& probs_, const double time_dbl, char pred_type);
+RcppExport SEXP _aorsf_pd_new_ice(SEXP forestSEXP, SEXP x_new_SEXP, SEXP x_cols_SEXP, SEXP x_vals_SEXP, SEXP probs_SEXP, SEXP time_dblSEXP, SEXP pred_typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -249,14 +249,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix& >::type x_vals_(x_vals_SEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type probs_(probs_SEXP);
     Rcpp::traits::input_parameter< const double >::type time_dbl(time_dblSEXP);
-    Rcpp::traits::input_parameter< const bool >::type return_risk(return_riskSEXP);
-    rcpp_result_gen = Rcpp::wrap(pd_new_ice(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk));
+    Rcpp::traits::input_parameter< char >::type pred_type(pred_typeSEXP);
+    rcpp_result_gen = Rcpp::wrap(pd_new_ice(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, pred_type));
     return rcpp_result_gen;
 END_RCPP
 }
 // pd_oob_ice
-arma::mat pd_oob_ice(List& forest, NumericMatrix& x_new_, IntegerVector& x_cols_, NumericMatrix& x_vals_, NumericVector& probs_, const double time_dbl, const bool return_risk);
-RcppExport SEXP _aorsf_pd_oob_ice(SEXP forestSEXP, SEXP x_new_SEXP, SEXP x_cols_SEXP, SEXP x_vals_SEXP, SEXP probs_SEXP, SEXP time_dblSEXP, SEXP return_riskSEXP) {
+arma::mat pd_oob_ice(List& forest, NumericMatrix& x_new_, IntegerVector& x_cols_, NumericMatrix& x_vals_, NumericVector& probs_, const double time_dbl, char pred_type);
+RcppExport SEXP _aorsf_pd_oob_ice(SEXP forestSEXP, SEXP x_new_SEXP, SEXP x_cols_SEXP, SEXP x_vals_SEXP, SEXP probs_SEXP, SEXP time_dblSEXP, SEXP pred_typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -266,8 +266,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< NumericMatrix& >::type x_vals_(x_vals_SEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type probs_(probs_SEXP);
     Rcpp::traits::input_parameter< const double >::type time_dbl(time_dblSEXP);
-    Rcpp::traits::input_parameter< const bool >::type return_risk(return_riskSEXP);
-    rcpp_result_gen = Rcpp::wrap(pd_oob_ice(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk));
+    Rcpp::traits::input_parameter< char >::type pred_type(pred_typeSEXP);
+    rcpp_result_gen = Rcpp::wrap(pd_oob_ice(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, pred_type));
     return rcpp_result_gen;
 END_RCPP
 }

@@ -41,27 +41,27 @@ orsf_oob_permute_vi <- function(x, y, forest, last_eval_stat, time_pred_, f_ooba
     .Call(`_aorsf_orsf_oob_permute_vi`, x, y, forest, last_eval_stat, time_pred_, f_oobag_eval, type_oobag_eval_)
 }
 
-orsf_pred_uni <- function(forest, x_new, time_dbl, return_risk) {
-    .Call(`_aorsf_orsf_pred_uni`, forest, x_new, time_dbl, return_risk)
+orsf_pred_uni <- function(forest, x_new, time_dbl, pred_type) {
+    .Call(`_aorsf_orsf_pred_uni`, forest, x_new, time_dbl, pred_type)
 }
 
-orsf_pred_multi <- function(forest, x_new, time_vec, return_risk) {
-    .Call(`_aorsf_orsf_pred_multi`, forest, x_new, time_vec, return_risk)
+orsf_pred_multi <- function(forest, x_new, time_vec, pred_type) {
+    .Call(`_aorsf_orsf_pred_multi`, forest, x_new, time_vec, pred_type)
 }
 
-pd_new_smry <- function(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk) {
-    .Call(`_aorsf_pd_new_smry`, forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk)
+pd_new_smry <- function(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, pred_type) {
+    .Call(`_aorsf_pd_new_smry`, forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, pred_type)
 }
 
-pd_oob_smry <- function(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk) {
-    .Call(`_aorsf_pd_oob_smry`, forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk)
+pd_oob_smry <- function(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, pred_type) {
+    .Call(`_aorsf_pd_oob_smry`, forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, pred_type)
 }
 
-pd_new_ice <- function(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk) {
-    .Call(`_aorsf_pd_new_ice`, forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk)
+pd_new_ice <- function(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, pred_type) {
+    .Call(`_aorsf_pd_new_ice`, forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, pred_type)
 }
 
-pd_oob_ice <- function(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk) {
-    .Call(`_aorsf_pd_oob_ice`, forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, return_risk)
+pd_oob_ice <- function(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, pred_type) {
+    .Call(`_aorsf_pd_oob_ice`, forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, pred_type)
 }
 

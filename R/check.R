@@ -1570,7 +1570,7 @@ check_predict <- function(object,
 
   check_arg_is_valid(arg_value = pred_type,
                      arg_name = 'pred_type',
-                     valid_options = c("risk", "survival"))
+                     valid_options = c("risk", "survival", "chf"))
 
  }
 

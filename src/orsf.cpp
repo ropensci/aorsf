@@ -49,6 +49,7 @@ double
  observed,
  expected,
  V,
+ pred_t0,
  leaf_min_obs,
  leaf_min_events,
  split_min_events,
@@ -68,7 +69,11 @@ int
  net_df_target,
  oobag_eval_every;
 
-char type_beta, type_oobag_eval, oobag_importance_type;
+char
+ type_beta,
+ type_oobag_eval,
+ oobag_importance_type,
+ pred_type_dflt = 'S';
 
 // armadillo unsigned integers
 uword
@@ -92,6 +97,7 @@ uword
  nn_left,
  leaf_node_counter,
  leaf_node_index_counter,
+ leaf_node_col,
  oobag_eval_counter;
 
 bool
@@ -1924,10 +1930,26 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
 
 
 
-void oobag_pred_surv_uni(){
+void oobag_pred_surv_uni(char pred_type){
 
  iit_vals = sort_index(leaf_pred, "ascend");
  iit = iit_vals.begin();
+
+ switch(pred_type){
+
+ case 'S': case 'R':
+
+  leaf_node_col = 1;
+  pred_t0 = 1;
+  break;
+
+ case 'H':
+
+  leaf_node_col = 2;
+  pred_t0 = 0;
+  break;
+
+ }
 
  do {
 
@@ -1955,12 +1977,12 @@ void oobag_pred_surv_uni(){
    for(; i < leaf_node.n_rows; i++){
     if (leaf_node.at(i, 0) > time_pred){
      if(i == 0)
-      temp1 = 1;
+      temp1 = pred_t0;
      else
-      temp1 = leaf_node.at(i-1, 1);
+      temp1 = leaf_node.at(i-1, leaf_node_col);
      break;
     } else if (leaf_node.at(i, 0) == time_pred){
-     temp1 = leaf_node.at(i, 1);
+     temp1 = leaf_node.at(i, leaf_node_col);
      break;
     }
    }
@@ -1968,7 +1990,7 @@ void oobag_pred_surv_uni(){
   } else {
 
    // go here if prediction horizon > max time in current leaf.
-   temp1 = leaf_node.at(leaf_node.n_rows - 1, 1);
+   temp1 = leaf_node.at(leaf_node.n_rows - 1, leaf_node_col);
 
   }
 
@@ -2052,7 +2074,7 @@ double oobag_c_harrell_testthat(NumericMatrix y_mat,
 
 }
 
-void new_pred_surv_multi_mean(){
+void new_pred_surv_multi_mean(char pred_type){
 
  // allocate memory for output
  // surv_pvec.zeros(x_pred.n_rows);
@@ -2060,6 +2082,22 @@ void new_pred_surv_multi_mean(){
  surv_pvec.set_size(times_pred.size());
  iit_vals = sort_index(leaf_pred, "ascend");
  iit = iit_vals.begin();
+
+ switch(pred_type){
+
+ case 'S': case 'R':
+
+  leaf_node_col = 1;
+  pred_t0 = 1;
+  break;
+
+ case 'H':
+
+  leaf_node_col = 2;
+  pred_t0 = 0;
+  break;
+
+ }
 
  do {
 
@@ -2091,15 +2129,15 @@ void new_pred_surv_multi_mean(){
      if (leaf_node(i, 0) > time_pred){
 
       if(i == 0)
-       temp1 = 1;
+       temp1 = pred_t0;
       else
-       temp1 = leaf_node(i-1, 1);
+       temp1 = leaf_node(i-1, leaf_node_col);
 
       break;
 
      } else if (leaf_node(i, 0) == time_pred){
 
-      temp1 = leaf_node(i, 1);
+      temp1 = leaf_node(i, leaf_node_col);
       break;
 
      }
@@ -2109,15 +2147,13 @@ void new_pred_surv_multi_mean(){
    } else {
 
     // go here if prediction horizon > max time in current leaf.
-    temp1 = leaf_node(leaf_node.n_rows - 1, 1);
+    temp1 = leaf_node(leaf_node.n_rows - 1, leaf_node_col);
 
    }
 
    surv_pvec(j) = temp1;
 
   }
-
-
 
   surv_pmat.row(*iit) += surv_pvec.t();
   ++iit;
@@ -2139,109 +2175,32 @@ void new_pred_surv_multi_mean(){
 
 }
 
-// void new_pred_surv_multi_median(){
-//
-//  // allocate memory for output
-//  // surv_pvec.zeros(x_pred.n_rows);
-//
-//  surv_pvec.set_size(times_pred.size());
-//  iit_vals = sort_index(leaf_pred, "ascend");
-//  iit = iit_vals.begin();
-//
-//  do {
-//
-//   person_leaf = leaf_pred(*iit);
-//
-//   for(i = 0; i < leaf_indices.n_rows; i++){
-//    if(leaf_indices.at(i, 0) == person_leaf){
-//     break;
-//    }
-//   }
-//
-//   leaf_node = leaf_nodes.rows(leaf_indices(i, 1),
-//                               leaf_indices(i, 2));
-//
-//   if(verbose > 1){
-//    Rcout << "leaf_node:" << std::endl << leaf_node << std::endl;
-//   }
-//
-//   i = 0;
-//
-//   for(j = 0; j < times_pred.size(); j++){
-//
-//    time_pred = times_pred(j);
-//
-//    if(time_pred < leaf_node(leaf_node.n_rows - 1, 0)){
-//
-//     for(; i < leaf_node.n_rows; i++){
-//
-//      if (leaf_node(i, 0) > time_pred){
-//
-//       if(i == 0)
-//        temp1 = 1;
-//       else
-//        temp1 = leaf_node(i-1, 1);
-//
-//       break;
-//
-//      } else if (leaf_node(i, 0) == time_pred){
-//
-//       temp1 = leaf_node(i, 1);
-//       break;
-//
-//      }
-//
-//     }
-//
-//    } else {
-//
-//     // go here if prediction horizon > max time in current leaf.
-//     temp1 = leaf_node(leaf_node.n_rows - 1, 1);
-//
-//    }
-//
-//    surv_pvec(j) = temp1;
-//
-//   }
-//
-//
-//   for(i = 0; i < times_pred.size(); i++){
-//    surv_pcube(tree, *iit, i) = surv_pvec[i];
-//   }
-//
-//   ++iit;
-//
-//   if(iit < iit_vals.end()){
-//
-//    while(person_leaf == leaf_pred(*iit)){
-//
-//     for(i = 0; i < times_pred.size(); i++){
-//      surv_pcube(tree, *iit, i) = surv_pvec[i];
-//     }
-//
-//     ++iit;
-//
-//     if (iit == iit_vals.end()) break;
-//
-//    }
-//
-//   }
-//
-//  } while (iit < iit_vals.end());
-//
-// }
-
-
 // naming pattern
 // new for new data, oob for training
 // pred for predict
 // surv for survival
 // uni for one time, multi for many times
 // mean for mean prediction, median for median prediction
-void new_pred_surv_uni_mean(){
+void new_pred_surv_uni_mean(char pred_type){
 
  iit_vals = sort_index(leaf_pred, "ascend");
  iit = iit_vals.begin();
+
+ switch(pred_type){
+
+ case 'S': case 'R':
+
+  leaf_node_col = 1;
+  pred_t0 = 1;
+  break;
+
+ case 'H':
+
+  leaf_node_col = 2;
+  pred_t0 = 0;
+  break;
+
+ }
 
  do {
 
@@ -2269,11 +2228,11 @@ void new_pred_surv_uni_mean(){
 
      if(i == 0){
 
-      temp1 = 1;
+      temp1 = pred_t0;
 
      } else {
 
-      temp1 = leaf_node(i - 1, 1);
+      temp1 = leaf_node.at(i - 1, leaf_node_col);
 
       // experimental - does not seem to help!
       // weighted average of surv est from before and after time of pred
@@ -2287,19 +2246,19 @@ void new_pred_surv_uni_mean(){
      break;
 
     } else if (leaf_node.at(i, 0) == time_pred){
-     temp1 = leaf_node.at(i, 1);
+     temp1 = leaf_node.at(i, leaf_node_col);
      break;
     }
    }
 
   } else if (time_pred == leaf_node.at(leaf_node.n_rows - 1, 0)){
 
-   temp1 = leaf_node.at(leaf_node.n_rows - 1, 1);
+   temp1 = leaf_node.at(leaf_node.n_rows - 1, leaf_node_col);
 
   } else {
 
    // go here if prediction horizon > max time in current leaf.
-   temp1 = leaf_node(leaf_node.n_rows - 1, 1);
+   temp1 = leaf_node(leaf_node.n_rows - 1, leaf_node_col);
 
    // --- EXPERIMENTAL ADD-ON --- //
    // if you are predicting beyond the max time in a node,
@@ -2312,8 +2271,6 @@ void new_pred_surv_uni_mean(){
    // temp1 = temp1 * (1.0-temp2);
 
   }
-
-  // cumulative hazard prediction
 
   surv_pvec(*iit) += temp1;
   ++iit;
@@ -3253,7 +3210,7 @@ List orsf_fit(NumericMatrix& x,
 
    denom_pred(rows_oobag) += 1;
    ostree_pred_leaf();
-   oobag_pred_surv_uni();
+   oobag_pred_surv_uni(pred_type_dflt);
 
    if(tree % oobag_eval_every == 0){
 
@@ -3347,7 +3304,7 @@ List orsf_fit(NumericMatrix& x,
 
     ostree_pred_leaf();
 
-    oobag_pred_surv_uni();
+    oobag_pred_surv_uni(pred_type_dflt);
 
     if(oobag_importance_type == 'N'){
      betas.elem( betas_to_flip ) *= (-1);
@@ -3446,7 +3403,7 @@ arma::vec orsf_oob_negate_vi(NumericMatrix& x,
 
    ostree_pred_leaf();
 
-   oobag_pred_surv_uni();
+   oobag_pred_surv_uni(pred_type_dflt);
 
    betas.elem( betas_to_flip ) *= (-1);
 
@@ -3526,7 +3483,7 @@ arma::vec orsf_oob_permute_vi(NumericMatrix& x,
 
    ostree_pred_leaf();
 
-   oobag_pred_surv_uni();
+   oobag_pred_surv_uni(pred_type_dflt);
 
    // x_variable = x_variable_original;
    // x_input.col(variable) = x_variable;
@@ -3563,7 +3520,7 @@ arma::vec orsf_oob_permute_vi(NumericMatrix& x,
 arma::mat orsf_pred_uni(List& forest,
                         NumericMatrix& x_new,
                         double time_dbl,
-                        bool return_risk){
+                        char pred_type){
 
  x_pred = mat(x_new.begin(), x_new.nrow(), x_new.ncol(), false);
  time_pred = time_dbl;
@@ -3576,12 +3533,12 @@ arma::mat orsf_pred_uni(List& forest,
    ostree = forest[tree];
    ostree_mem_xfer();
    ostree_pred_leaf();
-   new_pred_surv_uni_mean();
+   new_pred_surv_uni_mean(pred_type);
   }
 
   surv_pvec /= tree;
 
- if(return_risk){
+ if(pred_type == 'R'){
   return(1 - surv_pvec);
  } else {
   return(surv_pvec);
@@ -3593,7 +3550,7 @@ arma::mat orsf_pred_uni(List& forest,
 arma::mat orsf_pred_multi(List& forest,
                           NumericMatrix& x_new,
                           NumericVector& time_vec,
-                          bool return_risk){
+                          char pred_type){
 
  x_pred = mat(x_new.begin(), x_new.nrow(), x_new.ncol(), false);
  times_pred = vec(time_vec.begin(), time_vec.length(), false);
@@ -3608,12 +3565,12 @@ arma::mat orsf_pred_multi(List& forest,
    ostree = forest[tree];
    ostree_mem_xfer();
    ostree_pred_leaf();
-   new_pred_surv_multi_mean();
+   new_pred_surv_multi_mean(pred_type);
   }
 
   surv_pmat /= tree;
 
- if(return_risk){
+ if(pred_type == 'R'){
   return(1 - surv_pmat);
  } else {
   return(surv_pmat);
@@ -3628,7 +3585,7 @@ arma::mat pd_new_smry(List&          forest,
                       NumericMatrix& x_vals_,
                       NumericVector& probs_,
                       const double   time_dbl,
-                      const bool     return_risk){
+                      char     pred_type){
 
 
  uword pd_i;
@@ -3667,12 +3624,12 @@ arma::mat pd_new_smry(List&          forest,
    ostree = forest[tree];
    ostree_mem_xfer();
    ostree_pred_leaf();
-   new_pred_surv_uni_mean();
+   new_pred_surv_uni_mean(pred_type);
   }
 
   surv_pvec /= tree;
 
-  if(return_risk){ surv_pvec = 1 - surv_pvec; }
+  if(pred_type == 'R'){ surv_pvec = 1 - surv_pvec; }
 
   output_means.col(pd_i) = mean(surv_pvec);
   output_quantiles.col(pd_i) = quantile(surv_pvec, probs);
@@ -3693,7 +3650,7 @@ arma::mat pd_oob_smry(List&          forest,
                       NumericMatrix& x_vals_,
                       NumericVector& probs_,
                       const double   time_dbl,
-                      const bool     return_risk){
+                      char     pred_type){
 
 
  uword pd_i;
@@ -3745,12 +3702,12 @@ arma::mat pd_oob_smry(List&          forest,
 
    ostree_mem_xfer();
    ostree_pred_leaf();
-   oobag_pred_surv_uni();
+   oobag_pred_surv_uni(pred_type_dflt);
 
 
   }
 
-  if(return_risk){ surv_pvec = 1 - surv_pvec; }
+  if(pred_type == 'R'){ surv_pvec = 1 - surv_pvec; }
 
   output_means.col(pd_i) = mean(surv_pvec);
   output_quantiles.col(pd_i) = quantile(surv_pvec, probs);
@@ -3770,7 +3727,7 @@ arma::mat pd_new_ice(List&          forest,
                      NumericMatrix& x_vals_,
                      NumericVector& probs_,
                      const double   time_dbl,
-                     const bool     return_risk){
+                     char     pred_type){
 
 
  uword pd_i;
@@ -3812,12 +3769,12 @@ arma::mat pd_new_ice(List&          forest,
    ostree = forest[tree];
    ostree_mem_xfer();
    ostree_pred_leaf();
-   new_pred_surv_uni_mean();
+   new_pred_surv_uni_mean(pred_type);
   }
 
   surv_pvec /= tree;
 
-  if(return_risk){ surv_pvec = 1 - surv_pvec; }
+  if(pred_type == 'R'){ surv_pvec = 1 - surv_pvec; }
 
   output_ids(pd_rows).fill(pd_i+1);
   output_pds(pd_rows) = surv_pvec;
@@ -3837,7 +3794,7 @@ arma::mat pd_oob_ice(List&          forest,
                      NumericMatrix& x_vals_,
                      NumericVector& probs_,
                      const double   time_dbl,
-                     const bool     return_risk){
+                     char     pred_type){
 
 
  uword pd_i;
@@ -3891,12 +3848,12 @@ arma::mat pd_oob_ice(List&          forest,
 
    ostree_mem_xfer();
    ostree_pred_leaf();
-   oobag_pred_surv_uni();
+   oobag_pred_surv_uni(pred_type_dflt);
 
 
   }
 
-  if(return_risk){ surv_pvec = 1 - surv_pvec; }
+  if(pred_type == 'R'){ surv_pvec = 1 - surv_pvec; }
 
   output_ids(pd_rows).fill(pd_i+1);
   output_pds(pd_rows) = surv_pvec;

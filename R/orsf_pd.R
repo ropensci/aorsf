@@ -314,7 +314,12 @@ orsf_pred_dependence <- function(object,
                           "FALSE_ice" = pd_new_ice,
                           "FALSE_smry" = pd_new_smry)
 
- risk <- pred_type == 'risk'
+ pred_type_cpp <- switch(
+  pred_type,
+  "risk"     = "R",
+  "survival" = "S",
+  "chf"      = "H"
+ )
 
  out_list <- lapply(
 
@@ -331,7 +336,7 @@ orsf_pred_dependence <- function(object,
                     prob_values,
                     prob_labels,
                     oobag,
-                    risk)
+                    pred_type_cpp)
 
   }
 
@@ -377,7 +382,7 @@ pd_grid <- function(object,
                     prob_values,
                     prob_labels,
                     oobag,
-                    risk){
+                    pred_type_cpp){
 
  if(!is.data.frame(pred_spec))
   pred_spec <- expand.grid(pred_spec, stringsAsFactors = TRUE)
@@ -414,7 +419,7 @@ pd_grid <- function(object,
                            x_vals_     = as.matrix(pred_spec_new),
                            probs_      = prob_values,
                            time_dbl    = pred_horizon,
-                           return_risk = risk)
+                           pred_type   = pred_type_cpp)
 
  if(type_output == 'smry'){
 
@@ -464,7 +469,7 @@ pd_loop <- function(object,
                     prob_values,
                     prob_labels,
                     oobag,
-                    risk){
+                    pred_type_cpp){
 
  fi <- get_fctr_info(object)
 
@@ -503,7 +508,7 @@ pd_loop <- function(object,
                             x_vals_     = as.matrix(pd_new),
                             probs_      = prob_values,
                             time_dbl    = pred_horizon,
-                            return_risk = risk)
+                            pred_type   = pred_type_cpp)
 
 
   # pd_fun_predict modifies x_new by reference, so reset it.

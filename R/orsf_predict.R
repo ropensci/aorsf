@@ -27,6 +27,7 @@
 #'
 #'   - 'risk' : probability of having an event at or before `pred_horizon`.
 #'   - 'survival' : 1 - risk.
+#'   - 'chf': cumulative hazard function
 #'
 #' @param ... `r roxy_dots()`
 #'
@@ -97,12 +98,17 @@ predict.orsf_fit <- function(object,
            names_x_data = names_x_data)
  )
 
- risk <- pred_type == 'risk'
+ pred_type_cpp <- switch(
+  pred_type,
+  "risk"     = "R",
+  "survival" = "S",
+  "chf"      = "H"
+ )
 
  if(length(pred_horizon) == 1L)
-  return(orsf_pred_uni(object$forest, x_new, pred_horizon, risk))
+  return(orsf_pred_uni(object$forest, x_new, pred_horizon, pred_type_cpp))
 
- orsf_pred_multi(object$forest, x_new, pred_horizon, risk)
+ orsf_pred_multi(object$forest, x_new, pred_horizon, pred_type_cpp)
 
 }
 
