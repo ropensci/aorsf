@@ -94,7 +94,7 @@ orsf_fit <- pbc_orsf |>
 
 For more on PD, see the [vignette](https://bcjaeger.github.io/aorsf/articles/pd.html)
 
-### Individual conditional expectaions (ICE)
+### Individual conditional expectations (ICE)
 
 `r aorsf:::roxy_ice_explain()`
 

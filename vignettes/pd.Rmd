@@ -58,7 +58,7 @@ You can compute PD three ways with `aorsf`:
 
   ```{r}
   
-  pd_inb <- orsf_pd_inb(fit, pd_spec = list(bili = 1:5))
+  pd_inb <- orsf_pd_inb(fit, pred_spec = list(bili = 1:5))
   
   pd_inb
   
@@ -68,7 +68,7 @@ You can compute PD three ways with `aorsf`:
 
   ```{r}
   
-  pd_oob <- orsf_pd_oob(fit, pd_spec = list(bili = 1:5))
+  pd_oob <- orsf_pd_oob(fit, pred_spec = list(bili = 1:5))
   
   pd_oob
   
@@ -80,7 +80,7 @@ You can compute PD three ways with `aorsf`:
   
   pd_test <- orsf_pd_new(fit, 
                          new_data = pbc_orsf_test, 
-                         pd_spec = list(bili = 1:5))
+                         pred_spec = list(bili = 1:5))
   
   pd_test
   
@@ -110,7 +110,7 @@ Computing PD for a single variable is straightforward:
 
 ```{r}
 
-pd_sex <- orsf_pd_oob(fit, pd_spec = list(sex = c("m", "f")))
+pd_sex <- orsf_pd_oob(fit, pred_spec = list(sex = c("m", "f")))
 
 pd_sex
 
@@ -124,7 +124,7 @@ What if the effect of a predictor varies over time? PD can show this.
 
 ```{r}
 
-pd_sex_tv <- orsf_pd_oob(fit, pd_spec = list(sex = c("m", "f")),
+pd_sex_tv <- orsf_pd_oob(fit, pred_spec = list(sex = c("m", "f")),
                          pred_horizon = seq(365, 365*5))
 
 ggplot(pd_sex_tv, aes(x = pred_horizon, y = mean, color = sex)) + 
@@ -154,13 +154,13 @@ ggplot(ratio_tv, aes(x = pred_horizon, y = ratio)) +
 
 ## Multiple variables, marginally
 
-If you want to compute PD marginally for multiple variables, just list the variable values in `pd_spec` and specify `expand_grid = FALSE`. 
+If you want to compute PD marginally for multiple variables, just list the variable values in `pred_spec` and specify `expand_grid = FALSE`. 
 
 ```{r}
 
 pd_two_vars <-  
  orsf_pd_oob(fit,
-             pd_spec = list(sex = c("m", "f"), bili = 1:5),
+             pred_spec = list(sex = c("m", "f"), bili = 1:5),
              expand_grid = FALSE)
 
 pd_two_vars
@@ -192,11 +192,11 @@ PD can show the expected value of a model's predictions as a function of a speci
 
 ```{r, -orsf_pd}
 
-pd_spec = list(bili = seq(1, 5, length.out = 20),
+pred_spec = list(bili = seq(1, 5, length.out = 20),
                edema = levels(pbc_orsf_train$edema),
                trt = levels(pbc_orsf$trt))
 
-pd_bili_edema <- orsf_pd_oob(fit, pd_spec)
+pd_bili_edema <- orsf_pd_oob(fit, pred_spec)
 
 library(ggplot2)
 
@@ -251,9 +251,9 @@ I am going to turn off boundary checking in `orsf_ice_oob` by setting `boundary_
 
   ```{r}
   
-  pd_spec <- list(bili = seq(1, 10, length.out = 25))
+  pred_spec <- list(bili = seq(1, 10, length.out = 25))
   
-  ice_oob <- orsf_ice_oob(fit, pd_spec, boundary_checks = FALSE)
+  ice_oob <- orsf_ice_oob(fit, pred_spec, boundary_checks = FALSE)
   
   ice_oob
                        
