@@ -1530,6 +1530,25 @@ check_predict <- function(object,
 
  }
 
+ if(!is.null(pred_type)){
+
+  check_arg_type(arg_value = pred_type,
+                 arg_name = 'pred_type',
+                 expected_type = 'character')
+
+  check_arg_length(arg_value = pred_type,
+                   arg_name = 'pred_type',
+                   expected_length = 1)
+
+  check_arg_is_valid(arg_value = pred_type,
+                     arg_name = 'pred_type',
+                     valid_options = c("risk",
+                                       "surv",
+                                       "chf",
+                                       "mort"))
+
+ }
+
  if(!is.null(pred_horizon)){
 
   check_arg_type(arg_value = pred_horizon,
@@ -1556,23 +1575,8 @@ check_predict <- function(object,
         call. = FALSE)
   }
 
- }
+}
 
- if(!is.null(pred_type)){
-
-  check_arg_type(arg_value = pred_type,
-                 arg_name = 'pred_type',
-                 expected_type = 'character')
-
-  check_arg_length(arg_value = pred_type,
-                   arg_name = 'pred_type',
-                   expected_length = 1)
-
-  check_arg_is_valid(arg_value = pred_type,
-                     arg_name = 'pred_type',
-                     valid_options = c("risk", "survival", "chf"))
-
- }
 
 
 }

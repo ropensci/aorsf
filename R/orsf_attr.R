@@ -47,6 +47,7 @@ get_f_oobag_eval       <- function(object) attr(object, 'f_oobag_eval')
 get_type_oobag_eval    <- function(object) attr(object, 'type_oobag_eval')
 get_tree_seeds         <- function(object) attr(object, 'tree_seeds')
 get_weights_user       <- function(object) attr(object, 'weights_user')
+get_event_times        <- function(object) attr(object, 'event_times')
 
 #' ORSF status
 #'

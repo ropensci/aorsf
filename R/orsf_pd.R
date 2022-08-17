@@ -316,9 +316,10 @@ orsf_pred_dependence <- function(object,
 
  pred_type_cpp <- switch(
   pred_type,
-  "risk"     = "R",
-  "survival" = "S",
-  "chf"      = "H"
+  "risk" = "R",
+  "surv" = "S",
+  "chf"  = "H",
+  "mort" = "M"
  )
 
  out_list <- lapply(

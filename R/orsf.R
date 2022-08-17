@@ -35,6 +35,10 @@
 #' @srrstats {ML6.1} *clearly document how aorsf can be embedded within a typical full ML workflow.*
 #' @srrstats {ML6.1a} *Embed aorsf within a full workflow using tidymodels, tidyverse, and survivalROC.*
 #' @srrstats {ML5.2b} *Documentation includes examples of how to save and re-load trained model objects for their re-use.*
+#' @srrstats {ML2.3} *Values associated with transformations are recorded in the object returned by orsf()*
+#' @srrstats {ML1.3} *Input data are partitioned as training (in-bag) and test (out-of-bag) data within orsf_fit().*
+#' @srrstats {ML4.1} *orsf_fit() retains information on model-internal parameters.*
+#' @srrstats {ML4.1a} *orsf_fit() output includes all model-internal parameters, specifically the linear combination coefficients.*
 #'
 #' @param data a `r roxy_data_allowed()` that contains the
 #'  relevant variables.
@@ -586,15 +590,6 @@ orsf <- function(data,
  x_sort <- x[sorted, ]
  y_sort <- y[sorted, ]
 
- #' @srrstats {ML2.3} *Values associated with transformations are recorded in the object returned by orsf()*
- #'
- #' @srrstats {ML1.3} *Input data are partitioned as training (in-bag) and test (out-of-bag) data within orsf_fit().*
- #'
- #' @srrstats {ML4.1} *orsf_fit() retains information on model-internal parameters.*
- #'
- #' @srrstats {ML4.1a} *orsf_fit() output includes all model-internal parameters, specifically the linear combination coefficients.*
- #'
-
  if(is.null(tree_seeds)) tree_seeds <- vector(mode = 'integer', length = 0L)
 
  orsf_out <- orsf_fit(
@@ -694,6 +689,7 @@ orsf <- function(data,
  attr(orsf_out, "types_x")          <- types_x_data
  attr(orsf_out, 'n_events')         <- n_events
  attr(orsf_out, 'max_time')         <- y_sort[nrow(y_sort), 1]
+ attr(orsf_out, 'event_times')      <- unique(y_sort[ y_sort[,2]==1, 1])
  attr(orsf_out, "unit_info")        <- c(ui_y, ui_x)
  attr(orsf_out, "fctr_info")        <- fi
  attr(orsf_out, 'n_leaves_mean')    <- n_leaves_mean

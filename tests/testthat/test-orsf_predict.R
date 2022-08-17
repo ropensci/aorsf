@@ -56,7 +56,7 @@ test_that(
 p2 <- predict(aorsf,
               new_data = new_data,
               pred_horizon = 1000,
-              pred_type = 'survival')
+              pred_type = 'surv')
 
 test_that(
  desc = 'risk is inverse of survival',
@@ -71,7 +71,7 @@ test_that(
    p2_1row <- predict(aorsf,
                       new_data = new_data[i,],
                       pred_horizon = 1000,
-                      pred_type = 'survival')
+                      pred_type = 'surv')
 
    expect_equal(p2_1row, p2[i], ignore_attr = TRUE, tolerance = 0.015)
   }
@@ -88,7 +88,7 @@ test_that(
   preds <- predict(aorsf,
                    new_data = new_data[new_order, ],
                    pred_horizon = 1000,
-                   pred_type = 'survival')
+                   pred_type = 'surv')
 
   expect_equal(preds, p2[new_order], ignore_attr = TRUE)
 

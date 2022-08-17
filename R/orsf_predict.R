@@ -26,8 +26,12 @@
 #'   options are
 #'
 #'   - 'risk' : probability of having an event at or before `pred_horizon`.
-#'   - 'survival' : 1 - risk.
+#'   - 'surv' : 1 - risk.
 #'   - 'chf': cumulative hazard function
+#'   - 'mort': mortality prediction
+#'
+#' When `pred_type` is 'mort', it is not necessary to specify `pred_horizon`
+#' since `mort` predictions are aggregated over all event times.
 #'
 #' @param ... `r roxy_dots()`
 #'
@@ -68,7 +72,7 @@
 #'
 predict.orsf_fit <- function(object,
                              new_data,
-                             pred_horizon,
+                             pred_horizon = NULL,
                              pred_type = 'risk',
                              ...){
 
@@ -92,6 +96,11 @@ predict.orsf_fit <- function(object,
 
  check_predict(object, new_data, pred_horizon, pred_type)
 
+ if(is.null(pred_horizon) && pred_type != 'mort'){
+  stop("pred_horizon must be specified for",
+       pred_type, " predictions.", call. = FALSE)
+ }
+
  x_new <- as.matrix(
   ref_code(x_data = new_data,
            fi = get_fctr_info(object),
@@ -100,10 +109,15 @@ predict.orsf_fit <- function(object,
 
  pred_type_cpp <- switch(
   pred_type,
-  "risk"     = "R",
-  "survival" = "S",
-  "chf"      = "H"
+  "risk" = "R",
+  "surv" = "S",
+  "chf"  = "H",
+  "mort" = "M"
  )
+
+ if(pred_type_cpp == "M"){
+  return(orsf_pred_mort(object, x_new))
+ }
 
  if(length(pred_horizon) == 1L)
   return(orsf_pred_uni(object$forest, x_new, pred_horizon, pred_type_cpp))
@@ -112,6 +126,15 @@ predict.orsf_fit <- function(object,
 
 }
 
+orsf_pred_mort <- function(object, x_new){
 
+ pred_mat <- orsf_pred_multi(object$forest,
+                             x_new = x_new,
+                             time_vec = get_event_times(object),
+                             pred_type = 'H')
+
+ apply(pred_mat, MARGIN = 1, FUN = sum)
+
+}
 
 

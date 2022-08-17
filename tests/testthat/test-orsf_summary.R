@@ -9,12 +9,12 @@ n_variables <- 3
 
 smry_1 <- orsf_summarize_uni(object,
                              n_variables = n_variables,
-                             pred_type = 'survival')
+                             pred_type = 'surv')
 
 smry_2 <- orsf_summarize_uni(object,
                              pred_horizon = 1000,
                              n_variables = NULL,
-                             pred_type = 'survival')
+                             pred_type = 'surv')
 
 
 no_miss_list <- function(l){
@@ -40,7 +40,7 @@ test_that("output is normal", {
  expect_s3_class(smry_1, class = 'orsf_summary_uni')
  expect_true(length(unique(smry_1$dt$variable)) == n_variables)
  expect_true(smry_1$pred_horizon == object$pred_horizon)
- expect_true(smry_1$pred_type == 'survival')
+ expect_true(smry_1$pred_type == 'surv')
 
  rows_categorical_variables <- smry_1$dt$variable %in% fi$cols
  rows_numeric_variables <- !rows_categorical_variables
