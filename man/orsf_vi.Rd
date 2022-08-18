@@ -156,12 +156,12 @@ To get aggregated values across all levels of each factor, use
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi(fit_default)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper    albumin        age 
-## 0.36502660 0.28458706 0.25034721 0.19848326 0.17605634 0.17418514 
-##    protime      stage       chol        ast    spiders        sex 
-## 0.15991746 0.14385280 0.14285714 0.13717386 0.12712651 0.10798289 
-##     hepato       trig   alk.phos   platelet        trt 
-## 0.10508475 0.09961390 0.09684917 0.07621009 0.06562413
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper    albumin        age    protime 
+## 0.36502660 0.28458706 0.25034721 0.19848326 0.17605634 0.17418514 0.15991746 
+##      stage       chol        ast    spiders        sex     hepato       trig 
+## 0.14385280 0.14285714 0.13717386 0.12712651 0.10798289 0.10508475 0.09961390 
+##   alk.phos   platelet        trt 
+## 0.09684917 0.07621009 0.06562413
 }\if{html}{\out{</div>}}
 }
 
