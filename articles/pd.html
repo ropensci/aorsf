@@ -95,7 +95,7 @@
 <div class="section level2">
 <h2 id="partial-dependence-pd">Partial dependence (PD)<a class="anchor" aria-label="anchor" href="#partial-dependence-pd"></a>
 </h2>
-<p>Partial dependence shows the expected prediction from a model as a function of a single predictor or multiple predictors. The expectation is marginalized over the values of all other predictors, giving something like a multivariable adjusted estimate of the model’s prediction.</p>
+<p>Partial dependence (PD) shows the expected prediction from a model as a function of a single predictor or multiple predictors. The expectation is marginalized over the values of all other predictors, giving something like a multivariable adjusted estimate of the model’s prediction.</p>
 <p>Begin by fitting an ORSF ensemble. Set a prediction horizon of 5 years when we fit the ensemble so that any <code>aorsf</code> function that we pass this ensemble to will assume we want to compute predictions at 5 years.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -467,7 +467,7 @@
 <div class="section level2">
 <h2 id="individual-conditional-expectations-ice">Individual conditional expectations (ICE)<a class="anchor" aria-label="anchor" href="#individual-conditional-expectations-ice"></a>
 </h2>
-<p>Unlike partial dependence, which shows the expected prediction as a function of one or multiple predictors, individual conditional expectations shows the prediction for an individual observation as a function of a predictor.</p>
+<p>Unlike partial dependence, which shows the expected prediction as a function of one or multiple predictors, individual conditional expectations (ICE) show the prediction for an individual observation as a function of a predictor.</p>
 <p>Just like PD, we can compute ICE using in-bag, out-of-bag, or testing data, and the same principles apply. We’ll use out-of-bag estimates here.</p>
 </div>
 <div class="section level2">

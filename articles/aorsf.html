@@ -194,13 +194,13 @@
 <div class="section level3">
 <h3 id="partial-dependence-pd">Partial dependence (PD)<a class="anchor" aria-label="anchor" href="#partial-dependence-pd"></a>
 </h3>
-<p>Partial dependence shows the expected prediction from a model as a function of a single predictor or multiple predictors. The expectation is marginalized over the values of all other predictors, giving something like a multivariable adjusted estimate of the model’s prediction.</p>
+<p>Partial dependence (PD) shows the expected prediction from a model as a function of a single predictor or multiple predictors. The expectation is marginalized over the values of all other predictors, giving something like a multivariable adjusted estimate of the model’s prediction.</p>
 <p>For more on PD, see the <a href="https://bcjaeger.github.io/aorsf/articles/pd.html">vignette</a></p>
 </div>
 <div class="section level3">
 <h3 id="individual-conditional-expectations-ice">Individual conditional expectations (ICE)<a class="anchor" aria-label="anchor" href="#individual-conditional-expectations-ice"></a>
 </h3>
-<p>Unlike partial dependence, which shows the expected prediction as a function of one or multiple predictors, individual conditional expectations shows the prediction for an individual observation as a function of a predictor.</p>
+<p>Unlike partial dependence, which shows the expected prediction as a function of one or multiple predictors, individual conditional expectations (ICE) show the prediction for an individual observation as a function of a predictor.</p>
 <p>For more on ICE, see the <a href="https://bcjaeger.github.io/aorsf/articles/pd.html#individual-conditional-expectations-ice">vignette</a></p>
 </div>
 </div>
@@ -227,7 +227,7 @@
 <span> <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   2.414   0.012   2.427</span></span>
+<span><span class="co">#&gt;   2.049   0.016   2.069</span></span>
 <span></span>
 <span><span class="co"># and how long it takes to fit 50 cph trees</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
@@ -239,11 +239,11 @@
 <span> <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   0.064   0.000   0.065</span></span>
+<span><span class="co">#&gt;   0.054   0.000   0.053</span></span>
 <span></span>
 <span><span class="va">t1</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">t2</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span></span>
 <span><span class="co">#&gt;  elapsed </span></span>
-<span><span class="co">#&gt; 37.33846</span></span></code></pre></div>
+<span><span class="co">#&gt; 39.03774</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="aorsf-and-other-machine-learning-software">aorsf and other machine learning software<a class="anchor" aria-label="anchor" href="#aorsf-and-other-machine-learning-software"></a>
