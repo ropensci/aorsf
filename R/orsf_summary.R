@@ -365,7 +365,7 @@ print.orsf_summary_uni <- function(x, n_variables = NULL, ...){
           old = .sd_fncy,
           new = .sd_orig)
 
- invisible(object)
+ invisible(x)
 
 }
 
