@@ -3,15 +3,15 @@
 
 #' ORSF partial dependence
 #'
-#' @srrstats {G2.1a} *explicit secondary documentation of expectations on data types of all vector inputs*
-#' @srrstats {G2.0a} *documenting length by indicating these inputs are vectors and that they must have the same length as the other.*
-#'
 #' Compute partial dependence for an ORSF model.
 #' `r roxy_pd_explain()`
-#'
 #' `r roxy_pd_oob_explain('partial dependence')`
 #'
 #' @inheritParams predict.orsf_fit
+#'
+#' @srrstats {G2.1a} *explicit secondary documentation of expectations on data types of all vector inputs*
+#' @srrstats {G2.0a} *documenting length by indicating these inputs are vectors and that they must have the same length as the other.*
+#'
 #'
 #' @param pred_spec (*named list* or _data.frame_).
 #'
@@ -152,7 +152,6 @@ orsf_pd_new <- function(object,
 #'
 #' Compute individual conditional expectations for an ORSF model.
 #' `r roxy_ice_explain()`
-#'
 #' `r roxy_pd_oob_explain('individual conditional expectations')`
 #'
 #' @inheritParams orsf_pd_oob

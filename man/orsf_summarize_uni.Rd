@@ -23,13 +23,17 @@ Setting this input to a lower number will reduce computation time.}
 \item{pred_horizon}{(\emph{double}) a value or vector indicating the time(s)
 that predictions will be calibrated to. E.g., if you were predicting
 risk of incident heart failure within the next 10 years, then
-\code{pred_horizon = 10}}
+\code{pred_horizon = 10}. \code{pred_horizon} can be \code{NULL} if \code{pred_type} is
+\code{'mort'}, since mortality predictions are aggregated over all
+event times}
 
 \item{pred_type}{(\emph{character}) the type of predictions to compute. Valid
 options are
 \itemize{
 \item 'risk' : probability of having an event at or before \code{pred_horizon}.
-\item 'survival' : 1 - risk.
+\item 'surv' : 1 - risk.
+\item 'chf': cumulative hazard function
+\item 'mort': mortality prediction
 }}
 
 \item{importance}{(\emph{character}) Indicate method for variable importance:
@@ -82,4 +86,7 @@ orsf_summarize_uni(object, n_variables = 3, importance = 'none')
 orsf_summarize_uni(object, n_variables = 3, importance = 'negate')
 
 
+}
+\seealso{
+as.data.table.orsf_summary_uni
 }

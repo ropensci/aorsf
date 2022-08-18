@@ -35,6 +35,8 @@
 #'
 #' @export
 #'
+#' @seealso as.data.table.orsf_summary_uni
+#'
 #' @examples
 #'
 #' object <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
@@ -209,7 +211,7 @@ orsf_summarize_uni <- function(object,
 #'
 #' @param ... `r roxy_dots()`
 #'
-#' @return nothing - output is printed to console.
+#' @return invisibly, `x`
 #'
 #' @export
 #'
@@ -362,6 +364,8 @@ print.orsf_summary_uni <- function(x, n_variables = NULL, ...){
  setnames(x$dt,
           old = .sd_fncy,
           new = .sd_orig)
+
+ invisible(object)
 
 }
 

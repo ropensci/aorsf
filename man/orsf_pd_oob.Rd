@@ -62,13 +62,17 @@ partial dependence will be computed using the inputs on each row.
 \item{pred_horizon}{(\emph{double}) a value or vector indicating the time(s)
 that predictions will be calibrated to. E.g., if you were predicting
 risk of incident heart failure within the next 10 years, then
-\code{pred_horizon = 10}}
+\code{pred_horizon = 10}. \code{pred_horizon} can be \code{NULL} if \code{pred_type} is
+\code{'mort'}, since mortality predictions are aggregated over all
+event times}
 
 \item{pred_type}{(\emph{character}) the type of predictions to compute. Valid
 options are
 \itemize{
 \item 'risk' : probability of having an event at or before \code{pred_horizon}.
-\item 'survival' : 1 - risk.
+\item 'surv' : 1 - risk.
+\item 'chf': cumulative hazard function
+\item 'mort': mortality prediction
 }}
 
 \item{expand_grid}{(\emph{logical}) if \code{TRUE}, partial dependence will be
@@ -104,7 +108,16 @@ partial dependence values for the specified variable(s) at the
 specified prediction horizon(s).
 }
 \description{
-ORSF partial dependence
+Compute partial dependence for an ORSF model.
+Partial dependence (PD) shows the expected prediction from a model as a function of a single predictor or multiple predictors. The expectation is marginalized over the values of all other predictors, giving something like a multivariable adjusted estimate of the model's prediction.
+You can compute partial dependence three ways using a random forest:
+\itemize{
+\item using in-bag predictions for the training data
+\item using out-of-bag predictions for the training data
+\item using predictions for a new set of data
+}
+
+See examples for more details
 }
 \section{Examples}{
 Begin by fitting an ORSF ensemble:

@@ -216,7 +216,8 @@ roxy_vi_describe <- function(type){
 roxy_pd_oob_explain <- function(label){
 
  paste0("You can compute ", label, " ",
-        "two ways using a random forest: \n",
+        "three ways using a random forest: \n",
+        "- using in-bag predictions for the training data\n",
         "- using out-of-bag predictions for the training data\n",
         "- using predictions for a new set of data\n\n",
         "See examples for more details")
@@ -224,10 +225,10 @@ roxy_pd_oob_explain <- function(label){
 }
 
 roxy_pd_explain <- function(){
- "Partial dependence shows the expected prediction from a model as a function of a single predictor or multiple predictors. The expectation is marginalized over the values of all other predictors, giving something like a multivariable adjusted estimate of the model's prediction."
+ "Partial dependence (PD) shows the expected prediction from a model as a function of a single predictor or multiple predictors. The expectation is marginalized over the values of all other predictors, giving something like a multivariable adjusted estimate of the model's prediction."
 }
 
 roxy_ice_explain <- function(){
- "Unlike partial dependence, which shows the expected prediction as a function of one or multiple predictors, individual conditional expectations shows the prediction for an individual observation as a function of a predictor."
+ "Unlike partial dependence, which shows the expected prediction as a function of one or multiple predictors, individual conditional expectations (ICE) show the prediction for an individual observation as a function of a predictor."
 }
 

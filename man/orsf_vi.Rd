@@ -92,44 +92,84 @@ or not (see examples).
 \strong{analysis of variance (ANOVA) importance}: A p-value is computed for each coefficient in each linear combination of variables in each decision tree. Importance for an individual predictor variable is the proportion of times a p-value for its coefficient is < 0.01.
 }
 
-\examples{
+\section{Examples}{
+\subsection{ANOVA importance}{
 
-# first example ----------------------------------------------------------
+The default variable importance technique, ANOVA, is calculated while
+you fit an ORSF ensemble.
 
-# fit an ORSF using default values, and get the default vi (anova)
-
-fit_default <- orsf(pbc_orsf,
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_default <- orsf(pbc_orsf,
                     Surv(time, status) ~ . - id)
 
-# the printed output will indicate the type of vi used
-
 fit_default
+}\if{html}{\out{</div>}}
 
-# the 'raw' vi values are stored in fit_default:
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
+## 
+##      Linear combinations: Accelerated
+##           N observations: 276
+##                 N events: 111
+##                  N trees: 500
+##       N predictors total: 17
+##    N predictors per node: 5
+##  Average leaves per tree: 24
+## Min observations in leaf: 5
+##       Min events in leaf: 1
+##           OOB stat value: 0.84
+##            OOB stat type: Harrell's C-statistic
+##      Variable importance: anova
+## 
+## -----------------------------------------
+}\if{html}{\out{</div>}}
 
-fit_default$importance
+ANOVA is the default because it is fast, but it may not be as decisive
+as the permutation and negation techniques for variable selection.
+}
 
-# these are 'raw' because the vi values for factors have not been
-# aggregated into a single vi value. Currently there is one vi value
-# for k-1 levels of a k level factor. For example, you can see edema_1
-# and edema_0.5 in the importance values above because edema is a factor
-# variable with levels of 0, 0.5, and 1. To get aggregated values of vi
-# across all levels of each factor, just call orsf_vi with group_factors
-# set to TRUE (the default)
+\subsection{Raw VI values}{
 
-orsf_vi(fit_default)
+the ‘raw’ variable importance values are stored in the fit object
 
-# orsf_vi knows that fit_default was fit using anova vi
-# to verify this, see that orsf_vi and orsf_vi_anova are the same
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_default$importance
+}\if{html}{\out{</div>}}
 
-orsf_vi_anova(fit_default)
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##     edema_1   ascites_1        bili      copper     albumin         age 
+##  0.38578330  0.36502660  0.28458706  0.19848326  0.17605634  0.17418514 
+##     protime   edema_0.5       stage        chol         ast   spiders_1 
+##  0.15991746  0.15825068  0.14385280  0.14285714  0.13717386  0.12712651 
+##       sex_f    hepato_1        trig    alk.phos    platelet trt_placebo 
+##  0.10798289  0.10508475  0.09961390  0.09684917  0.07621009  0.06562413
+}\if{html}{\out{</div>}}
 
+these are ‘raw’ because values for factors have not been aggregated into
+a single value. Currently there is one value for k-1 levels of a k level
+factor. For example, you can see edema_1 and edema_0.5 in the importance
+values above because edema is a factor variable with levels of 0, 0.5,
+and 1.
+}
 
-# second example ---------------------------------------------------------
+\subsection{Collapse VI across factor levels}{
 
-# fit an ORSF without vi, then add vi later
+To get aggregated values across all levels of each factor, use
+\code{orsf_vi()} with group_factors set to \code{TRUE} (the default)
 
-fit_no_vi <- orsf(pbc_orsf,
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi(fit_default)
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper    albumin        age 
+## 0.36502660 0.28458706 0.25034721 0.19848326 0.17605634 0.17418514 
+##    protime      stage       chol        ast    spiders        sex 
+## 0.15991746 0.14385280 0.14285714 0.13717386 0.12712651 0.10798289 
+##     hepato       trig   alk.phos   platelet        trt 
+## 0.10508475 0.09961390 0.09684917 0.07621009 0.06562413
+}\if{html}{\out{</div>}}
+}
+
+\subsection{Add VI to an ORSF}{
+
+You can fit an ORSF without VI, then add VI later
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_no_vi <- orsf(pbc_orsf,
                   Surv(time, status) ~ . - id,
                   importance = 'none')
 
@@ -137,27 +177,71 @@ fit_no_vi <- orsf(pbc_orsf,
 # VI can only be computed while the forest is being grown.
 
 orsf_vi_negate(fit_no_vi)
+}\if{html}{\out{</div>}}
 
-orsf_vi_permute(fit_no_vi)
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili           age       ascites         stage        copper 
+##  0.0168785164  0.0112002501  0.0065638675  0.0058345489  0.0045842884 
+##         edema       protime       spiders           sex        hepato 
+##  0.0040893936  0.0024484268  0.0022400500  0.0021879558  0.0010418837 
+##          chol          trig       albumin           ast      alk.phos 
+## -0.0002083767 -0.0004167535 -0.0004688477 -0.0014586372 -0.0026047093 
+##      platelet           trt 
+## -0.0030214628 -0.0038028756
+}\if{html}{\out{</div>}}
 
-# third example ----------------------------------------------------------
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi_permute(fit_no_vi)
+}\if{html}{\out{</div>}}
 
-# fit an ORSF and compute vi at the same time
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili           age         stage        copper       ascites 
+##  0.0158366326  0.0111481559  0.0054698896  0.0045842884  0.0038549698 
+##           ast      platelet       protime         edema       albumin 
+##  0.0038028756  0.0023963326  0.0023442384  0.0019051588  0.0017712023 
+##          chol      alk.phos       spiders        hepato           sex 
+##  0.0012502605  0.0004688477  0.0004167535 -0.0001041884 -0.0003125651 
+##           trt          trig 
+## -0.0006251302 -0.0011460721
+}\if{html}{\out{</div>}}
+}
 
-fit_permute_vi <- orsf(pbc_orsf,
-                       Surv(time, status) ~ . - id,
-                       importance = 'permute')
+\subsection{ORSF and VI all at once}{
+
+fit an ORSF and compute vi at the same time
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_permute_vi <- orsf(pbc_orsf,
+                        Surv(time, status) ~ . - id,
+                        importance = 'permute')
 
 # get the vi instantly (i.e., it doesn't need to be computed again)
-
 orsf_vi_permute(fit_permute_vi)
+}\if{html}{\out{</div>}}
 
-# You can still get negation vi from this fit, but it needs to be computed
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili           age        copper       ascites         stage 
+##  0.0131798291  0.0113565326  0.0051052303  0.0046884768  0.0032298395 
+##       protime       albumin       spiders          chol           ast 
+##  0.0028130861  0.0026047093  0.0022400500  0.0021879558  0.0020316733 
+##         edema        hepato      platelet      alk.phos           sex 
+##  0.0017067048  0.0010939779  0.0009376954  0.0008335070 -0.0003646593 
+##          trig           trt 
+## -0.0004167535 -0.0016670140
+}\if{html}{\out{</div>}}
 
-orsf_vi_negate(fit_permute_vi)
+You can still get negation VI from this fit, but it needs to be computed
 
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi_negate(fit_permute_vi)
+}\if{html}{\out{</div>}}
 
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili           age       protime       ascites        copper 
+##  0.0155761617  0.0143779954  0.0069285268  0.0065117733  0.0064596791 
+##       albumin         stage       spiders           ast         edema 
+##  0.0059387372  0.0047405710  0.0041675349  0.0032298395  0.0027634725 
+##        hepato      alk.phos      platelet           sex          trig 
+##  0.0027088977  0.0008856012  0.0008335070 -0.0008856012 -0.0010418837 
+##          chol           trt 
+## -0.0014065430 -0.0026568035
+}\if{html}{\out{</div>}}
 }
+}
+
 \references{
 Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. Evaluating the Yield of Medical Tests. \emph{JAMA} 1982; 247(18):2543-2546. DOI: 10.1001/jama.1982.03320430047030
 

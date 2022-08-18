@@ -8,7 +8,7 @@
 #' @srrstats {G1.4} *documented with Roxygen*
 #' @srrstats {ML1.1} *using the terms 'train' and 'test'.*
 #' @srrstats {G2.0a} *specified expectations for length of `pred_horizon`. In general, inputs of length > 1 have the term 'vector' in their description, and inputs of length 1 just have the expected type.*
-#' @srrstats {G2.1a} explicit secondary documentation of expectations on data types of all vector inputs
+#' @srrstats {G2.1a} *explicit secondary documentation of expectations on data types of all vector inputs*
 #' @srrstats {ML1.1} *The term 'new_data' are used instead of data_test. There are two reasons for this. First, I am making an effort to be consistent with tidymodels. Second, there is a possibility that users will use predict() without the intention of testing their model, e.g., for interpretation.*
 #'
 #' @param object (*orsf_fit*) a trained oblique random survival forest
@@ -20,7 +20,9 @@
 #' @param pred_horizon (_double_) a value or vector indicating the time(s)
 #'   that predictions will be calibrated to. E.g., if you were predicting
 #'   risk of incident heart failure within the next 10 years, then
-#'   `pred_horizon = 10`
+#'   `pred_horizon = 10`. `pred_horizon` can be `NULL` if `pred_type` is
+#'   `'mort'`, since mortality predictions are aggregated over all
+#'   event times
 #'
 #' @param pred_type (_character_) the type of predictions to compute. Valid
 #'   options are
@@ -29,9 +31,6 @@
 #'   - 'surv' : 1 - risk.
 #'   - 'chf': cumulative hazard function
 #'   - 'mort': mortality prediction
-#'
-#' When `pred_type` is 'mort', it is not necessary to specify `pred_horizon`
-#' since `mort` predictions are aggregated over all event times.
 #'
 #' @param ... `r roxy_dots()`
 #'
@@ -51,6 +50,7 @@
 #'
 #' @export
 #'
+#' @seealso as.data.table.orsf_summary
 #'
 #' @examples
 #'
@@ -97,7 +97,7 @@ predict.orsf_fit <- function(object,
  check_predict(object, new_data, pred_horizon, pred_type)
 
  if(is.null(pred_horizon) && pred_type != 'mort'){
-  stop("pred_horizon must be specified for",
+  stop("pred_horizon must be specified for ",
        pred_type, " predictions.", call. = FALSE)
  }
 
@@ -133,7 +133,7 @@ orsf_pred_mort <- function(object, x_new){
                              time_vec = get_event_times(object),
                              pred_type = 'H')
 
- apply(pred_mat, MARGIN = 1, FUN = sum)
+ matrix(apply(pred_mat, MARGIN = 1, FUN = sum), ncol = 1)
 
 }
 

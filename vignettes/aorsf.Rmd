@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
+
 This article covers core features of the `aorsf` package.
 
 ## Background: ORSF
@@ -44,6 +45,7 @@ orsf_fit <- orsf(data = pbc_orsf,
 orsf_fit
 
 ```
+
 
 you may notice that the first input of `aorsf` is `data`. This is a design choice that makes it easier to use `orsf` with pipes (i.e., `%>%` or `|>`). For instance,
 

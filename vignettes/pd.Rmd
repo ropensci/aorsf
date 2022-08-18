@@ -4,7 +4,7 @@ description: >
   Learn how to interpret ORSF models using partial dependence.
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Partial dependence and ICE curves with ORSF}
+  %\VignetteIndexEntry{PD and ICE curves with ORSF}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

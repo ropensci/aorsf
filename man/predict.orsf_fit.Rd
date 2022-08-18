@@ -4,7 +4,7 @@
 \alias{predict.orsf_fit}
 \title{Compute predictions using ORSF}
 \usage{
-\method{predict}{orsf_fit}(object, new_data, pred_horizon, pred_type = "risk", ...)
+\method{predict}{orsf_fit}(object, new_data, pred_horizon = NULL, pred_type = "risk", ...)
 }
 \arguments{
 \item{object}{(\emph{orsf_fit}) a trained oblique random survival forest
@@ -16,13 +16,17 @@ Missing data are not currently allowed}
 \item{pred_horizon}{(\emph{double}) a value or vector indicating the time(s)
 that predictions will be calibrated to. E.g., if you were predicting
 risk of incident heart failure within the next 10 years, then
-\code{pred_horizon = 10}}
+\code{pred_horizon = 10}. \code{pred_horizon} can be \code{NULL} if \code{pred_type} is
+\code{'mort'}, since mortality predictions are aggregated over all
+event times}
 
 \item{pred_type}{(\emph{character}) the type of predictions to compute. Valid
 options are
 \itemize{
 \item 'risk' : probability of having an event at or before \code{pred_horizon}.
-\item 'survival' : 1 - risk.
+\item 'surv' : 1 - risk.
+\item 'chf': cumulative hazard function
+\item 'mort': mortality prediction
 }}
 
 \item{...}{Further arguments passed to or from other methods (not currently used).}
@@ -63,4 +67,7 @@ preds <- predict(fit,
 head(preds)
 
 
+}
+\seealso{
+as.data.table.orsf_summary
 }

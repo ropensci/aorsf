@@ -56,13 +56,17 @@ partial dependence will be computed using the inputs on each row.
 \item{pred_horizon}{(\emph{double}) a value or vector indicating the time(s)
 that predictions will be calibrated to. E.g., if you were predicting
 risk of incident heart failure within the next 10 years, then
-\code{pred_horizon = 10}}
+\code{pred_horizon = 10}. \code{pred_horizon} can be \code{NULL} if \code{pred_type} is
+\code{'mort'}, since mortality predictions are aggregated over all
+event times}
 
 \item{pred_type}{(\emph{character}) the type of predictions to compute. Valid
 options are
 \itemize{
 \item 'risk' : probability of having an event at or before \code{pred_horizon}.
-\item 'survival' : 1 - risk.
+\item 'surv' : 1 - risk.
+\item 'chf': cumulative hazard function
+\item 'mort': mortality prediction
 }}
 
 \item{expand_grid}{(\emph{logical}) if \code{TRUE}, partial dependence will be
@@ -87,11 +91,10 @@ specified prediction horizon(s).
 }
 \description{
 Compute individual conditional expectations for an ORSF model.
-Unlike partial dependence, which shows the expected prediction as a function of one or multiple predictors, individual conditional expectations shows the prediction for an individual observation as a function of a predictor.
-}
-\details{
-You can compute individual conditional expectations two ways using a random forest:
+Unlike partial dependence, which shows the expected prediction as a function of one or multiple predictors, individual conditional expectations (ICE) show the prediction for an individual observation as a function of a predictor.
+You can compute individual conditional expectations three ways using a random forest:
 \itemize{
+\item using in-bag predictions for the training data
 \item using out-of-bag predictions for the training data
 \item using predictions for a new set of data
 }
@@ -99,73 +102,60 @@ You can compute individual conditional expectations two ways using a random fore
 See examples for more details
 }
 \section{Examples}{
-Begin by fitting an ORSF ensemble:
+Begin by fitting an ORSF ensemble
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(aorsf)
 
-set.seed(329730)
+set.seed(329)
 
-index_train <- sample(nrow(pbc_orsf), 150) 
+fit <- orsf(data = pbc_orsf, formula = Surv(time, status) ~ . - id)
 
-pbc_orsf_train <- pbc_orsf[index_train, ]
-pbc_orsf_test <- pbc_orsf[-index_train, ]
-
-fit <- orsf(data = pbc_orsf_train, 
-            formula = Surv(time, status) ~ . - id,
-            oobag_pred_horizon = 365.25 * 5)
-}\if{html}{\out{</div>}}
-\subsection{Individual conditional expectations two ways}{
-
-You can compute individual conditional expectations two ways using a
-random forest:
-\itemize{
-\item using out-of-bag predictions for the training data
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{pred_spec <- list(bili = seq(1, 6, length.out = 10))
-
-ice_train <- orsf_ice_oob(fit, pred_spec)
-
-ice_train
+fit
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##       pred_horizon id_variable id_row  bili       pred
-##              <num>       <int>  <int> <num>      <num>
-##    1:      1826.25           1      1     1 0.08384440
-##    2:      1826.25           1      2     1 0.05397791
-##    3:      1826.25           1      3     1 0.03162691
-##    4:      1826.25           1      4     1 0.14654589
-##    5:      1826.25           1      5     1 0.01864370
-##   ---                                                 
-## 1496:      1826.25          10    146     6 0.82951216
-## 1497:      1826.25          10    147     6 0.57515421
-## 1498:      1826.25          10    148     6 0.27143096
-## 1499:      1826.25          10    149     6 0.74275997
-## 1500:      1826.25          10    150     6 0.38469959
-}\if{html}{\out{</div>}}
-\item using predictions for a new set of data
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{ice_test <- orsf_ice_new(fit, 
-                         new_data = pbc_orsf_test, 
-                         pred_spec = pred_spec)
-
-ice_test
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
+## 
+##      Linear combinations: Accelerated
+##           N observations: 276
+##                 N events: 111
+##                  N trees: 500
+##       N predictors total: 17
+##    N predictors per node: 5
+##  Average leaves per tree: 24
+## Min observations in leaf: 5
+##       Min events in leaf: 1
+##           OOB stat value: 0.84
+##            OOB stat type: Harrell's C-statistic
+##      Variable importance: anova
+## 
+## -----------------------------------------
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##       pred_horizon id_variable id_row  bili       pred
-##              <num>       <int>  <int> <num>      <num>
-##    1:      1826.25           1      1     1 0.81234703
-##    2:      1826.25           1      2     1 0.16038926
-##    3:      1826.25           1      3     1 0.37223197
-##    4:      1826.25           1      4     1 0.08325345
-##    5:      1826.25           1      5     1 0.05819043
-##   ---                                                 
-## 1256:      1826.25          10    122     6 0.60376866
-## 1257:      1826.25          10    123     6 0.22676773
-## 1258:      1826.25          10    124     6 0.29596899
-## 1259:      1826.25          10    125     6 0.34276120
-## 1260:      1826.25          10    126     6 0.36370237
+Use the ensemble to compute ICE values using out-of-bag predictions:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pred_spec <- list(bili = seq(1, 10, length.out = 25))
+
+ice_oob <- orsf_ice_oob(fit, pred_spec, boundary_checks = FALSE)
+
+ice_oob
 }\if{html}{\out{</div>}}
-}
-}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##       pred_horizon id_variable id_row  bili      pred
+##              <num>       <int>  <int> <num>     <num>
+##    1:         1788           1      1     1 0.9066901
+##    2:         1788           1      2     1 0.1018084
+##    3:         1788           1      3     1 0.7839188
+##    4:         1788           1      4     1 0.3901363
+##    5:         1788           1      5     1 0.1250285
+##   ---                                                
+## 6896:         1788          25    272    10 0.3948899
+## 6897:         1788          25    273    10 0.4759938
+## 6898:         1788          25    274    10 0.4406426
+## 6899:         1788          25    275    10 0.3330580
+## 6900:         1788          25    276    10 0.5652151
+}\if{html}{\out{</div>}}
+
+Much more detailed examples are given in the
+\href{https://bcjaeger.github.io/aorsf/articles/pd.html#individual-conditional-expectations-ice}{vignette}
 }
 

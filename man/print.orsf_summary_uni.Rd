@@ -14,7 +14,7 @@
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 }
 \value{
-nothing - output is printed to console.
+invisibly, \code{x}
 }
 \description{
 Print ORSF summary

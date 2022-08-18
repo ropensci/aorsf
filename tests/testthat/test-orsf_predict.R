@@ -14,11 +14,30 @@ aorsf = orsf(formula = time + status  ~ . - id,
              leaf_min_obs = 15)
 
 new_data <- pbc_orsf[-train, ]
-
 new_data_dt <- as.data.table(new_data)
 new_data_tbl <- tibble::as_tibble(new_data)
 
-p1 <- predict(aorsf, new_data = new_data, pred_horizon = 1000)
+p1_risk <- predict(aorsf, new_data = new_data, pred_horizon = 1000)
+
+p1_chf <- predict(aorsf, new_data = new_data,
+                  pred_type = 'chf', pred_horizon = 1000)
+
+p1_surv <- predict(aorsf, new_data = new_data,
+                   pred_type = 'surv', pred_horizon = 1000)
+
+p1_mort <- predict(aorsf, new_data = new_data, pred_type = 'mort')
+
+test_that(
+ desc = 'predict is type stable',
+ code = {
+  expect_equal(dim(p1_risk), dim(p1_chf))
+  expect_equal(dim(p1_risk), dim(p1_surv))
+  expect_equal(dim(p1_risk), dim(p1_mort))
+  expect_equal(dim(p1_chf), dim(p1_surv))
+  expect_equal(dim(p1_chf), dim(p1_mort))
+  expect_equal(dim(p1_surv), dim(p1_mort))
+ }
+)
 
 
 test_that(
@@ -28,8 +47,33 @@ test_that(
   p1_dt <- predict(aorsf, new_data = new_data_dt, pred_horizon = 1000)
   p1_tbl <- predict(aorsf, new_data = new_data_tbl, pred_horizon = 1000)
 
-  expect_equal(p1, p1_dt)
-  expect_equal(p1, p1_tbl)
+  expect_equal(p1_risk, p1_dt)
+  expect_equal(p1_risk, p1_tbl)
+
+  p1_dt <- predict(aorsf, new_data = new_data_dt, pred_type = 'mort')
+  p1_tbl <- predict(aorsf, new_data = new_data_tbl, pred_type = 'mort')
+
+  expect_equal(p1_mort, p1_dt)
+  expect_equal(p1_mort, p1_tbl)
+
+  p1_dt <- predict(aorsf, new_data = new_data_dt,
+                   pred_type = 'chf', pred_horizon = 1000)
+
+  p1_tbl <- predict(aorsf, new_data = new_data_tbl,
+                    pred_type = 'chf', pred_horizon = 1000)
+
+  expect_equal(p1_chf, p1_dt)
+  expect_equal(p1_chf, p1_tbl)
+
+  p1_dt <- predict(aorsf, new_data = new_data_dt,
+                   pred_type = 'surv', pred_horizon = 1000)
+
+  p1_tbl <- predict(aorsf, new_data = new_data_tbl,
+                    pred_type = 'surv', pred_horizon = 1000)
+
+  expect_equal(p1_surv, p1_dt)
+  expect_equal(p1_surv, p1_tbl)
+
 
  }
 
@@ -43,14 +87,14 @@ p_multi <- predict(aorsf, new_data = new_data, pred_horizon = c(1000, 2000))
 test_that(
  desc = 'multi-time preds are same as uni-time',
  code = {
-  expect_equal(cbind(p1, p2), p_multi)
+  expect_equal(cbind(p1_risk, p2), p_multi)
  }
 )
 
 test_that(
  desc = 'predictions are bounded',
  code = {
-  expect_true(all(p1 <= 1) && all(p1 >= 0))
+  expect_true(all(p1_risk <= 1) && all(p1_risk >= 0))
  })
 
 p2 <- predict(aorsf,
@@ -60,7 +104,7 @@ p2 <- predict(aorsf,
 
 test_that(
  desc = 'risk is inverse of survival',
- code = {expect_true(all(p1 == 1 - p2))}
+ code = {expect_true(all(p1_risk == 1 - p2))}
 )
 
 test_that(
@@ -79,6 +123,7 @@ test_that(
 )
 
 
+set.seed(329)
 test_that(
  'predictions do not depend on order of the data',
  code = {
@@ -147,9 +192,9 @@ test_that(
  'No missing, nan, or infinite values in prediction output',
  code = {
 
-  expect_false(any(is.na(p1)))
-  expect_false(any(is.nan(p1)))
-  expect_false(any(is.infinite(p1)))
+  expect_false(any(is.na(p1_risk)))
+  expect_false(any(is.nan(p1_risk)))
+  expect_false(any(is.infinite(p1_risk)))
 
   expect_false(any(is.na(p2)))
   expect_false(any(is.nan(p2)))
@@ -285,7 +330,7 @@ test_that(
  desc = 'predictions dont require cols in same order as training data',
  code = {
   expect_true(
-   all(p1 == p2)
+   all(p1_risk == p2)
   )
  }
 )
@@ -346,7 +391,7 @@ test_that(
 
   p3 <- predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000)
 
-  expect_equal(p3, p1)
+  expect_equal(p3, p1_risk)
 
  }
 

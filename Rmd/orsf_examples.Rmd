@@ -1,6 +1,20 @@
 
 # Examples
 
+```{r}
+
+set.seed(329730)
+
+library(aorsf)
+library(survival)
+library(tidymodels)
+library(tidyverse)
+library(randomForestSRC)
+library(ranger)
+library(riskRegression)
+```
+
+
 The entry-point into `aorsf` is the standard call to `orsf()`:
 
 ```{r}
@@ -149,20 +163,6 @@ From inspection,
 ## tidymodels
 
 This example uses `tidymodels` functions but stops short of using an official `tidymodels` workflow. I am working on getting `aorsf` pulled into the `censored` package and I will update this with real workflows if that happens!
-
-```{r}
-
-set.seed(329730)
-
-library(aorsf)
-library(survival)
-library(tidymodels)
-library(tidyverse)
-library(randomForestSRC)
-library(ranger)
-library(riskRegression)
-
-```
 
 ### Comparing ORSF with other learners
 
