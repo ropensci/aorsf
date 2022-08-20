@@ -38,6 +38,7 @@ get_n_retry            <- function(object) attr(object, 'n_retry')
 get_f_oobag_eval       <- function(object) attr(object, 'f_oobag_eval')
 get_type_oobag_eval    <- function(object) attr(object, 'type_oobag_eval')
 get_oobag_pred         <- function(object) attr(object, 'oobag_pred')
+get_oobag_pred_type    <- function(object) attr(object, 'oobag_pred_type')
 get_oobag_pred_horizon <- function(object) attr(object, 'oobag_pred_horizon')
 get_oobag_eval_every   <- function(object) attr(object, 'oobag_eval_every')
 get_importance         <- function(object) attr(object, 'importance')
@@ -69,7 +70,7 @@ is_trained <- function(object) attr(object, 'trained')
 #'
 #' @noRd
 #'
-contains_oobag <- function(object) {!is_empty(object$surv_oobag)}
+contains_oobag <- function(object) {!is_empty(object$pred_oobag)}
 
 #' Determine whether object has variable importance estimates
 #'

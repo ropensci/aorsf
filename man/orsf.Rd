@@ -19,7 +19,7 @@ orsf(
   split_min_events = 5,
   split_min_obs = 10,
   split_min_stat = 3.841459,
-  oobag_pred = TRUE,
+  oobag_pred_type = "surv",
   oobag_pred_horizon = NULL,
   oobag_eval_every = n_tree,
   oobag_fun = NULL,
@@ -97,8 +97,17 @@ in a node to consider splitting it. Default is \code{split_min_obs = 10}.}
 a node. Default is 3.841459 for the log-rank test, which is roughly
 a p-value of 0.05}
 
-\item{oobag_pred}{(\emph{logical}) if \code{TRUE} out-of-bag predictions are returned
-in the \code{aorsf} object. Default is \code{TRUE}.}
+\item{oobag_pred_type}{(\emph{character}) The type of out-of-bag predictions
+to compute while fitting the ensemble. Valid options are
+\itemize{
+\item 'none' : don't compute out-of-bag predictions
+\item 'risk' : predict the probability of having an event at or before \code{oobag_pred_horizon}.
+\item 'surv' : 1 - risk.
+\item 'chf'  : predict cumulative hazard function
+}
+
+Mortality ('mort')is not implemented for out of bag predictions yet, but it
+will be in a future update.}
 
 \item{oobag_pred_horizon}{(\emph{numeric}) A numeric value indicating what time
 should be used for out-of-bag predictions. Default is the median
@@ -266,7 +275,7 @@ library(survival)
 library(tidymodels)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## -- Attaching packages -------------------------------------- tidymodels 0.2.0 --
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## -- Attaching packages ------------------------ tidymodels 0.2.0 --
 
 ## v broom        1.0.0     v recipes      1.0.1
 ## v dials        0.1.1     v rsample      0.1.1
@@ -277,7 +286,7 @@ library(tidymodels)
 ## v parsnip      1.0.0     v workflowsets 0.2.1
 ## v purrr        0.3.4     v yardstick    0.0.9
 
-## -- Conflicts ----------------------------------------- tidymodels_conflicts() --
+## -- Conflicts --------------------------- tidymodels_conflicts() --
 ## x dplyr::between()      masks aorsf::between()
 ## x purrr::discard()      masks scales::discard()
 ## x dplyr::filter()       masks stats::filter()
@@ -287,18 +296,18 @@ library(tidymodels)
 ## x dplyr::last()         masks aorsf::last()
 ## x recipes::step()       masks stats::step()
 ## x purrr::transpose()    masks aorsf::transpose()
-## * Dig deeper into tidy modeling with R at https://www.tmwr.org
+## * Use suppressPackageStartupMessages() to eliminate package startup messages
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(tidyverse)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## -- Attaching packages ------------------------- tidyverse 1.3.1 --
 
 ## v readr   2.1.2     v forcats 0.5.1
 ## v stringr 1.4.0
 
-## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## -- Conflicts ---------------------------- tidyverse_conflicts() --
 ## x dplyr::between()    masks aorsf::between()
 ## x readr::col_factor() masks scales::col_factor()
 ## x purrr::discard()    masks scales::discard()
@@ -462,11 +471,11 @@ So which fit seems to work best in this example? Let’s find out by
 evaluating the out-of-bag survival predictions.
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{risk_preds <- list(
- accel = 1 - fit_accel$surv_oobag,
- cph   = 1 - fit_cph$surv_oobag,
- net   = 1 - fit_net$surv_oobag,
- rando = 1 - fit_rando$surv_oobag,
- pca   = 1 - fit_pca$surv_oobag
+ accel = 1 - fit_accel$pred_oobag,
+ cph   = 1 - fit_cph$pred_oobag,
+ net   = 1 - fit_net$pred_oobag,
+ rando = 1 - fit_rando$pred_oobag,
+ pca   = 1 - fit_pca$pred_oobag
 )
 
 sc <- Score(object = risk_preds, 

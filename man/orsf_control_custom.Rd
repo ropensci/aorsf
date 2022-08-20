@@ -110,8 +110,8 @@ prediction accuracy based on out-of-bag predictions:
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(riskRegression)
 library(survival)
 
-risk_preds <- list(rando = 1 - fit_rando$surv_oobag,
-                    pca = 1 - fit_pca$surv_oobag)
+risk_preds <- list(rando = 1 - fit_rando$pred_oobag,
+                    pca = 1 - fit_pca$pred_oobag)
 
 sc <- Score(object = risk_preds, 
             formula = Surv(time, status) ~ 1, 

@@ -618,7 +618,7 @@ check_orsf_inputs <- function(data = NULL,
                               split_min_events = NULL,
                               split_min_obs = NULL,
                               split_min_stat = NULL,
-                              oobag_pred = NULL,
+                              oobag_pred_type = NULL,
                               oobag_pred_horizon = NULL,
                               oobag_eval_every = NULL,
                               importance = NULL,
@@ -908,15 +908,22 @@ check_orsf_inputs <- function(data = NULL,
  }
 
 
- if(!is.null(oobag_pred)){
+ if(!is.null(oobag_pred_type)){
 
-  check_arg_type(arg_value = oobag_pred,
-                 arg_name = 'oobag_pred',
-                 expected_type = 'logical')
+  check_arg_type(arg_value = oobag_pred_type,
+                 arg_name = 'oobag_pred_type',
+                 expected_type = 'character')
 
-  check_arg_length(arg_value = oobag_pred,
-                   arg_name = 'oobag_pred',
+  check_arg_length(arg_value = oobag_pred_type,
+                   arg_name = 'oobag_pred_type',
                    expected_length = 1)
+
+  check_arg_is_valid(arg_value = oobag_pred_type,
+                     arg_name = 'oobag_pred_type',
+                     valid_options = c("none",
+                                       "surv",
+                                       "risk",
+                                       "chf"))
 
  }
 

@@ -16,21 +16,21 @@ Review](https://badges.ropensci.org/532_status.svg)](https://github.com/ropensci
 <a href="https://joss.theoj.org/papers/414871f081cd8449007d671a7f7f7c3a"><img src="https://joss.theoj.org/papers/414871f081cd8449007d671a7f7f7c3a/status.svg"></a>
 <!-- badges: end -->
 
-`aorsf` provides optimized software to fit, interpret, and make
-predictions with oblique random survival forests (ORSFs).
+Fit, interpret, and make predictions with oblique random survival
+forests (ORSFs).
 
 ## Why aorsf?
 
 -   Hundreds of times faster than `obliqueRSF`.<sup>1</sup>
 
--   Fast and accurate predictions for censored outcomes.<sup>2</sup>
+-   Accurate predictions for censored outcomes.<sup>2</sup>
 
--   negation importance, a novel technique to estimate variable
+-   Negation importance, a novel technique to estimate variable
     importance for ORSFs.<sup>2</sup>
 
--   intuitive API with formula based interface.
+-   Intuitive API with formula based interface.
 
--   extensive input checks + informative error messages.
+-   Extensive input checks and informative error messages.
 
 ## Installation
 
@@ -179,7 +179,7 @@ vignette](https://bcjaeger.github.io/aorsf/articles/oobag.html))
 
 ### Partial dependence (PD)
 
-Partial dependence shows the expected prediction from a model as a
+Partial dependence (PD) shows the expected prediction from a model as a
 function of a single predictor or multiple predictors. The expectation
 is marginalized over the values of all other predictors, giving
 something like a multivariable adjusted estimate of the model’s
@@ -192,8 +192,8 @@ For more on PD, see the
 
 Unlike partial dependence, which shows the expected prediction as a
 function of one or multiple predictors, individual conditional
-expectations shows the prediction for an individual observation as a
-function of a predictor.
+expectations (ICE) show the prediction for an individual observation as
+a function of a predictor.
 
 For more on ICE, see the
 [vignette](https://bcjaeger.github.io/aorsf/articles/pd.html#individual-conditional-expectations-ice)

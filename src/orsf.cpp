@@ -72,6 +72,7 @@ int
 char
  type_beta,
  type_oobag_eval,
+ oobag_pred_type,
  oobag_importance_type,
  pred_type_dflt = 'S';
 
@@ -2024,7 +2025,7 @@ void oobag_pred_surv_uni(char pred_type){
 
 }
 
-double oobag_c_harrell(){
+double oobag_c_harrell(char pred_type){
 
  vec time = y_input.unsafe_col(0);
  vec status = y_input.unsafe_col(1);
@@ -2034,30 +2035,63 @@ double oobag_c_harrell(){
 
  double total=0, concordant=0;
 
- for (iit = iit_vals.begin(); iit < iit_vals.end(); ++iit) {
+ switch(pred_type){
 
-  for(j = *iit + 1; j < k; ++j){
+ case 'S': case 'R':
+  for (iit = iit_vals.begin(); iit < iit_vals.end(); ++iit) {
 
-   if (time[j] > time[*iit]) { // ties not counted
+   for(j = *iit + 1; j < k; ++j){
 
-    total++;
+    if (time[j] > time[*iit]) { // ties not counted
 
-    // since surv_pvec is survival prob (not risk),
-    // flip the less than to a greater than.
-    if (surv_pvec[j] > surv_pvec[*iit]){
+     total++;
 
-     concordant++;
+     // for survival, current value > next vals is good
+     // risk is the same as survival until just before we output
+     // the oobag predictions, when we say pvec = 1-pvec,
+     if (surv_pvec[j] > surv_pvec[*iit]){
 
-    } else if (surv_pvec[j] == surv_pvec[*iit]){
+      concordant++;
 
-     concordant+= 0.5;
+     } else if (surv_pvec[j] == surv_pvec[*iit]){
+
+      concordant+= 0.5;
+
+     }
 
     }
 
    }
 
   }
+  break;
 
+ case 'H':
+  for (iit = iit_vals.begin(); iit < iit_vals.end(); ++iit) {
+
+   for(j = *iit + 1; j < k; ++j){
+
+    if (time[j] > time[*iit]) { // ties not counted
+
+     total++;
+
+     // for risk & chf current value < next vals is good.
+     if (surv_pvec[j] < surv_pvec[*iit]){
+
+      concordant++;
+
+     } else if (surv_pvec[j] == surv_pvec[*iit]){
+
+      concordant+= 0.5;
+
+     }
+
+    }
+
+   }
+
+  }
+  break;
  }
 
  return(concordant / total);
@@ -2070,7 +2104,8 @@ double oobag_c_harrell_testthat(NumericMatrix y_mat,
 
  y_input = mat(y_mat.begin(), y_mat.nrow(), y_mat.ncol(), false);
  surv_pvec = vec(s_vec.begin(), s_vec.length(), false);
- return(oobag_c_harrell());
+
+ return(oobag_c_harrell(pred_type_dflt));
 
 }
 
@@ -3002,6 +3037,7 @@ List orsf_fit(NumericMatrix& x,
               const double&  net_alpha_,
               const int&     net_df_target_,
               const bool&    oobag_pred_,
+              const char&    oobag_pred_type_,
               const double&  oobag_pred_horizon_,
               const int&     oobag_eval_every_,
               const bool&    oobag_importance_,
@@ -3050,6 +3086,7 @@ List orsf_fit(NumericMatrix& x,
  net_alpha             = net_alpha_;
  net_df_target         = net_df_target_;
  oobag_pred            = oobag_pred_;
+ oobag_pred_type       = oobag_pred_type_;
  oobag_eval_every      = oobag_eval_every_;
  oobag_eval_counter    = 0;
  oobag_importance      = oobag_importance_;
@@ -3210,7 +3247,7 @@ List orsf_fit(NumericMatrix& x,
 
    denom_pred(rows_oobag) += 1;
    ostree_pred_leaf();
-   oobag_pred_surv_uni(pred_type_dflt);
+   oobag_pred_surv_uni(oobag_pred_type);
 
    if(tree % oobag_eval_every == 0){
 
@@ -3219,7 +3256,7 @@ List orsf_fit(NumericMatrix& x,
     // H stands for Harrell's C-statistic
     case 'H' :
 
-     eval_oobag[oobag_eval_counter] = oobag_c_harrell();
+     eval_oobag[oobag_eval_counter] = oobag_c_harrell(oobag_pred_type);
      oobag_eval_counter++;
 
      break;
@@ -3317,7 +3354,8 @@ List orsf_fit(NumericMatrix& x,
    // H stands for Harrell's C-statistic
    case 'H' :
 
-    vimp(variable) = eval_oobag[oobag_eval_counter] - oobag_c_harrell();
+    vimp(variable) = eval_oobag[oobag_eval_counter] -
+     oobag_c_harrell(oobag_pred_type);
 
     break;
 
@@ -3338,10 +3376,12 @@ List orsf_fit(NumericMatrix& x,
 
  }
 
+ if(oobag_pred_type == 'R') surv_pvec_output = 1 - surv_pvec_output;
+
  return(
   List::create(
    _["forest"] = forest,
-   _["surv_oobag"] = surv_pvec_output,
+   _["pred_oobag"] = surv_pvec_output,
    _["pred_horizon"] = time_pred,
    _["eval_oobag"] = List::create(_["stat_values"] = eval_oobag,
                                   _["stat_type"]   = type_oobag_eval),
@@ -3359,6 +3399,7 @@ arma::vec orsf_oob_negate_vi(NumericMatrix& x,
                              const double& last_eval_stat,
                              const double& time_pred_,
                              Function      f_oobag_eval,
+                             const char&   pred_type_,
                              const char&   type_oobag_eval_){
 
  x_input = mat(x.begin(), x.nrow(), x.ncol(), false);
@@ -3366,6 +3407,7 @@ arma::vec orsf_oob_negate_vi(NumericMatrix& x,
 
  time_pred = time_pred_;
  type_oobag_eval = type_oobag_eval_;
+ oobag_pred_type = pred_type_;
 
  vec vimp(x_input.n_cols);
 
@@ -3403,7 +3445,7 @@ arma::vec orsf_oob_negate_vi(NumericMatrix& x,
 
    ostree_pred_leaf();
 
-   oobag_pred_surv_uni(pred_type_dflt);
+   oobag_pred_surv_uni(oobag_pred_type);
 
    betas.elem( betas_to_flip ) *= (-1);
 
@@ -3414,7 +3456,7 @@ arma::vec orsf_oob_negate_vi(NumericMatrix& x,
   // H stands for Harrell's C-statistic
   case 'H' :
 
-   vimp(variable) = last_eval_stat - oobag_c_harrell();
+   vimp(variable) = last_eval_stat - oobag_c_harrell(oobag_pred_type);
 
    break;
 
@@ -3442,6 +3484,7 @@ arma::vec orsf_oob_permute_vi(NumericMatrix& x,
                               const double& last_eval_stat,
                               const double& time_pred_,
                               Function      f_oobag_eval,
+                              const char&   pred_type_,
                               const char&   type_oobag_eval_){
 
  x_input = mat(x.begin(), x.nrow(), x.ncol(), false);
@@ -3449,6 +3492,7 @@ arma::vec orsf_oob_permute_vi(NumericMatrix& x,
 
  time_pred = time_pred_;
  type_oobag_eval = type_oobag_eval_;
+ oobag_pred_type = pred_type_;
 
  vec vimp(x_input.n_cols);
 
@@ -3483,7 +3527,7 @@ arma::vec orsf_oob_permute_vi(NumericMatrix& x,
 
    ostree_pred_leaf();
 
-   oobag_pred_surv_uni(pred_type_dflt);
+   oobag_pred_surv_uni(oobag_pred_type);
 
    // x_variable = x_variable_original;
    // x_input.col(variable) = x_variable;
@@ -3495,7 +3539,7 @@ arma::vec orsf_oob_permute_vi(NumericMatrix& x,
   // H stands for Harrell's C-statistic
   case 'H' :
 
-   vimp(variable) = last_eval_stat - oobag_c_harrell();
+   vimp(variable) = last_eval_stat - oobag_c_harrell(oobag_pred_type);
 
    break;
 

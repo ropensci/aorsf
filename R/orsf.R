@@ -106,8 +106,16 @@
 #'   a node. Default is 3.841459 for the log-rank test, which is roughly
 #'   a p-value of 0.05
 #'
-#' @param oobag_pred (_logical_) if `TRUE` out-of-bag predictions are returned
-#'   in the `aorsf` object. Default is `TRUE`.
+#' @param oobag_pred_type (_character_) The type of out-of-bag predictions
+#'   to compute while fitting the ensemble. Valid options are
+#'
+#'   - 'none' : don't compute out-of-bag predictions
+#'   - 'risk' : predict the probability of having an event at or before `oobag_pred_horizon`.
+#'   - 'surv' : 1 - risk.
+#'   - 'chf'  : predict cumulative hazard function
+#'
+#' Mortality ('mort')is not implemented for out of bag predictions yet, but it
+#'   will be in a future update.
 #'
 #' @param oobag_pred_horizon (_numeric_) A numeric value indicating what time
 #'   should be used for out-of-bag predictions. Default is the median
@@ -286,7 +294,7 @@ orsf <- function(data,
                  split_min_events = 5,
                  split_min_obs = 10,
                  split_min_stat = 3.841459,
-                 oobag_pred = TRUE,
+                 oobag_pred_type = 'surv',
                  oobag_pred_horizon = NULL,
                  oobag_eval_every = n_tree,
                  oobag_fun = NULL,
@@ -317,7 +325,7 @@ orsf <- function(data,
   split_min_events = split_min_events,
   split_min_obs = split_min_obs,
   split_min_stat = split_min_stat,
-  oobag_pred = oobag_pred,
+  oobag_pred_type = oobag_pred_type,
   oobag_pred_horizon = oobag_pred_horizon,
   oobag_eval_every = oobag_eval_every,
   importance = importance,
@@ -325,6 +333,7 @@ orsf <- function(data,
   attach_data = attach_data
  )
 
+ oobag_pred <- oobag_pred_type != 'none'
 
  if(is.null(weights)) weights <- double()
 
@@ -394,8 +403,11 @@ orsf <- function(data,
  net_alpha <- control_net$net_alpha
  net_df_target <- control_net$net_df_target
 
- if(importance %in% c("permute", "negate") && !oobag_pred)
+ if(importance %in% c("permute", "negate") && !oobag_pred){
   oobag_pred <- TRUE # Should I add a warning?
+  oobag_pred_type <- 'surv'
+ }
+
 
  formula_terms <- suppressWarnings(stats::terms(formula, data=data))
 
@@ -607,12 +619,17 @@ orsf <- function(data,
   cph_method_       = switch(tolower(cph_method),
                              'breslow' = 0,
                              'efron'   = 1),
-  cph_eps_            = cph_eps, #
+  cph_eps_            = cph_eps,
   cph_iter_max_       = cph_iter_max,
   cph_do_scale_       = cph_do_scale,
   net_alpha_          = net_alpha,
   net_df_target_      = net_df_target,
   oobag_pred_         = oobag_pred,
+  oobag_pred_type_    = switch(oobag_pred_type,
+                               "none" = "N",
+                               "surv" = "S",
+                               "risk" = "R",
+                               "chf"  = "H"),
   oobag_pred_horizon_ = oobag_pred_horizon,
   oobag_eval_every_   = oobag_eval_every,
   oobag_importance_   = importance %in% c("negate", "permute"),
@@ -657,7 +674,7 @@ orsf <- function(data,
 
   #' @srrstats {G2.10} *set drop = FALSE to ensure that extraction or filtering of single columns from tabular inputs should not presume any particular default behavior, and all column-extraction operations behave consistently regardless of the class of tabular data used as input.*
 
-  orsf_out$surv_oobag <- orsf_out$surv_oobag[unsorted, , drop = FALSE]
+  orsf_out$pred_oobag <- orsf_out$pred_oobag[unsorted, , drop = FALSE]
 
  } else {
 
@@ -713,6 +730,7 @@ orsf <- function(data,
  attr(orsf_out, 'f_oobag_eval')     <- f_oobag_eval
  attr(orsf_out, 'type_oobag_eval')  <- type_oobag_eval
  attr(orsf_out, 'oobag_pred')       <- oobag_pred
+ attr(orsf_out, 'oobag_pred_type')  <- oobag_pred_type
  attr(orsf_out, 'oobag_eval_every') <- oobag_eval_every
  attr(orsf_out, 'importance')       <- importance
  attr(orsf_out, 'weights_user')     <- weights
@@ -940,6 +958,11 @@ orsf_train_ <- function(object,
   net_alpha_             = get_net_alpha(object),
   net_df_target_         = get_net_df_target(object),
   oobag_pred_            = get_oobag_pred(object),
+  oobag_pred_type_       = switch(get_oobag_pred_type(object),
+                                  "none" = "N",
+                                  "surv" = "S",
+                                  "risk" = "R",
+                                  "chf"  = "H"),
   oobag_pred_horizon_    = object$pred_horizon,
   oobag_eval_every_      = oobag_eval_every,
   oobag_importance_      = get_importance(object) != 'none',
@@ -962,7 +985,7 @@ orsf_train_ <- function(object,
 
 
  object$forest       <- orsf_out$forest
- object$surv_oobag   <- orsf_out$surv_oobag
+ object$pred_oobag   <- orsf_out$pred_oobag
  object$pred_horizon <- orsf_out$pred_horizon
  object$eval_oobag   <- orsf_out$eval_oobag
  object$importance   <- orsf_out$importance
@@ -990,7 +1013,7 @@ orsf_train_ <- function(object,
           'H' = "Harrell's C-statistic",
           'U' = "User-specified function")
 
-  object$surv_oobag <- object$surv_oobag[unsorted, , drop = FALSE]
+  object$pred_oobag <- object$pred_oobag[unsorted, , drop = FALSE]
 
  }
 

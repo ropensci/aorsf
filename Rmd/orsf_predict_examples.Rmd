@@ -1,0 +1,42 @@
+
+Begin by fitting an ORSF ensemble:
+
+```{r, child = 'orsf-fit-accelerated.Rmd'}
+
+```
+
+Predict risk, survival, or cumulative hazard at one or several times:
+
+```{r}
+
+# predicted risk, the default
+predict(fit, 
+        new_data = pbc_orsf_test[1:5, ], 
+        pred_type = 'risk', 
+        pred_horizon = c(500, 1000, 1500))
+
+# predicted survival, i.e., 1 - risk
+predict(fit, 
+        new_data = pbc_orsf_test[1:5, ], 
+        pred_type = 'surv',
+        pred_horizon = c(500, 1000, 1500))
+
+# predicted cumulative hazard function
+# (expected number of events for person i at time j)
+predict(fit, 
+        new_data = pbc_orsf_test[1:5, ], 
+        pred_type = 'chf',
+        pred_horizon = c(500, 1000, 1500))
+
+```
+
+Predict mortality, defined as the number of events in the forest's population if all observations had characteristics like the current observation. This type of prediction does not require you to specify a prediction horizon
+
+```{r}
+
+predict(fit, 
+        new_data = pbc_orsf_test[1:5, ], 
+        pred_type = 'mort')
+
+```
+

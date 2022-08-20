@@ -1,31 +1,73 @@
 
 
+#' @srrstats {G5.5} *Correctness tests are run with a fixed random seed*
+set.seed(730)
+
 train <- sample(nrow(pbc_orsf), size = 170)
 
-#' @srrstats {G5.5} *Correctness tests are run with a fixed random seed*
-set.seed(1)
+set.seed(329)
+fit = orsf(formula = time + status  ~ . - id, data = pbc_orsf[train, ])
 
-aorsf = orsf(formula = time + status  ~ . - id,
-             data = pbc_orsf[train, ],
-             mtry = 5,
-             n_split = 10,
-             n_tree = 50,
-             oobag_pred = TRUE,
-             leaf_min_obs = 15)
+set.seed(329)
+fit_oobag_risk <- orsf(formula = time + status  ~ . - id,
+                       data = pbc_orsf[train, ],
+                       oobag_pred_type = 'risk')
+
+set.seed(329)
+fit_oobag_chf <- orsf(formula = time + status  ~ . - id,
+                      data = pbc_orsf[train, ],
+                      oobag_pred_type = 'chf')
+
+test_that(
+ desc = 'oobag risk and surv have equivalent C-stat',
+ code = {
+  expect_equal(
+   fit$eval_oobag$stat_values,
+   fit_oobag_risk$eval_oobag$stat_values
+  )
+ }
+)
+
+
 
 new_data <- pbc_orsf[-train, ]
 new_data_dt <- as.data.table(new_data)
 new_data_tbl <- tibble::as_tibble(new_data)
 
-p1_risk <- predict(aorsf, new_data = new_data, pred_horizon = 1000)
 
-p1_chf <- predict(aorsf, new_data = new_data,
+
+
+test_that(
+ desc = 'pred_horizon automatically set to object$pred_horizon if needed',
+ code = {
+  expect_equal(
+   predict(fit, new_data = new_data, pred_horizon = fit$pred_horizon),
+   predict(fit, new_data = new_data)
+  )
+ }
+)
+
+p1_risk <- predict(fit, new_data = new_data, pred_horizon = 1000)
+
+p2_risk <- predict(fit_oobag_risk, new_data = new_data, pred_horizon = 1000)
+
+p3_risk <- predict(fit_oobag_chf, new_data = new_data, pred_horizon = 1000)
+
+test_that(
+ desc = "same predictions from the forest regardless of oob type",
+ code = {
+  expect_equal(p1_risk, p2_risk)
+  expect_equal(p1_risk, p3_risk)
+ }
+)
+
+p1_chf <- predict(fit, new_data = new_data,
                   pred_type = 'chf', pred_horizon = 1000)
 
-p1_surv <- predict(aorsf, new_data = new_data,
+p1_surv <- predict(fit, new_data = new_data,
                    pred_type = 'surv', pred_horizon = 1000)
 
-p1_mort <- predict(aorsf, new_data = new_data, pred_type = 'mort')
+p1_mort <- predict(fit, new_data = new_data, pred_type = 'mort')
 
 test_that(
  desc = 'predict is type stable',
@@ -44,31 +86,31 @@ test_that(
  desc = 'predictions computed for tibbles, and data.tables',
  code = {
 
-  p1_dt <- predict(aorsf, new_data = new_data_dt, pred_horizon = 1000)
-  p1_tbl <- predict(aorsf, new_data = new_data_tbl, pred_horizon = 1000)
+  p1_dt <- predict(fit, new_data = new_data_dt, pred_horizon = 1000)
+  p1_tbl <- predict(fit, new_data = new_data_tbl, pred_horizon = 1000)
 
   expect_equal(p1_risk, p1_dt)
   expect_equal(p1_risk, p1_tbl)
 
-  p1_dt <- predict(aorsf, new_data = new_data_dt, pred_type = 'mort')
-  p1_tbl <- predict(aorsf, new_data = new_data_tbl, pred_type = 'mort')
+  p1_dt <- predict(fit, new_data = new_data_dt, pred_type = 'mort')
+  p1_tbl <- predict(fit, new_data = new_data_tbl, pred_type = 'mort')
 
   expect_equal(p1_mort, p1_dt)
   expect_equal(p1_mort, p1_tbl)
 
-  p1_dt <- predict(aorsf, new_data = new_data_dt,
+  p1_dt <- predict(fit, new_data = new_data_dt,
                    pred_type = 'chf', pred_horizon = 1000)
 
-  p1_tbl <- predict(aorsf, new_data = new_data_tbl,
+  p1_tbl <- predict(fit, new_data = new_data_tbl,
                     pred_type = 'chf', pred_horizon = 1000)
 
   expect_equal(p1_chf, p1_dt)
   expect_equal(p1_chf, p1_tbl)
 
-  p1_dt <- predict(aorsf, new_data = new_data_dt,
+  p1_dt <- predict(fit, new_data = new_data_dt,
                    pred_type = 'surv', pred_horizon = 1000)
 
-  p1_tbl <- predict(aorsf, new_data = new_data_tbl,
+  p1_tbl <- predict(fit, new_data = new_data_tbl,
                     pred_type = 'surv', pred_horizon = 1000)
 
   expect_equal(p1_surv, p1_dt)
@@ -80,9 +122,9 @@ test_that(
 )
 
 
-p2 <- predict(aorsf, new_data = new_data, pred_horizon = 2000)
+p2 <- predict(fit, new_data = new_data, pred_horizon = 2000)
 
-p_multi <- predict(aorsf, new_data = new_data, pred_horizon = c(1000, 2000))
+p_multi <- predict(fit, new_data = new_data, pred_horizon = c(1000, 2000))
 
 test_that(
  desc = 'multi-time preds are same as uni-time',
@@ -97,7 +139,7 @@ test_that(
   expect_true(all(p1_risk <= 1) && all(p1_risk >= 0))
  })
 
-p2 <- predict(aorsf,
+p2 <- predict(fit,
               new_data = new_data,
               pred_horizon = 1000,
               pred_type = 'surv')
@@ -112,7 +154,7 @@ test_that(
  code = {
 
   for(i in seq(nrow(new_data))){
-   p2_1row <- predict(aorsf,
+   p2_1row <- predict(fit,
                       new_data = new_data[i,],
                       pred_horizon = 1000,
                       pred_type = 'surv')
@@ -130,7 +172,7 @@ test_that(
 
   new_order <- sample(nrow(new_data), replace = F)
 
-  preds <- predict(aorsf,
+  preds <- predict(fit,
                    new_data = new_data[new_order, ],
                    pred_horizon = 1000,
                    pred_type = 'surv')
@@ -145,22 +187,22 @@ test_that(
  code = {
 
   expect_error(
-   predict(aorsf, newdata = new_data, pred_horizon = 1000),
+   predict(fit, newdata = new_data, pred_horizon = 1000),
    regexp = 'newdata'
   )
 
   expect_error(
-   predict(aorsf, newdata = new_data, horizon = 1000),
+   predict(fit, newdata = new_data, horizon = 1000),
    regexp = 'horizon'
   )
 
   expect_error(
-   predict(aorsf, newdata = new_data, horizon = 1000, type = 'risk'),
+   predict(fit, newdata = new_data, horizon = 1000, type = 'risk'),
    regexp = 'type'
   )
 
   expect_error(
-   predict(aorsf, OK = 'risk'),
+   predict(fit, OK = 'risk'),
    regexp = 'OK'
   )
 
@@ -174,12 +216,12 @@ test_that(
  code = {
 
   expect_error(
-   predict(aorsf, new_data = new_data[c(), ], pred_horizon = 1000),
+   predict(fit, new_data = new_data[c(), ], pred_horizon = 1000),
    regexp = 'new data are empty'
   )
 
   expect_error(
-   predict(aorsf, new_data = new_data[c(), ], pred_horizon = 1000),
+   predict(fit, new_data = new_data[c(), ], pred_horizon = 1000),
    regexp = 'new data are empty'
   )
 
@@ -217,7 +259,7 @@ test_that(
  desc = 'unexpected data types are detected',
  code = {
   expect_error(
-   object = predict(aorsf, bad_data, pred_horizon = 1000),
+   object = predict(fit, bad_data, pred_horizon = 1000),
    regexp = "\\<trt\\>"
   )
  }
@@ -230,7 +272,7 @@ test_that(
  desc = 'unexpected factor levels are detected',
  code = {
   expect_error(
-   object = predict(aorsf, bad_data, pred_horizon = 1000),
+   object = predict(fit, bad_data, pred_horizon = 1000),
    regexp = "new_level"
   )
  }
@@ -245,7 +287,7 @@ test_that(
  desc = 'missing columns are detected',
  code = {
   expect_error(
-   object = predict(aorsf, bad_data, pred_horizon = 1000),
+   object = predict(fit, bad_data, pred_horizon = 1000),
    regexp = "trt and sex"
   )
  }
@@ -261,14 +303,14 @@ test_that(
   bad_data$age[1] <- NA_real_
 
   expect_error(
-   object = predict(aorsf, bad_data, pred_horizon = 1000),
+   object = predict(fit, bad_data, pred_horizon = 1000),
    regexp = "missing values"
   )
 
   bad_data$age[1] <- Inf
 
   expect_error(
-   object = predict(aorsf, bad_data, pred_horizon = 1000),
+   object = predict(fit, bad_data, pred_horizon = 1000),
    regexp = "infinite"
   )
 
@@ -280,7 +322,7 @@ test_that(
  desc = 'pred horizon < max time',
  code = {
   expect_error(
-   object = predict(aorsf, pbc_orsf[-train,], pred_horizon = 100000),
+   object = predict(fit, pbc_orsf[-train,], pred_horizon = 100000),
    regexp = "max follow-up"
   )
  }
@@ -290,7 +332,7 @@ test_that(
  desc = 'pred horizon in increasing order',
  code = {
   expect_error(
-   object = predict(aorsf, pbc_orsf[-train,],
+   object = predict(fit, pbc_orsf[-train,],
                     pred_horizon = c(4000, 2000)),
    regexp = "ascending"
   )
@@ -324,7 +366,7 @@ new_col_order <- sample(names(new_data),
 
 new_data_reordered <- new_data[, new_col_order]
 
-p2 <- predict(aorsf, new_data_reordered, pred_horizon = 1000)
+p2 <- predict(fit, new_data_reordered, pred_horizon = 1000)
 
 test_that(
  desc = 'predictions dont require cols in same order as training data',
@@ -352,15 +394,9 @@ test_that(
   units(pbc_units_trn$bili) <- 'mg/dl'
 
   #' @srrstats {G5.5} *Correctness tests are run with a fixed random seed*
-  set.seed(1)
 
-  fit_units = orsf(formula = time + status  ~ . - id,
-                   data = pbc_units_trn,
-                   mtry = 5,
-                   n_split = 10,
-                   n_tree = 50,
-                   oobag_pred = TRUE,
-                   leaf_min_obs = 15)
+  set.seed(329)
+  fit_units = orsf(formula = time + status  ~ . - id, data = pbc_units_trn)
 
   expect_error(
    predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000),
@@ -378,20 +414,26 @@ test_that(
 
   units(pbc_units_tst$time) <- 'days'
   units(pbc_units_tst$age) <- 'years'
+  units(pbc_units_tst$bili) <- 'mg/dl'
+
+
+  expect_equal(fit_units$pred_oobag, fit$pred_oobag)
+  expect_equal(fit_units$eval_oobag$stat_values, fit$eval_oobag$stat_values)
+  expect_equal(fit_units$forest, fit$forest)
+
+  # small difference in one or two cases, but the forests are identical.
+  # so...
+  p3 <- predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000)
+  expect_equal(p3, p1_risk)
+
+  units(pbc_units_tst$time) <- 'days'
+  units(pbc_units_tst$age) <- 'years'
   units(pbc_units_tst$bili) <- 'mg/l'
 
   expect_error(
    predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000),
    regexp = 'bili has unit mg/dl in the training data'
   )
-
-  units(pbc_units_tst$time) <- 'days'
-  units(pbc_units_tst$age) <- 'years'
-  units(pbc_units_tst$bili) <- 'mg/dl'
-
-  p3 <- predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000)
-
-  expect_equal(p3, p1_risk)
 
  }
 

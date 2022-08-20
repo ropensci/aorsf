@@ -125,11 +125,11 @@ So which fit seems to work best in this example? Let's find out by evaluating th
 ```{r}
 
 risk_preds <- list(
- accel = 1 - fit_accel$surv_oobag,
- cph   = 1 - fit_cph$surv_oobag,
- net   = 1 - fit_net$surv_oobag,
- rando = 1 - fit_rando$surv_oobag,
- pca   = 1 - fit_pca$surv_oobag
+ accel = 1 - fit_accel$pred_oobag,
+ cph   = 1 - fit_cph$pred_oobag,
+ net   = 1 - fit_net$pred_oobag,
+ rando = 1 - fit_rando$pred_oobag,
+ pca   = 1 - fit_pca$pred_oobag
 )
 
 sc <- Score(object = risk_preds, 

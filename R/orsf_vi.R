@@ -266,7 +266,7 @@ orsf_vi_oobag_ <- function(object, type_vi, oobag_fun){
  } else {
 
   last_eval_stat <-
-   f_oobag_eval(y_mat = y, s_vec = object$surv_oobag)
+   f_oobag_eval(y_mat = y, s_vec = object$pred_oobag)
 
  }
 
@@ -276,12 +276,21 @@ orsf_vi_oobag_ <- function(object, type_vi, oobag_fun){
   'permute' = orsf_oob_permute_vi
  )
 
+ pred_type <- switch(
+  get_oobag_pred_type(object),
+  "surv" = "S",
+  "risk" = "R",
+  "chf"  = "H"
+ )
+
+
  out <- f_oobag_vi(x = x[sorted, ],
                    y = y[sorted, ],
                    forest = object$forest,
                    last_eval_stat = last_eval_stat,
                    time_pred_ = object$pred_horizon,
                    f_oobag_eval = f_oobag_eval,
+                   pred_type_ = pred_type,
                    type_oobag_eval_ = type_oobag_eval)
 
  rownames(out) <- colnames(x)

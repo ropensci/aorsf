@@ -40,7 +40,7 @@ fit <- orsf(data = pbc_orsf,
             formula = Surv(time, status) ~ . - id,
             oobag_pred_horizon = 3500)
 
-hist(fit$surv_oobag, 
+hist(fit$pred_oobag, 
      main = 'Ensemble out-of-bag survival predictions at t=3,500')
 
 ```
@@ -105,7 +105,7 @@ There are two ways to apply your own function to compute out-of-bag error. First
 ```{r}
 
 oobag_fun_brier(y_mat = fit$data[, c('time', 'status')],
-                s_vec = fit$surv_oobag)
+                s_vec = fit$pred_oobag)
 
 ```
 
@@ -229,13 +229,13 @@ You can use any package whatsoever to evaluate out-of-bag predictions. You can a
 
 ```{r}
 
-surv_oobag <- fit$surv_oobag
+pred_oobag <- fit$pred_oobag
 
-surv_oobag[1:5, ]
+pred_oobag[1:5, ]
 
 ```
 
-Some notes to remember when evaluating out-of-bag error with `surv_oobag`: 
+Some notes to remember when evaluating out-of-bag error with `pred_oobag`: 
 
 - the `oobag_pred_horizon` input in `orsf()` determines the prediction horizon for out-of-bag predictions. The prediction horizon is a critical input for evaluation of predictions with time-to-event outcomes. 
 

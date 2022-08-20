@@ -252,7 +252,7 @@ test_that(
   c_target <- last_value(fit$eval_oobag$stat_values)
   c_estimate <- oobag_c_harrell(
    y_mat = as.matrix(fit$data[, c('time', 'status')]),
-   s_vec = fit$surv_oobag
+   s_vec = fit$pred_oobag
   )
 
   expect_equal(c_target, c_estimate)
@@ -327,7 +327,7 @@ test_that(
 
   fit_no_oob <- orsf(pbc_vi,
                      formula = Surv(time, status) ~ age + sex + bili + junk,
-                     oobag_pred = FALSE)
+                     oobag_pred_type = 'none')
 
   expect_error(orsf_vi_negate(fit_no_oob), regexp = 'out-of-bag')
 

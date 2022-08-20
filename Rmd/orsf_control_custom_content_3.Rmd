@@ -7,8 +7,8 @@ How well do our two customized ORSFs do? Let's compute their indices of predicti
 library(riskRegression)
 library(survival)
 
-risk_preds <- list(rando = 1 - fit_rando$surv_oobag,
-                    pca = 1 - fit_pca$surv_oobag)
+risk_preds <- list(rando = 1 - fit_rando$pred_oobag,
+                    pca = 1 - fit_pca$pred_oobag)
 
 sc <- Score(object = risk_preds, 
             formula = Surv(time, status) ~ 1, 

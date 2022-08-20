@@ -48,27 +48,13 @@
 #'   `object`'s training data. Also, `pred_horizon` values must be entered
 #'   in ascending order.
 #'
+#' If unspecified, `pred_horizon` may be automatically specified as the value
+#'   used for `oobag_pred_horizon` when `object` was created (see [orsf]).
+#'
+#'
 #' @export
 #'
-#' @seealso as.data.table.orsf_summary
-#'
-#' @examples
-#'
-#'
-#' # indices of data used for training the model
-#' train <- seq(1, nrow(pbc_orsf), by = 2)
-#'
-#' # indices of data used to test the trained model.
-#' test <- seq(2, nrow(pbc_orsf), by = 2)
-#'
-#' fit <- orsf(pbc_orsf[train, ], Surv(time, status) ~ . - id)
-#'
-#' preds <- predict(fit,
-#'                  new_data = pbc_orsf[test, ],
-#'                  pred_horizon = c(500, 1500, 2500))
-#'
-#' head(preds)
-#'
+#' @includeRmd Rmd/orsf_predict_examples.Rmd
 #'
 predict.orsf_fit <- function(object,
                              new_data,
@@ -76,16 +62,11 @@ predict.orsf_fit <- function(object,
                              pred_type = 'risk',
                              ...){
 
- check_dots(list(...), .f = predict.orsf_fit)
-
- #' @srrstats {G2.13} *check for missing data as part of initial pre-processing prior to passing data to analytic algorithms.*
- names_x_data <- get_names_x(object)
-
  # catch any arguments that didn't match and got relegated to ...
  # these arguments are mistaken input names since ... isn't used.
+ check_dots(list(...), .f = predict.orsf_fit)
 
-
- # TODO: Throw error if an argument is not used, i.e., .dots is not empty
+ names_x_data <- get_names_x(object)
 
  if(any(is.na(new_data[, intersect(names_x_data, names(new_data))]))){
   stop("Please remove missing values from new_data, or impute them.",
@@ -93,6 +74,8 @@ predict.orsf_fit <- function(object,
  }
 
  #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
+
+ pred_horizon <- infer_pred_horizon(object, pred_horizon)
 
  check_predict(object, new_data, pred_horizon, pred_type)
 

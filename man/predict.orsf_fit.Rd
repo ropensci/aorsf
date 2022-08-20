@@ -48,26 +48,89 @@ that were not in the data used to train \code{object}.
 \code{pred_horizon} values must not exceed the maximum follow-up time in
 \code{object}'s training data. Also, \code{pred_horizon} values must be entered
 in ascending order.
-}
-\examples{
 
+If unspecified, \code{pred_horizon} may be automatically specified as the value
+used for \code{oobag_pred_horizon} when \code{object} was created (see \link{orsf}).
 
-# indices of data used for training the model
-train <- seq(1, nrow(pbc_orsf), by = 2)
+Begin by fitting an ORSF ensemble:
 
-# indices of data used to test the trained model.
-test <- seq(2, nrow(pbc_orsf), by = 2)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(aorsf)
 
-fit <- orsf(pbc_orsf[train, ], Surv(time, status) ~ . - id)
+set.seed(329730)
 
-preds <- predict(fit,
-                 new_data = pbc_orsf[test, ],
-                 pred_horizon = c(500, 1500, 2500))
+index_train <- sample(nrow(pbc_orsf), 150) 
 
-head(preds)
+pbc_orsf_train <- pbc_orsf[index_train, ]
+pbc_orsf_test <- pbc_orsf[-index_train, ]
 
+fit <- orsf(data = pbc_orsf_train, 
+            formula = Surv(time, status) ~ . - id,
+            oobag_pred_horizon = 365.25 * 5)
+}\if{html}{\out{</div>}}
 
-}
-\seealso{
-as.data.table.orsf_summary
+Predict risk, survival, or cumulative hazard at one or several times:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted risk, the default
+predict(fit, 
+        new_data = pbc_orsf_test[1:5, ], 
+        pred_type = 'risk', 
+        pred_horizon = c(500, 1000, 1500))
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##             [,1]       [,2]       [,3]
+## [1,] 0.502277249 0.78369254 0.92143996
+## [2,] 0.035699097 0.07776627 0.14863153
+## [3,] 0.110355739 0.26854128 0.40820574
+## [4,] 0.011659607 0.02787088 0.07267587
+## [5,] 0.006644573 0.01591640 0.04903247
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted survival, i.e., 1 - risk
+predict(fit, 
+        new_data = pbc_orsf_test[1:5, ], 
+        pred_type = 'surv',
+        pred_horizon = c(500, 1000, 1500))
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##           [,1]      [,2]       [,3]
+## [1,] 0.4977228 0.2163075 0.07856004
+## [2,] 0.9643009 0.9222337 0.85136847
+## [3,] 0.8896443 0.7314587 0.59179426
+## [4,] 0.9883404 0.9721291 0.92732413
+## [5,] 0.9933554 0.9840836 0.95096753
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted cumulative hazard function
+# (expected number of events for person i at time j)
+predict(fit, 
+        new_data = pbc_orsf_test[1:5, ], 
+        pred_type = 'chf',
+        pred_horizon = c(500, 1000, 1500))
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##             [,1]       [,2]       [,3]
+## [1,] 0.705240501 1.37551172 1.79408459
+## [2,] 0.037859536 0.09860152 0.20087409
+## [3,] 0.131539617 0.38704960 0.68840843
+## [4,] 0.011659607 0.02870233 0.08408614
+## [5,] 0.006644573 0.01789893 0.05801293
+}\if{html}{\out{</div>}}
+
+Predict mortality, defined as the number of events in the forest’s
+population if all observations had characteristics like the current
+observation. This type of prediction does not require you to specify a
+prediction horizon
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{predict(fit, 
+        new_data = pbc_orsf_test[1:5, ], 
+        pred_type = 'mort')
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##           [,1]
+## [1,] 71.355153
+## [2,] 10.811443
+## [3,] 27.509084
+## [4,]  5.930542
+## [5,]  3.891028
+}\if{html}{\out{</div>}}
 }

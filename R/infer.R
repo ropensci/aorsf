@@ -19,8 +19,7 @@ infer_pred_horizon <- function(object, pred_horizon){
  if(is.null(pred_horizon)) pred_horizon <- object$pred_horizon
 
  if(is.null(pred_horizon))
-  stop("pred_horizon was not specified and could not be found in object. ",
-       "did you use oobag_pred = FALSE when running orsf()?",
+  stop("pred_horizon was not specified and could not be found in object.",
        call. = FALSE)
 
  pred_horizon

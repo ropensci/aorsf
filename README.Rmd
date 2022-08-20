@@ -29,20 +29,20 @@ knitr::opts_chunk$set(
 <a href="https://joss.theoj.org/papers/414871f081cd8449007d671a7f7f7c3a"><img src="https://joss.theoj.org/papers/414871f081cd8449007d671a7f7f7c3a/status.svg"></a>
 <!-- badges: end -->
 
-`aorsf` provides optimized software to fit, interpret, and make predictions with oblique random survival forests (ORSFs).  
+Fit, interpret, and make predictions with oblique random survival forests (ORSFs).  
 
 
 ## Why aorsf?
 
 - Hundreds of times faster than `obliqueRSF`.^1^
 
-- Fast and accurate predictions for censored outcomes.^2^
+- Accurate predictions for censored outcomes.^2^
 
-- negation importance, a novel technique to estimate variable importance for ORSFs.^2^
+- Negation importance, a novel technique to estimate variable importance for ORSFs.^2^
 
-- intuitive API with formula based interface.
+- Intuitive API with formula based interface.
 
-- extensive input checks + informative error messages.
+- Extensive input checks and informative error messages.
 
 ## Installation
 

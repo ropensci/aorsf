@@ -29,16 +29,16 @@ ostree_pred_leaf_testthat <- function(tree, x_pred_) {
     .Call(`_aorsf_ostree_pred_leaf_testthat`, tree, x_pred_)
 }
 
-orsf_fit <- function(x, y, weights, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, split_min_events_, split_min_obs_, split_min_stat_, cph_method_, cph_eps_, cph_iter_max_, cph_do_scale_, net_alpha_, net_df_target_, oobag_pred_, oobag_pred_horizon_, oobag_eval_every_, oobag_importance_, oobag_importance_type_, tree_seeds, max_retry_, f_beta, type_beta_, f_oobag_eval, type_oobag_eval_) {
-    .Call(`_aorsf_orsf_fit`, x, y, weights, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, split_min_events_, split_min_obs_, split_min_stat_, cph_method_, cph_eps_, cph_iter_max_, cph_do_scale_, net_alpha_, net_df_target_, oobag_pred_, oobag_pred_horizon_, oobag_eval_every_, oobag_importance_, oobag_importance_type_, tree_seeds, max_retry_, f_beta, type_beta_, f_oobag_eval, type_oobag_eval_)
+orsf_fit <- function(x, y, weights, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, split_min_events_, split_min_obs_, split_min_stat_, cph_method_, cph_eps_, cph_iter_max_, cph_do_scale_, net_alpha_, net_df_target_, oobag_pred_, oobag_pred_type_, oobag_pred_horizon_, oobag_eval_every_, oobag_importance_, oobag_importance_type_, tree_seeds, max_retry_, f_beta, type_beta_, f_oobag_eval, type_oobag_eval_) {
+    .Call(`_aorsf_orsf_fit`, x, y, weights, n_tree, n_split_, mtry_, leaf_min_events_, leaf_min_obs_, split_min_events_, split_min_obs_, split_min_stat_, cph_method_, cph_eps_, cph_iter_max_, cph_do_scale_, net_alpha_, net_df_target_, oobag_pred_, oobag_pred_type_, oobag_pred_horizon_, oobag_eval_every_, oobag_importance_, oobag_importance_type_, tree_seeds, max_retry_, f_beta, type_beta_, f_oobag_eval, type_oobag_eval_)
 }
 
-orsf_oob_negate_vi <- function(x, y, forest, last_eval_stat, time_pred_, f_oobag_eval, type_oobag_eval_) {
-    .Call(`_aorsf_orsf_oob_negate_vi`, x, y, forest, last_eval_stat, time_pred_, f_oobag_eval, type_oobag_eval_)
+orsf_oob_negate_vi <- function(x, y, forest, last_eval_stat, time_pred_, f_oobag_eval, pred_type_, type_oobag_eval_) {
+    .Call(`_aorsf_orsf_oob_negate_vi`, x, y, forest, last_eval_stat, time_pred_, f_oobag_eval, pred_type_, type_oobag_eval_)
 }
 
-orsf_oob_permute_vi <- function(x, y, forest, last_eval_stat, time_pred_, f_oobag_eval, type_oobag_eval_) {
-    .Call(`_aorsf_orsf_oob_permute_vi`, x, y, forest, last_eval_stat, time_pred_, f_oobag_eval, type_oobag_eval_)
+orsf_oob_permute_vi <- function(x, y, forest, last_eval_stat, time_pred_, f_oobag_eval, pred_type_, type_oobag_eval_) {
+    .Call(`_aorsf_orsf_oob_permute_vi`, x, y, forest, last_eval_stat, time_pred_, f_oobag_eval, pred_type_, type_oobag_eval_)
 }
 
 orsf_pred_uni <- function(forest, x_new, time_dbl, pred_type) {
