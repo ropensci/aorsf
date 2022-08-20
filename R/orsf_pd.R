@@ -25,6 +25,14 @@
 #'   indicate variable names, values will indicate variable values, and
 #'   partial dependence will be computed using the inputs on each row.
 #'
+#' @param pred_type (_character_) the type of predictions to compute. Valid
+#'   options are
+#'
+#'   - 'risk' : probability of having an event at or before `pred_horizon`.
+#'   - 'surv' : 1 - risk.
+#'   - 'chf': cumulative hazard function
+#'   - 'mort': mortality prediction
+#'
 #' @param expand_grid (_logical_) if `TRUE`, partial dependence will be
 #'   computed at all possible combinations of inputs in `pred_spec`. If
 #'   `FALSE`, partial dependence will be computed for each variable
@@ -276,7 +284,7 @@ orsf_pred_dependence <- function(object,
  if(is.null(prob_labels)) prob_labels <- c('lwr', 'medn', 'upr')
 
  check_pd_inputs(object          = object,
-                 pred_spec         = pred_spec,
+                 pred_spec       = pred_spec,
                  expand_grid     = expand_grid,
                  prob_values     = prob_values,
                  prob_labels     = prob_labels,
@@ -284,6 +292,13 @@ orsf_pred_dependence <- function(object,
                  new_data        = pd_data,
                  pred_type       = pred_type,
                  pred_horizon    = pred_horizon)
+
+ if(pred_type == 'mort') stop(
+  "mortality predictions aren't supported in partial dependence functions",
+  " yet. Sorry for the inconvenience - we plan on including this option",
+  " in a future update.",
+  call. = FALSE
+ )
 
  if(oobag && is.null(object$data))
   stop("no data were found in object. ",

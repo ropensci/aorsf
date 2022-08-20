@@ -7,10 +7,10 @@ The default variable importance technique, ANOVA, is calculated while you fit an
 
 ```{r}
 
-fit_default <- orsf(pbc_orsf,
+fit <- orsf(pbc_orsf,
                     Surv(time, status) ~ . - id)
 
-fit_default
+fit
 
 ```
 
@@ -22,7 +22,7 @@ the 'raw' variable importance values are stored in the fit object
 
 ```{r}
 
-fit_default$importance
+fit$importance
 
 ```
 
@@ -34,7 +34,7 @@ To get aggregated values across all levels of each factor, use `orsf_vi()` with 
 
 ```{r}
 
-orsf_vi(fit_default)
+orsf_vi(fit)
 
 ```
 

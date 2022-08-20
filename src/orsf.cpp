@@ -3341,7 +3341,7 @@ List orsf_fit(NumericMatrix& x,
 
     ostree_pred_leaf();
 
-    oobag_pred_surv_uni(pred_type_dflt);
+    oobag_pred_surv_uni(oobag_pred_type);
 
     if(oobag_importance_type == 'N'){
      betas.elem( betas_to_flip ) *= (-1);
@@ -3629,7 +3629,7 @@ arma::mat pd_new_smry(List&          forest,
                       NumericMatrix& x_vals_,
                       NumericVector& probs_,
                       const double   time_dbl,
-                      char     pred_type){
+                      char           pred_type){
 
 
  uword pd_i;
@@ -3694,7 +3694,7 @@ arma::mat pd_oob_smry(List&          forest,
                       NumericMatrix& x_vals_,
                       NumericVector& probs_,
                       const double   time_dbl,
-                      char     pred_type){
+                      char           pred_type){
 
 
  uword pd_i;
@@ -3746,7 +3746,7 @@ arma::mat pd_oob_smry(List&          forest,
 
    ostree_mem_xfer();
    ostree_pred_leaf();
-   oobag_pred_surv_uni(pred_type_dflt);
+   oobag_pred_surv_uni(pred_type);
 
 
   }
@@ -3892,7 +3892,7 @@ arma::mat pd_oob_ice(List&          forest,
 
    ostree_mem_xfer();
    ostree_pred_leaf();
-   oobag_pred_surv_uni(pred_type_dflt);
+   oobag_pred_surv_uni(pred_type);
 
 
   }

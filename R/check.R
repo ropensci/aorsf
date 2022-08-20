@@ -918,6 +918,13 @@ check_orsf_inputs <- function(data = NULL,
                    arg_name = 'oobag_pred_type',
                    expected_length = 1)
 
+  if(oobag_pred_type == 'mort') stop(
+   "Out-of-bag mortality predictions aren't supported yet. ",
+   " Sorry for the inconvenience - we plan on including this option",
+   " in a future update.",
+   call. = FALSE
+  )
+
   check_arg_is_valid(arg_value = oobag_pred_type,
                      arg_name = 'oobag_pred_type',
                      valid_options = c("none",

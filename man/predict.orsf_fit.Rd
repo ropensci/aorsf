@@ -51,7 +51,8 @@ in ascending order.
 
 If unspecified, \code{pred_horizon} may be automatically specified as the value
 used for \code{oobag_pred_horizon} when \code{object} was created (see \link{orsf}).
-
+}
+\section{Examples}{
 Begin by fitting an ORSF ensemble:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(aorsf)
@@ -134,3 +135,4 @@ prediction horizon
 ## [5,]  3.891028
 }\if{html}{\out{</div>}}
 }
+

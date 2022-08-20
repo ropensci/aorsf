@@ -98,10 +98,10 @@ or not (see examples).
 The default variable importance technique, ANOVA, is calculated while
 you fit an ORSF ensemble.
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_default <- orsf(pbc_orsf,
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit <- orsf(pbc_orsf,
                     Surv(time, status) ~ . - id)
 
-fit_default
+fit
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
@@ -130,7 +130,7 @@ as the permutation and negation techniques for variable selection.
 
 the ‘raw’ variable importance values are stored in the fit object
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_default$importance
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit$importance
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##     edema_1   ascites_1        bili      copper         age     albumin 
@@ -153,7 +153,7 @@ and 1.
 To get aggregated values across all levels of each factor, use
 \code{orsf_vi()} with group_factors set to \code{TRUE} (the default)
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi(fit_default)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi(fit)
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper        age    albumin    protime 

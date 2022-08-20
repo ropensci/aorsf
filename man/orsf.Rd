@@ -296,7 +296,7 @@ library(tidymodels)
 ## x dplyr::last()         masks aorsf::last()
 ## x recipes::step()       masks stats::step()
 ## x purrr::transpose()    masks aorsf::transpose()
-## * Use suppressPackageStartupMessages() to eliminate package startup messages
+## * Search for functions across packages at https://www.tidymodels.org/find/
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(tidyverse)

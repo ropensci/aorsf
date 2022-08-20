@@ -1,4 +1,6 @@
 
+# Examples
+
 Begin by fitting an ORSF ensemble:
 
 ```{r, child = 'orsf-fit-accelerated.Rmd'}

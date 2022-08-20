@@ -128,8 +128,9 @@ pd_sex_tv <- orsf_pd_oob(fit, pred_spec = list(sex = c("m", "f")),
                          pred_horizon = seq(365, 365*5))
 
 ggplot(pd_sex_tv, aes(x = pred_horizon, y = mean, color = sex)) + 
- geom_line()
-
+ geom_line() +
+ labs(x = 'Time since baseline',
+      y = 'Expected risk')
 
 ```
 
@@ -150,7 +151,6 @@ ggplot(ratio_tv, aes(x = pred_horizon, y = ratio)) +
       y = 'ratio in expected risk for males versus females')
 
 ```
-
 
 ## Multiple variables, marginally
 
@@ -190,7 +190,7 @@ head(as.data.table(pd_smry))
 
 PD can show the expected value of a model's predictions as a function of a specific predictor, or as a function of multiple predictors. For instance, we can estimate predicted risk as a joint function of `bili`, `edema`, and `trt`:
 
-```{r, -orsf_pd}
+```{r}
 
 pred_spec = list(bili = seq(1, 5, length.out = 20),
                edema = levels(pbc_orsf_train$edema),

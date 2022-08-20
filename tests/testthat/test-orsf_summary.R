@@ -10,11 +10,33 @@ smry_1 <- orsf_summarize_uni(object,
                              n_variables = n_variables,
                              pred_type = 'surv')
 
+
 smry_2 <- orsf_summarize_uni(object,
                              pred_horizon = 1000,
                              n_variables = NULL,
                              pred_type = 'surv')
 
+smry_3 <- orsf_summarize_uni(object,
+                             pred_type = 'chf')
+
+dt_smry_1 <- as.data.table(smry_1)
+dt_smry_2 <- as.data.table(smry_2)
+dt_smry_3 <- as.data.table(smry_3)
+
+test_that(
+ desc = 'standard summaries run and can be cast to data tables',
+ code = {
+
+  expect_true(inherits(dt_smry_1, 'data.table'))
+  expect_true(inherits(dt_smry_2, 'data.table'))
+  expect_true(inherits(dt_smry_3, 'data.table'))
+
+  expect_gt(nrow(dt_smry_2), nrow(dt_smry_1))
+
+ }
+
+
+)
 
 no_miss_list <- function(l){
 
