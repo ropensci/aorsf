@@ -3,7 +3,7 @@
 #'
 #' @description Summarize the univariate information from an ORSF object
 #'
-#' @inheritParams predict.orsf_fit
+#' @inheritParams orsf_pd_oob
 #'
 #' @param n_variables (_integer_) how many variables should be summarized?
 #'   Setting this input to a lower number will reduce computation time.
