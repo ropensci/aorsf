@@ -75,7 +75,7 @@
 <span>  split_min_events <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  split_min_obs <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  split_min_stat <span class="op">=</span> <span class="fl">3.841459</span>,</span>
-<span>  oobag_pred <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  oobag_pred_type <span class="op">=</span> <span class="st">"surv"</span>,</span>
 <span>  oobag_pred_horizon <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  oobag_eval_every <span class="op">=</span> <span class="va">n_tree</span>,</span>
 <span>  oobag_fun <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -178,9 +178,14 @@ a node. Default is 3.841459 for the log-rank test, which is roughly
 a p-value of 0.05</p></dd>
 
 
-<dt>oobag_pred</dt>
-<dd><p>(<em>logical</em>) if <code>TRUE</code> out-of-bag predictions are returned
-in the <code>aorsf</code> object. Default is <code>TRUE</code>.</p></dd>
+<dt>oobag_pred_type</dt>
+<dd><p>(<em>character</em>) The type of out-of-bag predictions
+to compute while fitting the ensemble. Valid options are</p><ul><li><p>'none' : don't compute out-of-bag predictions</p></li>
+<li><p>'risk' : predict the probability of having an event at or before <code>oobag_pred_horizon</code>.</p></li>
+<li><p>'surv' : 1 - risk.</p></li>
+<li><p>'chf'  : predict cumulative hazard function</p></li>
+</ul><p>Mortality ('mort')is not implemented for out of bag predictions yet, but it
+will be in a future update.</p></dd>
 
 
 <dt>oobag_pred_horizon</dt>
@@ -355,7 +360,7 @@ such as <code>recipes</code> or <code>mlr3pipelines</code>.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bcjaeger/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## -- Attaching packages -------------------------------------- tidymodels 0.2.0 --</span></span>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## -- Attaching packages ------------------------ tidymodels 0.2.0 --</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a></span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="co">## v broom        1.0.0     v recipes      1.0.1</span></span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="co">## v dials        0.1.1     v rsample      0.1.1</span></span>
@@ -366,7 +371,7 @@ such as <code>recipes</code> or <code>mlr3pipelines</code>.</p>
 <span id="cb1-9"><a href="#cb1-9"></a><span class="co">## v parsnip      1.0.0     v workflowsets 0.2.1</span></span>
 <span id="cb1-10"><a href="#cb1-10"></a><span class="co">## v purrr        0.3.4     v yardstick    0.0.9</span></span>
 <span id="cb1-11"><a href="#cb1-11"></a></span>
-<span id="cb1-12"><a href="#cb1-12"></a><span class="co">## -- Conflicts ----------------------------------------- tidymodels_conflicts() --</span></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co">## -- Conflicts --------------------------- tidymodels_conflicts() --</span></span>
 <span id="cb1-13"><a href="#cb1-13"></a><span class="co">## x dplyr::between()      masks aorsf::between()</span></span>
 <span id="cb1-14"><a href="#cb1-14"></a><span class="co">## x purrr::discard()      masks scales::discard()</span></span>
 <span id="cb1-15"><a href="#cb1-15"></a><span class="co">## x dplyr::filter()       masks stats::filter()</span></span>
@@ -376,14 +381,14 @@ such as <code>recipes</code> or <code>mlr3pipelines</code>.</p>
 <span id="cb1-19"><a href="#cb1-19"></a><span class="co">## x dplyr::last()         masks aorsf::last()</span></span>
 <span id="cb1-20"><a href="#cb1-20"></a><span class="co">## x recipes::step()       masks stats::step()</span></span>
 <span id="cb1-21"><a href="#cb1-21"></a><span class="co">## x purrr::transpose()    masks aorsf::transpose()</span></span>
-<span id="cb1-22"><a href="#cb1-22"></a><span class="co">## * Dig deeper into tidy modeling with R at https://www.tmwr.org</span></span></code></pre><p></p></div>
+<span id="cb1-22"><a href="#cb1-22"></a><span class="co">## * Use suppressPackageStartupMessages() to eliminate package startup messages</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode r"><pre><code><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</span></span>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## -- Attaching packages ------------------------- tidyverse 1.3.1 --</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a></span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="co">## v readr   2.1.2     v forcats 0.5.1</span></span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="co">## v stringr 1.4.0</span></span>
 <span id="cb1-5"><a href="#cb1-5"></a></span>
-<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## -- Conflicts ------------------------------------------ tidyverse_conflicts() --</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## -- Conflicts ---------------------------- tidyverse_conflicts() --</span></span>
 <span id="cb1-7"><a href="#cb1-7"></a><span class="co">## x dplyr::between()    masks aorsf::between()</span></span>
 <span id="cb1-8"><a href="#cb1-8"></a><span class="co">## x readr::col_factor() masks scales::col_factor()</span></span>
 <span id="cb1-9"><a href="#cb1-9"></a><span class="co">## x purrr::discard()    masks scales::discard()</span></span>
@@ -520,11 +525,11 @@ the result into <code>orsf()</code>:</p>
 <p>So which fit seems to work best in this example? Let’s find out by
 evaluating the out-of-bag survival predictions.</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">risk_preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span> accel <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_accel</span><span class="op">$</span><span class="va">surv_oobag</span>,</span>
-<span> cph   <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_cph</span><span class="op">$</span><span class="va">surv_oobag</span>,</span>
-<span> net   <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_net</span><span class="op">$</span><span class="va">surv_oobag</span>,</span>
-<span> rando <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_rando</span><span class="op">$</span><span class="va">surv_oobag</span>,</span>
-<span> pca   <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_pca</span><span class="op">$</span><span class="va">surv_oobag</span></span>
+<span> accel <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_accel</span><span class="op">$</span><span class="va">pred_oobag</span>,</span>
+<span> cph   <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_cph</span><span class="op">$</span><span class="va">pred_oobag</span>,</span>
+<span> net   <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_net</span><span class="op">$</span><span class="va">pred_oobag</span>,</span>
+<span> rando <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_rando</span><span class="op">$</span><span class="va">pred_oobag</span>,</span>
+<span> pca   <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_pca</span><span class="op">$</span><span class="va">pred_oobag</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">sc</span> <span class="op">&lt;-</span> <span class="fu">Score</span><span class="op">(</span>object <span class="op">=</span> <span class="va">risk_preds</span>, </span>

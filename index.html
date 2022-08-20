@@ -92,16 +92,16 @@
 </h1>
 </div>
 <!-- badges: start -->
-<p><code>aorsf</code> provides optimized software to fit, interpret, and make predictions with oblique random survival forests (ORSFs).</p>
+<p>Fit, interpret, and make predictions with oblique random survival forests (ORSFs).</p>
 <div class="section level2">
 <h2 id="why-aorsf">Why aorsf?<a class="anchor" aria-label="anchor" href="#why-aorsf"></a>
 </h2>
 <ul>
 <li><p>Hundreds of times faster than <code>obliqueRSF</code>.<sup>1</sup></p></li>
-<li><p>Fast and accurate predictions for censored outcomes.<sup>2</sup></p></li>
-<li><p>negation importance, a novel technique to estimate variable importance for ORSFs.<sup>2</sup></p></li>
-<li><p>intuitive API with formula based interface.</p></li>
-<li><p>extensive input checks + informative error messages.</p></li>
+<li><p>Accurate predictions for censored outcomes.<sup>2</sup></p></li>
+<li><p>Negation importance, a novel technique to estimate variable importance for ORSFs.<sup>2</sup></p></li>
+<li><p>Intuitive API with formula based interface.</p></li>
+<li><p>Extensive input checks and informative error messages.</p></li>
 </ul>
 </div>
 <div class="section level2">
@@ -208,13 +208,13 @@
 <div class="section level3">
 <h3 id="partial-dependence-pd">Partial dependence (PD)<a class="anchor" aria-label="anchor" href="#partial-dependence-pd"></a>
 </h3>
-<p>Partial dependence shows the expected prediction from a model as a function of a single predictor or multiple predictors. The expectation is marginalized over the values of all other predictors, giving something like a multivariable adjusted estimate of the model’s prediction.</p>
+<p>Partial dependence (PD) shows the expected prediction from a model as a function of a single predictor or multiple predictors. The expectation is marginalized over the values of all other predictors, giving something like a multivariable adjusted estimate of the model’s prediction.</p>
 <p>For more on PD, see the <a href="https://bcjaeger.github.io/aorsf/articles/pd.html">vignette</a></p>
 </div>
 <div class="section level3">
 <h3 id="individual-conditional-expectations-ice">Individual conditional expectations (ICE)<a class="anchor" aria-label="anchor" href="#individual-conditional-expectations-ice"></a>
 </h3>
-<p>Unlike partial dependence, which shows the expected prediction as a function of one or multiple predictors, individual conditional expectations shows the prediction for an individual observation as a function of a predictor.</p>
+<p>Unlike partial dependence, which shows the expected prediction as a function of one or multiple predictors, individual conditional expectations (ICE) show the prediction for an individual observation as a function of a predictor.</p>
 <p>For more on ICE, see the <a href="https://bcjaeger.github.io/aorsf/articles/pd.html#individual-conditional-expectations-ice">vignette</a></p>
 </div>
 </div>
