@@ -61,6 +61,7 @@ When the new subsets of data are formed based on a single predictor, the decisio
 
 **Figure**: Decision trees for classification with axis-based splitting (left) and oblique splitting (right). Cases are orange squares; controls are purple circles. Both trees partition the predictor space defined by variables X1 and X2, but the oblique splits do a better job of separating the two classes.
 
+
 ```{r fig_oblique_v_axis, out.width='100%', echo = FALSE}
 
 knitr::include_graphics('man/figures/tree_axis_v_oblique.png')

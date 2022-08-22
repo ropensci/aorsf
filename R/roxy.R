@@ -145,7 +145,7 @@ roxy_cite_jaeger_2022 <- function(){
   journal = "arXiv e-prints",
   date = "2022 Aug",
   number = 'arXiv-2208',
-  url = "https://arxiv.org/abs/2208.01129/"
+  url = "https://arxiv.org/abs/2208.01129"
  )
 
 }

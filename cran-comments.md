@@ -16,10 +16,17 @@ I have also run R CMD check on downstream dependencies of `aorsf`:
 
 Both packages passed.
 
-## Revision: 2022-08-22
+## Revision 1, 2022-08-22
 
 Updates: 
 
 - ensured all links use https instead of http and have added trailing slashes where appropriate.
 
 - added a reference to `DESCRIPTION` that discusses the methods used in `aorsf`.
+
+
+## Revision 2, 2022-08-22
+
+Updates: 
+
+- the trailing slash on URL's to the arXiv paper was removed.
