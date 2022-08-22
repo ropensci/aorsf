@@ -275,7 +275,7 @@ library(survival)
 library(tidymodels)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## -- Attaching packages ------------------------------------ tidymodels 0.2.0 --
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## -- Attaching packages ------------------------------------------ tidymodels 0.2.0 --
 
 ## v broom        1.0.0     v recipes      1.0.1
 ## v dials        0.1.1     v rsample      0.1.1
@@ -286,7 +286,7 @@ library(tidymodels)
 ## v parsnip      1.0.0     v workflowsets 0.2.1
 ## v purrr        0.3.4     v yardstick    0.0.9
 
-## -- Conflicts --------------------------------------- tidymodels_conflicts() --
+## -- Conflicts --------------------------------------------- tidymodels_conflicts() --
 ## x dplyr::between()      masks aorsf::between()
 ## x purrr::discard()      masks scales::discard()
 ## x dplyr::filter()       masks stats::filter()
@@ -296,18 +296,18 @@ library(tidymodels)
 ## x dplyr::last()         masks aorsf::last()
 ## x recipes::step()       masks stats::step()
 ## x purrr::transpose()    masks aorsf::transpose()
-## * Use tidymodels_prefer() to resolve common conflicts.
+## * Use suppressPackageStartupMessages() to eliminate package startup messages
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(tidyverse)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## -- Attaching packages ------------------------------------- tidyverse 1.3.1 --
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## -- Attaching packages ------------------------------------------- tidyverse 1.3.1 --
 
 ## v readr   2.1.2     v forcats 0.5.1
 ## v stringr 1.4.0
 
-## -- Conflicts ---------------------------------------- tidyverse_conflicts() --
+## -- Conflicts ---------------------------------------------- tidyverse_conflicts() --
 ## x dplyr::between()    masks aorsf::between()
 ## x readr::col_factor() masks scales::col_factor()
 ## x purrr::discard()    masks scales::discard()
@@ -743,5 +743,5 @@ Ishwaran H, Kogalur UB, Blackstone EH, Lauer MS. Random survival forests. \emph{
 
 Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA, Howard G, Simon N. Oblique random survival forests. \emph{Annals of applied statistics} 2019 Sep; 13(3):1847-83. DOI: 10.1214/19-AOAS1261
 
-Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{arXiv e-prints} 2022 Aug; arXiv-2208. URL: https://arxiv.org/abs/2208.01129
+Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{arXiv e-prints} 2022 Aug; arXiv-2208. URL: https://arxiv.org/abs/2208.01129/
 }

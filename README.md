@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# aorsf <a href="https://bcjaeger.github.io/aorsf"><img src="man/figures/logo.png" align="right" height="138" /></a>
+# aorsf <a href="https://bcjaeger.github.io/aorsf/"><img src="man/figures/logo.png" align="right" height="138" /></a>
 
 <!-- badges: start -->
 
@@ -10,9 +10,9 @@ has not yet been a stable, usable release suitable for the
 public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 [![Codecov test
 coverage](https://codecov.io/gh/bcjaeger/aorsf/branch/master/graph/badge.svg)](https://app.codecov.io/gh/bcjaeger/aorsf?branch=master)
-[![R-CMD-check](https://github.com/bcjaeger/aorsf/workflows/R-CMD-check/badge.svg)](https://github.com/bcjaeger/aorsf/actions)
+[![R-CMD-check](https://github.com/bcjaeger/aorsf/workflows/R-CMD-check/badge.svg)](https://github.com/bcjaeger/aorsf/actions/)
 [![Status at rOpenSci Software Peer
-Review](https://badges.ropensci.org/532_status.svg)](https://github.com/ropensci/software-review/issues/532)
+Review](https://badges.ropensci.org/532_status.svg)](https://github.com/ropensci/software-review/issues/532/)
 <a href="https://joss.theoj.org/papers/414871f081cd8449007d671a7f7f7c3a"><img src="https://joss.theoj.org/papers/414871f081cd8449007d671a7f7f7c3a/status.svg"></a>
 <!-- badges: end -->
 
@@ -201,7 +201,7 @@ For more on ICE, see the
 ## Comparison to existing software
 
 Comparisons between `aorsf` and existing software are presented in our
-[arXiv paper](https://arxiv.org/abs/2208.01129). The paper
+[arXiv paper](https://arxiv.org/abs/2208.01129/). The paper
 
 -   describes `aorsf` in detail with a summary of the procedures used in
     the tree fitting algorithm

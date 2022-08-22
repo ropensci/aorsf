@@ -249,5 +249,5 @@ Breiman L. Random forests. \emph{Machine learning} 2001 Oct; 45(1):5-32. DOI: 10
 
 Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. \emph{Joint European Conference on Machine Learning and Knowledge Discovery in Databases} 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29
 
-Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{arXiv e-prints} 2022 Aug; arXiv-2208. URL: https://arxiv.org/abs/2208.01129
+Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{arXiv e-prints} 2022 Aug; arXiv-2208. URL: https://arxiv.org/abs/2208.01129/
 }
