@@ -5,11 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="Fit, interpret, and make predictions with oblique random
-    survival forests. Oblique decision trees are notoriously slow compared
+<meta name="description" content="Fit, interpret, and make predictions with oblique random 
+    survival forests. Oblique decision trees are notoriously slow compared 
     to their axis based counterparts, but aorsf runs as fast or faster than 
     axis-based decision tree algorithms for right-censored time-to-event 
-    outcomes.">
+    outcomes. Methods to accelerate and interpret the oblique random survival 
+    forest are described in Jaeger et al., (2022) &lt;arXiv:2208.01129&gt;.">
 <title>Accelerated Oblique Random Survival Forests • aorsf</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -22,11 +23,12 @@
 <script src="deps/bootstrap-5.1.3/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.rawgit.com/afeld/bootstrap-toc/v1.0.1/dist/bootstrap-toc.min.js"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Accelerated Oblique Random Survival Forests">
-<meta property="og:description" content="Fit, interpret, and make predictions with oblique random
-    survival forests. Oblique decision trees are notoriously slow compared
+<meta property="og:description" content="Fit, interpret, and make predictions with oblique random 
+    survival forests. Oblique decision trees are notoriously slow compared 
     to their axis based counterparts, but aorsf runs as fast or faster than 
     axis-based decision tree algorithms for right-censored time-to-event 
-    outcomes.">
+    outcomes. Methods to accelerate and interpret the oblique random survival 
+    forest are described in Jaeger et al., (2022) &lt;arXiv:2208.01129&gt;.">
 <meta property="og:image" content="https://bcjaeger.github.io/aorsf/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -125,7 +127,7 @@
 </h2>
 <p>The <code><a href="reference/orsf.html">orsf()</a></code> function can fit several types of ORSF ensembles. My personal favorite is the accelerated ORSF because it has a great combination of prediction accuracy and computational efficiency (see <a href="https://arxiv.org/abs/2208.01129" class="external-link">arXiv paper</a>).<sup>2</sup></p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bcjaeger/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bcjaeger/aorsf/" class="external-link">aorsf</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329730</span><span class="op">)</span></span>
 <span></span>
@@ -221,7 +223,7 @@
 <div class="section level2">
 <h2 id="comparison-to-existing-software">Comparison to existing software<a class="anchor" aria-label="anchor" href="#comparison-to-existing-software"></a>
 </h2>
-<p>Comparisons between <code>aorsf</code> and existing software are presented in our <a href="https://arxiv.org/abs/2208.01129" class="external-link">arXiv paper</a>. The paper</p>
+<p>Comparisons between <code>aorsf</code> and existing software are presented in our <a href="https://arxiv.org/abs/2208.01129/" class="external-link">arXiv paper</a>. The paper</p>
 <ul>
 <li><p>describes <code>aorsf</code> in detail with a summary of the procedures used in the tree fitting algorithm</p></li>
 <li><p>runs a general benchmark comparing <code>aorsf</code> with <code>obliqueRSF</code> and several other learners</p></li>
@@ -251,7 +253,7 @@
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
 <li><a href="https://github.com/bcjaeger/aorsf/" class="external-link">Browse source code</a></li>
-<li><a href="https://github.com/bcjaeger/aorsf/issues" class="external-link">Report a bug</a></li>
+<li><a href="https://github.com/bcjaeger/aorsf/issues/" class="external-link">Report a bug</a></li>
 </ul>
 </div>
 
@@ -290,8 +292,8 @@
 <ul class="list-unstyled">
 <li><a href="https://www.repostatus.org/#wip" class="external-link"><img src="https://www.repostatus.org/badges/latest/wip.svg" alt="Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public."></a></li>
 <li><a href="https://app.codecov.io/gh/bcjaeger/aorsf?branch=master" class="external-link"><img src="https://codecov.io/gh/bcjaeger/aorsf/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></li>
-<li><a href="https://github.com/bcjaeger/aorsf/actions" class="external-link"><img src="https://github.com/bcjaeger/aorsf/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
-<li><a href="https://github.com/ropensci/software-review/issues/532" class="external-link"><img src="https://badges.ropensci.org/532_status.svg" alt="Status at rOpenSci Software Peer Review"></a></li>
+<li><a href="https://github.com/bcjaeger/aorsf/actions/" class="external-link"><img src="https://github.com/bcjaeger/aorsf/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://github.com/ropensci/software-review/issues/532/" class="external-link"><img src="https://badges.ropensci.org/532_status.svg" alt="Status at rOpenSci Software Peer Review"></a></li>
 <li><a href="https://joss.theoj.org/papers/414871f081cd8449007d671a7f7f7c3a" class="external-link"><img src="https://joss.theoj.org/papers/414871f081cd8449007d671a7f7f7c3a/status.svg"></a></li>
 </ul>
 </div>
