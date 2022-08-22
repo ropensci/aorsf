@@ -187,7 +187,7 @@ orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
      f_wts <- prop.table(x = table(object$data[[f]])[-1])
     }
 
-    f_vi <- sum(out[f_rows] * f_wts)
+    f_vi <- sum(out[f_rows] * f_wts, na.rm = TRUE)
 
     out[f_rows] <- f_vi
     rownames(out)[f_rows] <- f
