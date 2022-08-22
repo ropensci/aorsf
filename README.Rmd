@@ -134,7 +134,7 @@ For more on ICE, see the [vignette](https://bcjaeger.github.io/aorsf/articles/pd
 
 ## Comparison to existing software
 
-Comparisons between `aorsf` and existing software are presented in our [arXiv paper](https://arxiv.org/abs/2208.01129/). The paper
+Comparisons between `aorsf` and existing software are presented in our [arXiv paper](https://arxiv.org/abs/2208.01129). The paper
 
 - describes `aorsf` in detail with a summary of the procedures used in the tree fitting algorithm 
 

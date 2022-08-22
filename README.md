@@ -201,7 +201,7 @@ For more on ICE, see the
 ## Comparison to existing software
 
 Comparisons between `aorsf` and existing software are presented in our
-[arXiv paper](https://arxiv.org/abs/2208.01129/). The paper
+[arXiv paper](https://arxiv.org/abs/2208.01129). The paper
 
 -   describes `aorsf` in detail with a summary of the procedures used in
     the tree fitting algorithm
@@ -233,7 +233,7 @@ examples](https://bcjaeger.github.io/aorsf/reference/orsf.html#tidymodels)
 2.  Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A,
     Pajewski NM. Accelerated and interpretable oblique random survival
     forests. *arXiv e-prints* 2022 Aug; arXiv-2208. URL:
-    <https://arxiv.org/abs/2208.01129>
+    <https://arxiv.org/abs/2208.01129/>
 
 3.  Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique
     random forests. *Joint European Conference on Machine Learning and
