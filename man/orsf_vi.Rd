@@ -156,12 +156,12 @@ To get aggregated values across all levels of each factor, use
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi(fit)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper        age    albumin    protime 
-## 0.35528942 0.27837977 0.24719876 0.19605331 0.18822292 0.17033964 0.15320911 
-##       chol      stage    spiders        ast     hepato        sex       trig 
-## 0.14883599 0.13627743 0.13495783 0.12754159 0.12057626 0.10669014 0.09723320 
-##   alk.phos   platelet        trt 
-## 0.09183673 0.07599581 0.06846999
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper        age    albumin 
+## 0.35528942 0.27837977 0.24719876 0.19605331 0.18822292 0.17033964 
+##    protime       chol      stage    spiders        ast     hepato 
+## 0.15320911 0.14883599 0.13627743 0.13495783 0.12754159 0.12057626 
+##        sex       trig   alk.phos   platelet        trt 
+## 0.10669014 0.09723320 0.09183673 0.07599581 0.06846999
 }\if{html}{\out{</div>}}
 }
 
@@ -249,5 +249,5 @@ Breiman L. Random forests. \emph{Machine learning} 2001 Oct; 45(1):5-32. DOI: 10
 
 Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. \emph{Joint European Conference on Machine Learning and Knowledge Discovery in Databases} 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29
 
-Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{arXiv e-prints} 2022 Aug; arXiv-2208. URL: https://arxiv.org/abs/2208.01129/
+Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{arXiv e-prints} 2022 Aug; arXiv-2208. URL: https://arxiv.org/abs/2208.01129
 }

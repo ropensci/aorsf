@@ -29,4 +29,16 @@ Updates:
 
 Updates: 
 
-- the trailing slash on URL's to the arXiv paper was removed.
+- the trailing slash on URL's to the arXiv paper was removed in the readme.
+
+## Revision 3, 2022-08-22
+
+Updates: 
+
+- the trailing slash on URL's to the arXiv paper was removed in the aorsf vignette.
+
+## Revision 4, 2022-08-23
+
+- Extra spaces in `DESCRIPTION` removed.
+
+- `LICENSE` file fixed and names of authors added.

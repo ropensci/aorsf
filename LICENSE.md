@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright (c) 2021 aorsf authors
+Copyright (c) 2022 aorsf authors (Byron C. Jaeger, Sawyer Welden, and Nicholas M. Pajewski)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
