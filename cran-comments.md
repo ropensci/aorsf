@@ -42,3 +42,15 @@ Updates:
 - Extra spaces in `DESCRIPTION` removed.
 
 - `LICENSE` file fixed and names of authors added.
+
+## Revision 4, 2022-08-24
+
+I reviewed the additional issues at https://cran.r-project.org/web/checks/check_results_aorsf.html and modified my testing scripts based on results appearing from ATLAS and MKL checks.
+
+Updates: 
+
+- added tolerance for the equivalence test in `test-orsf_predict.R` that failed on ATLAS.
+
+- relegated time to train tests (`test-orsf.R`, line 617-655) to development version only. These tests can fail randomly (as it did on MKL) due to variations in computing environment.
+
+

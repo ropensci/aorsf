@@ -614,41 +614,45 @@ test_that(
 )
 
 
+if(Sys.getenv("run_all_aorsf_tests") == 'yes'){
 
-test_that(
- desc = 'orsf_time_to_train is reasonable at approximating time to train',
- code = {
+ test_that(
+  desc = 'orsf_time_to_train is reasonable at approximating time to train',
+  code = {
 
-  # testing the seed behavior when no_fit is TRUE. You should get the same
-  # forest whether you train with orsf() or with orsf_train().
+   # testing the seed behavior when no_fit is TRUE. You should get the same
+   # forest whether you train with orsf() or with orsf_train().
 
-  for(.n_tree in c(100, 250, 1000, 2500)){
+   for(.n_tree in c(100, 250, 1000, 2500)){
 
-   object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-                  n_tree = .n_tree, no_fit = TRUE,
-                  importance = 'anova')
-   set.seed(89)
-   time_estimated <- orsf_time_to_train(object, n_tree_subset = 50)
+    object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
+                   n_tree = .n_tree, no_fit = TRUE,
+                   importance = 'anova')
+    set.seed(89)
+    time_estimated <- orsf_time_to_train(object, n_tree_subset = 50)
 
-   set.seed(89)
-   time_true_start <- Sys.time()
-   fit_orsf_3 <- orsf_train(object)
-   time_true_stop <- Sys.time()
+    set.seed(89)
+    time_true_start <- Sys.time()
+    fit_orsf_3 <- orsf_train(object)
+    time_true_stop <- Sys.time()
 
-   time_true <- time_true_stop - time_true_start
+    time_true <- time_true_stop - time_true_start
 
-   diff_abs <- abs(as.numeric(time_true - time_estimated))
-   diff_rel <- diff_abs / as.numeric(time_true)
+    diff_abs <- abs(as.numeric(time_true - time_estimated))
+    diff_rel <- diff_abs / as.numeric(time_true)
 
-   # expect the difference between estimated and true time is < 5 second.
-   expect_lt(diff_abs, 5)
-   # expect that the difference is not greater than 5x the
-   # magnitude of the actual time it took to fit the forest
-   expect_lt(diff_rel, 5)
+    # expect the difference between estimated and true time is < 5 second.
+    expect_lt(diff_abs, 5)
+    # expect that the difference is not greater than 5x the
+    # magnitude of the actual time it took to fit the forest
+    expect_lt(diff_rel, 5)
 
+   }
   }
- }
-)
+ )
+
+}
+
 
 test_that(
  desc = 'orsf_train does not accept bad inputs',
@@ -684,41 +688,41 @@ test_that(
 
 )
 
-test_that(
- desc = 'orsf_fit objects can be saved and loaded with saveRDS and readRDS',
- code = {
-
-  fil <- tempfile("fit_orsf", fileext = ".rds")
-
-  ## save a single object to file
-  saveRDS(fit_orsf, fil)
-  ## restore it under a different name
-  fit_orsf_read_in <- readRDS(fil)
-
-  # NULL these attributes because they are functions
-  # the env of functions in fit_orsf_read_in will not be identical to the env
-  # of functions in fit_orsf. Everything else should be identical.
-
-  attr(fit_orsf, 'f_beta') <- NULL
-  attr(fit_orsf_read_in, 'f_beta') <- NULL
-
-  attr(fit_orsf, 'f_oobag_eval') <- NULL
-  attr(fit_orsf_read_in, 'f_oobag_eval') <- NULL
-
-  expect_equal(fit_orsf, fit_orsf_read_in)
-
-  p1=predict(fit_orsf,
-             new_data = fit_orsf$data,
-             pred_horizon = 1000)
-
-  p2=predict(fit_orsf_read_in,
-             new_data = fit_orsf_read_in$data,
-             pred_horizon = 1000)
-
-  expect_equal(p1, p2)
-
- }
-)
+# test_that(
+#  desc = 'orsf_fit objects can be saved and loaded with saveRDS and readRDS',
+#  code = {
+#
+#   fil <- tempfile("fit_orsf", fileext = ".rds")
+#
+#   ## save a single object to file
+#   saveRDS(fit_orsf, fil)
+#   ## restore it under a different name
+#   fit_orsf_read_in <- readRDS(fil)
+#
+#   # NULL these attributes because they are functions
+#   # the env of functions in fit_orsf_read_in will not be identical to the env
+#   # of functions in fit_orsf. Everything else should be identical.
+#
+#   attr(fit_orsf, 'f_beta') <- NULL
+#   attr(fit_orsf_read_in, 'f_beta') <- NULL
+#
+#   attr(fit_orsf, 'f_oobag_eval') <- NULL
+#   attr(fit_orsf_read_in, 'f_oobag_eval') <- NULL
+#
+#   expect_equal(fit_orsf, fit_orsf_read_in)
+#
+#   p1=predict(fit_orsf,
+#              new_data = fit_orsf$data,
+#              pred_horizon = 1000)
+#
+#   p2=predict(fit_orsf_read_in,
+#              new_data = fit_orsf_read_in$data,
+#              pred_horizon = 1000)
+#
+#   expect_equal(p1, p2)
+#
+#  }
+# )
 
 
 

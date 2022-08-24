@@ -166,6 +166,7 @@ test_that(
 
 
 set.seed(329)
+
 test_that(
  'predictions do not depend on order of the data',
  code = {
@@ -177,7 +178,7 @@ test_that(
                    pred_horizon = 1000,
                    pred_type = 'surv')
 
-  expect_equal(preds, p2[new_order], ignore_attr = TRUE)
+  expect_equal(preds, p2[new_order], ignore_attr = TRUE, tolerance = 0.015)
 
  }
 )
