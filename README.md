@@ -14,6 +14,8 @@ coverage](https://codecov.io/gh/bcjaeger/aorsf/branch/master/graph/badge.svg)](h
 [![Status at rOpenSci Software Peer
 Review](https://badges.ropensci.org/532_status.svg)](https://github.com/ropensci/software-review/issues/532/)
 <a href="https://joss.theoj.org/papers/414871f081cd8449007d671a7f7f7c3a"><img src="https://joss.theoj.org/papers/414871f081cd8449007d671a7f7f7c3a/status.svg"></a>
+[![CRAN
+status](https://www.r-pkg.org/badges/version/aorsf)](https://CRAN.R-project.org/package=aorsf)
 <!-- badges: end -->
 
 Fit, interpret, and make predictions with oblique random survival
