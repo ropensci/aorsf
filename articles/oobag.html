@@ -124,8 +124,8 @@
 <span><span class="co"># what is the output from this function?</span></span>
 <span><span class="va">fit</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span>
 <span><span class="co">#&gt;           [,1]</span></span>
-<span><span class="co">#&gt; [1,] 0.8393936</span></span></code></pre></div>
-<p>The out-of-bag estimate of Harrell’s C-statistic (the default method to evaluate out-of-bag predictions) is 0.8393936.</p>
+<span><span class="co">#&gt; [1,] 0.8405397</span></span></code></pre></div>
+<p>The out-of-bag estimate of Harrell’s C-statistic (the default method to evaluate out-of-bag predictions) is 0.8405397.</p>
 </div>
 <div class="section level2">
 <h2 id="monitoring-out-of-bag-error">Monitoring out-of-bag error<a class="anchor" aria-label="anchor" href="#monitoring-out-of-bag-error"></a>
@@ -169,7 +169,7 @@
 <code class="sourceCode R"><span></span>
 <span><span class="fu">oobag_fun_brier</span><span class="op">(</span>y_mat <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'time'</span>, <span class="st">'status'</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>                s_vec <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">pred_oobag</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.1884389</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.2008949</span></span></code></pre></div>
 <p>Second, you can pass your function into <code><a href="../reference/orsf.html">orsf()</a></code>, and it will be used in place of Harrell’s C-statistic:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -277,12 +277,14 @@
 <span>                 importance <span class="op">=</span> <span class="st">'negate'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit_sroc</span><span class="op">$</span><span class="va">importance</span></span>
-<span><span class="co">#&gt;      albumin          age          ast      protime         bili     platelet </span></span>
-<span><span class="co">#&gt;  0.042683414  0.024281070  0.020954924  0.020685440  0.018200377  0.013783993 </span></span>
-<span><span class="co">#&gt;         chol     hepato_1        stage        sex_f         trig    ascites_1 </span></span>
-<span><span class="co">#&gt;  0.013018965  0.009455629  0.006273489  0.005727135  0.005177189  0.001586711 </span></span>
-<span><span class="co">#&gt;       copper     alk.phos      edema_1    edema_0.5    spiders_1  trt_placebo </span></span>
-<span><span class="co">#&gt; -0.001051911 -0.001538140 -0.001638351 -0.002335022 -0.013773381 -0.031577183</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili       albumin          chol         sex_f        copper </span></span>
+<span><span class="co">#&gt;  0.0443957484  0.0305219831  0.0250562704  0.0230684775  0.0205002776 </span></span>
+<span><span class="co">#&gt;     spiders_1      alk.phos     ascites_1     edema_0.5       edema_1 </span></span>
+<span><span class="co">#&gt;  0.0182653525  0.0067820371  0.0059861893  0.0049034199  0.0039702214 </span></span>
+<span><span class="co">#&gt;   trt_placebo       protime      hepato_1           ast      platelet </span></span>
+<span><span class="co">#&gt;  0.0035389740  0.0032885649  0.0003947060  0.0002204757 -0.0007506574 </span></span>
+<span><span class="co">#&gt;         stage          trig           age </span></span>
+<span><span class="co">#&gt; -0.0013131716 -0.0172744753 -0.0329856507</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="i-really-need-to-use-package-x">I really need to use package X<a class="anchor" aria-label="anchor" href="#i-really-need-to-use-package-x"></a>
@@ -293,7 +295,7 @@
 <span><span class="va">pred_oobag</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">pred_oobag</span></span>
 <span></span>
 <span><span class="va">pred_oobag</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span></span>
-<span><span class="co">#&gt; [1] 0.05768141 0.45352767 0.27248151 0.28559009 0.32373403</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.01507937 0.41050997 0.24028780 0.09479167 0.47592675</span></span></code></pre></div>
 <p>Some notes to remember when evaluating out-of-bag error with <code>pred_oobag</code>:</p>
 <ul>
 <li><p>the <code>oobag_pred_horizon</code> input in <code><a href="../reference/orsf.html">orsf()</a></code> determines the prediction horizon for out-of-bag predictions. The prediction horizon is a critical input for evaluation of predictions with time-to-event outcomes.</p></li>
