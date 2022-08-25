@@ -37,11 +37,11 @@ Risk prediction is a type of supervised learning where the goal is to predict th
 
 # Statement of need
 
-The purpose of ``aorsf`` is to allow oblique RSFs to be fit and interpreted efficiently. The target audience includes both __analysts__ aiming to develop an accurate risk prediction model (e.g., see @segar2021development) and __researchers__ who want to conduct experiments comparing different techniques for identifying linear combinations of predictor variables (e.g., see @katuwal2020heterogeneous). 
+The purpose of ``aorsf`` is to allow oblique RSFs to be fit and interpreted efficiently. The target audience includes both __analysts__ aiming to develop an accurate risk prediction model (e.g., see @segar2021development) and __researchers__ who want to conduct experiments comparing different techniques for fitting oblique RSFs (e.g., see @katuwal2020heterogeneous). 
 
 ## Related software
 
-The `obliqueRF` and `RLT` R packages support oblique random forests (RFs) for classification and regression, but not survival. The `ranger`, `randomForestSRC`, and `party` packages support axis-based RSFs but not oblique RSFs. The ``obliqueRSF`` R package fits oblique RSFs, but has high computational overhead, provides a limited set of tools to interpret oblique RSFs, and does not enable customization of routines used to fit oblique RSFs.  
+The `obliqueRF` and `RLT` R packages support oblique random forests (RFs) for classification and regression, but not survival. The `ranger`, `randomForestSRC`, and `party` packages support axis-based RSFs (see Background section) but not oblique RSFs. The ``obliqueRSF`` R package fits oblique RSFs, but has high computational overhead, provides a limited set of tools to interpret oblique RSFs, and does not enable customization of routines used to fit oblique RSFs.  
 
 # Background
 
