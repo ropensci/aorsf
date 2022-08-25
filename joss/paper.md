@@ -31,9 +31,17 @@ journal: JOSS
 
 # Summary
 
-Risk prediction is a special type of task in supervised learning where the goal is to predict the probability that a person will experience an event within a specific amount of time. This kind of prediction may be useful in clinical settings, where identifying patients who are at high risk for experiencing an adverse health outcome can help guide strategies for prevention and treatment. The oblique random survival forest (RSF) is a supervised learning technique that has obtained high prediction accuracy in general benchmarks for risk prediction [@jaeger2019oblique]. However, computational overhead and a lack of tools for interpretation make it difficult to use the oblique RSF in applied settings. 
+Risk prediction is a type of supervised learning where the goal is to predict the probability that a person will experience an event within a specific amount of time. This kind of prediction may be useful in clinical settings, where identifying patients who are at high risk for experiencing an adverse health outcome can help guide strategies for prevention and treatment. The oblique random survival forest (RSF) is a supervised learning technique that has obtained high prediction accuracy in general benchmarks for risk prediction [@jaeger2019oblique]. However, computational overhead and a lack of tools for interpretation make it difficult to use the oblique RSF in applied settings. 
 
 ``aorsf`` is an R package with fast algorithms to fit and interpret oblique RSFs, allowing users to obtain an accurate risk prediction model without losing efficiency or interpretability.  ``aorsf`` supports exploration and customization of oblique RSFs, allowing users to select the fitting procedure for an oblique RSF or supply their own procedure (see examples provided in documentation for `orsf_control_custom()`). Whereas existing software for oblique RSFs does not support estimation of variable importance (VI), ``aorsf`` provides multiple techniques to estimate VI with the added flexibilty of allowing users to supply their own functions where applicable (see documentation for `orsf_vi()`). 
+
+# Statement of need
+
+The purpose of ``aorsf`` is to allow oblique RSFs to be fit and interpreted efficiently. The target audience includes both __analysts__ aiming to develop an accurate risk prediction model (e.g., see @segar2021development) and __researchers__ who want to conduct experiments comparing different techniques for identifying linear combinations of predictor variables (e.g., see @katuwal2020heterogeneous). 
+
+## Related software
+
+The `obliqueRF` and `RLT` R packages support oblique random forests (RFs) for classification and regression, but not survival. The `ranger`, `randomForestSRC`, and `party` packages support axis-based RSFs but not oblique RSFs. The ``obliqueRSF`` R package fits oblique RSFs, but has high computational overhead, provides a limited set of tools to interpret oblique RSFs, and does not enable customization of routines used to fit oblique RSFs.  
 
 # Background
 
@@ -48,14 +56,6 @@ Random forests (RFs) are large sets of de-correlated decision trees [@breiman200
 A common challenge in risk prediction is censoring. The term 'censor' indicates partial observation of something. Censoring occurs often in medical studies that track the elapsed time from a baseline visit to the occurrence of an event. For example, censoring can occur if study coordinators lose contact with a participant or the study concludes before the participant experiences the event. 
 
 Decision trees can engage with censored outcomes by recursively partitioning data using standard descriptive tests (e.g., the log-rank test) and applying estimation techniques for censored outcomes to generate predicted values in leaf nodes, such as the survival curve or the cumulative hazard function [@ishwaran2008random].
-
-# Statement of need
-
-The purpose of ``aorsf`` is to allow oblique RSFs to be fit and interpreted efficiently. The target audience includes both __analysts__ aiming to develop an accurate risk prediction model (e.g., see @segar2021development) and __researchers__ who want to conduct experiments comparing different techniques for identifying linear combinations of predictor variables (e.g., see @katuwal2020heterogeneous). 
-
-## Related software
-
-The `obliqueRF` and `RLT` R packages support oblique random forests (RFs) for classification and regression, but not survival. The `ranger`, `randomForestSRC`, and `party` packages support axis-based RSFs but not oblique RSFs. The ``obliqueRSF`` R package fits oblique RSFs, but has high computational overhead, provides a limited set of tools to interpret oblique RSFs, and does not enable customization of routines used to fit oblique RSFs.  
 
 # Newton Raphson scoring
 

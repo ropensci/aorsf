@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999994 (MiKTeX 22.3) (preloaded format=xelatex 2022.5.11)  24 AUG 2022 22:05
+This is XeTeX, Version 3.141592653-2.6-0.999994 (MiKTeX 22.3) (preloaded format=xelatex 2022.5.11)  24 AUG 2022 22:13
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1224,6 +1224,23 @@ Package hyperref Warning: Suppressing link with empty target on input line 255.
 Package hyperref Warning: Suppressing link with empty target on input line 255.
 
 
+File: C:/Users/bjaeger/Documents/R/win-library/4.1/rticles/rmarkdown/templates/
+joss/resources/JOSS-logo.png Graphic file (type bmp)
+<C:/Users/bjaeger/Documents/R/win-library/4.1/rticles/rmarkdown/templates/joss/
+resources/JOSS-logo.png>
+
+Package fancyhdr Warning: \headheight is too small (62.59596pt): 
+(fancyhdr)                Make it at least 63.55022pt, for example:
+(fancyhdr)                \setlength{\headheight}{63.55022pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-0.95425pt}.
+
+LaTeX Font Info:    Font shape `TU/lmss/m/it' in size <8> not available
+(Font)              Font shape `TU/lmss/m/sl' tried instead on input line 322.
+[1
+
+]
 File: tree_axis_v_oblique.png Graphic file (type bmp)
 <tree_axis_v_oblique.png>
 File: C:/Users/bjaeger/Documents/R/win-library/4.1/rticles/rmarkdown/templates/
@@ -1238,25 +1255,8 @@ Package fancyhdr Warning: \headheight is too small (62.59596pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-0.95425pt}.
 
-LaTeX Font Info:    Font shape `TU/lmss/m/it' in size <8> not available
-(Font)              Font shape `TU/lmss/m/sl' tried instead on input line 321.
-[1
-
-]
-File: C:/Users/bjaeger/Documents/R/win-library/4.1/rticles/rmarkdown/templates/
-joss/resources/JOSS-logo.png Graphic file (type bmp)
-<C:/Users/bjaeger/Documents/R/win-library/4.1/rticles/rmarkdown/templates/joss/
-resources/JOSS-logo.png>
-
-Package fancyhdr Warning: \headheight is too small (62.59596pt): 
-(fancyhdr)                Make it at least 63.55022pt, for example:
-(fancyhdr)                \setlength{\headheight}{63.55022pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-0.95425pt}.
-
 [2]
-Overfull \hbox (42.53407pt too wide) in paragraph at lines 425--429
+Overfull \hbox (42.53407pt too wide) in paragraph at lines 424--428
 \TU/lmr/m/n/10 Breiman, L. (2001). Random forests. \TU/lmr/m/it/10 Machine Lear
 ning\TU/lmr/m/n/10 , \TU/lmr/m/it/10 45\TU/lmr/m/n/10 (1), 5–32. doi:[][]10.102
 3/A:1010933404324[][] 
@@ -1275,7 +1275,7 @@ Package fancyhdr Warning: \headheight is too small (62.59596pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.95425pt}.
 
 [3]
-Overfull \hbox (29.73135pt too wide) in paragraph at lines 468--472
+Overfull \hbox (29.73135pt too wide) in paragraph at lines 467--471
 [][]$[][][][][] [] [] [] [][][][][][] [] [][][] [] [][][][][][][][] [] [][][][]
 [][][][] [] [][][][] [] [][][][][][][][][][][][][][][][][][][][][][][][][][][][
 ][][][][][][][][][][][][] []
@@ -1295,7 +1295,7 @@ Package fancyhdr Warning: \headheight is too small (62.59596pt):
 
 [4] (paper.aux)
 Package rerunfilecheck Info: File `paper.out' has not changed.
-(rerunfilecheck)             Checksum: B93F562A5674AE89C711ACB06EAFC886;1177.
+(rerunfilecheck)             Checksum: 0BCCCFAEB5D55EAA1876010B9BF50698;1177.
 Package logreq Info: Writing requests to 'paper.run.xml'.
 \openout1 = `paper.run.xml'.
 
@@ -1303,7 +1303,7 @@ Package logreq Info: Writing requests to 'paper.run.xml'.
 Here is how much of TeX's memory you used:
  35754 strings out of 410931
  724118 string characters out of 2822571
- 1514533 words of memory out of 3000000
+ 1513533 words of memory out of 3000000
  56037 multiletter control sequences out of 15000+600000
  476115 words of font info for 74 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
