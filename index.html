@@ -99,8 +99,11 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of aorsf from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<p>You can install <code>aorsf</code> from CRAN using</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"aorsf"</span><span class="op">)</span></span></code></pre></div>
+<p>You can install the development version of aorsf from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"bcjaeger/aorsf"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -116,7 +119,7 @@
 <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
 <p>The <code><a href="reference/orsf.html">orsf()</a></code> function can fit several types of ORSF ensembles. My personal favorite is the accelerated ORSF because it has a great combination of prediction accuracy and computational efficiency (see <a href="https://arxiv.org/abs/2208.01129" class="external-link">arXiv paper</a>).<sup>2</sup></p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bcjaeger/aorsf/" class="external-link">aorsf</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329730</span><span class="op">)</span></span>
@@ -133,7 +136,7 @@
 <h3 id="inspect">Inspect<a class="anchor" aria-label="anchor" href="#inspect"></a>
 </h3>
 <p>Printing the output from <code><a href="reference/orsf.html">orsf()</a></code> will give some information and descriptive statistics about the ensemble.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit</span></span>
 <span><span class="co">#&gt; ---------- Oblique random survival forest</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -163,7 +166,7 @@
 <ul>
 <li>
 <p><strong>negation</strong><sup>2</sup>: Each variable is assessed separately by multiplying the variable’s coefficients by -1 and then determining how much the model’s performance changes. The worse the model’s performance after negating coefficients for a given variable, the more important the variable.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          bili           sex           age       ascites         edema </span></span>
 <span><span class="co">#&gt;  0.0152354571  0.0138504155  0.0132568263  0.0059358924  0.0051286110 </span></span>
@@ -174,7 +177,7 @@
 </li>
 <li>
 <p><strong>permutation</strong>: Each variable is assessed separately by randomly permuting the variable’s values and then determining how much the model’s performance changes. The worse the model’s performance after permuting the values of a given variable, the more important the variable.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         bili      ascites          age          sex        edema      albumin </span></span>
 <span><span class="co">#&gt;  0.010091017  0.007716660  0.007320934  0.006727345  0.004337159  0.003561535 </span></span>
@@ -185,7 +188,7 @@
 </li>
 <li>
 <p><strong>analysis of variance (ANOVA)</strong><sup>3</sup>: A p-value is computed for each coefficient in each linear combination of variables in each decision tree. Importance for an individual predictor variable is the proportion of times a p-value for its coefficient is &lt; 0.01.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    ascites       bili      edema        sex        age     copper      stage </span></span>
 <span><span class="co">#&gt; 0.35231788 0.33216374 0.31401592 0.22045995 0.19044776 0.18155620 0.16907605 </span></span>
