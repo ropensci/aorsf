@@ -46,6 +46,12 @@ Fit, interpret, and make predictions with oblique random survival forests (ORSFs
 - Extensive input checks and informative error messages.
 
 ## Installation
+You can install `aorsf` from CRAN using
+
+``` r
+install.packages("aorsf")
+```
+
 
 You can install the development version of aorsf from [GitHub](https://github.com/) with:
 

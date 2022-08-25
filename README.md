@@ -36,6 +36,12 @@ forests (ORSFs).
 
 ## Installation
 
+You can install `aorsf` from CRAN using
+
+``` r
+install.packages("aorsf")
+```
+
 You can install the development version of aorsf from
 [GitHub](https://github.com/) with:
 
