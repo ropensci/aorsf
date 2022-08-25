@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999994 (MiKTeX 22.3) (preloaded format=xelatex 2022.5.11)  24 AUG 2022 22:13
+This is XeTeX, Version 3.141592653-2.6-0.999994 (MiKTeX 22.3) (preloaded format=xelatex 2022.5.11)  24 AUG 2022 22:17
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1237,7 +1237,7 @@ Package fancyhdr Warning: \headheight is too small (62.59596pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.95425pt}.
 
 LaTeX Font Info:    Font shape `TU/lmss/m/it' in size <8> not available
-(Font)              Font shape `TU/lmss/m/sl' tried instead on input line 322.
+(Font)              Font shape `TU/lmss/m/sl' tried instead on input line 321.
 [1
 
 ]
@@ -1256,7 +1256,7 @@ Package fancyhdr Warning: \headheight is too small (62.59596pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.95425pt}.
 
 [2]
-Overfull \hbox (42.53407pt too wide) in paragraph at lines 424--428
+Overfull \hbox (42.53407pt too wide) in paragraph at lines 423--427
 \TU/lmr/m/n/10 Breiman, L. (2001). Random forests. \TU/lmr/m/it/10 Machine Lear
 ning\TU/lmr/m/n/10 , \TU/lmr/m/it/10 45\TU/lmr/m/n/10 (1), 5–32. doi:[][]10.102
 3/A:1010933404324[][] 
@@ -1275,7 +1275,7 @@ Package fancyhdr Warning: \headheight is too small (62.59596pt):
 (fancyhdr)                \addtolength{\topmargin}{-0.95425pt}.
 
 [3]
-Overfull \hbox (29.73135pt too wide) in paragraph at lines 467--471
+Overfull \hbox (29.73135pt too wide) in paragraph at lines 466--470
 [][]$[][][][][] [] [] [] [][][][][][] [] [][][] [] [][][][][][][][] [] [][][][]
 [][][][] [] [][][][] [] [][][][][][][][][][][][][][][][][][][][][][][][][][][][
 ][][][][][][][][][][][][] []
@@ -1307,6 +1307,6 @@ Here is how much of TeX's memory you used:
  56037 multiletter control sequences out of 15000+600000
  476115 words of font info for 74 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 84i,13n,81p,1196b,846s stack positions out of 10000i,1000n,20000p,200000b,80000s
+ 84i,12n,81p,1196b,846s stack positions out of 10000i,1000n,20000p,200000b,80000s
 
 Output written on paper.pdf (4 pages).
