@@ -94,28 +94,26 @@
 <span class="r-in"><span><span class="va">smry</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">object</span>, n_variables <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">smry</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     variable  importance value      mean      medn        lwr       upr</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:     bili 0.014221713  0.80 0.2333557 0.1253238 0.04254565 0.3829345</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2:     bili 0.014221713   1.4 0.2556379 0.1398372 0.06059821 0.4059784</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3:     bili 0.014221713   3.5 0.3741352 0.2898431 0.16759273 0.5605169</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4:      age 0.012554699    42 0.2730325 0.1315708 0.03954098 0.4792254</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5:      age 0.012554699    50 0.3026626 0.1730392 0.05112411 0.5342504</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:      age 0.012554699    57 0.3342535 0.2251822 0.07540815 0.5710360</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:    stage 0.007762034     1 0.2607400 0.1292683 0.04092696 0.4616097</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:    stage 0.007762034     2 0.2703564 0.1353522 0.04164219 0.4812269</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:    stage 0.007762034     3 0.2942779 0.1544869 0.04855011 0.5176618</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:    stage 0.007762034     4 0.3429955 0.2202048 0.08438673 0.6048140</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     pred_horizon level</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:         1788  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2:         1788  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3:         1788  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4:         1788  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5:         1788  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:         1788  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:         1788     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:         1788     2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:         1788     3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:         1788     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    variable  importance value      mean      medn        lwr       upr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:     bili 0.013596583  0.80 0.2299673 0.1165043 0.04551681 0.3635123</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:     bili 0.013596583   1.4 0.2504263 0.1373814 0.05901946 0.3860171</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:     bili 0.013596583   3.5 0.3706360 0.2765223 0.16532168 0.5564462</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:      age 0.010679308    42 0.2730963 0.1365088 0.04170275 0.4631652</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:      age 0.010679308    50 0.2993003 0.1630477 0.04986902 0.5081756</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:      age 0.010679308    57 0.3312000 0.2174350 0.07232933 0.5746781</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7:  protime 0.008387164    10 0.2817764 0.1499100 0.04641072 0.5094354</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8:  protime 0.008387164    11 0.2950046 0.1641212 0.05205873 0.5282363</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9:  protime 0.008387164    11 0.3166634 0.1939452 0.06790715 0.5504663</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    pred_horizon level</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9:         1788  &lt;NA&gt;</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
