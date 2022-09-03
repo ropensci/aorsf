@@ -1,10 +1,6 @@
-# aorsf 0.0.0.9000
+# aorsf 0.0.2
 
-* Core features implemented: fit, interpret, and predict using oblique random survival forests.
-
-* Vignettes + Readme covering usage of core features.
-
-* Website hosted through GitHub pages, managed with `pkgdown`.
+* Modified unit tests for compatibility with extra checks run through CRAN.
 
 # aorsf 0.0.1
 
@@ -14,6 +10,11 @@
 
 * Added `chf` and `mort` options to `predict.orsf_fit()`. Mortality predictions are not fully implemented yet - they are not supported in partial dependence or out-of-bag error estimates. These features will be added in a future update.
 
-# aorsf 0.0.2
+# aorsf 0.0.0.9000
 
-* Modified unit tests for compatibility with extra checks run through CRAN.
+* Core features implemented: fit, interpret, and predict using oblique random survival forests.
+
+* Vignettes + Readme covering usage of core features.
+
+* Website hosted through GitHub pages, managed with `pkgdown`.
+
