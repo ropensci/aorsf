@@ -136,16 +136,11 @@ The PCA ORSF does quite well! (higher IPA is better)
 ## 
 ## Results of model comparisons:
 ## 
-##    times  model  reference delta.Brier   lower  upper
-##    <num> <fctr>     <fctr>      <char>  <char> <char>
-## 1:  1788  rando Null model      -6.864  -8.894 -4.834
-## 2:  1788    pca Null model      -8.810 -10.808 -6.812
-## 3:  1788    pca      rando      -1.946  -2.848 -1.044
-##               p
-##           <num>
-## 1: 3.445348e-11
-## 2: 5.575502e-18
-## 3: 2.362068e-05
+##    times  model  reference delta.Brier   lower  upper            p
+##    <num> <fctr>     <fctr>      <char>  <char> <char>        <num>
+## 1:  1788  rando Null model      -6.864  -8.894 -4.834 3.445348e-11
+## 2:  1788    pca Null model      -8.810 -10.808 -6.812 5.575502e-18
+## 3:  1788    pca      rando      -1.946  -2.848 -1.044 2.362068e-05
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.

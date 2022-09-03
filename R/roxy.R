@@ -70,6 +70,26 @@ roxy_oobag_fun_return <- function(){
  "`oobag_fun` should return a numeric output of length 1"
 }
 
+# oobag_fun ---------------------------------------------------------------
+
+roxy_na_action_header <- function(){
+
+ "(_character_) what should happen when `new_data` contains missing values (i.e., `NA` values). Valid options are:"
+
+}
+
+roxy_na_action_fail <- function(){
+ "'fail' : an error is thrown if `new_data` contain `NA` values"
+}
+
+roxy_na_action_pass <- function(){
+ "'pass' : the matrix output will have `NA` in all rows where `new_data` has 1 or more `NA` value for the predictors used by `object`."
+}
+
+roxy_na_action_omit <- function(){
+ "'omit' : the matrix output will not include values for rows in `new_data` where 1 or more `NA` value is present."
+}
+
 
 # citations ---------------------------------------------------------------
 

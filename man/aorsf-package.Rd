@@ -27,6 +27,7 @@ Other contributors:
   \item Nicholas Pajewski [contributor]
   \item Sawyer Welden \email{swelden@wakehealth.edu} [contributor]
   \item Christopher Jackson \email{chris.jackson@mrc-bsu.cam.ac.uk} [reviewer]
+  \item Marvin Wright [reviewer]
 }
 
 }

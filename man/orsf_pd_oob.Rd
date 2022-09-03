@@ -36,6 +36,7 @@ orsf_pd_new(
   new_data,
   pred_horizon = NULL,
   pred_type = "risk",
+  na_action = "fail",
   expand_grid = TRUE,
   prob_values = c(0.025, 0.5, 0.975),
   prob_labels = c("lwr", "medn", "upr"),
@@ -101,6 +102,12 @@ skipped.}
 
 \item{new_data}{a \link{data.frame}, \link[tibble:tibble-package]{tibble}, or \link[data.table:data.table]{data.table} to compute predictions in.
 Missing data are not currently allowed}
+
+\item{na_action}{(\emph{character}) what should happen when \code{new_data} contains missing values (i.e., \code{NA} values). Valid options are:
+\itemize{
+\item 'fail' : an error is thrown if \code{new_data} contain \code{NA} values
+\item 'omit' : the matrix output will not include values for rows in \code{new_data} where 1 or more \code{NA} value is present.
+}}
 }
 \value{
 a \link[data.table:data.table]{data.table} containing

@@ -1,3 +1,7 @@
+# aorsf 0.0.3
+
+* Allow missing values in `predict` functions, including partial dependence.
+
 # aorsf 0.0.2
 
 * Modified unit tests for compatibility with extra checks run through CRAN.

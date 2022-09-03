@@ -33,11 +33,15 @@
 #'   - 'chf': cumulative hazard function
 #'   - 'mort': mortality prediction
 #'
+#' @param na_action `r roxy_na_action_header()`
+#'
+#'   - `r roxy_na_action_fail()`
+#'   - `r roxy_na_action_omit()`
+#'
 #' @param expand_grid (_logical_) if `TRUE`, partial dependence will be
 #'   computed at all possible combinations of inputs in `pred_spec`. If
 #'   `FALSE`, partial dependence will be computed for each variable
 #'   in `pred_spec`, separately.
-#'
 #'
 #' @param prob_values (_numeric_) a vector of values between 0 and 1,
 #'   indicating what quantiles will be used to summarize the partial
@@ -65,7 +69,6 @@
 #' @includeRmd Rmd/orsf_pd_examples.Rmd
 #'
 #' @export
-#'
 #'
 orsf_pd_oob <- function(object,
                         pred_spec,
@@ -133,6 +136,7 @@ orsf_pd_new <- function(object,
                         new_data,
                         pred_horizon = NULL,
                         pred_type = 'risk',
+                        na_action = 'fail',
                         expand_grid = TRUE,
                         prob_values = c(0.025, 0.50, 0.975),
                         prob_labels = c('lwr', 'medn', 'upr'),
@@ -146,6 +150,7 @@ orsf_pd_new <- function(object,
                       pd_data = new_data,
                       pred_horizon = pred_horizon,
                       pred_type = pred_type,
+                      na_action = na_action,
                       expand_grid = expand_grid,
                       prob_values = prob_values,
                       prob_labels = prob_labels,
@@ -231,6 +236,7 @@ orsf_ice_new <- function(object,
                          new_data,
                          pred_horizon = NULL,
                          pred_type = 'risk',
+                         na_action = 'fail',
                          expand_grid = TRUE,
                          boundary_checks = TRUE,
                          ...){
@@ -242,6 +248,7 @@ orsf_ice_new <- function(object,
                       pd_data = new_data,
                       pred_horizon = pred_horizon,
                       pred_type = pred_type,
+                      na_action = na_action,
                       expand_grid = expand_grid,
                       boundary_checks = boundary_checks,
                       oobag = FALSE,
@@ -271,6 +278,7 @@ orsf_pred_dependence <- function(object,
                                  pred_spec,
                                  pred_horizon,
                                  pred_type,
+                                 na_action = 'fail',
                                  expand_grid,
                                  prob_values = NULL,
                                  prob_labels = NULL,
@@ -291,7 +299,8 @@ orsf_pred_dependence <- function(object,
                  boundary_checks = boundary_checks,
                  new_data        = pd_data,
                  pred_type       = pred_type,
-                 pred_horizon    = pred_horizon)
+                 pred_horizon    = pred_horizon,
+                 na_action       = na_action)
 
  if(pred_type == 'mort') stop(
   "mortality predictions aren't supported in partial dependence functions",
@@ -307,14 +316,30 @@ orsf_pred_dependence <- function(object,
 
  if(oobag) pd_data <- object$data
 
+ if(is.null(pred_horizon) && pred_type != 'mort'){
+  stop("pred_horizon must be specified for ",
+       pred_type, " predictions.", call. = FALSE)
+ }
+
  type_input <- if(expand_grid) 'grid' else 'loop'
 
- x_new <- as.matrix(
-  ref_code(x_data = pd_data,
-           fi = get_fctr_info(object),
-           names_x_data = get_names_x(object))
- )
+ names_x_data <- intersect(get_names_x(object), names(pd_data))
 
+ cc <- which(stats::complete.cases(select_cols(pd_data, names_x_data)))
+
+ if(na_action == 'pass'){
+  stop("na_action = 'pass' is not supported for individual conditional ",
+       "expectation. Please use na_action = 'omit' or na_action = 'fail'.",
+       call. = FALSE)
+ }
+
+ check_complete_cases(cc, na_action, nrow(pd_data))
+
+ x_new <- as.matrix(
+  ref_code(x_data = pd_data[cc, ],
+           fi = get_fctr_info(object),
+           names_x_data = names_x_data)
+ )
 
  if(is.data.frame(pred_spec)) type_input <- 'grid'
 
@@ -378,7 +403,7 @@ orsf_pred_dependence <- function(object,
 #' This function expands pred_spec into a grid with all combos of inputs,
 #'   and computes partial dependence for each one.
 #'
-#' @inheritParams orsf_pd_
+#' @inheritParams orsf_pred_dependence
 #' @param x_new the x-matrix used to compute partial dependence
 #' @param pd_fun_predict which cpp function to use.
 #'
@@ -411,7 +436,7 @@ pd_grid <- function(object,
   if(is.character(pred_spec[[ii]]) && !fi_ref$ordr[i]){
 
    pred_spec[[ii]] <- factor(pred_spec[[ii]],
-                           levels = fi_ref$lvls[[ii]])
+                             levels = fi_ref$lvls[[ii]])
 
   }
 
@@ -423,8 +448,8 @@ pd_grid <- function(object,
                       label_new = "pred_spec")
 
  pred_spec_new <- ref_code(x_data = pred_spec,
-                         fi = get_fctr_info(object),
-                         names_x_data = names(pred_spec))
+                           fi = get_fctr_info(object),
+                           names_x_data = names(pred_spec))
 
  x_cols <- match(names(pred_spec_new), colnames(x_new))
 
@@ -435,6 +460,7 @@ pd_grid <- function(object,
                            probs_      = prob_values,
                            time_dbl    = pred_horizon,
                            pred_type   = pred_type_cpp)
+
 
  if(type_output == 'smry'){
 

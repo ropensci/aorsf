@@ -4,7 +4,14 @@
 \alias{predict.orsf_fit}
 \title{Compute predictions using ORSF}
 \usage{
-\method{predict}{orsf_fit}(object, new_data, pred_horizon = NULL, pred_type = "risk", ...)
+\method{predict}{orsf_fit}(
+  object,
+  new_data,
+  pred_horizon = NULL,
+  pred_type = "risk",
+  na_action = "fail",
+  ...
+)
 }
 \arguments{
 \item{object}{(\emph{orsf_fit}) a trained oblique random survival forest
@@ -27,6 +34,13 @@ options are
 \item 'surv' : 1 - risk.
 \item 'chf': cumulative hazard function
 \item 'mort': mortality prediction
+}}
+
+\item{na_action}{(\emph{character}) what should happen when \code{new_data} contains missing values (i.e., \code{NA} values). Valid options are:
+\itemize{
+\item 'fail' : an error is thrown if \code{new_data} contain \code{NA} values
+\item 'pass' : the matrix output will have \code{NA} in all rows where \code{new_data} has 1 or more \code{NA} value for the predictors used by \code{object}.
+\item 'omit' : the matrix output will not include values for rows in \code{new_data} where 1 or more \code{NA} value is present.
 }}
 
 \item{...}{Further arguments passed to or from other methods (not currently used).}

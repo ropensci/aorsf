@@ -33,15 +33,11 @@
 #'   - 'chf': cumulative hazard function
 #'   - 'mort': mortality prediction
 #'
-#' @param na_action (_character_) what should happen when `new_data` contains
-#'   missing values (i.e., `NA` values). Valid options are:
+#' @param na_action `r roxy_na_action_header()`
 #'
-#'   - 'fail' : an error is thrown if `new_data` contain `NA` values.
-#'   - 'pass' : the matrix output will have `NA` in all rows where
-#'              `new_data` has 1 or more `NA` value for the predictors
-#'              used by `object`.
-#'   - 'omit' : the matrix output will not include values for rows in
-#'              `new_data` where 1 or more `NA` value is present.
+#'   - `r roxy_na_action_fail()`
+#'   - `r roxy_na_action_pass()`
+#'   - `r roxy_na_action_omit()`
 #'
 #' @param ... `r roxy_dots()`
 #'
@@ -84,24 +80,9 @@ predict.orsf_fit <- function(object,
 
  check_predict(object, new_data, pred_horizon, pred_type, na_action)
 
- cc <- stats::complete.cases(select_cols(new_data, names_x_data))
+ cc <- which(stats::complete.cases(select_cols(new_data, names_x_data)))
 
- # the checks involving cc are kept in predict() b/c the cc
- # object needs to be used below and I don't want to complicate
- # check_predict with it.
-
- if(!all(cc) && na_action == 'fail'){
-  stop("Please remove missing values from new_data, or impute them.",
-       call. = FALSE)
- }
-
- cc_which <- which(cc)
-
- if(length(cc_which) == 0){
-  stop("There are no observations in new_data with complete data ",
-       "for the predictors used by this orsf object.",
-       call. = FALSE)
- }
+ check_complete_cases(cc, na_action, nrow(new_data))
 
  if(is.null(pred_horizon) && pred_type != 'mort'){
   stop("pred_horizon must be specified for ",
@@ -109,7 +90,7 @@ predict.orsf_fit <- function(object,
  }
 
  x_new <- as.matrix(
-  ref_code(x_data = new_data[cc_which, ],
+  ref_code(x_data = new_data[cc, ],
            fi = get_fctr_info(object),
            names_x_data = names_x_data)
  )
@@ -136,7 +117,7 @@ predict.orsf_fit <- function(object,
   out <- matrix(nrow = nrow(new_data),
                 ncol = length(pred_horizon))
 
-  out[cc_which, ] <- out_values
+  out[cc, ] <- out_values
 
  } else {
 

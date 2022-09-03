@@ -1045,7 +1045,8 @@ check_pd_inputs <- function(object,
                             boundary_checks = NULL,
                             new_data = NULL,
                             pred_horizon = NULL,
-                            pred_type = NULL){
+                            pred_type = NULL,
+                            na_action = NULL){
 
  check_arg_is(arg_value = object,
               arg_name = 'object',
@@ -1204,7 +1205,8 @@ check_pd_inputs <- function(object,
  check_predict(object = object,
                new_data = new_data,
                pred_horizon = pred_horizon,
-               pred_type = pred_type)
+               pred_type = pred_type,
+               na_action = na_action)
 
 }
 
@@ -1731,5 +1733,32 @@ check_beta_fun <- function(beta_fun){
   "in a testing case where x_node has ", ncol(.x_node), " columns",
   call. = FALSE
  )
+
+}
+
+#' check complete cases in new data
+#'
+#' @param cc (_integer vector_) the indices of complete cases
+#' @param na_action the action to be taken for missing values
+#'   (see orsf_predict)
+#'
+#' @return check functions 'return' errors and the intent is
+#'   to return nothing if nothing is wrong,
+#'   so hopefully nothing is returned.
+#' @noRd
+#'
+
+check_complete_cases <- function(cc, na_action, n_total){
+
+ if(length(cc) != n_total && na_action == 'fail'){
+  stop("Please remove missing values from new_data, or impute them.",
+       call. = FALSE)
+ }
+
+ if(length(cc) == 0){
+  stop("There are no observations in new_data with complete data ",
+       "for the predictors used by this orsf object.",
+       call. = FALSE)
+ }
 
 }
