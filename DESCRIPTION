@@ -31,7 +31,8 @@ LinkingTo:
 Imports: 
     Rcpp,
     data.table,
-    utils
+    utils,
+    stats
 URL: https://github.com/bcjaeger/aorsf/,
     https://bcjaeger.github.io/aorsf/
 BugReports: https://github.com/bcjaeger/aorsf/issues/

@@ -9,6 +9,7 @@
 #' @srrstats {ML1.1} *using the terms 'train' and 'test'.*
 #' @srrstats {G2.0a} *specified expectations for length of `pred_horizon`. In general, inputs of length > 1 have the term 'vector' in their description, and inputs of length 1 just have the expected type.*
 #' @srrstats {G2.1a} *explicit secondary documentation of expectations on data types of all vector inputs*
+ #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
 #' @srrstats {ML1.1} *The term 'new_data' are used instead of data_test. There are two reasons for this. First, I am making an effort to be consistent with tidymodels. Second, there is a possibility that users will use predict() without the intention of testing their model, e.g., for interpretation.*
 #'
 #' @param object (*orsf_fit*) a trained oblique random survival forest
@@ -31,6 +32,16 @@
 #'   - 'surv' : 1 - risk.
 #'   - 'chf': cumulative hazard function
 #'   - 'mort': mortality prediction
+#'
+#' @param na_action (_character_) what should happen when `new_data` contains
+#'   missing values (i.e., `NA` values). Valid options are:
+#'
+#'   - 'fail' : an error is thrown if `new_data` contain `NA` values.
+#'   - 'pass' : the matrix output will have `NA` in all rows where
+#'              `new_data` has 1 or more `NA` value for the predictors
+#'              used by `object`.
+#'   - 'omit' : the matrix output will not include values for rows in
+#'              `new_data` where 1 or more `NA` value is present.
 #'
 #' @param ... `r roxy_dots()`
 #'
@@ -60,24 +71,37 @@ predict.orsf_fit <- function(object,
                              new_data,
                              pred_horizon = NULL,
                              pred_type = 'risk',
+                             na_action = 'fail',
                              ...){
 
  # catch any arguments that didn't match and got relegated to ...
  # these arguments are mistaken input names since ... isn't used.
  check_dots(list(...), .f = predict.orsf_fit)
 
- names_x_data <- get_names_x(object)
+ names_x_data <- intersect(get_names_x(object), names(new_data))
 
- if(any(is.na(new_data[, intersect(names_x_data, names(new_data))]))){
+ pred_horizon <- infer_pred_horizon(object, pred_horizon)
+
+ check_predict(object, new_data, pred_horizon, pred_type, na_action)
+
+ cc <- stats::complete.cases(select_cols(new_data, names_x_data))
+
+ # the checks involving cc are kept in predict() b/c the cc
+ # object needs to be used below and I don't want to complicate
+ # check_predict with it.
+
+ if(!all(cc) && na_action == 'fail'){
   stop("Please remove missing values from new_data, or impute them.",
        call. = FALSE)
  }
 
- #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
+ cc_which <- which(cc)
 
- pred_horizon <- infer_pred_horizon(object, pred_horizon)
-
- check_predict(object, new_data, pred_horizon, pred_type)
+ if(length(cc_which) == 0){
+  stop("There are no observations in new_data with complete data ",
+       "for the predictors used by this orsf object.",
+       call. = FALSE)
+ }
 
  if(is.null(pred_horizon) && pred_type != 'mort'){
   stop("pred_horizon must be specified for ",
@@ -85,7 +109,7 @@ predict.orsf_fit <- function(object,
  }
 
  x_new <- as.matrix(
-  ref_code(x_data = new_data,
+  ref_code(x_data = new_data[cc_which, ],
            fi = get_fctr_info(object),
            names_x_data = names_x_data)
  )
@@ -98,14 +122,29 @@ predict.orsf_fit <- function(object,
   "mort" = "M"
  )
 
- if(pred_type_cpp == "M"){
-  return(orsf_pred_mort(object, x_new))
+ out_values <-
+  if(pred_type_cpp == "M"){
+   orsf_pred_mort(object, x_new)
+  } else if (length(pred_horizon) == 1L) {
+   orsf_pred_uni(object$forest, x_new, pred_horizon, pred_type_cpp)
+  } else {
+   orsf_pred_multi(object$forest, x_new, pred_horizon, pred_type_cpp)
+  }
+
+ if(na_action == "pass"){
+
+  out <- matrix(nrow = nrow(new_data),
+                ncol = length(pred_horizon))
+
+  out[cc_which, ] <- out_values
+
+ } else {
+
+  out <- out_values
+
  }
 
- if(length(pred_horizon) == 1L)
-  return(orsf_pred_uni(object$forest, x_new, pred_horizon, pred_type_cpp))
-
- orsf_pred_multi(object$forest, x_new, pred_horizon, pred_type_cpp)
+ out
 
 }
 

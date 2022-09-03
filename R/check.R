@@ -1479,7 +1479,8 @@ check_units <- function(new_data, ui_train) {
 check_predict <- function(object,
                           new_data = NULL,
                           pred_horizon = NULL,
-                          pred_type = NULL){
+                          pred_type = NULL,
+                          na_action = NULL){
 
  if(!is.null(new_data)){
 
@@ -1513,18 +1514,7 @@ check_predict <- function(object,
                        fi_ref    = get_fctr_info(object),
                        label_new = "new_data")
 
-  #' @srrstats {G2.6} *ensure that one-dimensional inputs are appropriately pre-processed. aorsf does not deal with missing data as many other R packages are very good at dealing with it.*
-
-  #' @srrstats {G2.13} *check for missing data as part of initial pre-processing prior to passing data to analytic algorithms.*
-
-  #' @srrstats {G2.15} *Never pass data with potential missing values to any base routines.*
-
-  if(any(is.na(new_data[, get_names_x(object)]))){
-   stop("Please remove missing values from new_data, or impute them.",
-        call. = FALSE)
-  }
-
-  #' @srrstats {G2.16} *Throw hard errors if undefined values are detected.*
+   #' @srrstats {G2.16} *Throw hard errors if undefined values are detected.*
 
   for(i in c(get_names_x(object))){
 
@@ -1533,7 +1523,7 @@ check_predict <- function(object,
          call. = FALSE)
    }
 
-   # NaN values trigger is.na(), so this probaly isn't needed.
+   # NaN values trigger is.na(), so this probably isn't needed.
    # if(any(is.nan(new_data[[i]]))){
    #  stop("Please remove NaN values from ", i, ".",
    #       call. = FALSE)
@@ -1591,7 +1581,23 @@ check_predict <- function(object,
 
 }
 
+ if(!is.null(na_action)){
 
+  check_arg_type(arg_value = na_action,
+                 arg_name = 'na_action',
+                 expected_type = 'character')
+
+  check_arg_length(arg_value = na_action,
+                   arg_name = 'na_action',
+                   expected_length = 1)
+
+  check_arg_is_valid(arg_value = na_action,
+                     arg_name = 'na_action',
+                     valid_options = c("fail",
+                                       "pass",
+                                       "omit"))
+
+ }
 
 }
 

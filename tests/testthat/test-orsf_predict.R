@@ -47,6 +47,16 @@ test_that(
  }
 )
 
+test_that(
+ desc = 'preds identical with na_action = pass/fail if no missing data',
+ code = {
+  expect_equal(
+   predict(fit, new_data = new_data, na_action = 'fail'),
+   predict(fit, new_data = new_data, na_action = 'pass')
+  )
+ }
+)
+
 p1_risk <- predict(fit, new_data = new_data, pred_horizon = 1000)
 
 p2_risk <- predict(fit_oobag_risk, new_data = new_data, pred_horizon = 1000)
@@ -440,6 +450,128 @@ test_that(
 
 )
 
+# Tests for passing missing data ----
 
+na_index_age <- c(1, 4, 8)
+na_index_sex <- c(2, 4, 7)
+
+na_expect <- union(na_index_age, na_index_sex)
+obs_expect <- setdiff(1:10, na_expect)
+
+new_data_miss <- pbc_orsf[-train, ]
+
+new_data_miss$age[na_index_age] <- NA
+new_data_miss$sex[na_index_sex] <- NA
+
+new_data_dt_miss <- as.data.table(new_data_miss)
+new_data_tbl_miss <- tibble::as_tibble(new_data_miss)
+
+p_cc <- predict(fit,
+                new_data = new_data[1:10, ])
+
+p_ps <- predict(fit,
+                new_data = new_data_miss[1:10, ],
+                na_action = 'pass')
+
+p_ps_dt <- predict(fit,
+                   new_data = new_data_dt_miss[1:10, ],
+                   na_action = 'pass')
+
+p_ps_tbl <- predict(fit,
+                    new_data = new_data_tbl_miss[1:10, ],
+                    na_action = 'pass')
+
+test_that(
+ desc = "proper error for bad value of na_action",
+ code = {
+  expect_error(predict(fit,
+                       new_data = new_data_miss,
+                       na_action = 'failzor'),
+               regexp = 'failzor')
+ }
+)
+
+test_that(
+ desc = "same values propagated to pred output with na_action = pass",
+ code = {
+  expect_identical(p_cc[obs_expect, ],
+                   p_ps[obs_expect, ])
+
+  expect_identical(p_cc[obs_expect, ],
+                   p_ps_dt[obs_expect, ])
+
+  expect_identical(p_cc[obs_expect, ],
+                   p_ps_tbl[obs_expect, ])
+ }
+)
+
+test_that(
+ desc = "missing values propagated to pred output with na_action = pass",
+ code = {
+  expect_true(all(is.na(p_ps[na_expect, ])))
+  expect_identical(p_ps, p_ps_dt)
+  expect_identical(p_ps, p_ps_tbl)
+ }
+)
+
+# repeat test above with multiple predict horizons
+
+pred_horiz <- c(100, 200, 300, 400, 500)
+
+p_cc <- predict(fit,
+                new_data = new_data[1:10, ],
+                pred_horizon = pred_horiz)
+
+p_ps <- predict(fit,
+                new_data = new_data_miss[1:10, ],
+                na_action = 'pass',
+                pred_horizon = pred_horiz)
+
+p_ps_dt <- predict(fit,
+                   new_data = new_data_dt_miss[1:10, ],
+                   na_action = 'pass',
+                   pred_horizon = pred_horiz)
+
+p_ps_tbl <- predict(fit,
+                    new_data = new_data_tbl_miss[1:10, ],
+                    na_action = 'pass',
+                    pred_horizon = pred_horiz)
+
+test_that(
+ desc = "same values propagated to pred output with na_action = pass",
+ code = {
+  expect_identical(p_cc[obs_expect, ],
+                   p_ps[obs_expect, ])
+
+  expect_identical(p_cc[obs_expect, ],
+                   p_ps_dt[obs_expect, ])
+
+  expect_identical(p_cc[obs_expect, ],
+                   p_ps_tbl[obs_expect, ])
+ }
+)
+
+test_that(
+ desc = "missing values propagated to pred output with na_action = pass",
+ code = {
+  expect_true(all(is.na(p_ps[na_expect, ])))
+  expect_identical(p_ps, p_ps_dt)
+  expect_identical(p_ps, p_ps_tbl)
+ }
+)
+
+new_data_all_miss <- new_data_miss
+
+new_data_all_miss$age <- NA_real_
+
+test_that(
+ desc = "can't give orsf nothing but missing data",
+ code = {
+  expect_error(
+   predict(fit, new_data = new_data_all_miss, na_action = 'pass'),
+   regexp = 'complete data'
+  )
+ }
+)
 
 
