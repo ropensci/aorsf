@@ -1,5 +1,8 @@
 # aorsf 0.0.3
 
+
+* Allow status values in input data to be more general, i.e., not just 0 and 1.
+
 * Allow missing values in `predict` functions, including partial dependence.
 
 # aorsf 0.0.2

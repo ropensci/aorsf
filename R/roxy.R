@@ -79,15 +79,15 @@ roxy_na_action_header <- function(){
 }
 
 roxy_na_action_fail <- function(){
- "'fail' : an error is thrown if `new_data` contain `NA` values"
+ "'fail' : an error is thrown if `new_data` contains `NA` values"
 }
 
 roxy_na_action_pass <- function(){
- "'pass' : the matrix output will have `NA` in all rows where `new_data` has 1 or more `NA` value for the predictors used by `object`."
+ "'pass' : the output will have `NA` in all rows where `new_data` has 1 or more `NA` value for the predictors used by `object`."
 }
 
 roxy_na_action_omit <- function(){
- "'omit' : the matrix output will not include values for rows in `new_data` where 1 or more `NA` value is present."
+ "'omit' : rows in `new_data` with incomplete data will be dropped"
 }
 
 

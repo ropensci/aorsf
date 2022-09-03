@@ -1,5 +1,15 @@
 
 
+#' Are they the same?
+#'
+#' @param x first set of things
+#' @param y second set of things
+#'
+#' @return are the two sets the same things? `TRUE` if yes
+#'
+#' @noRd
+is_equivalent <- function(x, y) all(x %in% y) && all(y %in% x)
+
 #' Is it empty?
 #'
 #' @param x object to check

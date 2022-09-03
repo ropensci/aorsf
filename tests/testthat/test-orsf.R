@@ -116,15 +116,27 @@ test_that(
   expect_error(orsf(pbc_temp, f6), 'not_right')
   expect_error(orsf(pbc_temp, f7), 'not_right')
   expect_error(orsf(pbc_temp, f8), 'must have two variables')
-  expect_error(orsf(pbc_temp, f9), 'should contain values of 0 and 1')
+  expect_error(orsf(pbc_temp, f9), 'Did you enter')
   expect_error(orsf(pbc_temp, f10), 'must have two variables')
   expect_error(orsf(pbc_temp, f11), 'should have type')
-  expect_error(orsf(pbc_temp, f12), 'should contain values of 0 and 1')
   expect_error(orsf(pbc_temp, f13), 'must be two sided')
-  expect_error(orsf(pbc_temp, f14), 'should contain values of 0 and 1')
+  expect_error(orsf(pbc_temp, f14), 'Did you enter')
 
  }
 )
+
+# should get the same forest, whether status is 1/2 or 0/1
+
+fit_12 <- orsf(pbc_temp, time + status ~ . -id, n_tree = 10, tree_seeds = 1:10)
+fit_01 <- orsf(pbc_orsf, time + status ~ . -id, n_tree = 10, tree_seeds = 1:10)
+
+test_that(
+ desc = 'New status, same forest',
+ code = {
+  expect_identical(fit_12$forest, fit_01$forest)
+ }
+)
+
 
 f <- time + status ~ . - id
 

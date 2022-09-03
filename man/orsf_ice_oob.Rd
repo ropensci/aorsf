@@ -87,8 +87,8 @@ Missing data are not currently allowed}
 
 \item{na_action}{(\emph{character}) what should happen when \code{new_data} contains missing values (i.e., \code{NA} values). Valid options are:
 \itemize{
-\item 'fail' : an error is thrown if \code{new_data} contain \code{NA} values
-\item 'omit' : the matrix output will not include values for rows in \code{new_data} where 1 or more \code{NA} value is present.
+\item 'fail' : an error is thrown if \code{new_data} contains \code{NA} values
+\item 'omit' : rows in \code{new_data} with incomplete data will be dropped
 }}
 }
 \value{

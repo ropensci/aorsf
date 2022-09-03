@@ -516,7 +516,7 @@ orsf <- function(data,
           FUN.VALUE = numeric(5))
  }
 
- y  <- as.matrix(select_cols(data, names_y_data))
+ y  <- vet_y(as.matrix(select_cols(data, names_y_data)))
  x  <- as.matrix(ref_code(data, fi, names_x_data))
 
  if(is.null(mtry)) mtry <- ceiling(sqrt(ncol(x)))
@@ -530,24 +530,8 @@ orsf <- function(data,
        call. = FALSE)
 
 
- # Check the outcome variable
- check_arg_type(arg_value = y[, 2],
-                arg_name = "status indicator",
-                expected_type = 'numeric')
-
- check_arg_uni(arg_value = y[, 2],
-               arg_name = "status indicator",
-               expected_uni = c(0,1))
-
  n_events <- sum(y[, 2])
 
- check_arg_type(arg_value = y[, 1],
-                arg_name = "time to event",
-                expected_type = 'numeric')
-
- check_arg_gt(arg_value = y[, 1],
-              arg_name = "time to event",
-              bound = 0)
 
  # some additional checks that are dependent on the outcome variable
 
@@ -849,7 +833,7 @@ orsf_time_to_train <- function(object, n_tree_subset = 50){
 
  time_preproc_start <- Sys.time()
 
- y  <- as.matrix(select_cols(object$data, get_names_y(object)))
+ y  <- vet_y(as.matrix(select_cols(object$data, get_names_y(object))))
 
  x  <- as.matrix(ref_code(object$data,
                           get_fctr_info(object),
@@ -913,7 +897,7 @@ orsf_train_ <- function(object,
  }
 
  if(is.null(y)){
-  y  <- as.matrix(select_cols(object$data, get_names_y(object)))
+  y  <- vet_y(as.matrix(select_cols(object$data, get_names_y(object))))
  }
 
  if(is.null(x)){

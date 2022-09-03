@@ -38,9 +38,9 @@ options are
 
 \item{na_action}{(\emph{character}) what should happen when \code{new_data} contains missing values (i.e., \code{NA} values). Valid options are:
 \itemize{
-\item 'fail' : an error is thrown if \code{new_data} contain \code{NA} values
-\item 'pass' : the matrix output will have \code{NA} in all rows where \code{new_data} has 1 or more \code{NA} value for the predictors used by \code{object}.
-\item 'omit' : the matrix output will not include values for rows in \code{new_data} where 1 or more \code{NA} value is present.
+\item 'fail' : an error is thrown if \code{new_data} contains \code{NA} values
+\item 'pass' : the output will have \code{NA} in all rows where \code{new_data} has 1 or more \code{NA} value for the predictors used by \code{object}.
+\item 'omit' : rows in \code{new_data} with incomplete data will be dropped
 }}
 
 \item{...}{Further arguments passed to or from other methods (not currently used).}

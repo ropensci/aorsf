@@ -291,14 +291,12 @@ library(tidymodels)
 ## x purrr::discard()      masks scales::discard()
 ## x dplyr::filter()       masks stats::filter()
 ## x dplyr::first()        masks aorsf::first()
-## x purrr::is_null()      masks testthat::is_null()
 ## x recipes::is_trained() masks aorsf::is_trained()
 ## x dplyr::lag()          masks stats::lag()
 ## x dplyr::last()         masks aorsf::last()
-## x tidyr::matches()      masks rsample::matches(), dplyr::matches(), testthat::matches()
 ## x recipes::step()       masks stats::step()
 ## x purrr::transpose()    masks aorsf::transpose()
-## * Learn how to get started at https://www.tidymodels.org/start/
+## * Search for functions across packages at https://www.tidymodels.org/find/
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(tidyverse)
@@ -310,20 +308,16 @@ library(tidymodels)
 ## v stringr 1.4.0
 
 ## -- Conflicts --------------------------------- tidyverse_conflicts() --
-## x dplyr::between()       masks aorsf::between()
-## x readr::col_factor()    masks scales::col_factor()
-## x purrr::discard()       masks scales::discard()
-## x readr::edition_get()   masks testthat::edition_get()
-## x dplyr::filter()        masks stats::filter()
-## x dplyr::first()         masks aorsf::first()
-## x stringr::fixed()       masks recipes::fixed()
-## x purrr::is_null()       masks testthat::is_null()
-## x dplyr::lag()           masks stats::lag()
-## x dplyr::last()          masks aorsf::last()
-## x readr::local_edition() masks testthat::local_edition()
-## x tidyr::matches()       masks rsample::matches(), dplyr::matches(), testthat::matches()
-## x readr::spec()          masks yardstick::spec()
-## x purrr::transpose()     masks aorsf::transpose()
+## x dplyr::between()    masks aorsf::between()
+## x readr::col_factor() masks scales::col_factor()
+## x purrr::discard()    masks scales::discard()
+## x dplyr::filter()     masks stats::filter()
+## x dplyr::first()      masks aorsf::first()
+## x stringr::fixed()    masks recipes::fixed()
+## x dplyr::lag()        masks stats::lag()
+## x dplyr::last()       masks aorsf::last()
+## x readr::spec()       masks yardstick::spec()
+## x purrr::transpose()  masks aorsf::transpose()
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(randomForestSRC)

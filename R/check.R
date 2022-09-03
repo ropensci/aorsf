@@ -55,9 +55,7 @@ check_arg_type <- function(arg_value, arg_name, expected_type){
 #'
 #' @noRd
 
-check_arg_uni <- function(arg_value, arg_name, expected_uni){
-
- uni <- unique(arg_value)
+check_arg_uni <- function(uni, arg_name, expected_uni){
 
  # expected_in_uni <- all(expected_uni %in% uni)
  uni_in_expected <- all(uni %in% expected_uni)
