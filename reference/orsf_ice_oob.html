@@ -108,6 +108,7 @@ You can compute individual conditional expectations three ways using a random fo
 <span>  <span class="va">new_data</span>,</span>
 <span>  pred_horizon <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pred_type <span class="op">=</span> <span class="st">"risk"</span>,</span>
+<span>  na_action <span class="op">=</span> <span class="st">"fail"</span>,</span>
 <span>  expand_grid <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  boundary_checks <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
@@ -172,6 +173,12 @@ skipped.</p></dd>
 <dt>new_data</dt>
 <dd><p>a <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a>, <a href="https://tibble.tidyverse.org/reference/tibble-package.html" class="external-link">tibble</a>, or <a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a> to compute predictions in.
 Missing data are not currently allowed</p></dd>
+
+
+<dt>na_action</dt>
+<dd><p>(<em>character</em>) what should happen when <code>new_data</code> contains missing values (i.e., <code>NA</code> values). Valid options are:</p><ul><li><p>'fail' : an error is thrown if <code>new_data</code> contain <code>NA</code> values</p></li>
+<li><p>'omit' : the matrix output will not include values for rows in <code>new_data</code> where 1 or more <code>NA</code> value is present.</p></li>
+</ul></dd>
 
 </dl></div>
     <div class="section level2">
