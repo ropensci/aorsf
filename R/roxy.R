@@ -1,3 +1,4 @@
+# nocov start
 
 # data allowed ------------------------------------------------------------
 
@@ -232,3 +233,4 @@ roxy_ice_explain <- function(){
  "Unlike partial dependence, which shows the expected prediction as a function of one or multiple predictors, individual conditional expectations (ICE) show the prediction for an individual observation as a function of a predictor."
 }
 
+# nocov end
