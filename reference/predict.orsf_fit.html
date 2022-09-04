@@ -71,6 +71,7 @@ from an ORSF model.</p>
 <span>  pred_horizon <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  pred_type <span class="op">=</span> <span class="st">"risk"</span>,</span>
 <span>  na_action <span class="op">=</span> <span class="st">"fail"</span>,</span>
+<span>  boundary_checks <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -110,6 +111,13 @@ options are</p><ul><li><p>'risk' : probability of having an event at or before <
 <li><p>'pass' : the output will have <code>NA</code> in all rows where <code>new_data</code> has 1 or more <code>NA</code> value for the predictors used by <code>object</code>.</p></li>
 <li><p>'omit' : rows in <code>new_data</code> with incomplete data will be dropped</p></li>
 </ul></dd>
+
+
+<dt>boundary_checks</dt>
+<dd><p>(<em>logical</em>) if <code>TRUE</code>, <code>pred_horizon</code> will be
+checked to make sure the requested values are less than the maximum
+observed time in <code>object</code>'s training data. If <code>FALSE</code>, these checks
+are skipped.</p></dd>
 
 
 <dt>...</dt>
