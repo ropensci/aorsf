@@ -55,7 +55,7 @@
 #'   value in `prob_values` should be labelled as in summarized outputs.
 #'   `prob_labels` should have the same length as `prob_values`.
 #'
-#' @param boundary_checks (_logical_) if `TRUE`, `pred_spec` will be vetted
+#' @param boundary_checks (_logical_) if `TRUE`, `pred_spec` will be checked
 #'  to make sure the requested values are between the 10th and 90th
 #'  percentile in the object's training data. If `FALSE`, these checks are
 #'  skipped.

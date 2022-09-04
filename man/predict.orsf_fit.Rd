@@ -10,6 +10,7 @@
   pred_horizon = NULL,
   pred_type = "risk",
   na_action = "fail",
+  boundary_checks = TRUE,
   ...
 )
 }
@@ -42,6 +43,11 @@ options are
 \item 'pass' : the output will have \code{NA} in all rows where \code{new_data} has 1 or more \code{NA} value for the predictors used by \code{object}.
 \item 'omit' : rows in \code{new_data} with incomplete data will be dropped
 }}
+
+\item{boundary_checks}{(\emph{logical}) if \code{TRUE}, \code{pred_horizon} will be
+checked to make sure the requested values are less than the maximum
+observed time in \code{object}'s training data. If \code{FALSE}, these checks
+are skipped.}
 
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 }

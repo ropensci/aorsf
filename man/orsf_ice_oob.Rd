@@ -75,7 +75,7 @@ computed at all possible combinations of inputs in \code{pred_spec}. If
 \code{FALSE}, partial dependence will be computed for each variable
 in \code{pred_spec}, separately.}
 
-\item{boundary_checks}{(\emph{logical}) if \code{TRUE}, \code{pred_spec} will be vetted
+\item{boundary_checks}{(\emph{logical}) if \code{TRUE}, \code{pred_spec} will be checked
 to make sure the requested values are between the 10th and 90th
 percentile in the object's training data. If \code{FALSE}, these checks are
 skipped.}

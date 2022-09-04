@@ -340,6 +340,19 @@ test_that(
 )
 
 test_that(
+ desc = "outside limit predictions = predictions at the boundary",
+ code = {
+  expect_equal(
+   predict(fit, pbc_orsf[-train,],
+           pred_horizon = 100000,
+           boundary_checks = F),
+   predict(fit, pbc_orsf[-train,],
+           pred_horizon = get_max_time(fit))
+  )
+ }
+)
+
+test_that(
  desc = 'pred horizon in increasing order',
  code = {
 

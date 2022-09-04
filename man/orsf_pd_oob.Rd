@@ -93,7 +93,7 @@ as \code{prob_values}, with each label indicating what the corresponding
 value in \code{prob_values} should be labelled as in summarized outputs.
 \code{prob_labels} should have the same length as \code{prob_values}.}
 
-\item{boundary_checks}{(\emph{logical}) if \code{TRUE}, \code{pred_spec} will be vetted
+\item{boundary_checks}{(\emph{logical}) if \code{TRUE}, \code{pred_spec} will be checked
 to make sure the requested values are between the 10th and 90th
 percentile in the object's training data. If \code{FALSE}, these checks are
 skipped.}

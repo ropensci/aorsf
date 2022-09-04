@@ -1480,7 +1480,8 @@ check_predict <- function(object,
                           new_data = NULL,
                           pred_horizon = NULL,
                           pred_type = NULL,
-                          na_action = NULL){
+                          na_action = NULL,
+                          boundary_checks = NULL){
 
  if(!is.null(new_data)){
 
@@ -1555,6 +1556,18 @@ check_predict <- function(object,
 
  if(!is.null(pred_horizon)){
 
+  if(!is.null(boundary_checks)){
+
+   check_arg_type(arg_value = boundary_checks,
+                  arg_name = 'boundary_checks',
+                  expected_type = 'logical')
+
+   check_arg_length(arg_value = boundary_checks,
+                    arg_name = 'boundary_checks',
+                    expected_length = 1)
+
+  }
+
   check_arg_type(arg_value = pred_horizon,
                  arg_name = 'pred_horizon',
                  expected_type = 'numeric')
@@ -1565,20 +1578,15 @@ check_predict <- function(object,
 
   if(any(pred_horizon > get_max_time(object))){
 
-   stop("prediction horizon should ",
-        "be <= max follow-up time ",
-        "observed in training data: ",
-        get_max_time(object),
-        call. = FALSE)
+   if(boundary_checks == TRUE){
+    stop("prediction horizon should ",
+         "be <= max follow-up time ",
+         "observed in training data: ",
+         get_max_time(object),
+         call. = FALSE)
+   }
 
   }
-
-  # drop this check to be more user friendly. Let aorsf do the sorting
-  # if(!all(order(pred_horizon) == seq(length(pred_horizon)))){
-  #  stop("prediction horizons must be entered in ascending order, e.g.,",
-  #       "pred_horizon = c(5, 10) instead of pred_horizon = c(10, 5)",
-  #       call. = FALSE)
-  # }
 
 }
 

@@ -39,6 +39,11 @@
 #'   - `r roxy_na_action_pass()`
 #'   - `r roxy_na_action_omit()`
 #'
+#' @param boundary_checks (_logical_) if `TRUE`, `pred_horizon` will be
+#'  checked to make sure the requested values are less than the maximum
+#'  observed time in `object`'s training data. If `FALSE`, these checks
+#'  are skipped.
+#'
 #' @param ... `r roxy_dots()`
 #'
 #' @return a `matrix` of predictions. Column `j` of the matrix corresponds
@@ -68,6 +73,7 @@ predict.orsf_fit <- function(object,
                              pred_horizon = NULL,
                              pred_type = 'risk',
                              na_action = 'fail',
+                             boundary_checks = TRUE,
                              ...){
 
  # catch any arguments that didn't match and got relegated to ...
@@ -78,7 +84,12 @@ predict.orsf_fit <- function(object,
 
  pred_horizon <- infer_pred_horizon(object, pred_horizon)
 
- check_predict(object, new_data, pred_horizon, pred_type, na_action)
+ check_predict(object = object,
+               new_data = new_data,
+               pred_horizon = pred_horizon,
+               pred_type = pred_type,
+               na_action = na_action,
+               boundary_checks = boundary_checks)
 
  pred_horizon_order <- order(pred_horizon)
  pred_horizon_ordered <- pred_horizon[pred_horizon_order]
