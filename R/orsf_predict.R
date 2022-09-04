@@ -80,6 +80,9 @@ predict.orsf_fit <- function(object,
 
  check_predict(object, new_data, pred_horizon, pred_type, na_action)
 
+ pred_horizon_order <- order(pred_horizon)
+ pred_horizon_ordered <- pred_horizon[pred_horizon_order]
+
  cc <- which(stats::complete.cases(select_cols(new_data, names_x_data)))
 
  check_complete_cases(cc, na_action, nrow(new_data))
@@ -107,9 +110,9 @@ predict.orsf_fit <- function(object,
   if(pred_type_cpp == "M"){
    orsf_pred_mort(object, x_new)
   } else if (length(pred_horizon) == 1L) {
-   orsf_pred_uni(object$forest, x_new, pred_horizon, pred_type_cpp)
+   orsf_pred_uni(object$forest, x_new, pred_horizon_ordered, pred_type_cpp)
   } else {
-   orsf_pred_multi(object$forest, x_new, pred_horizon, pred_type_cpp)
+   orsf_pred_multi(object$forest, x_new, pred_horizon_ordered, pred_type_cpp)
   }
 
  if(na_action == "pass"){
@@ -125,7 +128,8 @@ predict.orsf_fit <- function(object,
 
  }
 
- out
+ # output in the same order as pred_horizon
+ out[, order(pred_horizon_order), drop = FALSE]
 
 }
 

@@ -342,11 +342,27 @@ test_that(
 test_that(
  desc = 'pred horizon in increasing order',
  code = {
-  expect_error(
-   object = predict(fit, pbc_orsf[-train,],
-                    pred_horizon = c(4000, 2000)),
-   regexp = "ascending"
-  )
+
+  normal <- predict(fit, pbc_orsf[-train,],
+                    pred_horizon = c(2000, 3000, 4000))
+
+  reversed <- predict(fit, pbc_orsf[-train,],
+                      pred_horizon = c(4000, 3000, 2000))
+
+  bizaro_1 <- predict(fit, pbc_orsf[-train,],
+                      pred_horizon = c(3000, 2000, 4000))
+
+  bizaro_2 <- predict(fit, pbc_orsf[-train,],
+                      pred_horizon = c(4000, 2000, 3000))
+
+  bizaro_3 <- predict(fit, pbc_orsf[-train,],
+                      pred_horizon = c(3000, 4000, 2000))
+
+  expect_equal(normal, reversed[, c(3,2,1)])
+  expect_equal(normal, bizaro_1[, c(2,1,3)])
+  expect_equal(normal, bizaro_2[, c(2,3,1)])
+  expect_equal(normal, bizaro_3[, c(3,1,2)])
+
  }
 )
 

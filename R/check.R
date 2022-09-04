@@ -1573,11 +1573,12 @@ check_predict <- function(object,
 
   }
 
-  if(!all(order(pred_horizon) == seq(length(pred_horizon)))){
-   stop("prediction horizons must be entered in ascending order, e.g.,",
-        "pred_horizon = c(5, 10) instead of pred_horizon = c(10, 5)",
-        call. = FALSE)
-  }
+  # drop this check to be more user friendly. Let aorsf do the sorting
+  # if(!all(order(pred_horizon) == seq(length(pred_horizon)))){
+  #  stop("prediction horizons must be entered in ascending order, e.g.,",
+  #       "pred_horizon = c(5, 10) instead of pred_horizon = c(10, 5)",
+  #       call. = FALSE)
+  # }
 
 }
 
