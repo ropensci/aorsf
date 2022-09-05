@@ -1,5 +1,6 @@
 # aorsf 0.0.3
 
+* Updated out-of-bag vignette with more appropriate custom functions.
 
 * Allow status values in input data to be more general, i.e., not just 0 and 1.
 

@@ -4,14 +4,16 @@
 ```{r}
 
 set.seed(329730)
+suppressPackageStartupMessages({
+ library(aorsf)
+ library(survival)
+ library(tidymodels)
+ library(tidyverse)
+ library(randomForestSRC)
+ library(ranger)
+ library(riskRegression) 
+})
 
-library(aorsf)
-library(survival)
-library(tidymodels)
-library(tidyverse)
-library(randomForestSRC)
-library(ranger)
-library(riskRegression)
 ```
 
 

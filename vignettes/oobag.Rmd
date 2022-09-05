@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 
 library(aorsf)
 library(survival)
-library(survivalROC)
+library(SurvMetrics)
 
 ```
 
@@ -38,6 +38,7 @@ Let's fit an oblique random survival forest and plot the distribution of the ens
 
 fit <- orsf(data = pbc_orsf, 
             formula = Surv(time, status) ~ . - id,
+            oobag_pred_type = 'surv',
             oobag_pred_horizon = 3500)
 
 hist(fit$pred_oobag, 
@@ -85,17 +86,21 @@ In general, at least 500 trees are recommended for a random forest fit. We're ju
 
 ## User-supplied out-of-bag evaluation functions
 
-In some cases, you may want to use your own function to compute out-of-bag error. For example, here is a simple (and incorrect) way to compute the Brier score. (It is incorrect because it does not account for censoring)
+In some cases, you may want more control over how out-of-bag error is estimated. For example, let's use the Brier score from the `SurvMetrics` package:
 
 ```{r}
 
 oobag_fun_brier <- function(y_mat, s_vec){
 
- # risk = 1 - survival 
- r_vec <- 1 - s_vec
-
- # mean of the squared differences between predicted and observed risk
- mean( (y_mat[, 'status'] - r_vec)^2 )
+ # output is numeric vector of length 1
+ as.numeric(
+  SurvMetrics::Brier(
+   object = Surv(time = y_mat[, 1], event = y_mat[, 2]), 
+   pre_sp = s_vec,
+   # t_star in Brier() should match oob_pred_horizon in orsf()
+   t_star = 3500
+  )
+ )
  
 }
 ```
@@ -131,27 +136,19 @@ plot(
 
 ```
 
-Let's run one more example showing how this can be done using functions from other packages, e.g., `survivalROC` from the `survivalROC` package:
+We can also compute a time-dependent C-statistic instead of Harrell's C-statistic (the default oob function):
 
 ```{r}
 
-oobag_fun_sroc <- function(y_mat, s_vec){
+oobag_fun_tdep_cstat <- function(y_mat, s_vec){
 
- score <- survivalROC::survivalROC(
-  Stime = y_mat[, 'time'],
-  status = y_mat[, 'status'],
-  # risk = 1 - survival
-  marker = 1 - s_vec,
-  # important!! Make sure this matches the time you used in orsf
-  predict.time = 3500,
-  # nearest neighbor estimation for censoring
-  method = "NNE",
-  # value taken from ?survivalROC examples
-  span = 0.25 * nrow(y_mat)^(-0.20)
+ as.numeric(
+  SurvMetrics::Cindex(
+   object = Surv(time = y_mat[, 1], event = y_mat[, 2]), 
+   predicted = s_vec,
+   t_star = 3500
+  )
  )
- 
- # oobag_fun needs to return a numeric value of length 1
- score$AUC
 
 }
 
@@ -159,7 +156,7 @@ fit <- orsf(data = pbc_orsf,
             formula = Surv(time, status) ~ . - id,
             n_tree = 50,
             oobag_pred_horizon = 3500,
-            oobag_fun = oobag_fun_sroc,
+            oobag_fun = oobag_fun_tdep_cstat,
             oobag_eval_every = 1)
 
 plot(
@@ -195,9 +192,9 @@ y_mat <- cbind(time = test_time, status = test_status)
 s_vec <- seq(0.9, 0.1, length.out = 100)
 
 # see 1 in the checklist above
-names(formals(oobag_fun_sroc)) == c("y_mat", "s_vec")
+names(formals(oobag_fun_tdep_cstat)) == c("y_mat", "s_vec")
 
-test_output <- oobag_fun_sroc(y_mat = y_mat, s_vec = s_vec)
+test_output <- oobag_fun_tdep_cstat(y_mat = y_mat, s_vec = s_vec)
 
 # test output should be numeric
 is.numeric(test_output)
@@ -212,33 +209,23 @@ Negation importance is based on the out-of-bag error, so of course you may be cu
 
 ```{r}
 
-fit_sroc <- orsf(data = pbc_orsf,
+fit_tdep_cstat <- orsf(data = pbc_orsf,
                  formula = Surv(time, status) ~ . - id,
-                 n_tree = 50,
+                 n_tree = 500,
                  oobag_pred_horizon = 3500,
-                 oobag_fun = oobag_fun_sroc,
+                 oobag_fun = oobag_fun_tdep_cstat,
                  importance = 'negate')
 
-fit_sroc$importance
+fit_tdep_cstat$importance
 
 ```
 
-## I really need to use package X
+## Notes
 
-You can use any package whatsoever to evaluate out-of-bag predictions. You can access the final out-of-bag survival predictions from an `aorsf` model like so:
+When evaluating out-of-bag error: 
 
-```{r}
-
-pred_oobag <- fit$pred_oobag
-
-pred_oobag[1:5, ]
-
-```
-
-Some notes to remember when evaluating out-of-bag error with `pred_oobag`: 
-
-- the `oobag_pred_horizon` input in `orsf()` determines the prediction horizon for out-of-bag predictions. The prediction horizon is a critical input for evaluation of predictions with time-to-event outcomes. 
+- the `oobag_pred_horizon` input in `orsf()` determines the prediction horizon for out-of-bag predictions. The prediction horizon needs to be specified to evaluate prediction accuracy in some cases, such as the examples above. Be sure to check if that is the case when using your own functions, and if so, be sure that `oobag_pred_horizon` matches the prediction horizon used in your custom function. 
 
 - Some functions expect predicted risk (i.e., 1 - predicted survival), others expect predicted survival. 
 
-In most cases, you should also be able to use any package whatsoever to compute negation importance. One exception at this point is `riskRegression`, one of my favorite packages. I have experimented with `riskRegression` but found its functions do not work as I would expect them to when I try to run them from C++. I think this may be due to `riskRegression`'s internal use of `data.table` and modification by reference, but I do not have certainty on that yet. 
+- In most cases, you should also be able to use any function whatsoever to compute out-of-bag prediction error when estimating negation or permutation importance, assuming it passes the tests above. Unfortunately, an exception is `riskRegression::Score()`, one of my favorites. I have experimented with `riskRegression::Score` but found it does not work when I try to run it from C++. I am not sure why this is the case.

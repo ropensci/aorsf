@@ -33,7 +33,7 @@
 #' @srrstats {ML1.6b} *Explicit example showing how missing values may be imputed rather than discarded.*
 #' @srrstats {ML6.0} *Reference section explicitly links to aorsf-bench, which includes training and testing stages, and which clearly indicates a need for distinct training and test data sets.*
 #' @srrstats {ML6.1} *clearly document how aorsf can be embedded within a typical full ML workflow.*
-#' @srrstats {ML6.1a} *Embed aorsf within a full workflow using tidymodels, tidyverse, and survivalROC.*
+#' @srrstats {ML6.1a} *Embed aorsf within a full workflow using tidymodels and tidyverse*
 #' @srrstats {ML5.2b} *Documentation includes examples of how to save and re-load trained model objects for their re-use.*
 #' @srrstats {ML2.3} *Values associated with transformations are recorded in the object returned by orsf()*
 #' @srrstats {ML1.3} *Input data are partitioned as training (in-bag) and test (out-of-bag) data within orsf_fit().*

@@ -269,87 +269,15 @@ such as \code{recipes} or \code{mlr3pipelines}.
 
 \section{Examples}{
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329730)
-
-library(aorsf)
-library(survival)
-library(tidymodels)
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## -- Attaching packages ----------------------------- tidymodels 0.2.0 --
-
-## v broom        1.0.0     v recipes      1.0.1
-## v dials        0.1.1     v rsample      0.1.1
-## v dplyr        1.0.9     v tibble       3.1.8
-## v ggplot2      3.3.6     v tidyr        1.2.0
-## v infer        1.0.0     v tune         0.2.0
-## v modeldata    0.1.1     v workflows    0.2.6
-## v parsnip      1.0.0     v workflowsets 0.2.1
-## v purrr        0.3.4     v yardstick    0.0.9
-
-## -- Conflicts -------------------------------- tidymodels_conflicts() --
-## x dplyr::between()      masks aorsf::between()
-## x purrr::discard()      masks scales::discard()
-## x dplyr::filter()       masks stats::filter()
-## x dplyr::first()        masks aorsf::first()
-## x recipes::is_trained() masks aorsf::is_trained()
-## x dplyr::lag()          masks stats::lag()
-## x dplyr::last()         masks aorsf::last()
-## x recipes::step()       masks stats::step()
-## x purrr::transpose()    masks aorsf::transpose()
-## * Dig deeper into tidy modeling with R at https://www.tmwr.org
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(tidyverse)
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## -- Attaching packages ------------------------------ tidyverse 1.3.1 --
-
-## v readr   2.1.2     v forcats 0.5.1
-## v stringr 1.4.0
-
-## -- Conflicts --------------------------------- tidyverse_conflicts() --
-## x dplyr::between()    masks aorsf::between()
-## x readr::col_factor() masks scales::col_factor()
-## x purrr::discard()    masks scales::discard()
-## x dplyr::filter()     masks stats::filter()
-## x dplyr::first()      masks aorsf::first()
-## x stringr::fixed()    masks recipes::fixed()
-## x dplyr::lag()        masks stats::lag()
-## x dplyr::last()       masks aorsf::last()
-## x readr::spec()       masks yardstick::spec()
-## x purrr::transpose()  masks aorsf::transpose()
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(randomForestSRC)
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## 
-##  randomForestSRC 3.0.2 
-##  
-##  Type rfsrc.news() to see new features, changes, and bug fixes. 
-## 
-
-## 
-## Attaching package: 'randomForestSRC'
-
-## The following object is masked from 'package:tune':
-## 
-##     tune
-
-## The following object is masked from 'package:purrr':
-## 
-##     partial
-
-## The following object is masked from 'package:parsnip':
-## 
-##     tune
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(ranger)
-library(riskRegression)
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## riskRegression version 2022.03.22
+suppressPackageStartupMessages(\{
+ library(aorsf)
+ library(survival)
+ library(tidymodels)
+ library(tidyverse)
+ library(randomForestSRC)
+ library(ranger)
+ library(riskRegression) 
+\})
 }\if{html}{\out{</div>}}
 
 The entry-point into \code{aorsf} is the standard call to \code{orsf()}:
