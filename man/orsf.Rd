@@ -481,18 +481,18 @@ analyses
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## #  10-fold cross-validation 
 ## # A tibble: 10 x 5
-##    splits           id     recipe   train               test              
-##    <list>           <chr>  <list>   <list>              <list>            
-##  1 <split [248/28]> Fold01 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
-##  2 <split [248/28]> Fold02 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
-##  3 <split [248/28]> Fold03 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
-##  4 <split [248/28]> Fold04 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
-##  5 <split [248/28]> Fold05 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
-##  6 <split [248/28]> Fold06 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
-##  7 <split [249/27]> Fold07 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
-##  8 <split [249/27]> Fold08 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
-##  9 <split [249/27]> Fold09 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
-## 10 <split [249/27]> Fold10 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
+##    splits           id     recipe   train               test    
+##    <list>           <chr>  <list>   <list>              <list>  
+##  1 <split [248/28]> Fold01 <recipe> <tibble [248 x 20]> <tibble>
+##  2 <split [248/28]> Fold02 <recipe> <tibble [248 x 20]> <tibble>
+##  3 <split [248/28]> Fold03 <recipe> <tibble [248 x 20]> <tibble>
+##  4 <split [248/28]> Fold04 <recipe> <tibble [248 x 20]> <tibble>
+##  5 <split [248/28]> Fold05 <recipe> <tibble [248 x 20]> <tibble>
+##  6 <split [248/28]> Fold06 <recipe> <tibble [248 x 20]> <tibble>
+##  7 <split [249/27]> Fold07 <recipe> <tibble [249 x 20]> <tibble>
+##  8 <split [249/27]> Fold08 <recipe> <tibble [249 x 20]> <tibble>
+##  9 <split [249/27]> Fold09 <recipe> <tibble [249 x 20]> <tibble>
+## 10 <split [249/27]> Fold10 <recipe> <tibble [249 x 20]> <tibble>
 }\if{html}{\out{</div>}}
 
 Define functions for a ‘workflow’ with \code{randomForestSRC}, \code{ranger}, and
@@ -551,29 +551,29 @@ glimpse(results)
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## Rows: 276
 ## Columns: 23
-## $ id          <int> 7, 36, 52, 65, 67, 72, 79, 88, 89, 100, 127, 154, 161, 167~
-## $ trt         <fct> placebo, placebo, d_penicill_main, d_penicill_main, placeb~
-## $ age         <dbl> 55.53457, 56.41068, 50.54073, 40.20260, 51.28816, 32.49281~
-## $ sex         <fct> f, f, m, f, f, f, f, f, f, m, f, m, f, m, f, f, f, f, f, f~
-## $ ascites     <fct> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~
-## $ hepato      <fct> 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1~
-## $ spiders     <fct> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0~
-## $ edema       <fct> 0, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,~
-## $ bili        <dbl> 1.0, 0.3, 6.0, 1.2, 1.1, 0.5, 0.8, 0.6, 2.0, 2.3, 0.5, 2.4~
-## $ chol        <int> 322, 172, 614, 256, 466, 320, 315, 296, 408, 178, 268, 168~
-## $ albumin     <dbl> 4.09, 3.39, 3.70, 3.60, 3.91, 3.54, 4.24, 4.06, 3.65, 3.00~
-## $ copper      <int> 52, 18, 158, 74, 84, 51, 13, 37, 50, 145, 9, 225, 4, 200, ~
-## $ alk.phos    <dbl> 824.0, 558.0, 5084.4, 724.0, 1787.0, 1243.0, 1637.0, 1032.~
-## $ ast         <dbl> 60.45, 71.30, 206.40, 141.05, 328.60, 122.45, 170.50, 80.6~
-## $ trig        <int> 213, 96, 93, 108, 185, 80, 70, 83, 98, 122, 95, 75, 180, 1~
-## $ platelet    <int> 204, 311, 362, 430, 261, 225, 426, 442, 200, 119, 453, 108~
-## $ protime     <dbl> 9.7, 10.6, 10.6, 10.0, 10.0, 10.0, 10.9, 12.0, 11.4, 12.0,~
-## $ stage       <ord> 3, 2, 1, 1, 3, 3, 3, 3, 2, 4, 2, 3, 2, 4, 4, 3, 3, 3, 4, 3~
-## $ time        <int> 1832, 3611, 2386, 3992, 2769, 4184, 3707, 2452, 1741, 552,~
-## $ status      <dbl> 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0~
-## $ pred_aorsf  <dbl> 0.14427839, 0.01870334, 0.51377784, 0.04334777, 0.21914657~
-## $ pred_rfsrc  <dbl> 0.14732022, 0.03156261, 0.55773866, 0.06502143, 0.16192547~
-## $ pred_ranger <dbl> 0.14870388, 0.01662689, 0.57519043, 0.05876898, 0.14884980~
+## $ id          <int> 7, 36, 52, 65, 67, 72, 79, 88, 89, 100, 127, ~
+## $ trt         <fct> placebo, placebo, d_penicill_main, d_penicill~
+## $ age         <dbl> 55.53457, 56.41068, 50.54073, 40.20260, 51.28~
+## $ sex         <fct> f, f, m, f, f, f, f, f, f, m, f, m, f, m, f, ~
+## $ ascites     <fct> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+## $ hepato      <fct> 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, ~
+## $ spiders     <fct> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, ~
+## $ edema       <fct> 0, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 0, 0~
+## $ bili        <dbl> 1.0, 0.3, 6.0, 1.2, 1.1, 0.5, 0.8, 0.6, 2.0, ~
+## $ chol        <int> 322, 172, 614, 256, 466, 320, 315, 296, 408, ~
+## $ albumin     <dbl> 4.09, 3.39, 3.70, 3.60, 3.91, 3.54, 4.24, 4.0~
+## $ copper      <int> 52, 18, 158, 74, 84, 51, 13, 37, 50, 145, 9, ~
+## $ alk.phos    <dbl> 824.0, 558.0, 5084.4, 724.0, 1787.0, 1243.0, ~
+## $ ast         <dbl> 60.45, 71.30, 206.40, 141.05, 328.60, 122.45,~
+## $ trig        <int> 213, 96, 93, 108, 185, 80, 70, 83, 98, 122, 9~
+## $ platelet    <int> 204, 311, 362, 430, 261, 225, 426, 442, 200, ~
+## $ protime     <dbl> 9.7, 10.6, 10.6, 10.0, 10.0, 10.0, 10.9, 12.0~
+## $ stage       <ord> 3, 2, 1, 1, 3, 3, 3, 3, 2, 4, 2, 3, 2, 4, 4, ~
+## $ time        <int> 1832, 3611, 2386, 3992, 2769, 4184, 3707, 245~
+## $ status      <dbl> 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, ~
+## $ pred_aorsf  <dbl> 0.14427839, 0.01870334, 0.51377784, 0.0433477~
+## $ pred_rfsrc  <dbl> 0.14732022, 0.03156261, 0.55773866, 0.0650214~
+## $ pred_ranger <dbl> 0.14870388, 0.01662689, 0.57519043, 0.0587689~
 }\if{html}{\out{</div>}}
 
 And finish by aggregating the predictions and computing performance in
@@ -631,14 +631,22 @@ counts.
 ## 
 ## Results of model comparisons:
 ## 
-##      times  model  reference delta.Brier  lower  upper            p
-##      <num> <fctr>     <fctr>      <char> <char> <char>        <num>
-## 1: 1826.25  aorsf Null model       -10.0  -12.6   -7.3 1.430444e-13
-## 2: 1826.25  rfsrc Null model        -8.9  -11.2   -6.7 5.508455e-15
-## 3: 1826.25 ranger Null model        -8.9  -11.3   -6.6 5.511591e-14
-## 4: 1826.25  rfsrc      aorsf         1.1    0.2    1.9 1.141214e-02
-## 5: 1826.25 ranger      aorsf         1.0    0.3    1.7 3.742797e-03
-## 6: 1826.25 ranger      rfsrc        -0.0   -0.5    0.5 9.730271e-01
+##      times  model  reference delta.Brier  lower  upper
+##      <num> <fctr>     <fctr>      <char> <char> <char>
+## 1: 1826.25  aorsf Null model       -10.0  -12.6   -7.3
+## 2: 1826.25  rfsrc Null model        -8.9  -11.2   -6.7
+## 3: 1826.25 ranger Null model        -8.9  -11.3   -6.6
+## 4: 1826.25  rfsrc      aorsf         1.1    0.2    1.9
+## 5: 1826.25 ranger      aorsf         1.0    0.3    1.7
+## 6: 1826.25 ranger      rfsrc        -0.0   -0.5    0.5
+##               p
+##           <num>
+## 1: 1.430444e-13
+## 2: 5.508455e-15
+## 3: 5.511591e-14
+## 4: 1.141214e-02
+## 5: 3.742797e-03
+## 6: 9.730271e-01
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.

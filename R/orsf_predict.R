@@ -16,7 +16,6 @@
 #'   (see [orsf]).
 #'
 #' @param new_data a `r roxy_data_allowed()` to compute predictions in.
-#'   Missing data are not currently allowed
 #'
 #' @param pred_horizon (_double_) a value or vector indicating the time(s)
 #'   that predictions will be calibrated to. E.g., if you were predicting
@@ -56,9 +55,13 @@
 #'   used to train `object`. Also, factors in `new_data` must not have levels
 #'   that were not in the data used to train `object`.
 #'
-#' `pred_horizon` values must not exceed the maximum follow-up time in
-#'   `object`'s training data. Also, `pred_horizon` values must be entered
-#'   in ascending order.
+#' `pred_horizon` values should not exceed the maximum follow-up time in
+#'   `object`'s training data, but if you truly want to do this, set
+#'   `boundary_checks = FALSE` and you can use a `pred_horizon` as large
+#'   as you want. Note that predictions beyond the maximum follow-up time
+#'   in the `object`'s training data are equal to predictions at the
+#'   maximum follow-up time, because `aorsf` does not estimate survival
+#'   beyond its maximum observed time.
 #'
 #' If unspecified, `pred_horizon` may be automatically specified as the value
 #'   used for `oobag_pred_horizon` when `object` was created (see [orsf]).

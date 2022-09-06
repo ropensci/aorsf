@@ -18,8 +18,7 @@
 \item{object}{(\emph{orsf_fit}) a trained oblique random survival forest
 (see \link{orsf}).}
 
-\item{new_data}{a \link{data.frame}, \link[tibble:tibble-package]{tibble}, or \link[data.table:data.table]{data.table} to compute predictions in.
-Missing data are not currently allowed}
+\item{new_data}{a \link{data.frame}, \link[tibble:tibble-package]{tibble}, or \link[data.table:data.table]{data.table} to compute predictions in.}
 
 \item{pred_horizon}{(\emph{double}) a value or vector indicating the time(s)
 that predictions will be calibrated to. E.g., if you were predicting
@@ -65,9 +64,13 @@ from an ORSF model.
 used to train \code{object}. Also, factors in \code{new_data} must not have levels
 that were not in the data used to train \code{object}.
 
-\code{pred_horizon} values must not exceed the maximum follow-up time in
-\code{object}'s training data. Also, \code{pred_horizon} values must be entered
-in ascending order.
+\code{pred_horizon} values should not exceed the maximum follow-up time in
+\code{object}'s training data, but if you truly want to do this, set
+\code{boundary_checks = FALSE} and you can use a \code{pred_horizon} as large
+as you want. Note that predictions beyond the maximum follow-up time
+in the \code{object}'s training data are equal to predictions at the
+maximum follow-up time, because \code{aorsf} does not estimate survival
+beyond its maximum observed time.
 
 If unspecified, \code{pred_horizon} may be automatically specified as the value
 used for \code{oobag_pred_horizon} when \code{object} was created (see \link{orsf}).

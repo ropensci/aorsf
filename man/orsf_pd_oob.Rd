@@ -100,8 +100,7 @@ skipped.}
 
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 
-\item{new_data}{a \link{data.frame}, \link[tibble:tibble-package]{tibble}, or \link[data.table:data.table]{data.table} to compute predictions in.
-Missing data are not currently allowed}
+\item{new_data}{a \link{data.frame}, \link[tibble:tibble-package]{tibble}, or \link[data.table:data.table]{data.table} to compute predictions in.}
 
 \item{na_action}{(\emph{character}) what should happen when \code{new_data} contains missing values (i.e., \code{NA} values). Valid options are:
 \itemize{
