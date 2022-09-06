@@ -202,6 +202,13 @@ Environment base_env("package:base");
 
 Function set_seed_r = base_env["set.seed"];
 
+// Set difference for arma vectors
+//
+// @description the same as setdiff() in R
+//
+// @param x first vector
+// @param y second vector
+//
 // [[Rcpp::export]]
 arma::uvec std_setdiff(arma::uvec& x, arma::uvec& y) {
 
@@ -221,6 +228,22 @@ arma::uvec std_setdiff(arma::uvec& x, arma::uvec& y) {
 // ---------------------------- scaling functions -----------------------------
 // ----------------------------------------------------------------------------
 
+// scale observations in predictor matrix
+//
+// @description this scales inputs in the same way as
+//   the survival::coxph() function. The main reasons we do this
+//   are to avoid exponential overflow and to prevent the scale
+//   of inputs from impacting the estimated beta coefficients.
+//   E.g., you can try multiplying numeric inputs by 100 prior
+//   to calling orsf() with orsf_control_fast(do_scale = FALSE)
+//   and you will see that you get back a different forest.
+//
+// @param x_node matrix of predictors
+// @param w_node replication weights
+// @param x_transforms matrix used to store the means and scales
+//
+// @return modified x_node and x_transform filled with values
+//
 void x_node_scale(){
 
  // set aside memory for outputs
@@ -252,6 +275,8 @@ void x_node_scale(){
 
 }
 
+// same as above function, but just the means
+// (currently not used)
 void x_node_means(){
 
  x_transforms.zeros(n_vars, 1);
@@ -265,6 +290,7 @@ void x_node_means(){
 
 }
 
+//  Same as x_node_scale, but this can be called from R
 // [[Rcpp::export]]
 List x_node_scale_exported(NumericMatrix& x_,
                            NumericVector& w_){
@@ -287,6 +313,26 @@ List x_node_scale_exported(NumericMatrix& x_,
 // ----------------------------------------------------------------------------
 // -------------------------- leaf_surv functions -----------------------------
 // ----------------------------------------------------------------------------
+
+// Create kaplan-meier survival curve in leaf node
+//
+// @description Modifies leaf_nodes by adding data from the current node,
+//   where the current node is one that is too small to be split and will
+//   be converted to a leaf.
+//
+// @param y the outcome matrix in the current leaf
+// @param w the weights vector in the current leaf
+// @param leaf_indices a matrix that indicates where leaf nodes are
+//   inside of leaf_nodes. leaf_indices has three columns:
+//   - first column: the id for the leaf
+//   - second column: starting row for the leaf
+//   - third column: ending row for the leaf
+// @param leaf_node_index_counter keeps track of where we are in leaf_node
+// @param leaf_node_counter keeps track of which leaf node we are in
+// @param leaf_nodes a matrix with three columns:
+//   - first column: time
+//   - second column: survival probability
+//   - third column: cumulative hazard
 
 void leaf_kaplan(const arma::mat& y,
                  const arma::vec& w){
@@ -320,9 +366,6 @@ void leaf_kaplan(const arma::mat& y,
 
  }
 
-
- // TODO: ADD CUMULATIVE HAZARD FUNCTION HERE
- // (https://www.randomforestsrc.org/articles/survival.html#in-bag-ib-estimator-1)
  // reset for kaplan meier loop
  n_risk = sum(w);
  person = 0;
@@ -374,6 +417,10 @@ void leaf_kaplan(const arma::mat& y,
 
 }
 
+// Same as above, but this function can be called from R and is
+// used to run tests with testthat (hence the name). Note: this
+// needs to be updated to include CHF, which was added to the
+// function above recently.
 // [[Rcpp::export]]
 arma::mat leaf_kaplan_testthat(const arma::mat& y,
                                const arma::vec& w){
@@ -461,6 +508,17 @@ arma::mat leaf_kaplan_testthat(const arma::mat& y,
 // ---------------------------- cholesky functions ----------------------------
 // ----------------------------------------------------------------------------
 
+// cholesky decomposition
+//
+// @description this function is copied from the survival package and
+//    translated into arma.
+//
+// @param vmat matrix with covariance estimates
+// @param n_vars the number of predictors used in the current node
+//
+// prepares vmat for cholesky_solve()
+
+
 void cholesky(){
 
  double eps_chol = 0;
@@ -512,6 +570,15 @@ void cholesky(){
 
 }
 
+// solve cholesky decomposition
+//
+// @description this function is copied from the survival package and
+//   translated into arma. Prepares u, the vector used to update beta.
+//
+// @param vmat matrix with covariance estimates
+// @param n_vars the number of predictors used in the current node
+//
+//
 void cholesky_solve(){
 
  for (i = 0; i < n_vars; i++) {
@@ -550,16 +617,22 @@ void cholesky_solve(){
 
 }
 
+// invert the cholesky in the lower triangle
+//
+// @description this function is copied from the survival package and
+//   translated into arma. Inverts vmat
+//
+// @param vmat matrix with covariance estimates
+// @param n_vars the number of predictors used in the current node
+//
+
 void cholesky_invert(){
 
- /*
-  ** invert the cholesky in the lower triangle
-  **   take full advantage of the cholesky's diagonal of 1's
-  */
  for (i=0; i<n_vars; i++){
 
   if (vmat.at(i,i) >0) {
 
+   // take full advantage of the cholesky's diagonal of 1's
    vmat.at(i,i) = 1.0 / vmat.at(i,i);
 
    for (j=(i+1); j<n_vars; j++) {
@@ -612,6 +685,29 @@ void cholesky_invert(){
 // ----------------------------------------------------------------------------
 // ------------------- Newton Raphson algo for Cox PH model -------------------
 // ----------------------------------------------------------------------------
+
+
+// Iterate (past 1) the newton raphson procedure
+//
+// @description once the first iteration is done, this procedure
+//   is used to continue updating beta
+//
+// @param beta the vector of beta coefficients
+// @param x_node the predictor matrix for the current node
+// @param y_node the outcome matrix for the current node
+// @param w_node the weight vector for the current node
+// @param n_vars the number of predictors in the current node
+// @param cmat sums of squares from x for non-events
+// @param cmat2 sums of squares from x for events
+// @param vmat matrix of covariance estimates
+// @param a sums of x for non-events
+// @param a2 sums of x for events
+// @param u vector of updates for beta
+// @param cph_method how to handle ties
+//
+// @returns the partial log likelihood based on beta
+//
+
 
 double newtraph_cph_iter(const arma::vec& beta){
 
@@ -777,6 +873,9 @@ double newtraph_cph_iter(const arma::vec& beta){
 
 }
 
+// Do first iteration of the newton raphson procedure
+// same as above, optimized for starting value of beta = 0
+
 double newtraph_cph_init(){
 
  denom = 0;
@@ -928,6 +1027,15 @@ double newtraph_cph_init(){
 
 }
 
+// run the newton raphson procedure
+//
+// @description identify a linear combination of predictors.
+//   This function is copied from the survival package and
+//   translated into arma with light modifications for efficiency.
+//   The procedure works with the partial likelihood function
+//   of the Cox model. All inputs are described above
+//   in newtraph_cph_iter()
+//
 arma::vec newtraph_cph(){
 
  beta_current.zeros(n_vars);
@@ -1065,7 +1173,7 @@ arma::vec newtraph_cph(){
 
 }
 
-
+// same function as above, but exported to R for testing
 // [[Rcpp::export]]
 arma::vec newtraph_cph_testthat(NumericMatrix& x_in,
                                 NumericMatrix& y_in,
@@ -1102,22 +1210,28 @@ arma::vec newtraph_cph_testthat(NumericMatrix& x_in,
 // ---------------------------- node functions --------------------------------
 // ----------------------------------------------------------------------------
 
+// Log rank test w/multiple cutpoints
+//
+// this function returns a cutpoint obtaining a local maximum
+// of the log-rank test (lrt) statistic. The default value (+Inf)
+// is really for diagnostic purposes. Put another way, if the
+// return value is +Inf (an impossible value for a cutpoint),
+// that means that we didn't find any valid cut-points and
+// the node cannot be grown with the current XB.
+//
+// if there is a valid cut-point, then the main side effect
+// of this function is to modify the group vector, which
+// will be used to assign observations to the two new nodes.
+//
+// @param group the vector that determines which node to send each
+//   observation to (left node = 0, right node = 1)
+// @param y_node matrix of outcomes
+// @param w_node vector of weights
+// @param XB linear combination of predictors
+//
+// the group vector is modified by this function and the value returned
+// is the maximal log-rank statistic across all the possible cutpoints.
 double lrt_multi(){
-
- // about this function - - - - - - - - - - - - - - - - - - - - - - - - - - -
- //
- // this function returns a cutpoint obtaining a local maximum
- // of the log-rank test (lrt) statistic. The default value (+Inf)
- // is really for diagnostic purposes. Put another way, if the
- // return value is +Inf (an impossible value for a cutpoint),
- // that means that we didn't find any valid cut-points and
- // the node cannot be grown with the current XB.
- //
- // if there is a valid cut-point, then the main side effect
- // of this function is to modify the group vector, which
- // will be used to assign observations to the two new nodes.
- //
- // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
  break_loop = false;
 
@@ -1500,10 +1614,12 @@ double lrt_multi(){
   ++iit;
  }
 
+ // XB at *iit_best is the cut-point that maximized the log-rank test
  return(XB[*iit_best]);
 
 }
 
+// this function is the same as above, but is exported to R for testing
 // [[Rcpp::export]]
 List lrt_multi_testthat(NumericMatrix& y_node_,
                         NumericVector& w_node_,
@@ -1930,6 +2046,17 @@ List lrt_multi_testthat(NumericMatrix& y_node_,
 }
 
 
+// out-of-bag prediction for single prediction horizon
+//
+// @param pred_type indicates what type of prediction to compute
+// @param leaf_pred a vector indicating which leaf each observation
+//   landed in.
+// @param leaf_indices a matrix that contains indices for each leaf node
+//   inside of leaf_nodes
+// @param leaf_nodes a matrix with ids, survival, and cumulative hazard
+//   functions for each leaf node.
+//
+// @return matrix with predictions, dimension n by 1
 
 void oobag_pred_surv_uni(char pred_type){
 
@@ -2025,6 +2152,13 @@ void oobag_pred_surv_uni(char pred_type){
 
 }
 
+// out-of-bag prediction evaluation, Harrell's C-statistic
+//
+// @param pred_type indicates what type of prediction to compute
+// @param y_input matrix of outcomes from input
+//
+// @return the C-statistic
+
 double oobag_c_harrell(char pred_type){
 
  vec time = y_input.unsafe_col(0);
@@ -2098,6 +2232,7 @@ double oobag_c_harrell(char pred_type){
 
 }
 
+// same function as above but exported to R for testing
 // [[Rcpp::export]]
 double oobag_c_harrell_testthat(NumericMatrix y_mat,
                                 NumericVector s_vec) {
@@ -2109,7 +2244,10 @@ double oobag_c_harrell_testthat(NumericMatrix y_mat,
 
 }
 
-void new_pred_surv_multi_mean(char pred_type){
+// this function is the same as oobag_pred_surv_uni,
+// but it operates on new data rather than out-of-bag data
+// and it allows for multiple prediction horizons instead of one
+void new_pred_surv_multi(char pred_type){
 
  // allocate memory for output
  // surv_pvec.zeros(x_pred.n_rows);
@@ -2210,13 +2348,9 @@ void new_pred_surv_multi_mean(char pred_type){
 
 }
 
-// naming pattern
-// new for new data, oob for training
-// pred for predict
-// surv for survival
-// uni for one time, multi for many times
-// mean for mean prediction, median for median prediction
-void new_pred_surv_uni_mean(char pred_type){
+// this function is the same as new_pred_surv_multi,
+// but only uses one prediction horizon
+void new_pred_surv_uni(char pred_type){
 
  iit_vals = sort_index(leaf_pred, "ascend");
  iit = iit_vals.begin();
@@ -2331,96 +2465,17 @@ void new_pred_surv_uni_mean(char pred_type){
 
 }
 
-// void new_pred_surv_uni_median(){
-//
-//  iit_vals = sort_index(leaf_pred, "ascend");
-//  iit = iit_vals.begin();
-//
-//  do {
-//
-//   person_leaf = leaf_pred(*iit);
-//
-//   for(i = 0; i < leaf_indices.n_rows; i++){
-//    if(leaf_indices.at(i, 0) == person_leaf){
-//     break;
-//    }
-//   }
-//
-//   leaf_node = leaf_nodes.rows(leaf_indices(i, 1),
-//                               leaf_indices(i, 2));
-//
-//   if(verbose > 1){
-//    Rcout << "leaf_node:" << std::endl << leaf_node << std::endl;
-//   }
-//
-//   i = 0;
-//
-//   if(time_pred < leaf_node(leaf_node.n_rows - 1, 0)){
-//
-//    for(; i < leaf_node.n_rows; i++){
-//     if (leaf_node(i, 0) > time_pred){
-//      if(i == 0){
-//       temp1 = 1;
-//      } else {
-//       temp2 = leaf_node(i, 0) - leaf_node(i-1, 0);
-//
-//       temp1 = leaf_node(i, 1) * (time_pred - leaf_node(i-1,0)) / temp2 +
-//        leaf_node(i-1, 1) * (leaf_node(i,0) - time_pred) / temp2;
-//      }
-//      break;
-//     } else if (leaf_node(i, 0) == time_pred){
-//      temp1 = leaf_node(i, 1);
-//      break;
-//     }
-//    }
-//
-//   } else if (time_pred == leaf_node(leaf_node.n_rows - 1, 0)){
-//
-//    temp1 = leaf_node(leaf_node.n_rows - 1, 1);
-//
-//   } else {
-//
-//    // go here if prediction horizon > max time in current leaf.
-//    temp1 = leaf_node(leaf_node.n_rows - 1, 1);
-//
-//    // --- EXPERIMENTAL ADD-ON --- //
-//    // if you are predicting beyond the max time in a node,
-//    // then determine how much further out you are and assume
-//    // the survival probability decays at the same rate.
-//
-//    temp2 = (1.0 - temp1) *
-//     (time_pred - leaf_node(leaf_node.n_rows - 1, 0)) / time_pred;
-//
-//    temp1 = temp1 * (1.0-temp2);
-//
-//   }
-//
-//   surv_pmat(tree, *iit) = temp1;
-//   ++iit;
-//
-//   if(iit < iit_vals.end()){
-//
-//    while(person_leaf == leaf_pred(*iit)){
-//
-//     surv_pmat(tree, *iit) = temp1;
-//     ++iit;
-//
-//     if (iit == iit_vals.end()) break;
-//
-//    }
-//
-//   }
-//
-//  } while (iit < iit_vals.end());
-//
-//
-// }
-
 
 // ----------------------------------------------------------------------------
 // --------------------------- ostree functions -------------------------------
 // ----------------------------------------------------------------------------
 
+// increase the memory allocated to a tree
+//
+// this function is used if the initial memory allocation isn't enough
+//   to grow the tree. It modifies all elements of the tree, including
+//   betas, col_indices, children_left, and cutpoints
+//
 void ostree_size_buffer(){
 
  // if(verbose > 1){
@@ -2442,6 +2497,14 @@ void ostree_size_buffer(){
 
 
 }
+
+// transfer memory from R into arma types
+//
+// when trees are passed from R, they need to be converted back into
+//   arma objects. The intent of this function is to convert everything
+//   back into an arma object without copying any data.
+//
+// nothing is modified apart from types
 
 void ostree_mem_xfer(){
 
@@ -2489,6 +2552,14 @@ void ostree_mem_xfer(){
 
 }
 
+// drop observations down the tree
+//
+// @description Determine the leaves that are assigned to new data.
+//
+// @param children_left vector of child node ids (right node = left node + 1)
+// @param x_pred matrix of predictors from new data
+//
+// @return a vector indicating which leaf each observation was mapped to
 void ostree_pred_leaf(){
 
  // reset values
@@ -2514,6 +2585,7 @@ void ostree_pred_leaf(){
     // Matrix product = linear combination of columns
     // (this is faster b/c armadillo is great at making
     //  pointers to the columns of an arma mat)
+    // I had to stop using this b/c it fails on
     // XB.zeros(obs_in_node.size());
     //
     // uvec col_indices_i = col_indices.unsafe_col(i);
@@ -2571,6 +2643,7 @@ void ostree_pred_leaf(){
 
 }
 
+// same as above but exported to R for testins
 // [[Rcpp::export]]
 arma::uvec ostree_pred_leaf_testthat(List& tree,
                                      NumericMatrix& x_pred_){
@@ -2591,6 +2664,14 @@ arma::uvec ostree_pred_leaf_testthat(List& tree,
 
 }
 
+// Fit an oblique survival tree
+//
+// @description used in orsf_fit, which has parameters defined below.
+//
+// @param f_beta the function used to find linear combinations of predictors
+//
+// @return a fitted oblique survival tree
+//
 List ostree_fit(Function f_beta){
 
  betas.fill(0);
@@ -2610,8 +2691,6 @@ List ostree_fit(Function f_beta){
  // ----------------------
  // ---- main do loop ----
  // ----------------------
-
-
 
  do {
 
@@ -3018,6 +3097,40 @@ List ostree_fit(Function f_beta){
 // ---------------------------- orsf functions --------------------------------
 // ----------------------------------------------------------------------------
 
+// fit an oblique random survival forest.
+//
+// @param x matrix of predictors
+// @param y matrix of outcomes
+// @param weights vector of weights
+// @param n_tree number of trees to fit
+// @param n_split_ number of splits to try with lrt
+// @param mtry_ number of predictors to try
+// @param leaf_min_events_ min number of events in a leaf
+// @param leaf_min_obs_ min number of observations in a leaf
+// @param split_min_events_ min number of events to split a node
+// @param split_min_obs_ min number of observations to split a node
+// @param split_min_stat_ min lrt to split a node
+// @param cph_method_ method for ties
+// @param cph_eps_ criteria for convergence of newton raphson algorithm
+// @param cph_iter_max_ max number of newton raphson iterations
+// @param cph_do_scale_ to scale or not to scale
+// @param net_alpha_ alpha parameter for glmnet
+// @param net_df_target_ degrees of freedom for glmnet
+// @param oobag_pred_ whether to predict out-of-bag preds or not
+// @param oobag_pred_type_ what type of out-of-bag preds to compute
+// @param oobag_pred_horizon_ out-of-bag prediction horizon
+// @param oobag_eval_every_ trees between each evaluation of oob error
+// @param oobag_importance_ to compute importance or not
+// @param oobag_importance_type_ type of importance to compute
+// @param tree_seeds vector of seeds to set before each tree is fit
+// @param max_retry_ max number of retries for linear combinations
+// @param f_beta function to find linear combinations of predictors
+// @param type_beta_ what type of linear combination to find
+// @param f_oobag_eval function to evaluate out-of-bag error
+// @param type_oobag_eval_ whether to use default or custom out-of-bag error
+//
+// @return an orsf_fit object sent back to R
+
 // [[Rcpp::export]]
 List orsf_fit(NumericMatrix& x,
               NumericMatrix& y,
@@ -3392,6 +3505,19 @@ List orsf_fit(NumericMatrix& x,
 
 }
 
+// @description compute negation importance
+//
+// @param x matrix of predictors
+// @param y outcome matrix
+// @param forest forest object from an orsf_fit
+// @param last_eval_stat the last estimate of out-of-bag error
+// @param time_pred_ the prediction horizon
+// @param f_oobag_eval function used to evaluate out-of-bag error
+// @param pred_type_ the type of prediction to compute
+// @param type_oobag_eval_ custom or default out-of-bag predictions
+//
+// @return a vector of importance values
+//
 // [[Rcpp::export]]
 arma::vec orsf_oob_negate_vi(NumericMatrix& x,
                              NumericMatrix& y,
@@ -3477,6 +3603,7 @@ arma::vec orsf_oob_negate_vi(NumericMatrix& x,
 
 }
 
+// same as above but computes permutation importance instead of negation
 // [[Rcpp::export]]
 arma::vec orsf_oob_permute_vi(NumericMatrix& x,
                               NumericMatrix& y,
@@ -3560,6 +3687,15 @@ arma::vec orsf_oob_permute_vi(NumericMatrix& x,
 
 }
 
+// predictions from an oblique random survival forest
+//
+// @description makes predictions based on a single horizon
+//
+// @param forest forest object from orsf_fit object
+// @param x_new matrix of predictors
+// @param time_dbl prediction horizon
+// @param pred_type type of prediction to compute
+//
 // [[Rcpp::export]]
 arma::mat orsf_pred_uni(List& forest,
                         NumericMatrix& x_new,
@@ -3577,7 +3713,7 @@ arma::mat orsf_pred_uni(List& forest,
    ostree = forest[tree];
    ostree_mem_xfer();
    ostree_pred_leaf();
-   new_pred_surv_uni_mean(pred_type);
+   new_pred_surv_uni(pred_type);
   }
 
   surv_pvec /= tree;
@@ -3590,6 +3726,7 @@ arma::mat orsf_pred_uni(List& forest,
 
 }
 
+// same as above but makes predictions for multiple horizons
 // [[Rcpp::export]]
 arma::mat orsf_pred_multi(List& forest,
                           NumericMatrix& x_new,
@@ -3609,7 +3746,7 @@ arma::mat orsf_pred_multi(List& forest,
    ostree = forest[tree];
    ostree_mem_xfer();
    ostree_pred_leaf();
-   new_pred_surv_multi_mean(pred_type);
+   new_pred_surv_multi(pred_type);
   }
 
   surv_pmat /= tree;
@@ -3622,6 +3759,20 @@ arma::mat orsf_pred_multi(List& forest,
 
 }
 
+// partial dependence for new data
+//
+// @description calls predict on the data with a predictor fixed
+//   and then summarizes the predictions.
+//
+// @param forest a forest object from an orsf_fit object
+// @param x_new_ matrix of predictors
+// @param x_cols_ columns of variables of interest
+// @param x_vals_ values to set these columsn to
+// @param probs_ for quantiles
+// @param time_dbl prediction horizon
+// @param pred_type prediction type
+//
+// @return matrix with partial dependence
 // [[Rcpp::export]]
 arma::mat pd_new_smry(List&          forest,
                       NumericMatrix& x_new_,
@@ -3668,7 +3819,7 @@ arma::mat pd_new_smry(List&          forest,
    ostree = forest[tree];
    ostree_mem_xfer();
    ostree_pred_leaf();
-   new_pred_surv_uni_mean(pred_type);
+   new_pred_surv_uni(pred_type);
   }
 
   surv_pvec /= tree;
@@ -3686,7 +3837,7 @@ arma::mat pd_new_smry(List&          forest,
 }
 
 
-
+// same as above but for out-of-bag data
 // [[Rcpp::export]]
 arma::mat pd_oob_smry(List&          forest,
                       NumericMatrix& x_new_,
@@ -3764,6 +3915,7 @@ arma::mat pd_oob_smry(List&          forest,
 
 }
 
+// same as above but doesn't summarize the predictions
 // [[Rcpp::export]]
 arma::mat pd_new_ice(List&          forest,
                      NumericMatrix& x_new_,
@@ -3813,7 +3965,7 @@ arma::mat pd_new_ice(List&          forest,
    ostree = forest[tree];
    ostree_mem_xfer();
    ostree_pred_leaf();
-   new_pred_surv_uni_mean(pred_type);
+   new_pred_surv_uni(pred_type);
   }
 
   surv_pvec /= tree;
@@ -3831,6 +3983,7 @@ arma::mat pd_new_ice(List&          forest,
 
 }
 
+// same as above but out-of-bag and doesn't summarize the predictions
 // [[Rcpp::export]]
 arma::mat pd_oob_ice(List&          forest,
                      NumericMatrix& x_new_,
