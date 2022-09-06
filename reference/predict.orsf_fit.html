@@ -84,8 +84,7 @@ from an ORSF model.</p>
 
 
 <dt>new_data</dt>
-<dd><p>a <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a>, <a href="https://tibble.tidyverse.org/reference/tibble-package.html" class="external-link">tibble</a>, or <a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a> to compute predictions in.
-Missing data are not currently allowed</p></dd>
+<dd><p>a <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a>, <a href="https://tibble.tidyverse.org/reference/tibble-package.html" class="external-link">tibble</a>, or <a href="https://Rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a> to compute predictions in.</p></dd>
 
 
 <dt>pred_horizon</dt>
@@ -137,9 +136,13 @@ row <code>i</code> in <code>new_data</code>.</p>
     <p><code>new_data</code> must have the same columns with equivalent types as the data
 used to train <code>object</code>. Also, factors in <code>new_data</code> must not have levels
 that were not in the data used to train <code>object</code>.</p>
-<p><code>pred_horizon</code> values must not exceed the maximum follow-up time in
-<code>object</code>'s training data. Also, <code>pred_horizon</code> values must be entered
-in ascending order.</p>
+<p><code>pred_horizon</code> values should not exceed the maximum follow-up time in
+<code>object</code>'s training data, but if you truly want to do this, set
+<code>boundary_checks = FALSE</code> and you can use a <code>pred_horizon</code> as large
+as you want. Note that predictions beyond the maximum follow-up time
+in the <code>object</code>'s training data are equal to predictions at the
+maximum follow-up time, because <code>aorsf</code> does not estimate survival
+beyond its maximum observed time.</p>
 <p>If unspecified, <code>pred_horizon</code> may be automatically specified as the value
 used for <code>oobag_pred_horizon</code> when <code>object</code> was created (see <a href="orsf.html">orsf</a>).</p>
     </div>
