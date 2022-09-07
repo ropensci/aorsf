@@ -1,5 +1,7 @@
 # aorsf 0.0.3
 
+* Additional support and tests for functions with long right hand sides
+
 * Updated out-of-bag vignette with more appropriate custom functions.
 
 * Allow status values in input data to be more general, i.e., not just 0 and 1.

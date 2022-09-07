@@ -691,9 +691,9 @@ check_orsf_inputs <- function(data = NULL,
         call. = FALSE)
   }
 
-  formula_deparsed <- deparse1(formula[[3]],
-                               collapse = ' ',
-                               width.cutoff = 500)
+  # browser()
+
+  formula_deparsed <- as.character(formula)[[3]]
 
   for( symbol in c("*", "^", ":", "(", ")", "["," ]", "|", "%") ){
 

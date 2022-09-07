@@ -83,6 +83,48 @@ fit_12 <- orsf(pbc_temp, time + status ~ . -id, n_tree = 10, tree_seeds = 1:10)
 fit_01 <- orsf(pbc_orsf, time + status ~ . -id, n_tree = 10, tree_seeds = 1:10)
 
 test_that(
+ desc = 'long formulas with repetition are allowed',
+ code = {
+
+  x_vars <- c(
+   "trt",
+   "age",
+   "sex",
+   "ascites",
+   "hepato",
+   "spiders",
+   "edema",
+   "bili",
+   "chol",
+   "albumin",
+   "copper",
+   "alk.phos",
+   "ast",
+   "trig",
+   "platelet",
+   "protime",
+   "stage"
+  )
+
+  long_rhs <- paste(x_vars, collapse = ' + ')
+
+  long_rhs <- rep(long_rhs, 15)
+
+  long_rhs <- paste(long_rhs, collapse = ' + ')
+
+  f_long <- as.formula(paste("time + status ~", long_rhs))
+
+  fit_long <- orsf(formula = f_long, pbc_temp, n_tree = 10)
+
+  # fits the orsf as expected
+  expect_s3_class(fit_long, 'orsf_fit')
+  # keeps unique names
+  expect_equal(x_vars, get_names_x(fit_long))
+
+ }
+)
+
+test_that(
  desc = 'New status, same forest',
  code = {
   expect_identical(fit_12$forest, fit_01$forest)
