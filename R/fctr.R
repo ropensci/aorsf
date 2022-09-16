@@ -14,17 +14,21 @@
 #'
 fctr_check <- function(data, .names){
 
- chrs <- c()
+ # using select_cols in case data is a data.table object.
+ # I take the intersection of .names with names of data b/c
+ # I don't want this function to throw an error if the user
+ # specified a variable that was not in the dataframe.
+ # (there is another check function dedicated to that kind of error)
+ chr_index <- which(
+  vapply(X = select_cols(data, intersect(.names, names(data))),
+         FUN = is.character,
+         FUN.VALUE = logical(1),
+         USE.NAMES = FALSE)
+ )
 
- for( .name in .names ){
+ if(is_empty(chr_index)) return(NULL)
 
-  if(is.character(data[[.name]])){
-   chrs <- c(chrs, .name)
-  }
-
- }
-
- if(is_empty(chrs)) return(NULL)
+ chrs <- .names[chr_index]
 
  chrs <- paste_collapse(chrs, last = ' and ')
 
