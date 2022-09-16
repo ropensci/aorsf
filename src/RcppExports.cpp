@@ -274,6 +274,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// orsf_cpp
+void orsf_cpp(arma::mat& x, arma::vec& y_ctns, arma::ivec& y_intg, arma::vec& weights);
+RcppExport SEXP _aorsf_orsf_cpp(SEXP xSEXP, SEXP y_ctnsSEXP, SEXP y_intgSEXP, SEXP weightsSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type y_ctns(y_ctnsSEXP);
+    Rcpp::traits::input_parameter< arma::ivec& >::type y_intg(y_intgSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type weights(weightsSEXP);
+    orsf_cpp(x, y_ctns, y_intg, weights);
+    return R_NilValue;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_std_setdiff", (DL_FUNC) &_aorsf_std_setdiff, 2},
@@ -292,6 +305,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_pd_oob_smry", (DL_FUNC) &_aorsf_pd_oob_smry, 7},
     {"_aorsf_pd_new_ice", (DL_FUNC) &_aorsf_pd_new_ice, 7},
     {"_aorsf_pd_oob_ice", (DL_FUNC) &_aorsf_pd_oob_ice, 7},
+    {"_aorsf_orsf_cpp", (DL_FUNC) &_aorsf_orsf_cpp, 4},
     {NULL, NULL, 0}
 };
 

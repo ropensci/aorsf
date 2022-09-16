@@ -65,3 +65,7 @@ pd_oob_ice <- function(forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, pred_
     .Call(`_aorsf_pd_oob_ice`, forest, x_new_, x_cols_, x_vals_, probs_, time_dbl, pred_type)
 }
 
+orsf_cpp <- function(x, y_ctns, y_intg, weights) {
+    invisible(.Call(`_aorsf_orsf_cpp`, x, y_ctns, y_intg, weights))
+}
+
