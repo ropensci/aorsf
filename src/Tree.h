@@ -7,9 +7,11 @@
 #ifndef TREE_H_
 #define TREE_H_
 
-#include <armadillo>
-
+#include <RcppArmadilloExtensions/sample.h>
+#include "Data.h"
 #include "globals.h"
+
+// [[Rcpp::depends(RcppArmadillo)]]
 
  namespace aorsf {
 
@@ -35,8 +37,7 @@
   // Tree& operator=(const Tree&) = delete;
 
   void init(
-    double* x_input,
-    double* y_input,
+    const Data* data,
     const int mtry,
     const int max_retry,
     SplitRule split_rule,
@@ -48,7 +49,21 @@
     const int oobag_eval_every,
     VariableImportance variable_importance,
     const int seed
-  );
+  ) {
+
+   this->data = data;
+   this->mtry = mtry;
+   this->max_retry = max_retry;
+   this->split_rule = split_rule;
+   this->n_split = n_split;
+   this->leaf_min_obs = leaf_min_obs;
+   this->split_min_obs = split_min_obs;
+   this->split_min_stat = split_min_stat;
+   this->pred_type = pred_type;
+   this->oobag_eval_every = oobag_eval_every;
+   this->variable_importance = variable_importance;
+
+  };
 
   int get_mtry() const {
    return mtry;
@@ -90,11 +105,34 @@
    return variable_importance;
   }
 
+  // @description sample weights to mimic a bootstrap sample
+  arma::ivec bootstrap_sample() const {
+
+   // s is the number of times you might get selected into
+   // a bootstrap sample. Realistically this won't be >10,
+   Rcpp::IntegerVector s = Rcpp::seq(0, 10);
+
+   // compute probability of being selected into the bootstrap
+   // 0 times, 1, times, ..., 9 times, or 10 times.
+
+   arma::uword n_rows = data->get_n_rows();
+
+   int n_rows_int = n_rows;
+
+   Rcpp::NumericVector probs = Rcpp::dbinom(s, n_rows_int, 1.0/n_rows_int, false);
+
+   return(
+    Rcpp::as<arma::ivec>(
+     Rcpp::RcppArmadillo::sample(s, n_rows, true, probs)
+    )
+   );
+
+  }
+
   // INPUTS
 
   // Pointer to original data
-  double* x_input;
-  double* y_input;
+  const Data* data;
 
   // number of predictors used to split a node
   int mtry;
