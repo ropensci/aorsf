@@ -36,12 +36,20 @@
 
   }
 
+  arma::vec get_weights() const {
+   return(weights);
+  }
+
   arma::uword get_n_rows() const {
    return(x.n_rows);
   }
 
   arma::uword get_n_cols() const {
    return(x.n_cols);
+  }
+
+  bool has_wts() const {
+   return(!weights.empty());
   }
 
   arma::mat get_x_rows(arma::uvec vector_of_row_indices) const {
