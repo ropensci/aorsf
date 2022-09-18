@@ -4,8 +4,9 @@
  aorsf may be modified and distributed under the terms of the MIT license.
 #----------------------------------------------------------------------------*/
 
-#ifndef TREE_H_
-#define TREE_H_
+#ifndef FOREST_H_
+#define FOREST_H_
+
 
 #include "Data.h"
 #include "globals.h"
@@ -14,26 +15,18 @@
 
  namespace aorsf {
 
- class Tree {
+ class Forest {
  public:
 
   // Default constructor with no arguments
-  Tree();
-
-  // Create from loaded forest
-  // Tree(arma::mat& coef,
-  //      arma::umat& coef_indices,
-  //      arma::vec& cutpoint,
-  //      arma::uvec& next_left_node,
-  //      arma::mat& pred,
-  //      arma::umat& pred_indices); // TODO: pred_indices to survival tree
+  Forest();
 
   // Expect to redefine constructors for survival/classif/regression
-  virtual ~Tree() = default;
+  virtual ~Forest() = default;
 
-  // Don't allow unitialized trees
-  Tree(const Tree&) = delete;
-  Tree& operator=(const Tree&) = delete;
+  // Don't allow unitialized Forests
+  Forest(const Forest&) = delete;
+  Forest& operator=(const Forest&) = delete;
 
   void init(
     const Data* data,
@@ -144,30 +137,8 @@
 
  protected:
 
-  // OUTPUTS
-
-  // coefficients for linear combinations;
-  // one row per variable (mtry rows), one column per node
-  // leaf nodes have all coefficients=0
-  arma::mat coef;
-
-  // indices of the predictors used by
-  arma::umat coef_indices;
-
-  // cutpoints used to split the node
-  arma::vec cutpoint;
-
-  // directions to the next node (right node = left node + 1)
-  arma::uvec next_left_node;
-
-  // predicted values (only in leaf nodes)
-  arma::mat pred;
-
-  // indices of predicted values for each leaf node
-  arma::umat pred_indices;
-
  };
 
  } // namespace aorsf
 
-#endif /* TREE_H_ */
+#endif /* FOREST_H_ */

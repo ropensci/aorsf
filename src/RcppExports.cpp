@@ -11,22 +11,40 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// bootstrap_sample_testthat
+arma::vec bootstrap_sample_testthat(arma::mat& x, arma::vec& y_ctns, arma::ivec& y_intg, arma::vec& weights);
+RcppExport SEXP _aorsf_bootstrap_sample_testthat(SEXP xSEXP, SEXP y_ctnsSEXP, SEXP y_intgSEXP, SEXP weightsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type y_ctns(y_ctnsSEXP);
+    Rcpp::traits::input_parameter< arma::ivec& >::type y_intg(y_intgSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type weights(weightsSEXP);
+    rcpp_result_gen = Rcpp::wrap(bootstrap_sample_testthat(x, y_ctns, y_intg, weights));
+    return rcpp_result_gen;
+END_RCPP
+}
 // orsf_cpp
-void orsf_cpp(arma::mat& x, arma::vec& y_ctns, arma::ivec& y_intg, arma::vec& weights);
-RcppExport SEXP _aorsf_orsf_cpp(SEXP xSEXP, SEXP y_ctnsSEXP, SEXP y_intgSEXP, SEXP weightsSEXP) {
+void orsf_cpp(arma::mat& x, arma::vec& y_ctns, arma::ivec& y_intg, arma::vec& weights, const int vi, const int sr, const int pt);
+RcppExport SEXP _aorsf_orsf_cpp(SEXP xSEXP, SEXP y_ctnsSEXP, SEXP y_intgSEXP, SEXP weightsSEXP, SEXP viSEXP, SEXP srSEXP, SEXP ptSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type x(xSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type y_ctns(y_ctnsSEXP);
     Rcpp::traits::input_parameter< arma::ivec& >::type y_intg(y_intgSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type weights(weightsSEXP);
-    orsf_cpp(x, y_ctns, y_intg, weights);
+    Rcpp::traits::input_parameter< const int >::type vi(viSEXP);
+    Rcpp::traits::input_parameter< const int >::type sr(srSEXP);
+    Rcpp::traits::input_parameter< const int >::type pt(ptSEXP);
+    orsf_cpp(x, y_ctns, y_intg, weights, vi, sr, pt);
     return R_NilValue;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_aorsf_orsf_cpp", (DL_FUNC) &_aorsf_orsf_cpp, 4},
+    {"_aorsf_bootstrap_sample_testthat", (DL_FUNC) &_aorsf_bootstrap_sample_testthat, 4},
+    {"_aorsf_orsf_cpp", (DL_FUNC) &_aorsf_orsf_cpp, 7},
     {NULL, NULL, 0}
 };
 
