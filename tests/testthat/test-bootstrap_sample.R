@@ -11,6 +11,14 @@ y_int = sample.int(2, size = n, replace = TRUE)
 weights_2s = rep(2, nrow(x))
 weights_empty = double(0)
 
+
+# if any object's memory is copied, it will make the test output messy
+# (I am not sure how to formally make a test fail when memory is copied)
+tracemem(x)
+tracemem(y_dbl)
+tracemem(y_int)
+tracemem(weights_2s)
+
 set.seed(329)
 samp_2s_wts <- bootstrap_sample_testthat(x, y_dbl, y_int, weights_2s)
 set.seed(329)
