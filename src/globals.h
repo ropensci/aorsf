@@ -11,8 +11,6 @@
 
  namespace aorsf {
 
- typedef unsigned int uint;
-
  // Tree types
  enum TreeType {
   TREE_CLASSIFICATION = 1,
