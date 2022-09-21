@@ -451,12 +451,14 @@ tbl_data <-
   class = c("tbl_df", "tbl", "data.frame")
  )
 
-knitr::kable(tbl_data,
-             col.names = c('Learner',
-                           'Brier score',
-                           'C-index',
-                           'Time to train')) %>% 
- kableExtra::kable_styling()
+tbl_data
+
+# knitr::kable(tbl_data,
+#              col.names = c('Learner',
+#                            'Brier score',
+#                            'C-index',
+#                            'Time to train')) %>% 
+#  kableExtra::kable_styling()
 
 ```
 
