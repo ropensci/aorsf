@@ -125,6 +125,9 @@ You can compute partial dependence three ways using a random forest:
 
 See examples for more details
 }
+\details{
+Partial dependence has a number of \href{https://christophm.github.io/interpretable-ml-book/pdp.html#disadvantages-5}{known limitations and assumptions} that users should be aware of. In particular, partial dependence is less intuitive when >2 predictors are examined jointly, and it is assumed that the feature(s) for which the partial dependence is computed are not correlated with other features (this is likely not true in many cases). Accumulated local effect plots can be used (see \href{https://christophm.github.io/interpretable-ml-book/ale.html}{here}) in the case where feature independence is not a valid assumption.
+}
 \section{Examples}{
 Begin by fitting an ORSF ensemble:
 
@@ -207,3 +210,6 @@ test your model’s reliability or fairness.
 }
 }
 
+\references{
+Giles Hooker, Lucas Mentch, Siyu Zhou. Unrestricted Permutation forces Extrapolation: Variable Importance Requires at least One More Model, or There Is No Free Variable Importance. \emph{arXiv e-prints} 2021 Oct; arXiv-1905. URL: https://doi.org/10.48550/arXiv.1905.03151
+}

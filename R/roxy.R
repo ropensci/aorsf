@@ -171,6 +171,19 @@ roxy_cite_jaeger_2022 <- function(){
 
 }
 
+roxy_cite_hooker_2021 <- function(){
+
+ roxy_cite(
+  authors = "Giles Hooker, Lucas Mentch, Siyu Zhou",
+  title = "Unrestricted Permutation forces Extrapolation: Variable Importance Requires at least One More Model, or There Is No Free Variable Importance",
+  journal = "arXiv e-prints",
+  date = "2021 Oct",
+  number = 'arXiv-1905',
+  url = "https://doi.org/10.48550/arXiv.1905.03151"
+ )
+
+}
+
 roxy_cite_harrell_1982 <- function(){
 
  roxy_cite(
@@ -251,6 +264,10 @@ roxy_pd_explain <- function(){
 
 roxy_ice_explain <- function(){
  "Unlike partial dependence, which shows the expected prediction as a function of one or multiple predictors, individual conditional expectations (ICE) show the prediction for an individual observation as a function of a predictor."
+}
+
+roxy_pd_limitations <- function(){
+ "Partial dependence has a number of [known limitations and assumptions](https://christophm.github.io/interpretable-ml-book/pdp.html#disadvantages-5) that users should be aware of (see Hooker, 2021). In particular, partial dependence is less intuitive when >2 predictors are examined jointly, and it is assumed that the feature(s) for which the partial dependence is computed are not correlated with other features (this is likely not true in many cases). Accumulated local effect plots can be used (see [here](https://christophm.github.io/interpretable-ml-book/ale.html)) in the case where feature independence is not a valid assumption."
 }
 
 # nocov end

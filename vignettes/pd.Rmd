@@ -295,3 +295,12 @@ From inspection of the figure,
 - Most of the individual slopes cluster around the overall trend - Good!
 
 - A small number of individual slopes appear to be flat. It may be helpful to investigate this further.
+
+## Limitations of PD
+
+`r aorsf:::roxy_pd_limitations()`
+
+## References
+
+1. `r aorsf:::roxy_cite_hooker_2021()`
+

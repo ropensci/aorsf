@@ -66,6 +66,14 @@
 #'   partial dependence values for the specified variable(s) at the
 #'   specified prediction horizon(s).
 #'
+#' @details
+#'
+#' `r roxy_pd_limitations()`
+#'
+#' @references
+#'
+#' `r roxy_cite_hooker_2021()`
+#'
 #' @includeRmd Rmd/orsf_pd_examples.Rmd
 #'
 #' @export
