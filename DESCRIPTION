@@ -20,6 +20,9 @@ Authors@R: c(
            role = "rev"),
     person(given = "Marvin", 
            family = "Wright",
+           role = "rev"),
+    person(given = "Lukas",
+           family = "Burk",
            role = "rev")
     )
 Description: Fit, interpret, and make predictions with oblique random survival forests. Oblique decision trees are notoriously slow compared to their axis based counterparts, but 'aorsf' runs as fast or faster than axis-based decision tree algorithms for right-censored time-to-event outcomes. Methods to accelerate and interpret the oblique random survival forest are described in Jaeger et al., (2022) <arXiv:2208.01129>.
