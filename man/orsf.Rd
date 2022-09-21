@@ -268,6 +268,8 @@ such as \code{recipes} or \code{mlr3pipelines}.
 }
 
 \section{Examples}{
+First we load some relevant packages
+
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329730)
 suppressPackageStartupMessages(\{
  library(aorsf)
@@ -277,6 +279,7 @@ suppressPackageStartupMessages(\{
  library(randomForestSRC)
  library(ranger)
  library(riskRegression) 
+ library(obliqueRSF)
 \})
 }\if{html}{\out{</div>}}
 
@@ -481,18 +484,18 @@ analyses
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## #  10-fold cross-validation 
 ## # A tibble: 10 x 5
-##    splits           id     recipe   train               test    
-##    <list>           <chr>  <list>   <list>              <list>  
-##  1 <split [248/28]> Fold01 <recipe> <tibble [248 x 20]> <tibble>
-##  2 <split [248/28]> Fold02 <recipe> <tibble [248 x 20]> <tibble>
-##  3 <split [248/28]> Fold03 <recipe> <tibble [248 x 20]> <tibble>
-##  4 <split [248/28]> Fold04 <recipe> <tibble [248 x 20]> <tibble>
-##  5 <split [248/28]> Fold05 <recipe> <tibble [248 x 20]> <tibble>
-##  6 <split [248/28]> Fold06 <recipe> <tibble [248 x 20]> <tibble>
-##  7 <split [249/27]> Fold07 <recipe> <tibble [249 x 20]> <tibble>
-##  8 <split [249/27]> Fold08 <recipe> <tibble [249 x 20]> <tibble>
-##  9 <split [249/27]> Fold09 <recipe> <tibble [249 x 20]> <tibble>
-## 10 <split [249/27]> Fold10 <recipe> <tibble [249 x 20]> <tibble>
+##    splits           id     recipe   train               test              
+##    <list>           <chr>  <list>   <list>              <list>            
+##  1 <split [248/28]> Fold01 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
+##  2 <split [248/28]> Fold02 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
+##  3 <split [248/28]> Fold03 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
+##  4 <split [248/28]> Fold04 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
+##  5 <split [248/28]> Fold05 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
+##  6 <split [248/28]> Fold06 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
+##  7 <split [249/27]> Fold07 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
+##  8 <split [249/27]> Fold08 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
+##  9 <split [249/27]> Fold09 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
+## 10 <split [249/27]> Fold10 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
 }\if{html}{\out{</div>}}
 
 Define functions for a ‘workflow’ with \code{randomForestSRC}, \code{ranger}, and
@@ -551,29 +554,29 @@ glimpse(results)
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## Rows: 276
 ## Columns: 23
-## $ id          <int> 7, 36, 52, 65, 67, 72, 79, 88, 89, 100, 127, ~
-## $ trt         <fct> placebo, placebo, d_penicill_main, d_penicill~
-## $ age         <dbl> 55.53457, 56.41068, 50.54073, 40.20260, 51.28~
-## $ sex         <fct> f, f, m, f, f, f, f, f, f, m, f, m, f, m, f, ~
-## $ ascites     <fct> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
-## $ hepato      <fct> 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, ~
-## $ spiders     <fct> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, ~
-## $ edema       <fct> 0, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 0, 0~
-## $ bili        <dbl> 1.0, 0.3, 6.0, 1.2, 1.1, 0.5, 0.8, 0.6, 2.0, ~
-## $ chol        <int> 322, 172, 614, 256, 466, 320, 315, 296, 408, ~
-## $ albumin     <dbl> 4.09, 3.39, 3.70, 3.60, 3.91, 3.54, 4.24, 4.0~
-## $ copper      <int> 52, 18, 158, 74, 84, 51, 13, 37, 50, 145, 9, ~
-## $ alk.phos    <dbl> 824.0, 558.0, 5084.4, 724.0, 1787.0, 1243.0, ~
-## $ ast         <dbl> 60.45, 71.30, 206.40, 141.05, 328.60, 122.45,~
-## $ trig        <int> 213, 96, 93, 108, 185, 80, 70, 83, 98, 122, 9~
-## $ platelet    <int> 204, 311, 362, 430, 261, 225, 426, 442, 200, ~
-## $ protime     <dbl> 9.7, 10.6, 10.6, 10.0, 10.0, 10.0, 10.9, 12.0~
-## $ stage       <ord> 3, 2, 1, 1, 3, 3, 3, 3, 2, 4, 2, 3, 2, 4, 4, ~
-## $ time        <int> 1832, 3611, 2386, 3992, 2769, 4184, 3707, 245~
-## $ status      <dbl> 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, ~
-## $ pred_aorsf  <dbl> 0.14427839, 0.01870334, 0.51377784, 0.0433477~
-## $ pred_rfsrc  <dbl> 0.14732022, 0.03156261, 0.55773866, 0.0650214~
-## $ pred_ranger <dbl> 0.14870388, 0.01662689, 0.57519043, 0.0587689~
+## $ id          <int> 7, 36, 52, 65, 67, 72, 79, 88, 89, 100, 127, 154, 161,~
+## $ trt         <fct> placebo, placebo, d_penicill_main, d_penicill_main, pl~
+## $ age         <dbl> 55.53457, 56.41068, 50.54073, 40.20260, 51.28816, 32.4~
+## $ sex         <fct> f, f, m, f, f, f, f, f, f, m, f, m, f, m, f, f, f, f, ~
+## $ ascites     <fct> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+## $ hepato      <fct> 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, ~
+## $ spiders     <fct> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, ~
+## $ edema       <fct> 0, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0~
+## $ bili        <dbl> 1.0, 0.3, 6.0, 1.2, 1.1, 0.5, 0.8, 0.6, 2.0, 2.3, 0.5,~
+## $ chol        <int> 322, 172, 614, 256, 466, 320, 315, 296, 408, 178, 268,~
+## $ albumin     <dbl> 4.09, 3.39, 3.70, 3.60, 3.91, 3.54, 4.24, 4.06, 3.65, ~
+## $ copper      <int> 52, 18, 158, 74, 84, 51, 13, 37, 50, 145, 9, 225, 4, 2~
+## $ alk.phos    <dbl> 824.0, 558.0, 5084.4, 724.0, 1787.0, 1243.0, 1637.0, 1~
+## $ ast         <dbl> 60.45, 71.30, 206.40, 141.05, 328.60, 122.45, 170.50, ~
+## $ trig        <int> 213, 96, 93, 108, 185, 80, 70, 83, 98, 122, 95, 75, 18~
+## $ platelet    <int> 204, 311, 362, 430, 261, 225, 426, 442, 200, 119, 453,~
+## $ protime     <dbl> 9.7, 10.6, 10.6, 10.0, 10.0, 10.0, 10.9, 12.0, 11.4, 1~
+## $ stage       <ord> 3, 2, 1, 1, 3, 3, 3, 3, 2, 4, 2, 3, 2, 4, 4, 3, 3, 3, ~
+## $ time        <int> 1832, 3611, 2386, 3992, 2769, 4184, 3707, 2452, 1741, ~
+## $ status      <dbl> 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, ~
+## $ pred_aorsf  <dbl> 0.14427839, 0.01870334, 0.51377784, 0.04334777, 0.2191~
+## $ pred_rfsrc  <dbl> 0.14732022, 0.03156261, 0.55773866, 0.06502143, 0.1619~
+## $ pred_ranger <dbl> 0.14870388, 0.01662689, 0.57519043, 0.05876898, 0.1488~
 }\if{html}{\out{</div>}}
 
 And finish by aggregating the predictions and computing performance in
@@ -631,22 +634,14 @@ counts.
 ## 
 ## Results of model comparisons:
 ## 
-##      times  model  reference delta.Brier  lower  upper
-##      <num> <fctr>     <fctr>      <char> <char> <char>
-## 1: 1826.25  aorsf Null model       -10.0  -12.6   -7.3
-## 2: 1826.25  rfsrc Null model        -8.9  -11.2   -6.7
-## 3: 1826.25 ranger Null model        -8.9  -11.3   -6.6
-## 4: 1826.25  rfsrc      aorsf         1.1    0.2    1.9
-## 5: 1826.25 ranger      aorsf         1.0    0.3    1.7
-## 6: 1826.25 ranger      rfsrc        -0.0   -0.5    0.5
-##               p
-##           <num>
-## 1: 1.430444e-13
-## 2: 5.508455e-15
-## 3: 5.511591e-14
-## 4: 1.141214e-02
-## 5: 3.742797e-03
-## 6: 9.730271e-01
+##      times  model  reference delta.Brier  lower  upper            p
+##      <num> <fctr>     <fctr>      <char> <char> <char>        <num>
+## 1: 1826.25  aorsf Null model       -10.0  -12.6   -7.3 1.430444e-13
+## 2: 1826.25  rfsrc Null model        -8.9  -11.2   -6.7 5.508455e-15
+## 3: 1826.25 ranger Null model        -8.9  -11.3   -6.6 5.511591e-14
+## 4: 1826.25  rfsrc      aorsf         1.1    0.2    1.9 1.141214e-02
+## 5: 1826.25 ranger      aorsf         1.0    0.3    1.7 3.742797e-03
+## 6: 1826.25 ranger      rfsrc        -0.0   -0.5    0.5 9.730271e-01
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.
@@ -666,7 +661,163 @@ From inspection,
 
 \subsection{mlr3 pipelines}{
 
-this is on hold while \code{mlr3proba} goes through major updates.
+\strong{Warning}: this code may or may not run depending on your current
+version of \code{mlr3proba}. First we load some additional \code{mlr3} libraries.
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{suppressPackageStartupMessages(\{
+ library(mlr3verse)
+ library(mlr3proba)
+ library(mlr3extralearners)
+ library(mlr3viz)
+ library(mlr3benchmark)
+\})
+}\if{html}{\out{</div>}}
+
+Next we’ll define some tasks for our learners to engage with.
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# Mayo Clinic Primary Biliary Cholangitis Data
+task_pbc <- 
+ TaskSurv$new(
+  id = 'pbc',  
+  backend = select(pbc_orsf, -id) \%>\% 
+   mutate(stage = as.numeric(stage)),  
+  time = "time", 
+  event = "status"
+ )
+
+# Veteran's Administration Lung Cancer Trial
+data(veteran, package = "randomForestSRC")
+
+task_veteran <- 
+ TaskSurv$new(
+  id = 'veteran',  
+  backend = veteran,  
+  time = "time", 
+  event = "status"
+ )
+
+# NKI 70 gene signature
+data_nki <- OpenML::getOMLDataSet(data.id = 1228)
+
+task_nki <- 
+ TaskSurv$new(
+  id = 'nki',  
+  backend = data_nki$data,  
+  time = "time", 
+  event = "event"
+ )
+
+# Gene Expression-Based Survival Prediction in Lung Adenocarcinoma
+data_lung <- OpenML::getOMLDataSet(data.id = 1245)
+
+task_lung <- 
+ TaskSurv$new(
+  id = 'nki',  
+  backend = data_lung$data \%>\% 
+   mutate(OS_event = as.numeric(OS_event) -1),  
+  time = "OS_years", 
+  event = "OS_event"
+ )
+
+
+# Chemotherapy for Stage B/C colon cancer
+# (there are two rows per person, one for death 
+#  and the other for recurrence, hence the two tasks)
+
+task_colon_death <-
+ TaskSurv$new(
+  id = 'colon_death',  
+  backend = survival::colon \%>\%
+   filter(etype == 2) \%>\% 
+   drop_na() \%>\% 
+   # drop id, redundant variables
+   select(-id, -study, -node4, -etype),
+   mutate(OS_event = as.numeric(OS_event) -1),  
+  time = "time", 
+  event = "status"
+ )
+
+task_colon_recur <-
+ TaskSurv$new(
+  id = 'colon_death',  
+  backend = survival::colon \%>\%
+   filter(etype == 1) \%>\% 
+   drop_na() \%>\% 
+   # drop id, redundant variables
+   select(-id, -study, -node4, -etype),
+   mutate(OS_event = as.numeric(OS_event) -1),  
+  time = "time", 
+  event = "status"
+ )
+
+# putting them all together
+tasks <- list(task_pbc,
+              task_veteran,
+              task_nki,
+              task_lung,
+              task_colon_death,
+              task_colon_recur,
+              # add a few more pre-made ones
+              tsk("actg"),
+              tsk('gbcs'),
+              tsk('grace'),
+              tsk("unemployment"),
+              tsk("whas"))
+}\if{html}{\out{</div>}}
+
+Now we can make a benchmark designed to compare our three favorite
+learners:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# Learners with default parameters
+learners <- lrns(c("surv.ranger", "surv.rfsrc", "surv.aorsf"))
+
+# Brier (Graf) score, c-index and training time as measures
+measures <- msrs(c("surv.graf", "surv.cindex", "time_train"))
+
+# Benchmark with 5-fold CV
+design <- benchmark_grid(
+  tasks = tasks,
+  learners = learners,
+  resamplings = rsmps("cv", folds = 5)
+)
+
+benchmark_result <- benchmark(design)
+
+bm_scores <- benchmark_result$score(measures, predict_sets = "test")
+}\if{html}{\out{</div>}}
+
+Let’s look at the overall results:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{bm_scores \%>\%
+ select(task_id, learner_id, surv.graf, surv.cindex, time_train) \%>\%
+ pivot_longer(cols = surv.graf:time_train, names_to = "measure") \%>\%
+ mutate(
+  learner_id = factor(
+   learner_id,
+   levels = paste('surv', c('aorsf', 'rfsrc', 'ranger'), sep = '.'))
+ ) \%>\%
+ggplot(aes(x = learner_id, y = value)) +
+ facet_wrap(vars(measure), nrow = 1, scales = "free_y") +
+ geom_violin(draw_quantiles = c(.25, .5, .75)) +
+ theme_minimal()
+}\if{html}{\out{</div>}}
+
+\figure{orsf_examples_cache/orsf_example_mlr_fig.png}\if{html}{\out{<!-- -->}}
+
+From inspection,
+\itemize{
+\item \code{aorsf} appears to have a higher expected value for ‘surv.cindex’
+(higher is better)
+\item \code{aorsf} appears to have a lower expected value for ‘surv.graf’
+(lower is better)
+\item \code{aorsf} has the lowest training time.
+}
+
+the lower training time for \code{aorsf} is likely due to the fact that there
+are many unique event times in the benchmark tasks. \code{ranger} and \code{rfsrc}
+create grids of time points based on each unique event time in each leaf
+of each decision tree, whereas \code{aorsf} also uses a grid but restricts it
+to the unique event times among observations in the current leaf.
 }
 }
 

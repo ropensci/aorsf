@@ -1,6 +1,12 @@
 
 # Examples
 
+```{r, echo=FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+First we load some relevant packages
+
 ```{r}
 
 set.seed(329730)
@@ -12,6 +18,7 @@ suppressPackageStartupMessages({
  library(randomForestSRC)
  library(ranger)
  library(riskRegression) 
+ library(obliqueRSF)
 })
 
 ```
@@ -278,4 +285,181 @@ From inspection,
 
 ## mlr3 pipelines
 
-this is on hold while `mlr3proba` goes through major updates.
+__Warning__: this code may or may not run depending on your current version of `mlr3proba`. First we load some additional `mlr3` libraries.
+
+```{r}
+
+suppressPackageStartupMessages({
+ library(mlr3verse)
+ library(mlr3proba)
+ library(mlr3extralearners)
+ library(mlr3viz)
+ library(mlr3benchmark)
+})
+
+```
+
+Next we'll define some tasks for our learners to engage with.
+
+```{r, eval = FALSE}
+
+# Mayo Clinic Primary Biliary Cholangitis Data
+task_pbc <- 
+ TaskSurv$new(
+  id = 'pbc',  
+  backend = select(pbc_orsf, -id) %>% 
+   mutate(stage = as.numeric(stage)),  
+  time = "time", 
+  event = "status"
+ )
+
+# Veteran's Administration Lung Cancer Trial
+data(veteran, package = "randomForestSRC")
+
+task_veteran <- 
+ TaskSurv$new(
+  id = 'veteran',  
+  backend = veteran,  
+  time = "time", 
+  event = "status"
+ )
+
+# NKI 70 gene signature
+data_nki <- OpenML::getOMLDataSet(data.id = 1228)
+
+task_nki <- 
+ TaskSurv$new(
+  id = 'nki',  
+  backend = data_nki$data,  
+  time = "time", 
+  event = "event"
+ )
+
+# Gene Expression-Based Survival Prediction in Lung Adenocarcinoma
+data_lung <- OpenML::getOMLDataSet(data.id = 1245)
+
+task_lung <- 
+ TaskSurv$new(
+  id = 'nki',  
+  backend = data_lung$data %>% 
+   mutate(OS_event = as.numeric(OS_event) -1),  
+  time = "OS_years", 
+  event = "OS_event"
+ )
+
+
+# Chemotherapy for Stage B/C colon cancer
+# (there are two rows per person, one for death 
+#  and the other for recurrence, hence the two tasks)
+
+task_colon_death <-
+ TaskSurv$new(
+  id = 'colon_death',  
+  backend = survival::colon %>%
+   filter(etype == 2) %>% 
+   drop_na() %>% 
+   # drop id, redundant variables
+   select(-id, -study, -node4, -etype),
+   mutate(OS_event = as.numeric(OS_event) -1),  
+  time = "time", 
+  event = "status"
+ )
+
+task_colon_recur <-
+ TaskSurv$new(
+  id = 'colon_death',  
+  backend = survival::colon %>%
+   filter(etype == 1) %>% 
+   drop_na() %>% 
+   # drop id, redundant variables
+   select(-id, -study, -node4, -etype),
+   mutate(OS_event = as.numeric(OS_event) -1),  
+  time = "time", 
+  event = "status"
+ )
+
+# putting them all together
+tasks <- list(task_pbc,
+              task_veteran,
+              task_nki,
+              task_lung,
+              task_colon_death,
+              task_colon_recur,
+              # add a few more pre-made ones
+              tsk("actg"),
+              tsk('gbcs'),
+              tsk('grace'),
+              tsk("unemployment"),
+              tsk("whas"))
+
+```
+
+Now we can make a benchmark designed to compare our three favorite learners:
+
+```{r eval = FALSE}
+
+# Learners with default parameters
+learners <- lrns(c("surv.ranger", "surv.rfsrc", "surv.aorsf"))
+
+# Brier (Graf) score, c-index and training time as measures
+measures <- msrs(c("surv.graf", "surv.cindex", "time_train"))
+
+# Benchmark with 5-fold CV
+design <- benchmark_grid(
+  tasks = tasks,
+  learners = learners,
+  resamplings = rsmps("cv", folds = 5)
+)
+
+benchmark_result <- benchmark(design)
+
+bm_scores <- benchmark_result$score(measures, predict_sets = "test")
+
+```
+
+Let's look at the overall results:
+
+```{r eval = FALSE}
+
+bm_scores %>%
+ select(task_id, learner_id, surv.graf, surv.cindex, time_train) %>%
+ pivot_longer(cols = surv.graf:time_train, names_to = "measure") %>%
+ mutate(
+  learner_id = factor(
+   learner_id,
+   levels = paste('surv', c('aorsf', 'rfsrc', 'ranger'), sep = '.'))
+ ) %>%
+ggplot(aes(x = learner_id, y = value)) +
+ facet_wrap(vars(measure), nrow = 1, scales = "free_y") +
+ geom_violin(draw_quantiles = c(.25, .5, .75)) +
+ theme_minimal()
+
+```
+
+```{r echo = FALSE, eval = FALSE}
+ggsave(
+ filename = 'Rmd/orsf_examples_cache/orsf_example_mlr_fig.png',
+ device = 'png',
+ width = 7,
+ height = 4,
+ dpi = 300
+)
+```
+
+
+```{r echo = FALSE}
+
+knitr::include_graphics(
+ "orsf_examples_cache/orsf_example_mlr_fig.png"
+)
+
+```
+
+
+From inspection,
+
+- `aorsf` appears to have a higher expected value for 'surv.cindex' (higher is better)
+- `aorsf` appears to have a lower expected value for 'surv.graf' (lower is better)
+- `aorsf` has the lowest training time.
+
+the lower training time for `aorsf` is likely due to the fact that there are many unique event times in the benchmark tasks. `ranger` and `rfsrc` create grids of time points based on each unique event time in each leaf of each decision tree, whereas `aorsf` also uses a grid but restricts it to the unique event times among observations in the current leaf.

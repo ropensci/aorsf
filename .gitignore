@@ -9,3 +9,4 @@ src-i386
 ^cran-comments\.md$
 Rmd/*_cache/
 Rmd/figure*
+Rmd/*.html
