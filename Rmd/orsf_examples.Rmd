@@ -423,35 +423,40 @@ Let's look at the overall results:
 
 bm_scores %>%
  select(task_id, learner_id, surv.graf, surv.cindex, time_train) %>%
- pivot_longer(cols = surv.graf:time_train, names_to = "measure") %>%
- mutate(
-  learner_id = factor(
-   learner_id,
-   levels = paste('surv', c('aorsf', 'rfsrc', 'ranger'), sep = '.'))
- ) %>%
-ggplot(aes(x = learner_id, y = value)) +
- facet_wrap(vars(measure), nrow = 1, scales = "free_y") +
- geom_violin(draw_quantiles = c(.25, .5, .75)) +
- theme_minimal()
+ group_by(learner_id) %>% 
+ filter(!is.infinite(surv.graf)) %>% 
+ summarize(
+  across(
+   .cols = c(surv.graf, surv.cindex, time_train),
+   .fns = mean, 
+   na.rm = TRUE
+  )
+ )
 
-```
 
-```{r echo = FALSE, eval = FALSE}
-ggsave(
- filename = 'Rmd/orsf_examples_cache/orsf_example_mlr_fig.png',
- device = 'png',
- width = 7,
- height = 4,
- dpi = 300
-)
 ```
 
 
 ```{r echo = FALSE}
 
-knitr::include_graphics(
- "orsf_examples_cache/orsf_example_mlr_fig.png"
-)
+tbl_data <-
+ structure(
+  list(
+   learner_id = c("surv.aorsf", "surv.ranger", "surv.rfsrc"),
+   surv.graf = c(0.151447953930207, 0.166799975594481, 0.15586242346754),
+   surv.cindex = c(0.729057822587355, 0.706476104709337, 0.714969112063354),
+   time_train = c(0.344528301886968, 2.53641509434031, 0.782641509433885)
+  ),
+  row.names = c(NA, -3L),
+  class = c("tbl_df", "tbl", "data.frame")
+ )
+
+knitr::kable(tbl_data,
+             col.names = c('Learner',
+                           'Brier score',
+                           'C-index',
+                           'Time to train')) %>% 
+ kableExtra::kable_styling()
 
 ```
 
