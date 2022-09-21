@@ -354,6 +354,493 @@ A user should impute missing values using an R package with that purpose,
 such as <code>recipes</code> or <code>mlr3pipelines</code>.</p>
     </div>
     <div class="section level2">
+    <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a></h2>
+    <p>First we load some relevant packages</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329730</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="op">{</span></span>
+<span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bcjaeger/aorsf/" class="external-link">aorsf</a></span><span class="op">)</span></span>
+<span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
+<span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span>
+<span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
+<span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://www.randomforestsrc.org/" class="external-link">randomForestSRC</a></span><span class="op">)</span></span>
+<span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/imbs-hl/ranger" class="external-link">ranger</a></span><span class="op">)</span></span>
+<span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tagteam/riskRegression" class="external-link">riskRegression</a></span><span class="op">)</span> </span>
+<span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">obliqueRSF</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span></code></pre><p></p></div>
+<p>The entry-point into <code>aorsf</code> is the standard call to <code>orsf()</code>:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span></code></pre><p></p></div>
+<p>printing <code>fit</code> provides quick descriptive summaries:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## ---------- Oblique random survival forest</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">## </span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">##      Linear combinations: Accelerated</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">##           N observations: 276</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co">##                 N events: 111</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">##                  N trees: 500</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">##       N predictors total: 17</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">##    N predictors per node: 5</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="co">##  Average leaves per tree: 24</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="co">## Min observations in leaf: 5</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="co">##       Min events in leaf: 1</span></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co">##           OOB stat value: 0.84</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="co">##            OOB stat type: Harrell's C-statistic</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co">##      Variable importance: anova</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a><span class="co">## </span></span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="co">## -----------------------------------------</span></span></code></pre><p></p></div><div class="section">
+<h3 id="model-control">Model control<a class="anchor" aria-label="anchor" href="#model-control"></a></h3>
+
+
+<p>For these examples we will make use of the <code>orsf_control_</code> functions to
+build and compare models based on their out-of-bag predictions. We will
+also standardize the out-of-bag samples using the input argument
+<code>tree_seeds</code></p><div class="section">
+<h4 id="accelerated-linear-combinations">Accelerated linear combinations<a class="anchor" aria-label="anchor" href="#accelerated-linear-combinations"></a></h4>
+
+
+<p>The accelerated ORSF ensemble is the default because it has a nice
+balance of computational speed and prediction accuracy. It runs a single
+iteration of Newton Raphson scoring on the Cox partial likelihood
+function to find linear combinations of predictors.</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_accel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
+<span>                  control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_fast.html">orsf_control_fast</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>                  formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
+<span>                  tree_seeds <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">)</span></span></code></pre><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="linear-combinations-with-cox-regression">Linear combinations with Cox regression<a class="anchor" aria-label="anchor" href="#linear-combinations-with-cox-regression"></a></h4>
+
+
+<p><code>orsf_control_cph</code> runs Cox regression in each non-terminal node of each
+survival tree, using the regression coefficients to create linear
+combinations of predictors:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_cph</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
+<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_cph.html">orsf_control_cph</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>                formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
+<span>                tree_seeds <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">)</span></span></code></pre><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="linear-combinations-with-penalized-cox-regression">Linear combinations with penalized cox regression<a class="anchor" aria-label="anchor" href="#linear-combinations-with-penalized-cox-regression"></a></h4>
+
+
+<p><code>orsf_control_net</code> runs penalized Cox regression in each non-terminal
+node of each survival tree, using the regression coefficients to create
+linear combinations of predictors. This can be really helpful if you
+want to do feature selection within the node, but it is a lot slower
+than the other options.</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_net</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
+<span>                <span class="co"># select 3 predictors out of 5 to be used in</span></span>
+<span>                <span class="co"># each linear combination of predictors.</span></span>
+<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_net.html">orsf_control_net</a></span><span class="op">(</span>df_target <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
+<span>                formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
+<span>                tree_seeds <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">)</span></span></code></pre><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="linear-combinations-with-your-own-function">Linear combinations with your own function<a class="anchor" aria-label="anchor" href="#linear-combinations-with-your-own-function"></a></h4>
+
+
+<p>Let’s make two customized functions to identify linear combinations of
+predictors.</p><ul><li><p>The first uses random coefficients</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">f_rando</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x_node</span>, <span class="va">y_node</span>, <span class="va">w_node</span><span class="op">)</span><span class="op">{</span></span>
+<span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">x_node</span><span class="op">)</span><span class="op">)</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span> </span>
+<span><span class="op">}</span></span></code></pre><p></p></div></li>
+<li><p>The second derives coefficients from principal component analysis.</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">f_pca</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x_node</span>, <span class="va">y_node</span>, <span class="va">w_node</span><span class="op">)</span> <span class="op">{</span> </span>
+<span></span>
+<span> <span class="co"># estimate two principal components.</span></span>
+<span> <span class="va">pca</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></span><span class="op">(</span><span class="va">x_node</span>, rank. <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span> <span class="co"># use the second principal component to split the node</span></span>
+<span> <span class="va">pca</span><span class="op">$</span><span class="va">rotation</span><span class="op">[</span>, <span class="fl">2L</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
+<span></span>
+<span><span class="op">}</span></span></code></pre><p></p></div></li>
+</ul><p>We can plug these functions into <code><a href="orsf_control_custom.html">orsf_control_custom()</a></code>, and then pass
+the result into <code>orsf()</code>:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_rando</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>,</span>
+<span>                  <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
+<span>                  control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_custom.html">orsf_control_custom</a></span><span class="op">(</span>beta_fun <span class="op">=</span> <span class="va">f_rando</span><span class="op">)</span>,</span>
+<span>                  tree_seeds <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit_pca</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>,</span>
+<span>                <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
+<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_custom.html">orsf_control_custom</a></span><span class="op">(</span>beta_fun <span class="op">=</span> <span class="va">f_pca</span><span class="op">)</span>,</span>
+<span>                tree_seeds <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">)</span></span></code></pre><p></p></div>
+<p>So which fit seems to work best in this example? Let’s find out by
+evaluating the out-of-bag survival predictions.</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">risk_preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span> accel <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_accel</span><span class="op">$</span><span class="va">pred_oobag</span>,</span>
+<span> cph   <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_cph</span><span class="op">$</span><span class="va">pred_oobag</span>,</span>
+<span> net   <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_net</span><span class="op">$</span><span class="va">pred_oobag</span>,</span>
+<span> rando <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_rando</span><span class="op">$</span><span class="va">pred_oobag</span>,</span>
+<span> pca   <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">fit_pca</span><span class="op">$</span><span class="va">pred_oobag</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">sc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/riskRegression/man/Score.html" class="external-link">Score</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">risk_preds</span>, </span>
+<span>            formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fl">1</span>, </span>
+<span>            data <span class="op">=</span> <span class="va">pbc_orsf</span>, </span>
+<span>            summary <span class="op">=</span> <span class="st">'IPA'</span>,</span>
+<span>            times <span class="op">=</span> <span class="va">fit_accel</span><span class="op">$</span><span class="va">pred_horizon</span><span class="op">)</span></span></code></pre><p></p></div>
+<p>The AUC values, from highest to lowest:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">sc</span><span class="op">$</span><span class="va">AUC</span><span class="op">$</span><span class="va">score</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">AUC</span><span class="op">)</span><span class="op">]</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">##     model times       AUC         se     lower     upper</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">##    &lt;fctr&gt; &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">## 1:    pca  1788 0.9140542 0.01962854 0.8755830 0.9525254</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">## 2:  accel  1788 0.9109875 0.02174062 0.8683766 0.9535983</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co">## 3:    net  1788 0.9081592 0.02161885 0.8657871 0.9505314</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## 4:    cph  1788 0.9072690 0.02122339 0.8656719 0.9488660</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">## 5:  rando  1788 0.8681493 0.02418770 0.8207423 0.9155564</span></span></code></pre><p></p></div>
+<p>And the indices of prediction accuracy:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">sc</span><span class="op">$</span><span class="va">Brier</span><span class="op">$</span><span class="va">score</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">IPA</span><span class="op">)</span>, <span class="fu">.</span><span class="op">(</span><span class="va">model</span>, <span class="va">times</span>, <span class="va">IPA</span><span class="op">)</span><span class="op">]</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">##         model times       IPA</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">##        &lt;fctr&gt; &lt;num&gt;     &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">## 1:      accel  1788 0.4893270</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">## 2:        net  1788 0.4842680</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co">## 3:        cph  1788 0.4689101</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## 4:        pca  1788 0.4238639</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">## 5:      rando  1788 0.3395780</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">## 6: Null model  1788 0.0000000</span></span></code></pre><p></p></div>
+<p>From inspection,</p><ul><li><p>the PCA approach has the highest discrimination, showing that you
+can do very well with just a two line custom function.</p></li>
+<li><p>the accelerated ORSF has the highest index of prediction accuracy</p></li>
+<li><p>the random coefficients generally don’t do that well.</p></li>
+</ul></div>
+
+
+</div>
+
+<div class="section">
+<h3 id="tidymodels">tidymodels<a class="anchor" aria-label="anchor" href="#tidymodels"></a></h3>
+
+
+<p>This example uses <code>tidymodels</code> functions but stops short of using an
+official <code>tidymodels</code> workflow. I am working on getting <code>aorsf</code> pulled
+into the <code>censored</code> package and I will update this with real workflows
+if that happens!</p><div class="section">
+<h4 id="comparing-orsf-with-other-learners">Comparing ORSF with other learners<a class="anchor" aria-label="anchor" href="#comparing-orsf-with-other-learners"></a></h4>
+
+
+<p>Start with a recipe to pre-process data</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">imputer</span> <span class="op">&lt;-</span> <span class="fu">recipe</span><span class="op">(</span><span class="va">pbc_orsf</span>, formula <span class="op">=</span> <span class="va">time</span> <span class="op">+</span> <span class="va">status</span> <span class="op">~</span> <span class="va">.</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span> <span class="fu">step_impute_mean</span><span class="op">(</span><span class="fu">all_numeric_predictors</span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span> <span class="fu">step_impute_mode</span><span class="op">(</span><span class="fu">all_nominal_predictors</span><span class="op">(</span><span class="op">)</span><span class="op">)</span> </span></code></pre><p></p></div>
+<p>Next create a 10-fold cross validation object and pre-process the data:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="co"># 10-fold cross validation; make a container for the pre-processed data</span></span>
+<span><span class="va">analyses</span> <span class="op">&lt;-</span> <span class="fu">vfold_cv</span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf</span>, v <span class="op">=</span> <span class="fl">10</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span> <span class="fu">mutate</span><span class="op">(</span>recipe <span class="op">=</span> <span class="fu">map</span><span class="op">(</span><span class="va">splits</span>, <span class="op">~</span><span class="fu">prep</span><span class="op">(</span><span class="va">imputer</span>, training <span class="op">=</span> <span class="fu">training</span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>        train <span class="op">=</span> <span class="fu">map</span><span class="op">(</span><span class="va">recipe</span>, <span class="va">juice</span><span class="op">)</span>,</span>
+<span>        test <span class="op">=</span> <span class="fu">map2</span><span class="op">(</span><span class="va">splits</span>, <span class="va">recipe</span>, <span class="op">~</span><span class="fu">bake</span><span class="op">(</span><span class="va">.y</span>, new_data <span class="op">=</span> <span class="fu">testing</span><span class="op">(</span><span class="va">.x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">analyses</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## #  10-fold cross-validation </span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">## # A tibble: 10 x 5</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">##    splits           id     recipe   train               test              </span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">##    &lt;list&gt;           &lt;chr&gt;  &lt;list&gt;   &lt;list&gt;              &lt;list&gt;            </span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co">##  1 &lt;split [248/28]&gt; Fold01 &lt;recipe&gt; &lt;tibble [248 x 20]&gt; &lt;tibble [28 x 20]&gt;</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">##  2 &lt;split [248/28]&gt; Fold02 &lt;recipe&gt; &lt;tibble [248 x 20]&gt; &lt;tibble [28 x 20]&gt;</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">##  3 &lt;split [248/28]&gt; Fold03 &lt;recipe&gt; &lt;tibble [248 x 20]&gt; &lt;tibble [28 x 20]&gt;</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">##  4 &lt;split [248/28]&gt; Fold04 &lt;recipe&gt; &lt;tibble [248 x 20]&gt; &lt;tibble [28 x 20]&gt;</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="co">##  5 &lt;split [248/28]&gt; Fold05 &lt;recipe&gt; &lt;tibble [248 x 20]&gt; &lt;tibble [28 x 20]&gt;</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="co">##  6 &lt;split [248/28]&gt; Fold06 &lt;recipe&gt; &lt;tibble [248 x 20]&gt; &lt;tibble [28 x 20]&gt;</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="co">##  7 &lt;split [249/27]&gt; Fold07 &lt;recipe&gt; &lt;tibble [249 x 20]&gt; &lt;tibble [27 x 20]&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co">##  8 &lt;split [249/27]&gt; Fold08 &lt;recipe&gt; &lt;tibble [249 x 20]&gt; &lt;tibble [27 x 20]&gt;</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="co">##  9 &lt;split [249/27]&gt; Fold09 &lt;recipe&gt; &lt;tibble [249 x 20]&gt; &lt;tibble [27 x 20]&gt;</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co">## 10 &lt;split [249/27]&gt; Fold10 &lt;recipe&gt; &lt;tibble [249 x 20]&gt; &lt;tibble [27 x 20]&gt;</span></span></code></pre><p></p></div>
+<p>Define functions for a ‘workflow’ with <code>randomForestSRC</code>, <code>ranger</code>, and
+<code>aorsf</code>.</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">rfsrc_wf</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">train</span>, <span class="va">test</span>, <span class="va">pred_horizon</span><span class="op">)</span><span class="op">{</span></span>
+<span> </span>
+<span> <span class="co"># rfsrc does not like tibbles, so cast input data into data.frames</span></span>
+<span> <span class="va">train</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">train</span><span class="op">)</span></span>
+<span> <span class="va">test</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">test</span><span class="op">)</span></span>
+<span> </span>
+<span> <span class="fu"><a href="https://www.randomforestsrc.org//reference/rfsrc.html" class="external-link">rfsrc</a></span><span class="op">(</span>formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">train</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/riskRegression/man/predictRisk.html" class="external-link">predictRisk</a></span><span class="op">(</span>newdata <span class="op">=</span> <span class="va">test</span>, times <span class="op">=</span> <span class="va">pred_horizon</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="op">)</span></span>
+<span> </span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">ranger_wf</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">train</span>, <span class="va">test</span>, <span class="va">pred_horizon</span><span class="op">)</span><span class="op">{</span></span>
+<span> </span>
+<span> <span class="fu"><a href="https://rdrr.io/pkg/ranger/man/ranger.html" class="external-link">ranger</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">train</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/riskRegression/man/predictRisk.html" class="external-link">predictRisk</a></span><span class="op">(</span>newdata <span class="op">=</span> <span class="va">test</span>, times <span class="op">=</span> <span class="va">pred_horizon</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="op">)</span></span>
+<span> </span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">aorsf_wf</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">train</span>, <span class="va">test</span>, <span class="va">pred_horizon</span><span class="op">)</span><span class="op">{</span></span>
+<span> </span>
+<span> <span class="va">train</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span>,<span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span>new_data <span class="op">=</span> <span class="va">test</span>, pred_horizon <span class="op">=</span> <span class="va">pred_horizon</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="op">)</span></span>
+<span> </span>
+<span><span class="op">}</span></span></code></pre><p></p></div>
+<p>Run the ‘workflows’ on each fold:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="co"># 5 year risk prediction</span></span>
+<span><span class="va">ph</span> <span class="op">&lt;-</span> <span class="fl">365.25</span> <span class="op">*</span> <span class="fl">5</span></span>
+<span></span>
+<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="va">analyses</span> <span class="op">%&gt;%</span> </span>
+<span> <span class="fu">transmute</span><span class="op">(</span><span class="va">test</span>, </span>
+<span>           pred_aorsf <span class="op">=</span> <span class="fu">map2</span><span class="op">(</span><span class="va">train</span>, <span class="va">test</span>, <span class="va">aorsf_wf</span>, pred_horizon <span class="op">=</span> <span class="va">ph</span><span class="op">)</span>,</span>
+<span>           pred_rfsrc <span class="op">=</span> <span class="fu">map2</span><span class="op">(</span><span class="va">train</span>, <span class="va">test</span>, <span class="va">rfsrc_wf</span>, pred_horizon <span class="op">=</span> <span class="va">ph</span><span class="op">)</span>,</span>
+<span>           pred_ranger <span class="op">=</span> <span class="fu">map2</span><span class="op">(</span><span class="va">train</span>, <span class="va">test</span>, <span class="va">ranger_wf</span>, pred_horizon <span class="op">=</span> <span class="va">ph</span><span class="op">)</span><span class="op">)</span></span></code></pre><p></p></div>
+<p>Next unnest each column to get back a <code>tibble</code> with all of the testing
+data and predictions.</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="va">results</span> <span class="op">%&gt;%</span> </span>
+<span> <span class="fu">unnest</span><span class="op">(</span><span class="fu">everything</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">glimpse</span><span class="op">(</span><span class="va">results</span><span class="op">)</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## Rows: 276</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">## Columns: 23</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">## $ id          &lt;int&gt; 7, 36, 52, 65, 67, 72, 79, 88, 89, 100, 127, 154, 161,~</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">## $ trt         &lt;fct&gt; placebo, placebo, d_penicill_main, d_penicill_main, pl~</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co">## $ age         &lt;dbl&gt; 55.53457, 56.41068, 50.54073, 40.20260, 51.28816, 32.4~</span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## $ sex         &lt;fct&gt; f, f, m, f, f, f, f, f, f, m, f, m, f, m, f, f, f, f, ~</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">## $ ascites     &lt;fct&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">## $ hepato      &lt;fct&gt; 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, ~</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="co">## $ spiders     &lt;fct&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, ~</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="co">## $ edema       &lt;fct&gt; 0, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0~</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="co">## $ bili        &lt;dbl&gt; 1.0, 0.3, 6.0, 1.2, 1.1, 0.5, 0.8, 0.6, 2.0, 2.3, 0.5,~</span></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co">## $ chol        &lt;int&gt; 322, 172, 614, 256, 466, 320, 315, 296, 408, 178, 268,~</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="co">## $ albumin     &lt;dbl&gt; 4.09, 3.39, 3.70, 3.60, 3.91, 3.54, 4.24, 4.06, 3.65, ~</span></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co">## $ copper      &lt;int&gt; 52, 18, 158, 74, 84, 51, 13, 37, 50, 145, 9, 225, 4, 2~</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a><span class="co">## $ alk.phos    &lt;dbl&gt; 824.0, 558.0, 5084.4, 724.0, 1787.0, 1243.0, 1637.0, 1~</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="co">## $ ast         &lt;dbl&gt; 60.45, 71.30, 206.40, 141.05, 328.60, 122.45, 170.50, ~</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a><span class="co">## $ trig        &lt;int&gt; 213, 96, 93, 108, 185, 80, 70, 83, 98, 122, 95, 75, 18~</span></span>
+<span id="cb1-18"><a href="#cb1-18"></a><span class="co">## $ platelet    &lt;int&gt; 204, 311, 362, 430, 261, 225, 426, 442, 200, 119, 453,~</span></span>
+<span id="cb1-19"><a href="#cb1-19"></a><span class="co">## $ protime     &lt;dbl&gt; 9.7, 10.6, 10.6, 10.0, 10.0, 10.0, 10.9, 12.0, 11.4, 1~</span></span>
+<span id="cb1-20"><a href="#cb1-20"></a><span class="co">## $ stage       &lt;ord&gt; 3, 2, 1, 1, 3, 3, 3, 3, 2, 4, 2, 3, 2, 4, 4, 3, 3, 3, ~</span></span>
+<span id="cb1-21"><a href="#cb1-21"></a><span class="co">## $ time        &lt;int&gt; 1832, 3611, 2386, 3992, 2769, 4184, 3707, 2452, 1741, ~</span></span>
+<span id="cb1-22"><a href="#cb1-22"></a><span class="co">## $ status      &lt;dbl&gt; 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, ~</span></span>
+<span id="cb1-23"><a href="#cb1-23"></a><span class="co">## $ pred_aorsf  &lt;dbl&gt; 0.14427839, 0.01870334, 0.51377784, 0.04334777, 0.2191~</span></span>
+<span id="cb1-24"><a href="#cb1-24"></a><span class="co">## $ pred_rfsrc  &lt;dbl&gt; 0.14732022, 0.03156261, 0.55773866, 0.06502143, 0.1619~</span></span>
+<span id="cb1-25"><a href="#cb1-25"></a><span class="co">## $ pred_ranger &lt;dbl&gt; 0.14870388, 0.01662689, 0.57519043, 0.05876898, 0.1488~</span></span></code></pre><p></p></div>
+<p>And finish by aggregating the predictions and computing performance in
+the testing data. Note that I am computing one statistic for all
+predictions instead of computing one statistic for each fold. This
+approach is fine when you have smaller testing sets and/or small event
+counts.</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/pkg/riskRegression/man/Score.html" class="external-link">Score</a></span><span class="op">(</span></span>
+<span> object <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>aorsf <span class="op">=</span> <span class="va">results</span><span class="op">$</span><span class="va">pred_aorsf</span>,</span>
+<span>               rfsrc <span class="op">=</span> <span class="va">results</span><span class="op">$</span><span class="va">pred_rfsrc</span>,</span>
+<span>               ranger <span class="op">=</span> <span class="va">results</span><span class="op">$</span><span class="va">pred_ranger</span><span class="op">)</span>,</span>
+<span> formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fl">1</span>, </span>
+<span> data <span class="op">=</span> <span class="va">results</span>, </span>
+<span> summary <span class="op">=</span> <span class="st">'IPA'</span>,</span>
+<span> times <span class="op">=</span> <span class="va">ph</span></span>
+<span><span class="op">)</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## </span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">## Metric AUC:</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">## </span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">## Results by model:</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co">## </span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">##     model times    AUC  lower  upper</span></span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="co">##    &lt;fctr&gt; &lt;num&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt;</span></span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="co">## 1:  aorsf  1826   91.2   87.0   95.4</span></span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="co">## 2:  rfsrc  1826   90.5   86.4   94.6</span></span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="co">## 3: ranger  1826   90.3   86.2   94.5</span></span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="co">## </span></span>
+<span id="cb1-12"><a href="#cb1-12"></a><span class="co">## Results of model comparisons:</span></span>
+<span id="cb1-13"><a href="#cb1-13"></a><span class="co">## </span></span>
+<span id="cb1-14"><a href="#cb1-14"></a><span class="co">##    times  model reference delta.AUC  lower  upper     p</span></span>
+<span id="cb1-15"><a href="#cb1-15"></a><span class="co">##    &lt;num&gt; &lt;fctr&gt;    &lt;fctr&gt;    &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;num&gt;</span></span>
+<span id="cb1-16"><a href="#cb1-16"></a><span class="co">## 1:  1826  rfsrc     aorsf      -0.7   -2.3    0.8   0.4</span></span>
+<span id="cb1-17"><a href="#cb1-17"></a><span class="co">## 2:  1826 ranger     aorsf      -0.9   -2.3    0.5   0.2</span></span>
+<span id="cb1-18"><a href="#cb1-18"></a><span class="co">## 3:  1826 ranger     rfsrc      -0.1   -1.1    0.9   0.8</span></span>
+<span id="cb1-19"><a href="#cb1-19"></a></span>
+<span id="cb1-20"><a href="#cb1-20"></a><span class="co">## </span></span>
+<span id="cb1-21"><a href="#cb1-21"></a><span class="co">## </span><span class="al">NOTE</span><span class="co">: Values are multiplied by 100 and given in %.</span></span>
+<span id="cb1-22"><a href="#cb1-22"></a></span>
+<span id="cb1-23"><a href="#cb1-23"></a><span class="co">## </span><span class="al">NOTE</span><span class="co">: The higher AUC the better.</span></span>
+<span id="cb1-24"><a href="#cb1-24"></a></span>
+<span id="cb1-25"><a href="#cb1-25"></a><span class="co">## </span></span>
+<span id="cb1-26"><a href="#cb1-26"></a><span class="co">## Metric Brier:</span></span>
+<span id="cb1-27"><a href="#cb1-27"></a><span class="co">## </span></span>
+<span id="cb1-28"><a href="#cb1-28"></a><span class="co">## Results by model:</span></span>
+<span id="cb1-29"><a href="#cb1-29"></a><span class="co">## </span></span>
+<span id="cb1-30"><a href="#cb1-30"></a><span class="co">##         model   times  Brier  lower  upper    IPA</span></span>
+<span id="cb1-31"><a href="#cb1-31"></a><span class="co">##        &lt;fctr&gt;   &lt;num&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt; &lt;char&gt;</span></span>
+<span id="cb1-32"><a href="#cb1-32"></a><span class="co">## 1: Null model 1826.25   20.5   18.1   22.9    0.0</span></span>
+<span id="cb1-33"><a href="#cb1-33"></a><span class="co">## 2:      aorsf 1826.25   10.5    8.3   12.7   48.7</span></span>
+<span id="cb1-34"><a href="#cb1-34"></a><span class="co">## 3:      rfsrc 1826.25   11.6    9.5   13.6   43.6</span></span>
+<span id="cb1-35"><a href="#cb1-35"></a><span class="co">## 4:     ranger 1826.25   11.5    9.5   13.6   43.6</span></span>
+<span id="cb1-36"><a href="#cb1-36"></a><span class="co">## </span></span>
+<span id="cb1-37"><a href="#cb1-37"></a><span class="co">## Results of model comparisons:</span></span>
+<span id="cb1-38"><a href="#cb1-38"></a><span class="co">## </span></span>
+<span id="cb1-39"><a href="#cb1-39"></a><span class="co">##      times  model  reference delta.Brier  lower  upper            p</span></span>
+<span id="cb1-40"><a href="#cb1-40"></a><span class="co">##      &lt;num&gt; &lt;fctr&gt;     &lt;fctr&gt;      &lt;char&gt; &lt;char&gt; &lt;char&gt;        &lt;num&gt;</span></span>
+<span id="cb1-41"><a href="#cb1-41"></a><span class="co">## 1: 1826.25  aorsf Null model       -10.0  -12.6   -7.3 1.430444e-13</span></span>
+<span id="cb1-42"><a href="#cb1-42"></a><span class="co">## 2: 1826.25  rfsrc Null model        -8.9  -11.2   -6.7 5.508455e-15</span></span>
+<span id="cb1-43"><a href="#cb1-43"></a><span class="co">## 3: 1826.25 ranger Null model        -8.9  -11.3   -6.6 5.511591e-14</span></span>
+<span id="cb1-44"><a href="#cb1-44"></a><span class="co">## 4: 1826.25  rfsrc      aorsf         1.1    0.2    1.9 1.141214e-02</span></span>
+<span id="cb1-45"><a href="#cb1-45"></a><span class="co">## 5: 1826.25 ranger      aorsf         1.0    0.3    1.7 3.742797e-03</span></span>
+<span id="cb1-46"><a href="#cb1-46"></a><span class="co">## 6: 1826.25 ranger      rfsrc        -0.0   -0.5    0.5 9.730271e-01</span></span>
+<span id="cb1-47"><a href="#cb1-47"></a></span>
+<span id="cb1-48"><a href="#cb1-48"></a><span class="co">## </span></span>
+<span id="cb1-49"><a href="#cb1-49"></a><span class="co">## </span><span class="al">NOTE</span><span class="co">: Values are multiplied by 100 and given in %.</span></span>
+<span id="cb1-50"><a href="#cb1-50"></a></span>
+<span id="cb1-51"><a href="#cb1-51"></a><span class="co">## </span><span class="al">NOTE</span><span class="co">: The lower Brier the better, the higher IPA the better.</span></span></code></pre><p></p></div>
+<p>From inspection,</p><ul><li><p><code>aorsf</code> obtained slightly higher discrimination (AUC)</p></li>
+<li><p><code>aorsf</code> obtained higher index of prediction accuracy (IPA)</p></li>
+<li><p>Way to go, <code>aorsf</code></p></li>
+</ul></div>
+
+
+</div>
+
+<div class="section">
+<h3 id="mlr-pipelines">mlr3 pipelines<a class="anchor" aria-label="anchor" href="#mlr-pipelines"></a></h3>
+
+
+<p><strong>Warning</strong>: this code may or may not run depending on your current
+version of <code>mlr3proba</code>. First we load some additional <code>mlr3</code> libraries.</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="op">{</span></span>
+<span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3verse.mlr-org.com" class="external-link">mlr3verse</a></span><span class="op">)</span></span>
+<span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mlr3proba</span><span class="op">)</span></span>
+<span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mlr3extralearners</span><span class="op">)</span></span>
+<span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3viz.mlr-org.com" class="external-link">mlr3viz</a></span><span class="op">)</span></span>
+<span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://mlr3benchmark.mlr-org.com" class="external-link">mlr3benchmark</a></span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span></code></pre><p></p></div>
+<p>Next we’ll define some tasks for our learners to engage with.</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="co"># Mayo Clinic Primary Biliary Cholangitis Data</span></span>
+<span><span class="va">task_pbc</span> <span class="op">&lt;-</span> </span>
+<span> <span class="va">TaskSurv</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">'pbc'</span>,  </span>
+<span>  backend <span class="op">=</span> <span class="fu">select</span><span class="op">(</span><span class="va">pbc_orsf</span>, <span class="op">-</span><span class="va">id</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>   <span class="fu">mutate</span><span class="op">(</span>stage <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">stage</span><span class="op">)</span><span class="op">)</span>,  </span>
+<span>  time <span class="op">=</span> <span class="st">"time"</span>, </span>
+<span>  event <span class="op">=</span> <span class="st">"status"</span></span>
+<span> <span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Veteran's Administration Lung Cancer Trial</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">veteran</span>, package <span class="op">=</span> <span class="st">"randomForestSRC"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">task_veteran</span> <span class="op">&lt;-</span> </span>
+<span> <span class="va">TaskSurv</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">'veteran'</span>,  </span>
+<span>  backend <span class="op">=</span> <span class="va">veteran</span>,  </span>
+<span>  time <span class="op">=</span> <span class="st">"time"</span>, </span>
+<span>  event <span class="op">=</span> <span class="st">"status"</span></span>
+<span> <span class="op">)</span></span>
+<span></span>
+<span><span class="co"># NKI 70 gene signature</span></span>
+<span><span class="va">data_nki</span> <span class="op">&lt;-</span> <span class="fu">OpenML</span><span class="fu">::</span><span class="fu">getOMLDataSet</span><span class="op">(</span>data.id <span class="op">=</span> <span class="fl">1228</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">task_nki</span> <span class="op">&lt;-</span> </span>
+<span> <span class="va">TaskSurv</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">'nki'</span>,  </span>
+<span>  backend <span class="op">=</span> <span class="va">data_nki</span><span class="op">$</span><span class="va">data</span>,  </span>
+<span>  time <span class="op">=</span> <span class="st">"time"</span>, </span>
+<span>  event <span class="op">=</span> <span class="st">"event"</span></span>
+<span> <span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Gene Expression-Based Survival Prediction in Lung Adenocarcinoma</span></span>
+<span><span class="va">data_lung</span> <span class="op">&lt;-</span> <span class="fu">OpenML</span><span class="fu">::</span><span class="fu">getOMLDataSet</span><span class="op">(</span>data.id <span class="op">=</span> <span class="fl">1245</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">task_lung</span> <span class="op">&lt;-</span> </span>
+<span> <span class="va">TaskSurv</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">'nki'</span>,  </span>
+<span>  backend <span class="op">=</span> <span class="va">data_lung</span><span class="op">$</span><span class="va">data</span> <span class="op">%&gt;%</span> </span>
+<span>   <span class="fu">mutate</span><span class="op">(</span>OS_event <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">OS_event</span><span class="op">)</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,  </span>
+<span>  time <span class="op">=</span> <span class="st">"OS_years"</span>, </span>
+<span>  event <span class="op">=</span> <span class="st">"OS_event"</span></span>
+<span> <span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># Chemotherapy for Stage B/C colon cancer</span></span>
+<span><span class="co"># (there are two rows per person, one for death </span></span>
+<span><span class="co">#  and the other for recurrence, hence the two tasks)</span></span>
+<span></span>
+<span><span class="va">task_colon_death</span> <span class="op">&lt;-</span></span>
+<span> <span class="va">TaskSurv</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">'colon_death'</span>,  </span>
+<span>  backend <span class="op">=</span> <span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/colon.html" class="external-link">colon</a></span> <span class="op">%&gt;%</span></span>
+<span>   <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">etype</span> <span class="op">==</span> <span class="fl">2</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>   <span class="fu">drop_na</span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>   <span class="co"># drop id, redundant variables</span></span>
+<span>   <span class="fu">select</span><span class="op">(</span><span class="op">-</span><span class="va">id</span>, <span class="op">-</span><span class="va">study</span>, <span class="op">-</span><span class="va">node4</span>, <span class="op">-</span><span class="va">etype</span><span class="op">)</span>,</span>
+<span>   <span class="fu">mutate</span><span class="op">(</span>OS_event <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">OS_event</span><span class="op">)</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,  </span>
+<span>  time <span class="op">=</span> <span class="st">"time"</span>, </span>
+<span>  event <span class="op">=</span> <span class="st">"status"</span></span>
+<span> <span class="op">)</span></span>
+<span></span>
+<span><span class="va">task_colon_recur</span> <span class="op">&lt;-</span></span>
+<span> <span class="va">TaskSurv</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>  id <span class="op">=</span> <span class="st">'colon_death'</span>,  </span>
+<span>  backend <span class="op">=</span> <span class="fu">survival</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/survival/man/colon.html" class="external-link">colon</a></span> <span class="op">%&gt;%</span></span>
+<span>   <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">etype</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>   <span class="fu">drop_na</span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>   <span class="co"># drop id, redundant variables</span></span>
+<span>   <span class="fu">select</span><span class="op">(</span><span class="op">-</span><span class="va">id</span>, <span class="op">-</span><span class="va">study</span>, <span class="op">-</span><span class="va">node4</span>, <span class="op">-</span><span class="va">etype</span><span class="op">)</span>,</span>
+<span>   <span class="fu">mutate</span><span class="op">(</span>OS_event <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">OS_event</span><span class="op">)</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,  </span>
+<span>  time <span class="op">=</span> <span class="st">"time"</span>, </span>
+<span>  event <span class="op">=</span> <span class="st">"status"</span></span>
+<span> <span class="op">)</span></span>
+<span></span>
+<span><span class="co"># putting them all together</span></span>
+<span><span class="va">tasks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">task_pbc</span>,</span>
+<span>              <span class="va">task_veteran</span>,</span>
+<span>              <span class="va">task_nki</span>,</span>
+<span>              <span class="va">task_lung</span>,</span>
+<span>              <span class="va">task_colon_death</span>,</span>
+<span>              <span class="va">task_colon_recur</span>,</span>
+<span>              <span class="co"># add a few more pre-made ones</span></span>
+<span>              <span class="fu">tsk</span><span class="op">(</span><span class="st">"actg"</span><span class="op">)</span>,</span>
+<span>              <span class="fu">tsk</span><span class="op">(</span><span class="st">'gbcs'</span><span class="op">)</span>,</span>
+<span>              <span class="fu">tsk</span><span class="op">(</span><span class="st">'grace'</span><span class="op">)</span>,</span>
+<span>              <span class="fu">tsk</span><span class="op">(</span><span class="st">"unemployment"</span><span class="op">)</span>,</span>
+<span>              <span class="fu">tsk</span><span class="op">(</span><span class="st">"whas"</span><span class="op">)</span><span class="op">)</span></span></code></pre><p></p></div>
+<p>Now we can make a benchmark designed to compare our three favorite
+learners:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="co"># Learners with default parameters</span></span>
+<span><span class="va">learners</span> <span class="op">&lt;-</span> <span class="fu">lrns</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"surv.ranger"</span>, <span class="st">"surv.rfsrc"</span>, <span class="st">"surv.aorsf"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Brier (Graf) score, c-index and training time as measures</span></span>
+<span><span class="va">measures</span> <span class="op">&lt;-</span> <span class="fu">msrs</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"surv.graf"</span>, <span class="st">"surv.cindex"</span>, <span class="st">"time_train"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Benchmark with 5-fold CV</span></span>
+<span><span class="va">design</span> <span class="op">&lt;-</span> <span class="fu">benchmark_grid</span><span class="op">(</span></span>
+<span>  tasks <span class="op">=</span> <span class="va">tasks</span>,</span>
+<span>  learners <span class="op">=</span> <span class="va">learners</span>,</span>
+<span>  resamplings <span class="op">=</span> <span class="fu">rsmps</span><span class="op">(</span><span class="st">"cv"</span>, folds <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">benchmark_result</span> <span class="op">&lt;-</span> <span class="fu">benchmark</span><span class="op">(</span><span class="va">design</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">bm_scores</span> <span class="op">&lt;-</span> <span class="va">benchmark_result</span><span class="op">$</span><span class="fu">score</span><span class="op">(</span><span class="va">measures</span>, predict_sets <span class="op">=</span> <span class="st">"test"</span><span class="op">)</span></span></code></pre><p></p></div>
+<p>Let’s look at the overall results:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">bm_scores</span> <span class="op">%&gt;%</span></span>
+<span> <span class="fu">select</span><span class="op">(</span><span class="va">task_id</span>, <span class="va">learner_id</span>, <span class="va">surv.graf</span>, <span class="va">surv.cindex</span>, <span class="va">time_train</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span> <span class="fu">group_by</span><span class="op">(</span><span class="va">learner_id</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/is.finite.html" class="external-link">is.infinite</a></span><span class="op">(</span><span class="va">surv.graf</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span> <span class="fu">summarize</span><span class="op">(</span></span>
+<span>  <span class="fu">across</span><span class="op">(</span></span>
+<span>   .cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">surv.graf</span>, <span class="va">surv.cindex</span>, <span class="va">time_train</span><span class="op">)</span>,</span>
+<span>   .fns <span class="op">=</span> <span class="va">mean</span>, </span>
+<span>   na.rm <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  <span class="op">)</span></span>
+<span> <span class="op">)</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1"></a><span class="co">## # A tibble: 3 x 4</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">##   learner_id  surv.graf surv.cindex time_train</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">##   &lt;chr&gt;           &lt;dbl&gt;       &lt;dbl&gt;      &lt;dbl&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="co">## 1 surv.aorsf      0.151       0.729      0.345</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="co">## 2 surv.ranger     0.167       0.706      2.54 </span></span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## 3 surv.rfsrc      0.156       0.715      0.783</span></span></code></pre><p></p></div>
+<p>From inspection,</p><ul><li><p><code>aorsf</code> appears to have a higher expected value for ‘surv.cindex’
+(higher is better)</p></li>
+<li><p><code>aorsf</code> appears to have a lower expected value for ‘surv.graf’
+(lower is better)</p></li>
+<li><p><code>aorsf</code> has the lowest training time.</p></li>
+</ul><p>the lower training time for <code>aorsf</code> is likely due to the fact that there
+are many unique event times in the benchmark tasks. <code>ranger</code> and <code>rfsrc</code>
+create grids of time points based on each unique event time in each leaf
+of each decision tree, whereas <code>aorsf</code> also uses a grid but restricts it
+to the unique event times among observations in the current leaf.</p>
+</div>
+
+    </div>
+    <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. Evaluating the Yield of Medical Tests. <em>JAMA</em> 1982; 247(18):2543-2546. DOI: 10.1001/jama.1982.03320430047030</p>
 <p>Breiman L. Random forests. <em>Machine learning</em> 2001 Oct; 45(1):5-32. DOI: 10.1023/A:1010933404324</p>
