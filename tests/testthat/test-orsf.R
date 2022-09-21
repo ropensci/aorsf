@@ -928,3 +928,23 @@ test_that(
 )
 
 
+# Similar to obliqueRSF?
+# suppressPackageStartupMessages({
+#  library(obliqueRSF)
+# })
+#
+# set.seed(50)
+#
+# fit_aorsf <- orsf(pbc_orsf,
+#                   formula = Surv(time, status) ~ . - id,
+#                   n_tree = 100)
+# fit_obliqueRSF <- ORSF(pbc_orsf, ntree = 100, verbose = FALSE)
+#
+#
+# risk_aorsf <- predict(fit_aorsf, new_data = pbc_orsf, pred_horizon = 3500)
+# risk_obliqueRSF <- 1-predict(fit_obliqueRSF, newdata = pbc_orsf, times = 3500)
+#
+# cor(risk_obliqueRSF, risk_aorsf)
+# plot(risk_obliqueRSF, risk_aorsf)
+
+
