@@ -47,7 +47,7 @@ You can install the development version of aorsf from
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("bcjaeger/aorsf")
+remotes::install_github("ropensci/aorsf")
 ```
 
 ## What is an oblique decision tree?
