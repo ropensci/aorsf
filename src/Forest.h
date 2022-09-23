@@ -4,37 +4,44 @@
  aorsf may be modified and distributed under the terms of the MIT license.
 #----------------------------------------------------------------------------*/
 
-#ifndef TREE_H_
-#define TREE_H_
+#ifndef FOREST_H_
+#define FOREST_H_
 
-#include <armadillo>
-#include <RcppArmadillo.h>
-// [[Rcpp::depends(RcppArmadillo)]]
 
 #include "Data.h"
-#include <Rcpp.h>
 #include "globals.h"
+
+// [[Rcpp::depends(RcppArmadillo)]]
 
  namespace aorsf {
 
- class Tree {
-
+ class Forest {
  public:
 
-  Tree() = default;
+  // Default constructor with no arguments
+  Forest();
 
-  Tree(const Data* data,
-       int mtry,
-       int max_retry,
-       SplitRule split_rule,
-       int n_split,
-       int leaf_min_obs,
-       int split_min_obs,
-       int split_min_stat,
-       PredType pred_type,
-       int oobag_eval_every,
-       VariableImportance variable_importance,
-       int seed){
+  // Expect to redefine constructors for survival/classif/regression
+  virtual ~Forest() = default;
+
+  // Don't allow unitialized Forests
+  Forest(const Forest&) = delete;
+  Forest& operator=(const Forest&) = delete;
+
+  void init(
+    const Data* data,
+    const int mtry,
+    const int max_retry,
+    SplitRule split_rule,
+    const int n_split,
+    const int leaf_min_obs,
+    const int split_min_obs,
+    const int split_min_stat,
+    PredType pred_type,
+    const int oobag_eval_every,
+    VariableImportance variable_importance,
+    const int seed
+  ) {
 
    this->data = data;
    this->mtry = mtry;
@@ -47,12 +54,6 @@
    this->pred_type = pred_type;
    this->oobag_eval_every = oobag_eval_every;
    this->variable_importance = variable_importance;
-
-   int a = 2;
-   int b = 4;
-
-   this->coef = Rcpp::NumericMatrix(a,b);
-   this->coef_indices = arma::umat(a, b);
 
   };
 
@@ -134,33 +135,10 @@
   // random seed to be set before growing
   int seed;
 
-
  protected:
-
-  // OUTPUTS
-
-  // coefficients for linear combinations;
-  // one row per variable (mtry rows), one column per node
-  // leaf nodes have all coefficients=0
-  arma::mat coef;
-
-  // indices of the predictors used by
-  arma::umat coef_indices;
-
-  // cutpoints used to split the node
-  arma::vec cutpoint;
-
-  // directions to the next node (right node = left node + 1)
-  arma::uvec next_left_node;
-
-  // predicted values (only in leaf nodes)
-  arma::mat pred;
-
-  // indices of predicted values for each leaf node
-  arma::umat pred_indices;
 
  };
 
  } // namespace aorsf
 
-#endif /* TREE_H_ */
+#endif /* FOREST_H_ */

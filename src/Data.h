@@ -8,6 +8,7 @@
 #define DATA_H_
 
 #include <armadillo>
+#include "globals.h"
 
  namespace aorsf {
 
@@ -22,20 +23,34 @@
        arma::ivec& y_int,
        arma::vec& weights) {
 
+   // arma::mat x_       = arma::mat(x.begin(), x.nrow(), x.ncol(), false);
+   // arma::vec y_dbl_  = arma::vec(y_dbl.begin(), y_dbl.length(), false);
+   // arma::ivec y_int_ = arma::ivec(y_int.begin(), y_int.length(), false);
+   // arma::vec weights_ = arma::vec(weights.begin(), weights.length(), false);
+
    this->x = x;
    this->y_dbl = y_dbl;
    this->y_int = y_int;
    this->weights = weights;
-   this->n_cols = x.n_cols;
-   this->n_rows = x.n_rows;
 
   }
 
-  arma::uword n_rows;
-  arma::uword n_cols;
+
+  arma::mat x;
+  arma::vec y_dbl;
+  arma::ivec y_int;
+  arma::vec weights;
 
   arma::vec get_weights() const {
    return(weights);
+  }
+
+  arma::uword get_n_rows() const {
+   return(x.n_rows);
+  }
+
+  arma::uword get_n_cols() const {
+   return(x.n_cols);
   }
 
   bool has_wts() const {
@@ -71,10 +86,7 @@
   }
 
  private:
-  arma::mat x;
-  arma::vec y_dbl;
-  arma::ivec y_int;
-  arma::vec weights;
+
  };
 
 

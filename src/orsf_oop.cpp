@@ -14,6 +14,7 @@
 #include "Data.h"
 #include "globals.h"
 #include "Tree.h"
+#include "Forest.h"
 
 // [[Rcpp::depends(RcppArmadillo)]]
 
@@ -31,7 +32,7 @@ arma::vec bootstrap_sample(const Data* data) {
  // compute probability of being selected into the bootstrap
  // 0 times, 1, times, ..., 9 times, or 10 times.
 
- arma::uword n_rows = data->n_rows;
+ arma::uword n_rows = data->get_n_rows();
 
  Rcpp::NumericVector probs = Rcpp::dbinom(s, n_rows, 1.0/n_rows, false);
 
@@ -69,19 +70,19 @@ void orsf_cpp(arma::mat& x,
               arma::vec& y_ctns,
               arma::ivec& y_intg,
               arma::vec& weights,
-              int vi = 0,
-              int sr = 1,
-              int pt = 1){
+              const int vi = 0,
+              const int sr = 1,
+              const int pt = 1){
 
 
- int mtry = 2;
- int max_retry = DEFAULT_MAX_RETRY;
- int n_split = DEFAULT_N_SPLIT;
- int leaf_min_obs = DEFAULT_LEAF_MIN_OBS_SURVIVAL;
- int split_min_obs = DEFAULT_SPLIT_MIN_OBS;
- int split_min_stat = DEFAULT_SPLIT_MIN_STAT;
- int oobag_eval_every = 0;
- int seed = 0;
+ const int mtry = 2;
+ const int max_retry = DEFAULT_MAX_RETRY;
+ const int n_split = DEFAULT_N_SPLIT;
+ const int leaf_min_obs = DEFAULT_LEAF_MIN_OBS_SURVIVAL;
+ const int split_min_obs = DEFAULT_SPLIT_MIN_OBS;
+ const int split_min_stat = DEFAULT_SPLIT_MIN_STAT;
+ const int oobag_eval_every = 0;
+ const int seed = 0;
 
  VariableImportance variable_importance = static_cast<VariableImportance>(vi);
  SplitRule split_rule = static_cast<SplitRule>(sr);
@@ -93,6 +94,7 @@ void orsf_cpp(arma::mat& x,
 
  Data* data_ptr = &data;
 
+<<<<<<< HEAD
  Rcout << "------------ dimensions ------------" << std::endl;
  Rcout << "N obs total: "     << data.n_rows     << std::endl;
  Rcout << "N columns total: " << data.n_cols     << std::endl;
@@ -118,8 +120,6 @@ void orsf_cpp(arma::mat& x,
  tree.guess_max_nodes();
 
  Rcout << tree.coef << std::endl;
-
-
 
 
 }
