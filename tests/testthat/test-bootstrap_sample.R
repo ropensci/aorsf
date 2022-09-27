@@ -3,10 +3,25 @@
 
 # test setup --------------------------------------------------------------
 
+# make an r function that matches the function in cpp
+r_fun <- function(x, y, wts){
+
+ s = seq(0, 10)
+ n_rows = nrow(x)
+ probs = dbinom(s, n_rows, 1.0/n_rows, FALSE)
+
+ boot_wts = sample(s, n_rows, TRUE, probs);
+
+ if(length(wts) > 0){
+  boot_wts = boot_wts * wts;
+ }
+
+ return(matrix(boot_wts, ncol = 1));
+
+}
+
 n <- 1e6
-x = matrix(rnorm(n = n), ncol = 1)
-y_dbl = x
-y_int = sample.int(2, size = n, replace = TRUE)
+x <- y <- matrix(rnorm(n = n), ncol = 1)
 
 weights_2s = rep(2, nrow(x))
 weights_empty = double(0)
@@ -15,14 +30,17 @@ weights_empty = double(0)
 # if any object's memory is copied, it will make the test output messy
 # (I am not sure how to formally make a test fail when memory is copied)
 tracemem(x)
-tracemem(y_dbl)
-tracemem(y_int)
+tracemem(y)
 tracemem(weights_2s)
 
 set.seed(329)
-samp_2s_wts <- bootstrap_sample_testthat(x, y_dbl, y_int, weights_2s)
+samp_2s_wts <- bootstrap_sample_testthat(x, y, weights_2s)
 set.seed(329)
-samp_no_wts <- bootstrap_sample_testthat(x, y_dbl, y_int, weights_empty)
+samp_no_wts <- bootstrap_sample_testthat(x, y, weights_empty)
+set.seed(329)
+samp_2s_wts_r <- r_fun(x, y, weights_2s)
+set.seed(329)
+samp_no_wts_r <- r_fun(x, y, weights_empty)
 
 
 # test behavior -----------------------------------------------------------
@@ -49,26 +67,27 @@ test_that(
  }
 )
 
+test_that(
+ desc = "bootstrap weights match (R vs cpp)",
+ code = {
+  expect_equal(samp_2s_wts, samp_2s_wts_r)
+  expect_equal(samp_no_wts, samp_no_wts_r)
+ }
+)
+
+
 # test performance --------------------------------------------------------
 
-# r_fun <- function(x, wts){
-#
-#  s = seq(0, 10)
-#  n_rows = nrow(x)
-#  probs = dbinom(s, n_rows, 1.0/n_rows, FALSE)
-#
-#  boot_wts = sample(s, n_rows, TRUE, probs);
-#
-#  if(length(wts) > 0){
-#   boot_wts = boot_wts * wts;
-#  }
-#  return(boot_wts);
-#
-# }
+# TODO: figure out why armadillo seems to run slower than R for this??
+
+# microbenchmark::microbenchmark(
+#  r_fun = r_fun(x, y, wts = weights_empty),
+#  c_fun = bootstrap_sample_testthat(x, y, weights_empty)
+# )
 #
 # microbenchmark::microbenchmark(
-#  r_fun = r_fun(x, wts = weights_empty),
-#  c_fun = bootstrap_sample_testthat(x, y_dbl, y_int, weights_empty)
+#  r_fun = r_fun(x, y, wts = weights_2s),
+#  c_fun = bootstrap_sample_testthat(x, y, weights_2s)
 # )
 
 

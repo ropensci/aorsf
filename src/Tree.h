@@ -7,12 +7,10 @@
 #ifndef TREE_H_
 #define TREE_H_
 
-#include <armadillo>
 #include <RcppArmadillo.h>
-// [[Rcpp::depends(RcppArmadillo)]]
+#include <RcppArmadilloExtensions/sample.h>
 
 #include "Data.h"
-#include <Rcpp.h>
 #include "globals.h"
 
  namespace aorsf {
@@ -23,121 +21,110 @@
 
   Tree() = default;
 
-  Tree(const Data* data,
-       int mtry,
-       int max_retry,
-       SplitRule split_rule,
-       int n_split,
+  Tree(Data* data,
        int leaf_min_obs,
-       int split_min_obs,
-       int split_min_stat,
-       PredType pred_type,
-       int oobag_eval_every,
-       VariableImportance variable_importance,
-       int seed){
+       int mtry){
 
    this->data = data;
-   this->mtry = mtry;
-   this->max_retry = max_retry;
-   this->split_rule = split_rule;
-   this->n_split = n_split;
-   this->leaf_min_obs = leaf_min_obs;
-   this->split_min_obs = split_min_obs;
-   this->split_min_stat = split_min_stat;
-   this->pred_type = pred_type;
-   this->oobag_eval_every = oobag_eval_every;
-   this->variable_importance = variable_importance;
 
-   int a = 2;
-   int b = 4;
+   arma::uword guess = std::ceil(
+    0.5 * data->get_n_rows() / leaf_min_obs
+   );
 
-   this->coef = Rcpp::NumericMatrix(a,b);
-   this->coef_indices = arma::umat(a, b);
+   coef.zeros(guess, mtry);
+   coef_indices.zeros(guess, mtry);
+   cutpoint.zeros(guess);
+   next_left_node.zeros(guess);
+   pred.zeros(guess, 1);
+   pred_indices.zeros(guess, 3);
+
 
   };
 
-  int get_mtry() const {
-   return mtry;
+
+
+  // @description sample weights to mimic a bootstrap sample
+  // Note: the sampling extension for RcppArmadillo can only
+  // be defined once. So, all functions that use sample need
+  // to be defined in this file, unless we move the inclusion
+  // of RcppArmadilloExtension/sample.h to another place.
+  void draw_bootstrap_sample() {
+
+   // s is the number of times you might get selected into
+   // a bootstrap sample. Realistically this won't be >10,
+   Rcpp::IntegerVector s = Rcpp::seq(0, 10);
+
+   // compute probability of being selected into the bootstrap
+   // 0 times, 1, times, ..., 9 times, or 10 times.
+
+   arma::uword n_rows = data->get_n_rows();
+
+   Rcpp::NumericVector probs = Rcpp::dbinom(s, n_rows, 1.0/n_rows, false);
+
+   arma::vec boot_wts = Rcpp::as<arma::vec>(
+    Rcpp::RcppArmadillo::sample(s, n_rows, true, probs)
+   );
+
+   if(data->has_weights()){
+
+    boot_wts = boot_wts % data->w;
+
+   }
+
+   rows_inbag = arma::find(boot_wts);
+   boot_wts = boot_wts(rows_inbag);
+
+   if(VERBOSITY > 0){
+    Rcpp::Rcout << "------------ in-bag rows ------------"   << std::endl;
+    Rcpp::Rcout << rows_inbag                   << std::endl << std::endl;
+    Rcpp::Rcout << "------------ boot weights -----------"   << std::endl;
+    Rcpp::Rcout << boot_wts                     << std::endl << std::endl;
+
+   }
+
   }
 
-  int get_max_retry() const {
-   return max_retry;
-  }
+  void grow() {
 
-  SplitRule get_split_rule() const {
-   return split_rule;
-  }
+   arma::mat x_inbag = data->x_rows(rows_inbag);
+   arma::mat y_inbag = data->y_rows(rows_inbag);
+   arma::vec w_inbag = data->w_subvec(rows_inbag);
 
-  int get_n_split() const {
-   return n_split;
-  }
+   arma::vec node_assignments(rows_inbag.size(), arma::fill::zeros);
+   arma::uvec nodes_to_grow(1, arma::fill::zeros);
+   arma::uword nodes_max_true = 0;
+   arma::uword leaf_node_counter = 0;
+   arma::uword leaf_node_index_counter = 0;
 
-  int get_leaf_min_obs() const {
-   return leaf_min_obs;
-  }
+   if(VERBOSITY > 0){
 
-  int get_split_min_obs() const {
-   return split_min_obs;
-  }
+    arma::uword temp_uword_1, temp_uword_2;
 
-  int get_split_min_stat() const {
-   return split_min_stat;
-  }
+    if(x_inbag.n_rows < 5)
+     temp_uword_1 = x_inbag.n_rows-1;
+    else
+     temp_uword_1 = 5;
 
-  int get_pred_type() const {
-   return pred_type;
-  }
+    if(x_inbag.n_cols < 5)
+     temp_uword_2 = x_inbag.n_cols-1;
+    else
+     temp_uword_2 = 4;
 
-  int get_oobag_eval_every() const {
-   return oobag_eval_every;
-  }
+    Rcpp::Rcout << "---- here is a view of x_inbag ---- " << std::endl;
+    Rcpp::Rcout << x_inbag.submat(0, 0, temp_uword_1, temp_uword_2);
+    Rcpp::Rcout << std::endl << std::endl;
 
-  VariableImportance get_variable_importance() const {
-   return variable_importance;
-  }
+   }
+
+  };
 
   // INPUTS
 
   // Pointer to original data
-  const Data* data;
+  Data* data;
 
-  // number of predictors used to split a node
-  int mtry;
-
-  // maximum number of retry attempts to split a node
-  int max_retry;
-
-  // how to measure quality of a node split
-  SplitRule split_rule;
-
-  // number of cutpoints to assess during node split
-  int n_split;
-
-  // minimum number of observations needed in a leaf node
-  int leaf_min_obs;
-
-  // minimum number of observations needed to split a node
-  int split_min_obs;
-
-  // minimum value of split statistic needed to split a node
-  int split_min_stat;
-
-  // what type of oobag prediction to compute
-  PredType pred_type;
-
-  // evaluate oobag error every X trees
-  int oobag_eval_every;
-
-  // what type of variable importance to compute
-  VariableImportance variable_importance;
-
-  // random seed to be set before growing
-  int seed;
-
-
- protected:
-
-  // OUTPUTS
+  // which rows of data are used to grow the tree
+  arma::uvec rows_inbag;
 
   // coefficients for linear combinations;
   // one row per variable (mtry rows), one column per node
@@ -158,6 +145,9 @@
 
   // indices of predicted values for each leaf node
   arma::umat pred_indices;
+
+
+ protected:
 
  };
 

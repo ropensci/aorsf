@@ -19,73 +19,64 @@
   Data() = default;
 
   Data(arma::mat& x,
-       arma::vec& y_dbl,
-       arma::ivec& y_int,
-       arma::vec& weights) {
-
-   // arma::mat x_       = arma::mat(x.begin(), x.nrow(), x.ncol(), false);
-   // arma::vec y_dbl_  = arma::vec(y_dbl.begin(), y_dbl.length(), false);
-   // arma::ivec y_int_ = arma::ivec(y_int.begin(), y_int.length(), false);
-   // arma::vec weights_ = arma::vec(weights.begin(), weights.length(), false);
+       arma::mat& y,
+       arma::vec& w) {
 
    this->x = x;
-   this->y_dbl = y_dbl;
-   this->y_int = y_int;
-   this->weights = weights;
+   this->y = y;
+   this->w = w;
 
   }
 
+  // Weights vector
+  arma::vec w;
 
-  arma::mat x;
-  arma::vec y_dbl;
-  arma::ivec y_int;
-  arma::vec weights;
-
-  arma::vec get_weights() const {
-   return(weights);
-  }
-
-  arma::uword get_n_rows() const {
+  arma::uword get_n_rows() {
    return(x.n_rows);
   }
 
-  arma::uword get_n_cols() const {
+  arma::uword get_n_cols() {
    return(x.n_cols);
   }
 
-  bool has_wts() const {
-   return(!weights.empty());
+  bool has_weights() {
+   return(!w.empty());
   }
 
-  arma::mat get_x_rows(arma::uvec vector_of_row_indices) const {
+  arma::mat x_rows(arma::uvec& vector_of_row_indices) {
    return(x.rows(vector_of_row_indices));
   }
 
-  arma::mat get_x_cols(arma::uvec vector_of_column_indices) const {
+  arma::mat x_cols(arma::uvec& vector_of_column_indices) {
    return(x.cols(vector_of_column_indices));
   }
 
-  double get_x_at(arma::uword i, arma::uword j) const {
-   return(x.at(i, j));
+  arma::mat y_rows(arma::uvec& vector_of_row_indices) {
+   return(y.rows(vector_of_row_indices));
   }
 
-  arma::vec get_y_dbl_rows(arma::uvec vector_of_row_indices) const {
-   return(y_dbl.rows(vector_of_row_indices));
+  arma::mat y_cols(arma::uvec& vector_of_column_indices) {
+   return(y.cols(vector_of_column_indices));
   }
 
-  arma::ivec get_y_int_rows(arma::uvec vector_of_row_indices) const {
-   return(y_int.rows(vector_of_row_indices));
+  arma::mat x_submat(arma::uvec& vector_of_row_indices,
+                     arma::uvec& vector_of_column_indices){
+   return(x.submat(vector_of_row_indices, vector_of_column_indices));
   }
 
-  double get_y_dbl_at(arma::uword i) const {
-   return(y_dbl.at(i));
+  arma::mat y_submat(arma::uvec& vector_of_row_indices,
+                     arma::uvec& vector_of_column_indices){
+   return(y.submat(vector_of_row_indices, vector_of_column_indices));
   }
 
-  int get_y_int_at(arma::uword i) const {
-   return(y_int.at(i));
+  arma::vec w_subvec(arma::uvec& vector_of_indices){
+   return(w(vector_of_indices));
   }
 
  private:
+
+  arma::mat x;
+  arma::mat y;
 
  };
 
