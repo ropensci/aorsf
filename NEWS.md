@@ -1,8 +1,10 @@
 # aorsf 0.0.3
 
+* Included rOpenSci reviewers Christopher Jackson, Marvin N Wright, and Lukas Burk in `DESCRIPTION` as reviewers. Thank you!
+
 * Added clarification to docs about pros/cons of different variable importance techniques
 
-* Added regression tests for aorsf versus obliqueRSF (they should be similar)
+* Added regression tests for `aorsf` versus `obliqueRSF` (they should be similar)
 
 * Additional support and tests for functions with long right hand sides
 

@@ -133,14 +133,12 @@ the ‘raw’ variable importance values are stored in the fit object
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit$importance
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##     edema_1   ascites_1        bili      copper         age 
-##  0.39603233  0.35528942  0.27837977  0.19605331  0.18822292 
-##     albumin     protime        chol   edema_0.5       stage 
-##  0.17033964  0.15320911  0.14883599  0.14599194  0.13627743 
-##   spiders_1         ast    hepato_1       sex_f        trig 
-##  0.13495783  0.12754159  0.12057626  0.10669014  0.09723320 
-##    alk.phos    platelet trt_placebo 
-##  0.09183673  0.07599581  0.06846999
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##     edema_1   ascites_1        bili      copper         age     albumin 
+##  0.39603233  0.35528942  0.27837977  0.19605331  0.18822292  0.17033964 
+##     protime        chol   edema_0.5       stage   spiders_1         ast 
+##  0.15320911  0.14883599  0.14599194  0.13627743  0.13495783  0.12754159 
+##    hepato_1       sex_f        trig    alk.phos    platelet trt_placebo 
+##  0.12057626  0.10669014  0.09723320  0.09183673  0.07599581  0.06846999
 }\if{html}{\out{</div>}}
 
 these are ‘raw’ because values for factors have not been aggregated into
@@ -158,12 +156,12 @@ To get aggregated values across all levels of each factor, use
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi(fit)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper        age    albumin 
-## 0.35528942 0.27837977 0.24719876 0.19605331 0.18822292 0.17033964 
-##    protime       chol      stage    spiders        ast     hepato 
-## 0.15320911 0.14883599 0.13627743 0.13495783 0.12754159 0.12057626 
-##        sex       trig   alk.phos   platelet        trt 
-## 0.10669014 0.09723320 0.09183673 0.07599581 0.06846999
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper        age    albumin    protime 
+## 0.35528942 0.27837977 0.24719876 0.19605331 0.18822292 0.17033964 0.15320911 
+##       chol      stage    spiders        ast     hepato        sex       trig 
+## 0.14883599 0.13627743 0.13495783 0.12754159 0.12057626 0.10669014 0.09723320 
+##   alk.phos   platelet        trt 
+## 0.09183673 0.07599581 0.06846999
 }\if{html}{\out{</div>}}
 }
 

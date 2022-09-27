@@ -146,19 +146,18 @@ ice_oob <- orsf_ice_oob(fit, pred_spec, boundary_checks = FALSE)
 ice_oob
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##       pred_horizon id_variable id_row  bili      pred
-##              <num>       <int>  <int> <num>     <num>
-##    1:         1788           1      1     1 0.9066901
-##    2:         1788           1      2     1 0.1018084
-##    3:         1788           1      3     1 0.7839188
-##    4:         1788           1      4     1 0.3901363
-##    5:         1788           1      5     1 0.1250285
-##   ---                                                
-## 6896:         1788          25    272    10 0.3948899
-## 6897:         1788          25    273    10 0.4759938
-## 6898:         1788          25    274    10 0.4406426
-## 6899:         1788          25    275    10 0.3330580
-## 6900:         1788          25    276    10 0.5652151
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##       pred_horizon id_variable id_row bili      pred
+##    1:         1788           1      1    1 0.9066901
+##    2:         1788           1      2    1 0.1018084
+##    3:         1788           1      3    1 0.7839188
+##    4:         1788           1      4    1 0.3901363
+##    5:         1788           1      5    1 0.1250285
+##   ---                                               
+## 6896:         1788          25    272   10 0.3948899
+## 6897:         1788          25    273   10 0.4759938
+## 6898:         1788          25    274   10 0.4406426
+## 6899:         1788          25    275   10 0.3330580
+## 6900:         1788          25    276   10 0.5652151
 }\if{html}{\out{</div>}}
 
 Much more detailed examples are given in the
