@@ -165,7 +165,7 @@
 <p>The importance of individual variables can be estimated in three ways using <code>aorsf</code>:</p>
 <ul>
 <li>
-<p><strong>negation</strong><sup>2</sup>: Each variable is assessed separately by multiplying the variable’s coefficients by -1 and then determining how much the model’s performance changes. The worse the model’s performance after negating coefficients for a given variable, the more important the variable.</p>
+<p><strong>negation</strong><sup>2</sup>: Each variable is assessed separately by multiplying the variable’s coefficients by -1 and then determining how much the model’s performance changes. The worse the model’s performance after negating coefficients for a given variable, the more important the variable. This technique is promising b/c it does not require permutation and it emphasizes variables with larger coefficients in linear combinations, but it is also relatively new and hasn’t been studied as much as permutation importance. See <a href="https://arxiv.org/abs/2208.01129" class="external-link">Jaeger, 2022</a> for more details on this technique.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          bili           sex           age       ascites         edema </span></span>
@@ -176,7 +176,7 @@
 <span><span class="co">#&gt; -0.0005935892 -0.0021764939 -0.0041551247 -0.0043529877 -0.0051444400</span></span></code></pre></div>
 </li>
 <li>
-<p><strong>permutation</strong>: Each variable is assessed separately by randomly permuting the variable’s values and then determining how much the model’s performance changes. The worse the model’s performance after permuting the values of a given variable, the more important the variable.</p>
+<p><strong>permutation</strong>: Each variable is assessed separately by randomly permuting the variable’s values and then determining how much the model’s performance changes. The worse the model’s performance after permuting the values of a given variable, the more important the variable. This technique is flexible, intuitive, and frequently used. It also has several <a href="https://christophm.github.io/interpretable-ml-book/feature-importance.html#disadvantages-9" class="external-link">known limitations</a></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         bili      ascites          age          sex        edema      albumin </span></span>
@@ -187,7 +187,7 @@
 <span><span class="co">#&gt; -0.002572220 -0.004155125 -0.004946577</span></span></code></pre></div>
 </li>
 <li>
-<p><strong>analysis of variance (ANOVA)</strong><sup>3</sup>: A p-value is computed for each coefficient in each linear combination of variables in each decision tree. Importance for an individual predictor variable is the proportion of times a p-value for its coefficient is &lt; 0.01.</p>
+<p><strong>analysis of variance (ANOVA)</strong><sup>3</sup>: A p-value is computed for each coefficient in each linear combination of variables in each decision tree. Importance for an individual predictor variable is the proportion of times a p-value for its coefficient is &lt; 0.01. This technique is very efficient computationally, but may not be as effective as permutation or negation in terms of selecting signal over noise variables. See <a href="https://link.springer.com/chapter/10.1007/978-3-642-23783-6_29" class="external-link">Menze, 2011</a> for more details on this technique.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    ascites       bili      edema        sex        age     copper      stage </span></span>
@@ -290,6 +290,7 @@
 <li><a href="https://github.com/ropensci/software-review/issues/532/" class="external-link"><img src="https://badges.ropensci.org/532_status.svg" alt="Status at rOpenSci Software Peer Review"></a></li>
 <li><a href="https://joss.theoj.org/papers/414871f081cd8449007d671a7f7f7c3a" class="external-link"><img src="https://joss.theoj.org/papers/414871f081cd8449007d671a7f7f7c3a/status.svg"></a></li>
 <li><a href="https://CRAN.R-project.org/package=aorsf" class="external-link"><img src="https://www.r-pkg.org/badges/version/aorsf" alt="CRAN status"></a></li>
+<li><a href="https://zenodo.org/badge/latestdoi/394311897" class="external-link"><img src="https://zenodo.org/badge/394311897.svg" alt="DOI"></a></li>
 </ul>
 </div>
 
