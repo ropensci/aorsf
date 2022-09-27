@@ -16,6 +16,7 @@ Review](https://badges.ropensci.org/532_status.svg)](https://github.com/ropensci
 <a href="https://joss.theoj.org/papers/414871f081cd8449007d671a7f7f7c3a"><img src="https://joss.theoj.org/papers/414871f081cd8449007d671a7f7f7c3a/status.svg"></a>
 [![CRAN
 status](https://www.r-pkg.org/badges/version/aorsf)](https://CRAN.R-project.org/package=aorsf)
+[![DOI](https://zenodo.org/badge/394311897.svg)](https://zenodo.org/badge/latestdoi/394311897)
 <!-- badges: end -->
 
 Fit, interpret, and make predictions with oblique random survival
@@ -137,7 +138,12 @@ using `aorsf`:
     multiplying the variable’s coefficients by -1 and then determining
     how much the model’s performance changes. The worse the model’s
     performance after negating coefficients for a given variable, the
-    more important the variable.
+    more important the variable. This technique is promising b/c it does
+    not require permutation and it emphasizes variables with larger
+    coefficients in linear combinations, but it is also relatively new
+    and hasn’t been studied as much as permutation importance. See
+    [Jaeger, 2022](https://arxiv.org/abs/2208.01129) for more details on
+    this technique.
 
     ``` r
     orsf_vi_negate(fit)
@@ -153,7 +159,9 @@ using `aorsf`:
     permuting the variable’s values and then determining how much the
     model’s performance changes. The worse the model’s performance after
     permuting the values of a given variable, the more important the
-    variable.
+    variable. This technique is flexible, intuitive, and frequently
+    used. It also has several [known
+    limitations](https://christophm.github.io/interpretable-ml-book/feature-importance.html#disadvantages-9)
 
     ``` r
     orsf_vi_permute(fit)
@@ -169,6 +177,11 @@ using `aorsf`:
     for each coefficient in each linear combination of variables in each
     decision tree. Importance for an individual predictor variable is
     the proportion of times a p-value for its coefficient is \< 0.01.
+    This technique is very efficient computationally, but may not be as
+    effective as permutation or negation in terms of selecting signal
+    over noise variables. See [Menze,
+    2011](https://link.springer.com/chapter/10.1007/978-3-642-23783-6_29)
+    for more details on this technique.
 
     ``` r
     orsf_vi_anova(fit)
