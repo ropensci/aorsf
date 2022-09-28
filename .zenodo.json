@@ -1,0 +1,39 @@
+{
+    "description": "<p>See <a href=\"https://docs.ropensci.org/aorsf/news/index.html\">https://docs.ropensci.org/aorsf/news/index.html</a>, version 0.0.3</p>",
+    "license": "other-open",
+    "title": "ropensci/aorsf: reviewed by rOpenSci",
+    "version": "v0.0.3",
+    "upload_type": "software",
+    "publication_date": "2022-09-27",
+    "creators": [
+        {
+            "affiliation": "Wake Forest School of Medicine",
+            "name": "Byron C. Jaeger"
+        },
+        {
+            "affiliation": "Wake Forest School of Medicine",
+            "name": "Sawyer Welden"
+        },
+        {
+            "affiliation": "Wake Forest School of Medicine",
+            "name": "Kristin Lenoir"
+        },
+        {
+            "affiliation": "Wake Forest School of Medicine",
+            "name": "Nicholas M. Pajewski"
+        }
+    ],
+    "access_right": "open",
+    "related_identifiers": [
+        {
+            "scheme": "url",
+            "identifier": "https://github.com/ropensci/aorsf/tree/v0.0.3",
+            "relation": "isSupplementTo"
+        },
+        {
+            "scheme": "doi",
+            "identifier": "10.5281/zenodo.7116854",
+            "relation": "isVersionOf"
+        }
+    ]
+}

@@ -15,3 +15,4 @@
 ^CRAN-SUBMISSION$
 ^Rmd/
 lastMiKTeXException
+^\.zenodo\.json$
