@@ -4,8 +4,17 @@ Author: Byron C Jaeger
 aorsf may be modified and distributed under the terms of the MIT license.
 #----------------------------------------------------------------------------*/
 
+#include <armadillo>
+#include "globals.h"
+
 #ifndef COXPH_H
 #define COXPH_H
+
+ extern double temp1, temp2;
+ extern arma::mat x_transforms;
+ extern arma::uword n_vars, person, iter, i, j, k;
+
+ namespace aorsf {
 
  // ----------------------------------------------------------------------------
  // ---------------------------- scaling functions -----------------------------
@@ -37,17 +46,17 @@ aorsf may be modified and distributed under the terms of the MIT license.
   vec means  = x_transforms.unsafe_col(0);   // Reference to column 1
   vec scales = x_transforms.unsafe_col(1);   // Reference to column 2
 
-  w_node_sum = sum(w_node);
+  w_node_sum = arma::sum(w_node);
 
   for(i = 0; i < n_vars; i++) {
 
-   means.at(i) = sum( w_node % x_node.col(i) ) / w_node_sum;
+   means.at(i) = arma::sum( w_node % x_node.col(i) ) / w_node_sum;
 
    x_node.col(i) -= means.at(i);
 
-   scales.at(i) = sum(w_node % abs(x_node.col(i)));
+   scales.at(i) = arma::sum(w_node % abs(x_node.col(i)));
 
-   if(scales(i) > 0)
+   if(scales.at(i) > 0)
     scales.at(i) = w_node_sum / scales.at(i);
    else
     scales.at(i) = 1.0; // rare case of constant covariate;
@@ -63,33 +72,13 @@ aorsf may be modified and distributed under the terms of the MIT license.
  void x_node_means(){
 
   x_transforms.zeros(n_vars, 1);
-  w_node_sum = sum(w_node);
+  w_node_sum = arma::sum(w_node);
 
   for(i = 0; i < n_vars; i++) {
 
-   x_transforms.at(i, 0) = sum( w_node % x_node.col(i) ) / w_node_sum;
+   x_transforms.at(i, 0) = arma::sum( w_node % x_node.col(i) ) / w_node_sum;
 
   }
-
- }
-
- //  Same as x_node_scale, but this can be called from R
- // [[Rcpp::export]]
- List x_node_scale_exported(NumericMatrix& x_,
-                            NumericVector& w_){
-
-  x_node = mat(x_.begin(), x_.nrow(), x_.ncol(), false);
-  w_node = vec(w_.begin(), w_.length(), false);
-  n_vars = x_node.n_cols;
-
-  x_node_scale();
-
-  return(
-   List::create(
-    _["x_scaled"] = x_node,
-    _["x_transforms"] = x_transforms
-   )
-  );
 
  }
 
@@ -623,33 +612,25 @@ aorsf may be modified and distributed under the terms of the MIT license.
  //   The procedure works with the partial likelihood function
  //   of the Cox model. All inputs are described above
  //   in newtraph_cph_iter()
- //
- // [[Rcpp::export]]
  arma::vec newtraph_cph(arma::mat& x_node,
                         arma::mat& y_node,
                         arma::vec& w_node,
                         arma::vec& vi_pval_numer,
                         arma::vec& vi_pval_denom,
-                        bool cph_do_scale
-                        int cph_method
-                        double cph_eps
-                        int cph_iter_max){
+                        bool cph_do_scale,
+                        int cph_method,
+                        double cph_eps,
+                        int cph_iter_max,
+                        VariableImportance variable_importance){
 
-  n_vars = x_node.n_cols;
-  cols_node = regspace<uvec>(0, x_node.n_cols - 1);
 
-  x_node_scale();
-
-  vec out = newtraph_cph();
-
-  arma::uword person;
   arma::uword n_vars = x_node.n_cols;
   arma::uword n_rows = x_node.n_rows;
-
+  arma::uvec cols_node = arma::regspace<arma::uvec>(0, n_vars - 1);
   arma::vec beta_current(n_vars, arma::fill::zeros);
   arma::vec beta_new(n_vars, arma::fill::zeros);
 
-  double temp1, temp2;
+  double temp1, temp2, halving, stat_best, stat_current;
 
   // these are filled with initial values later
   arma::vec XB(n_rows);
@@ -661,6 +642,8 @@ aorsf may be modified and distributed under the terms of the MIT license.
   arma::mat cmat(n_vars, n_vars);
   arma::mat cmat2(n_vars, n_vars);
 
+  x_node_scale();
+
   halving = 0;
 
   // do the initial iteration
@@ -671,7 +654,7 @@ aorsf may be modified and distributed under the terms of the MIT license.
   cholesky_solve();
   beta_new = beta_current + u;
 
-  if(cph_iter_max > 1 && stat_best < Rcpp::R_PosInf){
+  if(cph_iter_max > 1 && stat_best < R_PosInf){
 
    for(iter = 1; iter < cph_iter_max; iter++){
 
@@ -760,7 +743,7 @@ aorsf may be modified and distributed under the terms of the MIT license.
 
    // if(verbose > 0) Rcout << "un-scaled beta: " << beta_current[i] << std::endl;
 
-   if(oobag_importance_type == 'A'){
+   if(variable_importance == VI_ANOVA){
 
     if(beta_current.at(i) != 0){
 
@@ -783,6 +766,7 @@ aorsf may be modified and distributed under the terms of the MIT license.
 
  }
 
+ }
 
 #endif /* COXPH_H */
 

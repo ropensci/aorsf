@@ -9,11 +9,10 @@
 #----------------------------------------------------------------------------*/
 
 #include <RcppArmadillo.h>
-#include <RcppArmadilloExtensions/sample.h>
-
 #include "globals.h"
 #include "Data.h"
 #include "Tree.h"
+#include "Coxph.h"
 
 // [[Rcpp::depends(RcppArmadillo)]]
 
@@ -32,14 +31,36 @@ using namespace aorsf;
 //
 // }
 
+//  Same as x_node_scale, but this can be called from R
+// // [[Rcpp::export]]
+// List x_node_scale_exported(NumericMatrix x_,
+//                            NumericVector w_){
+//
+//  arma::mat x_transforms;
+//  arma::mat x_node = arma::mat(x_.begin(), x_.nrow(), x_.ncol(), false);
+//  arma::vec w_node = arma::vec(w_.begin(), w_.length(), false);
+//  arma::uword n_vars = x_node.n_cols;
+//
+//  x_node_scale();
+//
+//  return(
+//   List::create(
+//    _["x_scaled"] = x_node,
+//    _["x_transforms"] = x_transforms
+//   )
+//  );
+//
+// }
+
 
 // [[Rcpp::export]]
-void orsf_cpp(arma::mat& x,
+List orsf_cpp(arma::mat& x,
               arma::mat& y,
               arma::vec& w,
               int vi = 0,
               int sr = 1,
-              int pt = 1){
+              int pt = 1,
+              bool oobag_pred = true){
 
 
  int mtry = 2;
@@ -51,7 +72,7 @@ void orsf_cpp(arma::mat& x,
  // int oobag_eval_every = 0;
  // int seed = 0;
 
- // VariableImportance variable_importance = static_cast<VariableImportance>(vi);
+ VariableImportance variable_importance = static_cast<VariableImportance>(vi);
  // SplitRule split_rule = static_cast<SplitRule>(sr);
  // PredType pred_type = static_cast<PredType>(pt);
 
@@ -68,14 +89,25 @@ void orsf_cpp(arma::mat& x,
   Rcout << std::endl << std::endl;
  }
 
+ Rcpp::List result;
+
  Data* data_ptr = &data;
 
  Tree tree(data_ptr, leaf_min_obs, mtry);
 
- tree.draw_bootstrap_sample();
+ tree.grow(oobag_pred);
 
- tree.grow();
+ result.push_back(tree.rows_oobag, "rows_oobag");
+ result.push_back(tree.coef, "coef");
+ result.push_back(tree.coef_indices, "coef_indices");
+ result.push_back(tree.cutpoint, "cutpoint");
+ result.push_back(tree.next_left_node, "next_left_node");
+ result.push_back(tree.leaf_values, "leaf_values");
+ result.push_back(tree.pred_oobag, "pred_oobag");
+ result.push_back(tree.leaf_indices, "leaf_indices");
 
+
+ return(result);
 
 
 }

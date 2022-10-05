@@ -48,7 +48,7 @@
   MEAN = 5,
   PROBABILITY = 6,
   CLASS = 7,
-  TERMINAL_NODES = 6
+  TERMINAL_NODES = 8
  };
 
  // Default values
