@@ -320,78 +320,77 @@ test_that(
 
 
 # don't want to get booted from cran for a random run-time fail
-if(Sys.getenv("run_all_aorsf_tests") == 'yes'){
 
- #' @srrstats {G5.7} **Algorithm performance tests** *test that implementation performs as expected as properties of data change. These tests shows that as data size increases, fit time increases. Conversely, fit time decreases as convergence thresholds increase. Also, fit time decreases as the maximum iterations decrease.*
+#' @srrstats {G5.7} **Algorithm performance tests** *test that implementation performs as expected as properties of data change. These tests shows that as data size increases, fit time increases. Conversely, fit time decreases as convergence thresholds increase. Also, fit time decreases as the maximum iterations decrease.*
 
- # I'm making the difference in data size very big because I don't want this
- # test to fail on some operating systems.
- pbc_small <- pbc_orsf[1:50, ]
+# I'm making the difference in data size very big because I don't want this
+# test to fail on some operating systems.
+pbc_small <- pbc_orsf[1:50, ]
 
- pbc_large <- rbind(pbc_orsf, pbc_orsf, pbc_orsf, pbc_orsf, pbc_orsf)
- pbc_large <- rbind(pbc_large, pbc_large, pbc_large, pbc_large, pbc_large)
+pbc_large <- rbind(pbc_orsf, pbc_orsf, pbc_orsf, pbc_orsf, pbc_orsf)
+pbc_large <- rbind(pbc_large, pbc_large, pbc_large, pbc_large, pbc_large)
 
- test_that(
-  desc = "algorithm runs slower as data size increases",
-  code = {
-   time_small <- system.time(orsf(pbc_small,
-                                  Surv(time, status) ~ . -id,
-                                  n_tree=50))
+test_that(
+ desc = "algorithm runs slower as data size increases",
+ code = {
+  time_small <- system.time(orsf(pbc_small,
+                                 Surv(time, status) ~ . -id,
+                                 n_tree=50))
 
-   time_large <- system.time(orsf(pbc_large,
-                                  Surv(time, status) ~ . -id,
-                                  n_tree=50))
+  time_large <- system.time(orsf(pbc_large,
+                                 Surv(time, status) ~ . -id,
+                                 n_tree=50))
 
-   expect_true(time_small['elapsed'] < time_large['elapsed'])
-  }
- )
+  expect_true(time_small['elapsed'] < time_large['elapsed'])
+ }
+)
 
 
- test_that(
-  desc = "algorithm runs faster with lower convergence tolerance",
-  code = {
+test_that(
+ desc = "algorithm runs faster with lower convergence tolerance",
+ code = {
 
-   time_small <- system.time(
-    orsf(pbc_orsf,
-         control = orsf_control_cph(iter_max = 50, eps = 1),
-         Surv(time, status) ~ . -id,
-         n_tree = 150)
-   )
+  time_small <- system.time(
+   orsf(pbc_orsf,
+        control = orsf_control_fast(),
+        Surv(time, status) ~ . -id,
+        n_tree = 500)
+  )
 
-   time_large <- system.time(
-    orsf(pbc_orsf,
-         control = orsf_control_cph(iter_max = 50, eps = 1e-10),
-         Surv(time, status) ~ . -id,
-         n_tree = 150)
-   )
+  time_large <- system.time(
+   orsf(pbc_orsf,
+        control = orsf_control_cph(iter_max = 50, eps = 1e-10),
+        Surv(time, status) ~ . -id,
+        n_tree = 500)
+  )
 
-   expect_true(time_small['elapsed'] < time_large['elapsed'])
+  expect_true(time_small['elapsed'] < time_large['elapsed'])
 
-  }
- )
+ }
+)
 
- test_that(
-  desc = "algorithm runs faster with lower number of iterations",
-  code = {
+test_that(
+ desc = "algorithm runs faster with lower number of iterations",
+ code = {
 
-   time_small <- system.time(
-    orsf(pbc_orsf,
-         Surv(time, status) ~ . -id,
-         n_tree = 5)
-   )
+  time_small <- system.time(
+   orsf(pbc_orsf,
+        Surv(time, status) ~ . -id,
+        n_tree = 5)
+  )
 
-   time_large <- system.time(
-    orsf(pbc_orsf,
-         Surv(time, status) ~ . -id,
-         n_tree = 1000) # big difference prevents unneeded failure
-   )
+  time_large <- system.time(
+   orsf(pbc_orsf,
+        Surv(time, status) ~ . -id,
+        n_tree = 1000) # big difference prevents unneeded failure
+  )
 
-   expect_true(time_small['elapsed'] < time_large['elapsed'])
+  expect_true(time_small['elapsed'] < time_large['elapsed'])
 
-  }
- )
+ }
+)
 
-}
+
 
 
 #' @srrstats {ML7.11} *OOB C-statistic is monitored by this test. As the number of trees in the forest increases, the C-statistic should also increase*
