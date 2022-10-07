@@ -125,8 +125,8 @@
 <span><span class="co"># what is the output from this function?</span></span>
 <span><span class="va">fit</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span>
 <span><span class="co">#&gt;           [,1]</span></span>
-<span><span class="co">#&gt; [1,] 0.8381955</span></span></code></pre></div>
-<p>The out-of-bag estimate of Harrell’s C-statistic (the default method to evaluate out-of-bag predictions) is 0.8381955.</p>
+<span><span class="co">#&gt; [1,] 0.8400188</span></span></code></pre></div>
+<p>The out-of-bag estimate of Harrell’s C-statistic (the default method to evaluate out-of-bag predictions) is 0.8400188.</p>
 </div>
 <div class="section level2">
 <h2 id="monitoring-out-of-bag-error">Monitoring out-of-bag error<a class="anchor" aria-label="anchor" href="#monitoring-out-of-bag-error"></a>
@@ -174,7 +174,7 @@
 <code class="sourceCode R"><span></span>
 <span><span class="fu">oobag_fun_brier</span><span class="op">(</span>y_mat <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'time'</span>, <span class="st">'status'</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>                s_vec <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">pred_oobag</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.185383</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.177799</span></span></code></pre></div>
 <p>Second, you can pass your function into <code><a href="../reference/orsf.html">orsf()</a></code>, and it will be used in place of Harrell’s C-statistic:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -274,12 +274,12 @@
 <span>                 importance <span class="op">=</span> <span class="st">'negate'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit_tdep_cstat</span><span class="op">$</span><span class="va">importance</span></span>
-<span><span class="co">#&gt;        bili     edema_1   ascites_1         age       sex_f   spiders_1 </span></span>
-<span><span class="co">#&gt;    0.013697    0.006562    0.006093    0.005572    0.003828    0.003645 </span></span>
-<span><span class="co">#&gt;     protime     albumin       stage      copper         ast   edema_0.5 </span></span>
-<span><span class="co">#&gt;    0.003333    0.002369    0.002083    0.001666    0.001354   -0.000834 </span></span>
-<span><span class="co">#&gt;    alk.phos    hepato_1    platelet        trig trt_placebo        chol </span></span>
-<span><span class="co">#&gt;   -0.001615   -0.001797   -0.002422   -0.004688   -0.006615   -0.007344</span></span></code></pre></div>
+<span><span class="co">#&gt;        bili         age     protime       sex_f   ascites_1      copper </span></span>
+<span><span class="co">#&gt;    0.017109    0.011822    0.011354    0.007500    0.007448    0.006510 </span></span>
+<span><span class="co">#&gt;     edema_1       stage   spiders_1     albumin   edema_0.5         ast </span></span>
+<span><span class="co">#&gt;    0.006250    0.004271    0.003464    0.001927    0.001563    0.000729 </span></span>
+<span><span class="co">#&gt;    platelet        trig    alk.phos    hepato_1 trt_placebo        chol </span></span>
+<span><span class="co">#&gt;    0.000156   -0.000286   -0.000286   -0.000469   -0.002682   -0.004921</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="notes">Notes<a class="anchor" aria-label="anchor" href="#notes"></a>
