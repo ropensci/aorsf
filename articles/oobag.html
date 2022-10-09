@@ -65,7 +65,7 @@
 
       <ul class="navbar-nav">
 <li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/bcjaeger/aorsf/" aria-label="github">
+  <a class="external-link nav-link" href="https://github.com/ropensci/aorsf/" aria-label="github">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -84,7 +84,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Out-of-bag predictions and evaluation</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/bcjaeger/aorsf/blob/HEAD/vignettes/oobag.Rmd" class="external-link"><code>vignettes/oobag.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ropensci/aorsf/blob/HEAD/vignettes/oobag.Rmd" class="external-link"><code>vignettes/oobag.Rmd</code></a></small>
       <div class="d-none name"><code>oobag.Rmd</code></div>
     </div>
 
@@ -92,7 +92,7 @@
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bcjaeger/aorsf/" class="external-link">aorsf</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/skyee1/SurvMetrics" class="external-link">SurvMetrics</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
@@ -125,8 +125,8 @@
 <span><span class="co"># what is the output from this function?</span></span>
 <span><span class="va">fit</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span>
 <span><span class="co">#&gt;           [,1]</span></span>
-<span><span class="co">#&gt; [1,] 0.8403834</span></span></code></pre></div>
-<p>The out-of-bag estimate of Harrell’s C-statistic (the default method to evaluate out-of-bag predictions) is 0.8403834.</p>
+<span><span class="co">#&gt; [1,] 0.8393936</span></span></code></pre></div>
+<p>The out-of-bag estimate of Harrell’s C-statistic (the default method to evaluate out-of-bag predictions) is 0.8393936.</p>
 </div>
 <div class="section level2">
 <h2 id="monitoring-out-of-bag-error">Monitoring out-of-bag error<a class="anchor" aria-label="anchor" href="#monitoring-out-of-bag-error"></a>
@@ -174,7 +174,7 @@
 <code class="sourceCode R"><span></span>
 <span><span class="fu">oobag_fun_brier</span><span class="op">(</span>y_mat <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'time'</span>, <span class="st">'status'</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>                s_vec <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">pred_oobag</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.17614</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.197774</span></span></code></pre></div>
 <p>Second, you can pass your function into <code><a href="../reference/orsf.html">orsf()</a></code>, and it will be used in place of Harrell’s C-statistic:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -274,12 +274,12 @@
 <span>                 importance <span class="op">=</span> <span class="st">'negate'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit_tdep_cstat</span><span class="op">$</span><span class="va">importance</span></span>
-<span><span class="co">#&gt;        bili         age     protime       stage   ascites_1     edema_1 </span></span>
-<span><span class="co">#&gt;    0.014270    0.013020    0.011015    0.009765    0.008177    0.006562 </span></span>
-<span><span class="co">#&gt;         ast   spiders_1     albumin      copper       sex_f    platelet </span></span>
-<span><span class="co">#&gt;    0.006458    0.005911    0.005312    0.005052    0.003698    0.001927 </span></span>
-<span><span class="co">#&gt;   edema_0.5    hepato_1        chol        trig trt_placebo    alk.phos </span></span>
-<span><span class="co">#&gt;    0.001615    0.001354    0.001224   -0.001224   -0.001849   -0.003151</span></span></code></pre></div>
+<span><span class="co">#&gt;        bili         age   ascites_1     edema_1     protime       sex_f </span></span>
+<span><span class="co">#&gt;    0.012760    0.010442    0.007031    0.006614    0.006041    0.005963 </span></span>
+<span><span class="co">#&gt;      copper       stage   spiders_1         ast   edema_0.5    alk.phos </span></span>
+<span><span class="co">#&gt;    0.005520    0.003229    0.003229    0.000911    0.000677    0.000156 </span></span>
+<span><span class="co">#&gt;     albumin        chol    hepato_1        trig    platelet trt_placebo </span></span>
+<span><span class="co">#&gt;   -0.000339   -0.001563   -0.001875   -0.003438   -0.003698   -0.003750</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="notes">Notes<a class="anchor" aria-label="anchor" href="#notes"></a>

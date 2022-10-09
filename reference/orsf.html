@@ -38,7 +38,7 @@
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
 
       <ul class="navbar-nav"><li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/bcjaeger/aorsf/" aria-label="github">
+  <a class="external-link nav-link" href="https://github.com/ropensci/aorsf/" aria-label="github">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -51,7 +51,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Oblique Random Survival Forest (ORSF)</h1>
-      <small class="dont-index">Source: <a href="https://github.com/bcjaeger/aorsf/blob/HEAD/R/orsf.R" class="external-link"><code>R/orsf.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ropensci/aorsf/blob/HEAD/R/orsf.R" class="external-link"><code>R/orsf.R</code></a></small>
       <div class="d-none name"><code>orsf.Rd</code></div>
     </div>
 
@@ -208,7 +208,7 @@ trees. When <code>oobag_fun = NULL</code> (the default), Harrell's C-statistic (
 <li><p><code>y_mat</code> is a two column matrix with first column named 'time', second named 'status'</p></li>
 <li><p><code>s_vec</code> is a numeric vector containing predicted survival probabilities.</p></li>
 <li><p><code>oobag_fun</code> should return a numeric output of length 1</p></li>
-</ul><p>For more details, see the out-of-bag <a href="https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions">vignette</a>.</p></dd>
+</ul><p>For more details, see the out-of-bag <a href="https://docs.ropensci.org/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions" class="external-link">vignette</a>.</p></dd>
 
 
 <dt>importance</dt>
@@ -358,7 +358,7 @@ such as <code>recipes</code> or <code>mlr3pipelines</code>.</p>
     <p>First we load some relevant packages</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329730</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="op">{</span></span>
-<span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bcjaeger/aorsf/" class="external-link">aorsf</a></span><span class="op">)</span></span>
+<span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
 <span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
 <span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span>
 <span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>

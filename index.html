@@ -65,7 +65,7 @@
 
       <ul class="navbar-nav">
 <li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/bcjaeger/aorsf/" aria-label="github">
+  <a class="external-link nav-link" href="https://github.com/ropensci/aorsf/" aria-label="github">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -120,7 +120,7 @@
 </h2>
 <p>The <code><a href="reference/orsf.html">orsf()</a></code> function can fit several types of ORSF ensembles. My personal favorite is the accelerated ORSF because it has a great combination of prediction accuracy and computational efficiency (see <a href="https://arxiv.org/abs/2208.01129" class="external-link">arXiv paper</a>).<sup>2</sup></p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bcjaeger/aorsf/" class="external-link">aorsf</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329730</span><span class="op">)</span></span>
 <span></span>
@@ -155,8 +155,8 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -----------------------------------------</span></span></code></pre></div>
 <ul>
-<li><p>See <a href="https://bcjaeger.github.io/aorsf/reference/print.orsf_fit.html">print.orsf_fit</a> for a description of each line in the printed output.</p></li>
-<li><p>See <a href="https://bcjaeger.github.io/aorsf/reference/orsf.html#examples">orsf examples</a> for more details on controlling ORSF ensemble fits and using them in prediction modeling workflows.</p></li>
+<li><p>See <a href="https://docs.ropensci.org/aorsf/reference/print.orsf_fit.html" class="external-link">print.orsf_fit</a> for a description of each line in the printed output.</p></li>
+<li><p>See <a href="https://docs.ropensci.org/aorsf/reference/orsf.html#examples" class="external-link">orsf examples</a> for more details on controlling ORSF ensemble fits and using them in prediction modeling workflows.</p></li>
 </ul>
 </div>
 <div class="section level3">
@@ -198,19 +198,19 @@
 <span><span class="co">#&gt; 0.07943094 0.06150342 0.04411765</span></span></code></pre></div>
 </li>
 </ul>
-<p>You can supply your own R function to estimate out-of-bag error when using negation or permutation importance. This feature is experimental and may be changed in the future (see <a href="https://bcjaeger.github.io/aorsf/articles/oobag.html">oob vignette</a>)</p>
+<p>You can supply your own R function to estimate out-of-bag error when using negation or permutation importance. This feature is experimental and may be changed in the future (see <a href="https://docs.ropensci.org/aorsf/articles/oobag.html" class="external-link">oob vignette</a>)</p>
 </div>
 <div class="section level3">
 <h3 id="partial-dependence-pd">Partial dependence (PD)<a class="anchor" aria-label="anchor" href="#partial-dependence-pd"></a>
 </h3>
 <p>Partial dependence (PD) shows the expected prediction from a model as a function of a single predictor or multiple predictors. The expectation is marginalized over the values of all other predictors, giving something like a multivariable adjusted estimate of the model’s prediction.</p>
-<p>For more on PD, see the <a href="https://bcjaeger.github.io/aorsf/articles/pd.html">vignette</a></p>
+<p>For more on PD, see the <a href="https://docs.ropensci.org/aorsf/articles/pd.html" class="external-link">vignette</a></p>
 </div>
 <div class="section level3">
 <h3 id="individual-conditional-expectations-ice">Individual conditional expectations (ICE)<a class="anchor" aria-label="anchor" href="#individual-conditional-expectations-ice"></a>
 </h3>
 <p>Unlike partial dependence, which shows the expected prediction as a function of one or multiple predictors, individual conditional expectations (ICE) show the prediction for an individual observation as a function of a predictor.</p>
-<p>For more on ICE, see the <a href="https://bcjaeger.github.io/aorsf/articles/pd.html#individual-conditional-expectations-ice">vignette</a></p>
+<p>For more on ICE, see the <a href="https://docs.ropensci.org/aorsf/articles/pd.html#individual-conditional-expectations-ice" class="external-link">vignette</a></p>
 </div>
 </div>
 <div class="section level2">
@@ -224,7 +224,7 @@
 <li><p>runs a simulation study comparing variable importance techniques with ORSFs, axis based RSFs, and boosted trees.</p></li>
 <li><p>reports the probability that each variable importance technique will rank a relevant variable with higher importance than an irrelevant variable.</p></li>
 </ul>
-<p>A more hands-on comparison of <code>aorsf</code> and other R packages is provided in <a href="https://bcjaeger.github.io/aorsf/reference/orsf.html#tidymodels">orsf examples</a></p>
+<p>A more hands-on comparison of <code>aorsf</code> and other R packages is provided in <a href="https://docs.ropensci.org/aorsf/reference/orsf.html#tidymodels" class="external-link">orsf examples</a></p>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -246,8 +246,8 @@
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
 <li><a href="https://cloud.r-project.org/package=aorsf" class="external-link">View on CRAN</a></li>
-<li><a href="https://github.com/bcjaeger/aorsf/" class="external-link">Browse source code</a></li>
-<li><a href="https://github.com/bcjaeger/aorsf/issues/" class="external-link">Report a bug</a></li>
+<li><a href="https://github.com/ropensci/aorsf/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/ropensci/aorsf/issues/" class="external-link">Report a bug</a></li>
 </ul>
 </div>
 
@@ -286,9 +286,9 @@
 <ul class="list-unstyled">
 <li><a href="https://www.repostatus.org/#active" class="external-link"><img src="https://www.repostatus.org/badges/latest/active.svg" alt="Project Status: Active – The project has reached a stable, usable state and is being actively developed."></a></li>
 <li><a href="https://app.codecov.io/gh/bcjaeger/aorsf?branch=master" class="external-link"><img src="https://codecov.io/gh/bcjaeger/aorsf/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></li>
-<li><a href="https://github.com/bcjaeger/aorsf/actions/" class="external-link"><img src="https://github.com/bcjaeger/aorsf/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://github.com/ropensci/aorsf/actions/" class="external-link"><img src="https://github.com/bcjaeger/aorsf/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://github.com/ropensci/software-review/issues/532/" class="external-link"><img src="https://badges.ropensci.org/532_status.svg" alt="Status at rOpenSci Software Peer Review"></a></li>
-<li><a href="https://joss.theoj.org/papers/414871f081cd8449007d671a7f7f7c3a" class="external-link"><img src="https://joss.theoj.org/papers/414871f081cd8449007d671a7f7f7c3a/status.svg"></a></li>
+<li><a href="https://joss.theoj.org/papers/10.21105/joss.04705" class="external-link"><img src="https://joss.theoj.org/papers/10.21105/joss.04705/status.svg"></a></li>
 <li><a href="https://CRAN.R-project.org/package=aorsf" class="external-link"><img src="https://www.r-pkg.org/badges/version/aorsf" alt="CRAN status"></a></li>
 <li><a href="https://zenodo.org/badge/latestdoi/394311897" class="external-link"><img src="https://zenodo.org/badge/394311897.svg" alt="DOI"></a></li>
 </ul>
