@@ -39,9 +39,9 @@ Imports:
     data.table,
     utils,
     stats
-URL: https://github.com/bcjaeger/aorsf/,
-    https://bcjaeger.github.io/aorsf/
-BugReports: https://github.com/bcjaeger/aorsf/issues/
+URL: https://github.com/ropensci/aorsf,
+    https://docs.ropensci.org/aorsf/
+BugReports: https://github.com/ropensci/aorsf/issues/
 Depends: 
     R (>= 3.6)
 Suggests: 

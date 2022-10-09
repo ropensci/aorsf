@@ -134,7 +134,7 @@
 #'   - `r roxy_oobag_fun_svec()`
 #'   - `r roxy_oobag_fun_return()`
 #'
-#' For more details, see the out-of-bag [vignette](https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions).
+#' For more details, see the out-of-bag [vignette](https://docs.ropensci.org/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions).
 #'
 #' @param importance `r roxy_importance_header()`
 #' - `r roxy_importance_none()`

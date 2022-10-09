@@ -128,7 +128,7 @@ trees. When \code{oobag_fun = NULL} (the default), Harrell's C-statistic (1982) 
 \item \code{oobag_fun} should return a numeric output of length 1
 }
 
-For more details, see the out-of-bag \href{https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions}{vignette}.}
+For more details, see the out-of-bag \href{https://docs.ropensci.org/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions}{vignette}.}
 
 \item{importance}{(\emph{character}) Indicate method for variable importance:
 \itemize{

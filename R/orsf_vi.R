@@ -32,7 +32,7 @@
 #'       importance is estimated.
 #'
 #' For more details, see the out-of-bag
-#' [vignette](https://bcjaeger.github.io/aorsf/articles/oobag.html).
+#' [vignette](https://docs.ropensci.org/aorsf/articles/oobag.html).
 #'
 #' @section Variable importance methods:
 #'

@@ -161,6 +161,6 @@ ice_oob
 }\if{html}{\out{</div>}}
 
 Much more detailed examples are given in the
-\href{https://bcjaeger.github.io/aorsf/articles/pd.html#individual-conditional-expectations-ice}{vignette}
+\href{https://docs.ropensci.org/aorsf/articles/pd.html#individual-conditional-expectations-ice}{vignette}
 }
 
