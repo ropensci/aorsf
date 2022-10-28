@@ -36,6 +36,9 @@ vet_y <- function(y){
 
  status_uni <- unique(y[, 2])
 
+ # a curious case where nothing is censored
+ if(all(status_uni == 1)) return(y)
+
  # status values are modified if they are not all 0 and 1
  if(!is_equivalent(c(0, 1), status_uni)){
 

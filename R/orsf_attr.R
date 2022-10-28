@@ -49,7 +49,8 @@ get_type_oobag_eval    <- function(object) attr(object, 'type_oobag_eval')
 get_tree_seeds         <- function(object) attr(object, 'tree_seeds')
 get_weights_user       <- function(object) attr(object, 'weights_user')
 get_event_times        <- function(object) attr(object, 'event_times')
-
+get_impute_values      <- function(object) attr(object, 'impute_values')
+get_standard_deviations<- function(object) attr(object, 'standard_deviations')
 #' ORSF status
 #'
 #' Determine whether an aorsf model has been trained.

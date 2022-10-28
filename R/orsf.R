@@ -160,6 +160,12 @@
 #'   saved, but training is not initiated. The object returned can be
 #'   directly submitted to `orsf_train()` so long as `attach_data` is `TRUE`.
 #'
+#' @param na_action `r roxy_na_action_header("data")`
+#'
+#'   - `r roxy_na_action_fail("data")`
+#'   - `r roxy_na_action_omit("data")`
+#'   - `r roxy_na_action_impute_meanmode("data")`
+#'
 #' @param ... `r roxy_dots()`
 #'
 #' @param object an untrained 'aorsf' object, created by setting
@@ -302,6 +308,7 @@ orsf <- function(data,
                  tree_seeds = NULL,
                  attach_data = TRUE,
                  no_fit = FALSE,
+                 na_action = 'fail',
                  ...){
 
  #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
@@ -465,16 +472,6 @@ orsf <- function(data,
 
  #' @srrstats {G2.15} *Never pass data with potential missing values to any base routines.*
 
-
- #' @srrstats {ML1.6} *do not admit missing values, and implement explicit pre-processing routines to identify whether data has any missing values. Throw errors appropriately and informatively when passed data contain missing values.*
-
- if(any(is.na(select_cols(data, c(names_y_data, names_x_data))))){
-
-  stop("Please remove missing values from data, or impute them.",
-       call. = FALSE)
-
- }
-
  #' @srrstats {G2.16} *Throw hard errors if undefined values are detected.*
 
  for(i in c(names_y_data, names_x_data)){
@@ -493,10 +490,10 @@ orsf <- function(data,
  }
 
  fctr_check(data, names_x_data)
+
  fctr_id_check(data, names_x_data)
 
  fi <- fctr_info(data, names_x_data)
-
 
  unit_x_names <- names_x_data[types_x_data == 'units']
 
@@ -506,18 +503,66 @@ orsf <- function(data,
                          x = types_x_data)
 
  numeric_bounds <- NULL
+ standard_deviations <- NULL
 
  if(!is_empty(names_x_numeric)){
   numeric_bounds <-
    vapply(select_cols(data, names_x_data[names_x_numeric]),
           FUN = stats::quantile,
+          na.rm = TRUE,
           probs = c(0.10, 0.25, 0.50, 0.75, 0.90),
           # returned value has length = length(probs)
           FUN.VALUE = numeric(5))
+
+  standard_deviations <-
+   vapply(select_cols(data, names_x_data[names_x_numeric]),
+          FUN = stats::sd,
+          na.rm = TRUE,
+          # returned value has length = length(probs)
+          FUN.VALUE = numeric(1))
+
+
+ }
+
+ impute_values <- c(get_means(data, names_x_data[names_x_numeric]),
+                    get_modes(data, fi$cols))
+
+ if(any(is.na(select_cols(data, c(names_y_data, names_x_data))))){
+
+  switch(
+   na_action,
+
+   'fail' = {
+    stop("Please remove missing values from data, or impute them.",
+         call. = FALSE)
+   },
+
+   'omit' = {
+    keep <- stats::complete.cases(data[, c(names_y_data, names_x_data)])
+    data <- data[keep, ]
+   },
+
+   'impute_meanmode' = {
+    if(any(is.na(select_cols(data, names_y_data))))
+     stop("Outcome imputation is not supported", call. = FALSE)
+    data <- impute_meanmode(data,
+                            cols = names_x_data,
+                            values = impute_values)
+   }
+
+  )
+
  }
 
  y  <- vet_y(as.matrix(select_cols(data, names_y_data)))
  x  <- as.matrix(ref_code(data, fi, names_x_data))
+
+ # center and scale the numeric columns in x-matrix
+ # (TODO: test if this makes output robust to changes of input scale)
+ for(i in names_x_data[names_x_numeric]){
+  x[, i] <-
+   (x[, i] - as.numeric(impute_values[[i]]) / standard_deviations[[i]])
+ }
 
  if(is.null(mtry)) mtry <- ceiling(sqrt(ncol(x)))
 
@@ -529,9 +574,7 @@ orsf <- function(data,
        " must be <= mtry, which is ", mtry,
        call. = FALSE)
 
-
  n_events <- sum(y[, 2])
-
 
  # some additional checks that are dependent on the outcome variable
 
@@ -718,6 +761,8 @@ orsf <- function(data,
  attr(orsf_out, 'oobag_eval_every') <- oobag_eval_every
  attr(orsf_out, 'importance')       <- importance
  attr(orsf_out, 'weights_user')     <- weights
+ attr(orsf_out, 'impute_values')    <- impute_values
+ attr(orsf_out, 'standard_deviations') <- standard_deviations
 
  attr(orsf_out, 'tree_seeds') <- if(is.null(tree_seeds)) c() else tree_seeds
 
@@ -839,6 +884,15 @@ orsf_time_to_train <- function(object, n_tree_subset = 50){
                           get_fctr_info(object),
                           get_names_x(object, ref_code_names = FALSE)))
 
+ numeric_cols <- colnames(get_numeric_bounds(object))
+ impute_values <- get_impute_values(object)
+ standard_deviations <- get_standard_deviations(object)
+
+ for(i in numeric_cols){
+  x[, i] <-
+   (x[, i] - as.numeric(impute_values[[i]]) / standard_deviations[[i]])
+ }
+
  sorted <- order(y[, 1],  # order this way for risk sets
                  -y[, 2]) # order this way for oob C-statistic.
 
@@ -904,6 +958,16 @@ orsf_train_ <- function(object,
   x  <- as.matrix(ref_code(object$data,
                            get_fctr_info(object),
                            get_names_x(object, ref_code_names = FALSE)))
+
+  numeric_cols <- colnames(get_numeric_bounds(object))
+  impute_values <- get_impute_values(object)
+  standard_deviations <- get_standard_deviations(object)
+
+  for(i in numeric_cols){
+   x[, i] <-
+    (x[, i] - as.numeric(impute_values[[i]]) / standard_deviations[[i]])
+  }
+
  }
 
  if(is.null(sorted)){

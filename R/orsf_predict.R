@@ -32,11 +32,11 @@
 #'   - 'chf': cumulative hazard function
 #'   - 'mort': mortality prediction
 #'
-#' @param na_action `r roxy_na_action_header()`
+#' @param na_action `r roxy_na_action_header("new_data")`
 #'
-#'   - `r roxy_na_action_fail()`
-#'   - `r roxy_na_action_pass()`
-#'   - `r roxy_na_action_omit()`
+#'   - `r roxy_na_action_fail("new_data")`
+#'   - `r roxy_na_action_pass("new_data")`
+#'   - `r roxy_na_action_omit("new_data")`
 #'
 #' @param boundary_checks (_logical_) if `TRUE`, `pred_horizon` will be
 #'  checked to make sure the requested values are less than the maximum

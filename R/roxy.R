@@ -72,22 +72,37 @@ roxy_oobag_fun_return <- function(){
 
 # oobag_fun ---------------------------------------------------------------
 
-roxy_na_action_header <- function(){
+roxy_na_action_header <- function(data_label){
 
- "(_character_) what should happen when `new_data` contains missing values (i.e., `NA` values). Valid options are:"
+ paste0(
+  "(_character_) what should happen when `", data_label,"` contains missing values (i.e., `NA` values). Valid options are:"
+ )
+
 
 }
 
-roxy_na_action_fail <- function(){
- "'fail' : an error is thrown if `new_data` contains `NA` values"
+roxy_na_action_fail <- function(data_label){
+ paste0(
+  "'fail' : an error is thrown if `", data_label,"` contains `NA` values"
+ )
 }
 
-roxy_na_action_pass <- function(){
- "'pass' : the output will have `NA` in all rows where `new_data` has 1 or more `NA` value for the predictors used by `object`."
+roxy_na_action_pass <- function(data_label){
+ paste0(
+  "'pass' : the output will have `NA` in all rows where `", data_label,"` has 1 or more `NA` value for the predictors used by `object`"
+ )
 }
 
-roxy_na_action_omit <- function(){
- "'omit' : rows in `new_data` with incomplete data will be dropped"
+roxy_na_action_omit <- function(data_label){
+ paste0(
+  "'omit' : rows in `", data_label,"` with incomplete data will be dropped"
+ )
+}
+
+roxy_na_action_impute_meanmode <- function(data_label){
+ paste0(
+  "'impute_meanmode' : missing values for continuous and categorical variables in `", data_label,"` will be imputed using the mean and mode, respectively"
+ )
 }
 
 

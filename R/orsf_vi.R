@@ -258,6 +258,15 @@ orsf_vi_oobag_ <- function(object, type_vi, oobag_fun){
            names_x_data = get_names_x(object))
  )
 
+ numeric_cols <- colnames(get_numeric_bounds(object))
+ impute_values <- get_impute_values(object)
+ standard_deviations <- get_standard_deviations(object)
+
+ for(i in numeric_cols){
+  x[, i] <-
+   (x[, i] - as.numeric(impute_values[[i]]) / standard_deviations[[i]])
+ }
+
  if(is.null(oobag_fun)) {
 
   last_eval_stat <-

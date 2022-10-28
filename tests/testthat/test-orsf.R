@@ -436,12 +436,43 @@ pbc_temp <- pbc_orsf
 pbc_temp[, 'bili'] <- NA_real_
 
 test_that(
- desc = "data with missing values are rejected",
+ desc = "data with missing values are rejected when na_action is fail",
  code = {
   expect_error(orsf(pbc_temp, time + status ~ . - id),
                'missing values')
  }
 )
+
+data_miss <- survival::pbc
+
+test_that(
+ desc = 'missing data are dropped when na_action is omit',
+ code = {
+  fit_omit <- orsf(data_miss, time + status ~ .,  na_action = 'omit')
+  expect_equal(fit_omit$data,
+               stats::na.omit(data_miss),
+               ignore_attr = TRUE)
+ }
+)
+
+test_that(
+ desc = 'missing data are imputed when na_action is impute_meanmode',
+ code = {
+
+  fit_impute <- orsf(data_miss,
+                   time + status ~ .,
+                   na_action = 'impute_meanmode')
+
+  expect_equal(nrow(fit_impute$data),
+               nrow(data_miss))
+
+ }
+)
+
+
+
+
+fit <- orsf(data_miss, time + status ~ .,  na_action = 'impute_meanmode')
 
 #' @srrstats {G5.9} **Noise susceptibility tests**
 #' @srrstats {G5.9a} *Adding trivial noise to data does not meaningfully change results*
@@ -535,9 +566,7 @@ test_that(
 
 
 object <- orsf(pbc_orsf, Surv(time, status) ~ . - id, no_fit = TRUE)
-
 set.seed(329)
-
 fit_orsf_3 <- orsf_train(object)
 
 test_that(

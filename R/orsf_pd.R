@@ -33,10 +33,10 @@
 #'   - 'chf': cumulative hazard function
 #'   - 'mort': mortality prediction
 #'
-#' @param na_action `r roxy_na_action_header()`
+#' @param na_action `r roxy_na_action_header("new_data")`
 #'
-#'   - `r roxy_na_action_fail()`
-#'   - `r roxy_na_action_omit()`
+#'   - `r roxy_na_action_fail("new_data")`
+#'   - `r roxy_na_action_omit("new_data")`
 #'
 #' @param expand_grid (_logical_) if `TRUE`, partial dependence will be
 #'   computed at all possible combinations of inputs in `pred_spec`. If

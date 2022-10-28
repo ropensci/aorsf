@@ -3415,6 +3415,7 @@ List orsf_fit(NumericMatrix& x,
  if(oobag_importance && n_tree > 0){
 
   uvec betas_to_flip;
+  // vec betas_temp;
   oobag_eval_counter--;
 
   for(uword variable = 0; variable < x_input.n_cols; ++variable){
@@ -3445,7 +3446,9 @@ List orsf_fit(NumericMatrix& x,
 
     if(oobag_importance_type == 'N'){
      betas_to_flip = find(col_indices == variable);
+     //betas_temp = betas.elem( betas_to_flip );
      betas.elem( betas_to_flip ) *= (-1);
+     //betas.elem( betas_to_flip ) *= 0;
     }
 
     denom_pred(rows_oobag) += 1;
@@ -3458,6 +3461,7 @@ List orsf_fit(NumericMatrix& x,
 
     if(oobag_importance_type == 'N'){
      betas.elem( betas_to_flip ) *= (-1);
+     // betas.elem( betas_to_flip ) = betas_temp;
     }
 
    }
@@ -3538,6 +3542,7 @@ arma::vec orsf_oob_negate_vi(NumericMatrix& x,
  vec vimp(x_input.n_cols);
 
  uvec betas_to_flip;
+ // vec betas_temp;
  uword variable;
 
  for(variable = 0; variable < x_input.n_cols; ++variable){
@@ -3563,6 +3568,9 @@ arma::vec orsf_oob_negate_vi(NumericMatrix& x,
 
    betas_to_flip = find(col_indices == variable);
 
+   // betas_temp = betas.elem( betas_to_flip );
+   // betas.elem( betas_to_flip ) *= 0;
+
    betas.elem( betas_to_flip ) *= (-1);
 
    denom_pred(rows_oobag) += 1;
@@ -3574,6 +3582,7 @@ arma::vec orsf_oob_negate_vi(NumericMatrix& x,
    oobag_pred_surv_uni(oobag_pred_type);
 
    betas.elem( betas_to_flip ) *= (-1);
+   // betas.elem( betas_to_flip ) = betas_temp;
 
   }
 

@@ -27,6 +27,7 @@ orsf(
   tree_seeds = NULL,
   attach_data = TRUE,
   no_fit = FALSE,
+  na_action = "fail",
   ...
 )
 
@@ -155,6 +156,13 @@ to interpret the forest using its training data. Default is \code{TRUE}.}
 \item{no_fit}{(\emph{logical}) if \code{TRUE}, model fitting steps are defined and
 saved, but training is not initiated. The object returned can be
 directly submitted to \code{orsf_train()} so long as \code{attach_data} is \code{TRUE}.}
+
+\item{na_action}{(\emph{character}) what should happen when \code{data} contains missing values (i.e., \code{NA} values). Valid options are:
+\itemize{
+\item 'fail' : an error is thrown if \code{data} contains \code{NA} values
+\item 'omit' : rows in \code{data} with incomplete data will be dropped
+\item 'impute_meanmode' : missing values for continuous and categorical variables in \code{data} will be imputed using the mean and mode, respectively
+}}
 
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 
