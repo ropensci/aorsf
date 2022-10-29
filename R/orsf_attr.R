@@ -34,6 +34,9 @@ get_cph_do_scale       <- function(object) attr(object, 'cph_do_scale')
 get_net_alpha          <- function(object) attr(object, 'net_alpha')
 get_net_df_target      <- function(object) attr(object, 'net_df_target')
 get_numeric_bounds     <- function(object) attr(object, 'numeric_bounds')
+get_means              <- function(object) attr(object, 'means')
+get_modes              <- function(object) attr(object, 'modes')
+get_standard_deviations<- function(object) attr(object, 'standard_deviations')
 get_n_retry            <- function(object) attr(object, 'n_retry')
 get_f_oobag_eval       <- function(object) attr(object, 'f_oobag_eval')
 get_type_oobag_eval    <- function(object) attr(object, 'type_oobag_eval')
@@ -49,8 +52,7 @@ get_type_oobag_eval    <- function(object) attr(object, 'type_oobag_eval')
 get_tree_seeds         <- function(object) attr(object, 'tree_seeds')
 get_weights_user       <- function(object) attr(object, 'weights_user')
 get_event_times        <- function(object) attr(object, 'event_times')
-get_impute_values      <- function(object) attr(object, 'impute_values')
-get_standard_deviations<- function(object) attr(object, 'standard_deviations')
+
 #' ORSF status
 #'
 #' Determine whether an aorsf model has been trained.

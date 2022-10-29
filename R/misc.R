@@ -104,6 +104,10 @@ paste_collapse <- function(x, sep=', ', last = ' or '){
 
 }
 
+has_units <- function(x){
+ inherits(x, 'units')
+}
+
 # Clean up after aorsf is unloaded.
 .onUnload <- function (libpath) {
  library.dynam.unload("aorsf", libpath)

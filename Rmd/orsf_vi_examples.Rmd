@@ -7,8 +7,7 @@ The default variable importance technique, ANOVA, is calculated while you fit an
 
 ```{r}
 
-fit <- orsf(pbc_orsf,
-                    Surv(time, status) ~ . - id)
+fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 
 fit
 

@@ -3,10 +3,10 @@
 #' @srrstats {G5.3} *Test that fits returned contain no missing (`NA`) or undefined (`NaN`, `Inf`) values.*
 #' @srrstats {G5.8, G5.8d} **Edge condition tests** * an error is thrown when partial dependence functions are asked to predict estimates outside of boundaries determined by the aorsf model's training data*
 
-fit <- orsf(formula = Surv(time, status) ~ . - id,
+fit <- orsf(formula = Surv(time, status) ~ .,
             data = pbc_orsf)
 
-fit_nodat <- orsf(formula = Surv(time, status) ~ . - id,
+fit_nodat <- orsf(formula = Surv(time, status) ~ .,
                   data = pbc_orsf,
                   attach_data = FALSE)
 
@@ -138,16 +138,12 @@ test_that(
 
 )
 
-
-
-
-
-# # These tests are kept commented out and run locally
-# # I dont want to suggest pdp package in DESCRIPTION just for testing
+# These tests are kept commented out and run locally
+# I dont want to suggest pdp package in DESCRIPTION just for testing
 # library(pdp)
 #
-# pred_aorsf <- function(fit, newdata) {  # see ?predict.orsf_fit
-#  as.numeric(predict(fit, newdata, pred_horizon = 1000))
+# pred_aorsf <- function(object, newdata) {  # see ?predict.orsf_fit
+#  as.numeric(predict(object, newdata, pred_horizon = 1000))
 # }
 #
 # pd_reference <- partial(fit,
@@ -158,22 +154,32 @@ test_that(
 #                         ice = TRUE,
 #                         train = pbc_orsf)
 #
-# pd_refsort <- pd_reference[order(pd_reference$bili), ]
+# pd_refsort <- as.data.table(pd_reference[order(pd_reference$bili), ])
+#
+# pd_refsort[, .(bili_mean = mean(yhat),
+#                bili_median = median(yhat)),
+#            by = bili]
+#
+# pbc_tmp <- pbc_orsf
+#
+# pbc_tmp$bili <- 1
+#
+# pred_bili_1 <- predict(fit, new_data = pbc_tmp, pred_horizon = 1000)
+#
+# pd_refsort[bili==1]
+#
+# head(pred_bili_1)
 #
 # pd_spec <- list(bili = 1:5)
 #
-# pd_bcj <- orsf_ice(fit,
-#                       pd_data = pbc_orsf,
-#                       pd_spec = pd_spec,
-#                       pred_horizon = 1000,
-#                       expand_grid = TRUE,
-#                       oobag = FALSE)
+# pd_bcj <- orsf_ice_inb(fit,
+#                        pred_spec = pd_spec,
+#                        pred_horizon = 1000,
+#                        expand_grid = TRUE)
 #
-# pd_smry <- orsf_pd(fit,
-#                            pd_data = pbc_orsf,
-#                            pd_spec = pd_spec,
-#                            pred_horizon = 1000,
-#                            oobag = FALSE)
+# pd_smry <- orsf_pd_inb(fit,
+#                        pred_spec = pd_spec,
+#                        pred_horizon = 1000)
 #
 # pd_bcj_check <- pd_bcj[, .(bili_mean = mean(pred),
 #                            bili_median = median(pred)),
@@ -188,7 +194,7 @@ test_that(
 # )
 #
 # test_that(
-#  "c fun matches R wrapper with pdp package",
+#  "aorsf pd matches pdp package",
 #  code = {
 #   expect_equal(pd_bcj$pred, pd_refsort$yhat)
 #  }

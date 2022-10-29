@@ -3165,6 +3165,7 @@ List orsf_fit(NumericMatrix& x,
 
  // convert inputs into arma objects
  x_input = mat(x.begin(), x.nrow(), x.ncol(), false);
+
  y_input = mat(y.begin(), y.nrow(), y.ncol(), false);
 
  w_user = vec(weights.begin(), weights.length(), false);
@@ -3213,6 +3214,8 @@ List orsf_fit(NumericMatrix& x,
  if(cph_iter_max > 1) cph_do_scale = true;
 
  if((type_beta == 'N') || (type_beta == 'U')) cph_do_scale = false;
+
+ if(cph_iter_max == 1) cph_do_scale = false;
 
  if(oobag_pred){
 
@@ -3547,6 +3550,9 @@ arma::vec orsf_oob_negate_vi(NumericMatrix& x,
 
  for(variable = 0; variable < x_input.n_cols; ++variable){
 
+  // Abort the routine if user has pressed Ctrl + C or Escape in R.
+  Rcpp::checkUserInterrupt();
+
   surv_pvec.fill(0);
   denom_pred.fill(0);
 
@@ -3635,6 +3641,9 @@ arma::vec orsf_oob_permute_vi(NumericMatrix& x,
  uword variable;
 
  for(variable = 0; variable < x_input.n_cols; ++variable){
+
+  // Abort the routine if user has pressed Ctrl + C or Escape in R.
+  Rcpp::checkUserInterrupt();
 
   surv_pvec.fill(0);
   denom_pred.fill(0);
@@ -3814,6 +3823,9 @@ arma::mat pd_new_smry(List&          forest,
 
  for(pd_i = 0; pd_i < x_vals.n_rows; pd_i++){
 
+  // Abort the routine if user has pressed Ctrl + C or Escape in R.
+  Rcpp::checkUserInterrupt();
+
   j = 0;
 
   surv_pvec.fill(0);
@@ -3878,6 +3890,9 @@ arma::mat pd_oob_smry(List&          forest,
 
  for(pd_i = 0; pd_i < x_vals.n_rows; pd_i++){
 
+  // Abort the routine if user has pressed Ctrl + C or Escape in R.
+  Rcpp::checkUserInterrupt();
+
   j = 0;
   denom_pred.fill(0);
   surv_pvec.fill(0);
@@ -3932,7 +3947,7 @@ arma::mat pd_new_ice(List&          forest,
                      NumericMatrix& x_vals_,
                      NumericVector& probs_,
                      const double   time_dbl,
-                     char     pred_type){
+                     char           pred_type){
 
 
  uword pd_i;
@@ -3959,6 +3974,9 @@ arma::mat pd_new_ice(List&          forest,
  surv_pvec.set_size(x_pred.n_rows);
 
  for(pd_i = 0; pd_i < x_vals.n_rows; pd_i++){
+
+  // Abort the routine if user has pressed Ctrl + C or Escape in R.
+  Rcpp::checkUserInterrupt();
 
   j = 0;
 
@@ -4025,6 +4043,9 @@ arma::mat pd_oob_ice(List&          forest,
  surv_pvec.set_size(x_input.n_rows);
 
  for(pd_i = 0; pd_i < x_vals.n_rows; pd_i++){
+
+  // Abort the routine if user has pressed Ctrl + C or Escape in R.
+  Rcpp::checkUserInterrupt();
 
   j = 0;
   denom_pred.fill(0);

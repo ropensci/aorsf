@@ -101,16 +101,27 @@ predict.orsf_fit <- function(object,
 
  check_complete_cases(cc, na_action, nrow(new_data))
 
+ if(na_action == 'impute_meanmode'){
+
+  new_data <- data_impute(new_data,
+                          cols = get_names_x(object),
+                          values = c(as.list(get_means(object)),
+                                     as.list(get_modes(object))))
+
+ }
+
  if(is.null(pred_horizon) && pred_type != 'mort'){
   stop("pred_horizon must be specified for ",
        pred_type, " predictions.", call. = FALSE)
  }
 
- x_new <- as.matrix(
-  ref_code(x_data = new_data[cc, ],
-           fi = get_fctr_info(object),
-           names_x_data = names_x_data)
- )
+ x_new <- prep_x_from_orsf(object, data = new_data[cc, ])
+
+ # x_new <- as.matrix(
+ #  ref_code(x_data = new_data[cc, ],
+ #           fi = get_fctr_info(object),
+ #           names_x_data = names_x_data)
+ # )
 
  pred_type_cpp <- switch(
   pred_type,

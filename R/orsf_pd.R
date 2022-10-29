@@ -343,13 +343,20 @@ orsf_pred_dependence <- function(object,
 
  check_complete_cases(cc, na_action, nrow(pd_data))
 
- x_new <- as.matrix(
-  ref_code(x_data = pd_data[cc, ],
-           fi = get_fctr_info(object),
-           names_x_data = names_x_data)
- )
+ x_new <- prep_x_from_orsf(object, data = pd_data[cc, ])
+
+
+ # the values in pred_spec need to be centered & scaled to match x_new,
+ # which is also centered and scaled
+ means <- get_means(object)
+ standard_deviations <- get_standard_deviations(object)
+
+ for(i in intersect(names(means), names(pred_spec))){
+  pred_spec[[i]] <- (pred_spec[[i]] - means[i]) / standard_deviations[i]
+ }
 
  if(is.data.frame(pred_spec)) type_input <- 'grid'
+
 
  pd_fun_structure <- switch(type_input,
                             'grid' = pd_grid,
@@ -464,7 +471,7 @@ pd_grid <- function(object,
  pd_vals <- pd_fun_predict(forest      = object$forest,
                            x_new_      = x_new,
                            x_cols_     = x_cols-1,
-                           x_vals_     = as.matrix(pred_spec_new),
+                           x_vals_     = as_matrix(pred_spec_new),
                            probs_      = prob_values,
                            time_dbl    = pred_horizon,
                            pred_type   = pred_type_cpp)

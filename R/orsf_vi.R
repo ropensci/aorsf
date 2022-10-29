@@ -247,25 +247,12 @@ orsf_vi_oobag_ <- function(object, type_vi, oobag_fun){
 
  }
 
- y <- as.matrix(object$data[, get_names_y(object)])
+ y <- prep_y_from_orsf(object)
+ x <- prep_x_from_orsf(object)
 
  # Put data in the same order that it was in when object was fit
  sorted <- order(y[, 1], -y[, 2])
 
- x <- as.matrix(
-  ref_code(x_data = object$data,
-           fi = get_fctr_info(object),
-           names_x_data = get_names_x(object))
- )
-
- numeric_cols <- colnames(get_numeric_bounds(object))
- impute_values <- get_impute_values(object)
- standard_deviations <- get_standard_deviations(object)
-
- for(i in numeric_cols){
-  x[, i] <-
-   (x[, i] - as.numeric(impute_values[[i]]) / standard_deviations[[i]])
- }
 
  if(is.null(oobag_fun)) {
 
@@ -291,7 +278,6 @@ orsf_vi_oobag_ <- function(object, type_vi, oobag_fun){
   "risk" = "R",
   "chf"  = "H"
  )
-
 
  out <- f_oobag_vi(x = x[sorted, ],
                    y = y[sorted, ],

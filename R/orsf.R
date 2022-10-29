@@ -342,8 +342,6 @@ orsf <- function(data,
 
  oobag_pred <- oobag_pred_type != 'none'
 
- if(is.null(weights)) weights <- double()
-
  orsf_type <- attr(control, 'type')
 
  switch(
@@ -481,6 +479,11 @@ orsf <- function(data,
         call. = FALSE)
   }
 
+  if(any(collapse::allNA(data[[i]]))){
+   stop("column ", i, " has no observed values",
+        call. = FALSE)
+  }
+
   # nan values trigger is.na(), so this probably isnt needed.
   # if(any(is.nan(data[[i]]))){
   #  stop("Please remove NaN values from ", i, ".",
@@ -502,32 +505,51 @@ orsf <- function(data,
  names_x_numeric <- grep(pattern = "^integer$|^numeric$|^units$",
                          x = types_x_data)
 
- numeric_bounds <- NULL
- standard_deviations <- NULL
+ means <- standard_deviations<- modes <- numeric_bounds <- NULL
 
- if(!is_empty(names_x_numeric)){
-  numeric_bounds <-
-   vapply(select_cols(data, names_x_data[names_x_numeric]),
-          FUN = stats::quantile,
-          na.rm = TRUE,
-          probs = c(0.10, 0.25, 0.50, 0.75, 0.90),
-          # returned value has length = length(probs)
-          FUN.VALUE = numeric(5))
+ numeric_cols <- names_x_data[names_x_numeric]
+ nominal_cols <- fi$cols
 
-  standard_deviations <-
-   vapply(select_cols(data, names_x_data[names_x_numeric]),
-          FUN = stats::sd,
-          na.rm = TRUE,
-          # returned value has length = length(probs)
-          FUN.VALUE = numeric(1))
+ if(!is_empty(nominal_cols)){
 
+  modes <- vapply(
+   select_cols(data, nominal_cols),
+   collapse::fmode,
+   FUN.VALUE = integer(1),
+   w = weights
+  )
 
  }
 
- impute_values <- c(get_means(data, names_x_data[names_x_numeric]),
-                    get_modes(data, fi$cols))
+ if(!is_empty(numeric_cols)){
 
- if(any(is.na(select_cols(data, c(names_y_data, names_x_data))))){
+  numeric_data <- select_cols(data, numeric_cols)
+
+  numeric_bounds <- matrix(
+   data = c(
+    collapse::fnth(numeric_data, 0.1),
+    collapse::fnth(numeric_data, 0.25),
+    collapse::fnth(numeric_data, 0.5),
+    collapse::fnth(numeric_data, 0.75),
+    collapse::fnth(numeric_data, 0.9)
+   ),
+   nrow =5,
+   byrow = TRUE,
+   dimnames = list(c('10%', '25%', '50%', '75%', '90%'),
+                   names(numeric_data))
+  )
+
+  means <- collapse::fmean(numeric_data, w = weights)
+
+  standard_deviations <- collapse::fsd(numeric_data, w = weights)
+
+ }
+
+ if(any(is.na(select_cols(data, names_y_data))))
+  stop("Please remove missing values from the outcome variable(s)",
+       call. = FALSE)
+
+ if(any(is.na(select_cols(data, names_x_data)))){
 
   switch(
    na_action,
@@ -538,31 +560,23 @@ orsf <- function(data,
    },
 
    'omit' = {
-    keep <- stats::complete.cases(data[, c(names_y_data, names_x_data)])
-    data <- data[keep, ]
+    data <- collapse::na_omit(data, cols = names_x_data)
    },
 
    'impute_meanmode' = {
-    if(any(is.na(select_cols(data, names_y_data))))
-     stop("Outcome imputation is not supported", call. = FALSE)
-    data <- impute_meanmode(data,
-                            cols = names_x_data,
-                            values = impute_values)
+
+    data <- data_impute(data,
+                        cols = names_x_data,
+                        values = c(as.list(means),
+                                   as.list(modes)))
    }
 
   )
 
  }
 
- y  <- vet_y(as.matrix(select_cols(data, names_y_data)))
- x  <- as.matrix(ref_code(data, fi, names_x_data))
-
- # center and scale the numeric columns in x-matrix
- # (TODO: test if this makes output robust to changes of input scale)
- for(i in names_x_data[names_x_numeric]){
-  x[, i] <-
-   (x[, i] - as.numeric(impute_values[[i]]) / standard_deviations[[i]])
- }
+ y <- prep_y(data, names_y_data)
+ x <- prep_x(data, fi, names_x_data, means, standard_deviations)
 
  if(is.null(mtry)) mtry <- ceiling(sqrt(ncol(x)))
 
@@ -574,7 +588,7 @@ orsf <- function(data,
        " must be <= mtry, which is ", mtry,
        call. = FALSE)
 
- n_events <- sum(y[, 2])
+ n_events <- collapse::fsum(y[, 2])
 
  # some additional checks that are dependent on the outcome variable
 
@@ -618,17 +632,19 @@ orsf <- function(data,
 
  } else {
 
-  # sneaky way to tell orsf.cpp to make its own oobag_pred_horizon
+  # tell orsf.cpp to make its own oobag_pred_horizon by setting this to 0
   oobag_pred_horizon <- 0
 
  }
 
- sorted <- order(y[, 1],  # order this way for risk sets
-                 -y[, 2]) # order this way for oob C-statistic.
+ sorted <-
+  collapse::radixorder(y[, 1],  # order this way for risk sets
+                       -y[, 2]) # order this way for oob C-statistic.
 
  x_sort <- x[sorted, ]
  y_sort <- y[sorted, ]
 
+ if(is.null(weights)) weights <- double()
  if(is.null(tree_seeds)) tree_seeds <- vector(mode = 'integer', length = 0L)
 
  orsf_out <- orsf_fit(
@@ -688,9 +704,9 @@ orsf <- function(data,
 
  if(oobag_pred){
 
+
   # put the oob predictions into the same order as the training data.
-  unsorted <- vector(mode = 'integer', length = length(sorted))
-  for(i in seq_along(unsorted)) unsorted[ sorted[i] ] <- i
+  unsorted <- collapse::radixorder(sorted)
 
   # clear labels for oobag evaluation type
 
@@ -699,8 +715,7 @@ orsf <- function(data,
           'H' = "Harrell's C-statistic",
           'U' = "User-specified function")
 
-  #' @srrstats {G2.10} *set drop = FALSE to ensure that extraction or filtering of single columns from tabular inputs should not presume any particular default behavior, and all column-extraction operations behave consistently regardless of the class of tabular data used as input.*
-
+  #' @srrstats {G2.10} *drop = FALSE for type consistency*
   orsf_out$pred_oobag <- orsf_out$pred_oobag[unsorted, , drop = FALSE]
 
  } else {
@@ -717,52 +732,55 @@ orsf <- function(data,
 
  if(!no_fit) {
   n_leaves_mean <-
-   mean(vapply(orsf_out$forest,
-               function(t) nrow(t$leaf_node_index),
-               FUN.VALUE = integer(1)))
+   collapse::fmean(
+    vapply(orsf_out$forest,
+           function(t) nrow(t$leaf_node_index),
+           FUN.VALUE = integer(1))
+   )
  }
 
 
 
- attr(orsf_out, 'mtry')             <- mtry
- attr(orsf_out, 'n_obs')            <- nrow(y_sort)
- attr(orsf_out, 'n_tree')           <- n_tree
- attr(orsf_out, 'names_y')          <- names_y_data
- attr(orsf_out, "names_x")          <- names_x_data
- attr(orsf_out, "names_x_ref")      <- colnames(x)
- attr(orsf_out, "types_x")          <- types_x_data
- attr(orsf_out, 'n_events')         <- n_events
- attr(orsf_out, 'max_time')         <- y_sort[nrow(y_sort), 1]
- attr(orsf_out, 'event_times')      <- unique(y_sort[ y_sort[,2]==1, 1])
- attr(orsf_out, "unit_info")        <- c(ui_y, ui_x)
- attr(orsf_out, "fctr_info")        <- fi
- attr(orsf_out, 'n_leaves_mean')    <- n_leaves_mean
- attr(orsf_out, 'n_split')          <- n_split
- attr(orsf_out, 'leaf_min_events')  <- leaf_min_events
- attr(orsf_out, 'leaf_min_obs')     <- leaf_min_obs
- attr(orsf_out, 'split_min_events') <- split_min_events
- attr(orsf_out, 'split_min_obs')    <- split_min_obs
- attr(orsf_out, 'split_min_stat')   <- split_min_stat
- attr(orsf_out, 'cph_method')       <- cph_method
- attr(orsf_out, 'cph_eps')          <- cph_eps
- attr(orsf_out, 'cph_iter_max')     <- cph_iter_max
- attr(orsf_out, 'cph_do_scale')     <- cph_do_scale
- attr(orsf_out, 'net_alpha')        <- net_alpha
- attr(orsf_out, 'net_df_target')    <- net_df_target
- attr(orsf_out, 'numeric_bounds')   <- numeric_bounds
- attr(orsf_out, 'trained')          <- !no_fit
- attr(orsf_out, 'n_retry')          <- n_retry
- attr(orsf_out, 'orsf_type')        <- orsf_type
- attr(orsf_out, 'f_beta')           <- f_beta
- attr(orsf_out, 'f_oobag_eval')     <- f_oobag_eval
- attr(orsf_out, 'type_oobag_eval')  <- type_oobag_eval
- attr(orsf_out, 'oobag_pred')       <- oobag_pred
- attr(orsf_out, 'oobag_pred_type')  <- oobag_pred_type
- attr(orsf_out, 'oobag_eval_every') <- oobag_eval_every
- attr(orsf_out, 'importance')       <- importance
- attr(orsf_out, 'weights_user')     <- weights
- attr(orsf_out, 'impute_values')    <- impute_values
+ attr(orsf_out, 'mtry')                <- mtry
+ attr(orsf_out, 'n_obs')               <- nrow(y_sort)
+ attr(orsf_out, 'n_tree')              <- n_tree
+ attr(orsf_out, 'names_y')             <- names_y_data
+ attr(orsf_out, "names_x")             <- names_x_data
+ attr(orsf_out, "names_x_ref")         <- colnames(x)
+ attr(orsf_out, "types_x")             <- types_x_data
+ attr(orsf_out, 'n_events')            <- n_events
+ attr(orsf_out, 'max_time')            <- y_sort[nrow(y_sort), 1]
+ attr(orsf_out, 'event_times')         <- unique(y_sort[ y_sort[,2]==1, 1])
+ attr(orsf_out, "unit_info")           <- c(ui_y, ui_x)
+ attr(orsf_out, "fctr_info")           <- fi
+ attr(orsf_out, 'n_leaves_mean')       <- n_leaves_mean
+ attr(orsf_out, 'n_split')             <- n_split
+ attr(orsf_out, 'leaf_min_events')     <- leaf_min_events
+ attr(orsf_out, 'leaf_min_obs')        <- leaf_min_obs
+ attr(orsf_out, 'split_min_events')    <- split_min_events
+ attr(orsf_out, 'split_min_obs')       <- split_min_obs
+ attr(orsf_out, 'split_min_stat')      <- split_min_stat
+ attr(orsf_out, 'cph_method')          <- cph_method
+ attr(orsf_out, 'cph_eps')             <- cph_eps
+ attr(orsf_out, 'cph_iter_max')        <- cph_iter_max
+ attr(orsf_out, 'cph_do_scale')        <- cph_do_scale
+ attr(orsf_out, 'net_alpha')           <- net_alpha
+ attr(orsf_out, 'net_df_target')       <- net_df_target
+ attr(orsf_out, 'numeric_bounds')      <- numeric_bounds
+ attr(orsf_out, 'means')               <- means
+ attr(orsf_out, 'modes')               <- means
  attr(orsf_out, 'standard_deviations') <- standard_deviations
+ attr(orsf_out, 'trained')             <- !no_fit
+ attr(orsf_out, 'n_retry')             <- n_retry
+ attr(orsf_out, 'orsf_type')           <- orsf_type
+ attr(orsf_out, 'f_beta')              <- f_beta
+ attr(orsf_out, 'f_oobag_eval')        <- f_oobag_eval
+ attr(orsf_out, 'type_oobag_eval')     <- type_oobag_eval
+ attr(orsf_out, 'oobag_pred')          <- oobag_pred
+ attr(orsf_out, 'oobag_pred_type')     <- oobag_pred_type
+ attr(orsf_out, 'oobag_eval_every')    <- oobag_eval_every
+ attr(orsf_out, 'importance')          <- importance
+ attr(orsf_out, 'weights_user')        <- weights
 
  attr(orsf_out, 'tree_seeds') <- if(is.null(tree_seeds)) c() else tree_seeds
 
@@ -824,8 +842,6 @@ orsf_data_prep.recipe <- function(data, ...){
 
 }
 
-
-
 #' @srrstats {ML2.0a} *objects returned from orsf() with no_fit = TRUE can be directly submitted to orsf_train to train the model specification.*
 #'
 #' @rdname orsf
@@ -878,20 +894,8 @@ orsf_time_to_train <- function(object, n_tree_subset = 50){
 
  time_preproc_start <- Sys.time()
 
- y  <- vet_y(as.matrix(select_cols(object$data, get_names_y(object))))
-
- x  <- as.matrix(ref_code(object$data,
-                          get_fctr_info(object),
-                          get_names_x(object, ref_code_names = FALSE)))
-
- numeric_cols <- colnames(get_numeric_bounds(object))
- impute_values <- get_impute_values(object)
- standard_deviations <- get_standard_deviations(object)
-
- for(i in numeric_cols){
-  x[, i] <-
-   (x[, i] - as.numeric(impute_values[[i]]) / standard_deviations[[i]])
- }
+ y  <- prep_y_from_orsf(object)
+ x  <- prep_x_from_orsf(object)
 
  sorted <- order(y[, 1],  # order this way for risk sets
                  -y[, 2]) # order this way for oob C-statistic.
@@ -951,28 +955,17 @@ orsf_train_ <- function(object,
  }
 
  if(is.null(y)){
-  y  <- vet_y(as.matrix(select_cols(object$data, get_names_y(object))))
+  y <- prep_y_from_orsf(object)
  }
 
  if(is.null(x)){
-  x  <- as.matrix(ref_code(object$data,
-                           get_fctr_info(object),
-                           get_names_x(object, ref_code_names = FALSE)))
-
-  numeric_cols <- colnames(get_numeric_bounds(object))
-  impute_values <- get_impute_values(object)
-  standard_deviations <- get_standard_deviations(object)
-
-  for(i in numeric_cols){
-   x[, i] <-
-    (x[, i] - as.numeric(impute_values[[i]]) / standard_deviations[[i]])
-  }
-
+  x <- prep_x_from_orsf(object)
  }
 
  if(is.null(sorted)){
-  sorted <- order(y[, 1],  # order this way for risk sets
-                  -y[, 2]) # order this way for oob C-statistic.
+  sorted <-
+   collapse::radixorder(y[, 1],  # order this way for risk sets
+                        -y[, 2]) # order this way for oob C-statistic.
  }
 
 
@@ -1047,10 +1040,10 @@ orsf_train_ <- function(object,
 
  }
 
-
  if(get_oobag_pred(object)){
 
   # put the oob predictions into the same order as the training data.
+  # TODO: this can be faster; see predict unsorting
   unsorted <- vector(mode = 'integer', length = length(sorted))
   for(i in seq_along(unsorted)) unsorted[ sorted[i] ] <- i
 
