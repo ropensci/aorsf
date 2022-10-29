@@ -38,7 +38,8 @@ Imports:
     Rcpp,
     data.table,
     utils,
-    stats
+    stats,
+    collapse
 URL: https://github.com/ropensci/aorsf,
     https://docs.ropensci.org/aorsf/
 BugReports: https://github.com/ropensci/aorsf/issues/
