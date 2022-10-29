@@ -35,7 +35,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">aorsf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -154,14 +154,14 @@
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          bili           age       protime        copper       ascites </span></span>
-<span><span class="co">#&gt;  0.0143779954  0.0096374245  0.0087518233  0.0061992082  0.0056261721 </span></span>
-<span><span class="co">#&gt;         stage           sex           ast         edema       albumin </span></span>
-<span><span class="co">#&gt;  0.0050531361  0.0047926651  0.0034903105  0.0030512309  0.0023963326 </span></span>
-<span><span class="co">#&gt;       spiders          trig          chol        hepato      platelet </span></span>
-<span><span class="co">#&gt;  0.0009376954 -0.0008856012 -0.0014065430 -0.0024484268 -0.0028130861 </span></span>
-<span><span class="co">#&gt;           trt      alk.phos </span></span>
-<span><span class="co">#&gt; -0.0029172744 -0.0033861221</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili           age        copper       protime          chol </span></span>
+<span><span class="co">#&gt;  0.0719420713  0.0249010210  0.0222442175  0.0084913524  0.0072410919 </span></span>
+<span><span class="co">#&gt;           ast       albumin       ascites         stage           sex </span></span>
+<span><span class="co">#&gt;  0.0070327151  0.0066159617  0.0056261721  0.0049489477  0.0047926651 </span></span>
+<span><span class="co">#&gt;         edema      platelet       spiders          trig        hepato </span></span>
+<span><span class="co">#&gt;  0.0030202225  0.0019274849  0.0009897895 -0.0016670140 -0.0024484268 </span></span>
+<span><span class="co">#&gt;           trt </span></span>
+<span><span class="co">#&gt; -0.0029172744</span></span></code></pre></div>
 </li>
 <li>
 <p>You can also compute variable importance using permutation, a more classical approach.</p>
@@ -171,11 +171,11 @@
 <span><span class="co">#&gt;          bili           age         stage       protime       albumin </span></span>
 <span><span class="co">#&gt;  0.0109918733  0.0091685768  0.0036986872  0.0034903105  0.0028651802 </span></span>
 <span><span class="co">#&gt;       ascites         edema       spiders          chol           ast </span></span>
-<span><span class="co">#&gt;  0.0028130861  0.0020676431  0.0019274849  0.0017712023  0.0015107314 </span></span>
-<span><span class="co">#&gt;        copper      platelet          trig           sex      alk.phos </span></span>
-<span><span class="co">#&gt;  0.0003125651  0.0001562826 -0.0007293186 -0.0009376954 -0.0010418837 </span></span>
-<span><span class="co">#&gt;        hepato           trt </span></span>
-<span><span class="co">#&gt; -0.0011981663 -0.0025526151</span></span></code></pre></div>
+<span><span class="co">#&gt;  0.0028130861  0.0020366346  0.0019274849  0.0017712023  0.0015107314 </span></span>
+<span><span class="co">#&gt;        copper      platelet           sex      alk.phos        hepato </span></span>
+<span><span class="co">#&gt;  0.0003125651  0.0001562826 -0.0007814128 -0.0010939779 -0.0011981663 </span></span>
+<span><span class="co">#&gt;           trt </span></span>
+<span><span class="co">#&gt; -0.0025526151</span></span></code></pre></div>
 </li>
 <li>
 <p>A faster alternative to permutation and negation importance is ANOVA importance, which computes the proportion of times each variable obtains a low p-value (p &lt; 0.01) while the forest is grown.</p>
@@ -227,7 +227,7 @@
 <span> <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   2.055   0.044   2.099</span></span>
+<span><span class="co">#&gt;   1.453   0.012   1.464</span></span>
 <span></span>
 <span><span class="co"># and how long it takes to fit 50 cph trees</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
@@ -239,11 +239,11 @@
 <span> <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   0.054   0.000   0.055</span></span>
+<span><span class="co">#&gt;   0.038   0.000   0.038</span></span>
 <span></span>
 <span><span class="va">t1</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">t2</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span></span>
 <span><span class="co">#&gt;  elapsed </span></span>
-<span><span class="co">#&gt; 38.16364</span></span></code></pre></div>
+<span><span class="co">#&gt; 38.52632</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="aorsf-and-other-machine-learning-software">aorsf and other machine learning software<a class="anchor" aria-label="anchor" href="#aorsf-and-other-machine-learning-software"></a>

@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">aorsf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -124,9 +124,9 @@
 <span></span>
 <span><span class="co"># what is the output from this function?</span></span>
 <span><span class="va">fit</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span>
-<span><span class="co">#&gt;           [,1]</span></span>
-<span><span class="co">#&gt; [1,] 0.8393936</span></span></code></pre></div>
-<p>The out-of-bag estimate of Harrell’s C-statistic (the default method to evaluate out-of-bag predictions) is 0.8393936.</p>
+<span><span class="co">#&gt;          [,1]</span></span>
+<span><span class="co">#&gt; [1,] 0.841269</span></span></code></pre></div>
+<p>The out-of-bag estimate of Harrell’s C-statistic (the default method to evaluate out-of-bag predictions) is 0.841269.</p>
 </div>
 <div class="section level2">
 <h2 id="monitoring-out-of-bag-error">Monitoring out-of-bag error<a class="anchor" aria-label="anchor" href="#monitoring-out-of-bag-error"></a>
@@ -174,7 +174,7 @@
 <code class="sourceCode R"><span></span>
 <span><span class="fu">oobag_fun_brier</span><span class="op">(</span>y_mat <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'time'</span>, <span class="st">'status'</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>                s_vec <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">pred_oobag</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.197774</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.199433</span></span></code></pre></div>
 <p>Second, you can pass your function into <code><a href="../reference/orsf.html">orsf()</a></code>, and it will be used in place of Harrell’s C-statistic:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -274,12 +274,12 @@
 <span>                 importance <span class="op">=</span> <span class="st">'negate'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit_tdep_cstat</span><span class="op">$</span><span class="va">importance</span></span>
-<span><span class="co">#&gt;        bili         age   ascites_1     edema_1     protime       sex_f </span></span>
-<span><span class="co">#&gt;    0.012760    0.010442    0.007031    0.006614    0.006041    0.005963 </span></span>
-<span><span class="co">#&gt;      copper       stage   spiders_1         ast   edema_0.5    alk.phos </span></span>
-<span><span class="co">#&gt;    0.005520    0.003229    0.003229    0.000911    0.000677    0.000156 </span></span>
-<span><span class="co">#&gt;     albumin        chol    hepato_1        trig    platelet trt_placebo </span></span>
-<span><span class="co">#&gt;   -0.000339   -0.001563   -0.001875   -0.003438   -0.003698   -0.003750</span></span></code></pre></div>
+<span><span class="co">#&gt;        bili      copper         age     protime     albumin   ascites_1 </span></span>
+<span><span class="co">#&gt;    0.079892    0.021275    0.021041    0.016744    0.008411    0.007708 </span></span>
+<span><span class="co">#&gt;       sex_f     edema_1         ast        chol   spiders_1       stage </span></span>
+<span><span class="co">#&gt;    0.006588    0.005885    0.005391    0.004583    0.003594    0.003281 </span></span>
+<span><span class="co">#&gt;   edema_0.5    platelet    hepato_1        trig    alk.phos trt_placebo </span></span>
+<span><span class="co">#&gt;    0.001719   -0.000416   -0.000703   -0.001510   -0.001614   -0.003021</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="notes">Notes<a class="anchor" aria-label="anchor" href="#notes"></a>

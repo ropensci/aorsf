@@ -12,7 +12,7 @@ from an ORSF model."><meta property="og:image" content="https://bcjaeger.github.
     
     <a class="navbar-brand me-2" href="../index.html">aorsf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.9000</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,7 +107,7 @@ options are</p><ul><li><p>'risk' : probability of having an event at or before <
 
 <dt>na_action</dt>
 <dd><p>(<em>character</em>) what should happen when <code>new_data</code> contains missing values (i.e., <code>NA</code> values). Valid options are:</p><ul><li><p>'fail' : an error is thrown if <code>new_data</code> contains <code>NA</code> values</p></li>
-<li><p>'pass' : the output will have <code>NA</code> in all rows where <code>new_data</code> has 1 or more <code>NA</code> value for the predictors used by <code>object</code>.</p></li>
+<li><p>'pass' : the output will have <code>NA</code> in all rows where <code>new_data</code> has 1 or more <code>NA</code> value for the predictors used by <code>object</code></p></li>
 <li><p>'omit' : rows in <code>new_data</code> with incomplete data will be dropped</p></li>
 </ul></dd>
 
@@ -172,7 +172,7 @@ used for <code>oobag_pred_horizon</code> when <code>object</code> was created (s
 <span id="cb1-3"><a href="#cb1-3"></a><span class="co">## [2,] 0.035699097 0.07776627 0.14863153</span></span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="co">## [3,] 0.110355739 0.26854128 0.40820574</span></span>
 <span id="cb1-5"><a href="#cb1-5"></a><span class="co">## [4,] 0.011659607 0.02787088 0.07267587</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## [5,] 0.006644573 0.01591640 0.04903247</span></span></code></pre><p></p></div>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## [5,] 0.006580104 0.01585194 0.04896800</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode r"><pre><code><span><span class="co"># predicted survival, i.e., 1 - risk</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, </span>
 <span>        new_data <span class="op">=</span> <span class="va">pbc_orsf_test</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span>, </span>
@@ -183,7 +183,7 @@ used for <code>oobag_pred_horizon</code> when <code>object</code> was created (s
 <span id="cb1-3"><a href="#cb1-3"></a><span class="co">## [2,] 0.9643009 0.9222337 0.85136847</span></span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="co">## [3,] 0.8896443 0.7314587 0.59179426</span></span>
 <span id="cb1-5"><a href="#cb1-5"></a><span class="co">## [4,] 0.9883404 0.9721291 0.92732413</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## [5,] 0.9933554 0.9840836 0.95096753</span></span></code></pre><p></p></div>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## [5,] 0.9934199 0.9841481 0.95103200</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode r"><pre><code><span><span class="co"># predicted cumulative hazard function</span></span>
 <span><span class="co"># (expected number of events for person i at time j)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, </span>
@@ -195,7 +195,7 @@ used for <code>oobag_pred_horizon</code> when <code>object</code> was created (s
 <span id="cb1-3"><a href="#cb1-3"></a><span class="co">## [2,] 0.037859536 0.09860152 0.20087409</span></span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="co">## [3,] 0.131539617 0.38704960 0.68840843</span></span>
 <span id="cb1-5"><a href="#cb1-5"></a><span class="co">## [4,] 0.011659607 0.02870233 0.08408614</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## [5,] 0.006644573 0.01789893 0.05801293</span></span></code></pre><p></p></div>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## [5,] 0.006580104 0.01783446 0.05794846</span></span></code></pre><p></p></div>
 <p>Predict mortality, defined as the number of events in the forest’s
 population if all observations had characteristics like the current
 observation. This type of prediction does not require you to specify a
@@ -208,7 +208,7 @@ prediction horizon</p>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="co">## [2,] 10.811443</span></span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="co">## [3,] 27.509084</span></span>
 <span id="cb1-5"><a href="#cb1-5"></a><span class="co">## [4,]  5.930542</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## [5,]  3.891028</span></span></code></pre><p></p></div>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="co">## [5,]  3.881523</span></span></code></pre><p></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
