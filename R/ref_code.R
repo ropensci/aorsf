@@ -26,55 +26,48 @@ ref_code <- function (x_data, fi, names_x_data){
 
  for(i in seq_along(fi$cols)){
 
-  if(fi$cols[i] %in% names(x_data)){
+  col_i <- fi$cols[i]
+
+  if(col_i %in% names(x_data)){
 
    if(fi$ordr[i]){
 
-    x_data[[ fi$cols[i] ]] <- as.integer( x_data[[ fi$cols[i] ]] )
+    x_data[[ col_i ]] <- collapse::as_numeric_factor( x_data[[ col_i ]] )
 
    } else {
 
-    # make a matrix for each factor
-    mat <- matrix(0,
-                  nrow = nrow(x_data),
-                  ncol = length(fi$lvls[[i]])
-    )
+    for (j in seq(length(fi$keys[[i]]) - 1) ) {
 
-    colnames(mat) <- fi$keys[[i]]
-
-    # missing values of the factor become missing rows
-    mat[is.na(x_data[[fi$cols[i]]]), ] <- NA_integer_
-
-    # we will one-hot encode the matrix and then bind it to data,
-    # replacing the original factor column. Go through the matrix
-    # column by column, where each column corresponds to a level
-    # of the current factor (indexed by i). Flip the values
-    # of the j'th column to 1 whenever the current factor's value
-    # is the j'th level.
-
-    for (j in seq(ncol(mat))) {
+     j_lvl <- fi$lvls[[i]][j+1]
 
      # find which rows to turn into 1's. These should be the
      # indices in the currect factor where it's value is equal
      # to the j'th level.
-     hot_rows <- which( x_data[[fi$cols[i]]] == fi$lvls[[i]][j] )
 
-     # after finding the rows, flip the values from 0 to 1
+     vec <- data.frame(
+      temp_name = collapse::alloc(0L, collapse::fnrow(x_data))
+     )
+
+     names(vec) <- fi$keys[[i]][j+1]
+
+     hot_rows <- x_data[[col_i]] %==% j_lvl
+
      if(!is_empty(hot_rows)){
-      mat[hot_rows , j] <- 1
+      collapse::setv(
+       X = vec,
+       v = hot_rows,
+       R = 1L,
+       vind1 = TRUE
+      )
      }
 
+     collapse::add_vars(x_data) <- collapse::get_vars(vec, 1)
+
     }
-
-    # data[[fi$cols[i]]] <- NULL
-
-    x_data <- cbind(x_data, mat)
 
    }
 
   }
-
-
 
  }
 
@@ -84,11 +77,13 @@ ref_code <- function (x_data, fi, names_x_data){
 
   if(fi$cols[i] %in% names_x_data){
    if(!fi$ordr[i]){
+
     OH_names <- insert_vals(
      vec = OH_names,
-     where = which(fi$cols[i] == OH_names),
+     where = OH_names %==% fi$cols[i],
      what = fi$keys[[i]][-1]
     )
+
    }
   }
 
@@ -98,8 +93,85 @@ ref_code <- function (x_data, fi, names_x_data){
 
 }
 
-
-
+# an older version of the function above that didn't use collapse
+# (its about 2 times slower)
+# ref_code <- function (x_data, fi, names_x_data){
+#
+#  # Will use these original names to help re-order the output
+#
+#  for(i in seq_along(fi$cols)){
+#
+#   if(fi$cols[i] %in% names(x_data)){
+#
+#    if(fi$ordr[i]){
+#
+#     x_data[[ fi$cols[i] ]] <- as.integer( x_data[[ fi$cols[i] ]] )
+#
+#    } else {
+#
+#     # make a matrix for each factor
+#     mat <- matrix(0,
+#                   nrow = nrow(x_data),
+#                   ncol = length(fi$lvls[[i]])
+#     )
+#
+#     colnames(mat) <- fi$keys[[i]]
+#
+#     # missing values of the factor become missing rows
+#     mat[is.na(x_data[[fi$cols[i]]]), ] <- NA_integer_
+#
+#     # we will one-hot encode the matrix and then bind it to data,
+#     # replacing the original factor column. Go through the matrix
+#     # column by column, where each column corresponds to a level
+#     # of the current factor (indexed by i). Flip the values
+#     # of the j'th column to 1 whenever the current factor's value
+#     # is the j'th level.
+#
+#     for (j in seq(ncol(mat))) {
+#
+#      # find which rows to turn into 1's. These should be the
+#      # indices in the currect factor where it's value is equal
+#      # to the j'th level.
+#      hot_rows <- which( x_data[[fi$cols[i]]] == fi$lvls[[i]][j] )
+#
+#      # after finding the rows, flip the values from 0 to 1
+#      if(!is_empty(hot_rows)){
+#       mat[hot_rows , j] <- 1
+#      }
+#
+#     }
+#
+#     # data[[fi$cols[i]]] <- NULL
+#
+#     x_data <- cbind(x_data, mat)
+#
+#    }
+#
+#   }
+#
+#
+#
+#  }
+#
+#  OH_names <- names_x_data
+#
+#  for (i in seq_along(fi$cols)){
+#
+#   if(fi$cols[i] %in% names_x_data){
+#    if(!fi$ordr[i]){
+#     OH_names <- insert_vals(
+#      vec = OH_names,
+#      where = which(fi$cols[i] == OH_names),
+#      what = fi$keys[[i]][-1]
+#     )
+#    }
+#   }
+#
+#  }
+#
+#  select_cols(x_data, OH_names)
+#
+# }
 
 #' insert some value(s) into a vector
 #'
