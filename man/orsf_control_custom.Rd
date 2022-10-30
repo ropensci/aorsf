@@ -108,12 +108,7 @@ How well do our two customized ORSFs do? Let’s compute their indices of
 prediction accuracy based on out-of-bag predictions:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(riskRegression)
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## riskRegression version 2022.03.22
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(survival)
+library(survival)
 
 risk_preds <- list(rando = 1 - fit_rando$pred_oobag,
                     pca = 1 - fit_pca$pred_oobag)
@@ -134,16 +129,18 @@ The PCA ORSF does quite well! (higher IPA is better)
 ## Results by model:
 ## 
 ##         model times  Brier  lower  upper    IPA
+##        <fctr> <num> <char> <char> <char> <char>
 ## 1: Null model  1788 20.479 18.089 22.869  0.000
 ## 2:      rando  1788 12.555 10.382 14.728 38.695
 ## 3:        pca  1788 12.313 10.327 14.299 39.876
 ## 
 ## Results of model comparisons:
 ## 
-##    times model  reference delta.Brier   lower  upper            p
-## 1:  1788 rando Null model      -7.924 -10.186 -5.663 6.517913e-12
-## 2:  1788   pca Null model      -8.166 -10.093 -6.239 1.000237e-16
-## 3:  1788   pca      rando      -0.242  -1.114  0.631 5.869253e-01
+##    times  model  reference delta.Brier   lower  upper            p
+##    <num> <fctr>     <fctr>      <char>  <char> <char>        <num>
+## 1:  1788  rando Null model      -7.924 -10.186 -5.663 6.517913e-12
+## 2:  1788    pca Null model      -8.166 -10.093 -6.239 1.000237e-16
+## 3:  1788    pca      rando      -0.242  -1.114  0.631 5.869253e-01
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.

@@ -155,12 +155,12 @@ To get aggregated values across all levels of each factor, use
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi(fit)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper        age    albumin    protime 
-## 0.36013072 0.28140066 0.25403773 0.19806763 0.18608329 0.17480916 0.15170120 
-##       chol      stage    spiders        ast     hepato        sex       trig 
-## 0.14917270 0.13967665 0.13223663 0.11937944 0.11901034 0.10338744 0.09902514 
-##   alk.phos   platelet        trt 
-## 0.09348659 0.07993689 0.06591549
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper        age    albumin 
+## 0.36013072 0.28140066 0.25403773 0.19806763 0.18608329 0.17480916 
+##    protime       chol      stage    spiders        ast     hepato 
+## 0.15170120 0.14917270 0.13967665 0.13223663 0.11937944 0.11901034 
+##        sex       trig   alk.phos   platelet        trt 
+## 0.10338744 0.09902514 0.09348659 0.07993689 0.06591549
 }\if{html}{\out{</div>}}
 }
 
@@ -229,12 +229,14 @@ You can still get negation VI from this fit, but it needs to be computed
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi_negate(fit_permute_vi)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##         bili       copper          age      protime      albumin      ascites 
-##  0.094186289  0.025213586  0.025161492  0.011929569  0.008543447  0.005626172 
-##        stage         chol          ast          sex        edema      spiders 
-##  0.005365701  0.004375912  0.004011252  0.003907064  0.003243483  0.002396333 
-##     platelet     alk.phos       hepato          trt         trig 
-##  0.001406543 -0.000833507 -0.001406543 -0.002240050 -0.003125651
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##         bili       copper          age      protime      albumin 
+##  0.094186289  0.025213586  0.025161492  0.011929569  0.008543447 
+##      ascites        stage         chol          ast          sex 
+##  0.005626172  0.005365701  0.004375912  0.004011252  0.003907064 
+##        edema      spiders     platelet     alk.phos       hepato 
+##  0.003243483  0.002396333  0.001406543 -0.000833507 -0.001406543 
+##          trt         trig 
+## -0.002240050 -0.003125651
 }\if{html}{\out{</div>}}
 }
 }

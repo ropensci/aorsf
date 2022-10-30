@@ -1604,7 +1604,8 @@ check_predict <- function(object,
                      arg_name = 'na_action',
                      valid_options = c("fail",
                                        "pass",
-                                       "omit"))
+                                       "omit",
+                                       "impute_meanmode"))
 
  }
 

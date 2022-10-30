@@ -156,6 +156,7 @@ pd_train
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon         bili      mean        lwr       medn       upr
+##           <num>        <num>     <num>      <num>      <num>     <num>
 ## 1:      1826.25 -0.452406674 0.2061119 0.01444274 0.09357446 0.8053158
 ## 2:      1826.25 -0.224302469 0.2348236 0.02656555 0.12452704 0.8206148
 ## 3:      1826.25  0.003801737 0.2749933 0.04342625 0.17565052 0.8406553
@@ -170,6 +171,7 @@ pd_train
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon         bili      mean        lwr       medn       upr
+##           <num>        <num>     <num>      <num>      <num>     <num>
 ## 1:      1826.25 -0.452406674 0.2072237 0.01383381 0.08975103 0.7998756
 ## 2:      1826.25 -0.224302469 0.2348821 0.02603647 0.12916899 0.8152149
 ## 3:      1826.25  0.003801737 0.2746627 0.04234095 0.18723298 0.8371582
@@ -186,6 +188,7 @@ pd_test
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon         bili      mean        lwr      medn       upr
+##           <num>        <num>     <num>      <num>     <num>     <num>
 ## 1:      1826.25 -0.452406674 0.2540722 0.01564154 0.1912170 0.8103449
 ## 2:      1826.25 -0.224302469 0.2823693 0.03037250 0.2304118 0.8413602
 ## 3:      1826.25  0.003801737 0.3204294 0.04941981 0.2735839 0.8495418

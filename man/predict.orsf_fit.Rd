@@ -41,6 +41,9 @@ options are
 \item 'fail' : an error is thrown if \code{new_data} contains \code{NA} values
 \item 'pass' : the output will have \code{NA} in all rows where \code{new_data} has 1 or more \code{NA} value for the predictors used by \code{object}
 \item 'omit' : rows in \code{new_data} with incomplete data will be dropped
+\item 'impute_meanmode' : missing values for continuous and categorical variables in \code{new_data} will be imputed using the mean and mode, respectively. To clarify,
+the mean and mode used to impute missing values are from the
+training data of \code{object}, not from \code{new_data}.
 }}
 
 \item{boundary_checks}{(\emph{logical}) if \code{TRUE}, \code{pred_horizon} will be
@@ -56,8 +59,7 @@ to value \code{j} in \code{pred_horizon}. Row \code{i} of the matrix corresponds
 row \code{i} in \code{new_data}.
 }
 \description{
-Predicted risk or survival (someday also hazard or mortality)
-from an ORSF model.
+Predicted risk, survival, hazard, or mortality from an ORSF model.
 }
 \details{
 \code{new_data} must have the same columns with equivalent types as the data

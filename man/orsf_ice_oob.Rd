@@ -147,6 +147,7 @@ ice_oob
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##       pred_horizon id_variable id_row       bili      pred
+##              <num>       <int>  <int>      <num>     <num>
 ##    1:         1788           1      1 -0.5072068 0.9066901
 ##    2:         1788           1      2 -0.5072068 0.1018084
 ##    3:         1788           1      3 -0.5072068 0.7859806

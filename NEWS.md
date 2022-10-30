@@ -1,3 +1,11 @@
+# aorsf 0.0.4
+
+* Added `verbose_progress` input to `orsf`, which prints messages to console indicating progress. 
+
+* Allowance of missing values for `orsf`. Mean and mode imputation is performed for observations with missing data. These values can also be used to impute new data with missing values.
+
+* Centering and scaling of predictors is now done prior to growing the forest. 
+
 # aorsf 0.0.3
 
 * Included rOpenSci reviewers Christopher Jackson, Marvin N Wright, and Lukas Burk in `DESCRIPTION` as reviewers. Thank you!

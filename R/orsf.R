@@ -164,7 +164,12 @@
 #'
 #'   - `r roxy_na_action_fail("data")`
 #'   - `r roxy_na_action_omit("data")`
-#'   - `r roxy_na_action_impute_meanmode("data")`
+#'   - `r roxy_na_action_impute_meanmode("data")`. Note that is this
+#'     option is selected and `attach_data` is `TRUE`, the data attached
+#'     to the output will be the imputed version of `data`.
+#'
+#' @param verbose_progress (_logical_) if `TRUE`, progress messages are
+#'   printed in the console.
 #'
 #' @param ... `r roxy_dots()`
 #'
@@ -309,6 +314,7 @@ orsf <- function(data,
                  attach_data = TRUE,
                  no_fit = FALSE,
                  na_action = 'fail',
+                 verbose_progress = FALSE,
                  ...){
 
  #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
@@ -691,7 +697,8 @@ orsf <- function(data,
                              'net' = 'N',
                              'custom' = 'U'),
   f_oobag_eval      = f_oobag_eval,
-  type_oobag_eval_  = type_oobag_eval
+  type_oobag_eval_  = type_oobag_eval,
+  verbose_progress  = verbose_progress
  )
 
  orsf_out$data <- if(attach_data) data else NULL
@@ -768,7 +775,7 @@ orsf <- function(data,
  attr(orsf_out, 'net_df_target')       <- net_df_target
  attr(orsf_out, 'numeric_bounds')      <- numeric_bounds
  attr(orsf_out, 'means')               <- means
- attr(orsf_out, 'modes')               <- means
+ attr(orsf_out, 'modes')               <- modes
  attr(orsf_out, 'standard_deviations') <- standard_deviations
  attr(orsf_out, 'trained')             <- !no_fit
  attr(orsf_out, 'n_retry')             <- n_retry
@@ -781,6 +788,7 @@ orsf <- function(data,
  attr(orsf_out, 'oobag_eval_every')    <- oobag_eval_every
  attr(orsf_out, 'importance')          <- importance
  attr(orsf_out, 'weights_user')        <- weights
+ attr(orsf_out, 'verbose_progress')    <- verbose_progress
 
  attr(orsf_out, 'tree_seeds') <- if(is.null(tree_seeds)) c() else tree_seeds
 
@@ -1021,7 +1029,8 @@ orsf_train_ <- function(object,
                              'net' = 'N',
                              'custom' = 'U'),
   f_oobag_eval      = get_f_oobag_eval(object),
-  type_oobag_eval_  = get_type_oobag_eval(object)
+  type_oobag_eval_  = get_type_oobag_eval(object),
+  verbose_progress  = get_verbose_progress(object)
  )
 
 

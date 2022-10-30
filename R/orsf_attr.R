@@ -1,6 +1,5 @@
 
-
-
+# nocov start
 
 #' ORSF attributes
 #'
@@ -52,6 +51,7 @@ get_type_oobag_eval    <- function(object) attr(object, 'type_oobag_eval')
 get_tree_seeds         <- function(object) attr(object, 'tree_seeds')
 get_weights_user       <- function(object) attr(object, 'weights_user')
 get_event_times        <- function(object) attr(object, 'event_times')
+get_verbose_progress   <- function(object) attr(object, 'verbose_progress')
 
 #' ORSF status
 #'
@@ -101,3 +101,5 @@ get_names_x <- function(object, ref_code_names = FALSE){
  else
   attr(object, 'names_x')
 }
+
+# nocov end

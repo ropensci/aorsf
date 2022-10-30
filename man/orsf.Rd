@@ -28,6 +28,7 @@ orsf(
   attach_data = TRUE,
   no_fit = FALSE,
   na_action = "fail",
+  verbose_progress = FALSE,
   ...
 )
 
@@ -161,8 +162,13 @@ directly submitted to \code{orsf_train()} so long as \code{attach_data} is \code
 \itemize{
 \item 'fail' : an error is thrown if \code{data} contains \code{NA} values
 \item 'omit' : rows in \code{data} with incomplete data will be dropped
-\item 'impute_meanmode' : missing values for continuous and categorical variables in \code{data} will be imputed using the mean and mode, respectively
+\item 'impute_meanmode' : missing values for continuous and categorical variables in \code{data} will be imputed using the mean and mode, respectively. Note that is this
+option is selected and \code{attach_data} is \code{TRUE}, the data attached
+to the output will be the imputed version of \code{data}.
 }}
+
+\item{verbose_progress}{(\emph{logical}) if \code{TRUE}, progress messages are
+printed in the console.}
 
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 
