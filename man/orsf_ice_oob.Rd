@@ -117,24 +117,22 @@ set.seed(329)
 fit <- orsf(data = pbc_orsf, formula = Surv(time, status) ~ . - id)
 
 fit
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
-## 
-##      Linear combinations: Accelerated
-##           N observations: 276
-##                 N events: 111
-##                  N trees: 500
-##       N predictors total: 17
-##    N predictors per node: 5
-##  Average leaves per tree: 24
-## Min observations in leaf: 5
-##       Min events in leaf: 1
-##           OOB stat value: 0.84
-##            OOB stat type: Harrell's C-statistic
-##      Variable importance: anova
-## 
-## -----------------------------------------
+#> ---------- Oblique random survival forest
+#> 
+#>      Linear combinations: Accelerated
+#>           N observations: 276
+#>                 N events: 111
+#>                  N trees: 500
+#>       N predictors total: 17
+#>    N predictors per node: 5
+#>  Average leaves per tree: 24
+#> Min observations in leaf: 5
+#>       Min events in leaf: 1
+#>           OOB stat value: 0.84
+#>            OOB stat type: Harrell's C-statistic
+#>      Variable importance: anova
+#> 
+#> -----------------------------------------
 }\if{html}{\out{</div>}}
 
 Use the ensemble to compute ICE values using out-of-bag predictions:
@@ -144,21 +142,19 @@ Use the ensemble to compute ICE values using out-of-bag predictions:
 ice_oob <- orsf_ice_oob(fit, pred_spec, boundary_checks = FALSE)
 
 ice_oob
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##       pred_horizon id_variable id_row       bili      pred
-##              <num>       <int>  <int>      <num>     <num>
-##    1:         1788           1      1 -0.5072068 0.9066901
-##    2:         1788           1      2 -0.5072068 0.1018084
-##    3:         1788           1      3 -0.5072068 0.7859806
-##    4:         1788           1      4 -0.5072068 0.3902461
-##    5:         1788           1      5 -0.5072068 0.1250285
-##   ---                                                     
-## 6896:         1788          25    272  1.4488584 0.3948899
-## 6897:         1788          25    273  1.4488584 0.4759938
-## 6898:         1788          25    274  1.4488584 0.4406426
-## 6899:         1788          25    275  1.4488584 0.3330580
-## 6900:         1788          25    276  1.4488584 0.5663547
+#>       pred_horizon id_variable id_row       bili      pred
+#>              <num>       <int>  <int>      <num>     <num>
+#>    1:         1788           1      1 -0.5072068 0.9066901
+#>    2:         1788           1      2 -0.5072068 0.1018084
+#>    3:         1788           1      3 -0.5072068 0.7859806
+#>    4:         1788           1      4 -0.5072068 0.3902461
+#>    5:         1788           1      5 -0.5072068 0.1250285
+#>   ---                                                     
+#> 6896:         1788          25    272  1.4488584 0.3948899
+#> 6897:         1788          25    273  1.4488584 0.4759938
+#> 6898:         1788          25    274  1.4488584 0.4406426
+#> 6899:         1788          25    275  1.4488584 0.3330580
+#> 6900:         1788          25    276  1.4488584 0.5663547
 }\if{html}{\out{</div>}}
 
 Much more detailed examples are given in the

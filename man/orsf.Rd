@@ -305,24 +305,22 @@ The entry-point into \code{aorsf} is the standard call to \code{orsf()}:
 printing \code{fit} provides quick descriptive summaries:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
-## 
-##      Linear combinations: Accelerated
-##           N observations: 276
-##                 N events: 111
-##                  N trees: 500
-##       N predictors total: 17
-##    N predictors per node: 5
-##  Average leaves per tree: 24
-## Min observations in leaf: 5
-##       Min events in leaf: 1
-##           OOB stat value: 0.84
-##            OOB stat type: Harrell's C-statistic
-##      Variable importance: anova
-## 
-## -----------------------------------------
+#> ---------- Oblique random survival forest
+#> 
+#>      Linear combinations: Accelerated
+#>           N observations: 276
+#>                 N events: 111
+#>                  N trees: 500
+#>       N predictors total: 17
+#>    N predictors per node: 5
+#>  Average leaves per tree: 24
+#> Min observations in leaf: 5
+#>       Min events in leaf: 1
+#>           OOB stat value: 0.84
+#>            OOB stat type: Harrell's C-statistic
+#>      Variable importance: anova
+#> 
+#> -----------------------------------------
 }\if{html}{\out{</div>}}
 \subsection{Model control}{
 
@@ -433,30 +431,26 @@ sc <- Score(object = risk_preds,
 The AUC values, from highest to lowest:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{sc$AUC$score[order(-AUC)]
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##     model times       AUC         se     lower     upper
-##    <fctr> <num>     <num>      <num>     <num>     <num>
-## 1:    pca  1788 0.9140542 0.01962854 0.8755830 0.9525254
-## 2:  accel  1788 0.9109875 0.02174062 0.8683766 0.9535983
-## 3:    net  1788 0.9081592 0.02161885 0.8657871 0.9505314
-## 4:    cph  1788 0.9072690 0.02122339 0.8656719 0.9488660
-## 5:  rando  1788 0.8681493 0.02418770 0.8207423 0.9155564
+#>     model times       AUC         se     lower     upper
+#>    <fctr> <num>     <num>      <num>     <num>     <num>
+#> 1:  accel  1788 0.9106308 0.02180374 0.8678963 0.9533654
+#> 2:    net  1788 0.9081592 0.02161885 0.8657871 0.9505314
+#> 3:    cph  1788 0.9072690 0.02122339 0.8656719 0.9488660
+#> 4:    pca  1788 0.8915619 0.02337586 0.8457461 0.9373778
+#> 5:  rando  1788 0.8900944 0.02230125 0.8463847 0.9338040
 }\if{html}{\out{</div>}}
 
 And the indices of prediction accuracy:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{sc$Brier$score[order(-IPA), .(model, times, IPA)]
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##         model times       IPA
-##        <fctr> <num>     <num>
-## 1:      accel  1788 0.4893270
-## 2:        net  1788 0.4842680
-## 3:        cph  1788 0.4689101
-## 4:        pca  1788 0.4238639
-## 5:      rando  1788 0.3395780
-## 6: Null model  1788 0.0000000
+#>         model times       IPA
+#>        <fctr> <num>     <num>
+#> 1:      accel  1788 0.4891448
+#> 2:        net  1788 0.4842680
+#> 3:        cph  1788 0.4687734
+#> 4:      rando  1788 0.4011573
+#> 5:        pca  1788 0.3845911
+#> 6: Null model  1788 0.0000000
 }\if{html}{\out{</div>}}
 
 From inspection,
@@ -494,22 +488,20 @@ analyses <- vfold_cv(data = pbc_orsf, v = 10) \%>\%
         test = map2(splits, recipe, ~bake(.y, new_data = testing(.x))))
 
 analyses
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## #  10-fold cross-validation 
-## # A tibble: 10 x 5
-##    splits           id     recipe   train               test              
-##    <list>           <chr>  <list>   <list>              <list>            
-##  1 <split [248/28]> Fold01 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
-##  2 <split [248/28]> Fold02 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
-##  3 <split [248/28]> Fold03 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
-##  4 <split [248/28]> Fold04 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
-##  5 <split [248/28]> Fold05 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
-##  6 <split [248/28]> Fold06 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
-##  7 <split [249/27]> Fold07 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
-##  8 <split [249/27]> Fold08 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
-##  9 <split [249/27]> Fold09 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
-## 10 <split [249/27]> Fold10 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
+#> #  10-fold cross-validation 
+#> # A tibble: 10 x 5
+#>    splits           id     recipe   train               test              
+#>    <list>           <chr>  <list>   <list>              <list>            
+#>  1 <split [248/28]> Fold01 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
+#>  2 <split [248/28]> Fold02 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
+#>  3 <split [248/28]> Fold03 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
+#>  4 <split [248/28]> Fold04 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
+#>  5 <split [248/28]> Fold05 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
+#>  6 <split [248/28]> Fold06 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
+#>  7 <split [249/27]> Fold07 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
+#>  8 <split [249/27]> Fold08 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
+#>  9 <split [249/27]> Fold09 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
+#> 10 <split [249/27]> Fold10 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
 }\if{html}{\out{</div>}}
 
 Define functions for a ‘workflow’ with \code{randomForestSRC}, \code{ranger}, and
@@ -564,33 +556,31 @@ data and predictions.
  unnest(everything())
 
 glimpse(results)
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## Rows: 276
-## Columns: 23
-## $ id          <int> 7, 36, 52, 65, 67, 72, 79, 88, 89, 100, 127, 154, 161,~
-## $ trt         <fct> placebo, placebo, d_penicill_main, d_penicill_main, pl~
-## $ age         <dbl> 55.53457, 56.41068, 50.54073, 40.20260, 51.28816, 32.4~
-## $ sex         <fct> f, f, m, f, f, f, f, f, f, m, f, m, f, m, f, f, f, f, ~
-## $ ascites     <fct> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
-## $ hepato      <fct> 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, ~
-## $ spiders     <fct> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, ~
-## $ edema       <fct> 0, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0~
-## $ bili        <dbl> 1.0, 0.3, 6.0, 1.2, 1.1, 0.5, 0.8, 0.6, 2.0, 2.3, 0.5,~
-## $ chol        <int> 322, 172, 614, 256, 466, 320, 315, 296, 408, 178, 268,~
-## $ albumin     <dbl> 4.09, 3.39, 3.70, 3.60, 3.91, 3.54, 4.24, 4.06, 3.65, ~
-## $ copper      <int> 52, 18, 158, 74, 84, 51, 13, 37, 50, 145, 9, 225, 4, 2~
-## $ alk.phos    <dbl> 824.0, 558.0, 5084.4, 724.0, 1787.0, 1243.0, 1637.0, 1~
-## $ ast         <dbl> 60.45, 71.30, 206.40, 141.05, 328.60, 122.45, 170.50, ~
-## $ trig        <int> 213, 96, 93, 108, 185, 80, 70, 83, 98, 122, 95, 75, 18~
-## $ platelet    <int> 204, 311, 362, 430, 261, 225, 426, 442, 200, 119, 453,~
-## $ protime     <dbl> 9.7, 10.6, 10.6, 10.0, 10.0, 10.0, 10.9, 12.0, 11.4, 1~
-## $ stage       <ord> 3, 2, 1, 1, 3, 3, 3, 3, 2, 4, 2, 3, 2, 4, 4, 3, 3, 3, ~
-## $ time        <int> 1832, 3611, 2386, 3992, 2769, 4184, 3707, 2452, 1741, ~
-## $ status      <dbl> 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, ~
-## $ pred_aorsf  <dbl> 0.14427839, 0.01870334, 0.51377784, 0.04334777, 0.2191~
-## $ pred_rfsrc  <dbl> 0.14732022, 0.03156261, 0.55773866, 0.06502143, 0.1619~
-## $ pred_ranger <dbl> 0.14870388, 0.01662689, 0.57519043, 0.05876898, 0.1488~
+#> Rows: 276
+#> Columns: 23
+#> $ id          <int> 2, 16, 27, 66, 79, 97, 107, 116, 136, 137, 158, 189, 193,~
+#> $ trt         <fct> d_penicill_main, placebo, placebo, d_penicill_main, d_pen~
+#> $ age         <dbl> 56.44627, 40.44353, 54.43943, 46.45311, 46.51608, 71.8932~
+#> $ sex         <fct> f, f, f, m, f, m, f, f, f, f, f, f, f, f, f, f, f, f, f, ~
+#> $ ascites     <fct> 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+#> $ hepato      <fct> 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, ~
+#> $ spiders     <fct> 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, ~
+#> $ edema       <fct> 0, 0, 0.5, 0, 0, 0.5, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
+#> $ bili        <dbl> 1.1, 0.7, 21.6, 1.4, 0.8, 2.0, 0.6, 3.0, 0.8, 1.1, 3.4, 1~
+#> $ chol        <int> 302, 204, 175, 427, 315, 420, 212, 458, 263, 399, 450, 36~
+#> $ albumin     <dbl> 4.14, 3.66, 3.31, 3.70, 4.24, 3.26, 4.03, 3.63, 3.35, 3.6~
+#> $ copper      <int> 54, 28, 221, 105, 13, 62, 10, 74, 27, 79, 32, 52, 267, 76~
+#> $ alk.phos    <dbl> 7394.8, 685.0, 3697.4, 1909.0, 1637.0, 3196.0, 648.0, 158~
+#> $ ast         <dbl> 113.52, 72.85, 101.91, 182.90, 170.50, 77.50, 71.30, 106.~
+#> $ trig        <int> 88, 58, 168, 171, 70, 91, 77, 382, 69, 152, 118, 164, 157~
+#> $ platelet    <int> 221, 198, 80, 123, 426, 344, 316, 438, 206, 344, 313, 256~
+#> $ protime     <dbl> 10.6, 10.8, 12.0, 11.0, 10.9, 11.4, 17.1, 9.9, 9.8, 10.1,~
+#> $ stage       <ord> 3, 3, 4, 3, 3, 3, 1, 3, 2, 2, 2, 3, 4, 4, 2, 2, 3, 3, 4, ~
+#> $ time        <int> 4500, 3672, 77, 4191, 3707, 611, 3388, 3336, 3098, 2990, ~
+#> $ status      <dbl> 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, ~
+#> $ pred_aorsf  <dbl> 0.21650571, 0.01569191, 0.93095617, 0.36737089, 0.1286820~
+#> $ pred_rfsrc  <dbl> 0.15202784, 0.01104486, 0.81913559, 0.20173550, 0.1380660~
+#> $ pred_ranger <dbl> 0.11418963, 0.02130315, 0.77073269, 0.22130305, 0.1841997~
 }\if{html}{\out{</div>}}
 
 And finish by aggregating the predictions and computing performance in
@@ -608,59 +598,52 @@ counts.
  summary = 'IPA',
  times = ph
 )
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## 
-## Metric AUC:
-## 
-## Results by model:
-## 
-##     model times    AUC  lower  upper
-##    <fctr> <num> <char> <char> <char>
-## 1:  aorsf  1826   91.2   87.0   95.4
-## 2:  rfsrc  1826   90.5   86.4   94.6
-## 3: ranger  1826   90.3   86.2   94.5
-## 
-## Results of model comparisons:
-## 
-##    times  model reference delta.AUC  lower  upper     p
-##    <num> <fctr>    <fctr>    <char> <char> <char> <num>
-## 1:  1826  rfsrc     aorsf      -0.7   -2.3    0.8   0.4
-## 2:  1826 ranger     aorsf      -0.9   -2.3    0.5   0.2
-## 3:  1826 ranger     rfsrc      -0.1   -1.1    0.9   0.8
-
-## 
-## NOTE: Values are multiplied by 100 and given in \%.
-
-## NOTE: The higher AUC the better.
-
-## 
-## Metric Brier:
-## 
-## Results by model:
-## 
-##         model   times  Brier  lower  upper    IPA
-##        <fctr>   <num> <char> <char> <char> <char>
-## 1: Null model 1826.25   20.5   18.1   22.9    0.0
-## 2:      aorsf 1826.25   10.5    8.3   12.7   48.7
-## 3:      rfsrc 1826.25   11.6    9.5   13.6   43.6
-## 4:     ranger 1826.25   11.5    9.5   13.6   43.6
-## 
-## Results of model comparisons:
-## 
-##      times  model  reference delta.Brier  lower  upper            p
-##      <num> <fctr>     <fctr>      <char> <char> <char>        <num>
-## 1: 1826.25  aorsf Null model       -10.0  -12.6   -7.3 1.430444e-13
-## 2: 1826.25  rfsrc Null model        -8.9  -11.2   -6.7 5.508455e-15
-## 3: 1826.25 ranger Null model        -8.9  -11.3   -6.6 5.511591e-14
-## 4: 1826.25  rfsrc      aorsf         1.1    0.2    1.9 1.141214e-02
-## 5: 1826.25 ranger      aorsf         1.0    0.3    1.7 3.742797e-03
-## 6: 1826.25 ranger      rfsrc        -0.0   -0.5    0.5 9.730271e-01
-
-## 
-## NOTE: Values are multiplied by 100 and given in \%.
-
-## NOTE: The lower Brier the better, the higher IPA the better.
+#> 
+#> Metric AUC:
+#> 
+#> Results by model:
+#> 
+#>     model times    AUC  lower  upper
+#>    <fctr> <num> <char> <char> <char>
+#> 1:  aorsf  1826   90.1   85.7   94.6
+#> 2:  rfsrc  1826   89.4   85.0   93.7
+#> 3: ranger  1826   90.1   85.9   94.3
+#> 
+#> Results of model comparisons:
+#> 
+#>    times  model reference delta.AUC  lower  upper     p
+#>    <num> <fctr>    <fctr>    <char> <char> <char> <num>
+#> 1:  1826  rfsrc     aorsf      -0.7   -2.3    0.8   0.4
+#> 2:  1826 ranger     aorsf      -0.0   -1.7    1.6   1.0
+#> 3:  1826 ranger     rfsrc       0.7   -0.4    1.8   0.2
+#> 
+#> NOTE: Values are multiplied by 100 and given in \%.
+#> NOTE: The higher AUC the better.
+#> 
+#> Metric Brier:
+#> 
+#> Results by model:
+#> 
+#>         model   times  Brier  lower  upper    IPA
+#>        <fctr>   <num> <char> <char> <char> <char>
+#> 1: Null model 1826.25   20.5   18.1   22.9    0.0
+#> 2:      aorsf 1826.25   11.1    8.8   13.4   45.8
+#> 3:      rfsrc 1826.25   12.0    9.8   14.1   41.6
+#> 4:     ranger 1826.25   11.8    9.7   13.9   42.5
+#> 
+#> Results of model comparisons:
+#> 
+#>      times  model  reference delta.Brier  lower  upper            p
+#>      <num> <fctr>     <fctr>      <char> <char> <char>        <num>
+#> 1: 1826.25  aorsf Null model        -9.4  -12.1   -6.6 2.422069e-11
+#> 2: 1826.25  rfsrc Null model        -8.5  -10.8   -6.2 2.101397e-13
+#> 3: 1826.25 ranger Null model        -8.7  -11.0   -6.4 1.803141e-13
+#> 4: 1826.25  rfsrc      aorsf         0.9   -0.0    1.7 5.278216e-02
+#> 5: 1826.25 ranger      aorsf         0.7   -0.1    1.5 1.008860e-01
+#> 6: 1826.25 ranger      rfsrc        -0.2   -0.7    0.3 4.551058e-01
+#> 
+#> NOTE: Values are multiplied by 100 and given in \%.
+#> NOTE: The lower Brier the better, the higher IPA the better.
 }\if{html}{\out{</div>}}
 
 From inspection,
@@ -815,12 +798,12 @@ Let’s look at the overall results:
  )
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 3 x 4
-##   learner_id  surv.graf surv.cindex time_train
-##   <chr>           <dbl>       <dbl>      <dbl>
-## 1 surv.aorsf      0.151       0.729      0.345
-## 2 surv.ranger     0.167       0.706      2.54 
-## 3 surv.rfsrc      0.156       0.715      0.783
+\if{html}{\out{<div class="sourceCode">}}\preformatted{#> # A tibble: 3 x 4
+#>   learner_id  surv.graf surv.cindex time_train
+#>   <chr>           <dbl>       <dbl>      <dbl>
+#> 1 surv.aorsf      0.151       0.729      0.345
+#> 2 surv.ranger     0.167       0.706      2.54 
+#> 3 surv.rfsrc      0.156       0.715      0.783
 }\if{html}{\out{</div>}}
 
 From inspection,

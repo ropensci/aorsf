@@ -271,8 +271,9 @@ For plots, it is helpful to scale the ICE data. I subtract the initial value of 
 
   ```{r}
   
-  ice_oob[, pred := pred - pred[bili==1], by = id_row]
-  
+  ice_oob[, pred_subtract := rep(pred[id_variable==1], times=25)]
+  ice_oob[, pred := pred - pred_subtract]
+
   ```
   
 Now we can visualize the curves.

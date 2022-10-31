@@ -57,24 +57,22 @@ fit_rando <- orsf(pbc_orsf,
                   n_tree = 500)
 
 fit_rando
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
-## 
-##      Linear combinations: Custom user function
-##           N observations: 276
-##                 N events: 111
-##                  N trees: 500
-##       N predictors total: 17
-##    N predictors per node: 5
-##  Average leaves per tree: 23
-## Min observations in leaf: 5
-##       Min events in leaf: 1
-##           OOB stat value: 0.82
-##            OOB stat type: Harrell's C-statistic
-##      Variable importance: anova
-## 
-## -----------------------------------------
+#> ---------- Oblique random survival forest
+#> 
+#>      Linear combinations: Custom user function
+#>           N observations: 276
+#>                 N events: 111
+#>                  N trees: 500
+#>       N predictors total: 17
+#>    N predictors per node: 5
+#>  Average leaves per tree: 23
+#> Min observations in leaf: 5
+#>       Min events in leaf: 1
+#>           OOB stat value: 0.82
+#>            OOB stat type: Harrell's C-statistic
+#>      Variable importance: anova
+#> 
+#> -----------------------------------------
 }\if{html}{\out{</div>}}
 }
 
@@ -123,29 +121,25 @@ sc <- Score(object = risk_preds,
 The PCA ORSF does quite well! (higher IPA is better)
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{sc$Brier
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## 
-## Results by model:
-## 
-##         model times  Brier  lower  upper    IPA
-##        <fctr> <num> <char> <char> <char> <char>
-## 1: Null model  1788 20.479 18.089 22.869  0.000
-## 2:      rando  1788 12.555 10.382 14.728 38.695
-## 3:        pca  1788 12.313 10.327 14.299 39.876
-## 
-## Results of model comparisons:
-## 
-##    times  model  reference delta.Brier   lower  upper            p
-##    <num> <fctr>     <fctr>      <char>  <char> <char>        <num>
-## 1:  1788  rando Null model      -7.924 -10.186 -5.663 6.517913e-12
-## 2:  1788    pca Null model      -8.166 -10.093 -6.239 1.000237e-16
-## 3:  1788    pca      rando      -0.242  -1.114  0.631 5.869253e-01
-
-## 
-## NOTE: Values are multiplied by 100 and given in \%.
-
-## NOTE: The lower Brier the better, the higher IPA the better.
+#> 
+#> Results by model:
+#> 
+#>         model times  Brier  lower  upper    IPA
+#>        <fctr> <num> <char> <char> <char> <char>
+#> 1: Null model  1788 20.479 18.089 22.869  0.000
+#> 2:      rando  1788 12.381 10.175 14.588 39.541
+#> 3:        pca  1788 12.496 10.476 14.516 38.983
+#> 
+#> Results of model comparisons:
+#> 
+#>    times  model  reference delta.Brier   lower  upper            p
+#>    <num> <fctr>     <fctr>      <char>  <char> <char>        <num>
+#> 1:  1788  rando Null model      -8.098 -10.392 -5.804 4.557159e-12
+#> 2:  1788    pca Null model      -7.983  -9.888 -6.078 2.144459e-16
+#> 3:  1788    pca      rando       0.114  -0.703  0.932 7.838049e-01
+#> 
+#> NOTE: Values are multiplied by 100 and given in \%.
+#> NOTE: The lower Brier the better, the higher IPA the better.
 }\if{html}{\out{</div>}}
 }
 }
