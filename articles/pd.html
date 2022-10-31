@@ -515,7 +515,8 @@
 <p>The plot shows <em>change</em> in predicted risk as a function of <code>bili</code>.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">ice_oob</span><span class="op">[</span>, <span class="va">pred</span> <span class="op">:=</span> <span class="va">pred</span> <span class="op">-</span> <span class="va">pred</span><span class="op">[</span><span class="va">bili</span><span class="op">==</span><span class="fl">1</span><span class="op">]</span>, by <span class="op">=</span> <span class="va">id_row</span><span class="op">]</span></span></code></pre></div>
+<span><span class="va">ice_oob</span><span class="op">[</span>, <span class="va">pred_subtract</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">pred</span><span class="op">[</span><span class="va">id_variable</span><span class="op">==</span><span class="fl">1</span><span class="op">]</span>, times<span class="op">=</span><span class="fl">25</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">ice_oob</span><span class="op">[</span>, <span class="va">pred</span> <span class="op">:=</span> <span class="va">pred</span> <span class="op">-</span> <span class="va">pred_subtract</span><span class="op">]</span></span></code></pre></div>
 </li>
 </ul>
 <p>Now we can visualize the curves.</p>
