@@ -182,7 +182,7 @@
 #'
 #' @details
 #'
-#' This function is based on and highly similar to the `ORSF` function
+#' This function is based on and similar to the `ORSF` function
 #'   in the `obliqueRSF` R package. The primary difference is that this
 #'   function runs much faster. The speed increase is attributable to better
 #'   management of memory (i.e., no unnecessary copies of inputs) and using
@@ -210,6 +210,10 @@
 #' - The order of variables in the left hand side matters. i.e.,
 #'   writing `status + time ~ .` will make `orsf` assume your
 #'   `status` variable is actually the `time` variable.
+#'
+#' - The response variable can be a survival object stored in `data`.
+#'   For example, y ~ . is a valid formula if `data$y` inherits
+#'   from the `Surv` class.
 #'
 #' **mtry**:
 #'
