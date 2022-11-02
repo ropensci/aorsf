@@ -432,11 +432,23 @@ orsf <- function(data,
 
  names_y_data <- all.vars(formula[[2]])
 
- if(length(names_y_data) != 2)
+ if(length(names_y_data) == 1){
+  # this is fine if the response is a Surv object,
+  if(!inherits(data[[names_y_data]], 'Surv')){
+   # otherwise it will be a problem
+   stop("formula must have two variables (time & status) as the response",
+        call. = FALSE)
+  }
+
+ }
+
+ if(length(names_y_data) > 2){
   stop("formula must have two variables (time & status) as the response",
        call. = FALSE)
+ }
 
- types_y_data <- vector(mode = 'character', length = 2)
+ types_y_data <- vector(mode = 'character',
+                        length = length(names_y_data))
 
  for(i in seq_along(types_y_data)){
   types_y_data[i] <- class(data[[ names_y_data[i] ]])[1]

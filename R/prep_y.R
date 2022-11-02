@@ -18,6 +18,15 @@ prep_y <- function(data, cols, run_checks = TRUE){
 
  y <- select_cols(data, cols)
 
+ # if a surv object was included in the formula, it probably
+ # doesn't need to be checked here, but it's still checked
+ # just to be safe b/c if there is a problem with y it is
+ # likely that orsf_fit() will cause R to crash.
+ if(length(cols) == 1 && inherits(y[[1]], 'Surv')){
+  y <- as.data.frame(as.matrix(y))
+  cols <- names(y)
+ }
+
  for(i in cols){
   if(has_units(y[[i]])) y[[i]] <- as.numeric(y[[i]])
  }
