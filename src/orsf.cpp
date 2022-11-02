@@ -3557,6 +3557,9 @@ arma::vec orsf_oob_negate_vi(NumericMatrix& x,
  // vec betas_temp;
  uword variable;
 
+ denom_pred.set_size(x_input.n_rows);
+ surv_pvec.set_size(x_input.n_rows);
+
  for(variable = 0; variable < x_input.n_cols; ++variable){
 
   // Abort the routine if user has pressed Ctrl + C or Escape in R.
@@ -3648,6 +3651,9 @@ arma::vec orsf_oob_permute_vi(NumericMatrix& x,
  vec vimp(x_input.n_cols);
 
  uword variable;
+
+ denom_pred.set_size(x_input.n_rows);
+ surv_pvec.set_size(x_input.n_rows);
 
  for(variable = 0; variable < x_input.n_cols; ++variable){
 
