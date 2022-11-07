@@ -1,5 +1,7 @@
 # aorsf 0.0.4
 
+* `orsf` formulas now accepts `Surv` objects (see https://github.com/ropensci/aorsf/issues/11)
+
 * Added `verbose_progress` input to `orsf`, which prints messages to console indicating progress. 
 
 * Allowance of missing values for `orsf`. Mean and mode imputation is performed for observations with missing data. These values can also be used to impute new data with missing values.
