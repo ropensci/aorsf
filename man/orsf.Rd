@@ -462,8 +462,8 @@ And the indices of prediction accuracy:
 
 From inspection,
 \itemize{
-\item the PCA approach has the highest discrimination, showing that you
-can do very well with just a two line custom function.
+\item the PCA approach has the highest discrimination, showing that you can
+do very well with just a two line custom function.
 \item the accelerated ORSF has the highest index of prediction accuracy
 \item the random coefficients generally don’t do that well.
 }
@@ -824,8 +824,8 @@ From inspection,
 \itemize{
 \item \code{aorsf} appears to have a higher expected value for ‘surv.cindex’
 (higher is better)
-\item \code{aorsf} appears to have a lower expected value for ‘surv.graf’
-(lower is better)
+\item \code{aorsf} appears to have a lower expected value for ‘surv.graf’ (lower
+is better)
 \item \code{aorsf} has the lowest training time.
 }
 

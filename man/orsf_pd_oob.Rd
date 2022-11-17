@@ -193,16 +193,16 @@ pd_test
 ## 5:      1826.25  0.460010148 0.4258066 0.16681425 0.4032790 0.8626002
 }\if{html}{\out{</div>}}
 \item in-bag partial dependence indicates relationships that the model has
-learned during training. This is helpful if your goal is to
-interpret the model.
+learned during training. This is helpful if your goal is to interpret
+the model.
 \item out-of-bag partial dependence indicates relationships that the model
 has learned during training but using the out-of-bag data simulates
-application of the model to new data. if you want to test your
-model’s reliability or fairness in new data but you don’t have
-access to a large testing set.
-\item new data partial dependence shows how the model predicts outcomes
-for observations it has not seen. This is helpful if you want to
-test your model’s reliability or fairness.
+application of the model to new data. if you want to test your model’s
+reliability or fairness in new data but you don’t have access to a
+large testing set.
+\item new data partial dependence shows how the model predicts outcomes for
+observations it has not seen. This is helpful if you want to test your
+model’s reliability or fairness.
 }
 }
 }
