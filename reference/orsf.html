@@ -517,8 +517,8 @@ evaluating the out-of-bag survival predictions.</p>
 <span id="cb1-5"><a href="#cb1-5"></a><span class="co">## 4:      rando  1788 0.4011573</span></span>
 <span id="cb1-6"><a href="#cb1-6"></a><span class="co">## 5:        pca  1788 0.3845911</span></span>
 <span id="cb1-7"><a href="#cb1-7"></a><span class="co">## 6: Null model  1788 0.0000000</span></span></code></pre><p></p></div>
-<p>From inspection,</p><ul><li><p>the PCA approach has the highest discrimination, showing that you
-can do very well with just a two line custom function.</p></li>
+<p>From inspection,</p><ul><li><p>the PCA approach has the highest discrimination, showing that you can
+do very well with just a two line custom function.</p></li>
 <li><p>the accelerated ORSF has the highest index of prediction accuracy</p></li>
 <li><p>the random coefficients generally don’t do that well.</p></li>
 </ul></div>
@@ -842,8 +842,8 @@ learners:</p>
 <span id="cb1-6"><a href="#cb1-6"></a><span class="co">## 3 surv.rfsrc      0.156       0.715      0.783</span></span></code></pre><p></p></div>
 <p>From inspection,</p><ul><li><p><code>aorsf</code> appears to have a higher expected value for ‘surv.cindex’
 (higher is better)</p></li>
-<li><p><code>aorsf</code> appears to have a lower expected value for ‘surv.graf’
-(lower is better)</p></li>
+<li><p><code>aorsf</code> appears to have a lower expected value for ‘surv.graf’ (lower
+is better)</p></li>
 <li><p><code>aorsf</code> has the lowest training time.</p></li>
 </ul><p>the lower training time for <code>aorsf</code> is likely due to the fact that there
 are many unique event times in the benchmark tasks. <code>ranger</code> and <code>rfsrc</code>
