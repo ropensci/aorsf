@@ -405,6 +405,27 @@ orsf_pred_dependence <- function(object,
 
  out[, pred_horizon := as.numeric(pred_horizon)]
 
+ # put data back into original scale
+ for(j in intersect(names(means), names(pred_spec))){
+
+  if(j %in% names(out)){
+
+   var_index <- collapse::seq_row(out)
+   var_value <- (out[[j]] * standard_deviations[j]) + means[j]
+   var_name  <- j
+
+  } else {
+
+   var_index <- out$variable %==% j
+   var_value <- (out$value[var_index] * standard_deviations[j]) + means[j]
+   var_name  <- 'value'
+
+  }
+
+  set(out, i = var_index, j = var_name, value = var_value)
+
+ }
+
  # silent print after modify in place
  out[]
 

@@ -1,3 +1,8 @@
+# aorsf 0.0.5
+
+* Fixed an issue in `orsf_pd` functions where output data were not being returned on the original scale.
+
+
 # aorsf 0.0.4
 
 * `orsf` formulas now accepts `Surv` objects (see https://github.com/ropensci/aorsf/issues/11)

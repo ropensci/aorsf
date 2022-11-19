@@ -76,6 +76,18 @@ pd_vals_smry <- orsf_pd_new(
 )
 
 test_that(
+ 'pred_spec data are returned on the original scale',
+
+ code = {
+
+  expect_equal(unique(pd_vals_ice$bili), 1:4)
+  expect_equal(unique(pd_vals_smry$bili), 1:4)
+
+ }
+
+)
+
+test_that(
  'ice values summarized are the same as pd values',
  code = {
 
@@ -88,8 +100,6 @@ test_that(
 
  }
 )
-
-
 
 
 test_that(
