@@ -80,6 +80,7 @@
 <span>  oobag_eval_every <span class="op">=</span> <span class="va">n_tree</span>,</span>
 <span>  oobag_fun <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  importance <span class="op">=</span> <span class="st">"anova"</span>,</span>
+<span>  group_factors <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  tree_seeds <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  attach_data <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  no_fit <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -219,6 +220,11 @@ trees. When <code>oobag_fun = NULL</code> (the default), Harrell's C-statistic (
 <li><p>'negate': compute negation importance</p></li>
 <li><p>'permute': compute permutation importance</p></li>
 </ul><p>For details on these methods, see <a href="orsf_vi.html">orsf_vi</a>.</p></dd>
+
+
+<dt>group_factors</dt>
+<dd><p>(<em>logical</em>) Only relevant if variable importance is
+being estimated. if <code>TRUE</code>, the importance of factor variables will be reported overall by aggregating the importance of individual levels of the factor. If <code>FALSE</code>, the importance of individual factor levels will be returned.</p></dd>
 
 
 <dt>tree_seeds</dt>

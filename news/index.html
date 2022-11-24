@@ -56,7 +56,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.5" id="aorsf-005">aorsf 0.0.5<a class="anchor" aria-label="anchor" href="#aorsf-005"></a></h2>
-<ul><li>Fixed an issue in <code>orsf_pd</code> functions where output data were not being returned on the original scale.</li></ul></div>
+<ul><li><p>Made variable importance consistent with respect to <code>group_factors</code>. Originally, the output from <code>orsf</code> would have ungrouped VI values while <code>orsf_vi</code> would have grouped values. With this update, <code>orsf</code> defaults to grouped values. The ungrouped values can still be recovered.</p></li>
+<li><p>Fixed an issue in <code>orsf_pd</code> functions where output data were not being returned on the original scale.</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.4" id="aorsf-004">aorsf 0.0.4<a class="anchor" aria-label="anchor" href="#aorsf-004"></a></h2><p class="text-muted">CRAN release: 2022-11-07</p>
 <ul><li><p><code>orsf</code> formulas now accepts <code>Surv</code> objects (see <a href="https://github.com/ropensci/aorsf/issues/11" class="external-link uri">https://github.com/ropensci/aorsf/issues/11</a>)</p></li>
