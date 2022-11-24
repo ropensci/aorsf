@@ -7,10 +7,7 @@
 #'
 #' @inheritParams predict.orsf_fit
 #'
-#' @param group_factors (_logical_) if `TRUE`, the importance of factor
-#'   variables will be reported overall by aggregating the importance
-#'   of individual levels of the factor. If `FALSE`, the importance of
-#'   individual factor levels will be returned.
+#' @param group_factors (_logical_) `r roxy_group_factors()`
 #'
 #' @param importance `r roxy_importance_header()`
 #' - `r roxy_importance_anova()`
@@ -160,7 +157,7 @@ orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
        call. = FALSE)
 
  out <- switch(type_vi,
-               'anova' = as.matrix(object$importance),
+               'anova' = as.matrix(get_importance_values(object)),
                'negate' = orsf_vi_oobag_(object, type_vi, oobag_fun),
                'permute' = orsf_vi_oobag_(object, type_vi, oobag_fun))
 
@@ -226,7 +223,7 @@ orsf_vi_oobag_ <- function(object, type_vi, oobag_fun){
     is.null(oobag_fun) &&
     get_importance(object) == type_vi){
 
-  out <- matrix(object$importance, ncol = 1)
+  out <- matrix(get_importance_values(object), ncol = 1)
 
   rownames(out) <- names(object$importance)
 

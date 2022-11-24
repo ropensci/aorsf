@@ -3218,6 +3218,7 @@ List orsf_fit(NumericMatrix& x,
 
  if(cph_iter_max == 1) cph_do_scale = false;
 
+
  if(oobag_pred){
 
   time_pred = oobag_pred_horizon_;

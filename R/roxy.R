@@ -33,6 +33,10 @@ roxy_importance_permute <- function(){
  "'permute': compute permutation importance"
 }
 
+roxy_group_factors <- function(){
+ "if `TRUE`, the importance of factor variables will be reported overall by aggregating the importance of individual levels of the factor. If `FALSE`, the importance of individual factor levels will be returned."
+}
+
 # oobag_fun ---------------------------------------------------------------
 
 roxy_oobag_fun_header <- function(){

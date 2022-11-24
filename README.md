@@ -24,16 +24,16 @@ forests (ORSFs).
 
 ## Why aorsf?
 
--   Hundreds of times faster than `obliqueRSF`.<sup>1</sup>
+- Hundreds of times faster than `obliqueRSF`.<sup>1</sup>
 
--   Accurate predictions for censored outcomes.<sup>2</sup>
+- Accurate predictions for censored outcomes.<sup>2</sup>
 
--   Negation importance, a novel technique to estimate variable
-    importance for ORSFs.<sup>2</sup>
+- Negation importance, a novel technique to estimate variable importance
+  for ORSFs.<sup>2</sup>
 
--   Intuitive API with formula based interface.
+- Intuitive API with formula based interface.
 
--   Extensive input checks and informative error messages.
+- Extensive input checks and informative error messages.
 
 ## Installation
 
@@ -81,6 +81,7 @@ combination of prediction accuracy and computational efficiency (see
 [arXiv paper](https://arxiv.org/abs/2208.01129)).<sup>2</sup>
 
 ``` r
+
 library(aorsf)
 
 set.seed(329730)
@@ -101,6 +102,7 @@ Printing the output from `orsf()` will give some information and
 descriptive statistics about the ensemble.
 
 ``` r
+
 fit
 #> ---------- Oblique random survival forest
 #> 
@@ -120,78 +122,81 @@ fit
 #> -----------------------------------------
 ```
 
--   See
-    [print.orsf_fit](https://docs.ropensci.org/aorsf/reference/print.orsf_fit.html)
-    for a description of each line in the printed output.
+- See
+  [print.orsf_fit](https://docs.ropensci.org/aorsf/reference/print.orsf_fit.html)
+  for a description of each line in the printed output.
 
--   See [orsf
-    examples](https://docs.ropensci.org/aorsf/reference/orsf.html#examples)
-    for more details on controlling ORSF ensemble fits and using them in
-    prediction modeling workflows.
+- See [orsf
+  examples](https://docs.ropensci.org/aorsf/reference/orsf.html#examples)
+  for more details on controlling ORSF ensemble fits and using them in
+  prediction modeling workflows.
 
 ### Variable importance
 
 The importance of individual variables can be estimated in three ways
 using `aorsf`:
 
--   **negation**<sup>2</sup>: Each variable is assessed separately by
-    multiplying the variable’s coefficients by -1 and then determining
-    how much the model’s performance changes. The worse the model’s
-    performance after negating coefficients for a given variable, the
-    more important the variable. This technique is promising b/c it does
-    not require permutation and it emphasizes variables with larger
-    coefficients in linear combinations, but it is also relatively new
-    and hasn’t been studied as much as permutation importance. See
-    [Jaeger, 2022](https://arxiv.org/abs/2208.01129) for more details on
-    this technique.
+- **negation**<sup>2</sup>: Each variable is assessed separately by
+  multiplying the variable’s coefficients by -1 and then determining how
+  much the model’s performance changes. The worse the model’s
+  performance after negating coefficients for a given variable, the more
+  important the variable. This technique is promising b/c it does not
+  require permutation and it emphasizes variables with larger
+  coefficients in linear combinations, but it is also relatively new and
+  hasn’t been studied as much as permutation importance. See [Jaeger,
+  2022](https://arxiv.org/abs/2208.01129) for more details on this
+  technique.
 
-    ``` r
-    orsf_vi_negate(fit)
-    #>          bili           sex           age       ascites         edema 
-    #>  0.0152354571  0.0138504155  0.0132568263  0.0059358924  0.0051286110 
-    #>         stage      alk.phos        hepato       protime        copper 
-    #>  0.0023743569  0.0011871785  0.0007914523  0.0005935892 -0.0001978631 
-    #>           ast       albumin           trt      platelet          chol 
-    #> -0.0005935892 -0.0021764939 -0.0041551247 -0.0043529877 -0.0051444400
-    ```
+  ``` r
 
--   **permutation**: Each variable is assessed separately by randomly
-    permuting the variable’s values and then determining how much the
-    model’s performance changes. The worse the model’s performance after
-    permuting the values of a given variable, the more important the
-    variable. This technique is flexible, intuitive, and frequently
-    used. It also has several [known
-    limitations](https://christophm.github.io/interpretable-ml-book/feature-importance.html#disadvantages-9)
+  orsf_vi_negate(fit)
+  #>          bili           age           sex           ast       ascites 
+  #>  0.0959635932  0.0162247725  0.0136525524  0.0085081124  0.0059358924 
+  #>         edema         stage        copper        hepato          chol 
+  #>  0.0051286110  0.0019786308  0.0015829046  0.0007914523 -0.0003957262 
+  #>      alk.phos       albumin       spiders           trt      platelet 
+  #> -0.0021764939 -0.0023743569 -0.0043529877 -0.0045508508 -0.0059358924
+  ```
 
-    ``` r
-    orsf_vi_permute(fit)
-    #>         bili      ascites          age          sex        edema      albumin 
-    #>  0.010091017  0.007716660  0.007320934  0.006727345  0.004337159  0.003561535 
-    #>        stage      protime       hepato         chol      spiders       copper 
-    #>  0.003165809  0.002770083  0.002176494  0.001187178 -0.001780768 -0.002176494 
-    #>     platelet          trt         trig 
-    #> -0.002572220 -0.004155125 -0.004946577
-    ```
+- **permutation**: Each variable is assessed separately by randomly
+  permuting the variable’s values and then determining how much the
+  model’s performance changes. The worse the model’s performance after
+  permuting the values of a given variable, the more important the
+  variable. This technique is flexible, intuitive, and frequently used.
+  It also has several [known
+  limitations](https://christophm.github.io/interpretable-ml-book/feature-importance.html#disadvantages-9)
 
--   **analysis of variance (ANOVA)**<sup>3</sup>: A p-value is computed
-    for each coefficient in each linear combination of variables in each
-    decision tree. Importance for an individual predictor variable is
-    the proportion of times a p-value for its coefficient is \< 0.01.
-    This technique is very efficient computationally, but may not be as
-    effective as permutation or negation in terms of selecting signal
-    over noise variables. See [Menze,
-    2011](https://link.springer.com/chapter/10.1007/978-3-642-23783-6_29)
-    for more details on this technique.
+  ``` r
 
-    ``` r
-    orsf_vi_anova(fit)
-    #>    ascites       bili      edema        sex        age     copper      stage 
-    #> 0.35231788 0.33216374 0.31401592 0.22045995 0.19044776 0.18155620 0.16907605 
-    #>        ast     hepato    albumin       chol       trig    protime    spiders 
-    #> 0.14183124 0.13736655 0.12611012 0.11461988 0.10847044 0.10697115 0.08802817 
-    #>   alk.phos   platelet        trt 
-    #> 0.07943094 0.06150342 0.04411765
-    ```
+  orsf_vi_permute(fit)
+  #>          bili       ascites           sex           age         edema 
+  #>  0.0096952909  0.0073209339  0.0067273447  0.0065294816  0.0037989711 
+  #>       albumin         stage       protime        hepato          chol 
+  #>  0.0031658093  0.0029679462  0.0023743569  0.0019786308  0.0007914523 
+  #>           ast       spiders        copper           trt          trig 
+  #>  0.0003957262 -0.0019786308 -0.0027700831 -0.0049465770 -0.0055401662
+  ```
+
+- **analysis of variance (ANOVA)**<sup>3</sup>: A p-value is computed
+  for each coefficient in each linear combination of variables in each
+  decision tree. Importance for an individual predictor variable is the
+  proportion of times a p-value for its coefficient is \< 0.01. This
+  technique is very efficient computationally, but may not be as
+  effective as permutation or negation in terms of selecting signal over
+  noise variables. See [Menze,
+  2011](https://link.springer.com/chapter/10.1007/978-3-642-23783-6_29)
+  for more details on this technique.
+
+  ``` r
+
+  orsf_vi_anova(fit)
+  #>    ascites       bili      edema        sex        age     copper      stage 
+  #> 0.35231788 0.33216374 0.31401592 0.22045995 0.19044776 0.18155620 0.16907605 
+  #>        ast     hepato    albumin       chol       trig    protime    spiders 
+  #> 0.14183124 0.13736655 0.12611012 0.11461988 0.10847044 0.10697115 0.08802817 
+  #>   alk.phos   platelet        trt 
+  #> 0.07943094 0.06150342 0.04411765
+  ```
 
 You can supply your own R function to estimate out-of-bag error when
 using negation or permutation importance. This feature is experimental
@@ -224,21 +229,21 @@ For more on ICE, see the
 Comparisons between `aorsf` and existing software are presented in our
 [arXiv paper](https://arxiv.org/abs/2208.01129). The paper
 
--   describes `aorsf` in detail with a summary of the procedures used in
-    the tree fitting algorithm
+- describes `aorsf` in detail with a summary of the procedures used in
+  the tree fitting algorithm
 
--   runs a general benchmark comparing `aorsf` with `obliqueRSF` and
-    several other learners
+- runs a general benchmark comparing `aorsf` with `obliqueRSF` and
+  several other learners
 
--   reports prediction accuracy and computational efficiency of all
-    learners.
+- reports prediction accuracy and computational efficiency of all
+  learners.
 
--   runs a simulation study comparing variable importance techniques
-    with ORSFs, axis based RSFs, and boosted trees.
+- runs a simulation study comparing variable importance techniques with
+  ORSFs, axis based RSFs, and boosted trees.
 
--   reports the probability that each variable importance technique will
-    rank a relevant variable with higher importance than an irrelevant
-    variable.
+- reports the probability that each variable importance technique will
+  rank a relevant variable with higher importance than an irrelevant
+  variable.
 
 A more hands-on comparison of `aorsf` and other R packages is provided
 in [orsf

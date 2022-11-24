@@ -24,6 +24,7 @@ orsf(
   oobag_eval_every = n_tree,
   oobag_fun = NULL,
   importance = "anova",
+  group_factors = TRUE,
   tree_seeds = NULL,
   attach_data = TRUE,
   no_fit = FALSE,
@@ -141,6 +142,9 @@ For more details, see the out-of-bag \href{https://docs.ropensci.org/aorsf/artic
 }
 
 For details on these methods, see \link{orsf_vi}.}
+
+\item{group_factors}{(\emph{logical}) Only relevant if variable importance is
+being estimated. if \code{TRUE}, the importance of factor variables will be reported overall by aggregating the importance of individual levels of the factor. If \code{FALSE}, the importance of individual factor levels will be returned.}
 
 \item{tree_seeds}{(\emph{integer vector}) Optional. if specified, random seeds
 will be set using the values in \code{tree_seeds[i]}  before growing tree \code{i}.

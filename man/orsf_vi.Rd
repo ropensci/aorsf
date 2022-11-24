@@ -19,10 +19,7 @@ orsf_vi_anova(object, group_factors = TRUE, ...)
 \item{object}{(\emph{orsf_fit}) a trained oblique random survival forest
 (see \link{orsf}).}
 
-\item{group_factors}{(\emph{logical}) if \code{TRUE}, the importance of factor
-variables will be reported overall by aggregating the importance
-of individual levels of the factor. If \code{FALSE}, the importance of
-individual factor levels will be returned.}
+\item{group_factors}{(\emph{logical}) if \code{TRUE}, the importance of factor variables will be reported overall by aggregating the importance of individual levels of the factor. If \code{FALSE}, the importance of individual factor levels will be returned.}
 
 \item{importance}{(\emph{character}) Indicate method for variable importance:
 \itemize{
@@ -132,12 +129,12 @@ the ‘raw’ variable importance values are stored in the fit object
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit$importance
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##     edema_1   ascites_1        bili      copper         age     albumin 
-##  0.40000000  0.36013072  0.28140066  0.19806763  0.18608329  0.17480916 
-##   edema_0.5     protime        chol       stage   spiders_1         ast 
-##  0.15478339  0.15170120  0.14917270  0.13967665  0.13223663  0.11937944 
-##    hepato_1       sex_f        trig    alk.phos    platelet trt_placebo 
-##  0.11901034  0.10338744  0.09902514  0.09348659  0.07993689  0.06591549
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper        age    albumin    protime 
+## 0.36013072 0.28140066 0.25403773 0.19806763 0.18608329 0.17480916 0.15170120 
+##       chol      stage    spiders        ast     hepato        sex       trig 
+## 0.14917270 0.13967665 0.13223663 0.11937944 0.11901034 0.10338744 0.09902514 
+##   alk.phos   platelet        trt 
+## 0.09348659 0.07993689 0.06591549
 }\if{html}{\out{</div>}}
 
 these are ‘raw’ because values for factors have not been aggregated into

@@ -1,4 +1,6 @@
 
+library(survival) # for Surv
+
 # misc functions used for tests ----
 
 cstat_bcj <- function(y_mat, s_vec){

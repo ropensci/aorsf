@@ -144,6 +144,9 @@
 #'
 #' For details on these methods, see [orsf_vi].
 #'
+#' @param group_factors (_logical_) Only relevant if variable importance is
+#'   being estimated. `r roxy_group_factors()`
+#'
 #' @param tree_seeds (_integer vector_) Optional. if specified, random seeds
 #'   will be set using the values in `tree_seeds[i]`  before growing tree `i`.
 #'   Two forests grown with the same number of trees and the same seeds will
@@ -314,6 +317,7 @@ orsf <- function(data,
                  oobag_eval_every = n_tree,
                  oobag_fun = NULL,
                  importance = 'anova',
+                 group_factors = TRUE,
                  tree_seeds = NULL,
                  attach_data = TRUE,
                  no_fit = FALSE,
@@ -717,7 +721,10 @@ orsf <- function(data,
   verbose_progress  = verbose_progress
  )
 
+ # if someone says no_fit and also says don't attach the data,
+ # give them a warning but also do the right thing for them.
  orsf_out$data <- if(attach_data) data else NULL
+
 
  if(importance != 'none'){
   rownames(orsf_out$importance) <- colnames(x)
@@ -763,7 +770,6 @@ orsf <- function(data,
  }
 
 
-
  attr(orsf_out, 'mtry')                <- mtry
  attr(orsf_out, 'n_obs')               <- nrow(y_sort)
  attr(orsf_out, 'n_tree')              <- n_tree
@@ -803,6 +809,8 @@ orsf <- function(data,
  attr(orsf_out, 'oobag_pred_type')     <- oobag_pred_type
  attr(orsf_out, 'oobag_eval_every')    <- oobag_eval_every
  attr(orsf_out, 'importance')          <- importance
+ attr(orsf_out, 'importance_values')   <- orsf_out$importance
+ attr(orsf_out, 'group_factors')       <- group_factors
  attr(orsf_out, 'weights_user')        <- weights
  attr(orsf_out, 'verbose_progress')    <- verbose_progress
 
@@ -810,6 +818,20 @@ orsf <- function(data,
 
  #' @srrstats {ML5.0a} *orsf output has its own class*
  class(orsf_out) <- "orsf_fit"
+
+ if(importance != 'none' && !no_fit){
+
+  # temporarily attach data
+  if(!attach_data) orsf_out$data <- data
+
+  orsf_out$importance <- orsf_vi(orsf_out,
+                                 importance = importance,
+                                 group_factors = group_factors)
+
+  # Can drop it now
+  if(!attach_data) orsf_out$data <- NULL
+
+ }
 
  orsf_out
 
@@ -1030,7 +1052,7 @@ orsf_train_ <- function(object,
                                   "chf"  = "H"),
   oobag_pred_horizon_    = object$pred_horizon,
   oobag_eval_every_      = oobag_eval_every,
-  oobag_importance_      = get_importance(object) != 'none',
+  oobag_importance_      = get_importance(object) %in% c("negate", "permute"),
   oobag_importance_type_ = switch(get_importance(object),
                                   "none" = "O",
                                   "anova" = "A",
@@ -1062,6 +1084,13 @@ orsf_train_ <- function(object,
 
   object$importance <-
    rev(object$importance[order(object$importance), , drop=TRUE])
+
+  attr(object, 'importance_values') <- object$importance
+
+  object$importance <- orsf_vi(object,
+                               importance = get_importance(object),
+                               group_factors = get_group_factors(object))
+
 
  }
 
