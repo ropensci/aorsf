@@ -11,6 +11,12 @@
 #'   - *predictors_included*: the names of the predictors included
 #'   - *predictor_dropped*: the predictor selected to be dropped
 #'
+#' @details
+#'
+#' `tree_seeds` should be specified in `object` so that each successive run
+#'   of `orsf` will be evaluated in the same out-of-bag samples as the initial
+#'   run.
+#'
 #' @export
 #'
 #' @examples
@@ -30,7 +36,7 @@ orsf_vs <- function(object,
  forest_seeds <- get_tree_seeds(object)
 
  if(is_empty(forest_seeds)){
-  stop("tree_seeds not found in object. See details in ?orsf_vsel_ooberr",
+  stop("tree_seeds not found in object. See details in ?orsf_vs",
        call. = FALSE)
  }
 

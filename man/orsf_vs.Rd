@@ -26,6 +26,11 @@ a \link[data.table:data.table]{data.table} with four columns:
 \description{
 Variable selection
 }
+\details{
+\code{tree_seeds} should be specified in \code{object} so that each successive run
+of \code{orsf} will be evaluated in the same out-of-bag samples as the initial
+run.
+}
 \examples{
 
 object <- orsf(formula = time + status ~ .,
