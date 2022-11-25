@@ -124,17 +124,17 @@ as the permutation and negation techniques for variable selection.
 
 \subsection{Raw VI values}{
 
-the ‘raw’ variable importance values are stored in the fit object
+the ‘raw’ variable importance values can be accessed from the fit object
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit$importance
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{attr(fit, 'importance_values')
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper        age    albumin    protime 
-## 0.36013072 0.28140066 0.25403773 0.19806763 0.18608329 0.17480916 0.15170120 
-##       chol      stage    spiders        ast     hepato        sex       trig 
-## 0.14917270 0.13967665 0.13223663 0.11937944 0.11901034 0.10338744 0.09902514 
-##   alk.phos   platelet        trt 
-## 0.09348659 0.07993689 0.06591549
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##     edema_1   ascites_1        bili      copper         age     albumin 
+##  0.40000000  0.36013072  0.28140066  0.19806763  0.18608329  0.17480916 
+##   edema_0.5     protime        chol       stage   spiders_1         ast 
+##  0.15478339  0.15170120  0.14917270  0.13967665  0.13223663  0.11937944 
+##    hepato_1       sex_f        trig    alk.phos    platelet trt_placebo 
+##  0.11901034  0.10338744  0.09902514  0.09348659  0.07993689  0.06591549
 }\if{html}{\out{</div>}}
 
 these are ‘raw’ because values for factors have not been aggregated into
@@ -146,8 +146,21 @@ and 1.
 
 \subsection{Collapse VI across factor levels}{
 
-To get aggregated values across all levels of each factor, use
-\code{orsf_vi()} with group_factors set to \code{TRUE} (the default)
+To get aggregated values across all levels of each factor,
+\itemize{
+\item access the \code{importance} element from the \code{orsf} fit:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit$importance
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper        age    albumin    protime 
+## 0.36013072 0.28140066 0.25403773 0.19806763 0.18608329 0.17480916 0.15170120 
+##       chol      stage    spiders        ast     hepato        sex       trig 
+## 0.14917270 0.13967665 0.13223663 0.11937944 0.11901034 0.10338744 0.09902514 
+##   alk.phos   platelet        trt 
+## 0.09348659 0.07993689 0.06591549
+}\if{html}{\out{</div>}}
+\item use \code{orsf_vi()} with group_factors set to \code{TRUE} (the default)
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi(fit)
 }\if{html}{\out{</div>}}
@@ -159,6 +172,11 @@ To get aggregated values across all levels of each factor, use
 ##   alk.phos   platelet        trt 
 ## 0.09348659 0.07993689 0.06591549
 }\if{html}{\out{</div>}}
+}
+
+Note that you can make the default returned importance values ungrouped
+by setting \code{group_factors} to \code{FALSE} in the \code{orsf_vi} functions or the
+\code{orsf} function.
 }
 
 \subsection{Add VI to an ORSF}{

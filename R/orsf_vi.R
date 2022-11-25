@@ -225,7 +225,7 @@ orsf_vi_oobag_ <- function(object, type_vi, oobag_fun){
 
   out <- matrix(get_importance_values(object), ncol = 1)
 
-  rownames(out) <- names(object$importance)
+  rownames(out) <- names(get_importance_values(object))
 
   return(out)
 

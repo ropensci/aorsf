@@ -17,11 +17,11 @@ ANOVA is the default because it is fast, but it may not be as decisive as the pe
 
 ## Raw VI values
 
-the 'raw' variable importance values are stored in the fit object
+the 'raw' variable importance values can be accessed from the fit object
 
 ```{r}
 
-fit$importance
+attr(fit, 'importance_values')
 
 ```
 
@@ -29,13 +29,26 @@ these are 'raw' because values for factors have not been aggregated into a singl
 
 ## Collapse VI across factor levels
 
-To get aggregated values across all levels of each factor, use `orsf_vi()` with group_factors set to `TRUE` (the default)
+To get aggregated values across all levels of each factor, 
 
-```{r}
+- access the `importance` element from the `orsf` fit:
 
-orsf_vi(fit)
+  ```{r}
+  
+  fit$importance
+  
+  ```
 
-```
+
+- use `orsf_vi()` with group_factors set to `TRUE` (the default)
+
+  ```{r}
+  
+  orsf_vi(fit)
+  
+  ```
+
+Note that you can make the default returned importance values ungrouped by setting `group_factors` to `FALSE` in the `orsf_vi` functions or the `orsf` function.
 
 ## Add VI to an ORSF
 

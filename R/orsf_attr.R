@@ -10,6 +10,7 @@
 #' @return varies depending on which get_ function is used.
 #'
 #' @noRd
+get_control            <- function(object) attr(object, 'control')
 get_mtry               <- function(object) attr(object, 'mtry')
 get_n_obs              <- function(object) attr(object, 'n_obs')
 get_n_tree             <- function(object) attr(object, 'n_tree')
@@ -26,6 +27,7 @@ get_leaf_min_obs       <- function(object) attr(object, 'leaf_min_obs')
 get_split_min_events   <- function(object) attr(object, 'split_min_events')
 get_split_min_obs      <- function(object) attr(object, 'split_min_obs')
 get_split_min_stat     <- function(object) attr(object, 'split_min_stat')
+get_na_action          <- function(object) attr(object, 'na_action')
 get_cph_method         <- function(object) attr(object, 'cph_method')
 get_cph_eps            <- function(object) attr(object, 'cph_eps')
 get_cph_iter_max       <- function(object) attr(object, 'cph_iter_max')
@@ -39,6 +41,7 @@ get_standard_deviations<- function(object) attr(object, 'standard_deviations')
 get_n_retry            <- function(object) attr(object, 'n_retry')
 get_f_oobag_eval       <- function(object) attr(object, 'f_oobag_eval')
 get_type_oobag_eval    <- function(object) attr(object, 'type_oobag_eval')
+get_oobag_fun          <- function(object) attr(object, 'oobag_fun')
 get_oobag_pred         <- function(object) attr(object, 'oobag_pred')
 get_oobag_pred_type    <- function(object) attr(object, 'oobag_pred_type')
 get_oobag_pred_horizon <- function(object) attr(object, 'oobag_pred_horizon')
@@ -102,6 +105,22 @@ get_names_x <- function(object, ref_code_names = FALSE){
   attr(object, "names_x_ref")
  else
   attr(object, 'names_x')
+}
+
+# get the last oobag statistic from an aorsf model
+# (last means the most recent)
+get_last_oob_stat_value <- function(object){
+ object$eval_oobag$stat_values[nrow(object$eval_oobag$stat_values),
+                               1,
+                               drop = TRUE]
+}
+
+# retrieve the lowest ranked variable in terms of importance
+get_last_vi <- function(object, name_only = TRUE){
+ if(name_only)
+  names(last_value(object$importance))
+ else
+  last_value(object$importance)
 }
 
 # nocov end

@@ -769,7 +769,7 @@ orsf <- function(data,
    )
  }
 
-
+ attr(orsf_out, 'control')             <- control
  attr(orsf_out, 'mtry')                <- mtry
  attr(orsf_out, 'n_obs')               <- nrow(y_sort)
  attr(orsf_out, 'n_tree')              <- n_tree
@@ -789,6 +789,7 @@ orsf <- function(data,
  attr(orsf_out, 'split_min_events')    <- split_min_events
  attr(orsf_out, 'split_min_obs')       <- split_min_obs
  attr(orsf_out, 'split_min_stat')      <- split_min_stat
+ attr(orsf_out, 'na_action')           <- na_action
  attr(orsf_out, 'cph_method')          <- cph_method
  attr(orsf_out, 'cph_eps')             <- cph_eps
  attr(orsf_out, 'cph_iter_max')        <- cph_iter_max
@@ -806,6 +807,7 @@ orsf <- function(data,
  attr(orsf_out, 'f_oobag_eval')        <- f_oobag_eval
  attr(orsf_out, 'type_oobag_eval')     <- type_oobag_eval
  attr(orsf_out, 'oobag_pred')          <- oobag_pred
+ attr(orsf_out, 'oobag_fun')           <- oobag_fun
  attr(orsf_out, 'oobag_pred_type')     <- oobag_pred_type
  attr(orsf_out, 'oobag_eval_every')    <- oobag_eval_every
  attr(orsf_out, 'importance')          <- importance
