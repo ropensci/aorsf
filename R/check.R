@@ -942,9 +942,9 @@ check_orsf_inputs <- function(data = NULL,
                    arg_name = 'oobag_pred_horizon',
                    expected_length = 1)
 
-  check_arg_gt(arg_value = oobag_pred_horizon,
-               arg_name = 'oobag_pred_horizon',
-               bound = 0)
+  check_arg_gteq(arg_value = oobag_pred_horizon,
+                 arg_name = 'oobag_pred_horizon',
+                 bound = 0)
 
  }
 
