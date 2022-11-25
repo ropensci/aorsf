@@ -1572,9 +1572,9 @@ check_predict <- function(object,
                  arg_name = 'pred_horizon',
                  expected_type = 'numeric')
 
-  check_arg_gt(arg_value = pred_horizon,
-               arg_name = 'pred_horizon',
-               bound = 0)
+  check_arg_gteq(arg_value = pred_horizon,
+                 arg_name = 'pred_horizon',
+                 bound = 0)
 
   if(any(pred_horizon > get_max_time(object))){
 

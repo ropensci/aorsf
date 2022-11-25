@@ -1,5 +1,7 @@
 # aorsf 0.0.5
 
+* `predict.orsf_fit` now accepts `pred_horizon = 0` and returns sensible values. Thanks to @mattwarkentin for the feature request.
+
 * added a function to perform variable selection, `orsf_vs()`.
 
 * Made variable importance consistent with respect to `group_factors`. Originally, the output from `orsf` would have ungrouped VI values while `orsf_vi` would have grouped values. With this update, `orsf` defaults to grouped values. The ungrouped values can still be recovered.
