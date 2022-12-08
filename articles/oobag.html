@@ -79,7 +79,8 @@
 
 
 
-<script src="oobag_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+
+<div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Out-of-bag predictions and evaluation</h1>
             
@@ -98,13 +99,24 @@
 <div class="section level2">
 <h2 id="out-of-bag-data">Out-of-bag data<a class="anchor" aria-label="anchor" href="#out-of-bag-data"></a>
 </h2>
-<p>In random forests, each tree is grown with a bootstrapped version of the training set. Because bootstrap samples are selected with replacement, each bootstrapped training set contains about two-thirds of instances in the original training set. The ‘out-of-bag’ data are instances that are <em>not</em> in the bootstrapped training set.</p>
+<p>In random forests, each tree is grown with a bootstrapped version of
+the training set. Because bootstrap samples are selected with
+replacement, each bootstrapped training set contains about two-thirds of
+instances in the original training set. The ‘out-of-bag’ data are
+instances that are <em>not</em> in the bootstrapped training set.</p>
 </div>
 <div class="section level2">
 <h2 id="out-of-bag-predictions-and-error">Out-of-bag predictions and error<a class="anchor" aria-label="anchor" href="#out-of-bag-predictions-and-error"></a>
 </h2>
-<p>Each tree in the random forest can make predictions for its out-of-bag data, and the out-of-bag predictions can be aggregated to make an ensemble out-of-bag prediction. Since the out-of-bag data are not used to grow the tree, the accuracy of the ensemble out-of-bag predictions approximate the generalization error of the random forest. Out-of-bag prediction error plays a central role for some routines that estimate variable importance, e.g. negation importance.</p>
-<p>Let’s fit an oblique random survival forest and plot the distribution of the ensemble out-of-bag predictions.</p>
+<p>Each tree in the random forest can make predictions for its
+out-of-bag data, and the out-of-bag predictions can be aggregated to
+make an ensemble out-of-bag prediction. Since the out-of-bag data are
+not used to grow the tree, the accuracy of the ensemble out-of-bag
+predictions approximate the generalization error of the random forest.
+Out-of-bag prediction error plays a central role for some routines that
+estimate variable importance, e.g. negation importance.</p>
+<p>Let’s fit an oblique random survival forest and plot the distribution
+of the ensemble out-of-bag predictions.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf</span>, </span>
@@ -115,7 +127,8 @@
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">pred_oobag</span>, </span>
 <span>     main <span class="op">=</span> <span class="st">'Ensemble out-of-bag survival predictions at t=3,500'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="oobag_files/figure-html/unnamed-chunk-2-1.png" width="672"></p>
-<p>Not surprisingly, all of the survival predictions are between 0 and 1. Next, let’s check the out-of-bag accuracy of <code>fit</code>:</p>
+<p>Not surprisingly, all of the survival predictions are between 0 and
+1. Next, let’s check the out-of-bag accuracy of <code>fit</code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># what function is used to evaluate out-of-bag predictions?</span></span>
@@ -124,14 +137,22 @@
 <span></span>
 <span><span class="co"># what is the output from this function?</span></span>
 <span><span class="va">fit</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span>
-<span><span class="co">#&gt;           [,1]</span></span>
-<span><span class="co">#&gt; [1,] 0.8435612</span></span></code></pre></div>
-<p>The out-of-bag estimate of Harrell’s C-statistic (the default method to evaluate out-of-bag predictions) is 0.8435612.</p>
+<span><span class="co">#&gt;          [,1]</span></span>
+<span><span class="co">#&gt; [1,] 0.837414</span></span></code></pre></div>
+<p>The out-of-bag estimate of Harrell’s C-statistic (the default method
+to evaluate out-of-bag predictions) is 0.837414.</p>
 </div>
 <div class="section level2">
 <h2 id="monitoring-out-of-bag-error">Monitoring out-of-bag error<a class="anchor" aria-label="anchor" href="#monitoring-out-of-bag-error"></a>
 </h2>
-<p>As each out-of-bag data set contains about one-third of the training set, the out-of-bag error estimate usually converges to a stable value as more trees are added to the forest. If you want to monitor the convergence of out-of-bag error for your own oblique random survival forest, you can set <code>oobag_eval_every</code> to compute out-of-bag error at every <code>oobag_eval_every</code> tree. For example, let’s compute out-of-bag error after fitting each tree in a forest of 50 trees:</p>
+<p>As each out-of-bag data set contains about one-third of the training
+set, the out-of-bag error estimate usually converges to a stable value
+as more trees are added to the forest. If you want to monitor the
+convergence of out-of-bag error for your own oblique random survival
+forest, you can set <code>oobag_eval_every</code> to compute out-of-bag
+error at every <code>oobag_eval_every</code> tree. For example, let’s
+compute out-of-bag error after fitting each tree in a forest of 50
+trees:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf</span>,</span>
@@ -148,12 +169,17 @@
 <span> ylab <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_type</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="oobag_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
-<p>In general, at least 500 trees are recommended for a random forest fit. We’re just using 50 in this case for better illustration of the out-of-bag error curve. Also, it helps to make run-times low whenever I need to re-compile the package vignettes.</p>
+<p>In general, at least 500 trees are recommended for a random forest
+fit. We’re just using 50 in this case for better illustration of the
+out-of-bag error curve. Also, it helps to make run-times low whenever I
+need to re-compile the package vignettes.</p>
 </div>
 <div class="section level2">
 <h2 id="user-supplied-out-of-bag-evaluation-functions">User-supplied out-of-bag evaluation functions<a class="anchor" aria-label="anchor" href="#user-supplied-out-of-bag-evaluation-functions"></a>
 </h2>
-<p>In some cases, you may want more control over how out-of-bag error is estimated. For example, let’s use the Brier score from the <code>SurvMetrics</code> package:</p>
+<p>In some cases, you may want more control over how out-of-bag error is
+estimated. For example, let’s use the Brier score from the
+<code>SurvMetrics</code> package:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">oobag_fun_brier</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y_mat</span>, <span class="va">s_vec</span><span class="op">)</span><span class="op">{</span></span>
@@ -169,13 +195,16 @@
 <span> <span class="op">)</span></span>
 <span> </span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>There are two ways to apply your own function to compute out-of-bag error. First, you can apply your function to the out-of-bag survival predictions that are stored in ‘aorsf’ objects, e.g:</p>
+<p>There are two ways to apply your own function to compute out-of-bag
+error. First, you can apply your function to the out-of-bag survival
+predictions that are stored in ‘aorsf’ objects, e.g:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu">oobag_fun_brier</span><span class="op">(</span>y_mat <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'time'</span>, <span class="st">'status'</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>                s_vec <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">pred_oobag</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.200853</span></span></code></pre></div>
-<p>Second, you can pass your function into <code><a href="../reference/orsf.html">orsf()</a></code>, and it will be used in place of Harrell’s C-statistic:</p>
+<span><span class="co">#&gt; [1] 0.175671</span></span></code></pre></div>
+<p>Second, you can pass your function into <code><a href="../reference/orsf.html">orsf()</a></code>, and it
+will be used in place of Harrell’s C-statistic:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf</span>,</span>
@@ -194,7 +223,8 @@
 <span> ylab <span class="op">=</span> <span class="st">"Brier score"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p><img src="oobag_files/figure-html/unnamed-chunk-7-1.png" width="672"></p>
-<p>We can also compute a time-dependent C-statistic instead of Harrell’s C-statistic (the default oob function):</p>
+<p>We can also compute a time-dependent C-statistic instead of Harrell’s
+C-statistic (the default oob function):</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">oobag_fun_tdep_cstat</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y_mat</span>, <span class="va">s_vec</span><span class="op">)</span><span class="op">{</span></span>
@@ -229,10 +259,13 @@
 </h3>
 <p>User-supplied functions must:</p>
 <ol style="list-style-type: decimal">
-<li>have exactly two arguments named <code>y_mat</code> and <code>s_vec</code>.</li>
+<li>have exactly two arguments named <code>y_mat</code> and
+<code>s_vec</code>.</li>
 <li>return a numeric output of length 1</li>
 </ol>
-<p>If either of these conditions is not true, an error will occur. A simple test to make sure your user-supplied function will work with the aorsf package is below:</p>
+<p>If either of these conditions is not true, an error will occur. A
+simple test to make sure your user-supplied function will work with the
+aorsf package is below:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># Helper code to make sure your oobag_fun function will work with aorsf</span></span>
@@ -263,7 +296,12 @@
 <div class="section level2">
 <h2 id="user-supplied-functions-for-negation-importance-">User-supplied functions for negation importance.<a class="anchor" aria-label="anchor" href="#user-supplied-functions-for-negation-importance-"></a>
 </h2>
-<p>Negation importance is based on the out-of-bag error, so of course you may be curious about what negation importance would be if it were computed using different statistics. The workflow for doing this is exactly the same as the example above, except we have to specify <code>importance = 'negate'</code> when we fit our model. Also, to speed up computations, I am not going to monitor out-of-bag error here.</p>
+<p>Negation importance is based on the out-of-bag error, so of course
+you may be curious about what negation importance would be if it were
+computed using different statistics. The workflow for doing this is
+exactly the same as the example above, except we have to specify
+<code>importance = 'negate'</code> when we fit our model. Also, to speed
+up computations, I am not going to monitor out-of-bag error here.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">fit_tdep_cstat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf</span>,</span>
@@ -275,20 +313,33 @@
 <span></span>
 <span><span class="va">fit_tdep_cstat</span><span class="op">$</span><span class="va">importance</span></span>
 <span><span class="co">#&gt;         bili          age       copper      protime      albumin      ascites </span></span>
-<span><span class="co">#&gt;  0.080881000  0.023801000  0.016171000  0.014218000  0.009010000  0.006614000 </span></span>
-<span><span class="co">#&gt;          sex         chol      spiders        edema          ast        stage </span></span>
-<span><span class="co">#&gt;  0.005573000  0.003698000  0.003359000  0.002748048  0.002526000  0.001068000 </span></span>
-<span><span class="co">#&gt;         trig     platelet       hepato     alk.phos          trt </span></span>
-<span><span class="co">#&gt; -0.001146000 -0.001875000 -0.002291000 -0.002317000 -0.002500000</span></span></code></pre></div>
+<span><span class="co">#&gt;  0.085647000  0.017786000  0.015494000  0.014010000  0.009766000  0.007083000 </span></span>
+<span><span class="co">#&gt;          sex         chol        edema          ast        stage     platelet </span></span>
+<span><span class="co">#&gt;  0.006745000  0.004427000  0.003569262  0.003438000  0.002709000 -0.000312000 </span></span>
+<span><span class="co">#&gt;       hepato     alk.phos         trig          trt </span></span>
+<span><span class="co">#&gt; -0.001770000 -0.002551000 -0.003307000 -0.003541000</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="notes">Notes<a class="anchor" aria-label="anchor" href="#notes"></a>
 </h2>
 <p>When evaluating out-of-bag error:</p>
 <ul>
-<li><p>the <code>oobag_pred_horizon</code> input in <code><a href="../reference/orsf.html">orsf()</a></code> determines the prediction horizon for out-of-bag predictions. The prediction horizon needs to be specified to evaluate prediction accuracy in some cases, such as the examples above. Be sure to check if that is the case when using your own functions, and if so, be sure that <code>oobag_pred_horizon</code> matches the prediction horizon used in your custom function.</p></li>
-<li><p>Some functions expect predicted risk (i.e., 1 - predicted survival), others expect predicted survival.</p></li>
-<li><p>In most cases, you should also be able to use any function whatsoever to compute out-of-bag prediction error when estimating negation or permutation importance, assuming it passes the tests above. Unfortunately, an exception is <code><a href="https://rdrr.io/pkg/riskRegression/man/Score.html" class="external-link">riskRegression::Score()</a></code>, one of my favorites. I have experimented with <code><a href="https://rdrr.io/pkg/riskRegression/man/Score.html" class="external-link">riskRegression::Score</a></code> but found it does not work when I try to run it from C++. I am not sure why this is the case.</p></li>
+<li><p>the <code>oobag_pred_horizon</code> input in <code><a href="../reference/orsf.html">orsf()</a></code>
+determines the prediction horizon for out-of-bag predictions. The
+prediction horizon needs to be specified to evaluate prediction accuracy
+in some cases, such as the examples above. Be sure to check if that is
+the case when using your own functions, and if so, be sure that
+<code>oobag_pred_horizon</code> matches the prediction horizon used in
+your custom function.</p></li>
+<li><p>Some functions expect predicted risk (i.e., 1 - predicted
+survival), others expect predicted survival.</p></li>
+<li><p>In most cases, you should also be able to use any function
+whatsoever to compute out-of-bag prediction error when estimating
+negation or permutation importance, assuming it passes the tests above.
+Unfortunately, an exception is <code><a href="https://rdrr.io/pkg/riskRegression/man/Score.html" class="external-link">riskRegression::Score()</a></code>, one
+of my favorites. I have experimented with
+<code><a href="https://rdrr.io/pkg/riskRegression/man/Score.html" class="external-link">riskRegression::Score</a></code> but found it does not work when I try
+to run it from C++. I am not sure why this is the case.</p></li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
