@@ -2783,7 +2783,7 @@ List ostree_fit(Function f_beta){
 
    n_cols_to_sample = sum(cols_to_sample_01);
 
-   if(n_cols_to_sample > 1){
+   if(n_cols_to_sample >= 1){
 
     n_events_total = sum(y_node.col(1) % w_node);
 
@@ -2820,7 +2820,7 @@ List ostree_fit(Function f_beta){
     //  Rcout << "n_events per column: " << n_events_total/mtry_int << std::endl;
     // }
 
-    if(mtry_int > 1){
+    if(mtry_int >= 1){
 
      cols_to_sample = find(cols_to_sample_01);
 

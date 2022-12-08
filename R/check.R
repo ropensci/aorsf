@@ -807,7 +807,7 @@ check_orsf_inputs <- function(data = NULL,
 
   check_arg_gteq(arg_name = 'mtry',
                  arg_value = mtry,
-                 bound = 2)
+                 bound = 1)
 
   check_arg_length(arg_name = 'mtry',
                    arg_value = mtry,

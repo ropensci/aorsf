@@ -434,7 +434,7 @@ orsf <- function(data,
   stop("formula must have a response", call. = FALSE)
 
  if(length(attr(formula_terms, 'term.labels')) < 2)
-  stop("formula must have at least 2 predictors.\n",
+  warning("Oblique random forests should have at least 2 predictors.\n",
        "(Can't make a linear combination of predictors if there is only one.)",
        call. = FALSE)
 
@@ -667,8 +667,8 @@ orsf <- function(data,
   collapse::radixorder(y[, 1],  # order this way for risk sets
                        -y[, 2]) # order this way for oob C-statistic.
 
- x_sort <- x[sorted, ]
- y_sort <- y[sorted, ]
+ x_sort <- x[sorted, , drop = FALSE]
+ y_sort <- y[sorted, , drop = FALSE]
 
  if(is.null(weights)) weights <- double()
  if(is.null(tree_seeds)) tree_seeds <- vector(mode = 'integer', length = 0L)
