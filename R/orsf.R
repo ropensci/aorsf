@@ -218,6 +218,12 @@
 #'   For example, y ~ . is a valid formula if `data$y` inherits
 #'   from the `Surv` class.
 #'
+#' - Although you can fit an oblique random survival forest with 1 predictor
+#'   variable, your formula should have at least 2 predictors. The reason for
+#'   this recommendation is that a linear combination of predictors is trivial
+#'   if there is only one predictor.
+#'
+#'
 #' **mtry**:
 #'
 #' The `mtry` parameter may be temporarily reduced to ensure there
@@ -432,11 +438,6 @@ orsf <- function(data,
 
  if(attr(formula_terms, 'response') == 0)
   stop("formula must have a response", call. = FALSE)
-
- if(length(attr(formula_terms, 'term.labels')) < 2)
-  warning("Oblique random forests should have at least 2 predictors.\n",
-       "(Can't make a linear combination of predictors if there is only one.)",
-       call. = FALSE)
 
  names_y_data <- all.vars(formula[[2]])
 

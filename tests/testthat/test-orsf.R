@@ -42,7 +42,8 @@ pbc_temp$status <- pbc_temp$status+1
 
 
 f1 <- Surv(time, status) ~ unknown_variable + bili
-f2 <- Surv(time, status) ~ bili
+# dropped test - see https://github.com/mlr-org/mlr3extralearners/issues/259
+# f2 <- Surv(time, status) ~ bili
 f3 <- Surv(time, status) ~ bili + factor(hepato)
 f4 <- Surv(time, status) ~ bili * ascites
 f5 <- Surv(time, status) ~ bili + id
@@ -64,7 +65,8 @@ test_that(
  code = {
 
   expect_error(orsf(pbc_temp, f1), 'not found in data')
-  expect_warning(orsf(pbc_temp, f2), 'at least 2 predictors')
+  # # dropped - see https://github.com/mlr-org/mlr3extralearners/issues/259
+  # expect_warning(orsf(pbc_temp, f2), 'at least 2 predictors')
   expect_error(orsf(pbc_temp, f3), 'unrecognized')
   expect_error(orsf(pbc_temp, f4), 'unrecognized')
   expect_error(orsf(pbc_temp, f5), 'id variable?')
