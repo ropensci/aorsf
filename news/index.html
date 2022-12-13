@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">aorsf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.5</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,7 +56,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.5" id="aorsf-005">aorsf 0.0.5<a class="anchor" aria-label="anchor" href="#aorsf-005"></a></h2>
-<ul><li><p><code>predict.orsf_fit</code> now accepts <code>pred_horizon = 0</code> and returns sensible values. Thanks to <a href="https://github.com/mattwarkentin" class="external-link">@mattwarkentin</a> for the feature request.</p></li>
+<ul><li><p><code><a href="../reference/orsf.html">orsf()</a></code> no longer throws errors or warnings when you try to give it a single predictor. A note was added to the documentation in the details of <code><a href="../reference/orsf.html">?orsf</a></code> that explains why using a single predictor with <code><a href="../reference/orsf.html">orsf()</a></code> is somewhat useless. This was done to resolve <a href="https://github.com/mlr-org/mlr3extralearners/issues/259" class="external-link uri">https://github.com/mlr-org/mlr3extralearners/issues/259</a>.</p></li>
+<li><p><code>predict.orsf_fit</code> now accepts <code>pred_horizon = 0</code> and returns sensible values. Thanks to <a href="https://github.com/mattwarkentin" class="external-link">@mattwarkentin</a> for the feature request.</p></li>
 <li><p>added a function to perform variable selection, <code><a href="../reference/orsf_vs.html">orsf_vs()</a></code>.</p></li>
 <li><p>Made variable importance consistent with respect to <code>group_factors</code>. Originally, the output from <code>orsf</code> would have ungrouped VI values while <code>orsf_vi</code> would have grouped values. With this update, <code>orsf</code> defaults to grouped values. The ungrouped values can still be recovered.</p></li>
 <li><p>Fixed an issue in <code>orsf_pd</code> functions where output data were not being returned on the original scale.</p></li>
