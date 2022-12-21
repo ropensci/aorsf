@@ -1,3 +1,7 @@
+# aorsf 0.0.6
+
+* Minor fix for internal tests that were failing when run on ATLAS
+
 # aorsf 0.0.5
 
 * `orsf()` no longer throws errors or warnings when you try to give it a single predictor. A note was added to the documentation in the details of `?orsf` that explains why using a single predictor with `orsf()` is somewhat useless. This was done to resolve https://github.com/mlr-org/mlr3extralearners/issues/259.
