@@ -1,7 +1,7 @@
 
-## R CMD check results 
+## R CMD check results
 
-Duration: 3m 48.2s
+Duration: 4m 3.8s
 
 0 errors v | 0 warnings v | 0 notes v
 
@@ -16,6 +16,8 @@ I have also run R CMD check on downstream dependencies of `aorsf`:
 - collapse
 
 All packages passed.
+
+## Version 0.0.5, submitted 2022-12-13
 
 ## Version 0.0.4, submitted 2022-11-06
 

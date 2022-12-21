@@ -215,6 +215,10 @@ writing \code{status + time ~ .} will make \code{orsf} assume your
 \item The response variable can be a survival object stored in \code{data}.
 For example, y ~ . is a valid formula if \code{data$y} inherits
 from the \code{Surv} class.
+\item Although you can fit an oblique random survival forest with 1 predictor
+variable, your formula should have at least 2 predictors. The reason for
+this recommendation is that a linear combination of predictors is trivial
+if there is only one predictor.
 }
 
 \strong{mtry}:

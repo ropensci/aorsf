@@ -601,14 +601,18 @@ p_ps_tbl <- predict(fit,
 test_that(
  desc = "same values propagated to pred output with na_action = pass",
  code = {
-  expect_identical(p_cc[obs_expect, ],
-                   p_ps[obs_expect, ])
 
-  expect_identical(p_cc[obs_expect, ],
-                   p_ps_dt[obs_expect, ])
+  expect_equal(p_cc[obs_expect, ],
+               p_ps[obs_expect, ],
+               tolerance = 0.01)
 
-  expect_identical(p_cc[obs_expect, ],
-                   p_ps_tbl[obs_expect, ])
+  expect_equal(p_cc[obs_expect, ],
+               p_ps_dt[obs_expect, ],
+               tolerance = 0.01)
+
+  expect_equal(p_cc[obs_expect, ],
+               p_ps_tbl[obs_expect, ],
+               tolerance = 0.01)
  }
 )
 
