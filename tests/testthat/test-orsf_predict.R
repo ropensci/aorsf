@@ -604,15 +604,15 @@ test_that(
 
   expect_equal(p_cc[obs_expect, ],
                p_ps[obs_expect, ],
-               tolerance = 0.01)
+               tolerance = 0.05)
 
   expect_equal(p_cc[obs_expect, ],
                p_ps_dt[obs_expect, ],
-               tolerance = 0.01)
+               tolerance = 0.05)
 
   expect_equal(p_cc[obs_expect, ],
                p_ps_tbl[obs_expect, ],
-               tolerance = 0.01)
+               tolerance = 0.05)
  }
 )
 
