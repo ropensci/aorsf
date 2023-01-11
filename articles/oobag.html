@@ -138,9 +138,9 @@ of the ensemble out-of-bag predictions.</p>
 <span><span class="co"># what is the output from this function?</span></span>
 <span><span class="va">fit</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span>
 <span><span class="co">#&gt;           [,1]</span></span>
-<span><span class="co">#&gt; [1,] 0.8394457</span></span></code></pre></div>
+<span><span class="co">#&gt; [1,] 0.8382476</span></span></code></pre></div>
 <p>The out-of-bag estimate of Harrell’s C-statistic (the default method
-to evaluate out-of-bag predictions) is 0.8394457.</p>
+to evaluate out-of-bag predictions) is 0.8382476.</p>
 </div>
 <div class="section level2">
 <h2 id="monitoring-out-of-bag-error">Monitoring out-of-bag error<a class="anchor" aria-label="anchor" href="#monitoring-out-of-bag-error"></a>
@@ -202,7 +202,7 @@ predictions that are stored in ‘aorsf’ objects, e.g:</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu">oobag_fun_brier</span><span class="op">(</span>y_mat <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'time'</span>, <span class="st">'status'</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>                s_vec <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">pred_oobag</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.173655</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.175287</span></span></code></pre></div>
 <p>Second, you can pass your function into <code><a href="../reference/orsf.html">orsf()</a></code>, and it
 will be used in place of Harrell’s C-statistic:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -312,12 +312,12 @@ up computations, I am not going to monitor out-of-bag error here.</p>
 <span>                 importance <span class="op">=</span> <span class="st">'negate'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit_tdep_cstat</span><span class="op">$</span><span class="va">importance</span></span>
-<span><span class="co">#&gt;         bili          age       copper      protime      albumin      ascites </span></span>
-<span><span class="co">#&gt;  0.085933000  0.018124000  0.017551000  0.016536000  0.007500000  0.005468000 </span></span>
-<span><span class="co">#&gt;        stage      spiders          sex         chol        edema          ast </span></span>
-<span><span class="co">#&gt;  0.004114000  0.003463000  0.003437000  0.003385000  0.002463952  0.002031000 </span></span>
-<span><span class="co">#&gt;     platelet       hepato         trig     alk.phos          trt </span></span>
-<span><span class="co">#&gt;  0.001849000  0.001666000 -0.002812000 -0.002943000 -0.005078000</span></span></code></pre></div>
+<span><span class="co">#&gt;         bili          age      protime       copper      albumin      ascites </span></span>
+<span><span class="co">#&gt;  0.081610000  0.020780000  0.017342000  0.014426000  0.012811000  0.007135000 </span></span>
+<span><span class="co">#&gt;          sex        stage      spiders        edema         chol     platelet </span></span>
+<span><span class="co">#&gt;  0.006041000  0.004453000  0.004400000  0.002969452  0.002760000  0.001614000 </span></span>
+<span><span class="co">#&gt;          ast     alk.phos          trt         trig </span></span>
+<span><span class="co">#&gt;  0.000573000 -0.000339000 -0.001381000 -0.005573000</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="notes">Notes<a class="anchor" aria-label="anchor" href="#notes"></a>
