@@ -1,6 +1,6 @@
 # aorsf 0.0.8
 
-* Fixed an issue where an uninformative error message would occur when `pred_horizon` was too high when used in `orsf_summarize_uni`.
+* Fixed an issue where an uninformative error message would occur when `pred_horizon` was too high when used in `orsf_summarize_uni`. Thanks to @DustinMLong for finding this!
 
 # aorsf 0.0.7
 
