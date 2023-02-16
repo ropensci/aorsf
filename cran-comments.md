@@ -17,7 +17,11 @@ I have also run R CMD check on downstream dependencies of `aorsf`:
 
 All packages passed.
 
-## Version 0.0.6, not submitted yet
+## Version 0.0.7
+
+I noticed the package was removed from CRAN on 1-10 so I made some additional changes and am now re-submitting as these changes should fix the problems that appear on the ATLAS check page. 
+
+## Version 0.0.6
 
 I reviewed the additional issues at https://cran.r-project.org/web/checks/check_results_aorsf.html and modified my testing scripts based on results appearing from ATLAS checks.
 

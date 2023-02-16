@@ -1,3 +1,11 @@
+# aorsf 0.0.8
+
+* Fixed an issue where an uninformative error message would occur when `pred_horizon` was too high when used in `orsf_summarize_uni`.
+
+# aorsf 0.0.7
+
+* Additional changes in internal testing to avoid problems with ATLAS
+
 # aorsf 0.0.6
 
 * Minor fix for internal tests that were failing when run on ATLAS

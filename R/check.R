@@ -1481,7 +1481,7 @@ check_predict <- function(object,
                           pred_horizon = NULL,
                           pred_type = NULL,
                           na_action = NULL,
-                          boundary_checks = NULL){
+                          boundary_checks = TRUE){
 
  if(!is.null(new_data)){
 
