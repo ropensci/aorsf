@@ -110,7 +110,7 @@ prediction accuracy based on out-of-bag predictions:
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(riskRegression)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## riskRegression version 2022.09.23
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## riskRegression version 2022.11.28
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(survival)
@@ -134,16 +134,18 @@ The PCA ORSF does quite well! (higher IPA is better)
 ## Results by model:
 ## 
 ##         model times  Brier  lower  upper    IPA
+##        <fctr> <num> <char> <char> <char> <char>
 ## 1: Null model  1788 20.479 18.090 22.868  0.000
 ## 2:      rando  1788 12.381 10.175 14.588 39.541
 ## 3:        pca  1788 12.496 10.476 14.515 38.983
 ## 
 ## Results of model comparisons:
 ## 
-##    times model  reference delta.Brier   lower  upper            p
-## 1:  1788 rando Null model      -8.098 -10.392 -5.804 4.558033e-12
-## 2:  1788   pca Null model      -7.983  -9.888 -6.078 2.142713e-16
-## 3:  1788   pca      rando       0.114  -0.703  0.932 7.838255e-01
+##    times  model  reference delta.Brier   lower  upper            p
+##    <num> <fctr>     <fctr>      <char>  <char> <char>        <num>
+## 1:  1788  rando Null model      -8.098 -10.392 -5.804 4.558033e-12
+## 2:  1788    pca Null model      -7.983  -9.888 -6.078 2.142713e-16
+## 3:  1788    pca      rando       0.114  -0.703  0.932 7.838255e-01
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.
