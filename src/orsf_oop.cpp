@@ -32,25 +32,42 @@ using namespace aorsf;
 // }
 
 //  Same as x_node_scale, but this can be called from R
-// // [[Rcpp::export]]
-// List x_node_scale_exported(NumericMatrix x_,
-//                            NumericVector w_){
-//
-//  arma::mat x_transforms;
-//  arma::mat x_node = arma::mat(x_.begin(), x_.nrow(), x_.ncol(), false);
-//  arma::vec w_node = arma::vec(w_.begin(), w_.length(), false);
-//  arma::uword n_vars = x_node.n_cols;
-//
-//  x_node_scale();
-//
-//  return(
-//   List::create(
-//    _["x_scaled"] = x_node,
-//    _["x_transforms"] = x_transforms
-//   )
-//  );
-//
-// }
+
+// [[Rcpp::export]]
+List coxph_scale_exported(NumericMatrix& x_,
+                          NumericVector& w_){
+
+ mat x_node = mat(x_.begin(), x_.nrow(), x_.ncol(), false);
+ vec w_node = vec(w_.begin(), w_.length(), false);
+ mat x_transforms = coxph_scale(x_node, w_node);
+
+ return(
+  List::create(
+   _["x_scaled"] = x_node,
+   _["x_transforms"] = x_transforms
+  )
+ );
+
+}
+
+// [[Rcpp::export]]
+List coxph_fit_exported(NumericMatrix& x_,
+                        NumericMatrix& y_,
+                        NumericVector& w_){
+
+ mat x_node = mat(x_.begin(), x_.nrow(), x_.ncol(), false);
+ mat y_node = mat(y_.begin(), y_.nrow(), y_.ncol(), false);
+ vec w_node = vec(w_.begin(), w_.length(), false);
+
+ vec beta = newtraph_cph(x_node, y_node, w_node, 1, 1e-9, 20, 'A');
+
+ return(
+  List::create(
+   _["beta"] = beta
+  )
+ );
+
+}
 
 
 // [[Rcpp::export]]
