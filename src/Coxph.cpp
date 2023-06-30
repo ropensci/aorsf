@@ -457,7 +457,7 @@
 
    for(iter = 1; iter < cph_iter_max; iter++){
 
-    if(VERBOSITY > 0){
+    if(VERBOSITY > 1){
 
      Rcout << "--------- Newt-Raph algo; iter " << iter;
      Rcout << " ---------"  << std::endl;
