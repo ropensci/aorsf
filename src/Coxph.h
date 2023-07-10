@@ -76,15 +76,15 @@
  //   of the Cox model. All inputs are described above
  //   in newtraph_cph_iter()
  //
- arma::vec newtraph_cph(arma::mat& x_node,
-                        arma::mat& y_node,
-                        arma::vec& w_node,
-                        int ties_method,
-                        double cph_eps,
-                        arma::uword cph_iter_max,
-                        char oobag_importance_type);
+ arma::vec coxph_fit(arma::mat& x_node,
+                     arma::mat& y_node,
+                     arma::vec& w_node,
+                     int ties_method,
+                     double cph_eps,
+                     arma::uword cph_iter_max,
+                     char oobag_importance_type);
 
-}
+ }
 
 #endif /* COXPH_H */
 

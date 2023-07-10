@@ -202,39 +202,39 @@
 
  }
 
- vec newtraph_cph(mat& x_node,
-                  mat& y_node,
-                  vec& w_node,
-                  int ties_method = 1,
-                  double cph_eps = 1e-9,
-                  uword cph_iter_max = 20,
-                  char oobag_importance_type = 'A'){
+ vec coxph_fit(mat& x_node,
+               mat& y_node,
+               vec& w_node,
+               int ties_method = 1,
+               double cph_eps = 1e-9,
+               uword cph_iter_max = 20,
+               char oobag_importance_type = 'A'){
 
   uword
-   person,
-   iter,
-   i,
-   j,
-   k,
-   n_vars;
+  person,
+  iter,
+  i,
+  j,
+  k,
+  n_vars;
 
   vec
-   beta_current,
-   beta_new,
-   XB,
-   Risk,
-   u,
-   a,
-   a2,
-   vi_pval_numer,
-   vi_pval_denom;
+  beta_current,
+  beta_new,
+  XB,
+  Risk,
+  u,
+  a,
+  a2,
+  vi_pval_numer,
+  vi_pval_denom;
 
   uvec cols_node;
 
   mat
-   vmat,
-   cmat,
-   cmat2;
+  vmat,
+  cmat,
+  cmat2;
 
   bool break_loop;
 
