@@ -24,15 +24,18 @@ BEGIN_RCPP
 END_RCPP
 }
 // coxph_fit_exported
-List coxph_fit_exported(NumericMatrix& x_, NumericMatrix& y_, NumericVector& w_);
-RcppExport SEXP _aorsf_coxph_fit_exported(SEXP x_SEXP, SEXP y_SEXP, SEXP w_SEXP) {
+List coxph_fit_exported(NumericMatrix& x_, NumericMatrix& y_, NumericVector& w_, int method, double cph_eps, int cph_iter_max);
+RcppExport SEXP _aorsf_coxph_fit_exported(SEXP x_SEXP, SEXP y_SEXP, SEXP w_SEXP, SEXP methodSEXP, SEXP cph_epsSEXP, SEXP cph_iter_maxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix& >::type x_(x_SEXP);
     Rcpp::traits::input_parameter< NumericMatrix& >::type y_(y_SEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type w_(w_SEXP);
-    rcpp_result_gen = Rcpp::wrap(coxph_fit_exported(x_, y_, w_));
+    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< double >::type cph_eps(cph_epsSEXP);
+    Rcpp::traits::input_parameter< int >::type cph_iter_max(cph_iter_maxSEXP);
+    rcpp_result_gen = Rcpp::wrap(coxph_fit_exported(x_, y_, w_, method, cph_eps, cph_iter_max));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -56,7 +59,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_coxph_scale_exported", (DL_FUNC) &_aorsf_coxph_scale_exported, 2},
-    {"_aorsf_coxph_fit_exported", (DL_FUNC) &_aorsf_coxph_fit_exported, 3},
+    {"_aorsf_coxph_fit_exported", (DL_FUNC) &_aorsf_coxph_fit_exported, 6},
     {"_aorsf_orsf_cpp", (DL_FUNC) &_aorsf_orsf_cpp, 7},
     {NULL, NULL, 0}
 };

@@ -40,21 +40,23 @@ run_cph_test <- function(x, y, method){
 
  xx <- x[, , drop = FALSE]
 
- bcj = newtraph_cph_testthat(xx,
-                             y,
-                             wts,
-                             method = method,
-                             cph_eps_ = 1e-8,
-                             iter_max = iter_max)
+ bcj = coxph_fit_exported(xx,
+                          y,
+                          wts,
+                          method = method,
+                          cph_eps = 1e-8,
+                          cph_iter_max = iter_max)
 
- rownames(bcj) <- names(tt$coefficients)
- bcj_vec <- bcj[, 1, drop = TRUE]
+ beta <- bcj$beta
+
+ rownames(beta) <- names(tt$coefficients)
+ beta_vec <- beta[, 1, drop = TRUE]
 
 
  perc_diff <- function(a,b) abs(a-b) / (abs(0.001 + a+b)/2)
 
  # maximum percent difference
- max(perc_diff(tt$coefficients, bcj_vec))
+ max(perc_diff(tt$coefficients, beta_vec))
 
 }
 

@@ -53,13 +53,25 @@ List coxph_scale_exported(NumericMatrix& x_,
 // [[Rcpp::export]]
 List coxph_fit_exported(NumericMatrix& x_,
                         NumericMatrix& y_,
-                        NumericVector& w_){
+                        NumericVector& w_,
+                        int method,
+                        double cph_eps,
+                        int cph_iter_max){
 
  mat x_node = mat(x_.begin(), x_.nrow(), x_.ncol(), false);
  mat y_node = mat(y_.begin(), y_.nrow(), y_.ncol(), false);
  vec w_node = vec(w_.begin(), w_.length(), false);
 
- vec beta = newtraph_cph(x_node, y_node, w_node, 1, 1e-9, 20, 'A');
+ uword cph_iter_max_ = cph_iter_max;
+
+
+ vec beta = newtraph_cph(x_node,
+                         y_node,
+                         w_node,
+                         method,
+                         cph_eps,
+                         cph_iter_max_,
+                         'A');
 
  return(
   List::create(

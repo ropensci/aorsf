@@ -5,8 +5,8 @@ coxph_scale_exported <- function(x_, w_) {
     .Call(`_aorsf_coxph_scale_exported`, x_, w_)
 }
 
-coxph_fit_exported <- function(x_, y_, w_) {
-    .Call(`_aorsf_coxph_fit_exported`, x_, y_, w_)
+coxph_fit_exported <- function(x_, y_, w_, method, cph_eps, cph_iter_max) {
+    .Call(`_aorsf_coxph_fit_exported`, x_, y_, w_, method, cph_eps, cph_iter_max)
 }
 
 orsf_cpp <- function(x, y, w, vi = 0L, sr = 1L, pt = 1L, oobag_pred = TRUE) {
