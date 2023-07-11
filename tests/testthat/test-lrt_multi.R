@@ -122,12 +122,13 @@ for(leaf_min_events in .leaf_min_events){
            catg = XB_catg,
            bnry = XB_bnry),
   FUN = function(XB){
-   lrt_multi_testthat(y_node_ = y,
-                      w_node_ = w,
+   lrt_multi_exported(y_ = y,
+                      w_ = w,
                       XB_ = XB,
                       n_split_ = n_split,
-                      leaf_min_events_ = leaf_min_events,
-                      leaf_min_obs_ = leaf_min_obs)
+                      split_min_stat = 3.841459,
+                      leaf_min_events = leaf_min_events,
+                      leaf_min_obs = leaf_min_obs)
   }
  )
 

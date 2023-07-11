@@ -8,7 +8,7 @@
 #define NODESPLITSTATS_H
 
 #include <armadillo>
-
+#include <Rcpp.h>
 
  namespace aorsf {
 
@@ -33,14 +33,13 @@
  //
  // the group vector is modified by this function and the value returned
  // is the maximal log-rank statistic across all the possible cutpoints.
- double lrt_multi(arma::mat& x_node,
-                  arma::mat& y_node,
-                  arma::mat& w_node,
-                  arma::vec& XB,
-                  arma::uword n_split,
-                  double split_min_stat,
-                  double leaf_min_obs,
-                  double leaf_min_events);
+ Rcpp::List lrt_multi(arma::mat& y_node,
+                      arma::mat& w_node,
+                      arma::vec& XB,
+                      arma::uword n_split,
+                      double split_min_stat,
+                      double leaf_min_obs,
+                      double leaf_min_events);
 
 
  }

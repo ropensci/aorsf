@@ -13,6 +13,7 @@
 #include "Data.h"
 #include "Tree.h"
 #include "Coxph.h"
+#include "NodeSplitStats.h"
 
  // [[Rcpp::depends(RcppArmadillo)]]
 
@@ -78,6 +79,33 @@
     _["beta"] = beta
    )
   );
+
+ }
+
+ // [[Rcpp::export]]
+ List lrt_multi_exported(NumericMatrix& y_,
+                         NumericVector& w_,
+                         NumericVector& XB_,
+                         int n_split_,
+                         double split_min_stat,
+                         double leaf_min_events,
+                         double leaf_min_obs){
+
+  mat y_node = mat(y_.begin(), y_.nrow(), y_.ncol(), false);
+  vec w_node = vec(w_.begin(), w_.length(), false);
+  vec XB = vec(XB_.begin(), XB_.length(), false);
+
+  uword n_split = n_split_;
+
+  List out = lrt_multi(y_node,
+                       w_node,
+                       XB,
+                       n_split,
+                       split_min_stat,
+                       leaf_min_events,
+                       leaf_min_obs);
+
+  return(out);
 
  }
 

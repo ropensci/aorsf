@@ -39,6 +39,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// lrt_multi_exported
+List lrt_multi_exported(NumericMatrix& y_, NumericVector& w_, NumericVector& XB_, int n_split_, double split_min_stat, double leaf_min_events, double leaf_min_obs);
+RcppExport SEXP _aorsf_lrt_multi_exported(SEXP y_SEXP, SEXP w_SEXP, SEXP XB_SEXP, SEXP n_split_SEXP, SEXP split_min_statSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix& >::type y_(y_SEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type w_(w_SEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type XB_(XB_SEXP);
+    Rcpp::traits::input_parameter< int >::type n_split_(n_split_SEXP);
+    Rcpp::traits::input_parameter< double >::type split_min_stat(split_min_statSEXP);
+    Rcpp::traits::input_parameter< double >::type leaf_min_events(leaf_min_eventsSEXP);
+    Rcpp::traits::input_parameter< double >::type leaf_min_obs(leaf_min_obsSEXP);
+    rcpp_result_gen = Rcpp::wrap(lrt_multi_exported(y_, w_, XB_, n_split_, split_min_stat, leaf_min_events, leaf_min_obs));
+    return rcpp_result_gen;
+END_RCPP
+}
 // orsf_cpp
 List orsf_cpp(arma::mat& x, arma::mat& y, arma::vec& w, int vi, int sr, int pt, bool oobag_pred);
 RcppExport SEXP _aorsf_orsf_cpp(SEXP xSEXP, SEXP ySEXP, SEXP wSEXP, SEXP viSEXP, SEXP srSEXP, SEXP ptSEXP, SEXP oobag_predSEXP) {
@@ -60,6 +77,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_coxph_scale_exported", (DL_FUNC) &_aorsf_coxph_scale_exported, 2},
     {"_aorsf_coxph_fit_exported", (DL_FUNC) &_aorsf_coxph_fit_exported, 6},
+    {"_aorsf_lrt_multi_exported", (DL_FUNC) &_aorsf_lrt_multi_exported, 7},
     {"_aorsf_orsf_cpp", (DL_FUNC) &_aorsf_orsf_cpp, 7},
     {NULL, NULL, 0}
 };
