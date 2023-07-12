@@ -38,8 +38,8 @@
                       arma::vec& XB,
                       arma::uword n_split,
                       double split_min_stat,
-                      double leaf_min_obs,
-                      double leaf_min_events);
+                      double leaf_min_events,
+                      double leaf_min_obs);
 
 
  }

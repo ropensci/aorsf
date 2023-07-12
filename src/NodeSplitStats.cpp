@@ -18,8 +18,8 @@
                 vec& XB,
                 uword n_split,
                 double split_min_stat,
-                double leaf_min_obs,
-                double leaf_min_events){
+                double leaf_min_events,
+                double leaf_min_obs){
 
   // about this function - - - - - - - - - - - - - - - - - - - - - - - - - - -
   //
@@ -36,37 +36,37 @@
   //
   // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-   bool break_loop = false;
+  bool break_loop = false;
 
-   vec
-    group(y_node.n_rows, fill::zeros),
-    vec_temp,
-    cutpoints_used(n_split),
-    lrt_statistics(n_split);
+  vec
+   group(y_node.n_rows, fill::zeros),
+   vec_temp,
+   cutpoints_used(n_split),
+   lrt_statistics(n_split);
 
-   double
-    stat_best = 0, // initialize at the lowest possible LRT stat value
-    n_events = 0,
-    n_risk = 0,
-    g_risk = 0,
-    stat_current,
-    observed,
-    expected,
-    V,
-    temp1,
-    temp2;
+  double
+   stat_best = 0, // initialize at the lowest possible LRT stat value
+   n_events = 0,
+   n_risk = 0,
+   g_risk = 0,
+   stat_current,
+   observed,
+   expected,
+   V,
+   temp1,
+   temp2;
 
-   uword i, j, k, list_counter = 0;
+  uword i, j, k, list_counter = 0;
 
-   uvec
-    jit_vals,
-    // sort XB- we need to iterate over the sorted indices
-    XB_sorted = sort_index(XB, "ascend");
+  uvec
+   jit_vals,
+   // sort XB- we need to iterate over the sorted indices
+   XB_sorted = sort_index(XB, "ascend");
 
-   uvec::iterator
-    iit,
-    jit,
-    iit_best;
+  uvec::iterator
+   iit,
+   jit,
+   iit_best;
 
 
   // group should be initialized as all 0s
@@ -79,8 +79,8 @@
   XB_sorted = sort_index(XB, "ascend");
 
   // unsafe columns point to cols in y_node.
-  vec y_status = y_node.unsafe_col(1);
   vec y_time = y_node.unsafe_col(0);
+  vec y_status = y_node.unsafe_col(1);
 
   // first determine the lowest value of XB that will
   // be a valid cut-point to split a node. A valid cut-point
@@ -90,9 +90,9 @@
   n_events = 0;
   n_risk = 0;
 
-  // if(verbose > 1){
-  //  Rcout << "----- finding cut-point boundaries -----" << std::endl;
-  // }
+  if(VERBOSITY > 1){
+   Rcout << "----- finding cut-point boundaries -----" << std::endl;
+  }
 
   // Iterate through the sorted values of XB, in ascending order.
 
@@ -105,30 +105,30 @@
    // to make sure the next value of XB isn't equal to this current value.
    // Otherwise, we will have the same value of XB in both groups!
 
-   // if(verbose > 1){
-   //  Rcout << XB(*iit)     << " ---- ";
-   //  Rcout << XB(*(iit+1)) << " ---- ";
-   //  Rcout << n_events     << " ---- ";
-   //  Rcout << n_risk       << std::endl;
-   // }
+   if(VERBOSITY > 1){
+    Rcout << XB(*iit)     << " ---- ";
+    Rcout << XB(*(iit+1)) << " ---- ";
+    Rcout << n_events     << " ---- ";
+    Rcout << n_risk       << std::endl;
+   }
 
    if(XB(*iit) != XB(*(iit+1))){
 
-    // if(verbose > 1){
-    //  Rcout << "********* New cut-point here ********" << std::endl;
-    // }
+    if(VERBOSITY > 1){
+     Rcout << "********* New cut-point here ********" << std::endl;
+    }
 
 
     if( n_events >= leaf_min_events &&
         n_risk   >= leaf_min_obs) {
 
-     // if(verbose > 1){
-     //  Rcout << std::endl;
-     //  Rcout << "lower cutpoint: "         << XB(*iit) << std::endl;
-     //  Rcout << " - n_events, left node: " << n_events << std::endl;
-     //  Rcout << " - n_risk, left node:   " << n_risk   << std::endl;
-     //  Rcout << std::endl;
-     // }
+     if(VERBOSITY > 1){
+      Rcout << std::endl;
+      Rcout << "lower cutpoint: "         << XB(*iit) << std::endl;
+      Rcout << " - n_events, left node: " << n_events << std::endl;
+      Rcout << " - n_risk, left node:   " << n_risk   << std::endl;
+      Rcout << std::endl;
+     }
 
      break;
 
@@ -138,12 +138,11 @@
 
   }
 
-  // if(verbose > 1){
-  //  if(iit >= XB_sorted.end()-1) {
-  //   Rcout << "Could not find a valid lower cut-point" << std::endl;
-  //  }
-  // }
-
+  if(VERBOSITY > 1){
+   if(iit >= XB_sorted.end()-1) {
+    Rcout << "Could not find a valid lower cut-point" << std::endl;
+   }
+  }
 
   j = iit - XB_sorted.begin();
 
@@ -160,18 +159,18 @@
    n_risk   += w_node(*iit);
    group(*iit) = 1;
 
-   // if(verbose > 1){
-   //  Rcout << XB(*iit)     << " ---- ";
-   //  Rcout << XB(*(iit-1)) << " ---- ";
-   //  Rcout << n_events     << " ---- ";
-   //  Rcout << n_risk       << std::endl;
-   // }
+   if(VERBOSITY > 1){
+    Rcout << XB(*iit)     << " ---- ";
+    Rcout << XB(*(iit-1)) << " ---- ";
+    Rcout << n_events     << " ---- ";
+    Rcout << n_risk       << std::endl;
+   }
 
    if(XB(*iit) != XB(*(iit-1))){
 
-    // if(verbose > 1){
-    //  Rcout << "********* New cut-point here ********" << std::endl;
-    // }
+    if(VERBOSITY > 1){
+     Rcout << "********* New cut-point here ********" << std::endl;
+    }
 
     if( n_events >= leaf_min_events &&
         n_risk   >= leaf_min_obs ) {
@@ -186,12 +185,12 @@
 
      --iit;
 
-     // if(verbose > 1){
-     //  Rcout << std::endl;
-     //  Rcout << "upper cutpoint: " << XB(*iit) << std::endl;
-     //  Rcout << " - n_events, right node: " << n_events    << std::endl;
-     //  Rcout << " - n_risk, right node:   " << n_risk      << std::endl;
-     // }
+     if(VERBOSITY > 1){
+      Rcout << std::endl;
+      Rcout << "upper cutpoint: " << XB(*iit) << std::endl;
+      Rcout << " - n_events, right node: " << n_events    << std::endl;
+      Rcout << " - n_risk, right node:   " << n_risk      << std::endl;
+     }
 
      break;
 
@@ -204,11 +203,11 @@
   // number of steps taken
   k = iit + 1 - XB_sorted.begin();
 
-  // if(verbose > 1){
-  //  Rcout << "----------------------------------------" << std::endl;
-  //  Rcout << std::endl << std::endl;
-  //  Rcout << "sorted XB: " << std::endl << XB(XB_sorted).t() << std::endl;
-  // }
+  if(VERBOSITY > 1){
+   Rcout << "----------------------------------------" << std::endl;
+   Rcout << std::endl << std::endl;
+   Rcout << "sorted XB: " << std::endl << XB(XB_sorted).t() << std::endl;
+  }
 
   // initialize cut-point as the value of XB iit currently points to.
   iit_best = iit;
@@ -221,26 +220,28 @@
   // telling us where we are after taking p steps from the end
   // of the XB vec. Returning the infinite cp is a red flag.
 
-  // if(verbose > 1){
-  //  Rcout << "j: " << j << std::endl;
-  //  Rcout << "k: " << k << std::endl;
-  // }
+  if(VERBOSITY > 1){
+   Rcout << "j: " << j << std::endl;
+   Rcout << "k: " << k << std::endl;
+  }
 
   if (j > k){
 
-   // if(verbose > 1) {
-   //  Rcout << "Could not find a cut-point for this XB" << std::endl;
-   // }
+   if(VERBOSITY > 1) {
+    Rcout << "Could not find a cut-point for this XB" << std::endl;
+   }
 
-   return(R_PosInf);
+   return(List::create(_["cutpoints"] = R_PosInf,
+                       _["statistic"] = R_PosInf));
+
   }
 
-  // if(verbose > 1){
-  //
-  //  Rcout << "----- initializing log-rank test cutpoints -----" << std::endl;
-  //  Rcout << "n potential cutpoints: " << k-j << std::endl;
-  //
-  // }
+  if(VERBOSITY > 1){
+
+   Rcout << "----- initializing log-rank test cutpoints -----" << std::endl;
+   Rcout << "n potential cutpoints: " << k-j << std::endl;
+
+  }
 
   // what happens if there are only 5 potential cut-points
   // but the value of n_split is > 5? We will just check out
@@ -270,16 +271,16 @@
   if(j == 0) jit_vals(jit_vals.size()-1)++;
 
 
-  // if(verbose > 1){
-  //
-  //  Rcout << "cut-points chosen: ";
-  //
-  //  Rcout << vec_temp.t();
-  //
-  //  Rcout << "----------------------------------------" << std::endl <<
-  //   std::endl << std::endl;
-  //
-  // }
+  if(VERBOSITY > 1){
+
+   Rcout << "cut-points chosen: ";
+
+   Rcout << vec_temp.t();
+
+   Rcout << "----------------------------------------" << std::endl <<
+    std::endl << std::endl;
+
+  }
 
   bool do_lrt = true;
 
@@ -288,11 +289,6 @@
 
   // begin outer loop - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   for(jit = jit_vals.begin(); jit != jit_vals.end(); ++jit){
-
-
-   // if(verbose > 1){
-   //  Rcout << "jit points to " << *jit << std::endl;
-   // }
 
    for( ; j < *jit; j++){
     group(*iit) = 1;
@@ -320,10 +316,10 @@
       --iit;
       ++j;
 
-      // if(verbose > 1){
-      //  Rcout << "cutpoint dropped down one spot: ";
-      //  Rcout << XB(*iit) << std::endl;
-      // }
+      if(VERBOSITY > 1){
+       Rcout << "cutpoint dropped down one spot: ";
+       Rcout << XB(*iit) << std::endl;
+      }
 
      }
 
@@ -351,15 +347,15 @@
 
     i = y_node.n_rows-1;
 
-    // if(verbose > 1){
-    //  Rcout << "sum(group==1): " << sum(group) << ";  ";
-    //  Rcout << "sum(group==1 * w_node): " << sum(group % w_node);
-    //  Rcout << std::endl;
-    //  if(verbose > 1){
-    //   Rcout << "group:" << std::endl;
-    //   Rcout << group(XB_sorted).t() << std::endl;
-    //  }
-    // }
+    if(VERBOSITY > 1){
+     Rcout << "sum(group==1): " << sum(group) << ";  ";
+     Rcout << "sum(group==1 * w_node): " << sum(group % w_node);
+     Rcout << std::endl;
+     if(VERBOSITY > 1){
+      Rcout << "group:" << std::endl;
+      Rcout << group(XB_sorted).t() << std::endl;
+     }
+    }
 
 
     // begin inner loop  - - - - - - - - - - - - -  - - - - - - - - - - - - -
@@ -408,15 +404,15 @@
 
     list_counter++;
 
-    // if(verbose > 1){
-    //
-    //  Rcout << "-------- log-rank test results --------" << std::endl;
-    //  Rcout << "cutpoint: " << XB(*iit)                  << std::endl;
-    //  Rcout << "lrt stat: " << stat_current              << std::endl;
-    //  Rcout << "---------------------------------------" << std::endl <<
-    //   std::endl << std::endl;
-    //
-    // }
+    if(VERBOSITY > 1){
+
+     Rcout << "-------- log-rank test results --------" << std::endl;
+     Rcout << "cutpoint: " << XB(*iit)                  << std::endl;
+     Rcout << "lrt stat: " << stat_current              << std::endl;
+     Rcout << "---------------------------------------" << std::endl <<
+      std::endl << std::endl;
+
+    }
 
     if(stat_current > stat_best){
      iit_best = iit;
@@ -431,11 +427,14 @@
   // if the log-rank test does not detect a difference at 0.05 alpha,
   // maybe it's not a good idea to split this node.
 
-  if(stat_best < 3.841459) return(R_PosInf);
+  // if(stat_best < 3.841459) return(
+  //   List::create(_["cutpoints"] = R_PosInf,
+  //                _["statistic"] = R_PosInf)
+  // );
 
-  // if(verbose > 1){
-  //  Rcout << "Best LRT stat: " << stat_best << std::endl;
-  // }
+  if(VERBOSITY > 1){
+   Rcout << "Best LRT stat: " << stat_best << std::endl;
+  }
 
   // rewind iit until it is back where it was when we got the
   // best lrt stat. While rewinding iit, also reset the group
@@ -449,7 +448,8 @@
   }
 
   return(List::create(_["cutpoints"] = cutpoints_used,
-                      _["statistic"] = lrt_statistics));
+                      _["statistic"] = lrt_statistics,
+                      _["vec_temp"] = vec_temp));
 
  }
 
