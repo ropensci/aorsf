@@ -4,7 +4,7 @@
 #' @srrstats {G5.4b} *Correctness tests include tests against previous implementations, explicitly calling those implementations in testing.*
 
 #' @srrstats {G5.5} *Correctness tests are run with a fixed random seed*
-set.seed(329)
+set.seed(329555)
 
 #' @srrstats {G5.6} **Parameter recovery tests** *the likelihood ratio test returns expected values consistent with the survival implementation for randomly generated data*
 
@@ -35,6 +35,12 @@ run_lrt_multi_tests <- function(test_values, XB){
   e_right >= leaf_min_events & e_left >= leaf_min_events  &
    n_right >= leaf_min_obs & n_left >= leaf_min_obs
  )
+
+ if(!any(cp_stats$valid_cp)){
+  expect_true(is.infinite(test_values$cutpoints))
+  expect_true(is.infinite(test_values$statistic))
+  return(NULL)
+ }
 
  cp_first = xb_uni[min(which(cp_stats$valid_cp))]
  cp_last  = xb_uni[max(which(cp_stats$valid_cp))]
@@ -133,6 +139,8 @@ for(leaf_min_events in .leaf_min_events){
  )
 
  test_values = lrt_multi_vals[[1]]
+
+
 
  run_lrt_multi_tests(lrt_multi_vals$ctns, XB_ctns)
  run_lrt_multi_tests(lrt_multi_vals$catg, XB_catg)

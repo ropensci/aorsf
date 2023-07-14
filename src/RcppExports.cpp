@@ -39,6 +39,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// node_find_cps
+arma::vec node_find_cps(arma::mat& y_node, arma::vec& w_node, arma::vec& XB, arma::uword n_split, double leaf_min_events, double leaf_min_obs);
+RcppExport SEXP _aorsf_node_find_cps(SEXP y_nodeSEXP, SEXP w_nodeSEXP, SEXP XBSEXP, SEXP n_splitSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type y_node(y_nodeSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type w_node(w_nodeSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type XB(XBSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type n_split(n_splitSEXP);
+    Rcpp::traits::input_parameter< double >::type leaf_min_events(leaf_min_eventsSEXP);
+    Rcpp::traits::input_parameter< double >::type leaf_min_obs(leaf_min_obsSEXP);
+    rcpp_result_gen = Rcpp::wrap(node_find_cps(y_node, w_node, XB, n_split, leaf_min_events, leaf_min_obs));
+    return rcpp_result_gen;
+END_RCPP
+}
 // lrt_multi_exported
 List lrt_multi_exported(NumericMatrix& y_, NumericVector& w_, NumericVector& XB_, int n_split_, double split_min_stat, double leaf_min_events, double leaf_min_obs);
 RcppExport SEXP _aorsf_lrt_multi_exported(SEXP y_SEXP, SEXP w_SEXP, SEXP XB_SEXP, SEXP n_split_SEXP, SEXP split_min_statSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP) {
@@ -77,6 +93,7 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_coxph_scale_exported", (DL_FUNC) &_aorsf_coxph_scale_exported, 2},
     {"_aorsf_coxph_fit_exported", (DL_FUNC) &_aorsf_coxph_fit_exported, 6},
+    {"_aorsf_node_find_cps", (DL_FUNC) &_aorsf_node_find_cps, 6},
     {"_aorsf_lrt_multi_exported", (DL_FUNC) &_aorsf_lrt_multi_exported, 7},
     {"_aorsf_orsf_cpp", (DL_FUNC) &_aorsf_orsf_cpp, 7},
     {NULL, NULL, 0}

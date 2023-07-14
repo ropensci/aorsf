@@ -9,6 +9,10 @@ coxph_fit_exported <- function(x_, y_, w_, method, cph_eps, cph_iter_max) {
     .Call(`_aorsf_coxph_fit_exported`, x_, y_, w_, method, cph_eps, cph_iter_max)
 }
 
+node_find_cps <- function(y_node, w_node, XB, n_split, leaf_min_events, leaf_min_obs) {
+    .Call(`_aorsf_node_find_cps`, y_node, w_node, XB, n_split, leaf_min_events, leaf_min_obs)
+}
+
 lrt_multi_exported <- function(y_, w_, XB_, n_split_, split_min_stat, leaf_min_events, leaf_min_obs) {
     .Call(`_aorsf_lrt_multi_exported`, y_, w_, XB_, n_split_, split_min_stat, leaf_min_events, leaf_min_obs)
 }
