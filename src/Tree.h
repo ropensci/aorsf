@@ -10,7 +10,6 @@
 
 #include "Data.h"
 #include "globals.h"
-#include "Forest.h"
 
  namespace aorsf {
 
@@ -18,15 +17,22 @@
 
  public:
 
-  // Construct trees from an existing forest
-  Tree(Forest* forest);
+  Tree();
 
   // deleting the copy constructor
   Tree(const Tree&) = delete;
   // deleting the copy assignment operator
   Tree& operator=(const Tree&) = delete;
 
+  void init(Data* data,
+            double leaf_min_obs,
+            double leaf_min_events,
+            int mtry);
+
   void grow();
+
+  // Pointer to original data
+  const Data* data;
 
   // which rows of data are held out while growing the tree
   arma::uvec rows_oobag;
@@ -56,8 +62,6 @@
 
  protected:
 
-  // Pointer to a forest
-  Forest* forest;
 
 
  };

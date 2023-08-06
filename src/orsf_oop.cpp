@@ -230,16 +230,32 @@
 
  // [[Rcpp::plugins("cpp17")]]
  // [[Rcpp::export]]
-
  List orsf_cpp(arma::mat& x,
                arma::mat& y,
                arma::vec& w,
-               int n_tree,
+               Rcpp::IntegerVector& tree_seeds,
                Rcpp::Function f_beta,
                Rcpp::Function f_oobag_eval,
-               Rcpp::IntegerVector& tree_seeds,
-               Rcpp::List& tree_params){
-
+               int n_tree,
+               int mtry,
+               int vi_type_R,
+               double leaf_min_events,
+               double leaf_min_obs,
+               int split_rule_R,
+               double split_min_events,
+               double split_min_obs,
+               double split_min_stat,
+               int split_max_retry,
+               int lincomb_type_R,
+               double lincomb_eps,
+               int lincomb_iter_max,
+               bool lincomb_scale,
+               double lincomb_alpha,
+               int lincomb_df_target,
+               int pred_type_R,
+               double pred_horizon,
+               bool oobag_pred,
+               int oobag_eval_every){
 
   // int mtry = 2;
   // int leaf_min_obs = DEFAULT_LEAF_MIN_OBS_SURVIVAL;
@@ -247,28 +263,49 @@
   // SplitRule split_rule = static_cast<SplitRule>(sr);
   // PredType pred_type = static_cast<PredType>(pt);
 
+  // VariableImportance vi_type = static_cast<VariableImportance>(vi_type_R);
+  // SplitRule split_rule = static_cast<SplitRule>(split_rule_r) ;
+  // LinearCombo lincomb_type = static_cast<LinearCombo>(lincomb_type_R);
+  // PredType pred_type = static_cast<PredType>(pred_type_R);
+
 
   std::unique_ptr<Forest> forest { };
   std::unique_ptr<Data> data { };
 
   data = std::make_unique<Data>(x, y, w);
 
+  VariableImportance vi_type = (VariableImportance) vi_type_R;
+  SplitRule split_rule = (SplitRule) split_rule_R;
+  LinearCombo lincomb_type = (LinearCombo) lincomb_type_R;
+  PredType pred_type = (PredType) pred_type_R;
+
   forest = std::make_unique<Forest>();
 
   forest->init(std::move(data),
-               n_tree,
                tree_seeds,
-               tree_params);
+               n_tree,
+               mtry,
+               vi_type,
+               leaf_min_events,
+               leaf_min_obs,
+               split_rule,
+               split_min_events,
+               split_min_obs,
+               split_min_stat,
+               split_max_retry,
+               lincomb_type,
+               lincomb_eps,
+               lincomb_iter_max,
+               lincomb_scale,
+               lincomb_alpha,
+               lincomb_df_target,
+               pred_type,
+               pred_horizon,
+               oobag_pred,
+               oobag_eval_every);
 
   Rcpp::List result;
 
-  result.push_back(
-   forest->get_bootstrap_select_probs(),
-   "bootstrap_select_probs"
-  );
-
-
   return(result);
-
 
  }

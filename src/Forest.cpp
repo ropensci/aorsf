@@ -12,56 +12,62 @@ namespace aorsf {
 Forest::Forest(){ }
 
 void Forest::init(std::unique_ptr<Data> input_data,
-                  int n_tree,
                   Rcpp::IntegerVector& tree_seeds,
-                  Rcpp::List& tree_params){
+                  int n_tree,
+                  int mtry,
+                  VariableImportance vi_type,
+                  double leaf_min_events,
+                  double leaf_min_obs,
+                  SplitRule split_rule,
+                  double split_min_events,
+                  double split_min_obs,
+                  double split_min_stat,
+                  int    split_max_retry,
+                  LinearCombo lincomb_type,
+                  double lincomb_eps,
+                  int    lincomb_iter_max,
+                  bool   lincomb_scale,
+                  double lincomb_alpha,
+                  int    lincomb_df_target,
+                  PredType pred_type,
+                  double pred_horizon,
+                  bool   oobag_pred,
+                  int    oobag_eval_every){
 
  this->data = std::move(input_data);
+ this->tree_seeds = tree_seeds;
+ this->n_tree = n_tree;
+ this->mtry = mtry;
+ this->vi_type = vi_type;
+ this->leaf_min_events = leaf_min_events;
+ this->leaf_min_obs = leaf_min_obs;
+ this->split_rule = split_rule;
+ this->split_min_events = split_min_events;
+ this->split_min_obs = split_min_obs;
+ this->split_min_stat = split_min_stat;
+ this->split_max_retry = split_max_retry;
+ this->lincomb_type = lincomb_type; this->lincomb_eps = lincomb_eps;
+ this->lincomb_iter_max = lincomb_iter_max;
+ this->lincomb_scale = lincomb_scale;
+ this->lincomb_alpha = lincomb_alpha;
+ this->lincomb_df_target = lincomb_df_target;
+ this->pred_type = pred_type;
+ this->pred_horizon = pred_horizon;
+ this->oobag_pred = oobag_pred;
+ this->oobag_eval_every = oobag_eval_every;
 
- uword n_rows = data->get_n_rows();
-
- // this->n_tree = n_tree;
- // this->tree_seeds = tree_seeds;
- // this->tree_objects = Rcpp::List(n_tree);
-
- // this->n_split = tree_params["n_split"];
- // this->mtry = tree_params["mtry"];
- // this->leaf_min_events = tree_params["leaf_min_events"];
- // this->leaf_min_obs = tree_params["leaf_min_obs"];
-
- // this->split_min_events = params["split_min_events"];
- // this->split_min_obs = params["split_min_obs"];
- // this->split_min_stat = params["split_min_stat"];
- // this->cph_method = params["cph_method"];
- // this->cph_eps = params["cph_eps"];
- // this->cph_iter_max = params["cph_iter_max"];
- // this->cph_do_scale = params["cph_do_scale"];
- // this->net_alpha = params["net_alpha"];
- // this->net_df_target = params["net_df_target"];
- // this->oobag_pred = params["oobag_pred"];
- // this->oobag_pred_type = params["oobag_pred_type"];
- // this->oobag_pred_horizon = params["oobag_pred_horizon"];
- // this->oobag_eval_every = params["oobag_eval_every"];
- // this->oobag_importance = params["oobag_importance"];
- // this->oobag_importance_type = params["oobag_importance_type"];
- // this->max_retry = params["max_retry"];
- // this->type_beta = params["type_beta"];
-
-
- if(VERBOSITY > 0){
+  if(VERBOSITY > 0){
   Rcout << "------------ dimensions ------------"   << std::endl;
   Rcout << "N obs total: "     << data->get_n_rows() << std::endl;
   Rcout << "N columns total: " << data->get_n_cols() << std::endl;
   Rcout << "------------------------------------";
   Rcout << std::endl << std::endl;
  }
- //
- // // sample weights to mimic a bootstrap sample
- //
- // // s is the number of times you might get selected into
- // // a bootstrap sample. Realistically this won't be >10,
- // // but it could technically be as big as n_row.
+
+ // sample weights to mimic a bootstrap sample
  this->bootstrap_select_times = seq(0, 10);
+
+ uword n_rows = data->get_n_rows();
 
  // compute probability of being selected into the bootstrap
  // 0 times, 1, times, ..., 9 times, or 10 times.
@@ -71,6 +77,10 @@ void Forest::init(std::unique_ptr<Data> input_data,
                                        false);
 
 }
+
+void Forest::grow(){ }
+
+void Forest::run(){ }
 
 }
 

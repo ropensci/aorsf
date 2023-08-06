@@ -6,6 +6,7 @@
 
 #include "Data.h"
 #include "globals.h"
+#include "Tree.h"
 
 namespace aorsf {
 
@@ -25,14 +26,38 @@ public:
  // Methods
 
  void init(std::unique_ptr<Data> input_data,
-           int n_tree,
            Rcpp::IntegerVector& tree_seeds,
-           Rcpp::List& tree_params);
+           int n_tree,
+           int mtry,
+           VariableImportance vi_type,
+           // leaves
+           double leaf_min_events,
+           double leaf_min_obs,
+           // node splitting
+           SplitRule    split_rule,
+           double split_min_events,
+           double split_min_obs,
+           double split_min_stat,
+           int    split_max_retry,
+           // linear combinations
+           LinearCombo  lincomb_type,
+           double lincomb_eps,
+           int    lincomb_iter_max,
+           bool   lincomb_scale,
+           double lincomb_alpha,
+           int    lincomb_df_target,
+           // predictions
+           PredType     pred_type,
+           double pred_horizon,
+           bool   oobag_pred,
+           int    oobag_eval_every);
 
  // virtual void initInternal() = 0;
 
  // Grow or predict
- void run(bool verbose, bool compute_oob_error);
+ void run();
+
+ void grow();
 
  Rcpp::IntegerVector get_bootstrap_select_times(){
   return bootstrap_select_times;
@@ -49,17 +74,41 @@ public:
  Rcpp::NumericVector bootstrap_select_probs;
 
  int n_tree;
+ int mtry;
 
  Rcpp::IntegerVector tree_seeds;
- Rcpp::List tree_objects;
 
- arma::uword n_split;
- arma::uword mtry;
+ std::vector<std::unique_ptr<Tree>> trees;
 
+ std::unique_ptr<Data> data;
+
+ VariableImportance vi_type;
+
+ // leaves
  double leaf_min_events;
  double leaf_min_obs;
 
- std::unique_ptr<Data> data;
+ // node splitting
+ SplitRule split_rule;
+ double    split_min_events;
+ double    split_min_obs;
+ double    split_min_stat;
+ int       split_max_retry;
+
+ // linear combinations
+ LinearCombo lincomb_type;
+ double      lincomb_eps;
+ int         lincomb_iter_max;
+ bool        lincomb_scale;
+ double      lincomb_alpha;
+ int         lincomb_df_target;
+
+ // predictions
+ PredType pred_type;
+ double   pred_horizon;
+ bool     oobag_pred;
+ int      oobag_eval_every;
+
 
 };
 

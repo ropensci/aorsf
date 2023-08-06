@@ -13,20 +13,24 @@
 
  namespace aorsf {
 
- Tree::Tree(Forest* forest){
+ Tree::Tree(){ }
 
-  this->forest = forest;
+ void Tree::init(Data* data,
+                 double leaf_min_obs,
+                 double leaf_min_events,
+                 int mtry){
+
 
   arma::uword guess = std::ceil(
-   0.5 * forest->data->get_n_rows() / forest->leaf_min_obs
+   0.5 * data->get_n_rows() / leaf_min_obs
   );
 
-  coef.zeros(guess, forest->mtry);
-  coef_indices.zeros(guess, forest->mtry);
-  cutpoint.zeros(guess);
-  next_left_node.zeros(guess);
-  leaf_values.zeros(guess, 1);
-  leaf_indices.zeros(guess, 3);
+  // coef.zeros(guess, forest->mtry);
+  // coef_indices.zeros(guess, forest->mtry);
+  // cutpoint.zeros(guess);
+  // next_left_node.zeros(guess);
+  // leaf_values.zeros(guess, 1);
+  // leaf_indices.zeros(guess, 3);
 
  }
 
@@ -34,12 +38,12 @@
  void Tree::grow(){
 
 
-  vec boot_wts = as<vec>(
-   sample(forest->bootstrap_select_times,
-          forest->data->get_n_rows(),
-          true,
-          forest->bootstrap_select_probs)
-  );
+  // vec boot_wts = as<vec>(
+  //  sample(forest->bootstrap_select_times,
+  //         forest->data->get_n_rows(),
+  //         true,
+  //         forest->bootstrap_select_probs)
+  // );
 
   //
   // if(forest->data->has_weights()) boot_wts = boot_wts % data->w;

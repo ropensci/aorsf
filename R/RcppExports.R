@@ -29,7 +29,7 @@ lrt_multi_exported <- function(y_, w_, XB_, n_split_, split_min_stat, leaf_min_e
     .Call(`_aorsf_lrt_multi_exported`, y_, w_, XB_, n_split_, split_min_stat, leaf_min_events, leaf_min_obs)
 }
 
-orsf_cpp <- function(x, y, w, n_tree, f_beta, f_oobag_eval, tree_seeds, tree_params) {
-    .Call(`_aorsf_orsf_cpp`, x, y, w, n_tree, f_beta, f_oobag_eval, tree_seeds, tree_params)
+orsf_cpp <- function(x, y, w, tree_seeds, f_beta, f_oobag_eval, n_tree, mtry, vi_type_R, leaf_min_events, leaf_min_obs, split_rule_R, split_min_events, split_min_obs, split_min_stat, split_max_retry, lincomb_type_R, lincomb_eps, lincomb_iter_max, lincomb_scale, lincomb_alpha, lincomb_df_target, pred_type_R, pred_horizon, oobag_pred, oobag_eval_every) {
+    .Call(`_aorsf_orsf_cpp`, x, y, w, tree_seeds, f_beta, f_oobag_eval, n_tree, mtry, vi_type_R, leaf_min_events, leaf_min_obs, split_rule_R, split_min_events, split_min_obs, split_min_stat, split_max_retry, lincomb_type_R, lincomb_eps, lincomb_iter_max, lincomb_scale, lincomb_alpha, lincomb_df_target, pred_type_R, pred_horizon, oobag_pred, oobag_eval_every)
 }
 

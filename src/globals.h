@@ -34,9 +34,9 @@
  };
 
  // Linear combination method
- enum LinearCombination {
+ enum LinearCombo {
   NEWTON_RAPHSON = 1,
-  USER_FUNCTION = 2
+  R_FUNCTION = 2
  };
 
  // Prediction type
