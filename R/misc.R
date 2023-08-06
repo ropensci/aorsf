@@ -104,6 +104,56 @@ paste_collapse <- function(x, sep=', ', last = ' or '){
 
 }
 
+
+#' Find cut-point boundaries (R version)
+#'
+#'  Used to test the cpp version for finding cutpoints
+#'
+#' @param y_node outcome matrix
+#' @param w_node weight vector
+#' @param XB linear combination of predictors
+#' @param xb_uni unique values in XB
+#' @param leaf_min_events min no. of events in a leaf
+#' @param leaf_min_obs min no. of observations in a leaf
+#'
+#' @noRd
+#'
+#' @return data.frame with description of valid cutpoints
+cp_find_bounds_R <- function(y_node,
+                             w_node,
+                             XB,
+                             xb_uni,
+                             leaf_min_events,
+                             leaf_min_obs){
+
+ status = y_node[, 'status']
+
+ cp_stats <-
+  sapply(
+   X = xb_uni,
+   FUN = function(x){
+    c(
+     cp = x,
+     e_right = sum(status[XB > x]),
+     e_left = sum(status[XB <= x]),
+     n_right = sum(XB > x),
+     n_left = sum(XB <= x)
+    )
+   }
+  )
+
+ cp_stats <- as.data.frame(t(cp_stats))
+
+ cp_stats$valid_cp = with(
+  cp_stats,
+  e_right >= leaf_min_events & e_left >= leaf_min_events  &
+   n_right >= leaf_min_obs & n_left >= leaf_min_obs
+ )
+
+ cp_stats
+
+}
+
 # Clean up after aorsf is unloaded.
 .onUnload <- function (libpath) {
  library.dynam.unload("aorsf", libpath)

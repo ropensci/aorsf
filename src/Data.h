@@ -10,6 +10,9 @@
 #include <armadillo>
 #include "globals.h"
 
+ using namespace arma;
+ using namespace Rcpp;
+
  namespace aorsf {
 
  class Data {
@@ -26,17 +29,20 @@
    this->y = y;
    this->w = w;
 
+   this->n_rows = x.n_rows;
+   this->n_cols = x.n_cols;
+
   }
 
-  // Weights vector
-  arma::vec w;
+  Data(const Data&) = delete;
+  Data& operator=(const Data&) = delete;
 
   arma::uword get_n_rows() {
-   return(x.n_rows);
+   return(n_rows);
   }
 
   arma::uword get_n_cols() {
-   return(x.n_cols);
+   return(n_cols);
   }
 
   bool has_weights() {
@@ -73,10 +79,17 @@
    return(w(vector_of_indices));
   }
 
+  // member variables
+
+  arma::uword n_cols;
+  arma::uword n_rows;
+
+
  private:
 
   arma::mat x;
   arma::mat y;
+  arma::vec w;
 
  };
 

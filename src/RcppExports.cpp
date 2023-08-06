@@ -39,19 +39,59 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// node_find_cps
-arma::vec node_find_cps(arma::mat& y_node, arma::vec& w_node, arma::vec& XB, arma::uword n_split, double leaf_min_events, double leaf_min_obs);
-RcppExport SEXP _aorsf_node_find_cps(SEXP y_nodeSEXP, SEXP w_nodeSEXP, SEXP XBSEXP, SEXP n_splitSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP) {
+// node_find_cps_exported
+List node_find_cps_exported(arma::mat& y_node, arma::vec& w_node, arma::vec& XB, double leaf_min_events, double leaf_min_obs);
+RcppExport SEXP _aorsf_node_find_cps_exported(SEXP y_nodeSEXP, SEXP w_nodeSEXP, SEXP XBSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type y_node(y_nodeSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type w_node(w_nodeSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type XB(XBSEXP);
-    Rcpp::traits::input_parameter< arma::uword >::type n_split(n_splitSEXP);
     Rcpp::traits::input_parameter< double >::type leaf_min_events(leaf_min_eventsSEXP);
     Rcpp::traits::input_parameter< double >::type leaf_min_obs(leaf_min_obsSEXP);
-    rcpp_result_gen = Rcpp::wrap(node_find_cps(y_node, w_node, XB, n_split, leaf_min_events, leaf_min_obs));
+    rcpp_result_gen = Rcpp::wrap(node_find_cps_exported(y_node, w_node, XB, leaf_min_events, leaf_min_obs));
+    return rcpp_result_gen;
+END_RCPP
+}
+// node_compute_lrt_exported
+double node_compute_lrt_exported(arma::mat& y_node, arma::vec& w_node, arma::vec& group);
+RcppExport SEXP _aorsf_node_compute_lrt_exported(SEXP y_nodeSEXP, SEXP w_nodeSEXP, SEXP groupSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type y_node(y_nodeSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type w_node(w_nodeSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type group(groupSEXP);
+    rcpp_result_gen = Rcpp::wrap(node_compute_lrt_exported(y_node, w_node, group));
+    return rcpp_result_gen;
+END_RCPP
+}
+// node_fill_group_exported
+void node_fill_group_exported(arma::vec& group, const arma::uvec& XB_sorted, const arma::uword start, const arma::uword stop, const double value);
+RcppExport SEXP _aorsf_node_fill_group_exported(SEXP groupSEXP, SEXP XB_sortedSEXP, SEXP startSEXP, SEXP stopSEXP, SEXP valueSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec& >::type group(groupSEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type XB_sorted(XB_sortedSEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type start(startSEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type stop(stopSEXP);
+    Rcpp::traits::input_parameter< const double >::type value(valueSEXP);
+    node_fill_group_exported(group, XB_sorted, start, stop, value);
+    return R_NilValue;
+END_RCPP
+}
+// which_cols_valid_exported
+arma::uvec which_cols_valid_exported(const arma::mat& y_inbag, const arma::mat& x_inbag, arma::uvec& rows_node, const arma::uword mtry);
+RcppExport SEXP _aorsf_which_cols_valid_exported(SEXP y_inbagSEXP, SEXP x_inbagSEXP, SEXP rows_nodeSEXP, SEXP mtrySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type y_inbag(y_inbagSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type x_inbag(x_inbagSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type rows_node(rows_nodeSEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type mtry(mtrySEXP);
+    rcpp_result_gen = Rcpp::wrap(which_cols_valid_exported(y_inbag, x_inbag, rows_node, mtry));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -73,19 +113,20 @@ BEGIN_RCPP
 END_RCPP
 }
 // orsf_cpp
-List orsf_cpp(arma::mat& x, arma::mat& y, arma::vec& w, int vi, int sr, int pt, bool oobag_pred);
-RcppExport SEXP _aorsf_orsf_cpp(SEXP xSEXP, SEXP ySEXP, SEXP wSEXP, SEXP viSEXP, SEXP srSEXP, SEXP ptSEXP, SEXP oobag_predSEXP) {
+List orsf_cpp(arma::mat& x, arma::mat& y, arma::vec& w, int n_tree, Rcpp::Function f_beta, Rcpp::Function f_oobag_eval, Rcpp::IntegerVector& tree_seeds, Rcpp::List& tree_params);
+RcppExport SEXP _aorsf_orsf_cpp(SEXP xSEXP, SEXP ySEXP, SEXP wSEXP, SEXP n_treeSEXP, SEXP f_betaSEXP, SEXP f_oobag_evalSEXP, SEXP tree_seedsSEXP, SEXP tree_paramsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type x(xSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type y(ySEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type w(wSEXP);
-    Rcpp::traits::input_parameter< int >::type vi(viSEXP);
-    Rcpp::traits::input_parameter< int >::type sr(srSEXP);
-    Rcpp::traits::input_parameter< int >::type pt(ptSEXP);
-    Rcpp::traits::input_parameter< bool >::type oobag_pred(oobag_predSEXP);
-    rcpp_result_gen = Rcpp::wrap(orsf_cpp(x, y, w, vi, sr, pt, oobag_pred));
+    Rcpp::traits::input_parameter< int >::type n_tree(n_treeSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type f_beta(f_betaSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type f_oobag_eval(f_oobag_evalSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type tree_seeds(tree_seedsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List& >::type tree_params(tree_paramsSEXP);
+    rcpp_result_gen = Rcpp::wrap(orsf_cpp(x, y, w, n_tree, f_beta, f_oobag_eval, tree_seeds, tree_params));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -93,9 +134,12 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_coxph_scale_exported", (DL_FUNC) &_aorsf_coxph_scale_exported, 2},
     {"_aorsf_coxph_fit_exported", (DL_FUNC) &_aorsf_coxph_fit_exported, 6},
-    {"_aorsf_node_find_cps", (DL_FUNC) &_aorsf_node_find_cps, 6},
+    {"_aorsf_node_find_cps_exported", (DL_FUNC) &_aorsf_node_find_cps_exported, 5},
+    {"_aorsf_node_compute_lrt_exported", (DL_FUNC) &_aorsf_node_compute_lrt_exported, 3},
+    {"_aorsf_node_fill_group_exported", (DL_FUNC) &_aorsf_node_fill_group_exported, 5},
+    {"_aorsf_which_cols_valid_exported", (DL_FUNC) &_aorsf_which_cols_valid_exported, 4},
     {"_aorsf_lrt_multi_exported", (DL_FUNC) &_aorsf_lrt_multi_exported, 7},
-    {"_aorsf_orsf_cpp", (DL_FUNC) &_aorsf_orsf_cpp, 7},
+    {"_aorsf_orsf_cpp", (DL_FUNC) &_aorsf_orsf_cpp, 8},
     {NULL, NULL, 0}
 };
 

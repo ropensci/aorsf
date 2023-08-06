@@ -13,6 +13,301 @@
 
  namespace aorsf {
 
+ arma::uvec node_find_cps(const arma::mat& y_node,
+                          const arma::vec& w_node,
+                          const arma::vec& XB,
+                          arma::uvec& XB_sorted,
+                          double leaf_min_events,
+                          double leaf_min_obs){
+
+
+  vec y_status = y_node.unsafe_col(1);
+
+  // placeholder with values indicating invalid cps
+  uvec output;
+
+  uword i, j, k;
+
+  uvec::iterator XB_iter, XB_iter_min, XB_iter_max;
+
+  double n_events = 0, n_risk = 0;
+
+  if(VERBOSITY > 0){
+   Rcout << "----- finding a lower bound for cut-points -----" << std::endl;
+  }
+
+  // stop at end-1 b/c we access XB_iter+1 in XB_sorted
+  for(XB_iter = XB_sorted.begin();
+      XB_iter < XB_sorted.end()-1;
+      ++XB_iter){
+
+   n_events += y_status[*XB_iter] * w_node[*XB_iter];
+   n_risk += w_node[*XB_iter];
+
+
+   if(VERBOSITY > 1){
+    Rcout << "current XB"<< XB(*XB_iter)  << " ---- ";
+    Rcout << "next XB"<< XB(*(XB_iter+1)) << " ---- ";
+    Rcout << "N events" << n_events       << " ---- ";
+    Rcout << "N risk" << n_risk           << std::endl;
+   }
+
+   // If we want to make the current value of XB a cut-point, we need
+   // to make sure the next value of XB isn't equal to this current value.
+   // Otherwise, we will have the same value of XB in both groups!
+
+   if(XB[*XB_iter] != XB[*(XB_iter+1)]){
+
+    if(VERBOSITY > 1){
+     Rcout << "********* New cut-point here ********" << std::endl;
+    }
+
+    if( n_events >= leaf_min_events &&
+        n_risk   >= leaf_min_obs) {
+
+     if(VERBOSITY > 1){
+      Rcout << std::endl;
+      Rcout << "lower cutpoint: "         << XB(*XB_iter) << std::endl;
+      Rcout << " - n_events, left node: " << n_events << std::endl;
+      Rcout << " - n_risk, left node:   " << n_risk   << std::endl;
+      Rcout << std::endl;
+     }
+
+     break;
+
+    }
+
+   }
+
+  }
+
+  XB_iter_min = XB_iter;
+
+  if(XB_iter == XB_sorted.end()-1) {
+
+   if(VERBOSITY > 1){
+    Rcout << "Could not find a valid lower cut-point" << std::endl;
+   }
+
+   return(output);
+
+  }
+
+  // j = number of steps we have taken forward in XB
+  j = XB_iter - XB_sorted.begin();
+
+  // reset before finding the upper limit
+  n_events=0, n_risk=0;
+
+  // stop at beginning+1 b/c we access XB_iter-1 in XB_sorted
+  for(XB_iter = XB_sorted.end()-1; XB_iter >= XB_sorted.begin()+1; --XB_iter){
+
+   n_events += y_status[*XB_iter] * w_node[*XB_iter];
+   n_risk   += w_node[*XB_iter];
+
+   if(VERBOSITY > 1){
+    Rcout << XB(*XB_iter)     << " ---- ";
+    Rcout << XB(*(XB_iter-1)) << " ---- ";
+    Rcout << n_events     << " ---- ";
+    Rcout << n_risk       << std::endl;
+   }
+
+   if(XB(*XB_iter) != XB(*(XB_iter-1))){
+
+    if(VERBOSITY > 1){
+     Rcout << "********* New cut-point here ********" << std::endl;
+    }
+
+    if( n_events >= leaf_min_events &&
+        n_risk   >= leaf_min_obs ) {
+
+     // the upper cutpoint needs to be one step below the current
+     // XB_iter value, because we use x <= cp to determine whether a
+     // value x goes to the left node versus the right node. So,
+     // if XB_iter currently points to 3, and the next value down is 2,
+     // then we want to say the cut-point is 2 because then all
+     // values <= 2 will go left, and 3 will go right. This matters
+     // when 3 is the highest value in the vector.
+
+     --XB_iter;
+
+     if(VERBOSITY > 1){
+      Rcout << std::endl;
+      Rcout << "upper cutpoint: " << XB(*XB_iter) << std::endl;
+      Rcout << " - n_events, right node: " << n_events    << std::endl;
+      Rcout << " - n_risk, right node:   " << n_risk      << std::endl;
+     }
+
+     break;
+
+    }
+
+   }
+
+  }
+
+  XB_iter_max = XB_iter;
+
+  // k = n steps from beginning of sorted XB to current XB_iter
+  k = XB_iter - XB_sorted.begin();
+
+  if(VERBOSITY > 1){
+   Rcout << "N steps from beginning to first cp: " << j << std::endl;
+   Rcout << "N steps from beginning to last cp: " << k << std::endl;
+  }
+
+  if(j > k){
+
+   if(VERBOSITY > 1) {
+    Rcout << "Could not find valid cut-points" << std::endl;
+   }
+
+   return(output);
+
+  }
+
+  // only one valid cutpoint
+  if(j == k){
+
+   uvec output = {j};
+   return(output);
+
+  }
+
+  i = 0;
+  uvec output_middle(k-j);
+
+  for(XB_iter = XB_iter_min+1; XB_iter < XB_iter_max; ++XB_iter){
+   if(XB(*XB_iter) != XB(*(XB_iter+1))){
+    output_middle[i] = XB_iter - XB_sorted.begin();
+    i++;
+   }
+  }
+
+  output_middle.resize(i);
+
+  uvec output_left = {j};
+  uvec output_right = {k};
+
+  output = join_vert(output_left, output_middle, output_right);
+
+  return(output);
+
+
+ }
+
+ void node_fill_group(arma::vec& group,
+                      const arma::uvec& XB_sorted,
+                      const arma::uword start,
+                      const arma::uword stop,
+                      const double value){
+
+  group.elem(XB_sorted.subvec(start, stop)).fill(value);
+
+ }
+
+
+ // arma::uword node_adjust_mtry(){
+ //
+ // }
+
+ //
+ //    n_cols_to_sample = sum(cols_to_sample_01);
+ //
+ //    if(n_cols_to_sample > 1){
+ //
+ //     n_events_total = sum(y_node.col(1) % w_node);
+ //
+ //     if(n_cols_to_sample < mtry){
+ //
+ //      mtry_int = n_cols_to_sample;
+ //
+ //      // if(verbose > 0){
+ //      //  Rcout << " ---- >=1 constant column in node rows ----" << std::endl;
+ //      //  Rcout << "mtry reduced to " << mtry_temp << " from " << mtry;
+ //      //  Rcout << std::endl;
+ //      //  Rcout << "-------------------------------------------" << std::endl;
+ //      //  Rcout << std::endl << std::endl;
+ //      // }
+ //
+ //     }
+ //
+ //     if (type_beta == 'C'){
+ //
+ //      // make sure there are at least 3 event per predictor variable.
+ //      // (if using CPH)
+ //      while(n_events_total / mtry_int < 3 && mtry_int > 1){
+ //       --mtry_int;
+ //      }
+ //
+ //     }
+ //
+ //
+ //     n_cols_to_sample = mtry_int;
+
+ double node_compute_lrt(arma::mat& y_node,
+                         arma::vec& w_node,
+                         arma::vec& group){
+
+  double n_risk=0, g_risk=0, observed=0, expected=0, V=0;
+  double temp1, temp2, n_events;
+
+  vec y_time = y_node.unsafe_col(0);
+  vec y_status = y_node.unsafe_col(1);
+
+  bool break_loop = false;
+
+  uword i = y_node.n_rows-1;
+
+  if(VERBOSITY > 1){
+   Rcout << "sum(group==1): " << sum(group) << ";  ";
+   Rcout << "sum(group==1 * w_node): " << sum(group % w_node);
+   Rcout << std::endl;
+  }
+
+  // breaking condition of outer loop governed by inner loop
+  for (; ;){
+
+   temp1 = y_time[i];
+
+   n_events = 0;
+
+   for ( ; y_time[i] == temp1; i--) {
+
+    n_risk += w_node[i];
+    n_events += y_status[i] * w_node[i];
+    g_risk += group[i] * w_node[i];
+    observed += y_status[i] * group[i] * w_node[i];
+
+    if(i == 0){
+     break_loop = true;
+     break;
+    }
+
+   }
+
+   // should only do these calculations if n_events > 0,
+   // but turns out its faster to multiply by 0 than
+   // it is to check whether n_events is > 0
+
+   temp2 = g_risk / n_risk;
+   expected += n_events * temp2;
+
+   // update variance if n_risk > 1 (if n_risk == 1, variance is 0)
+   // definitely check if n_risk is > 1 b/c otherwise divide by 0
+   if (n_risk > 1){
+    temp1 = n_events * temp2 * (n_risk-n_events) / (n_risk-1);
+    V += temp1 * (1 - temp2);
+   }
+
+   if(break_loop) break;
+
+  }
+
+  return(pow(expected-observed, 2) / V);
+
+ }
+
  List lrt_multi(mat& y_node,
                 mat& w_node,
                 vec& XB,
@@ -39,34 +334,34 @@
   bool break_loop = false;
 
   vec
-   group(y_node.n_rows, fill::zeros),
-   cutpoints_found,
-   cutpoints_used(n_split),
-   lrt_statistics(n_split);
+  group(y_node.n_rows, fill::zeros),
+  cutpoints_found,
+  cutpoints_used(n_split),
+  lrt_statistics(n_split);
 
   double
    stat_best = 0, // initialize at the lowest possible LRT stat value
-   n_events = 0,
-   n_risk = 0,
-   g_risk = 0,
-   stat_current,
-   observed,
-   expected,
-   V,
-   temp1,
-   temp2;
+    n_events = 0,
+    n_risk = 0,
+    g_risk = 0,
+    stat_current,
+    observed,
+    expected,
+    V,
+    temp1,
+    temp2;
 
   uword i, j, k, list_counter = 0;
 
   uvec
-   jit_vals,
-   // sort XB- we need to iterate over the sorted indices
-   XB_sorted = sort_index(XB, "ascend");
+  jit_vals,
+  // sort XB- we need to iterate over the sorted indices
+  XB_sorted = sort_index(XB, "ascend");
 
   uvec::iterator
-   XB_iter,
-   jit,
-   XB_iter_best;
+  XB_iter,
+  jit,
+  XB_iter_best;
 
 
   // group should be initialized as all 0s
@@ -305,7 +600,7 @@
 
         Rcout << "SKIP" << std::endl;
 
-        do_lrt = false;
+     do_lrt = false;
 
     } else {
 

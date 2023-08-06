@@ -10,6 +10,7 @@
 
 #include "Data.h"
 #include "globals.h"
+#include "Forest.h"
 
  namespace aorsf {
 
@@ -17,21 +18,15 @@
 
  public:
 
-  Tree() = default;
+  // Construct trees from an existing forest
+  Tree(Forest* forest);
 
-  Tree(Data* data, int leaf_min_obs, int mtry);
+  // deleting the copy constructor
+  Tree(const Tree&) = delete;
+  // deleting the copy assignment operator
+  Tree& operator=(const Tree&) = delete;
 
-  // @description sample weights to mimic a bootstrap sample
-  // Note: the sampling extension for RcppArmadillo can only
-  // be defined once. So, all functions that use sample need
-  // to be defined in this file, unless we move the inclusion
-  // of RcppArmadilloExtension/sample.h to another place.
-  void grow(bool oobag_pred);
-
-  // INPUTS
-
-  // Pointer to original data
-  Data* data;
+  void grow();
 
   // which rows of data are held out while growing the tree
   arma::uvec rows_oobag;
@@ -59,8 +54,11 @@
   // indices of predicted values for each leaf node
   arma::umat leaf_indices;
 
-
  protected:
+
+  // Pointer to a forest
+  Forest* forest;
+
 
  };
 

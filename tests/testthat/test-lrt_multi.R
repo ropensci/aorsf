@@ -37,22 +37,15 @@ run_lrt_multi_tests <- function(test_values, XB){
  )
 
  if(!any(cp_stats$valid_cp)){
-  expect_true(is.infinite(test_values$cutpoints))
-  expect_true(is.infinite(test_values$statistic))
   return(NULL)
  }
 
  cp_first = xb_uni[min(which(cp_stats$valid_cp))]
  cp_last  = xb_uni[max(which(cp_stats$valid_cp))]
 
- index_last <- max(which(test_values$cutpoints!=0))
-
  test_that(
   desc = 'same chi-squared stats as survival survdiff',
   code = {
-
-   expect_equal(cp_first, test_values$cutpoints[1])
-   expect_equal(cp_last, test_values$cutpoints[index_last])
 
    for(i in seq(index_last)){
 
@@ -90,8 +83,7 @@ run_lrt_multi_tests <- function(test_values, XB){
 }
 
 
-n_total         <- 100
-n_split         <- 5
+n_total         <- 250
 
 .leaf_min_events <- c(1, 3, 5, 10, 15)
 
@@ -123,30 +115,59 @@ for(leaf_min_events in .leaf_min_events){
  y <- cbind(time=time, status=status)
  w <- rep(1, n_total)
 
- lrt_multi_vals <- lapply(
+ cp_bounds <- lapply(
   X = list(ctns = XB_ctns,
            catg = XB_catg,
            bnry = XB_bnry),
   FUN = function(XB){
-   lrt_multi_exported(y_ = y,
-                      w_ = w,
-                      XB_ = XB,
-                      n_split_ = n_split,
-                      split_min_stat = 3.841459,
-                      leaf_min_events = leaf_min_events,
-                      leaf_min_obs = leaf_min_obs)
+   cp_find_bounds_R(y_node = y,
+                    w_node = w,
+                    XB = XB,
+                    xb_uni = unique(XB),
+                    leaf_min_events = leaf_min_events,
+                    leaf_min_obs = leaf_min_obs)
   }
- )
+ ) %>%
+  lapply(subset, valid_cp)
 
- test_values = lrt_multi_vals[[1]]
+ for(i in seq_along(cp_bounds)){
+
+  XB <- switch (names(cp_bounds)[i],
+                'ctns' = XB_ctns,
+                'catg' = XB_catg,
+                'bnry' = XB_bnry)
+
+  for(j in seq_along(cp_bounds[[i]]$cp)){
 
 
+   group <- as.numeric(XB > cp_bounds[[i]]$cp[j])
 
- run_lrt_multi_tests(lrt_multi_vals$ctns, XB_ctns)
- run_lrt_multi_tests(lrt_multi_vals$catg, XB_catg)
- run_lrt_multi_tests(lrt_multi_vals$bnry, XB_bnry)
+
+   expect_equal(
+    node_compute_lrt_exported(y, w, group),
+    survival::survdiff(survival::Surv(time, status) ~ group)$chisq
+   )
+
+  }
+
+
+ }
 
 }
+
+
+# # benchmark does not need to be tested every time
+#
+# bm <- microbenchmark::microbenchmark(
+#  R = survival::survdiff(survival::Surv(time, status) ~ group)$chisq,
+#  cpp = node_compute_lrt_exported(y, w, group),
+#  times = 50
+# )
+#
+# expect_lt(
+#  median(bm$time[bm$expr == 'cpp']),
+#  median(bm$time[bm$expr == 'R'])
+# )
 
 
 

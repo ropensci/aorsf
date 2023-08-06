@@ -9,15 +9,27 @@ coxph_fit_exported <- function(x_, y_, w_, method, cph_eps, cph_iter_max) {
     .Call(`_aorsf_coxph_fit_exported`, x_, y_, w_, method, cph_eps, cph_iter_max)
 }
 
-node_find_cps <- function(y_node, w_node, XB, n_split, leaf_min_events, leaf_min_obs) {
-    .Call(`_aorsf_node_find_cps`, y_node, w_node, XB, n_split, leaf_min_events, leaf_min_obs)
+node_find_cps_exported <- function(y_node, w_node, XB, leaf_min_events, leaf_min_obs) {
+    .Call(`_aorsf_node_find_cps_exported`, y_node, w_node, XB, leaf_min_events, leaf_min_obs)
+}
+
+node_compute_lrt_exported <- function(y_node, w_node, group) {
+    .Call(`_aorsf_node_compute_lrt_exported`, y_node, w_node, group)
+}
+
+node_fill_group_exported <- function(group, XB_sorted, start, stop, value) {
+    invisible(.Call(`_aorsf_node_fill_group_exported`, group, XB_sorted, start, stop, value))
+}
+
+which_cols_valid_exported <- function(y_inbag, x_inbag, rows_node, mtry) {
+    .Call(`_aorsf_which_cols_valid_exported`, y_inbag, x_inbag, rows_node, mtry)
 }
 
 lrt_multi_exported <- function(y_, w_, XB_, n_split_, split_min_stat, leaf_min_events, leaf_min_obs) {
     .Call(`_aorsf_lrt_multi_exported`, y_, w_, XB_, n_split_, split_min_stat, leaf_min_events, leaf_min_obs)
 }
 
-orsf_cpp <- function(x, y, w, vi = 0L, sr = 1L, pt = 1L, oobag_pred = TRUE) {
-    .Call(`_aorsf_orsf_cpp`, x, y, w, vi, sr, pt, oobag_pred)
+orsf_cpp <- function(x, y, w, n_tree, f_beta, f_oobag_eval, tree_seeds, tree_params) {
+    .Call(`_aorsf_orsf_cpp`, x, y, w, n_tree, f_beta, f_oobag_eval, tree_seeds, tree_params)
 }
 

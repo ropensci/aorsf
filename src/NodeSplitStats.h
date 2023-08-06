@@ -12,6 +12,24 @@
 
  namespace aorsf {
 
+ arma::uvec node_find_cps(const arma::mat& y_node,
+                          const arma::vec& w_node,
+                          const arma::vec& XB,
+                          arma::uvec& XB_sorted,
+                          double leaf_min_events,
+                          double leaf_min_obs);
+
+ void node_fill_group(arma::vec& group,
+                      const arma::uvec& XB_sorted,
+                      const arma::uword start,
+                      const arma::uword stop,
+                      const double value);
+
+
+ double node_compute_lrt(arma::mat& y_node,
+                         arma::vec& w_node,
+                         arma::vec& group);
+
  // Log rank test w/multiple cutpoints
  //
  // this function returns a cutpoint obtaining a local maximum
