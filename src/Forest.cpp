@@ -30,6 +30,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   double lincomb_alpha,
                   int    lincomb_df_target,
                   PredType pred_type,
+                  bool   pred_mode,
                   double pred_horizon,
                   bool   oobag_pred,
                   int    oobag_eval_every){
@@ -75,6 +76,17 @@ void Forest::init(std::unique_ptr<Data> input_data,
                                        n_rows,
                                        1.0 / n_rows,
                                        false);
+
+}
+
+// growInternal() in ranger
+void Forest::plant() {
+
+ trees.reserve(n_tree);
+
+ for (int i = 0; i < n_tree; ++i) {
+  trees.push_back(std::make_unique<Tree>());
+ }
 
 }
 

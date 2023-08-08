@@ -34,7 +34,7 @@ public:
            double leaf_min_events,
            double leaf_min_obs,
            // node splitting
-           SplitRule    split_rule,
+           SplitRule split_rule,
            double split_min_events,
            double split_min_obs,
            double split_min_stat,
@@ -47,7 +47,8 @@ public:
            double lincomb_alpha,
            int    lincomb_df_target,
            // predictions
-           PredType     pred_type,
+           PredType pred_type,
+           bool   pred_mode,
            double pred_horizon,
            bool   oobag_pred,
            int    oobag_eval_every);
@@ -58,6 +59,8 @@ public:
  void run();
 
  void grow();
+
+ void plant();
 
  Rcpp::IntegerVector get_bootstrap_select_times(){
   return bootstrap_select_times;

@@ -252,6 +252,7 @@
                bool lincomb_scale,
                double lincomb_alpha,
                int lincomb_df_target,
+               bool pred_mode,
                int pred_type_R,
                double pred_horizon,
                bool oobag_pred,
@@ -268,6 +269,7 @@
   // LinearCombo lincomb_type = static_cast<LinearCombo>(lincomb_type_R);
   // PredType pred_type = static_cast<PredType>(pred_type_R);
 
+  Rcpp::List result;
 
   std::unique_ptr<Forest> forest { };
   std::unique_ptr<Data> data { };
@@ -300,11 +302,14 @@
                lincomb_alpha,
                lincomb_df_target,
                pred_type,
+               pred_mode,
                pred_horizon,
                oobag_pred,
                oobag_eval_every);
 
-  Rcpp::List result;
+  forest->plant();
+
+
 
   return(result);
 

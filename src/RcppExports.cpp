@@ -113,8 +113,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // orsf_cpp
-List orsf_cpp(arma::mat& x, arma::mat& y, arma::vec& w, Rcpp::IntegerVector& tree_seeds, Rcpp::Function f_beta, Rcpp::Function f_oobag_eval, int n_tree, int mtry, int vi_type_R, double leaf_min_events, double leaf_min_obs, int split_rule_R, double split_min_events, double split_min_obs, double split_min_stat, int split_max_retry, int lincomb_type_R, double lincomb_eps, int lincomb_iter_max, bool lincomb_scale, double lincomb_alpha, int lincomb_df_target, int pred_type_R, double pred_horizon, bool oobag_pred, int oobag_eval_every);
-RcppExport SEXP _aorsf_orsf_cpp(SEXP xSEXP, SEXP ySEXP, SEXP wSEXP, SEXP tree_seedsSEXP, SEXP f_betaSEXP, SEXP f_oobag_evalSEXP, SEXP n_treeSEXP, SEXP mtrySEXP, SEXP vi_type_RSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP, SEXP split_rule_RSEXP, SEXP split_min_eventsSEXP, SEXP split_min_obsSEXP, SEXP split_min_statSEXP, SEXP split_max_retrySEXP, SEXP lincomb_type_RSEXP, SEXP lincomb_epsSEXP, SEXP lincomb_iter_maxSEXP, SEXP lincomb_scaleSEXP, SEXP lincomb_alphaSEXP, SEXP lincomb_df_targetSEXP, SEXP pred_type_RSEXP, SEXP pred_horizonSEXP, SEXP oobag_predSEXP, SEXP oobag_eval_everySEXP) {
+List orsf_cpp(arma::mat& x, arma::mat& y, arma::vec& w, Rcpp::IntegerVector& tree_seeds, Rcpp::Function f_beta, Rcpp::Function f_oobag_eval, int n_tree, int mtry, int vi_type_R, double leaf_min_events, double leaf_min_obs, int split_rule_R, double split_min_events, double split_min_obs, double split_min_stat, int split_max_retry, int lincomb_type_R, double lincomb_eps, int lincomb_iter_max, bool lincomb_scale, double lincomb_alpha, int lincomb_df_target, bool pred_mode, int pred_type_R, double pred_horizon, bool oobag_pred, int oobag_eval_every);
+RcppExport SEXP _aorsf_orsf_cpp(SEXP xSEXP, SEXP ySEXP, SEXP wSEXP, SEXP tree_seedsSEXP, SEXP f_betaSEXP, SEXP f_oobag_evalSEXP, SEXP n_treeSEXP, SEXP mtrySEXP, SEXP vi_type_RSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP, SEXP split_rule_RSEXP, SEXP split_min_eventsSEXP, SEXP split_min_obsSEXP, SEXP split_min_statSEXP, SEXP split_max_retrySEXP, SEXP lincomb_type_RSEXP, SEXP lincomb_epsSEXP, SEXP lincomb_iter_maxSEXP, SEXP lincomb_scaleSEXP, SEXP lincomb_alphaSEXP, SEXP lincomb_df_targetSEXP, SEXP pred_modeSEXP, SEXP pred_type_RSEXP, SEXP pred_horizonSEXP, SEXP oobag_predSEXP, SEXP oobag_eval_everySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -140,11 +140,12 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type lincomb_scale(lincomb_scaleSEXP);
     Rcpp::traits::input_parameter< double >::type lincomb_alpha(lincomb_alphaSEXP);
     Rcpp::traits::input_parameter< int >::type lincomb_df_target(lincomb_df_targetSEXP);
+    Rcpp::traits::input_parameter< bool >::type pred_mode(pred_modeSEXP);
     Rcpp::traits::input_parameter< int >::type pred_type_R(pred_type_RSEXP);
     Rcpp::traits::input_parameter< double >::type pred_horizon(pred_horizonSEXP);
     Rcpp::traits::input_parameter< bool >::type oobag_pred(oobag_predSEXP);
     Rcpp::traits::input_parameter< int >::type oobag_eval_every(oobag_eval_everySEXP);
-    rcpp_result_gen = Rcpp::wrap(orsf_cpp(x, y, w, tree_seeds, f_beta, f_oobag_eval, n_tree, mtry, vi_type_R, leaf_min_events, leaf_min_obs, split_rule_R, split_min_events, split_min_obs, split_min_stat, split_max_retry, lincomb_type_R, lincomb_eps, lincomb_iter_max, lincomb_scale, lincomb_alpha, lincomb_df_target, pred_type_R, pred_horizon, oobag_pred, oobag_eval_every));
+    rcpp_result_gen = Rcpp::wrap(orsf_cpp(x, y, w, tree_seeds, f_beta, f_oobag_eval, n_tree, mtry, vi_type_R, leaf_min_events, leaf_min_obs, split_rule_R, split_min_events, split_min_obs, split_min_stat, split_max_retry, lincomb_type_R, lincomb_eps, lincomb_iter_max, lincomb_scale, lincomb_alpha, lincomb_df_target, pred_mode, pred_type_R, pred_horizon, oobag_pred, oobag_eval_every));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -157,7 +158,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_node_fill_group_exported", (DL_FUNC) &_aorsf_node_fill_group_exported, 5},
     {"_aorsf_which_cols_valid_exported", (DL_FUNC) &_aorsf_which_cols_valid_exported, 4},
     {"_aorsf_lrt_multi_exported", (DL_FUNC) &_aorsf_lrt_multi_exported, 7},
-    {"_aorsf_orsf_cpp", (DL_FUNC) &_aorsf_orsf_cpp, 26},
+    {"_aorsf_orsf_cpp", (DL_FUNC) &_aorsf_orsf_cpp, 27},
     {NULL, NULL, 0}
 };
 

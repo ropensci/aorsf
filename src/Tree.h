@@ -34,31 +34,34 @@
   // Pointer to original data
   const Data* data;
 
+  // which node each inbag observation is currently in.
+  arma::vec node_assignments;
+
   // which rows of data are held out while growing the tree
   arma::uvec rows_oobag;
 
   // coefficients for linear combinations;
   // one row per variable (mtry rows), one column per node
   // leaf nodes have all coefficients=0
-  arma::mat coef;
+  std::vector<arma::mat> coef_values;
 
   // indices of the predictors used by a node
-  arma::umat coef_indices;
+  std::vector<arma::umat> coef_indices;
 
   // cutpoints used to split the nodes
-  arma::vec cutpoint;
+  std::vector<double> cutpoint;
 
   // directions to the next node (right node = left node + 1)
-  arma::uvec next_left_node;
+  std::vector<arma::uword> child_left;
 
   // leaf values (only in leaf nodes)
-  arma::mat leaf_values;
+  std::vector<arma::mat> leaf_values;
 
   // predicted values for out-of-bag rows
   arma::vec pred_oobag;
 
-  // indices of predicted values for each leaf node
-  arma::umat leaf_indices;
+  // contains the node ID of each leaf node
+  std::vector<size_t> leaf_index;
 
  protected:
 
