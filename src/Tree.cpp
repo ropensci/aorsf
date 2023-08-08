@@ -16,13 +16,29 @@
  Tree::Tree(){ }
 
  void Tree::init(Data* data,
-                 double leaf_min_obs,
+                 int mtry,
                  double leaf_min_events,
-                 int mtry){
+                 double leaf_min_obs,
+                 SplitRule split_rule,
+                 double split_min_events,
+                 double split_min_obs,
+                 double split_min_stat,
+                 int    split_max_retry,
+                 LinearCombo lincomb_type,
+                 double lincomb_eps,
+                 int    lincomb_iter_max,
+                 bool   lincomb_scale,
+                 double lincomb_alpha,
+                 int    lincomb_df_target,
+                 Rcpp::IntegerVector* bootstrap_select_times,
+                 Rcpp::NumericVector* bootstrap_select_probs){
 
 
-  arma::uword guess = std::ceil(
-   0.5 * data->get_n_rows() / leaf_min_obs
+  vec boot_wts = as<vec>(
+   sample(*bootstrap_select_times,
+          data->get_n_rows(),
+          true,
+          *bootstrap_select_probs)
   );
 
   // coef.zeros(guess, forest->mtry);
@@ -38,12 +54,7 @@
  void Tree::grow(){
 
 
-  // vec boot_wts = as<vec>(
-  //  sample(forest->bootstrap_select_times,
-  //         forest->data->get_n_rows(),
-  //         true,
-  //         forest->bootstrap_select_probs)
-  // );
+
 
   //
   // if(forest->data->has_weights()) boot_wts = boot_wts % data->w;

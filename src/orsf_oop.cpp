@@ -309,6 +309,8 @@
 
   forest->plant();
 
+  forest->grow();
+
 
 
   return(result);

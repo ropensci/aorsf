@@ -90,7 +90,29 @@ void Forest::plant() {
 
 }
 
-void Forest::grow(){ }
+void Forest::grow(){
+
+ size_t i = 0;
+
+ trees[i]->init(data.get(),
+                mtry,
+                leaf_min_events,
+                leaf_min_obs,
+                split_rule,
+                split_min_events,
+                split_min_obs,
+                split_min_stat,
+                split_max_retry,
+                lincomb_type,
+                lincomb_eps,
+                lincomb_iter_max,
+                lincomb_scale,
+                lincomb_alpha,
+                lincomb_df_target,
+                &bootstrap_select_times,
+                &bootstrap_select_probs);
+
+}
 
 void Forest::run(){ }
 
