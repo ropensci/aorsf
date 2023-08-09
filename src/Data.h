@@ -31,6 +31,7 @@
 
    this->n_rows = x.n_rows;
    this->n_cols = x.n_cols;
+   this->has_weights = !w.empty();
 
   }
 
@@ -43,10 +44,6 @@
 
   arma::uword get_n_cols() {
    return(n_cols);
-  }
-
-  bool has_weights() {
-   return(!w.empty());
   }
 
   arma::mat x_rows(arma::uvec& vector_of_row_indices) {
@@ -83,13 +80,14 @@
 
   arma::uword n_cols;
   arma::uword n_rows;
+  arma::vec w;
 
+  bool has_weights;
 
  private:
 
   arma::mat x;
   arma::mat y;
-  arma::vec w;
 
  };
 

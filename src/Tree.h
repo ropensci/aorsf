@@ -25,6 +25,7 @@
   Tree& operator=(const Tree&) = delete;
 
   void init(Data* data,
+            int seed,
             int mtry,
             double leaf_min_events,
             double leaf_min_obs,
@@ -48,7 +49,9 @@
   void grow();
 
   // Pointer to original data
-  const Data* data;
+  Data* data;
+
+  int seed;
 
   // submatrix views of data
   arma::mat x_inbag;
@@ -59,9 +62,12 @@
   arma::mat y_oobag;
   arma::mat y_node;
 
-  arma::mat w_inbag;
-  arma::mat w_oobag;
-  arma::mat w_node;
+  arma::vec w_inbag;
+  arma::vec w_oobag;
+  arma::vec w_node;
+
+  // Random number generator
+  std::mt19937_64 random_number_generator;
 
   // tree growing parameters
   int mtry;
@@ -86,6 +92,10 @@
 
   // which rows of data are held out while growing the tree
   arma::uvec rows_oobag;
+  arma::uvec rows_node;
+
+  arma::uvec nodes_to_grow;
+  arma::uvec nodes_to_grow_next;
 
   // coefficients for linear combinations;
   // one row per variable (mtry rows), one column per node

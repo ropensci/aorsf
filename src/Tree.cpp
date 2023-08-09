@@ -5,7 +5,6 @@
 #----------------------------------------------------------------------------*/
 
 #include <RcppArmadillo.h>
-#include <RcppArmadilloExtensions/sample.h>
 #include "Tree.h"
 
  using namespace arma;
@@ -15,8 +14,9 @@
 
  Tree::Tree(){ }
 
- void Tree::init(Data* data,
-                 int mtry,
+ void Tree::init(Data*  data,
+                 int    seed,
+                 int    mtry,
                  double leaf_min_events,
                  double leaf_min_obs,
                  SplitRule split_rule,
@@ -34,30 +34,70 @@
                  Rcpp::NumericVector* bootstrap_select_probs){
 
 
-  vec boot_wts = as<vec>(
-   sample(*bootstrap_select_times,
-          data->get_n_rows(),
-          true,
-          *bootstrap_select_probs)
-  );
+  this->data = data;
+  this->seed = seed;
+  this->mtry = mtry;
+  this->leaf_min_events = leaf_min_events;
+  this->leaf_min_obs = leaf_min_obs;
+  this->split_rule = split_rule;
+  this->split_min_events = split_min_events;
+  this->split_min_obs = split_min_obs;
+  this->split_min_stat = split_min_stat;
+  this->split_max_retry = split_max_retry;
+  this->lincomb_type = lincomb_type;
+  this->lincomb_eps = lincomb_eps;
+  this->lincomb_iter_max = lincomb_iter_max;
+  this->lincomb_scale = lincomb_scale;
+  this->lincomb_alpha = lincomb_alpha;
+  this->lincomb_df_target = lincomb_df_target;
 
-  // coef.zeros(guess, forest->mtry);
-  // coef_indices.zeros(guess, forest->mtry);
-  // cutpoint.zeros(guess);
-  // next_left_node.zeros(guess);
-  // leaf_values.zeros(guess, 1);
-  // leaf_indices.zeros(guess, 3);
+  // node_assignments.zeros(x_inbag.n_rows);
+  nodes_to_grow.zeros(1);
+
+  // leaf_node_counter = 0;
+  // leaf_node_index_counter = 0;
 
  }
 
+ void Tree::bootstrap(){
+
+  // Initialize random number generator and set seed
+  random_number_generator.seed(seed);
+
+  uword i, draw, n = data->n_rows;
+
+  // Start with all samples OOB
+  vec boot_wts(n, fill::zeros);
+
+  std::uniform_int_distribution<uword> unif_dist(0, n - 1);
+
+  // Draw num_samples samples with replacement (num_samples_inbag out of n) as inbag and mark as not OOB
+  for (i = 0; i < n; ++i) {
+   draw = unif_dist(random_number_generator);
+   ++boot_wts[draw];
+  }
+
+  // multiply boot_wts by user specified weights.
+  if(data->has_weights){
+   boot_wts = boot_wts = boot_wts % data->w;
+  }
+
+  uvec rows_inbag = find(boot_wts > 0);
+
+  this->rows_oobag = find(boot_wts == 0);
+  this->x_inbag = data->x_rows(rows_inbag);
+  this->y_inbag = data->y_rows(rows_inbag);
+  this->w_inbag = data->w_subvec(rows_inbag);
+
+ }
 
  void Tree::grow(){
 
 
+  bootstrap();
 
+  Rcout << x_inbag << std::endl;
 
-  //
-  // if(forest->data->has_weights()) boot_wts = boot_wts % data->w;
   //
   // arma::uvec rows_inbag = arma::find(boot_wts);
   //
