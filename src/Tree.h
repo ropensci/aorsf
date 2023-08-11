@@ -26,34 +26,43 @@
 
   void init(Data* data,
             int seed,
-            int mtry,
+            arma::uword mtry,
             double leaf_min_events,
             double leaf_min_obs,
             SplitRule split_rule,
             double split_min_events,
             double split_min_obs,
             double split_min_stat,
-            int    split_max_retry,
+            arma::uword split_max_retry,
             LinearCombo lincomb_type,
             double lincomb_eps,
-            int    lincomb_iter_max,
+            arma::uword lincomb_iter_max,
             bool   lincomb_scale,
             double lincomb_alpha,
-            int    lincomb_df_target,
-            Rcpp::IntegerVector* bootstrap_select_times,
-            Rcpp::NumericVector* bootstrap_select_probs);
+            arma::uword lincomb_df_target);
 
 
   void bootstrap();
 
   void grow();
 
+  bool is_col_valid(arma::uword j);
+
+  void sample_cols();
+
+
+  std::vector<arma::uvec>& get_coef_indices() {
+   return(coef_indices);
+  }
+
   // Pointer to original data
   Data* data;
 
+  arma::uword n_cols;
+
   int seed;
 
-  // submatrix views of data
+  // views of data
   arma::mat x_inbag;
   arma::mat x_oobag;
   arma::mat x_node;
@@ -62,37 +71,39 @@
   arma::mat y_oobag;
   arma::mat y_node;
 
-  arma::vec w_inbag;
-  arma::vec w_oobag;
-  arma::vec w_node;
+  arma::uvec w_inbag;
+  arma::uvec w_oobag;
+  arma::uvec w_node;
+
+  // which rows of data are held out while growing the tree
+  arma::uvec rows_oobag;
+  arma::uvec rows_node;
+  arma::uvec cols_node;
 
   // Random number generator
   std::mt19937_64 random_number_generator;
 
   // tree growing parameters
-  int mtry;
+  arma::uword mtry;
   double leaf_min_events;
   double leaf_min_obs;
   SplitRule split_rule;
   double split_min_events;
   double split_min_obs;
   double split_min_stat;
-  int    split_max_retry;
+  arma::uword    split_max_retry;
   LinearCombo lincomb_type;
   double lincomb_eps;
-  int    lincomb_iter_max;
+  arma::uword    lincomb_iter_max;
   bool   lincomb_scale;
   double lincomb_alpha;
-  int    lincomb_df_target;
+  arma::uword    lincomb_df_target;
   double pred_horizon;
 
 
   // which node each inbag observation is currently in.
-  arma::vec node_assignments;
+  arma::uvec node_assignments;
 
-  // which rows of data are held out while growing the tree
-  arma::uvec rows_oobag;
-  arma::uvec rows_node;
 
   arma::uvec nodes_to_grow;
   arma::uvec nodes_to_grow_next;

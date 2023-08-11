@@ -150,55 +150,6 @@
 
  }
 
- // valid columns are non-constant in the rows where events occurred
- // [[Rcpp::export]]
- arma::uvec which_cols_valid_exported(const arma::mat& y_inbag,
-                                      const arma::mat& x_inbag,
-                                      arma::uvec& rows_node,
-                                      const arma::uword mtry){
-
-  uvec result(x_inbag.n_cols, arma::fill::zeros);
-
-  // j moves along columns, i along rows, and iit along
-  uword j;
-  uvec::iterator iit;
-
-  double temp1;//, temp2;
-
-  for(j = 0; j < result.size(); j++){
-
-   temp1 = R_PosInf;
-
-   for(iit = rows_node.begin(); iit != rows_node.end(); ++iit){
-
-    if(y_inbag.at(*iit, 1) == 1){
-
-     if (temp1 < R_PosInf){
-
-      if(x_inbag.at(*iit, j) != temp1){
-
-       result[j] = 1;
-       break;
-
-      }
-
-     } else {
-
-      temp1 = x_inbag.at(*iit, j);
-
-     }
-
-    }
-
-   }
-
-  }
-
-  return(result);
-
- }
-
-
  // deprecated, need to drop this
  // [[Rcpp::export]]
  List lrt_multi_exported(NumericMatrix& y_,
@@ -232,31 +183,31 @@
  // [[Rcpp::export]]
  List orsf_cpp(arma::mat& x,
                arma::mat& y,
-               arma::vec& w,
+               arma::uvec& w,
                Rcpp::IntegerVector& tree_seeds,
-               Rcpp::Function f_beta,
-               Rcpp::Function f_oobag_eval,
-               int n_tree,
-               int mtry,
-               int vi_type_R,
+               Rcpp::Function& lincomb_R_function,
+               Rcpp::Function& oobag_R_function,
+               arma::uword n_tree,
+               arma::uword mtry,
+               arma::uword vi_type_R,
                double leaf_min_events,
                double leaf_min_obs,
-               int split_rule_R,
+               arma::uword split_rule_R,
                double split_min_events,
                double split_min_obs,
                double split_min_stat,
-               int split_max_retry,
-               int lincomb_type_R,
+               arma::uword split_max_retry,
+               arma::uword lincomb_type_R,
                double lincomb_eps,
-               int lincomb_iter_max,
+               arma::uword lincomb_iter_max,
                bool lincomb_scale,
                double lincomb_alpha,
-               int lincomb_df_target,
+               arma::uword lincomb_df_target,
                bool pred_mode,
-               int pred_type_R,
+               arma::uword pred_type_R,
                double pred_horizon,
                bool oobag_pred,
-               int oobag_eval_every){
+               arma::uword oobag_eval_every){
 
   // int mtry = 2;
   // int leaf_min_obs = DEFAULT_LEAF_MIN_OBS_SURVIVAL;
@@ -309,9 +260,11 @@
 
   forest->plant();
 
-  forest->grow();
+  forest->grow(lincomb_R_function);
 
-
+  for(uword i = 0; i < n_tree; ++i){
+   result.push_back(forest->get_coef_indices(), "coef_indices");
+  }
 
   return(result);
 

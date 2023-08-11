@@ -14,27 +14,27 @@
 
  Tree::Tree(){ }
 
- void Tree::init(Data*  data,
-                 int    seed,
-                 int    mtry,
+ void Tree::init(Data* data,
+                 int seed,
+                 arma::uword mtry,
                  double leaf_min_events,
                  double leaf_min_obs,
                  SplitRule split_rule,
                  double split_min_events,
                  double split_min_obs,
                  double split_min_stat,
-                 int    split_max_retry,
+                 arma::uword split_max_retry,
                  LinearCombo lincomb_type,
                  double lincomb_eps,
-                 int    lincomb_iter_max,
-                 bool   lincomb_scale,
+                 arma::uword lincomb_iter_max,
+                 bool lincomb_scale,
                  double lincomb_alpha,
-                 int    lincomb_df_target,
-                 Rcpp::IntegerVector* bootstrap_select_times,
-                 Rcpp::NumericVector* bootstrap_select_probs){
+                 arma::uword lincomb_df_target){
 
 
   this->data = data;
+  this->n_cols = data->n_cols;
+
   this->seed = seed;
   this->mtry = mtry;
   this->leaf_min_events = leaf_min_events;
@@ -51,12 +51,6 @@
   this->lincomb_alpha = lincomb_alpha;
   this->lincomb_df_target = lincomb_df_target;
 
-  // node_assignments.zeros(x_inbag.n_rows);
-  nodes_to_grow.zeros(1);
-
-  // leaf_node_counter = 0;
-  // leaf_node_index_counter = 0;
-
  }
 
  void Tree::bootstrap(){
@@ -67,11 +61,11 @@
   uword i, draw, n = data->n_rows;
 
   // Start with all samples OOB
-  vec boot_wts(n, fill::zeros);
+  uvec boot_wts(n, fill::zeros);
 
   std::uniform_int_distribution<uword> unif_dist(0, n - 1);
 
-  // Draw num_samples samples with replacement (num_samples_inbag out of n) as inbag and mark as not OOB
+  // sample with replacement
   for (i = 0; i < n; ++i) {
    draw = unif_dist(random_number_generator);
    ++boot_wts[draw];
@@ -83,75 +77,130 @@
   }
 
   uvec rows_inbag = find(boot_wts > 0);
-
-  this->rows_oobag = find(boot_wts == 0);
   this->x_inbag = data->x_rows(rows_inbag);
   this->y_inbag = data->y_rows(rows_inbag);
   this->w_inbag = data->w_subvec(rows_inbag);
+  this->rows_oobag = find(boot_wts == 0);
+
+  // all observations start in node 0
+  this->rows_node = linspace<uvec>(0, x_inbag.n_rows-1, x_inbag.n_rows);
+
+  rows_inbag.clear();
+  boot_wts.clear();
+
+ }
+
+ bool Tree::is_col_valid(uword j){
+
+  vec status = y_inbag.unsafe_col(1);
+
+  uvec::iterator i;
+
+  // initialize as 0 but do not make comparisons until x_first_value
+  // is formally defined at the first instance of status == 1
+  double x_first_value=0;
+
+  bool x_first_undef = true;
+
+  for (i = rows_node.begin(); i != rows_node.end(); ++i) {
+
+   if(status[*i] == 1){
+
+    if(x_first_undef){
+
+     x_first_value = x_inbag.at(*i, j);
+     x_first_undef = false;
+
+    } else {
+
+     if(x_inbag.at(*i, j) != x_first_value){
+      return(true);
+     }
+
+    }
+
+   }
+
+  }
+
+  return(false);
+
+ }
+
+ void Tree::sample_cols(){
+
+  // Start empty
+  std::vector<uword> cols_assessed, cols_accepted;
+  cols_assessed.reserve(n_cols);
+  cols_accepted.reserve(mtry);
+
+  std::uniform_int_distribution<uword> unif_dist(0, n_cols - 1);
+
+  uword i, draw;
+
+  for (i = 0; i < n_cols; ++i) {
+
+   draw = unif_dist(random_number_generator);
+
+   // Ensure the drawn number is not already in the sample
+   while (std::find(cols_assessed.begin(),
+                    cols_assessed.end(),
+                    draw) != cols_assessed.end()) {
+
+    draw = unif_dist(random_number_generator);
+
+
+   }
+
+   cols_assessed.push_back(draw);
+
+   if(is_col_valid(draw)){
+    cols_accepted.push_back(draw);
+   }
+
+   if(cols_accepted.size() == mtry) break;
+
+  }
+
+  this->cols_node = uvec(cols_accepted.data(),
+                         cols_accepted.size(),
+                         false,
+                         true);
 
  }
 
  void Tree::grow(){
 
-
   bootstrap();
 
-  Rcout << x_inbag << std::endl;
+  sample_cols();
 
-  //
-  // arma::uvec rows_inbag = arma::find(boot_wts);
-  //
-  // // initalize the oob rows if oob predictions are being computed
-  // if(oobag_pred)
-  //  rows_oobag = arma::find(boot_wts != 0);
-  //
-  // boot_wts = boot_wts(rows_inbag);
-  //
-  // if(VERBOSITY > 0){
-  //  Rcpp::Rcout << "------------ in-bag rows ------------"   << std::endl;
-  //  Rcpp::Rcout << rows_inbag                   << std::endl << std::endl;
-  //  Rcpp::Rcout << "------------ boot weights -----------"   << std::endl;
-  //  Rcpp::Rcout << boot_wts                     << std::endl << std::endl;
-  //
-  // }
-  //
-  // arma::mat x_inbag = data->x_rows(rows_inbag);
-  // arma::mat y_inbag = data->y_rows(rows_inbag);
-  // arma::vec w_inbag = data->w_subvec(rows_inbag);
-  //
-  //
-  //
-  // // once the sub-matrix views are created, we do not use inbag rows
-  // // (if we really need them, we can get them from oobag rows)
-  // rows_inbag.resize(0);
-  //
-  // arma::vec node_assignments(rows_inbag.size(), arma::fill::zeros);
-  // arma::uvec nodes_to_grow(1, arma::fill::zeros);
-  // arma::uword nodes_max_true = 0;
-  // arma::uword leaf_node_counter = 0;
-  // arma::uword leaf_node_index_counter = 0;
-  //
-  //
-  //
-  // if(VERBOSITY > 0){
-  //
-  //  arma::uword temp_uword_1, temp_uword_2;
-  //
-  //  if(x_inbag.n_rows < 5)
-  //   temp_uword_1 = x_inbag.n_rows-1;
-  //  else
-  //   temp_uword_1 = 5;
-  //
-  //  if(x_inbag.n_cols < 5)
-  //   temp_uword_2 = x_inbag.n_cols-1;
-  //  else
-  //   temp_uword_2 = 4;
-  //
-  //  Rcpp::Rcout << "---- here is a view of x_inbag ---- " << std::endl;
-  //  Rcpp::Rcout << x_inbag.submat(0, 0, temp_uword_1, temp_uword_2);
-  //  Rcpp::Rcout << std::endl << std::endl;
-  //
-  // }
+  coef_indices.push_back(cols_node);
+
+  node_assignments.zeros(x_inbag.n_rows);
+
+  uvec nodes_to_grow(1, fill::zeros);
+  uvec rows_node;
+
+  if(VERBOSITY > 0){
+
+   uword temp_uword_1, temp_uword_2;
+
+   if(x_inbag.n_rows < 5)
+    temp_uword_1 = x_inbag.n_rows-1;
+   else
+    temp_uword_1 = 5;
+
+   if(x_inbag.n_cols < 5)
+    temp_uword_2 = x_inbag.n_cols-1;
+   else
+    temp_uword_2 = 4;
+
+   Rcout << "   ---- view of x_inbag ---- " << std::endl << std::endl;
+   Rcout << round(x_inbag.submat(0, 0, temp_uword_1, temp_uword_2));
+   Rcout << std::endl << std::endl;
+
+  }
 
 
 

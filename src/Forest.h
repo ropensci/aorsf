@@ -27,8 +27,8 @@ public:
 
  void init(std::unique_ptr<Data> input_data,
            Rcpp::IntegerVector& tree_seeds,
-           int n_tree,
-           int mtry,
+           arma::uword n_tree,
+           arma::uword mtry,
            VariableImportance vi_type,
            // leaves
            double leaf_min_events,
@@ -38,46 +38,50 @@ public:
            double split_min_events,
            double split_min_obs,
            double split_min_stat,
-           int    split_max_retry,
+           arma::uword split_max_retry,
            // linear combinations
-           LinearCombo  lincomb_type,
+           LinearCombo lincomb_type,
            double lincomb_eps,
-           int    lincomb_iter_max,
-           bool   lincomb_scale,
+           arma::uword lincomb_iter_max,
+           bool lincomb_scale,
            double lincomb_alpha,
-           int    lincomb_df_target,
+           arma::uword lincomb_df_target,
            // predictions
            PredType pred_type,
-           bool   pred_mode,
+           bool pred_mode,
            double pred_horizon,
-           bool   oobag_pred,
-           int    oobag_eval_every);
+           bool oobag_pred,
+           arma::uword oobag_eval_every);
 
- // virtual void initInternal() = 0;
+ // virtual void initarma::uwordernal() = 0;
 
  // Grow or predict
  void run();
 
- void grow();
+ void grow(Function& lincomb_R_function);
 
  void plant();
 
- Rcpp::IntegerVector get_bootstrap_select_times(){
-  return bootstrap_select_times;
- }
 
- Rcpp::NumericVector get_bootstrap_select_probs(){
-  return bootstrap_select_probs;
- }
+ std::vector<std::vector<arma::uvec>> get_coef_indices() {
 
+  std::vector<std::vector<arma::uvec>> result;
+
+  for (auto& tree : trees) {
+   result.push_back(tree->get_coef_indices());
+  }
+
+  return result;
+
+ }
 
  // Member variables
 
  Rcpp::IntegerVector bootstrap_select_times;
  Rcpp::NumericVector bootstrap_select_probs;
 
- int n_tree;
- int mtry;
+ arma::uword n_tree;
+ arma::uword mtry;
 
  Rcpp::IntegerVector tree_seeds;
 
@@ -93,24 +97,24 @@ public:
 
  // node splitting
  SplitRule split_rule;
- double    split_min_events;
- double    split_min_obs;
- double    split_min_stat;
- int       split_max_retry;
+ double split_min_events;
+ double split_min_obs;
+ double split_min_stat;
+ arma::uword split_max_retry;
 
  // linear combinations
  LinearCombo lincomb_type;
  double      lincomb_eps;
- int         lincomb_iter_max;
  bool        lincomb_scale;
  double      lincomb_alpha;
- int         lincomb_df_target;
+ arma::uword lincomb_iter_max;
+ arma::uword lincomb_df_target;
 
  // predictions
  PredType pred_type;
  double   pred_horizon;
  bool     oobag_pred;
- int      oobag_eval_every;
+ arma::uword oobag_eval_every;
 
 
 };

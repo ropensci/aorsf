@@ -21,15 +21,11 @@ node_fill_group_exported <- function(group, XB_sorted, start, stop, value) {
     invisible(.Call(`_aorsf_node_fill_group_exported`, group, XB_sorted, start, stop, value))
 }
 
-which_cols_valid_exported <- function(y_inbag, x_inbag, rows_node, mtry) {
-    .Call(`_aorsf_which_cols_valid_exported`, y_inbag, x_inbag, rows_node, mtry)
-}
-
 lrt_multi_exported <- function(y_, w_, XB_, n_split_, split_min_stat, leaf_min_events, leaf_min_obs) {
     .Call(`_aorsf_lrt_multi_exported`, y_, w_, XB_, n_split_, split_min_stat, leaf_min_events, leaf_min_obs)
 }
 
-orsf_cpp <- function(x, y, w, tree_seeds, f_beta, f_oobag_eval, n_tree, mtry, vi_type_R, leaf_min_events, leaf_min_obs, split_rule_R, split_min_events, split_min_obs, split_min_stat, split_max_retry, lincomb_type_R, lincomb_eps, lincomb_iter_max, lincomb_scale, lincomb_alpha, lincomb_df_target, pred_mode, pred_type_R, pred_horizon, oobag_pred, oobag_eval_every) {
-    .Call(`_aorsf_orsf_cpp`, x, y, w, tree_seeds, f_beta, f_oobag_eval, n_tree, mtry, vi_type_R, leaf_min_events, leaf_min_obs, split_rule_R, split_min_events, split_min_obs, split_min_stat, split_max_retry, lincomb_type_R, lincomb_eps, lincomb_iter_max, lincomb_scale, lincomb_alpha, lincomb_df_target, pred_mode, pred_type_R, pred_horizon, oobag_pred, oobag_eval_every)
+orsf_cpp <- function(x, y, w, tree_seeds, lincomb_R_function, f_oobag_eval, n_tree, mtry, vi_type_R, leaf_min_events, leaf_min_obs, split_rule_R, split_min_events, split_min_obs, split_min_stat, split_max_retry, lincomb_type_R, lincomb_eps, lincomb_iter_max, lincomb_scale, lincomb_alpha, lincomb_df_target, pred_mode, pred_type_R, pred_horizon, oobag_pred, oobag_eval_every) {
+    .Call(`_aorsf_orsf_cpp`, x, y, w, tree_seeds, lincomb_R_function, f_oobag_eval, n_tree, mtry, vi_type_R, leaf_min_events, leaf_min_obs, split_rule_R, split_min_events, split_min_obs, split_min_stat, split_max_retry, lincomb_type_R, lincomb_eps, lincomb_iter_max, lincomb_scale, lincomb_alpha, lincomb_df_target, pred_mode, pred_type_R, pred_horizon, oobag_pred, oobag_eval_every)
 }
 

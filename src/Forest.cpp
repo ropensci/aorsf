@@ -13,8 +13,8 @@ Forest::Forest(){ }
 
 void Forest::init(std::unique_ptr<Data> input_data,
                   Rcpp::IntegerVector& tree_seeds,
-                  int n_tree,
-                  int mtry,
+                  arma::uword n_tree,
+                  arma::uword mtry,
                   VariableImportance vi_type,
                   double leaf_min_events,
                   double leaf_min_obs,
@@ -22,18 +22,18 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   double split_min_events,
                   double split_min_obs,
                   double split_min_stat,
-                  int    split_max_retry,
+                  arma::uword split_max_retry,
                   LinearCombo lincomb_type,
                   double lincomb_eps,
-                  int    lincomb_iter_max,
+                  arma::uword lincomb_iter_max,
                   bool   lincomb_scale,
                   double lincomb_alpha,
-                  int    lincomb_df_target,
+                  arma::uword lincomb_df_target,
                   PredType pred_type,
                   bool   pred_mode,
                   double pred_horizon,
                   bool   oobag_pred,
-                  int    oobag_eval_every){
+                  arma::uword oobag_eval_every){
 
  this->data = std::move(input_data);
  this->tree_seeds = tree_seeds;
@@ -65,18 +65,6 @@ void Forest::init(std::unique_ptr<Data> input_data,
   Rcout << std::endl << std::endl;
  }
 
- // sample weights to mimic a bootstrap sample
- this->bootstrap_select_times = seq(0, 10);
-
- uword n_rows = data->get_n_rows();
-
- // compute probability of being selected into the bootstrap
- // 0 times, 1, times, ..., 9 times, or 10 times.
- this->bootstrap_select_probs = dbinom(bootstrap_select_times,
-                                       n_rows,
-                                       1.0 / n_rows,
-                                       false);
-
 }
 
 // growInternal() in ranger
@@ -84,16 +72,16 @@ void Forest::plant() {
 
  trees.reserve(n_tree);
 
- for (int i = 0; i < n_tree; ++i) {
+ for (arma::uword i = 0; i < n_tree; ++i) {
   trees.push_back(std::make_unique<Tree>());
  }
 
 }
 
-void Forest::grow(){
+void Forest::grow(Function& lincomb_R_function){
 
 
- for(int i = 0; i < n_tree; ++i){
+ for(uword i = 0; i < n_tree; ++i){
 
   trees[i]->init(data.get(),
                  tree_seeds[i],
@@ -110,14 +98,25 @@ void Forest::grow(){
                  lincomb_iter_max,
                  lincomb_scale,
                  lincomb_alpha,
-                 lincomb_df_target,
-                 &bootstrap_select_times,
-                 &bootstrap_select_probs);
+                 lincomb_df_target);
 
   trees[i]->grow();
 
 
  }
+
+ double x_dbl = 1.0;
+
+ NumericMatrix test_mat = lincomb_R_function(x_dbl);
+
+ arma::mat test_mat_arma(test_mat.begin(),
+                         test_mat.nrow(),
+                         test_mat.ncol(), false);
+
+ Rcout << "--- test R function output ---" << std::endl << std::endl;
+ Rcout << test_mat_arma << std::endl;
+
+ // result.push_back(test_mat_arma, "test");
 
 
 
