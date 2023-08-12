@@ -6,6 +6,7 @@
 
 #include <RcppArmadillo.h>
 #include "Tree.h"
+#include "Coxph.h"
 
  using namespace arma;
  using namespace Rcpp;
@@ -33,7 +34,7 @@
 
 
   this->data = data;
-  this->n_cols = data->n_cols;
+  this->n_cols_total = data->n_cols;
 
   this->seed = seed;
   this->mtry = mtry;
@@ -81,6 +82,12 @@
   this->y_inbag = data->y_rows(rows_inbag);
   this->w_inbag = data->w_subvec(rows_inbag);
   this->rows_oobag = find(boot_wts == 0);
+
+  if(VERBOSITY > 0){
+
+   print_mat(x_inbag, "x_inbag", 5, 5);
+
+  }
 
   // all observations start in node 0
   this->rows_node = linspace<uvec>(0, x_inbag.n_rows-1, x_inbag.n_rows);
@@ -131,14 +138,14 @@
 
   // Start empty
   std::vector<uword> cols_assessed, cols_accepted;
-  cols_assessed.reserve(n_cols);
+  cols_assessed.reserve(n_cols_total);
   cols_accepted.reserve(mtry);
 
-  std::uniform_int_distribution<uword> unif_dist(0, n_cols - 1);
+  std::uniform_int_distribution<uword> unif_dist(0, n_cols_total - 1);
 
   uword i, draw;
 
-  for (i = 0; i < n_cols; ++i) {
+  for (i = 0; i < n_cols_total; ++i) {
 
    draw = unif_dist(random_number_generator);
 
@@ -171,36 +178,60 @@
 
  void Tree::grow(){
 
+  // create inbag views of x, y, and w,
   bootstrap();
 
-  sample_cols();
-
-  coef_indices.push_back(cols_node);
-
+  // assign all inbag observations to node 0
   node_assignments.zeros(x_inbag.n_rows);
 
-  uvec nodes_to_grow(1, fill::zeros);
-  uvec rows_node;
+  // coordinate the order that nodes are grown.
+  uvec nodes_open(1, fill::zeros);
+  uvec nodes_queued;
 
-  if(VERBOSITY > 0){
+  // iterate through nodes to be grown
+  uvec::iterator node;
 
-   uword temp_uword_1, temp_uword_2;
+  for(node = nodes_open.begin(); node != nodes_open.end(); ++node){
 
-   if(x_inbag.n_rows < 5)
-    temp_uword_1 = x_inbag.n_rows-1;
-   else
-    temp_uword_1 = 5;
+   if(nodes_open[0] == 0){
 
-   if(x_inbag.n_cols < 5)
-    temp_uword_2 = x_inbag.n_cols-1;
-   else
-    temp_uword_2 = 4;
+    // when growing the first node, there is no need to find
+    // which rows are in the node.
+    rows_node = linspace<uvec>(0,
+                               x_inbag.n_rows-1,
+                               x_inbag.n_rows);
 
-   Rcout << "   ---- view of x_inbag ---- " << std::endl << std::endl;
-   Rcout << round(x_inbag.submat(0, 0, temp_uword_1, temp_uword_2));
-   Rcout << std::endl << std::endl;
+   } else {
+
+    // identify which rows are in the current node.
+    rows_node = find(node_assignments == *node);
+
+   }
+
+   y_node = y_inbag.rows(rows_node);
+   w_node = w_inbag(rows_node);
+
+   sample_cols();
+
+   x_node = x_inbag(rows_node, cols_node);
+
+   Rcout << x_node << std::endl;
+
+   print_mat(x_node, "x_node", 5, 5);
+
+   vec w_node_doubles = conv_to<vec>::from(w_node);
+   vec beta = coxph_fit(x_node, y_node, w_node_doubles, 1, 1e-9, 20, 'A');
+
+   Rcout << beta << std::endl;
+
+   print_mat(beta, "beta", 5, 5);
+
+   coef_values.push_back(beta);
+
+   coef_indices.push_back(cols_node);
 
   }
+
 
 
 

@@ -7,6 +7,7 @@
 #include <RcppArmadillo.h>
 #include "globals.h"
 #include "Coxph.h"
+#include "utility.h"
 
  using namespace arma;
  using namespace Rcpp;
@@ -675,6 +676,18 @@
 
   }
 
+  if(VERBOSITY > 1){
+
+   Rcout << "--------- Newt-Raph algo; before rescale " << std::endl;
+   Rcout << "beta: "      << beta_new.t()               << std::endl;
+   Rcout << std::endl;
+
+  }
+
+
+  print_mat(x_transforms, "x_transforms", 10, 10);
+
+
   // invert vmat
   cholesky_invert(vmat);
 
@@ -683,6 +696,7 @@
    beta_current[i] = beta_new[i];
 
    if(std::isinf(beta_current[i]) || std::isnan(beta_current[i])){
+    Rcout << beta_current[i] << std::endl;
     beta_current[i] = 0;
    }
 
@@ -714,6 +728,15 @@
    // }
 
   }
+
+  if(VERBOSITY > 1){
+
+   Rcout << "--------- Newt-Raph algo; after rescale " << std::endl;
+   Rcout << "beta: "      << beta_current.t()               << std::endl;
+   Rcout << std::endl;
+
+  }
+
 
   // if(verbose > 1) Rcout << std::endl;
 

@@ -42,11 +42,9 @@
  //  Same as x_node_scale, but this can be called from R
 
  // [[Rcpp::export]]
- List coxph_scale_exported(NumericMatrix& x_,
-                           NumericVector& w_){
+ List coxph_scale_exported(arma::vec& x_node,
+                           arma::vec& w_node){
 
-  mat x_node = mat(x_.begin(), x_.nrow(), x_.ncol(), false);
-  vec w_node = vec(w_.begin(), w_.length(), false);
   mat x_transforms = coxph_scale(x_node, w_node);
 
   return(
@@ -59,16 +57,16 @@
  }
 
  // [[Rcpp::export]]
- List coxph_fit_exported(NumericMatrix& x_,
-                         NumericMatrix& y_,
-                         NumericVector& w_,
+ List coxph_fit_exported(arma::vec& x_node,
+                         arma::vec& y_node,
+                         arma::vec& w_node,
                          int method,
                          double cph_eps,
                          int cph_iter_max){
 
-  mat x_node = mat(x_.begin(), x_.nrow(), x_.ncol(), false);
-  mat y_node = mat(y_.begin(), y_.nrow(), y_.ncol(), false);
-  vec w_node = vec(w_.begin(), w_.length(), false);
+  // mat x_node = mat(x_.begin(), x_.nrow(), x_.ncol(), false);
+  // mat y_node = mat(y_.begin(), y_.nrow(), y_.ncol(), false);
+  // uvec w_node = uvec(w_.begin(), w_.length(), false);
 
   uword cph_iter_max_ = cph_iter_max;
 
@@ -177,7 +175,6 @@
   return(out);
 
  }
-
 
  // [[Rcpp::plugins("cpp17")]]
  // [[Rcpp::export]]

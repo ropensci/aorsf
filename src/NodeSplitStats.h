@@ -10,6 +10,7 @@
 #include <armadillo>
 #include <Rcpp.h>
 
+
  namespace aorsf {
 
  arma::uvec node_find_cps(const arma::mat& y_node,

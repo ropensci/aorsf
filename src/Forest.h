@@ -6,6 +6,7 @@
 
 #include "Data.h"
 #include "globals.h"
+#include "utility.h"
 #include "Tree.h"
 
 namespace aorsf {

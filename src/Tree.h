@@ -10,6 +10,7 @@
 
 #include "Data.h"
 #include "globals.h"
+#include "utility.h"
 
  namespace aorsf {
 
@@ -58,7 +59,7 @@
   // Pointer to original data
   Data* data;
 
-  arma::uword n_cols;
+  arma::uword n_cols_total;
 
   int seed;
 
@@ -91,13 +92,13 @@
   double split_min_events;
   double split_min_obs;
   double split_min_stat;
-  arma::uword    split_max_retry;
+  arma::uword split_max_retry;
   LinearCombo lincomb_type;
   double lincomb_eps;
-  arma::uword    lincomb_iter_max;
+  arma::uword lincomb_iter_max;
   bool   lincomb_scale;
   double lincomb_alpha;
-  arma::uword    lincomb_df_target;
+  arma::uword lincomb_df_target;
   double pred_horizon;
 
 
