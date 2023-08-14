@@ -39,6 +39,7 @@ public:
            double split_min_events,
            double split_min_obs,
            double split_min_stat,
+           arma::uword split_max_cuts,
            arma::uword split_max_retry,
            // linear combinations
            LinearCombo lincomb_type,
@@ -101,6 +102,7 @@ public:
  double split_min_events;
  double split_min_obs;
  double split_min_stat;
+ arma::uword split_max_cuts;
  arma::uword split_max_retry;
 
  // linear combinations

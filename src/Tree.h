@@ -34,6 +34,7 @@
             double split_min_events,
             double split_min_obs,
             double split_min_stat,
+            arma::uword split_max_cuts,
             arma::uword split_max_retry,
             LinearCombo lincomb_type,
             double lincomb_eps,
@@ -43,14 +44,22 @@
             arma::uword lincomb_df_target);
 
 
-  void bootstrap();
 
-  void grow();
-
-  bool is_col_valid(arma::uword j);
+  void sample_rows();
 
   void sample_cols();
 
+  bool is_col_splittable(arma::uword j);
+
+  bool is_left_node_splittable();
+
+  bool is_right_node_splittable();
+
+  arma::uvec find_cutpoints(arma::vec& lincomb, arma::uvec& lincomb_sort);
+
+  double score_logrank();
+
+  void grow();
 
   std::vector<arma::uvec>& get_coef_indices() {
    return(coef_indices);
@@ -72,9 +81,15 @@
   arma::mat y_oobag;
   arma::mat y_node;
 
+  // the 'w' is short for 'weights'
   arma::vec w_inbag;
   arma::vec w_oobag;
   arma::vec w_node;
+
+  // g_node indicates where observations will go when this node splits
+  // 0 means go down to left node, 1 means go down to right node
+  // the 'g' is short for 'groups'
+  arma::uvec g_node;
 
   // which rows of data are held out while growing the tree
   arma::uvec rows_oobag;
@@ -84,17 +99,26 @@
   // Random number generator
   std::mt19937_64 random_number_generator;
 
-  // tree growing parameters
+  // tree growing members
   arma::uword mtry;
   double leaf_min_events;
   double leaf_min_obs;
+
+  // node split members
   SplitRule split_rule;
   double split_min_events;
   double split_min_obs;
   double split_min_stat;
+  arma::uword split_max_cuts;
   arma::uword split_max_retry;
+
+  double n_events_left;
+  double n_events_right;
+  double n_risk_left;
+  double n_risk_right;
+
+  // linear combination members
   LinearCombo lincomb_type;
-  arma::vec lincomb_vals;
   double lincomb_eps;
   arma::uword lincomb_iter_max;
   bool   lincomb_scale;
@@ -105,10 +129,6 @@
 
   // which node each inbag observation is currently in.
   arma::uvec node_assignments;
-
-
-  arma::uvec nodes_to_grow;
-  arma::uvec nodes_to_grow_next;
 
   // coefficients for linear combinations;
   // one row per variable (mtry rows), one column per node

@@ -22,6 +22,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   double split_min_events,
                   double split_min_obs,
                   double split_min_stat,
+                  arma::uword split_max_cuts,
                   arma::uword split_max_retry,
                   LinearCombo lincomb_type,
                   double lincomb_eps,
@@ -46,6 +47,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->split_min_events = split_min_events;
  this->split_min_obs = split_min_obs;
  this->split_min_stat = split_min_stat;
+ this->split_max_cuts = split_max_cuts;
  this->split_max_retry = split_max_retry;
  this->lincomb_type = lincomb_type; this->lincomb_eps = lincomb_eps;
  this->lincomb_iter_max = lincomb_iter_max;
@@ -58,10 +60,10 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->oobag_eval_every = oobag_eval_every;
 
   if(VERBOSITY > 0){
-  Rcout << "------------ dimensions ------------"   << std::endl;
+  Rcout << "------------ input data dimensions ------------"   << std::endl;
   Rcout << "N obs total: "     << data->get_n_rows() << std::endl;
   Rcout << "N columns total: " << data->get_n_cols() << std::endl;
-  Rcout << "------------------------------------";
+  Rcout << "-----------------------------------------------";
   Rcout << std::endl << std::endl;
  }
 
@@ -92,6 +94,7 @@ void Forest::grow(Function& lincomb_R_function){
                  split_min_events,
                  split_min_obs,
                  split_min_stat,
+                 split_max_cuts,
                  split_max_retry,
                  lincomb_type,
                  lincomb_eps,

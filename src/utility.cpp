@@ -30,4 +30,28 @@
 
  }
 
+ void print_vec(arma::vec& x,
+                std::string label,
+                arma::uword max_elem){
+
+  uword n_print = max_elem-1;
+
+  if(x.size() < n_print) n_print = x.size()-1;
+
+  Rcout << "   ---- view of " << label << " ---- " << std::endl << std::endl;
+  Rcout << x.subvec(0, n_print);
+  Rcout << std::endl << std::endl;
+
+ }
+
+ void print_uvec(arma::uvec& x,
+                 std::string label,
+                 arma::uword max_elem){
+
+  vec x_vec = conv_to<vec>::from(x);
+
+  print_vec(x_vec, label, max_elem);
+
+ }
+
  }
