@@ -52,7 +52,6 @@ run_cph_test <- function(x, y, method){
  rownames(beta) <- names(tt$coefficients)
  beta_vec <- beta[, 1, drop = TRUE]
 
-
  perc_diff <- function(a,b) abs(a-b) / (abs(0.001 + a+b)/2)
 
  # maximum percent difference
@@ -118,3 +117,62 @@ test_that(
   expect_true( run_cph_test(x, y, method = 1) < 1e-2 )
  }
 )
+
+
+
+# speed comparison --------------------------------------------------------
+
+data("flchain", package = 'survival')
+
+df <- na.omit(flchain)
+
+df$chapter <- NULL
+
+time <- 'futime'
+status <- 'death'
+
+df_nomiss <- na.omit(df)
+
+df_sorted <- df_nomiss[order(df_nomiss[[time]]),]
+
+df_x <- df_sorted
+df_x[[time]] <- NULL
+df_x[[status]] <- NULL
+
+flchain_x <- model.matrix(~.-1, data = df_x)
+
+flchain_y <- survival::Surv(time = df_sorted[[time]],
+                            event = df_sorted[[status]])
+
+x <- flchain_x[, c('age', 'sexF','sample.yr', 'kappa', 'lambda')]
+y <- flchain_y
+
+wts <- sample(seq(1:2), size = nrow(x), replace = TRUE)
+
+method = 0
+
+control <- survival::coxph.control(iter.max = 1, eps = 1e-8)
+
+microbenchmark::microbenchmark(
+
+ tt = survival::coxph.fit(x = x,
+                          y = y,
+                          strata = NULL,
+                          offset = NULL,
+                          init = rep(0, ncol(x)),
+                          control = control,
+                          weights = wts,
+                          method = if(method == 0) 'breslow' else 'efron',
+                          rownames = NULL,
+                          resid = FALSE,
+                          nocenter = c(0)),
+
+ bcj = coxph_fit_exported(x[, , drop = FALSE],
+                          y,
+                          wts,
+                          method = method,
+                          cph_eps = 1e-8,
+                          cph_iter_max = control$iter.max)
+
+)
+

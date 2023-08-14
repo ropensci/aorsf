@@ -23,7 +23,7 @@
 
   Data(arma::mat& x,
        arma::mat& y,
-       arma::uvec& w) {
+       arma::vec& w) {
 
    this->x = x;
    this->y = y;
@@ -72,7 +72,7 @@
    return(y.submat(vector_of_row_indices, vector_of_column_indices));
   }
 
-  arma::uvec w_subvec(arma::uvec& vector_of_indices){
+  arma::vec w_subvec(arma::uvec& vector_of_indices){
    return(w(vector_of_indices));
   }
 
@@ -80,7 +80,7 @@
 
   arma::uword n_cols;
   arma::uword n_rows;
-  arma::uvec w;
+  arma::vec w;
 
   bool has_weights;
 

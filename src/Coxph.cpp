@@ -212,30 +212,30 @@
                char oobag_importance_type = 'A'){
 
   uword
-  person,
-  iter,
-  i,
-  j,
-  k,
-  n_vars;
+   person,
+   iter,
+   i,
+   j,
+   k,
+   n_vars;
 
   vec
-  beta_current,
-  beta_new,
-  XB,
-  Risk,
-  u,
-  a,
-  a2,
-  vi_pval_numer,
-  vi_pval_denom;
+   beta_current,
+   beta_new,
+   XB,
+   Risk,
+   u,
+   a,
+   a2,
+   vi_pval_numer,
+   vi_pval_denom;
 
   uvec cols_node;
 
   mat
-  vmat,
-  cmat,
-  cmat2;
+   vmat,
+   cmat,
+   cmat2;
 
   bool break_loop;
 
@@ -285,6 +285,7 @@
 
   }
 
+
   beta_current.zeros(n_vars);
   beta_new.zeros(n_vars);
 
@@ -314,9 +315,9 @@
   cmat.fill(0);
   cmat2.fill(0);
 
-  // this loop has a strange break condition to accomodate
-  // the restriction that a uvec (uword) cannot be < 0
 
+  // the outer loop needs to be broken when a condition occurs in
+  // the inner loop - set up a bool to break the outer loop
   break_loop = false;
 
   // xb = 0.0;
@@ -458,17 +459,17 @@
 
    for(iter = 1; iter < cph_iter_max; iter++){
 
-    if(VERBOSITY > 1){
-
-     Rcout << "--------- Newt-Raph algo; iter " << iter;
-     Rcout << " ---------"  << std::endl;
-     Rcout << "beta: "      << beta_new.t();
-     Rcout << "loglik:    " << stat_best;
-     Rcout                  << std::endl;
-     Rcout << "------------------------------------------";
-     Rcout << std::endl << std::endl << std::endl;
-
-    }
+    // if(VERBOSITY > 1){
+    //
+    //  Rcout << "--------- Newt-Raph algo; iter " << iter;
+    //  Rcout << " ---------"  << std::endl;
+    //  Rcout << "beta: "      << beta_new.t();
+    //  Rcout << "loglik:    " << stat_best;
+    //  Rcout                  << std::endl;
+    //  Rcout << "------------------------------------------";
+    //  Rcout << std::endl << std::endl << std::endl;
+    //
+    // }
 
     // do the next iteration
 
@@ -492,6 +493,7 @@
 
     XB = x_node * beta_new;
     Risk = exp(XB) % w_node;
+
 
     for( ; ; ){
 
@@ -676,17 +678,6 @@
 
   }
 
-  if(VERBOSITY > 1){
-
-   Rcout << "--------- Newt-Raph algo; before rescale " << std::endl;
-   Rcout << "beta: "      << beta_new.t()               << std::endl;
-   Rcout << std::endl;
-
-  }
-
-
-  print_mat(x_transforms, "x_transforms", 10, 10);
-
 
   // invert vmat
   cholesky_invert(vmat);
@@ -696,7 +687,6 @@
    beta_current[i] = beta_new[i];
 
    if(std::isinf(beta_current[i]) || std::isnan(beta_current[i])){
-    Rcout << beta_current[i] << std::endl;
     beta_current[i] = 0;
    }
 
@@ -726,14 +716,6 @@
    //  vi_pval_denom[cols_node[i]]++;
    //
    // }
-
-  }
-
-  if(VERBOSITY > 1){
-
-   Rcout << "--------- Newt-Raph algo; after rescale " << std::endl;
-   Rcout << "beta: "      << beta_current.t()               << std::endl;
-   Rcout << std::endl;
 
   }
 

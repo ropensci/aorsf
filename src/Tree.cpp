@@ -7,6 +7,7 @@
 #include <RcppArmadillo.h>
 #include "Tree.h"
 #include "Coxph.h"
+#include "NodeSplitStats.h"
 
  using namespace arma;
  using namespace Rcpp;
@@ -62,7 +63,7 @@
   uword i, draw, n = data->n_rows;
 
   // Start with all samples OOB
-  uvec boot_wts(n, fill::zeros);
+  vec boot_wts(n, fill::zeros);
 
   std::uniform_int_distribution<uword> unif_dist(0, n - 1);
 
@@ -215,16 +216,24 @@
 
    x_node = x_inbag(rows_node, cols_node);
 
-   Rcout << x_node << std::endl;
-
    print_mat(x_node, "x_node", 5, 5);
 
-   vec w_node_doubles = conv_to<vec>::from(w_node);
-   vec beta = coxph_fit(x_node, y_node, w_node_doubles, 1, 1e-9, 20, 'A');
+   vec beta = coxph_fit(x_node, y_node, w_node, 1, 1e-9, 20, 'A');
 
-   Rcout << beta << std::endl;
+   vec lincomb = x_node * beta;
+
+   uvec lincomb_sort = sort_index(lincomb);
+
+   uvec cutpoint_indices = node_find_cps(y_node,
+                                         w_node,
+                                         lincomb,
+                                         lincomb_sort,
+                                         leaf_min_events,
+                                         leaf_min_obs);
 
    print_mat(beta, "beta", 5, 5);
+
+   // print_mat(lincomb_sort, "lincomb_sort", 5, 5);
 
    coef_values.push_back(beta);
 

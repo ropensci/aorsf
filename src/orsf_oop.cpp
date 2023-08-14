@@ -57,8 +57,8 @@
  }
 
  // [[Rcpp::export]]
- List coxph_fit_exported(arma::vec& x_node,
-                         arma::vec& y_node,
+ List coxph_fit_exported(arma::mat& x_node,
+                         arma::mat& y_node,
                          arma::vec& w_node,
                          int method,
                          double cph_eps,
@@ -139,10 +139,10 @@
 
  // [[Rcpp::export]]
  void node_fill_group_exported(arma::vec& group,
-                               const arma::uvec& XB_sorted,
-                               const arma::uword start,
-                               const arma::uword stop,
-                               const double value){
+                               arma::uvec& XB_sorted,
+                               arma::uword start,
+                               arma::uword stop,
+                               double value){
 
   node_fill_group(group, XB_sorted, start, stop, value);
 
@@ -180,7 +180,7 @@
  // [[Rcpp::export]]
  List orsf_cpp(arma::mat& x,
                arma::mat& y,
-               arma::uvec& w,
+               arma::vec& w,
                Rcpp::IntegerVector& tree_seeds,
                Rcpp::Function& lincomb_R_function,
                Rcpp::Function& oobag_R_function,

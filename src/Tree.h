@@ -72,9 +72,9 @@
   arma::mat y_oobag;
   arma::mat y_node;
 
-  arma::uvec w_inbag;
-  arma::uvec w_oobag;
-  arma::uvec w_node;
+  arma::vec w_inbag;
+  arma::vec w_oobag;
+  arma::vec w_node;
 
   // which rows of data are held out while growing the tree
   arma::uvec rows_oobag;
@@ -94,6 +94,7 @@
   double split_min_stat;
   arma::uword split_max_retry;
   LinearCombo lincomb_type;
+  arma::vec lincomb_vals;
   double lincomb_eps;
   arma::uword lincomb_iter_max;
   bool   lincomb_scale;
