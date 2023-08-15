@@ -30,6 +30,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   bool   lincomb_scale,
                   double lincomb_alpha,
                   arma::uword lincomb_df_target,
+                  arma::uword lincomb_ties_method,
                   PredType pred_type,
                   bool   pred_mode,
                   double pred_horizon,
@@ -54,10 +55,16 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->lincomb_scale = lincomb_scale;
  this->lincomb_alpha = lincomb_alpha;
  this->lincomb_df_target = lincomb_df_target;
+ this->lincomb_ties_method = lincomb_ties_method;
  this->pred_type = pred_type;
  this->pred_horizon = pred_horizon;
  this->oobag_pred = oobag_pred;
  this->oobag_eval_every = oobag_eval_every;
+
+ if(vi_type != VI_NONE){
+  vi_numer.set_size(data->get_n_cols());
+  vi_denom.set_size(data->get_n_cols());
+ }
 
   if(VERBOSITY > 0){
   Rcout << "------------ input data dimensions ------------"   << std::endl;
@@ -101,7 +108,8 @@ void Forest::grow(Function& lincomb_R_function){
                  lincomb_iter_max,
                  lincomb_scale,
                  lincomb_alpha,
-                 lincomb_df_target);
+                 lincomb_df_target,
+                 lincomb_ties_method);
 
   trees[i]->grow();
 

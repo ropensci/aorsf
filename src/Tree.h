@@ -41,7 +41,8 @@
             arma::uword lincomb_iter_max,
             bool   lincomb_scale,
             double lincomb_alpha,
-            arma::uword lincomb_df_target);
+            arma::uword lincomb_df_target,
+            arma::uword lincomb_ties_method);
 
 
 
@@ -124,6 +125,9 @@
   bool   lincomb_scale;
   double lincomb_alpha;
   arma::uword lincomb_df_target;
+  arma::uword lincomb_ties_method;
+
+  // prediction members
   double pred_horizon;
 
 

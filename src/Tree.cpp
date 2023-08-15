@@ -32,7 +32,8 @@
                  arma::uword lincomb_iter_max,
                  bool lincomb_scale,
                  double lincomb_alpha,
-                 arma::uword lincomb_df_target){
+                 arma::uword lincomb_df_target,
+                 arma::uword lincomb_ties_method){
 
 
   this->data = data;
@@ -54,6 +55,7 @@
   this->lincomb_scale = lincomb_scale;
   this->lincomb_alpha = lincomb_alpha;
   this->lincomb_df_target = lincomb_df_target;
+  this->lincomb_ties_method = lincomb_ties_method;
 
  }
 
@@ -464,7 +466,14 @@
 
    print_mat(x_node, "x_node", 5, 5);
 
-   vec beta = coxph_fit(x_node, y_node, w_node, 1, 1e-9, 20, 'A');
+   vec beta = coxph_fit(x_node,
+                        y_node,
+                        w_node,
+                        lincomb_scale,
+                        lincomb_ties_method,
+                        lincomb_eps,
+                        lincomb_iter_max,
+                        'A');
 
    vec lincomb = x_node * beta;
 

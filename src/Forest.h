@@ -48,14 +48,13 @@ public:
            bool lincomb_scale,
            double lincomb_alpha,
            arma::uword lincomb_df_target,
+           arma::uword lincomb_ties_method,
            // predictions
            PredType pred_type,
            bool pred_mode,
            double pred_horizon,
            bool oobag_pred,
            arma::uword oobag_eval_every);
-
- // virtual void initarma::uwordernal() = 0;
 
  // Grow or predict
  void run();
@@ -79,11 +78,9 @@ public:
 
  // Member variables
 
- Rcpp::IntegerVector bootstrap_select_times;
- Rcpp::NumericVector bootstrap_select_probs;
-
  arma::uword n_tree;
  arma::uword mtry;
+
 
  Rcpp::IntegerVector tree_seeds;
 
@@ -91,7 +88,10 @@ public:
 
  std::unique_ptr<Data> data;
 
+ // variable importance
  VariableImportance vi_type;
+ arma::vec vi_numer;
+ arma::vec vi_denom;
 
  // leaves
  double leaf_min_events;
@@ -112,6 +112,7 @@ public:
  double      lincomb_alpha;
  arma::uword lincomb_iter_max;
  arma::uword lincomb_df_target;
+ arma::uword lincomb_ties_method;
 
  // predictions
  PredType pred_type;

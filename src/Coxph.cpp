@@ -206,6 +206,7 @@
  vec coxph_fit(mat& x_node,
                mat& y_node,
                vec& w_node,
+               bool do_scale,
                int ties_method = 1,
                double cph_eps = 1e-9,
                uword cph_iter_max = 20,
@@ -235,7 +236,8 @@
   mat
    vmat,
    cmat,
-   cmat2;
+   cmat2,
+   x_transforms;
 
   bool break_loop;
 
@@ -262,29 +264,34 @@
   vi_pval_numer.zeros(n_vars);
   vi_pval_denom.zeros(n_vars);
 
-  mat x_transforms(n_vars, 2, fill::zeros);
-  vec means  = x_transforms.unsafe_col(0);   // Reference to column 1
-  vec scales = x_transforms.unsafe_col(1);   // Reference to column 2
+  if(do_scale){
 
-  w_node_sum = sum(w_node);
+   x_transforms.set_size(n_vars, 2);
+   x_transforms.fill(0);
 
-  for(i = 0; i < n_vars; i++) {
+   vec means  = x_transforms.unsafe_col(0);   // Reference to column 1
+   vec scales = x_transforms.unsafe_col(1);   // Reference to column 2
 
-   means.at(i) = sum( w_node % x_node.col(i) ) / w_node_sum;
+   w_node_sum = sum(w_node);
 
-   x_node.col(i) -= means.at(i);
+   for(i = 0; i < n_vars; i++) {
 
-   scales.at(i) = sum(w_node % abs(x_node.col(i)));
+    means.at(i) = sum( w_node % x_node.col(i) ) / w_node_sum;
 
-   if(scales(i) > 0)
-    scales.at(i) = w_node_sum / scales.at(i);
-   else
-    scales.at(i) = 1.0; // rare case of constant covariate;
+    x_node.col(i) -= means.at(i);
 
-   x_node.col(i) *= scales.at(i);
+    scales.at(i) = sum(w_node % abs(x_node.col(i)));
+
+    if(scales(i) > 0)
+     scales.at(i) = w_node_sum / scales.at(i);
+    else
+     scales.at(i) = 1.0; // rare case of constant covariate;
+
+    x_node.col(i) *= scales.at(i);
+
+   }
 
   }
-
 
   beta_current.zeros(n_vars);
   beta_new.zeros(n_vars);
@@ -694,13 +701,10 @@
     vmat.at(i, i) = 1.0;
    }
 
-   // if(verbose > 0) Rcout << "scaled beta: " << beta_current[i] << "; ";
-
-
-   beta_current.at(i) *= x_transforms.at(i, 1);
-   vmat.at(i, i) *= x_transforms.at(i, 1) * x_transforms.at(i, 1);
-
-   // if(verbose > 0) Rcout << "un-scaled beta: " << beta_current[i] << std::endl;
+   if(do_scale){
+    beta_current.at(i) *= x_transforms.at(i, 1);
+    vmat.at(i, i) *= x_transforms.at(i, 1) * x_transforms.at(i, 1);
+   }
 
    // if(oobag_importance_type == 'A'){
    //

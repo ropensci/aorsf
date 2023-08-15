@@ -62,21 +62,15 @@
                          arma::vec& w_node,
                          int method,
                          double cph_eps,
-                         int cph_iter_max){
-
-  // mat x_node = mat(x_.begin(), x_.nrow(), x_.ncol(), false);
-  // mat y_node = mat(y_.begin(), y_.nrow(), y_.ncol(), false);
-  // uvec w_node = uvec(w_.begin(), w_.length(), false);
-
-  uword cph_iter_max_ = cph_iter_max;
-
+                         arma::uword cph_iter_max){
 
   vec beta = coxph_fit(x_node,
                        y_node,
                        w_node,
+                       true,
                        method,
                        cph_eps,
-                       cph_iter_max_,
+                       cph_iter_max,
                        'A');
 
   return(
@@ -201,6 +195,7 @@
                bool lincomb_scale,
                double lincomb_alpha,
                arma::uword lincomb_df_target,
+               arma::uword lincomb_ties_method,
                bool pred_mode,
                arma::uword pred_type_R,
                double pred_horizon,
@@ -251,6 +246,7 @@
                lincomb_scale,
                lincomb_alpha,
                lincomb_df_target,
+               lincomb_ties_method,
                pred_type,
                pred_mode,
                pred_horizon,

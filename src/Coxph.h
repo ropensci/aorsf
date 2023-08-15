@@ -79,6 +79,7 @@
  arma::vec coxph_fit(arma::mat& x_node,
                      arma::mat& y_node,
                      arma::vec& w_node,
+                     bool do_scale,
                      int ties_method,
                      double cph_eps,
                      arma::uword cph_iter_max,
