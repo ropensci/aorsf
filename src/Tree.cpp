@@ -67,35 +67,25 @@
   uword i, draw, n = data->n_rows;
 
   // Start with all samples OOB
-  vec boot_wts(n, fill::zeros);
+  vec w_inbag(n, fill::zeros);
 
   std::uniform_int_distribution<uword> unif_dist(0, n - 1);
 
   // sample with replacement
   for (i = 0; i < n; ++i) {
    draw = unif_dist(random_number_generator);
-   ++boot_wts[draw];
+   ++w_inbag[draw];
   }
 
-  // multiply boot_wts by user specified weights.
+  // multiply w_inbag by user specified weights.
   if(data->has_weights){
-   boot_wts = boot_wts = boot_wts % data->w;
+   w_inbag = w_inbag % data->w;
   }
 
-  uvec rows_inbag = find(boot_wts > 0);
-  this->x_inbag = data->x_rows(rows_inbag);
-  this->y_inbag = data->y_rows(rows_inbag);
-  this->w_inbag = data->w_subvec(rows_inbag);
-  this->rows_oobag = find(boot_wts == 0);
-
-  if(VERBOSITY > 0){
-
-   print_mat(x_inbag, "x_inbag", 5, 5);
-
-  }
-
-  rows_inbag.clear();
-  boot_wts.clear();
+  this->rows_inbag = find(w_inbag > 0);
+  this->rows_oobag = find(w_inbag == 0);
+  // shrink the size of w_inbag from n to n wts > 0
+  this->w_inbag = w_inbag(rows_inbag);
 
  }
 
@@ -368,8 +358,15 @@
 
  double Tree::score_logrank(){
 
-  double n_risk=0, g_risk=0, observed=0, expected=0, V=0;
-  double temp1, temp2, n_events;
+  double
+   n_risk=0,
+   g_risk=0,
+   observed=0,
+   expected=0,
+   V=0,
+   temp1,
+   temp2,
+   n_events;
 
   vec y_time = y_node.unsafe_col(0);
   vec y_status = y_node.unsafe_col(1);
@@ -377,11 +374,6 @@
   bool break_loop = false;
 
   uword i = y_node.n_rows-1;
-
-  if(VERBOSITY > 1){
-   Rcout << "N obs, right node: " << sum(g_node % w_node);
-   Rcout << std::endl;
-  }
 
   // breaking condition of outer loop governed by inner loop
   for (; ;){
@@ -405,8 +397,8 @@
    }
 
    // should only do these calculations if n_events > 0,
-   // but turns out its faster to multiply by 0 than
-   // it is to check whether n_events is > 0
+   // but in practice its often faster to multiply by 0
+   // versus check if n_events is > 0.
 
    temp2 = g_risk / n_risk;
    expected += n_events * temp2;
@@ -428,8 +420,11 @@
 
  void Tree::grow(){
 
-  // create inbag views of x, y, and w,
   sample_rows();
+
+  // create inbag views of x, y, and w,
+  this->x_inbag = data->x_rows(rows_inbag);
+  this->y_inbag = data->y_rows(rows_inbag);
 
   uword n_inbag = x_inbag.n_rows;
 
@@ -459,7 +454,6 @@
    y_node = y_inbag.rows(rows_node);
    w_node = w_inbag(rows_node);
 
-
    sample_cols();
 
    x_node = x_inbag(rows_node, cols_node);
@@ -481,38 +475,65 @@
 
    uvec cutpoint_indices = find_cutpoints(lincomb, lincomb_sort);
 
+
    uvec cuts = linspace<uvec>(cutpoint_indices.front(),
                               cutpoint_indices.back(),
                               split_max_cuts);
 
-   uword start = 0;
-
    g_node.zeros(lincomb.size());
 
-   uvec::iterator it, it_best;
+   mat temp;
+
+   uvec::iterator it;
+
+   uword it_start = 0, it_best;
 
    double stat, stat_best = 0;
 
    for(it = cuts.begin(); it != cuts.end(); ++it){
 
     // flip node assignments from left to right, up to the next cutpoint
-    g_node.elem(lincomb_sort.subvec(start, *it)).fill(1);
+    g_node.elem(lincomb_sort.subvec(it_start, *it)).fill(1);
+
+    Rcout << "cutpoint: " << lincomb.at(lincomb_sort(*it)) << std::endl << std::endl;
+
+    temp = arma::join_horiz(lincomb, conv_to<vec>::from(g_node));
+
+    Rcout << "temp mat: " << std::endl << temp.rows(lincomb_sort) << std::endl;
+
+    Rcout << "sum(g_node) " << sum(g_node % w_node) << std::endl;
 
     // compute split statistics with this cut-point
-    double stat = score_logrank();
+    stat = score_logrank();
+
+    Rcout << "stat in loop: " << stat << std::endl << std::endl << std::endl;
+
 
     // update leaderboard
     if(stat > stat_best) {
      stat_best = stat;
-     it_best = it;
+
+     it_best = *it;
+
     }
 
-    start = *it;
+    it_start = *it;
 
    }
 
+   Rcout << "it_best: " << it_best << std::endl;
 
+   Rcout << "start: " << it_start << std::endl;
 
+   if(it_best < it_start){
+    g_node.elem(lincomb_sort.subvec(it_best+1, it_start)).fill(0);
+   }
+
+   Rcout << "sum(g_node) after back-fill " << sum(g_node % w_node) << std::endl;
+
+   double check_stat = score_logrank();
+
+   Rcout << "best stat after loop: " << check_stat << std::endl;
 
    // update tree parameters
    coef_values.push_back(beta);

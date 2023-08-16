@@ -93,6 +93,7 @@
   arma::uvec g_node;
 
   // which rows of data are held out while growing the tree
+  arma::uvec rows_inbag;
   arma::uvec rows_oobag;
   arma::uvec rows_node;
   arma::uvec cols_node;
