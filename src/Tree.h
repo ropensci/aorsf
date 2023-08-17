@@ -53,11 +53,11 @@
 
   bool is_col_splittable(arma::uword j);
 
-  bool is_left_node_splittable();
+  bool is_node_splittable(arma::uword node_id);
 
-  bool is_right_node_splittable();
+  arma::uvec find_cutpoints();
 
-  arma::uvec find_cutpoints(arma::vec& lincomb, arma::uvec& lincomb_sort);
+  arma::uword split_node(arma::uvec& cuts_all);
 
   double score_logrank();
 
@@ -71,6 +71,9 @@
   Data* data;
 
   arma::uword n_cols_total;
+  arma::uword n_rows_total;
+
+  arma::uword n_rows_inbag;
 
   int seed;
 
@@ -118,17 +121,14 @@
   arma::uword split_max_cuts;
   arma::uword split_max_retry;
 
-  double n_events_left;
-  double n_events_right;
-  double n_risk_left;
-  double n_risk_right;
-
   // linear combination members
   LinearCombo lincomb_type;
-  double lincomb_eps;
+  arma::vec   lincomb;
+  arma::uvec  lincomb_sort;
+  double      lincomb_eps;
   arma::uword lincomb_iter_max;
-  bool   lincomb_scale;
-  double lincomb_alpha;
+  bool        lincomb_scale;
+  double      lincomb_alpha;
   arma::uword lincomb_df_target;
   arma::uword lincomb_ties_method;
 

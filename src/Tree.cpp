@@ -39,6 +39,7 @@
 
   this->data = data;
   this->n_cols_total = data->n_cols;
+  this->n_rows_total = data->n_rows;
 
   this->seed = seed;
   this->mtry = mtry;
@@ -170,25 +171,35 @@
 
  }
 
- bool Tree::is_left_node_splittable(){
+ bool Tree::is_node_splittable(uword node_id){
 
-  return(n_events_left >= 2*leaf_min_events &&
-         n_risk_left   >= 2*leaf_min_obs &&
-         n_events_left >=   split_min_events &&
-         n_risk_left   >=   split_min_obs);
+  if(node_id == 0){
+
+   // all inbag observations are in the first node
+   rows_node = regspace<uvec>(0, n_rows_inbag-1);
+   y_node = y_inbag;
+   w_node = w_inbag;
+   return(true);
+
+  }
+
+  rows_node = find(node_assignments == node_id);
+
+  y_node = y_inbag.rows(rows_node);
+  w_node = w_inbag(rows_node);
+
+  double n_risk = sum(w_node);
+  double n_events = sum(y_node.col(1) % w_node);
+
+  return(n_events >= 2*leaf_min_events &&
+         n_risk   >= 2*leaf_min_obs &&
+         n_events >=   split_min_events &&
+         n_risk   >=   split_min_obs);
 
  }
 
- bool Tree::is_right_node_splittable(){
 
-  return(n_events_right >= 2*leaf_min_events &&
-         n_risk_right   >= 2*leaf_min_obs &&
-         n_events_right >=   split_min_events &&
-         n_risk_right   >=   split_min_obs);
-
- }
-
- uvec Tree::find_cutpoints(vec& lincomb, uvec& lincomb_sort){
+ uvec Tree::find_cutpoints(){
 
   vec y_status = y_node.unsafe_col(1);
 
@@ -361,7 +372,7 @@
  double Tree::score_logrank(){
 
   double
-   n_risk=0,
+  n_risk=0,
    g_risk=0,
    observed=0,
    expected=0,
@@ -420,6 +431,66 @@
 
  }
 
+ uword Tree::split_node(arma::uvec& cuts_all){
+
+  uword n_cuts = split_max_cuts;
+
+  if(split_max_cuts > cuts_all.size()){
+   n_cuts = cuts_all.size();
+  }
+
+  uvec cuts_sampled = linspace<uvec>(cuts_all.front(),
+                                     cuts_all.back(),
+                                     n_cuts);
+
+  // initialize grouping for the current node
+  // value of 1 indicates go to right node
+  g_node.ones(lincomb.size());
+
+  uvec::iterator it;
+
+  uword it_start = 0, it_best;
+
+  double stat, stat_best = 0;
+
+  for(it = cuts_sampled.begin(); it != cuts_sampled.end(); ++it){
+
+   // flip node assignments from left to right, up to the next cutpoint
+   g_node.elem(lincomb_sort.subvec(it_start, *it)).fill(0);
+   // compute split statistics with this cut-point
+   stat = score_logrank();
+   // update leaderboard
+   if(stat > stat_best) { stat_best = stat; it_best = *it; }
+   // set up next loop run
+   it_start = *it;
+
+   if(VERBOSITY > 1){
+    mat temp = join_rows(lincomb, conv_to<vec>::from(g_node));
+    temp = join_rows(temp, w_node);
+    temp = temp.rows(lincomb_sort);
+    Rcout << "testing cutpoint: " << lincomb.at(lincomb_sort(*it));
+    Rcout << std::endl;
+    Rcout << std::endl;
+    print_mat(temp, "lincomb & g_node & w_node", 20, 20);
+    Rcout << "logrank stat for this cutpoint: " << stat;
+    Rcout << std::endl;
+    Rcout << " ------------------------------------------- ";
+    Rcout << std::endl;
+    Rcout << std::endl;
+   }
+
+  }
+
+  // backtrack g_node to be what it was when best it was found
+  if(it_best < it_start){
+   g_node.elem(lincomb_sort.subvec(it_best+1, it_start)).fill(1);
+  }
+
+  // return the cut-point from best split
+  return(lincomb_sort[it_best]);
+
+ }
+
  void Tree::grow(arma::vec& vi_numer,
                  arma::uvec& vi_denom){
 
@@ -429,39 +500,63 @@
   this->x_inbag = data->x_rows(rows_inbag);
   this->y_inbag = data->y_rows(rows_inbag);
 
-  uword n_inbag = x_inbag.n_rows;
+  if(VERBOSITY > 0){
 
-  // all inbag observations are in the first node
-  rows_node = regspace<uvec>(0, n_inbag-1);
+   Rcout << "Effective sample size: " << sum(w_inbag);
+   Rcout << std::endl;
+   Rcout << "Number of unique rows in x: " << x_inbag.n_rows;
+   Rcout << std::endl;
+   Rcout << std::endl;
+
+  }
+
+  n_rows_inbag = x_inbag.n_rows;
 
   // assign all inbag observations to node 0
-  node_assignments.zeros(n_inbag);
+  node_assignments.zeros(n_rows_inbag);
 
   // coordinate the order that nodes are grown.
-  uvec nodes_open(1, fill::zeros);
-  uvec nodes_queued;
+  std::vector<uword> nodes_open;
+
+  // start node 0
+  nodes_open.push_back(0);
+
+  // nodes to grow in the next run through the do-loop
+  std::vector<uword> nodes_queued;
+
+  // reserve a little more space than we may need
+  nodes_open.reserve( std::ceil(n_rows_total / split_min_obs) );
+  nodes_queued.reserve( nodes_open.size() );
+
+  // number of nodes in the tree starts at 0
+  uword n_nodes=0;
 
   // iterate through nodes to be grown
-  uvec::iterator node;
+  std::vector<uword>::iterator node;
 
+  // ID of the left node (node_right = node_left + 1)
+  uword node_left;
+
+  // all possible cut-points for a linear combination
+  uvec cuts_all;
+
+  do{
 
   for(node = nodes_open.begin(); node != nodes_open.end(); ++node){
 
-   if(nodes_open[0] != 0){
+   Rcout << "growing node " << *node << std::endl << std::endl;
 
-    // identify which rows are in the current node.
-    rows_node = find(node_assignments == *node);
-
-   }
-
-   y_node = y_inbag.rows(rows_node);
-   w_node = w_inbag(rows_node);
+   // determine rows in the current node and if it can be split
+   if(!is_node_splittable(*node)) continue;
 
    sample_cols();
 
    x_node = x_inbag(rows_node, cols_node);
 
-   print_mat(x_node, "x_node", 5, 5);
+   if(VERBOSITY > 1) {
+    print_mat(x_node, "x_node", 20, 20);
+    print_mat(y_node, "y_node", 20, 20);
+   }
 
    vec beta = coxph_fit(x_node,
                         y_node,
@@ -476,80 +571,51 @@
                         vi_numer,
                         vi_denom);
 
-   vec lincomb = x_node * beta;
 
-   uvec lincomb_sort = sort_index(lincomb);
+   // beta will be all 0 if something went wrong
+   lincomb = x_node * beta;
+   lincomb_sort = sort_index(lincomb);
 
-   uvec cutpoint_indices = find_cutpoints(lincomb, lincomb_sort);
+   cuts_all = find_cutpoints();
 
+   Rcout << cuts_all << std::endl;
 
-   uvec cuts = linspace<uvec>(cutpoint_indices.front(),
-                              cutpoint_indices.back(),
-                              split_max_cuts);
+   if(!cuts_all.is_empty()){
 
-   g_node.zeros(lincomb.size());
+    uword cut_here = split_node(cuts_all);
 
-   mat temp;
+    // update tree parameters
+    cutpoint.push_back(lincomb[cut_here]);
+    coef_values.push_back(beta);
+    coef_indices.push_back(cols_node);
+    child_left.push_back(node_left);
 
-   uvec::iterator it;
+    // make new nodes if a valid cutpoint was found
+    node_left = n_nodes + 1;
+    n_nodes += 2;
 
-   uword it_start = 0, it_best;
+    // re-assign observations in the current node
+    // (note that g_node is 0 if left, 1 if right)
+    node_assignments.elem(rows_node) = node_left + g_node;
 
-   double stat, stat_best = 0;
-
-   for(it = cuts.begin(); it != cuts.end(); ++it){
-
-    // flip node assignments from left to right, up to the next cutpoint
-    g_node.elem(lincomb_sort.subvec(it_start, *it)).fill(1);
-
-    Rcout << "cutpoint: " << lincomb.at(lincomb_sort(*it)) << std::endl << std::endl;
-
-    temp = arma::join_horiz(lincomb, conv_to<vec>::from(g_node));
-
-    Rcout << "temp mat: " << std::endl << temp.rows(lincomb_sort) << std::endl;
-
-    Rcout << "sum(g_node) " << sum(g_node % w_node) << std::endl;
-
-    // compute split statistics with this cut-point
-    stat = score_logrank();
-
-    Rcout << "stat in loop: " << stat << std::endl << std::endl << std::endl;
-
-
-    // update leaderboard
-    if(stat > stat_best) {
-     stat_best = stat;
-
-     it_best = *it;
-
+    if(VERBOSITY > 1){
+     Rcout << "node assignments: ";
+     Rcout << std::endl;
+     Rcout << node_assignments(lincomb_sort);
+     Rcout << std::endl;
     }
 
-    it_start = *it;
+    nodes_queued.push_back(node_left);
+    nodes_queued.push_back(node_left + 1);
 
    }
-
-   Rcout << "it_best: " << it_best << std::endl;
-
-   Rcout << "start: " << it_start << std::endl;
-
-   if(it_best < it_start){
-    g_node.elem(lincomb_sort.subvec(it_best+1, it_start)).fill(0);
-   }
-
-   Rcout << "sum(g_node) after back-fill " << sum(g_node % w_node) << std::endl;
-
-   double check_stat = score_logrank();
-
-   Rcout << "best stat after loop: " << check_stat << std::endl;
-
-   // update tree parameters
-   coef_values.push_back(beta);
-   coef_indices.push_back(cols_node);
 
   }
 
+  nodes_open = nodes_queued;
+  nodes_queued.clear();
 
-
+  } while (nodes_open.size() > 0);
 
  } // Tree::grow
 

@@ -90,6 +90,7 @@ public:
 
  // variable importance
  VariableImportance vi_type;
+
  arma::vec vi_numer;
  arma::uvec vi_denom;
 
