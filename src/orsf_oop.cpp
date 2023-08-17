@@ -64,18 +64,28 @@
                          double cph_eps,
                          arma::uword cph_iter_max){
 
+  arma::vec vi_numer(x_node.n_cols);
+  arma::uvec vi_denom(x_node.n_cols);
+  arma::uvec cols_node=regspace<uvec>(0, x_node.n_cols-1);
+
   vec beta = coxph_fit(x_node,
                        y_node,
                        w_node,
+                       cols_node,
                        true,
                        method,
                        cph_eps,
                        cph_iter_max,
-                       'A');
+                       0.10,
+                       VI_ANOVA,
+                       vi_numer,
+                       vi_denom);
 
   return(
    List::create(
-    _["beta"] = beta
+    _["beta"] = beta,
+    _["vi_numer"] = vi_numer,
+    _["vi_denom"] = vi_denom
    )
   );
 

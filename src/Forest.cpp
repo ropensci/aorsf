@@ -62,8 +62,8 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->oobag_eval_every = oobag_eval_every;
 
  if(vi_type != VI_NONE){
-  vi_numer.set_size(data->get_n_cols());
-  vi_denom.set_size(data->get_n_cols());
+  vi_numer.zeros(data->get_n_cols());
+  vi_denom.zeros(data->get_n_cols());
  }
 
   if(VERBOSITY > 0){
@@ -97,6 +97,7 @@ void Forest::grow(Function& lincomb_R_function){
                  mtry,
                  leaf_min_events,
                  leaf_min_obs,
+                 vi_type,
                  split_rule,
                  split_min_events,
                  split_min_obs,
@@ -111,7 +112,7 @@ void Forest::grow(Function& lincomb_R_function){
                  lincomb_df_target,
                  lincomb_ties_method);
 
-  trees[i]->grow();
+  trees[i]->grow(vi_numer, vi_denom);
 
 
  }
@@ -124,8 +125,13 @@ void Forest::grow(Function& lincomb_R_function){
                          test_mat.nrow(),
                          test_mat.ncol(), false);
 
- Rcout << "--- test R function output ---" << std::endl << std::endl;
- Rcout << test_mat_arma << std::endl;
+ Rcout << "--- test R function output ---" << std::endl;
+ Rcout << test_mat_arma << std::endl << std::endl;
+
+ Rcout << "-- test VI numerator ---" << std::endl;
+ Rcout << vi_numer << std::endl << std::endl;
+ Rcout << "-- test VI denominator ---" << std::endl;
+ Rcout << vi_denom << std::endl << std::endl;
 
  // result.push_back(test_mat_arma, "test");
 

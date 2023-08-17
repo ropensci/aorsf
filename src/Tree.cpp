@@ -21,6 +21,7 @@
                  arma::uword mtry,
                  double leaf_min_events,
                  double leaf_min_obs,
+                 VariableImportance vi_type,
                  SplitRule split_rule,
                  double split_min_events,
                  double split_min_obs,
@@ -43,6 +44,7 @@
   this->mtry = mtry;
   this->leaf_min_events = leaf_min_events;
   this->leaf_min_obs = leaf_min_obs;
+  this->vi_type = vi_type;
   this->split_rule = split_rule;
   this->split_min_events = split_min_events;
   this->split_min_obs = split_min_obs;
@@ -418,7 +420,8 @@
 
  }
 
- void Tree::grow(){
+ void Tree::grow(arma::vec& vi_numer,
+                 arma::uvec& vi_denom){
 
   sample_rows();
 
@@ -463,11 +466,15 @@
    vec beta = coxph_fit(x_node,
                         y_node,
                         w_node,
-                        lincomb_scale,
-                        lincomb_ties_method,
-                        lincomb_eps,
-                        lincomb_iter_max,
-                        'A');
+                        cols_node,
+                        lincomb_scale,       // do_scale
+                        lincomb_ties_method, // ties_method
+                        lincomb_eps,         // epsilon
+                        lincomb_iter_max,    // iter_max
+                        0.10,                // vi_pval_threshold
+                        vi_type,             // do importance?
+                        vi_numer,
+                        vi_denom);
 
    vec lincomb = x_node * beta;
 

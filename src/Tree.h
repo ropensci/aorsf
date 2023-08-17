@@ -30,6 +30,7 @@
             arma::uword mtry,
             double leaf_min_events,
             double leaf_min_obs,
+            VariableImportance vi_type,
             SplitRule split_rule,
             double split_min_events,
             double split_min_obs,
@@ -60,7 +61,7 @@
 
   double score_logrank();
 
-  void grow();
+  void grow(arma::vec& vi_numer, arma::uvec& vi_denom);
 
   std::vector<arma::uvec>& get_coef_indices() {
    return(coef_indices);
@@ -97,6 +98,9 @@
   arma::uvec rows_oobag;
   arma::uvec rows_node;
   arma::uvec cols_node;
+
+  // variable importance
+  VariableImportance vi_type;
 
   // Random number generator
   std::mt19937_64 random_number_generator;

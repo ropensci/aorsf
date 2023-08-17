@@ -91,7 +91,7 @@ public:
  // variable importance
  VariableImportance vi_type;
  arma::vec vi_numer;
- arma::vec vi_denom;
+ arma::uvec vi_denom;
 
  // leaves
  double leaf_min_events;

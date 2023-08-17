@@ -8,6 +8,7 @@
 #define COXPH_H
 
 #include <armadillo>
+#include "globals.h"
 
 
  namespace aorsf {
@@ -79,11 +80,15 @@
  arma::vec coxph_fit(arma::mat& x_node,
                      arma::mat& y_node,
                      arma::vec& w_node,
+                     arma::uvec& cols_node,
                      bool do_scale,
                      int ties_method,
-                     double cph_eps,
-                     arma::uword cph_iter_max,
-                     char oobag_importance_type);
+                     double epsilon,
+                     arma::uword iter_max,
+                     double vi_pval_threshold,
+                     VariableImportance vi_type,
+                     arma::vec& vi_numer,
+                     arma::uvec& vi_denom);
 
  }
 

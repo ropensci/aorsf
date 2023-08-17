@@ -203,14 +203,19 @@
 
  }
 
- vec coxph_fit(mat& x_node,
-               mat& y_node,
-               vec& w_node,
+
+ vec coxph_fit(arma::mat& x_node,
+               arma::mat& y_node,
+               arma::vec& w_node,
+               arma::uvec& cols_node,
                bool do_scale,
-               int ties_method = 1,
-               double cph_eps = 1e-9,
-               uword cph_iter_max = 20,
-               char oobag_importance_type = 'A'){
+               int ties_method,
+               double epsilon,
+               arma::uword iter_max,
+               double vi_pval_threshold,
+               VariableImportance vi_type,
+               arma::vec& vi_numer,
+               arma::uvec& vi_denom){
 
   uword
    person,
@@ -230,8 +235,6 @@
    a2,
    vi_pval_numer,
    vi_pval_denom;
-
-  uvec cols_node;
 
   mat
    vmat,
@@ -462,9 +465,9 @@
   cholesky_solve(vmat, u);
   beta_new = beta_current + u;
 
-  if(cph_iter_max > 1 && stat_best < R_PosInf){
+  if(iter_max > 1 && stat_best < R_PosInf){
 
-   for(iter = 1; iter < cph_iter_max; iter++){
+   for(iter = 1; iter < iter_max; iter++){
 
     // if(VERBOSITY > 1){
     //
@@ -647,7 +650,7 @@
 
     // check for convergence
     // break the loop if the new ll is ~ same as old best ll
-    if(fabs(1 - stat_best / stat_current) < cph_eps){
+    if(fabs(1 - stat_best / stat_current) < epsilon){
      break;
     }
 
@@ -706,20 +709,25 @@
     vmat.at(i, i) *= x_transforms.at(i, 1) * x_transforms.at(i, 1);
    }
 
-   // if(oobag_importance_type == 'A'){
-   //
-   //  if(beta_current.at(i) != 0){
-   //
-   //   temp1 = R::pchisq(pow(beta_current[i], 2) / vmat.at(i, i),
-   //                     1, false, false);
-   //
-   //   if(temp1 < 0.01) vi_pval_numer[cols_node[i]]++;
-   //
-   //  }
-   //
-   //  vi_pval_denom[cols_node[i]]++;
-   //
-   // }
+
+   if(vi_type == VI_ANOVA){
+
+    if(beta_current.at(i) != 0){
+
+     temp1 = R::pchisq(
+      pow(beta_current[i], 2) / vmat.at(i, i), 1, false, false
+     );
+
+     if(temp1 < vi_pval_threshold){
+       vi_numer[cols_node[i]]++;
+     }
+
+    }
+
+    vi_denom[cols_node[i]]++;
+
+   }
+
 
   }
 
