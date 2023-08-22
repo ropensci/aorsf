@@ -117,25 +117,15 @@ void Forest::grow(Function& lincomb_R_function){
 
  }
 
- double x_dbl = 1.0;
+ if(VERBOSITY > 1){
 
- NumericMatrix test_mat = lincomb_R_function(x_dbl);
-
- arma::mat test_mat_arma(test_mat.begin(),
-                         test_mat.nrow(),
-                         test_mat.ncol(), false);
-
- Rcout << "--- test R function output ---" << std::endl;
- Rcout << test_mat_arma << std::endl << std::endl;
-
- Rcout << "-- test VI numerator ---" << std::endl;
- Rcout << vi_numer << std::endl << std::endl;
- Rcout << "-- test VI denominator ---" << std::endl;
- Rcout << vi_denom << std::endl << std::endl;
-
- // result.push_back(test_mat_arma, "test");
+  Rcout << "-- test VI numerator ---" << std::endl;
+  Rcout << vi_numer << std::endl << std::endl;
+  Rcout << "-- test VI denominator ---" << std::endl;
+  Rcout << vi_denom << std::endl << std::endl;
 
 
+ }
 
 }
 

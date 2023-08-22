@@ -68,6 +68,8 @@ public:
 
   std::vector<std::vector<arma::uvec>> result;
 
+  result.reserve(n_tree);
+
   for (auto& tree : trees) {
    result.push_back(tree->get_coef_indices());
   }
@@ -75,6 +77,49 @@ public:
   return result;
 
  }
+
+ std::vector<std::vector<arma::vec>> get_leaf_pred_horizon() {
+
+  std::vector<std::vector<arma::vec>> result;
+
+  result.reserve(n_tree);
+
+  for (auto& tree : trees) {
+   result.push_back(tree->get_leaf_pred_horizon());
+  }
+
+  return result;
+
+ }
+
+ std::vector<std::vector<arma::vec>> get_leaf_pred_surv() {
+
+  std::vector<std::vector<arma::vec>> result;
+
+  result.reserve(n_tree);
+
+  for (auto& tree : trees) {
+   result.push_back(tree->get_leaf_pred_surv());
+  }
+
+  return result;
+
+ }
+
+ std::vector<std::vector<arma::vec>> get_leaf_pred_chf() {
+
+  std::vector<std::vector<arma::vec>> result;
+
+  result.reserve(n_tree);
+
+  for (auto& tree : trees) {
+   result.push_back(tree->get_leaf_pred_chf());
+  }
+
+  return result;
+
+ }
+
 
  // Member variables
 

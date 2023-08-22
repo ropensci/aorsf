@@ -9,7 +9,6 @@
  - test
 #----------------------------------------------------------------------------*/
 
-
 #include <RcppArmadillo.h>
 
 #include "globals.h"
@@ -152,34 +151,6 @@
 
  }
 
- // deprecated, need to drop this
- // [[Rcpp::export]]
- List lrt_multi_exported(NumericMatrix& y_,
-                         NumericVector& w_,
-                         NumericVector& XB_,
-                         int n_split_,
-                         double split_min_stat,
-                         double leaf_min_events,
-                         double leaf_min_obs){
-
-  mat y_node = mat(y_.begin(), y_.nrow(), y_.ncol(), false);
-  vec w_node = vec(w_.begin(), w_.length(), false);
-  vec XB = vec(XB_.begin(), XB_.length(), false);
-
-  uword n_split = n_split_;
-
-  List out = lrt_multi(y_node,
-                       w_node,
-                       XB,
-                       n_split,
-                       split_min_stat,
-                       leaf_min_events,
-                       leaf_min_obs);
-
-  return(out);
-
- }
-
  // [[Rcpp::plugins("cpp17")]]
  // [[Rcpp::export]]
  List orsf_cpp(arma::mat& x,
@@ -223,7 +194,7 @@
   // LinearCombo lincomb_type = static_cast<LinearCombo>(lincomb_type_R);
   // PredType pred_type = static_cast<PredType>(pred_type_R);
 
-  Rcpp::List result;
+  Rcpp::List result, forest_out;
 
   std::unique_ptr<Forest> forest { };
   std::unique_ptr<Data> data { };
@@ -267,9 +238,13 @@
 
   forest->grow(lincomb_R_function);
 
-  for(uword i = 0; i < n_tree; ++i){
-   result.push_back(forest->get_coef_indices(), "coef_indices");
-  }
+  forest_out.push_back(forest->get_coef_indices(), "coef_indices");
+  forest_out.push_back(forest->get_leaf_pred_horizon(), "leaf_pred_horizon");
+  forest_out.push_back(forest->get_leaf_pred_surv(), "leaf_pred_surv");
+  forest_out.push_back(forest->get_leaf_pred_chf(), "leaf_pred_chf");
+
+
+  result.push_back(forest_out, "forest");
 
   return(result);
 

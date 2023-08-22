@@ -136,8 +136,6 @@
 
  bool Tree::is_col_splittable(uword j){
 
-  vec status = y_inbag.unsafe_col(1);
-
   uvec::iterator i;
 
   // initialize as 0 but do not make comparisons until x_first_value
@@ -148,7 +146,8 @@
 
   for (i = rows_node.begin(); i != rows_node.end(); ++i) {
 
-   if(status[*i] == 1){
+   // if event occurred for this observation
+   if(y_inbag.at(*i, 1) == 1){
 
     if(x_first_undef){
 
@@ -164,6 +163,20 @@
     }
 
    }
+
+  }
+
+  if(VERBOSITY > 1){
+
+   mat x_print = x_inbag.rows(rows_node);
+   mat y_print = y_inbag.rows(rows_node);
+
+   uvec rows_event = find(y_print.col(1) == 1);
+   x_print = x_print.rows(rows_event);
+
+   Rcout << "Column " << j << " was sampled but ";
+   Rcout << "unique values of column " << j << " are ";
+   Rcout << unique(x_print.col(j)) << std::endl;
 
   }
 
@@ -364,9 +377,6 @@
 
   return(output);
 
-
-
-
  }
 
  double Tree::score_logrank(){
@@ -431,17 +441,64 @@
 
  }
 
- uword Tree::split_node(arma::uvec& cuts_all){
+ uword Tree::node_split(arma::uvec& cuts_all){
+
+  // sample a subset of cutpoints.
 
   uword n_cuts = split_max_cuts;
+  uvec cuts_sampled;
 
+  // don't sample k points if k > no. of valid options.
   if(split_max_cuts > cuts_all.size()){
+
    n_cuts = cuts_all.size();
+   // no need for random sample if there are fewer valid cut-points
+   // than the number of cut-points we planned to sample.
+   cuts_sampled = cuts_all;
+
+  } else {
+
+   cuts_sampled.set_size(n_cuts);
+
+   std::uniform_int_distribution<uword> unif_dist(0, cuts_all.size() - 1);
+
+   // sample without replacement
+   for (uword i = 0; i < cuts_all.size(); ++i) {
+
+    uword draw = unif_dist(random_number_generator);
+
+    // Ensure the drawn number is not already in the sample
+    while (std::find(cuts_sampled.begin(),
+                     cuts_sampled.end(),
+                     draw) != cuts_sampled.end()) {
+
+     draw = unif_dist(random_number_generator);
+
+    }
+
+    cuts_sampled[i] = draw;
+
+   }
+
+   // important that cut-points are ordered from low to high
+   cuts_sampled = sort(cuts_sampled);
+
+   if(VERBOSITY > 1){
+
+    Rcout << "Randomly sampled cutpoints: ";
+    Rcout << std::endl;
+    Rcout << lincomb(lincomb_sort(cuts_sampled));
+    Rcout << std::endl;
+    Rcout << std::endl;
+
+   }
+
   }
 
-  uvec cuts_sampled = linspace<uvec>(cuts_all.front(),
-                                     cuts_all.back(),
-                                     n_cuts);
+  // non-random version
+  // uvec cuts_sampled = linspace<uvec>(cuts_all.front(),
+  //                                    cuts_all.back(),
+  //                                    n_cuts);
 
   // initialize grouping for the current node
   // value of 1 indicates go to right node
@@ -491,29 +548,170 @@
 
  }
 
+ void Tree::node_sprout(uword node_id){
+
+  // reserve as much size as could be needed (probably more)
+  mat leaf_data(y_node.n_rows, 3);
+
+  uword person = 0;
+
+  // find the first unique event time
+  while(y_node.at(person, 1) == 0 && person < y_node.n_rows){
+   person++;
+  }
+
+  // person corresponds to first event or last censor time
+  leaf_data.at(0, 0) = y_node.at(person, 0);
+
+  // if no events in this node:
+  if(person == y_node.n_rows){
+
+   vec temp_surv(1, arma::fill::ones);
+   vec temp_chf(1, arma::fill::zeros);
+
+   leaf_pred_horizon[node_id] = leaf_data.col(0);
+   leaf_pred_surv[node_id] = temp_surv;
+   leaf_pred_chf[node_id] = temp_chf;
+
+   return;
+
+  }
+
+  double temp_time = y_node.at(person, 0);
+
+  uword i = 1;
+
+  // find the rest of the unique event times
+  for( ; person < y_node.n_rows; person++){
+
+   if(temp_time != y_node.at(person, 0) && y_node.at(person, 1) == 1){
+
+    leaf_data.at(i, 0) = y_node.at(person,0);
+    temp_time = y_node.at(person, 0);
+    i++;
+
+   }
+
+  }
+
+  leaf_data.set_size(i, 3);
+
+  // reset for kaplan meier loop
+  person = 0; i = 0;
+  double n_risk = sum(w_node);
+  double temp_surv = 1.0;
+  double temp_haz = 0.0;
+
+  do {
+
+   double n_events   = 0;
+   double n_risk_sub = 0;
+   temp_time = y_node.at(person, 0);
+
+   while(y_node.at(person, 0) == temp_time){
+
+    n_risk_sub += w_node.at(person);
+    n_events += y_node.at(person, 1) * w_node.at(person);
+
+    if(person == y_node.n_rows-1) break;
+
+    person++;
+
+   }
+
+   // only do km if a death was observed
+
+   if(n_events > 0){
+
+    temp_surv = temp_surv * (n_risk - n_events) / n_risk;
+
+    temp_haz = temp_haz + n_events / n_risk;
+
+    leaf_data.at(i, 1) = temp_surv;
+    leaf_data.at(i, 2) = temp_haz;
+    i++;
+
+   }
+
+   n_risk -= n_risk_sub;
+
+  } while (i < leaf_data.n_rows);
+
+
+  if(VERBOSITY > 1) print_mat(leaf_data, "leaf_data", 10, 5);
+
+  leaf_pred_horizon[node_id] = leaf_data.col(0);
+  leaf_pred_surv[node_id] = leaf_data.col(1);
+  leaf_pred_chf[node_id] = leaf_data.col(2);
+
+ }
+
  void Tree::grow(arma::vec& vi_numer,
                  arma::uvec& vi_denom){
 
   sample_rows();
 
+
   // create inbag views of x, y, and w,
   this->x_inbag = data->x_rows(rows_inbag);
   this->y_inbag = data->y_rows(rows_inbag);
 
+  this->n_obs_inbag = sum(w_inbag);
+  this->n_events_inbag = sum(w_inbag % y_inbag.col(1));
+  this->n_rows_inbag = x_inbag.n_rows;
+
   if(VERBOSITY > 0){
 
-   Rcout << "Effective sample size: " << sum(w_inbag);
+   Rcout << "Effective sample size: " << n_obs_inbag;
    Rcout << std::endl;
-   Rcout << "Number of unique rows in x: " << x_inbag.n_rows;
+   Rcout << "Effective number of events: " << n_events_inbag;
+   Rcout << std::endl;
+   Rcout << "Number of unique rows in x: " << n_rows_inbag;
    Rcout << std::endl;
    Rcout << std::endl;
 
   }
 
-  n_rows_inbag = x_inbag.n_rows;
-
-  // assign all inbag observations to node 0
   node_assignments.zeros(n_rows_inbag);
+
+  // find maximum number of leaves for this tree
+  // there are four ways to have maximal tree size:
+  vec max_leaves_4ways = {
+   //  1. every leaf node has exactly leaf_min_obs,
+   n_obs_inbag / leaf_min_obs,
+   //  2. every leaf node has exactly leaf_min_events,
+   n_events_inbag / leaf_min_events,
+   //  3. every leaf node has exactly split_min_obs - 1,
+   n_obs_inbag / (split_min_obs - 1),
+   //  4. every leaf node has exactly split_min_events-1
+   n_events_inbag / (split_min_events - 1)
+  };
+
+  // number of nodes total in binary tree is 2*L - 1,
+  // where L is the number of leaf nodes in the tree.
+  // (can prove by induction)
+  double max_leaves = std::ceil(max(max_leaves_4ways));
+  double max_nodes = (2 * max_leaves) - 1;
+
+  if(VERBOSITY > 0){
+
+   Rcout << "Max number of nodes for this tree: " << max_nodes;
+   Rcout << std::endl;
+   Rcout << "Max number of leaves for this tree: " << max_leaves;
+   Rcout << std::endl;
+   Rcout << std::endl;
+
+
+  }
+
+  // reserve memory for outputs (likely more than we need)
+  cutpoint.resize(max_nodes);
+  child_left.resize(max_nodes);
+  coef_values.resize(max_nodes);
+  coef_indices.resize(max_nodes);
+  leaf_pred_horizon.resize(max_nodes);
+  leaf_pred_surv.resize(max_nodes);
+  leaf_pred_chf.resize(max_nodes);
 
   // coordinate the order that nodes are grown.
   std::vector<uword> nodes_open;
@@ -524,12 +722,12 @@
   // nodes to grow in the next run through the do-loop
   std::vector<uword> nodes_queued;
 
-  // reserve a little more space than we may need
-  nodes_open.reserve( std::ceil(n_rows_total / split_min_obs) );
-  nodes_queued.reserve( nodes_open.size() );
+  // reserve space (most we could ever need is max_leaves)
+  nodes_open.reserve(max_leaves);
+  nodes_queued.reserve(max_leaves);
 
   // number of nodes in the tree starts at 0
-  uword n_nodes=0;
+  uword n_nodes = 0;
 
   // iterate through nodes to be grown
   std::vector<uword>::iterator node;
@@ -544,10 +742,24 @@
 
   for(node = nodes_open.begin(); node != nodes_open.end(); ++node){
 
-   Rcout << "growing node " << *node << std::endl << std::endl;
+   if(VERBOSITY > 0){
+    Rcout << "growing node " << *node;
+    Rcout << std::endl << std::endl;
+   }
+
 
    // determine rows in the current node and if it can be split
-   if(!is_node_splittable(*node)) continue;
+   if(!is_node_splittable(*node)){
+
+    if(VERBOSITY > 0){
+     Rcout << "sprouting new leaf with node " << *node;
+     Rcout << std::endl;
+     Rcout << std::endl;
+    }
+    node_sprout(*node);
+    continue;
+
+   }
 
    sample_cols();
 
@@ -578,21 +790,21 @@
 
    cuts_all = find_cutpoints();
 
-   Rcout << cuts_all << std::endl;
-
+   // empty cuts_all => no valid cutpoints => make leaf or retry
    if(!cuts_all.is_empty()){
 
-    uword cut_here = split_node(cuts_all);
-
-    // update tree parameters
-    cutpoint.push_back(lincomb[cut_here]);
-    coef_values.push_back(beta);
-    coef_indices.push_back(cols_node);
-    child_left.push_back(node_left);
+    uword cut_here = node_split(cuts_all);
 
     // make new nodes if a valid cutpoint was found
     node_left = n_nodes + 1;
     n_nodes += 2;
+
+    // update tree parameters
+    cutpoint[*node] = lincomb[cut_here];
+    coef_values[*node] = beta;
+    coef_indices[*node] = cols_node;
+    child_left[*node] = node_left;
+
 
     // re-assign observations in the current node
     // (note that g_node is 0 if left, 1 if right)
@@ -616,6 +828,14 @@
   nodes_queued.clear();
 
   } while (nodes_open.size() > 0);
+
+  cutpoint.resize(n_nodes);
+  child_left.resize(n_nodes);
+  coef_values.resize(n_nodes);
+  coef_indices.resize(n_nodes);
+  leaf_pred_horizon.resize(n_nodes);
+  leaf_pred_surv.resize(n_nodes);
+  leaf_pred_chf.resize(n_nodes);
 
  } // Tree::grow
 

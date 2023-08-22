@@ -4,6 +4,8 @@
  aorsf may be modified and distributed under the terms of the MIT license.
 #----------------------------------------------------------------------------*/
 
+#define RCPP_ARMADILLO_FIX_Field 1
+
 #ifndef GLOBALS_H_
 #define GLOBALS_H_
 
@@ -71,7 +73,7 @@
  const PredType DEFAULT_PRED_TYPE = RISK;
  const int DEFAULT_N_SPLIT = 5;
 
- const int VERBOSITY = 2;
+ const int VERBOSITY = 0;
 
  } // namespace aorsf
 

@@ -57,15 +57,38 @@
 
   arma::uvec find_cutpoints();
 
-  arma::uword split_node(arma::uvec& cuts_all);
-
   double score_logrank();
+
+  arma::uword node_split(arma::uvec& cuts_all);
+
+  void node_sprout(arma::uword node_id);
 
   void grow(arma::vec& vi_numer, arma::uvec& vi_denom);
 
   std::vector<arma::uvec>& get_coef_indices() {
    return(coef_indices);
   }
+
+  std::vector<arma::vec>& get_leaf_pred_horizon(){
+   return(leaf_pred_horizon);
+  }
+
+  std::vector<arma::vec>& get_leaf_pred_surv(){
+   return(leaf_pred_surv);
+  }
+
+  std::vector<arma::vec>& get_leaf_pred_chf(){
+   return(leaf_pred_chf);
+  }
+
+  std::vector<double>& get_cutpoint(){
+   return(cutpoint);
+  }
+
+  std::vector<arma::uword>& get_child_left(){
+   return(child_left);
+  }
+
 
   // Pointer to original data
   Data* data;
@@ -74,6 +97,9 @@
   arma::uword n_rows_total;
 
   arma::uword n_rows_inbag;
+
+  double n_obs_inbag;
+  double n_events_inbag;
 
   int seed;
 
@@ -135,36 +161,34 @@
   // prediction members
   double pred_horizon;
 
+  // predicted values for out-of-bag rows
+  arma::vec pred_oobag;
 
   // which node each inbag observation is currently in.
   arma::uvec node_assignments;
+
+  // cutpoints used to split the nodes
+  std::vector<double> cutpoint;
+
+  // left child nodes (right child is left + 1)
+  std::vector<arma::uword> child_left;
 
   // coefficients for linear combinations;
   // one row per variable (mtry rows), one column per node
   // leaf nodes have all coefficients=0
   std::vector<arma::vec> coef_values;
+  // std::vector<arma::vec> coef_values;
 
   // indices of the predictors used by a node
   std::vector<arma::uvec> coef_indices;
-
-  // cutpoints used to split the nodes
-  std::vector<double> cutpoint;
-
-  // directions to the next node (right node = left node + 1)
-  std::vector<arma::uword> child_left;
+  // std::vector<arma::uvec> coef_indices;
 
   // leaf values (only in leaf nodes)
-  std::vector<arma::mat> leaf_values;
+  std::vector<arma::vec> leaf_pred_horizon;
+  std::vector<arma::vec> leaf_pred_surv;
+  std::vector<arma::vec> leaf_pred_chf;
 
-  // predicted values for out-of-bag rows
-  arma::vec pred_oobag;
 
-  // contains the node ID of each leaf node
-  // e.g., if the first leaf is node 5, then the first value
-  // of leaf_index is 5. When new data end in node 5, find which
-  // value of leaf_index is 5, and go to that leaf to find the
-  // predictions.
-  std::vector<size_t> leaf_index;
 
  protected:
 
