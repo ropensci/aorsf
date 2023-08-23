@@ -54,4 +54,40 @@
 
  }
 
+ void equalSplit(std::vector<uint>& result, uint start, uint end, uint num_parts) {
+
+  result.reserve(num_parts + 1);
+
+  // Return range if only 1 part
+  if (num_parts == 1) {
+   result.push_back(start);
+   result.push_back(end + 1);
+   return;
+  }
+
+  // Return vector from start to end+1 if more parts than elements
+  if (num_parts > end - start + 1) {
+   for (uint i = start; i <= end + 1; ++i) {
+    result.push_back(i);
+   }
+   return;
+  }
+
+  uint length = (end - start + 1);
+  uint part_length_short = length / num_parts;
+  uint part_length_long = (uint) ceil(length / ((double) num_parts));
+  uint cut_pos = length % num_parts;
+
+  // Add long ranges
+  for (uint i = start; i < start + cut_pos * part_length_long; i = i + part_length_long) {
+   result.push_back(i);
+  }
+
+  // Add short ranges
+  for (uint i = start + cut_pos * part_length_long; i <= end + 1; i = i + part_length_short) {
+   result.push_back(i);
+  }
+ }
+
+
  }

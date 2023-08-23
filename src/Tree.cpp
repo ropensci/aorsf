@@ -646,11 +646,12 @@
 
  }
 
- void Tree::grow(arma::vec& vi_numer,
-                 arma::uvec& vi_denom){
+ // arma::vec& vi_numer,
+ // arma::uvec& vi_denom
+
+ void Tree::grow(){
 
   sample_rows();
-
 
   // create inbag views of x, y, and w,
   this->x_inbag = data->x_rows(rows_inbag);
@@ -779,9 +780,10 @@
                         lincomb_eps,         // epsilon
                         lincomb_iter_max,    // iter_max
                         0.10,                // vi_pval_threshold
-                        vi_type,             // do importance?
-                        vi_numer,
-                        vi_denom);
+                        vi_type             // do importance?
+                        // vi_numer,
+                        // vi_denom
+                        );
 
 
    // beta will be all 0 if something went wrong

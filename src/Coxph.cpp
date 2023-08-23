@@ -213,9 +213,10 @@
                double epsilon,
                arma::uword iter_max,
                double vi_pval_threshold,
-               VariableImportance vi_type,
-               arma::vec& vi_numer,
-               arma::uvec& vi_denom){
+               VariableImportance vi_type
+               // arma::vec& vi_numer,
+               // arma::uvec& vi_denom
+                ){
 
   uword
    person,
@@ -710,23 +711,23 @@
    }
 
 
-   if(vi_type == VI_ANOVA){
-
-    if(beta_current.at(i) != 0){
-
-     temp1 = R::pchisq(
-      pow(beta_current[i], 2) / vmat.at(i, i), 1, false, false
-     );
-
-     if(temp1 < vi_pval_threshold){
-       vi_numer[cols_node[i]]++;
-     }
-
-    }
-
-    vi_denom[cols_node[i]]++;
-
-   }
+   // if(vi_type == VI_ANOVA){
+   //
+   //  if(beta_current.at(i) != 0){
+   //
+   //   temp1 = R::pchisq(
+   //    pow(beta_current[i], 2) / vmat.at(i, i), 1, false, false
+   //   );
+   //
+   //   if(temp1 < vi_pval_threshold){
+   //     vi_numer[cols_node[i]]++;
+   //   }
+   //
+   //  }
+   //
+   //  vi_denom[cols_node[i]]++;
+   //
+   // }
 
 
   }

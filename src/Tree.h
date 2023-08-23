@@ -63,7 +63,9 @@
 
   void node_sprout(arma::uword node_id);
 
-  void grow(arma::vec& vi_numer, arma::uvec& vi_denom);
+  void grow();
+
+  // void grow(arma::vec& vi_numer, arma::uvec& vi_denom);
 
   std::vector<arma::uvec>& get_coef_indices() {
    return(coef_indices);

@@ -9,6 +9,10 @@
 #include "utility.h"
 #include "Tree.h"
 
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+
 namespace aorsf {
 
 class Forest {
@@ -60,6 +64,8 @@ public:
  void run();
 
  void grow(Function& lincomb_R_function);
+
+ void grow_in_threads(uint thread_idx);
 
  void plant();
 
@@ -165,6 +171,12 @@ public:
  double   pred_horizon;
  bool     oobag_pred;
  arma::uword oobag_eval_every;
+
+ // multi-threading
+ uint num_threads;
+ std::vector<uint> thread_ranges;
+ std::mutex mutex;
+ std::condition_variable condition_variable;
 
 
 };

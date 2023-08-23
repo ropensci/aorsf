@@ -76,9 +76,10 @@
                        cph_eps,
                        cph_iter_max,
                        0.10,
-                       VI_ANOVA,
-                       vi_numer,
-                       vi_denom);
+                       VI_ANOVA
+                       // vi_numer,
+                       // vi_denom
+                       );
 
   return(
    List::create(

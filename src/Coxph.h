@@ -86,9 +86,10 @@
                      double epsilon,
                      arma::uword iter_max,
                      double vi_pval_threshold,
-                     VariableImportance vi_type,
-                     arma::vec& vi_numer,
-                     arma::uvec& vi_denom);
+                     VariableImportance vi_type
+                     // arma::vec& vi_numer,
+                     // arma::uvec& vi_denom
+                      );
 
  }
 

@@ -61,6 +61,8 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->oobag_pred = oobag_pred;
  this->oobag_eval_every = oobag_eval_every;
 
+ this->num_threads = 3;
+
  if(vi_type != VI_NONE){
   vi_numer.zeros(data->get_n_cols());
   vi_denom.zeros(data->get_n_cols());
@@ -89,6 +91,8 @@ void Forest::plant() {
 
 void Forest::grow(Function& lincomb_R_function){
 
+ // Create thread ranges
+ equalSplit(thread_ranges, 0, n_tree - 1, num_threads);
 
  for(uword i = 0; i < n_tree; ++i){
 
@@ -112,9 +116,28 @@ void Forest::grow(Function& lincomb_R_function){
                  lincomb_df_target,
                  lincomb_ties_method);
 
-  trees[i]->grow(vi_numer, vi_denom);
+ }
+
+ std::vector<std::thread> threads;
+ threads.reserve(num_threads);
+
+ // Initialize importance per thread
+ std::vector<arma::vec> vi_numer_threads;
+ std::vector<arma::uvec> vi_denom_threads;
 
 
+ for (uint i = 0; i < num_threads; ++i) {
+
+  // vi_numer_threads[i].zeros(data->get_n_cols());
+  // vi_denom_threads[i].zeros(data->get_n_cols());
+
+  threads.emplace_back(&Forest::grow_in_threads, this, i);
+
+ }
+
+
+ for (auto &thread : threads) {
+  thread.join();
  }
 
  if(VERBOSITY > 1){
@@ -124,6 +147,33 @@ void Forest::grow(Function& lincomb_R_function){
   Rcout << "-- test VI denominator ---" << std::endl;
   Rcout << vi_denom << std::endl << std::endl;
 
+
+ }
+
+}
+
+void Forest::grow_in_threads(uint thread_idx) {
+
+ if (thread_ranges.size() > thread_idx + 1) {
+
+  for (int i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
+
+   trees[i]->grow();
+
+   // // Check for user interrupt
+   // if (aborted) {
+   //  std::unique_lock<std::mutex> lock(mutex);
+   //  ++aborted_threads;
+   //  condition_variable.notify_one();
+   //  return;
+   // }
+
+   // Increase progress by 1 tree
+   std::unique_lock<std::mutex> lock(mutex);
+   // ++progress;
+   condition_variable.notify_one();
+
+  }
 
  }
 
