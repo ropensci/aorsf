@@ -22,6 +22,7 @@
                  double leaf_min_events,
                  double leaf_min_obs,
                  VariableImportance vi_type,
+                 double vi_max_pvalue,
                  SplitRule split_rule,
                  double split_min_events,
                  double split_min_obs,
@@ -46,6 +47,7 @@
   this->leaf_min_events = leaf_min_events;
   this->leaf_min_obs = leaf_min_obs;
   this->vi_type = vi_type;
+  this->vi_max_pvalue = vi_max_pvalue;
   this->split_rule = split_rule;
   this->split_min_events = split_min_events;
   this->split_min_obs = split_min_obs;
@@ -441,7 +443,7 @@
 
  }
 
- uword Tree::node_split(arma::uvec& cuts_all){
+ double Tree::node_split(arma::uvec& cuts_all){
 
   // sample a subset of cutpoints.
 
@@ -470,13 +472,13 @@
     // Ensure the drawn number is not already in the sample
     while (std::find(cuts_sampled.begin(),
                      cuts_sampled.end(),
-                     draw) != cuts_sampled.end()) {
+                     cuts_all[draw]) != cuts_sampled.end()) {
 
      draw = unif_dist(random_number_generator);
 
     }
 
-    cuts_sampled[i] = draw;
+    cuts_sampled[i] = cuts_all[draw];
 
    }
 
@@ -538,17 +540,37 @@
 
   }
 
+  // do not split if best stat < minimum stat
+  if(stat_best < split_min_stat){
+
+   if(VERBOSITY > 1){
+    Rcout << "best split stat, " << stat_best;
+    Rcout << ", was < split_min_stat, " << split_min_stat;
+    Rcout << std::endl;
+   }
+
+   return(R_PosInf);
+
+  }
+
   // backtrack g_node to be what it was when best it was found
   if(it_best < it_start){
    g_node.elem(lincomb_sort.subvec(it_best+1, it_start)).fill(1);
   }
 
+
   // return the cut-point from best split
-  return(lincomb_sort[it_best]);
+  return(lincomb[lincomb_sort[it_best]]);
 
  }
 
  void Tree::node_sprout(uword node_id){
+
+  if(VERBOSITY > 0){
+   Rcout << "sprouting new leaf with node " << node_id;
+   Rcout << std::endl;
+   Rcout << std::endl;
+  }
 
   // reserve as much size as could be needed (probably more)
   mat leaf_data(y_node.n_rows, 3);
@@ -651,8 +673,6 @@
   this->vi_numer = vi_numer;
   this->vi_denom = vi_denom;
 
-  // (*vi_numer)[0]++;
-
   sample_rows();
 
   // create inbag views of x, y, and w,
@@ -754,11 +774,6 @@
    // determine rows in the current node and if it can be split
    if(!is_node_splittable(*node)){
 
-    if(VERBOSITY > 0){
-     Rcout << "sprouting new leaf with node " << *node;
-     Rcout << std::endl;
-     Rcout << std::endl;
-    }
     node_sprout(*node);
     continue;
 
@@ -773,40 +788,40 @@
     print_mat(y_node, "y_node", 20, 20);
    }
 
-   vec beta = coxph_fit(x_node,
-                        y_node,
-                        w_node,
-                        cols_node,
-                        lincomb_scale,       // do_scale
-                        lincomb_ties_method, // ties_method
-                        lincomb_eps,         // epsilon
-                        lincomb_iter_max);   // iter_max
+   std::vector<arma::vec> cph = coxph_fit(x_node,
+                                          y_node,
+                                          w_node,
+                                          lincomb_scale,       // do_scale
+                                          lincomb_ties_method, // ties_method
+                                          lincomb_eps,         // epsilon
+                                          lincomb_iter_max);   // iter_max
 
-   // vec beta = cph["beta"];
-   // mat vmat = cph["vmat"];
+   vec beta_est = cph[0];
+   vec beta_var = cph[1];
 
-   // if(vi_type == VI_ANOVA){
-   //
-   //  if(beta_current.at(i) != 0){
-   //
-   //   temp1 = R::pchisq(
-   //    pow(beta_current[i], 2) / vmat.at(i, i), 1, false, false
-   //   );
-   //
-   //   if(temp1 < vi_pval_threshold){
-   //     vi_numer[cols_node[i]]++;
-   //   }
-   //
-   //  }
-   //
-   //  vi_denom[cols_node[i]]++;
-   //
-   // }
+   double pvalue;
 
+   if(vi_type == VI_ANOVA){
+
+    for(uword i = 0; i < beta_est.size(); ++i){
+
+     (*vi_denom)[cols_node[i]]++;
+
+     if(beta_est[i] != 0){
+
+      pvalue = R::pchisq(pow(beta_est[i],2)/beta_var[i], 1, false, false);
+
+      if(pvalue < vi_max_pvalue){ (*vi_numer)[cols_node[i]]++; }
+
+     }
+
+    }
+
+   }
 
 
    // beta will be all 0 if something went wrong
-   lincomb = x_node * beta;
+   lincomb = x_node * beta_est;
    lincomb_sort = sort_index(lincomb);
 
    cuts_all = find_cutpoints();
@@ -814,32 +829,37 @@
    // empty cuts_all => no valid cutpoints => make leaf or retry
    if(!cuts_all.is_empty()){
 
-    uword cut_here = node_split(cuts_all);
+    double cut_point = node_split(cuts_all);
 
-    // make new nodes if a valid cutpoint was found
-    node_left = n_nodes + 1;
-    n_nodes += 2;
+    if(cut_point < R_PosInf){
 
-    // update tree parameters
-    cutpoint[*node] = lincomb[cut_here];
-    coef_values[*node] = beta;
-    coef_indices[*node] = cols_node;
-    child_left[*node] = node_left;
+     // make new nodes if a valid cutpoint was found
+     node_left = n_nodes + 1;
+     n_nodes += 2;
+     // update tree parameters
+     cutpoint[*node] = cut_point;
+     coef_values[*node] = beta_est;
+     coef_indices[*node] = cols_node;
+     child_left[*node] = node_left;
+     // re-assign observations in the current node
+     // (note that g_node is 0 if left, 1 if right)
+     node_assignments.elem(rows_node) = node_left + g_node;
 
+     if(VERBOSITY > 1){
+      Rcout << "node assignments: ";
+      Rcout << std::endl;
+      Rcout << node_assignments(lincomb_sort);
+      Rcout << std::endl;
+     }
 
-    // re-assign observations in the current node
-    // (note that g_node is 0 if left, 1 if right)
-    node_assignments.elem(rows_node) = node_left + g_node;
+     nodes_queued.push_back(node_left);
+     nodes_queued.push_back(node_left + 1);
 
-    if(VERBOSITY > 1){
-     Rcout << "node assignments: ";
-     Rcout << std::endl;
-     Rcout << node_assignments(lincomb_sort);
-     Rcout << std::endl;
+    } else {
+
+     node_sprout(*node);
+
     }
-
-    nodes_queued.push_back(node_left);
-    nodes_queued.push_back(node_left + 1);
 
    }
 

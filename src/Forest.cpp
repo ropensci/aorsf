@@ -16,6 +16,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   arma::uword n_tree,
                   arma::uword mtry,
                   VariableImportance vi_type,
+                  double vi_max_pvalue,
                   double leaf_min_events,
                   double leaf_min_obs,
                   SplitRule split_rule,
@@ -35,13 +36,15 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   bool   pred_mode,
                   double pred_horizon,
                   bool   oobag_pred,
-                  arma::uword oobag_eval_every){
+                  arma::uword oobag_eval_every,
+                  uint n_thread){
 
  this->data = std::move(input_data);
  this->tree_seeds = tree_seeds;
  this->n_tree = n_tree;
  this->mtry = mtry;
  this->vi_type = vi_type;
+ this->vi_max_pvalue = vi_max_pvalue;
  this->leaf_min_events = leaf_min_events;
  this->leaf_min_obs = leaf_min_obs;
  this->split_rule = split_rule;
@@ -60,8 +63,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->pred_horizon = pred_horizon;
  this->oobag_pred = oobag_pred;
  this->oobag_eval_every = oobag_eval_every;
-
- this->num_threads = 3;
+ this->n_thread = n_thread;
 
  if(vi_type != VI_NONE){
   vi_numer.zeros(data->get_n_cols());
@@ -92,7 +94,7 @@ void Forest::plant() {
 void Forest::grow(Function& lincomb_R_function){
 
  // Create thread ranges
- equalSplit(thread_ranges, 0, n_tree - 1, num_threads);
+ equalSplit(thread_ranges, 0, n_tree - 1, n_thread);
 
  for(uword i = 0; i < n_tree; ++i){
 
@@ -102,6 +104,7 @@ void Forest::grow(Function& lincomb_R_function){
                  leaf_min_events,
                  leaf_min_obs,
                  vi_type,
+                 vi_max_pvalue,
                  split_rule,
                  split_min_events,
                  split_min_obs,
@@ -119,14 +122,14 @@ void Forest::grow(Function& lincomb_R_function){
  }
 
  std::vector<std::thread> threads;
- threads.reserve(num_threads);
+ threads.reserve(n_thread);
 
  // Initialize importance per thread
  std::vector<arma::vec> vi_numer_threads;
  std::vector<arma::uvec> vi_denom_threads;
 
 
- for (uint i = 0; i < num_threads; ++i) {
+ for (uint i = 0; i < n_thread; ++i) {
 
   // vi_numer_threads[i].zeros(data->get_n_cols());
   // vi_denom_threads[i].zeros(data->get_n_cols());
@@ -144,11 +147,11 @@ void Forest::grow(Function& lincomb_R_function){
 
 void Forest::grow_in_threads(uint thread_idx) {
 
- vec vi_numer(1, fill::zeros);
- uvec vi_denom(1, fill::zeros);
+ // vec vi_numer(data->get_n_cols(), fill::zeros);
+ // uvec vi_denom(data->get_n_cols(), fill::zeros);
 
- vec* vi_numer_ptr = &vi_numer;
- uvec* vi_denom_ptr = &vi_denom;
+ vec* vi_numer_ptr = &this->vi_numer;
+ uvec* vi_denom_ptr = &this->vi_denom;
 
  if (thread_ranges.size() > thread_idx + 1) {
 
@@ -175,10 +178,10 @@ void Forest::grow_in_threads(uint thread_idx) {
 
  // if(VERBOSITY > 1){
  //
- //  Rcout << "-- test VI numerator ---" << std::endl;
- //  Rcout << vi_numer << std::endl << std::endl;
- //  Rcout << "-- test VI denominator ---" << std::endl;
- //  Rcout << vi_denom << std::endl << std::endl;
+  // Rcout << "-- test VI numerator ---" << std::endl;
+  // Rcout << vi_numer << std::endl << std::endl;
+  // Rcout << "-- test VI denominator ---" << std::endl;
+  // Rcout << vi_denom << std::endl << std::endl;
  //
  // }
 

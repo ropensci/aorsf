@@ -4,8 +4,6 @@
  aorsf may be modified and distributed under the terms of the MIT license.
 #----------------------------------------------------------------------------*/
 
-#define RCPP_ARMADILLO_FIX_Field 1
-
 #ifndef GLOBALS_H_
 #define GLOBALS_H_
 
@@ -57,7 +55,8 @@
 
  // Default values
  const int DEFAULT_N_TREE = 500;
- const int DEFAULT_N_THREADS = 0;
+ const int DEFAULT_N_THREADS = 1;
+
  const VariableImportance DEFAULT_IMPORTANCE = VI_NONE;
 
  const int DEFAULT_LEAF_MIN_OBS_CLASSIFICATION = 1;
@@ -75,7 +74,7 @@
  const PredType DEFAULT_PRED_TYPE = RISK;
  const int DEFAULT_N_SPLIT = 5;
 
- const int VERBOSITY = 0;
+ const int VERBOSITY = 3;
 
  } // namespace aorsf
 

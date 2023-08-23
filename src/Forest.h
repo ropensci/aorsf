@@ -35,6 +35,7 @@ public:
            arma::uword n_tree,
            arma::uword mtry,
            VariableImportance vi_type,
+           double vi_max_pvalue,
            // leaves
            double leaf_min_events,
            double leaf_min_obs,
@@ -58,7 +59,8 @@ public:
            bool pred_mode,
            double pred_horizon,
            bool oobag_pred,
-           arma::uword oobag_eval_every);
+           arma::uword oobag_eval_every,
+           uint n_thread);
 
  // Grow or predict
  void run();
@@ -141,6 +143,7 @@ public:
 
  // variable importance
  VariableImportance vi_type;
+ double vi_max_pvalue;
 
  arma::vec vi_numer;
  arma::uvec vi_denom;
@@ -173,7 +176,7 @@ public:
  arma::uword oobag_eval_every;
 
  // multi-threading
- uint num_threads;
+ uint n_thread;
  std::vector<uint> thread_ranges;
  std::mutex mutex;
  std::condition_variable condition_variable;

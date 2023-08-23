@@ -168,37 +168,36 @@
  }
 
 
- vec coxph_fit(arma::mat& x_node,
-                arma::mat& y_node,
-                arma::vec& w_node,
-                arma::uvec& cols_node,
-                bool do_scale,
-                int ties_method,
-                double epsilon,
-                arma::uword iter_max){
+ std::vector<arma::vec> coxph_fit(arma::mat& x_node,
+                                  arma::mat& y_node,
+                                  arma::vec& w_node,
+                                  bool do_scale,
+                                  int ties_method,
+                                  double epsilon,
+                                  arma::uword iter_max){
 
   uword
-   person,
-   iter,
-   i,
-   j,
-   k,
-   n_vars;
+  person,
+  iter,
+  i,
+  j,
+  k,
+  n_vars;
 
   vec
-   beta_current,
-   beta_new,
-   XB,
-   Risk,
-   u,
-   a,
-   a2;
+  beta_current,
+  beta_new,
+  XB,
+  Risk,
+  u,
+  a,
+  a2;
 
   mat
-   vmat,
-   cmat,
-   cmat2,
-   x_transforms;
+  vmat,
+  cmat,
+  cmat2,
+  x_transforms;
 
   bool break_loop;
 
@@ -666,7 +665,12 @@
 
   }
 
-  return(beta_current);
+  std::vector<arma::vec> result;
+
+  result.push_back(beta_current);
+  result.push_back(vmat.diag());
+
+  return(result);
 
  }
 

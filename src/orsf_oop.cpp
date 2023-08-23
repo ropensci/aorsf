@@ -134,6 +134,7 @@
                arma::uword n_tree,
                arma::uword mtry,
                arma::uword vi_type_R,
+               double vi_max_pvalue,
                double leaf_min_events,
                double leaf_min_obs,
                arma::uword split_rule_R,
@@ -153,7 +154,8 @@
                arma::uword pred_type_R,
                double pred_horizon,
                bool oobag_pred,
-               arma::uword oobag_eval_every){
+               arma::uword oobag_eval_every,
+               unsigned int n_thread){
 
   // int mtry = 2;
   // int leaf_min_obs = DEFAULT_LEAF_MIN_OBS_SURVIVAL;
@@ -166,7 +168,7 @@
   // LinearCombo lincomb_type = static_cast<LinearCombo>(lincomb_type_R);
   // PredType pred_type = static_cast<PredType>(pred_type_R);
 
-  Rcpp::List result, forest_out;
+  List result, forest_out;
 
   std::unique_ptr<Forest> forest { };
   std::unique_ptr<Data> data { };
@@ -185,6 +187,7 @@
                n_tree,
                mtry,
                vi_type,
+               vi_max_pvalue,
                leaf_min_events,
                leaf_min_obs,
                split_rule,
@@ -204,7 +207,8 @@
                pred_mode,
                pred_horizon,
                oobag_pred,
-               oobag_eval_every);
+               oobag_eval_every,
+               n_thread);
 
   forest->plant();
 
@@ -217,6 +221,8 @@
 
 
   result.push_back(forest_out, "forest");
+  result.push_back(forest->vi_numer, "vi_numer");
+  result.push_back(forest->vi_denom, "vi_denom");
 
   return(result);
 

@@ -31,6 +31,7 @@
             double leaf_min_events,
             double leaf_min_obs,
             VariableImportance vi_type,
+            double vi_max_pvalue,
             SplitRule split_rule,
             double split_min_events,
             double split_min_obs,
@@ -59,7 +60,7 @@
 
   double score_logrank();
 
-  arma::uword node_split(arma::uvec& cuts_all);
+  double node_split(arma::uvec& cuts_all);
 
   void node_sprout(arma::uword node_id);
 
@@ -136,6 +137,7 @@
 
   // variable importance
   VariableImportance vi_type;
+  double vi_max_pvalue;
 
   // Random number generator
   std::mt19937_64 random_number_generator;
