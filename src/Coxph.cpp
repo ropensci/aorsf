@@ -14,42 +14,6 @@
 
  namespace aorsf {
 
- mat coxph_scale(mat& x_node,
-                 vec& w_node){
-
-  // set aside memory for outputs
-  // first column holds the mean values
-  // second column holds the scale values
-
-  uword n_vars = x_node.n_cols;
-
-  mat x_transforms(n_vars, 2, fill::zeros);
-  vec means  = x_transforms.unsafe_col(0);   // Reference to column 1
-  vec scales = x_transforms.unsafe_col(1);   // Reference to column 2
-
-  double w_node_sum = sum(w_node);
-
-  for(uword i = 0; i < n_vars; i++) {
-
-   means.at(i) = sum( w_node % x_node.col(i) ) / w_node_sum;
-
-   x_node.col(i) -= means.at(i);
-
-   scales.at(i) = sum(w_node % abs(x_node.col(i)));
-
-   if(scales(i) > 0)
-    scales.at(i) = w_node_sum / scales.at(i);
-   else
-    scales.at(i) = 1.0; // rare case of constant covariate;
-
-   x_node.col(i) *= scales.at(i);
-
-  }
-
-  return(x_transforms);
-
- }
-
  void cholesky_decomp(mat& vmat){
 
   double eps_chol = 0;
@@ -205,18 +169,13 @@
 
 
  vec coxph_fit(arma::mat& x_node,
-               arma::mat& y_node,
-               arma::vec& w_node,
-               arma::uvec& cols_node,
-               bool do_scale,
-               int ties_method,
-               double epsilon,
-               arma::uword iter_max,
-               double vi_pval_threshold,
-               VariableImportance vi_type
-               // arma::vec& vi_numer,
-               // arma::uvec& vi_denom
-                ){
+                arma::mat& y_node,
+                arma::vec& w_node,
+                arma::uvec& cols_node,
+                bool do_scale,
+                int ties_method,
+                double epsilon,
+                arma::uword iter_max){
 
   uword
    person,
@@ -233,9 +192,7 @@
    Risk,
    u,
    a,
-   a2,
-   vi_pval_numer,
-   vi_pval_denom;
+   a2;
 
   mat
    vmat,
@@ -264,9 +221,6 @@
    stat_current;
 
   n_vars = x_node.n_cols;
-
-  vi_pval_numer.zeros(n_vars);
-  vi_pval_denom.zeros(n_vars);
 
   if(do_scale){
 
@@ -710,30 +664,7 @@
     vmat.at(i, i) *= x_transforms.at(i, 1) * x_transforms.at(i, 1);
    }
 
-
-   // if(vi_type == VI_ANOVA){
-   //
-   //  if(beta_current.at(i) != 0){
-   //
-   //   temp1 = R::pchisq(
-   //    pow(beta_current[i], 2) / vmat.at(i, i), 1, false, false
-   //   );
-   //
-   //   if(temp1 < vi_pval_threshold){
-   //     vi_numer[cols_node[i]]++;
-   //   }
-   //
-   //  }
-   //
-   //  vi_denom[cols_node[i]]++;
-   //
-   // }
-
-
   }
-
-
-  // if(verbose > 1) Rcout << std::endl;
 
   return(beta_current);
 

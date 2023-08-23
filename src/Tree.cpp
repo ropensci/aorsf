@@ -646,10 +646,12 @@
 
  }
 
- // arma::vec& vi_numer,
- // arma::uvec& vi_denom
+ void Tree::grow(arma::vec* vi_numer, arma::uvec* vi_denom){
 
- void Tree::grow(){
+  this->vi_numer = vi_numer;
+  this->vi_denom = vi_denom;
+
+  // (*vi_numer)[0]++;
 
   sample_rows();
 
@@ -778,12 +780,29 @@
                         lincomb_scale,       // do_scale
                         lincomb_ties_method, // ties_method
                         lincomb_eps,         // epsilon
-                        lincomb_iter_max,    // iter_max
-                        0.10,                // vi_pval_threshold
-                        vi_type             // do importance?
-                        // vi_numer,
-                        // vi_denom
-                        );
+                        lincomb_iter_max);   // iter_max
+
+   // vec beta = cph["beta"];
+   // mat vmat = cph["vmat"];
+
+   // if(vi_type == VI_ANOVA){
+   //
+   //  if(beta_current.at(i) != 0){
+   //
+   //   temp1 = R::pchisq(
+   //    pow(beta_current[i], 2) / vmat.at(i, i), 1, false, false
+   //   );
+   //
+   //   if(temp1 < vi_pval_threshold){
+   //     vi_numer[cols_node[i]]++;
+   //   }
+   //
+   //  }
+   //
+   //  vi_denom[cols_node[i]]++;
+   //
+   // }
+
 
 
    // beta will be all 0 if something went wrong

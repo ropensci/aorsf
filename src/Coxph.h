@@ -13,25 +13,6 @@
 
  namespace aorsf {
 
- // scale observations in predictor matrix
- //
- // @description this scales inputs in the same way as
- //   the survival::coxph() function. The main reasons we do this
- //   are to avoid exponential overflow and to prevent the scale
- //   of inputs from impacting the estimated beta coefficients.
- //   E.g., you can try multiplying numeric inputs by 100 prior
- //   to calling orsf() with orsf_control_fast(do_scale = FALSE)
- //   and you will see that you get back a different forest.
- //
- // @param x_node matrix of predictors
- // @param w_node replication weights
- // @param x_transforms matrix used to store the means and scales
- //
- // @return modified x_node and x_transform filled with values
- //
- arma::mat coxph_scale(arma::mat& x_node,
-                       arma::vec& w_node);
-
  // cholesky decomposition
  //
  // @description this function is copied from the survival package and
@@ -78,18 +59,13 @@
  //   in newtraph_cph_iter()
  //
  arma::vec coxph_fit(arma::mat& x_node,
-                     arma::mat& y_node,
-                     arma::vec& w_node,
-                     arma::uvec& cols_node,
-                     bool do_scale,
-                     int ties_method,
-                     double epsilon,
-                     arma::uword iter_max,
-                     double vi_pval_threshold,
-                     VariableImportance vi_type
-                     // arma::vec& vi_numer,
-                     // arma::uvec& vi_denom
-                      );
+                      arma::mat& y_node,
+                      arma::vec& w_node,
+                      arma::uvec& cols_node,
+                      bool do_scale,
+                      int ties_method,
+                      double epsilon,
+                      arma::uword iter_max);
 
  }
 

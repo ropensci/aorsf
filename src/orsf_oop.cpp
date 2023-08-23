@@ -38,58 +38,29 @@
  //
  // }
 
- //  Same as x_node_scale, but this can be called from R
 
- // [[Rcpp::export]]
- List coxph_scale_exported(arma::vec& x_node,
-                           arma::vec& w_node){
-
-  mat x_transforms = coxph_scale(x_node, w_node);
-
-  return(
-   List::create(
-    _["x_scaled"] = x_node,
-    _["x_transforms"] = x_transforms
-   )
-  );
-
- }
-
- // [[Rcpp::export]]
- List coxph_fit_exported(arma::mat& x_node,
-                         arma::mat& y_node,
-                         arma::vec& w_node,
-                         int method,
-                         double cph_eps,
-                         arma::uword cph_iter_max){
-
-  arma::vec vi_numer(x_node.n_cols);
-  arma::uvec vi_denom(x_node.n_cols);
-  arma::uvec cols_node=regspace<uvec>(0, x_node.n_cols-1);
-
-  vec beta = coxph_fit(x_node,
-                       y_node,
-                       w_node,
-                       cols_node,
-                       true,
-                       method,
-                       cph_eps,
-                       cph_iter_max,
-                       0.10,
-                       VI_ANOVA
-                       // vi_numer,
-                       // vi_denom
-                       );
-
-  return(
-   List::create(
-    _["beta"] = beta,
-    _["vi_numer"] = vi_numer,
-    _["vi_denom"] = vi_denom
-   )
-  );
-
- }
+ // // [[Rcpp::export]]
+ // List coxph_fit_exported(arma::mat& x_node,
+ //                         arma::mat& y_node,
+ //                         arma::vec& w_node,
+ //                         int method,
+ //                         double cph_eps,
+ //                         arma::uword cph_iter_max){
+ //
+ //  arma::uvec cols_node=regspace<uvec>(0, x_node.n_cols-1);
+ //
+ //  List out = coxph_fit(x_node,
+ //                       y_node,
+ //                       w_node,
+ //                       cols_node,
+ //                       true,
+ //                       method,
+ //                       cph_eps,
+ //                       cph_iter_max);
+ //
+ //  return(out);
+ //
+ // }
 
  // [[Rcpp::export]]
  List node_find_cps_exported(arma::mat& y_node,

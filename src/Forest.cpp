@@ -140,25 +140,21 @@ void Forest::grow(Function& lincomb_R_function){
   thread.join();
  }
 
- if(VERBOSITY > 1){
-
-  Rcout << "-- test VI numerator ---" << std::endl;
-  Rcout << vi_numer << std::endl << std::endl;
-  Rcout << "-- test VI denominator ---" << std::endl;
-  Rcout << vi_denom << std::endl << std::endl;
-
-
- }
-
 }
 
 void Forest::grow_in_threads(uint thread_idx) {
 
+ vec vi_numer(1, fill::zeros);
+ uvec vi_denom(1, fill::zeros);
+
+ vec* vi_numer_ptr = &vi_numer;
+ uvec* vi_denom_ptr = &vi_denom;
+
  if (thread_ranges.size() > thread_idx + 1) {
 
-  for (int i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
+  for (uint i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
 
-   trees[i]->grow();
+   trees[i]->grow(vi_numer_ptr, vi_denom_ptr);
 
    // // Check for user interrupt
    // if (aborted) {
@@ -176,6 +172,15 @@ void Forest::grow_in_threads(uint thread_idx) {
   }
 
  }
+
+ // if(VERBOSITY > 1){
+ //
+ //  Rcout << "-- test VI numerator ---" << std::endl;
+ //  Rcout << vi_numer << std::endl << std::endl;
+ //  Rcout << "-- test VI denominator ---" << std::endl;
+ //  Rcout << vi_denom << std::endl << std::endl;
+ //
+ // }
 
 }
 

@@ -63,7 +63,7 @@
 
   void node_sprout(arma::uword node_id);
 
-  void grow();
+  void grow(arma::vec* vi_numer, arma::uvec* vi_denom);
 
   // void grow(arma::vec& vi_numer, arma::uvec& vi_denom);
 
@@ -90,6 +90,10 @@
   std::vector<arma::uword>& get_child_left(){
    return(child_left);
   }
+
+  // pointers to variable importance in forest
+  arma::vec* vi_numer;
+  arma::uvec* vi_denom;
 
 
   // Pointer to original data
