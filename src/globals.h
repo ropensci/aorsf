@@ -74,7 +74,7 @@
  const PredType DEFAULT_PRED_TYPE = RISK;
  const int DEFAULT_N_SPLIT = 5;
 
- const int VERBOSITY = 3;
+ const int VERBOSITY = 0;
 
  } // namespace aorsf
 

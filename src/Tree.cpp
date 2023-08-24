@@ -239,10 +239,10 @@
 
 
    if(VERBOSITY > 2){
-    Rcout << "current value: "<< lincomb(*it)  << " ---- ";
-    Rcout << "next value: "<< lincomb(*(it+1)) << " ---- ";
-    Rcout << "N events: " << n_events       << " ---- ";
-    Rcout << "N risk: " << n_risk           << std::endl;
+    Rcout << "current value: "<< lincomb(*it) << " -- ";
+    Rcout << "next: "<< lincomb(*(it+1))      << " -- ";
+    Rcout << "N events: " << n_events         << " -- ";
+    Rcout << "N risk: "   << n_risk           << std::endl;
    }
 
    // If we want to make the current value of lincomb a cut-point, we need
@@ -446,26 +446,22 @@
  double Tree::node_split(arma::uvec& cuts_all){
 
   // sample a subset of cutpoints.
-
-  uword n_cuts = split_max_cuts;
   uvec cuts_sampled;
 
-  // don't sample k points if k > no. of valid options.
-  if(split_max_cuts > cuts_all.size()){
+  if(split_max_cuts >= cuts_all.size()){
 
-   n_cuts = cuts_all.size();
    // no need for random sample if there are fewer valid cut-points
    // than the number of cut-points we planned to sample.
    cuts_sampled = cuts_all;
 
-  } else {
+  } else { // split_max_cuts < cuts_all.size()
 
-   cuts_sampled.set_size(n_cuts);
+   cuts_sampled.set_size(split_max_cuts);
 
    std::uniform_int_distribution<uword> unif_dist(0, cuts_all.size() - 1);
 
    // sample without replacement
-   for (uword i = 0; i < cuts_all.size(); ++i) {
+   for (uword i = 0; i < split_max_cuts; ++i) {
 
     uword draw = unif_dist(random_number_generator);
 
@@ -481,6 +477,8 @@
     cuts_sampled[i] = cuts_all[draw];
 
    }
+
+
 
    // important that cut-points are ordered from low to high
    cuts_sampled = sort(cuts_sampled);
@@ -616,7 +614,7 @@
 
   }
 
-  leaf_data.set_size(i, 3);
+  leaf_data.resize(i, 3);
 
   // reset for kaplan meier loop
   person = 0; i = 0;
@@ -788,13 +786,16 @@
     print_mat(y_node, "y_node", 20, 20);
    }
 
+   lincomb.zeros(x_node.n_rows);
+
    std::vector<arma::vec> cph = coxph_fit(x_node,
                                           y_node,
                                           w_node,
-                                          lincomb_scale,       // do_scale
-                                          lincomb_ties_method, // ties_method
-                                          lincomb_eps,         // epsilon
-                                          lincomb_iter_max);   // iter_max
+                                          lincomb,
+                                          lincomb_scale,
+                                          lincomb_ties_method,
+                                          lincomb_eps,
+                                          lincomb_iter_max);
 
    vec beta_est = cph[0];
    vec beta_var = cph[1];
@@ -819,9 +820,7 @@
 
    }
 
-
-   // beta will be all 0 if something went wrong
-   lincomb = x_node * beta_est;
+   // pull linear combination data (XB) from Cox model
    lincomb_sort = sort_index(lincomb);
 
    cuts_all = find_cutpoints();

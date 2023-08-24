@@ -171,6 +171,7 @@
  std::vector<arma::vec> coxph_fit(arma::mat& x_node,
                                   arma::mat& y_node,
                                   arma::vec& w_node,
+                                  arma::vec& XB,
                                   bool do_scale,
                                   int ties_method,
                                   double epsilon,
@@ -187,7 +188,6 @@
   vec
   beta_current,
   beta_new,
-  XB,
   Risk,
   u,
   a,
@@ -254,7 +254,6 @@
   beta_new.zeros(n_vars);
 
   // these are filled with initial values later
-  XB.set_size(x_node.n_rows);
   Risk.set_size(x_node.n_rows);
   u.set_size(n_vars);
   a.set_size(n_vars);
@@ -419,6 +418,10 @@
   cholesky_solve(vmat, u);
   beta_new = beta_current + u;
 
+  // for fast cph, returned XB needs to be computed
+  if(iter_max <= 1) XB = x_node * beta_new;
+
+  // for standard cph, iterate until convergence
   if(iter_max > 1 && stat_best < R_PosInf){
 
    for(iter = 1; iter < iter_max; iter++){

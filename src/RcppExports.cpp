@@ -11,6 +11,22 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// coxph_fit_exported
+List coxph_fit_exported(arma::mat& x_node, arma::mat& y_node, arma::vec& w_node, int method, double cph_eps, arma::uword cph_iter_max);
+RcppExport SEXP _aorsf_coxph_fit_exported(SEXP x_nodeSEXP, SEXP y_nodeSEXP, SEXP w_nodeSEXP, SEXP methodSEXP, SEXP cph_epsSEXP, SEXP cph_iter_maxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type x_node(x_nodeSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type y_node(y_nodeSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type w_node(w_nodeSEXP);
+    Rcpp::traits::input_parameter< int >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< double >::type cph_eps(cph_epsSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type cph_iter_max(cph_iter_maxSEXP);
+    rcpp_result_gen = Rcpp::wrap(coxph_fit_exported(x_node, y_node, w_node, method, cph_eps, cph_iter_max));
+    return rcpp_result_gen;
+END_RCPP
+}
 // node_find_cps_exported
 List node_find_cps_exported(arma::mat& y_node, arma::vec& w_node, arma::vec& XB, double leaf_min_events, double leaf_min_obs);
 RcppExport SEXP _aorsf_node_find_cps_exported(SEXP y_nodeSEXP, SEXP w_nodeSEXP, SEXP XBSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP) {
@@ -96,6 +112,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_aorsf_coxph_fit_exported", (DL_FUNC) &_aorsf_coxph_fit_exported, 6},
     {"_aorsf_node_find_cps_exported", (DL_FUNC) &_aorsf_node_find_cps_exported, 5},
     {"_aorsf_node_compute_lrt_exported", (DL_FUNC) &_aorsf_node_compute_lrt_exported, 3},
     {"_aorsf_node_fill_group_exported", (DL_FUNC) &_aorsf_node_fill_group_exported, 5},
