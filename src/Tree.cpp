@@ -777,90 +777,124 @@
 
    }
 
-   sample_cols();
+   uword n_retry = 0;
 
-   x_node = x_inbag(rows_node, cols_node);
+   // determines if a node is split or sprouted
+   // (split means two new nodes are created)
+   // (sprouted means the node becomes a leaf)
+   for(; ;){
 
-   if(VERBOSITY > 1) {
-    print_mat(x_node, "x_node", 20, 20);
-    print_mat(y_node, "y_node", 20, 20);
-   }
+   // repeat until all the retries are spent.
+    n_retry++;
 
-   lincomb.zeros(x_node.n_rows);
+    if(VERBOSITY > 1){
 
-   std::vector<arma::vec> cph = coxph_fit(x_node,
-                                          y_node,
-                                          w_node,
-                                          lincomb,
-                                          lincomb_scale,
-                                          lincomb_ties_method,
-                                          lincomb_eps,
-                                          lincomb_iter_max);
+     Rcout << "beginning try no. " << n_retry;
+     Rcout << std::endl << std::endl;
 
-   vec beta_est = cph[0];
-   vec beta_var = cph[1];
+    }
 
-   double pvalue;
+    sample_cols();
 
-   if(vi_type == VI_ANOVA){
+    x_node = x_inbag(rows_node, cols_node);
 
-    for(uword i = 0; i < beta_est.size(); ++i){
+    if(VERBOSITY > 1) {
+     print_mat(x_node, "x_node", 20, 20);
+     print_mat(y_node, "y_node", 20, 20);
+    }
 
-     (*vi_denom)[cols_node[i]]++;
+    // beta holds estimates (first item) and variance (second)
+    // for the regression coefficients that created lincomb.
+    // the variances are optional (only used for VI_ANOVA)
+    std::vector<arma::vec> beta;
 
-     if(beta_est[i] != 0){
+    lincomb.zeros(x_node.n_rows);
 
-      pvalue = R::pchisq(pow(beta_est[i],2)/beta_var[i], 1, false, false);
+    switch (lincomb_type) {
 
-      if(pvalue < vi_max_pvalue){ (*vi_numer)[cols_node[i]]++; }
+    case NEWTON_RAPHSON:
+     beta = coxph_fit(x_node, y_node, w_node,
+                      lincomb, lincomb_scale, lincomb_ties_method,
+                      lincomb_eps, lincomb_iter_max);
+     break;
+
+    case R_FUNCTION:
+
+     break;
+
+    }
+
+    // linear combination was created by coxph_fit
+    lincomb_sort = sort_index(lincomb);
+
+    // find all valid cutpoints for lincomb
+    cuts_all = find_cutpoints();
+
+    // empty cuts_all => no valid cutpoints => make leaf or retry
+    if(!cuts_all.is_empty()){
+
+     double cut_point = node_split(cuts_all);
+
+     if(cut_point < R_PosInf){
+
+      // only do variable importance when split is guaranteed
+      vec beta_est = beta[0];
+      vec beta_var = beta[1];
+
+      double pvalue;
+
+      if(vi_type == VI_ANOVA){
+
+       for(uword i = 0; i < beta_est.size(); ++i){
+
+        (*vi_denom)[cols_node[i]]++;
+
+        if(beta_est[i] != 0){
+
+         pvalue = R::pchisq(pow(beta_est[i],2)/beta_var[i], 1, false, false);
+
+         if(pvalue < vi_max_pvalue){ (*vi_numer)[cols_node[i]]++; }
+
+        }
+
+       }
+
+      }
+
+      // make new nodes if a valid cutpoint was found
+      node_left = n_nodes + 1;
+      n_nodes += 2;
+      // update tree parameters
+      cutpoint[*node] = cut_point;
+      coef_values[*node] = beta_est;
+      coef_indices[*node] = cols_node;
+      child_left[*node] = node_left;
+      // re-assign observations in the current node
+      // (note that g_node is 0 if left, 1 if right)
+      node_assignments.elem(rows_node) = node_left + g_node;
+
+      if(VERBOSITY > 1){
+       Rcout << "Split successful: unique node assignments: ";
+       Rcout << std::endl;
+       Rcout << unique(node_assignments).t();
+       Rcout << std::endl;
+      }
+
+      nodes_queued.push_back(node_left);
+      nodes_queued.push_back(node_left + 1);
+      break;
 
      }
 
     }
 
-   }
-
-   // pull linear combination data (XB) from Cox model
-   lincomb_sort = sort_index(lincomb);
-
-   cuts_all = find_cutpoints();
-
-   // empty cuts_all => no valid cutpoints => make leaf or retry
-   if(!cuts_all.is_empty()){
-
-    double cut_point = node_split(cuts_all);
-
-    if(cut_point < R_PosInf){
-
-     // make new nodes if a valid cutpoint was found
-     node_left = n_nodes + 1;
-     n_nodes += 2;
-     // update tree parameters
-     cutpoint[*node] = cut_point;
-     coef_values[*node] = beta_est;
-     coef_indices[*node] = cols_node;
-     child_left[*node] = node_left;
-     // re-assign observations in the current node
-     // (note that g_node is 0 if left, 1 if right)
-     node_assignments.elem(rows_node) = node_left + g_node;
-
-     if(VERBOSITY > 1){
-      Rcout << "node assignments: ";
-      Rcout << std::endl;
-      Rcout << node_assignments(lincomb_sort);
-      Rcout << std::endl;
-     }
-
-     nodes_queued.push_back(node_left);
-     nodes_queued.push_back(node_left + 1);
-
-    } else {
-
+    if(n_retry == split_max_retry){
      node_sprout(*node);
-
+     break;
     }
 
    }
+
 
   }
 
