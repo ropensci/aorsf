@@ -6,6 +6,7 @@
 inst/doc
 docs
 src-i386
+^orsf\\_output\\.txt$
 ^cran-comments\.md$
 Rmd/*_cache/
 Rmd/figure*
