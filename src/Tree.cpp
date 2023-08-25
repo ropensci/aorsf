@@ -666,7 +666,8 @@
 
  }
 
- void Tree::grow(arma::vec* vi_numer, arma::uvec* vi_denom){
+ void Tree::grow(arma::vec* vi_numer,
+                 arma::uvec* vi_denom){
 
   this->vi_numer = vi_numer;
   this->vi_denom = vi_denom;
@@ -806,19 +807,32 @@
     // beta holds estimates (first item) and variance (second)
     // for the regression coefficients that created lincomb.
     // the variances are optional (only used for VI_ANOVA)
-    std::vector<arma::vec> beta;
+    mat beta;
 
     lincomb.zeros(x_node.n_rows);
 
     switch (lincomb_type) {
 
     case NEWTON_RAPHSON:
+
      beta = coxph_fit(x_node, y_node, w_node,
                       lincomb, lincomb_scale, lincomb_ties_method,
                       lincomb_eps, lincomb_iter_max);
+
      break;
 
     case R_FUNCTION:
+
+     // NumericMatrix xx = wrap(x_node);
+     // NumericMatrix yy = wrap(y_node);
+     // NumericVector ww = wrap(w_node);
+     //
+     // NumericMatrix beta_R = f_beta(xx, yy, ww);
+     //
+     // beta = mat(beta_placeholder.begin(),
+     //            beta_placeholder.nrow(),
+     //            beta_placeholder.ncol(),
+     //            false);
 
      break;
 
@@ -838,8 +852,8 @@
      if(cut_point < R_PosInf){
 
       // only do variable importance when split is guaranteed
-      vec beta_est = beta[0];
-      vec beta_var = beta[1];
+      vec beta_est = beta.unsafe_col(0);
+      vec beta_var = beta.unsafe_col(1);
 
       double pvalue;
 

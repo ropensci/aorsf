@@ -65,11 +65,13 @@ public:
  // Grow or predict
  void run();
 
- void grow(Function& lincomb_R_function);
+ void grow(Function lincomb_R_function);
 
  void grow_in_threads(uint thread_idx);
 
  void plant();
+
+ void showProgress(std::string operation, size_t max_progress);
 
 
  std::vector<std::vector<arma::uvec>> get_coef_indices() {
@@ -80,6 +82,20 @@ public:
 
   for (auto& tree : trees) {
    result.push_back(tree->get_coef_indices());
+  }
+
+  return result;
+
+ }
+
+ std::vector<std::vector<arma::vec>> get_coef_values() {
+
+  std::vector<std::vector<arma::vec>> result;
+
+  result.reserve(n_tree);
+
+  for (auto& tree : trees) {
+   result.push_back(tree->get_coef_values());
   }
 
   return result;
@@ -180,6 +196,10 @@ public:
  std::vector<uint> thread_ranges;
  std::mutex mutex;
  std::condition_variable condition_variable;
+
+ size_t progress;
+ size_t aborted_threads;
+ bool aborted;
 
 
 };

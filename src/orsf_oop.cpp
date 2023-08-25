@@ -50,18 +50,18 @@
   arma::uvec cols_node=regspace<uvec>(0, x_node.n_cols-1);
   arma::vec lincomb(x_node.n_rows, arma::fill::zeros);
 
-  std::vector<arma::vec> out = coxph_fit(x_node,
-                                         y_node,
-                                         w_node,
-                                         lincomb,
-                                         true,
-                                         method,
-                                         cph_eps,
-                                         cph_iter_max);
+  arma::mat out = coxph_fit(x_node,
+                            y_node,
+                            w_node,
+                            lincomb,
+                            true,
+                            method,
+                            cph_eps,
+                            cph_iter_max);
 
   List result;
-  result.push_back(out[0], "beta");
-  result.push_back(out[1], "var");
+  result.push_back(out.col(0), "beta");
+  result.push_back(out.col(1), "var");
 
   return(result);
 
@@ -134,8 +134,8 @@
                arma::mat& y,
                arma::vec& w,
                Rcpp::IntegerVector& tree_seeds,
-               Rcpp::Function& lincomb_R_function,
-               Rcpp::Function& oobag_R_function,
+               Rcpp::Function lincomb_R_function,
+               Rcpp::Function oobag_R_function,
                arma::uword n_tree,
                arma::uword mtry,
                arma::uword vi_type_R,

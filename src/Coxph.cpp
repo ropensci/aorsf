@@ -168,14 +168,14 @@
  }
 
 
- std::vector<arma::vec> coxph_fit(arma::mat& x_node,
-                                  arma::mat& y_node,
-                                  arma::vec& w_node,
-                                  arma::vec& XB,
-                                  bool do_scale,
-                                  int ties_method,
-                                  double epsilon,
-                                  arma::uword iter_max){
+ arma::mat coxph_fit(arma::mat& x_node,
+                     arma::mat& y_node,
+                     arma::vec& w_node,
+                     arma::vec& XB,
+                     bool do_scale,
+                     int ties_method,
+                     double epsilon,
+                     arma::uword iter_max){
 
   uword
   person,
@@ -668,12 +668,7 @@
 
   }
 
-  std::vector<arma::vec> result;
-
-  result.push_back(beta_current);
-  result.push_back(vmat.diag());
-
-  return(result);
+  return(join_horiz(beta_current, vmat.diag()));
 
  }
 

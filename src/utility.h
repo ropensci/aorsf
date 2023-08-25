@@ -38,6 +38,27 @@ aorsf may be modified and distributed under the terms of the MIT license.
                  std::string label,
                  arma::uword max_elem);
 
+ /**
+  * Convert a unsigned integer to string
+  * @param number Number to convert
+  * @return Converted number as string
+  */
+ std::string uintToString(uint number);
+
+ /**
+  * Beautify output of time.
+  * @param seconds Time in seconds
+  * @return Time in days, hours, minutes and seconds as string
+  */
+ std::string beautifyTime(uint seconds);
+
+ static void chkIntFn(void *dummy) {
+  R_CheckUserInterrupt();
+ }
+
+ inline bool checkInterrupt() {
+  return (R_ToplevelExec(chkIntFn, NULL) == FALSE);
+ }
 
 
  }

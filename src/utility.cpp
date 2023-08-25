@@ -6,6 +6,7 @@
 
 #include <RcppArmadillo.h>
 #include "Utility.h"
+#include "globals.h"
 
  using namespace arma;
  using namespace Rcpp;
@@ -87,6 +88,44 @@
   for (uint i = start + cut_pos * part_length_long; i <= end + 1; i = i + part_length_short) {
    result.push_back(i);
   }
+ }
+
+ std::string uintToString(uint number) {
+  return std::to_string(number);
+ }
+
+ std::string beautifyTime(uint seconds) {
+
+  std::string result;
+
+  // Add seconds, minutes, hours, days if larger than zero
+  uint out_seconds = (uint) seconds % 60;
+  result = uintToString(out_seconds) + " seconds";
+  uint out_minutes = (seconds / 60) % 60;
+  if (seconds / 60 == 0) {
+   return result;
+  } else if (out_minutes == 1) {
+   result = "1 minute, " + result;
+  } else {
+   result = uintToString(out_minutes) + " minutes, " + result;
+  }
+  uint out_hours = (seconds / 3600) % 24;
+  if (seconds / 3600 == 0) {
+   return result;
+  } else if (out_hours == 1) {
+   result = "1 hour, " + result;
+  } else {
+   result = uintToString(out_hours) + " hours, " + result;
+  }
+  uint out_days = (seconds / 86400);
+  if (out_days == 0) {
+   return result;
+  } else if (out_days == 1) {
+   result = "1 day, " + result;
+  } else {
+   result = uintToString(out_days) + " days, " + result;
+  }
+  return result;
  }
 
 

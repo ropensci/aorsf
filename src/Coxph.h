@@ -58,14 +58,14 @@
  //   of the Cox model. All inputs are described above
  //   in newtraph_cph_iter()
  //
- std::vector<arma::vec> coxph_fit(arma::mat& x_node,
-                                  arma::mat& y_node,
-                                  arma::vec& w_node,
-                                  arma::vec& XB,
-                                  bool do_scale,
-                                  int ties_method,
-                                  double epsilon,
-                                  arma::uword iter_max);
+ arma::mat coxph_fit(arma::mat& x_node,
+                     arma::mat& y_node,
+                     arma::vec& w_node,
+                     arma::vec& XB,
+                     bool do_scale,
+                     int ties_method,
+                     double epsilon,
+                     arma::uword iter_max);
 
  }
 

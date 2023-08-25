@@ -76,6 +76,10 @@
 
  const int VERBOSITY = 0;
 
+ // Interval to print progress in seconds
+ const double STATUS_INTERVAL = 1.0;
+
+
  } // namespace aorsf
 
 #endif /* GLOBALS_H_ */
