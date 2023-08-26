@@ -134,8 +134,8 @@
                arma::mat& y,
                arma::vec& w,
                Rcpp::IntegerVector& tree_seeds,
-               Rcpp::Function lincomb_R_function,
-               Rcpp::Function oobag_R_function,
+               Rcpp::RObject lincomb_R_function,
+               Rcpp::RObject oobag_R_function,
                arma::uword n_tree,
                arma::uword mtry,
                arma::uword vi_type_R,
@@ -162,17 +162,6 @@
                arma::uword oobag_eval_every,
                unsigned int n_thread){
 
-  // int mtry = 2;
-  // int leaf_min_obs = DEFAULT_LEAF_MIN_OBS_SURVIVAL;
-  // VariableImportance variable_importance = static_cast<VariableImportance>(vi);
-  // SplitRule split_rule = static_cast<SplitRule>(sr);
-  // PredType pred_type = static_cast<PredType>(pt);
-
-  // VariableImportance vi_type = static_cast<VariableImportance>(vi_type_R);
-  // SplitRule split_rule = static_cast<SplitRule>(split_rule_r) ;
-  // LinearCombo lincomb_type = static_cast<LinearCombo>(lincomb_type_R);
-  // PredType pred_type = static_cast<PredType>(pred_type_R);
-
   List result, forest_out;
 
   std::unique_ptr<Forest> forest { };
@@ -180,10 +169,15 @@
 
   data = std::make_unique<Data>(x, y, w);
 
+  // re-cast integer inputs from R into enumerations
+  // see globals.h for definitions.
   VariableImportance vi_type = (VariableImportance) vi_type_R;
   SplitRule split_rule = (SplitRule) split_rule_R;
   LinearCombo lincomb_type = (LinearCombo) lincomb_type_R;
   PredType pred_type = (PredType) pred_type_R;
+
+  // R functions cannot be called from multiple threads
+  if(lincomb_type == R_FUNCTION){ n_thread = 1; }
 
   forest = std::make_unique<Forest>();
 
@@ -208,16 +202,18 @@
                lincomb_alpha,
                lincomb_df_target,
                lincomb_ties_method,
+               lincomb_R_function,
                pred_type,
                pred_mode,
                pred_horizon,
                oobag_pred,
                oobag_eval_every,
+               oobag_R_function,
                n_thread);
 
   forest->plant();
 
-  forest->grow(lincomb_R_function);
+  forest->grow();
 
   forest_out.push_back(forest->get_coef_indices(), "coef_indices");
   forest_out.push_back(forest->get_leaf_pred_horizon(), "leaf_pred_horizon");

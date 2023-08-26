@@ -38,7 +38,8 @@
  // Linear combination method
  enum LinearCombo {
   NEWTON_RAPHSON = 1,
-  R_FUNCTION = 2
+  RANDOM_COEFS = 2,
+  R_FUNCTION = 3
  };
 
  // Prediction type
@@ -74,10 +75,10 @@
  const PredType DEFAULT_PRED_TYPE = RISK;
  const int DEFAULT_N_SPLIT = 5;
 
- const int VERBOSITY = 0;
+ const int VERBOSITY = 2;
 
  // Interval to print progress in seconds
- const double STATUS_INTERVAL = 1.0;
+ const double STATUS_INTERVAL = 15.0;
 
 
  } // namespace aorsf

@@ -17,26 +17,32 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   arma::uword mtry,
                   VariableImportance vi_type,
                   double vi_max_pvalue,
+                  // leaves
                   double leaf_min_events,
                   double leaf_min_obs,
+                  // node splitting
                   SplitRule split_rule,
                   double split_min_events,
                   double split_min_obs,
                   double split_min_stat,
                   arma::uword split_max_cuts,
                   arma::uword split_max_retry,
+                  // linear combinations
                   LinearCombo lincomb_type,
                   double lincomb_eps,
                   arma::uword lincomb_iter_max,
-                  bool   lincomb_scale,
+                  bool lincomb_scale,
                   double lincomb_alpha,
                   arma::uword lincomb_df_target,
                   arma::uword lincomb_ties_method,
+                  RObject lincomb_R_function,
+                  // predictions
                   PredType pred_type,
-                  bool   pred_mode,
+                  bool pred_mode,
                   double pred_horizon,
-                  bool   oobag_pred,
+                  bool oobag_pred,
                   arma::uword oobag_eval_every,
+                  Rcpp::RObject oobag_R_function,
                   uint n_thread){
 
  this->data = std::move(input_data);
@@ -59,10 +65,12 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->lincomb_alpha = lincomb_alpha;
  this->lincomb_df_target = lincomb_df_target;
  this->lincomb_ties_method = lincomb_ties_method;
+ this->lincomb_R_function = lincomb_R_function;
  this->pred_type = pred_type;
  this->pred_horizon = pred_horizon;
  this->oobag_pred = oobag_pred;
  this->oobag_eval_every = oobag_eval_every;
+ this->oobag_R_function = oobag_R_function;
  this->n_thread = n_thread;
 
  if(vi_type != VI_NONE){
@@ -91,10 +99,7 @@ void Forest::plant() {
 
 }
 
-void Forest::grow(Function lincomb_R_function){
-
- // Create thread ranges
- equalSplit(thread_ranges, 0, n_tree - 1, n_thread);
+void Forest::init_trees(){
 
  for(uword i = 0; i < n_tree; ++i){
 
@@ -117,24 +122,33 @@ void Forest::grow(Function lincomb_R_function){
                  lincomb_scale,
                  lincomb_alpha,
                  lincomb_df_target,
-                 lincomb_ties_method);
+                 lincomb_ties_method,
+                 lincomb_R_function);
 
  }
 
+}
+
+void Forest::grow(){
+
+ init_trees();
+
+ // Create thread ranges
+ equalSplit(thread_ranges, 0, n_tree - 1, n_thread);
+ // catch interrupts from threads
  aborted = false;
  aborted_threads = 0;
+ // show progress from threads
  progress = 0;
 
  std::vector<std::thread> threads;
  threads.reserve(n_thread);
 
  for (uint i = 0; i < n_thread; ++i) {
-
   threads.emplace_back(&Forest::grow_in_threads, this, i);
-
  }
 
- showProgress("Growing trees..", n_tree);
+ showProgress("Growing trees...", n_tree);
 
  for (auto &thread : threads) {
   thread.join();
@@ -144,12 +158,11 @@ void Forest::grow(Function lincomb_R_function){
   throw std::runtime_error("User interrupt.");
  }
 
+
+
 }
 
 void Forest::grow_in_threads(uint thread_idx) {
-
- // vec vi_numer(data->get_n_cols(), fill::zeros);
- // uvec vi_denom(data->get_n_cols(), fill::zeros);
 
  vec* vi_numer_ptr = &this->vi_numer;
  uvec* vi_denom_ptr = &this->vi_denom;
@@ -176,15 +189,6 @@ void Forest::grow_in_threads(uint thread_idx) {
   }
 
  }
-
- // if(VERBOSITY > 1){
- //
-  // Rcout << "-- test VI numerator ---" << std::endl;
-  // Rcout << vi_numer << std::endl << std::endl;
-  // Rcout << "-- test VI denominator ---" << std::endl;
-  // Rcout << vi_denom << std::endl << std::endl;
- //
- // }
 
 }
 
@@ -219,7 +223,7 @@ void Forest::showProgress(std::string operation, size_t max_progress) {
    seconds time_from_start = duration_cast<seconds>(steady_clock::now() - start_time);
    uint remaining_time = (1 / relative_progress - 1) * time_from_start.count();
 
-   Rcout << operation << " Progress: ";
+   Rcout << operation << "Progress: ";
    Rcout << round(100 * relative_progress) << "%. ";
    Rcout << "Estimated remaining time: ";
    Rcout << beautifyTime(remaining_time) << ".";

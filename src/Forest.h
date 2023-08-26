@@ -54,18 +54,22 @@ public:
            double lincomb_alpha,
            arma::uword lincomb_df_target,
            arma::uword lincomb_ties_method,
+           RObject lincomb_R_function,
            // predictions
            PredType pred_type,
            bool pred_mode,
            double pred_horizon,
            bool oobag_pred,
            arma::uword oobag_eval_every,
+           Rcpp::RObject oobag_R_function,
            uint n_thread);
 
  // Grow or predict
  void run();
 
- void grow(Function lincomb_R_function);
+ void init_trees();
+
+ void grow();
 
  void grow_in_threads(uint thread_idx);
 
@@ -149,8 +153,6 @@ public:
 
  arma::uword n_tree;
  arma::uword mtry;
-
-
  Rcpp::IntegerVector tree_seeds;
 
  std::vector<std::unique_ptr<Tree>> trees;
@@ -169,10 +171,10 @@ public:
  double leaf_min_obs;
 
  // node splitting
- SplitRule split_rule;
- double split_min_events;
- double split_min_obs;
- double split_min_stat;
+ SplitRule   split_rule;
+ double      split_min_events;
+ double      split_min_obs;
+ double      split_min_stat;
  arma::uword split_max_cuts;
  arma::uword split_max_retry;
 
@@ -184,12 +186,17 @@ public:
  arma::uword lincomb_iter_max;
  arma::uword lincomb_df_target;
  arma::uword lincomb_ties_method;
+ RObject     lincomb_R_function;
 
  // predictions
  PredType pred_type;
  double   pred_horizon;
- bool     oobag_pred;
+
+ // out-of-bag
+ bool        oobag_pred;
  arma::uword oobag_eval_every;
+ RObject     oobag_R_function;
+
 
  // multi-threading
  uint n_thread;

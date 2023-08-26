@@ -7,7 +7,6 @@ inst/doc
 docs
 src-i386
 ^cran-comments\.md$
-^orsf-output\.txt$
 Rmd/*_cache/
 Rmd/figure*
 Rmd/*.html

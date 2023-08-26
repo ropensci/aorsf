@@ -44,7 +44,8 @@
             bool   lincomb_scale,
             double lincomb_alpha,
             arma::uword lincomb_df_target,
-            arma::uword lincomb_ties_method);
+            arma::uword lincomb_ties_method,
+            Rcpp::RObject lincomb_R_function);
 
 
 
@@ -161,15 +162,16 @@
   arma::uword split_max_retry;
 
   // linear combination members
-  LinearCombo lincomb_type;
-  arma::vec   lincomb;
-  arma::uvec  lincomb_sort;
-  double      lincomb_eps;
-  arma::uword lincomb_iter_max;
-  bool        lincomb_scale;
-  double      lincomb_alpha;
-  arma::uword lincomb_df_target;
-  arma::uword lincomb_ties_method;
+  LinearCombo   lincomb_type;
+  arma::vec     lincomb;
+  arma::uvec    lincomb_sort;
+  double        lincomb_eps;
+  arma::uword   lincomb_iter_max;
+  bool          lincomb_scale;
+  double        lincomb_alpha;
+  arma::uword   lincomb_df_target;
+  arma::uword   lincomb_ties_method;
+  Rcpp::RObject lincomb_R_function;
 
   // prediction members
   double pred_horizon;

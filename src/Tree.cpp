@@ -35,7 +35,8 @@
                  bool lincomb_scale,
                  double lincomb_alpha,
                  arma::uword lincomb_df_target,
-                 arma::uword lincomb_ties_method){
+                 arma::uword lincomb_ties_method,
+                 RObject lincomb_R_function){
 
 
   this->data = data;
@@ -61,6 +62,7 @@
   this->lincomb_alpha = lincomb_alpha;
   this->lincomb_df_target = lincomb_df_target;
   this->lincomb_ties_method = lincomb_ties_method;
+  this->lincomb_R_function = lincomb_R_function;
 
  }
 
@@ -813,30 +815,59 @@
 
     switch (lincomb_type) {
 
-    case NEWTON_RAPHSON:
+    case NEWTON_RAPHSON: {
 
      beta = coxph_fit(x_node, y_node, w_node,
                       lincomb, lincomb_scale, lincomb_ties_method,
                       lincomb_eps, lincomb_iter_max);
 
-     break;
-
-    case R_FUNCTION:
-
-     // NumericMatrix xx = wrap(x_node);
-     // NumericMatrix yy = wrap(y_node);
-     // NumericVector ww = wrap(w_node);
-     //
-     // NumericMatrix beta_R = f_beta(xx, yy, ww);
-     //
-     // beta = mat(beta_placeholder.begin(),
-     //            beta_placeholder.nrow(),
-     //            beta_placeholder.ncol(),
-     //            false);
+     // dont need to create lincomb (coxph_fit did so already)
 
      break;
 
     }
+
+    case RANDOM_COEFS: {
+
+     beta.set_size(x_node.n_cols, 1);
+
+     std::uniform_real_distribution<double> unif_coef(0.0, 1.0);
+
+     for(uword i = 0; i < x_node.n_cols; ++i){
+      beta.at(i, 0) = unif_coef(random_number_generator);
+     }
+
+     lincomb = x_node * beta;
+
+     break;
+
+    }
+
+    case R_FUNCTION: {
+
+     // NumericMatrix xx = ;
+     // NumericMatrix yy = ;
+     // NumericVector ww = ;
+
+     // initialize function from tree object
+     // (Functions can't be stored in C++ classes, but RObjects can)
+     Function f_beta = as<Function>(lincomb_R_function);
+
+     NumericMatrix beta_R = f_beta(wrap(x_node),
+                                   wrap(y_node),
+                                   wrap(w_node));
+
+     beta = mat(beta_R.begin(), beta_R.nrow(), beta_R.ncol(), false);
+
+     lincomb = x_node * beta;
+
+     break;
+
+    }
+
+    } // switch lincomb_type
+
+    vec beta_est = beta.unsafe_col(0);
 
     // linear combination was created by coxph_fit
     lincomb_sort = sort_index(lincomb);
@@ -851,13 +882,15 @@
 
      if(cut_point < R_PosInf){
 
-      // only do variable importance when split is guaranteed
-      vec beta_est = beta.unsafe_col(0);
-      vec beta_var = beta.unsafe_col(1);
+      if(vi_type == VI_ANOVA && lincomb_type == NEWTON_RAPHSON){
 
-      double pvalue;
+       // only do ANOVA variable importance when
+       //  1. a split of the node is guaranteed
+       //  2. the method used for lincombs allows it
 
-      if(vi_type == VI_ANOVA){
+       vec beta_var = beta.unsafe_col(1);
+
+       double pvalue;
 
        for(uword i = 0; i < beta_est.size(); ++i){
 

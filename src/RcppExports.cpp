@@ -70,7 +70,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // orsf_cpp
-List orsf_cpp(arma::mat& x, arma::mat& y, arma::vec& w, Rcpp::IntegerVector& tree_seeds, Rcpp::Function lincomb_R_function, Rcpp::Function oobag_R_function, arma::uword n_tree, arma::uword mtry, arma::uword vi_type_R, double vi_max_pvalue, double leaf_min_events, double leaf_min_obs, arma::uword split_rule_R, double split_min_events, double split_min_obs, double split_min_stat, arma::uword split_max_cuts, arma::uword split_max_retry, arma::uword lincomb_type_R, double lincomb_eps, arma::uword lincomb_iter_max, bool lincomb_scale, double lincomb_alpha, arma::uword lincomb_df_target, arma::uword lincomb_ties_method, bool pred_mode, arma::uword pred_type_R, double pred_horizon, bool oobag_pred, arma::uword oobag_eval_every, unsigned int n_thread);
+List orsf_cpp(arma::mat& x, arma::mat& y, arma::vec& w, Rcpp::IntegerVector& tree_seeds, Rcpp::RObject lincomb_R_function, Rcpp::RObject oobag_R_function, arma::uword n_tree, arma::uword mtry, arma::uword vi_type_R, double vi_max_pvalue, double leaf_min_events, double leaf_min_obs, arma::uword split_rule_R, double split_min_events, double split_min_obs, double split_min_stat, arma::uword split_max_cuts, arma::uword split_max_retry, arma::uword lincomb_type_R, double lincomb_eps, arma::uword lincomb_iter_max, bool lincomb_scale, double lincomb_alpha, arma::uword lincomb_df_target, arma::uword lincomb_ties_method, bool pred_mode, arma::uword pred_type_R, double pred_horizon, bool oobag_pred, arma::uword oobag_eval_every, unsigned int n_thread);
 RcppExport SEXP _aorsf_orsf_cpp(SEXP xSEXP, SEXP ySEXP, SEXP wSEXP, SEXP tree_seedsSEXP, SEXP lincomb_R_functionSEXP, SEXP oobag_R_functionSEXP, SEXP n_treeSEXP, SEXP mtrySEXP, SEXP vi_type_RSEXP, SEXP vi_max_pvalueSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP, SEXP split_rule_RSEXP, SEXP split_min_eventsSEXP, SEXP split_min_obsSEXP, SEXP split_min_statSEXP, SEXP split_max_cutsSEXP, SEXP split_max_retrySEXP, SEXP lincomb_type_RSEXP, SEXP lincomb_epsSEXP, SEXP lincomb_iter_maxSEXP, SEXP lincomb_scaleSEXP, SEXP lincomb_alphaSEXP, SEXP lincomb_df_targetSEXP, SEXP lincomb_ties_methodSEXP, SEXP pred_modeSEXP, SEXP pred_type_RSEXP, SEXP pred_horizonSEXP, SEXP oobag_predSEXP, SEXP oobag_eval_everySEXP, SEXP n_threadSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -79,8 +79,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat& >::type y(ySEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type w(wSEXP);
     Rcpp::traits::input_parameter< Rcpp::IntegerVector& >::type tree_seeds(tree_seedsSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Function >::type lincomb_R_function(lincomb_R_functionSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Function >::type oobag_R_function(oobag_R_functionSEXP);
+    Rcpp::traits::input_parameter< Rcpp::RObject >::type lincomb_R_function(lincomb_R_functionSEXP);
+    Rcpp::traits::input_parameter< Rcpp::RObject >::type oobag_R_function(oobag_R_functionSEXP);
     Rcpp::traits::input_parameter< arma::uword >::type n_tree(n_treeSEXP);
     Rcpp::traits::input_parameter< arma::uword >::type mtry(mtrySEXP);
     Rcpp::traits::input_parameter< arma::uword >::type vi_type_R(vi_type_RSEXP);
