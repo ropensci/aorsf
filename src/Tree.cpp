@@ -294,7 +294,7 @@
 
   double n_events = 0, n_risk = 0;
 
-  if(VERBOSITY > 0){
+  if(VERBOSITY > 1){
    Rcout << "----- finding lower bound for cut-points -----" << std::endl;
   }
 
@@ -321,7 +321,7 @@
     if( n_events >= leaf_min_events &&
         n_risk   >= leaf_min_obs) {
 
-     if(VERBOSITY > 1){
+     if(VERBOSITY > 0){
       Rcout << std::endl;
       Rcout << "lower cutpoint: "         << lincomb(*it) << std::endl;
       Rcout << " - n_events, left node: " << n_events << std::endl;
@@ -355,7 +355,7 @@
   // reset before finding the upper limit
   n_events=0, n_risk=0;
 
-  if(VERBOSITY > 0){
+  if(VERBOSITY > 1){
    Rcout << "----- finding upper bound for cut-points -----" << std::endl;
   }
 
@@ -387,7 +387,7 @@
 
      --it;
 
-     if(VERBOSITY > 1){
+     if(VERBOSITY > 0){
       Rcout << std::endl;
       Rcout << "upper cutpoint: " << lincomb(*it) << std::endl;
       Rcout << " - n_events, right node: " << n_events    << std::endl;
@@ -410,7 +410,7 @@
 
   if(j > k){
 
-   if(VERBOSITY > 1) {
+   if(VERBOSITY > 0) {
     Rcout << "Could not find valid cut-points" << std::endl;
    }
 
@@ -815,7 +815,7 @@
   nodes_open.reserve(max_leaves);
   nodes_queued.reserve(max_leaves);
 
-  // number of nodes in the tree starts at 0
+  // number of nodes in the tree
   uword n_nodes = 0;
 
   // iterate through nodes to be grown
@@ -883,10 +883,9 @@
     case NEWTON_RAPHSON: {
 
      beta = coxph_fit(x_node, y_node, w_node,
-                      lincomb, lincomb_scale, lincomb_ties_method,
+                      lincomb_scale, lincomb_ties_method,
                       lincomb_eps, lincomb_iter_max);
 
-     // dont need to create lincomb (coxph_fit did so already)
 
      break;
 
@@ -901,8 +900,6 @@
      for(uword i = 0; i < x_node.n_cols; ++i){
       beta.at(i, 0) = unif_coef(random_number_generator);
      }
-
-     lincomb = x_node * beta;
 
      break;
 
@@ -924,8 +921,6 @@
 
      beta = mat(beta_R.begin(), beta_R.nrow(), beta_R.ncol(), false);
 
-     lincomb = x_node * beta;
-
      break;
 
     }
@@ -934,7 +929,9 @@
 
     vec beta_est = beta.unsafe_col(0);
 
-    // linear combination was created by coxph_fit
+    lincomb = x_node * beta_est;
+
+    // sorted in ascending order
     lincomb_sort = sort_index(lincomb);
 
     // find all valid cutpoints for lincomb
@@ -1015,6 +1012,9 @@
 
   } while (nodes_open.size() > 0);
 
+  // don't forget to count the root node
+  n_nodes++;
+
   cutpoint.resize(n_nodes);
   child_left.resize(n_nodes);
   coef_values.resize(n_nodes);
@@ -1025,28 +1025,36 @@
 
  } // Tree::grow
 
- void Tree::predict_leaf(){
+ void Tree::predict_leaf(Data* prediction_data) {
 
-  uvec result(data->get_n_rows()), obs_in_node;
+  pred_leaf.resize(prediction_data->n_rows);
+
+  if(VERBOSITY > 0){
+   Rcout << "---- computing leaf predictions ----" << std::endl;
+  }
+
+  uvec obs_in_node;
+
   arma::uvec::iterator it;
+
   uword i, j;
 
 
   for(i = 0; i < coef_values.size(); i++){
 
-   // if child_left == 0, it's a leaf
+   // if child_left == 0, it's a leaf (no need to find next child)
    if(child_left[i] != 0){
 
     if(i == 0){
-     obs_in_node = regspace<uvec>(0, 1, result.size()-1);
+     obs_in_node = regspace<uvec>(0, 1, pred_leaf.size()-1);
     } else {
-     obs_in_node = find(result == i);
+     obs_in_node = find(pred_leaf == i);
     }
 
 
     if(obs_in_node.size() > 0){
 
-     lincomb = data->x_submat(obs_in_node, coef_indices[i]) * coef_values[i];
+     lincomb = prediction_data->x_submat(obs_in_node, coef_indices[i]) * coef_values[i];
 
      it = obs_in_node.begin();
 
@@ -1054,11 +1062,11 @@
 
       if(lincomb[j] <= cutpoint[i]) {
 
-       result[*it] = child_left[i];
+       pred_leaf[*it] = child_left[i];
 
       } else {
 
-       result[*it] = child_left[i]+1;
+       pred_leaf[*it] = child_left[i]+1;
 
       }
 
@@ -1066,13 +1074,13 @@
 
      if(VERBOSITY > 0){
 
-      uvec in_left = find(result == child_left[i]);
-      uvec in_right = find(result == child_left[i]+1);
+      uvec in_left = find(pred_leaf == child_left[i]);
+      uvec in_right = find(pred_leaf == child_left[i]+1);
 
-      Rcout << "N to node_" << child_left[i] << ": ";
-      Rcout << in_left.size() << "; ";
-      Rcout << "N to node_" << child_left[i]+1 << ": ";
-      Rcout << in_right.size() << std::endl;
+      Rcout << "No. to node " << child_left[i] << ": ";
+      Rcout << in_left.size() << "; " << std::endl;
+      Rcout << "No. to node " << child_left[i]+1 << ": ";
+      Rcout << in_right.size() << std::endl << std::endl;
 
      }
 
@@ -1081,6 +1089,124 @@
    }
 
   }
+
+ }
+
+ void Tree::predict_value(arma::mat* pred_output,
+                          arma::vec& pred_times,
+                          char pred_type){
+
+  uvec pred_leaf_sort = sort_index(pred_leaf, "ascend");
+
+  uvec::iterator it = pred_leaf_sort.begin();
+
+  double pred_t0;
+
+  if(pred_type == 'S' || pred_type == 'R'){
+   pred_t0 = 1;
+  } else {
+   pred_t0 = 0;
+  }
+
+  uword i, j;
+
+  vec leaf_times, leaf_values;
+
+  vec temp_vec(pred_times.size());
+  double temp_dbl;
+
+  do {
+
+   uword leaf_id = pred_leaf(*it);
+
+   Rcout << "beginning leaf " << leaf_id << std::endl;
+
+   Rcout << leaf_pred_horizon[leaf_id] << std::endl << std::endl;
+
+   // copies of leaf data using same aux memory
+   leaf_times = vec(leaf_pred_horizon[leaf_id].begin(),
+                    leaf_pred_horizon[leaf_id].size(),
+                    false);
+
+   Rcout << leaf_pred_surv[leaf_id] << std::endl;
+
+   leaf_values = vec(leaf_pred_surv[leaf_id].begin(),
+                     leaf_pred_surv[leaf_id].size(),
+                     false);
+
+   if(leaf_values.is_empty()) Rcpp::stop("empty leaf");
+
+   // don't reset i in the loop.
+   // (wasteful b/c leaf_times ascend)
+   i = 0;
+
+   for(j = 0; j < pred_times.size(); j++){
+
+    // t is the current prediction time
+    double t = pred_times[j];
+
+   // if t < t', where t' is the max time in this leaf,
+   // then we may find a time t* such that t* < t < t'.
+   // If so, prediction should be anchored to t*.
+   // But, there may be multiple t* < t, and we want to
+   // find the largest t* that is < t, so we find the
+   // first t** > t and assign t* to be whatever came
+   // right before t**.
+   if(t < leaf_times.back()){
+
+    for(; i < leaf_times.size(); i++){
+
+     // we found t**
+     if (leaf_times[i] > t){
+
+      if(i == 0)
+       // first leaf event occurred after prediction time
+       temp_dbl = pred_t0;
+      else
+       // t* is the time value just before t**, so use i-1
+       temp_dbl = leaf_values[i-1];
+
+      break;
+
+     } else if (leaf_times[i] == t){
+      // pred_horizon just happens to equal a leaf time
+      temp_dbl = leaf_values[i];
+
+      break;
+
+     }
+
+    }
+
+   } else {
+    // if t > t' use the last recorded prediction
+    temp_dbl = leaf_values.back();
+
+   }
+
+   temp_vec[j] = temp_dbl;
+
+   }
+
+   (*pred_output).row(*it) += temp_vec.t();
+   ++it;
+
+   if(it < pred_leaf_sort.end()){
+
+    while(leaf_id == pred_leaf(*it)){
+
+     (*pred_output).row(*it) += temp_vec.t();
+     ++it;
+
+     if (it == pred_leaf_sort.end()-1) break;
+
+    }
+
+   }
+
+  } while (it < pred_leaf_sort.end());
+
+
 
  }
 

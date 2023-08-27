@@ -22,6 +22,12 @@ void Forest::load(arma::uword n_tree,
 
  this->n_tree = n_tree;
 
+ if(VERBOSITY > 0){
+  Rcout << "---- loading forest from input list ----";
+  Rcout << std::endl << std::endl;
+ }
+
+
  // Create trees
  trees.reserve(n_tree);
 
@@ -70,7 +76,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   // predictions
                   PredType pred_type,
                   bool pred_mode,
-                  double pred_horizon,
+                  arma::vec pred_horizon,
                   bool oobag_pred,
                   arma::uword oobag_eval_every,
                   Rcpp::RObject oobag_R_function,
@@ -119,17 +125,6 @@ void Forest::init(std::unique_ptr<Data> input_data,
 
 }
 
-// growInternal() in ranger
-void Forest::plant() {
-
- trees.reserve(n_tree);
-
- for (arma::uword i = 0; i < n_tree; ++i) {
-  trees.push_back(std::make_unique<Tree>());
- }
-
-}
-
 void Forest::init_trees(){
 
  for(uword i = 0; i < n_tree; ++i){
@@ -160,7 +155,18 @@ void Forest::init_trees(){
 
 }
 
-void Forest::grow(){
+// growInternal() in ranger
+void Forest::plant() {
+
+ trees.reserve(n_tree);
+
+ for (arma::uword i = 0; i < n_tree; ++i) {
+  trees.push_back(std::make_unique<Tree>());
+ }
+
+}
+
+void Forest::grow() {
 
  init_trees();
 
@@ -241,7 +247,26 @@ void Forest::grow_in_threads(uint thread_idx) {
 
 }
 
-void Forest::run(){ }
+mat Forest::predict() {
+
+ mat result(data->n_rows, pred_horizon.size());
+
+ mat* result_ptr = &result;
+
+ for(uint i = 0; i < n_tree; ++i){
+  trees[i]->predict_leaf(data.get());
+  trees[i]->predict_value(result_ptr, pred_horizon, 'S');
+ }
+
+ result /= n_tree;
+
+ return(result);
+
+}
+
+void Forest::run() {
+
+}
 
 void Forest::showProgress(std::string operation, size_t max_progress) {
 

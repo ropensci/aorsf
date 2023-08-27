@@ -67,7 +67,7 @@ public:
            // predictions
            PredType pred_type,
            bool pred_mode,
-           double pred_horizon,
+           arma::vec pred_horizon,
            bool oobag_pred,
            arma::uword oobag_eval_every,
            Rcpp::RObject oobag_R_function,
@@ -83,6 +83,8 @@ public:
  void grow_in_threads(uint thread_idx);
 
  void plant();
+
+ arma::mat predict();
 
  void showProgress(std::string operation, size_t max_progress);
 
@@ -222,7 +224,7 @@ public:
 
  // predictions
  PredType pred_type;
- double   pred_horizon;
+ arma::vec pred_horizon;
 
  // out-of-bag
  bool        oobag_pred;

@@ -171,7 +171,6 @@
  arma::mat coxph_fit(arma::mat& x_node,
                      arma::mat& y_node,
                      arma::vec& w_node,
-                     arma::vec& XB,
                      bool do_scale,
                      int ties_method,
                      double epsilon,
@@ -182,8 +181,7 @@
   iter,
   i,
   j,
-  k,
-  n_vars;
+  k;
 
   vec
   beta_current,
@@ -191,7 +189,10 @@
   Risk,
   u,
   a,
-  a2;
+  a2,
+  means,
+  scales,
+  XB;
 
   mat
   vmat,
@@ -219,15 +220,15 @@
    w_node_sum,
    stat_current;
 
-  n_vars = x_node.n_cols;
+  uword n_vars = x_node.n_cols;
 
   if(do_scale){
 
    x_transforms.set_size(n_vars, 2);
    x_transforms.fill(0);
 
-   vec means  = x_transforms.unsafe_col(0);   // Reference to column 1
-   vec scales = x_transforms.unsafe_col(1);   // Reference to column 2
+   means  = x_transforms.unsafe_col(0);   // Reference to column 1
+   scales = x_transforms.unsafe_col(1);   // Reference to column 2
 
    w_node_sum = sum(w_node);
 
@@ -662,8 +663,12 @@
    }
 
    if(do_scale){
-    beta_current.at(i) *= x_transforms.at(i, 1);
-    vmat.at(i, i) *= x_transforms.at(i, 1) * x_transforms.at(i, 1);
+    // return beta and variance to original scales
+    beta_current.at(i) *= scales[i];
+    vmat.at(i, i) *= scales[i] * scales[i];
+    // same for x_node
+    x_node.col(i) /= scales.at(i);
+    x_node.col(i) += means.at(i);
    }
 
   }

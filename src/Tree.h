@@ -77,7 +77,11 @@
   void grow(arma::vec* vi_numer,
             arma::uvec* vi_denom);
 
-  void predict_leaf();
+  void predict_leaf(Data* prediction_data);
+
+  void predict_value(arma::mat* pred_output,
+                     arma::vec& pred_times,
+                     char pred_type);
 
   // void grow(arma::vec& vi_numer, arma::uvec& vi_denom);
 
@@ -107,6 +111,10 @@
 
   std::vector<arma::uword>& get_child_left(){
    return(child_left);
+  }
+
+  arma::uvec& get_pred_leaf(){
+   return(pred_leaf);
   }
 
   // pointers to variable importance in forest
@@ -189,8 +197,8 @@
   // prediction members
   double pred_horizon;
 
-  // predicted values for out-of-bag rows
-  arma::vec pred_oobag;
+  // predicted leaf node
+  arma::uvec pred_leaf;
 
   // which node each inbag observation is currently in.
   arma::uvec node_assignments;

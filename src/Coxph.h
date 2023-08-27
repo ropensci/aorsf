@@ -61,7 +61,6 @@
  arma::mat coxph_fit(arma::mat& x_node,
                      arma::mat& y_node,
                      arma::vec& w_node,
-                     arma::vec& XB,
                      bool do_scale,
                      int ties_method,
                      double epsilon,

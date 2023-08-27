@@ -48,12 +48,10 @@
                          arma::uword cph_iter_max){
 
   arma::uvec cols_node=regspace<uvec>(0, x_node.n_cols-1);
-  arma::vec lincomb(x_node.n_rows, arma::fill::zeros);
 
   arma::mat out = coxph_fit(x_node,
                             y_node,
                             w_node,
-                            lincomb,
                             true,
                             method,
                             cph_eps,
@@ -158,7 +156,7 @@
                arma::uword lincomb_ties_method,
                bool pred_mode,
                arma::uword pred_type_R,
-               double pred_horizon,
+               arma::vec pred_horizon,
                bool oobag_pred,
                arma::uword oobag_eval_every,
                unsigned int n_thread){
@@ -225,6 +223,10 @@
 
    forest->load(n_tree, cutpoint, child_left, coef_values, coef_indices,
                 leaf_pred_horizon, leaf_pred_surv, leaf_pred_chf);
+
+   arma::mat pred_mat = forest->predict();
+
+   result.push_back(pred_mat, "predictions");
 
   } else {
 
