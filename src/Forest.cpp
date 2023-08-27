@@ -11,6 +11,37 @@ namespace aorsf {
 
 Forest::Forest(){ }
 
+void Forest::load(arma::uword n_tree,
+                  std::vector<std::vector<double>>& forest_cutpoint,
+                  std::vector<std::vector<arma::uword>>& forest_child_left,
+                  std::vector<std::vector<arma::vec>>& forest_coef_values,
+                  std::vector<std::vector<arma::uvec>>& forest_coef_indices,
+                  std::vector<std::vector<arma::vec>>& forest_leaf_pred_horizon,
+                  std::vector<std::vector<arma::vec>>& forest_leaf_pred_surv,
+                  std::vector<std::vector<arma::vec>>& forest_leaf_pred_chf) {
+
+ this->n_tree = n_tree;
+
+ // Create trees
+ trees.reserve(n_tree);
+
+ for (uword i = 0; i < n_tree; ++i) {
+  trees.push_back(
+   std::make_unique<Tree>(forest_cutpoint[i],
+                          forest_child_left[i],
+                          forest_coef_values[i],
+                          forest_coef_indices[i],
+                          forest_leaf_pred_horizon[i],
+                          forest_leaf_pred_surv[i],
+                          forest_leaf_pred_chf[i])
+  );
+ }
+
+ // Create thread ranges
+ equalSplit(thread_ranges, 0, n_tree - 1, n_thread);
+
+}
+
 void Forest::init(std::unique_ptr<Data> input_data,
                   Rcpp::IntegerVector& tree_seeds,
                   arma::uword n_tree,
@@ -132,6 +163,24 @@ void Forest::init_trees(){
 void Forest::grow(){
 
  init_trees();
+
+ // if multi-threading isn't required
+ if(n_thread == 1){
+
+  vec* vi_numer_ptr = &this->vi_numer;
+  uvec* vi_denom_ptr = &this->vi_denom;
+
+  for(uint i = 0; i < n_tree; ++i){
+
+   // Abort if user has pressed Ctrl + C or Escape in R.
+   checkUserInterrupt();
+   trees[i]->grow(vi_numer_ptr, vi_denom_ptr);
+
+  }
+
+  return;
+
+ }
 
  // Create thread ranges
  equalSplit(thread_ranges, 0, n_tree - 1, n_thread);

@@ -30,6 +30,15 @@ public:
 
  // Methods
 
+ void load(arma::uword n_tree,
+           std::vector<std::vector<double>>& forest_cutpoint,
+           std::vector<std::vector<arma::uword>>& forest_child_left,
+           std::vector<std::vector<arma::vec>>& forest_coef_values,
+           std::vector<std::vector<arma::uvec>>& forest_coef_indices,
+           std::vector<std::vector<arma::vec>>& forest_leaf_pred_horizon,
+           std::vector<std::vector<arma::vec>>& forest_leaf_pred_surv,
+           std::vector<std::vector<arma::vec>>& forest_leaf_pred_chf);
+
  void init(std::unique_ptr<Data> input_data,
            Rcpp::IntegerVector& tree_seeds,
            arma::uword n_tree,
@@ -77,15 +86,28 @@ public:
 
  void showProgress(std::string operation, size_t max_progress);
 
+ std::vector<std::vector<double>> get_cutpoint() {
 
- std::vector<std::vector<arma::uvec>> get_coef_indices() {
-
-  std::vector<std::vector<arma::uvec>> result;
+  std::vector<std::vector<double>> result;
 
   result.reserve(n_tree);
 
   for (auto& tree : trees) {
-   result.push_back(tree->get_coef_indices());
+   result.push_back(tree->get_cutpoint());
+  }
+
+  return result;
+
+ }
+
+ std::vector<std::vector<arma::uword>> get_child_left() {
+
+  std::vector<std::vector<arma::uword>> result;
+
+  result.reserve(n_tree);
+
+  for (auto& tree : trees) {
+   result.push_back(tree->get_child_left());
   }
 
   return result;
@@ -105,7 +127,19 @@ public:
   return result;
 
  }
+ std::vector<std::vector<arma::uvec>> get_coef_indices() {
 
+  std::vector<std::vector<arma::uvec>> result;
+
+  result.reserve(n_tree);
+
+  for (auto& tree : trees) {
+   result.push_back(tree->get_coef_indices());
+  }
+
+  return result;
+
+ }
  std::vector<std::vector<arma::vec>> get_leaf_pred_horizon() {
 
   std::vector<std::vector<arma::vec>> result;
@@ -119,7 +153,6 @@ public:
   return result;
 
  }
-
  std::vector<std::vector<arma::vec>> get_leaf_pred_surv() {
 
   std::vector<std::vector<arma::vec>> result;
@@ -133,7 +166,6 @@ public:
   return result;
 
  }
-
  std::vector<std::vector<arma::vec>> get_leaf_pred_chf() {
 
   std::vector<std::vector<arma::vec>> result;

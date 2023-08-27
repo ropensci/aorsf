@@ -134,6 +134,7 @@
                arma::mat& y,
                arma::vec& w,
                Rcpp::IntegerVector& tree_seeds,
+               Rcpp::List loaded_forest,
                Rcpp::RObject lincomb_R_function,
                Rcpp::RObject oobag_R_function,
                arma::uword n_tree,
@@ -211,19 +212,41 @@
                oobag_R_function,
                n_thread);
 
-  forest->plant();
+   // Load forest object if in prediction mode
+  if(pred_mode){
 
-  forest->grow();
+   std::vector<std::vector<double>>      cutpoint = loaded_forest["cutpoint"];
+   std::vector<std::vector<arma::uword>> child_left = loaded_forest["child_left"];
+   std::vector<std::vector<arma::vec>>   coef_values = loaded_forest["coef_values"];
+   std::vector<std::vector<arma::uvec>>  coef_indices = loaded_forest["coef_indices"];
+   std::vector<std::vector<arma::vec>>   leaf_pred_horizon = loaded_forest["leaf_pred_horizon"];
+   std::vector<std::vector<arma::vec>>   leaf_pred_surv = loaded_forest["leaf_pred_surv"];
+   std::vector<std::vector<arma::vec>>   leaf_pred_chf = loaded_forest["leaf_pred_chf"];
 
-  forest_out.push_back(forest->get_coef_indices(), "coef_indices");
-  forest_out.push_back(forest->get_leaf_pred_horizon(), "leaf_pred_horizon");
-  forest_out.push_back(forest->get_leaf_pred_surv(), "leaf_pred_surv");
-  forest_out.push_back(forest->get_leaf_pred_chf(), "leaf_pred_chf");
+   forest->load(n_tree, cutpoint, child_left, coef_values, coef_indices,
+                leaf_pred_horizon, leaf_pred_surv, leaf_pred_chf);
+
+  } else {
+
+   forest->plant();
+
+   forest->grow();
+
+   forest_out.push_back(forest->get_cutpoint(), "cutpoint");
+   forest_out.push_back(forest->get_child_left(), "child_left");
+   forest_out.push_back(forest->get_coef_indices(), "coef_indices");
+   forest_out.push_back(forest->get_coef_values(), "coef_values");
+   forest_out.push_back(forest->get_leaf_pred_horizon(), "leaf_pred_horizon");
+   forest_out.push_back(forest->get_leaf_pred_surv(), "leaf_pred_surv");
+   forest_out.push_back(forest->get_leaf_pred_chf(), "leaf_pred_chf");
 
 
-  result.push_back(forest_out, "forest");
-  result.push_back(forest->vi_numer, "vi_numer");
-  result.push_back(forest->vi_denom, "vi_denom");
+   result.push_back(forest_out, "forest");
+   result.push_back(forest->vi_numer, "vi_numer");
+   result.push_back(forest->vi_denom, "vi_denom");
+
+
+  }
 
   return(result);
 

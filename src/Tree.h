@@ -20,6 +20,15 @@
 
   Tree();
 
+  // Create from loaded forest
+  Tree(std::vector<double>& cutpoint,
+       std::vector<arma::uword>& child_left,
+       std::vector<arma::vec>& coef_values,
+       std::vector<arma::uvec>& coef_indices,
+       std::vector<arma::vec>& leaf_pred_horizon,
+       std::vector<arma::vec>& leaf_pred_surv,
+       std::vector<arma::vec>& leaf_pred_chf);
+
   // deleting the copy constructor
   Tree(const Tree&) = delete;
   // deleting the copy assignment operator
@@ -68,6 +77,8 @@
   void grow(arma::vec* vi_numer,
             arma::uvec* vi_denom);
 
+  void predict_leaf();
+
   // void grow(arma::vec& vi_numer, arma::uvec& vi_denom);
 
   std::vector<arma::uvec>& get_coef_indices() {
@@ -114,7 +125,6 @@
   double n_obs_inbag;
   double n_events_inbag;
 
-  int seed;
 
   // views of data
   arma::mat x_inbag;
@@ -141,6 +151,10 @@
   arma::uvec rows_node;
   arma::uvec cols_node;
 
+  int seed;
+
+  arma::uword mtry;
+
   // variable importance
   VariableImportance vi_type;
   double vi_max_pvalue;
@@ -149,7 +163,6 @@
   std::mt19937_64 random_number_generator;
 
   // tree growing members
-  arma::uword mtry;
   double leaf_min_events;
   double leaf_min_obs;
 

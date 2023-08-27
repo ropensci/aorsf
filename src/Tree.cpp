@@ -14,7 +14,73 @@
 
  namespace aorsf {
 
- Tree::Tree(){ }
+ Tree::Tree() :
+   data(0),
+   n_cols_total(0),
+   n_rows_total(0),
+   seed(0),
+   mtry(0),
+   vi_type(VI_NONE),
+   vi_max_pvalue(DEFAULT_ANOVA_VI_PVALUE),
+   leaf_min_events(DEFAULT_LEAF_MIN_EVENTS),
+   leaf_min_obs(DEFAULT_LEAF_MIN_OBS),
+   split_rule(DEFAULT_SPLITRULE),
+   split_min_events(DEFAULT_SPLIT_MIN_EVENTS),
+   split_min_obs(DEFAULT_SPLIT_MIN_OBS),
+   split_min_stat(DEFAULT_SPLIT_MIN_STAT),
+   split_max_cuts(DEFAULT_SPLIT_MAX_CUTS),
+   split_max_retry(DEFAULT_SPLIT_MAX_RETRY),
+   lincomb_type(DEFAULT_LINCOMB),
+   lincomb_eps(DEFAULT_LINCOMB_EPS),
+   lincomb_iter_max(DEFAULT_LINCOMB_ITER_MAX),
+   lincomb_scale(DEFAULT_LINCOMB_SCALE),
+   lincomb_alpha(DEFAULT_LINCOMB_ALPHA),
+   lincomb_df_target(0),
+   lincomb_ties_method(DEFAULT_LINCOMB_TIES_METHOD),
+   lincomb_R_function(0) {
+
+ }
+
+ Tree::Tree(std::vector<double>& cutpoint,
+            std::vector<arma::uword>& child_left,
+            std::vector<arma::vec>& coef_values,
+            std::vector<arma::uvec>& coef_indices,
+            std::vector<arma::vec>& leaf_pred_horizon,
+            std::vector<arma::vec>& leaf_pred_surv,
+            std::vector<arma::vec>& leaf_pred_chf) :
+ data(0),
+ n_cols_total(0),
+ n_rows_total(0),
+ seed(0),
+ mtry(0),
+ vi_type(VI_NONE),
+ vi_max_pvalue(DEFAULT_ANOVA_VI_PVALUE),
+ leaf_min_events(DEFAULT_LEAF_MIN_EVENTS),
+ leaf_min_obs(DEFAULT_LEAF_MIN_OBS),
+ split_rule(DEFAULT_SPLITRULE),
+ split_min_events(DEFAULT_SPLIT_MIN_EVENTS),
+ split_min_obs(DEFAULT_SPLIT_MIN_OBS),
+ split_min_stat(DEFAULT_SPLIT_MIN_STAT),
+ split_max_cuts(DEFAULT_SPLIT_MAX_CUTS),
+ split_max_retry(DEFAULT_SPLIT_MAX_RETRY),
+ lincomb_type(DEFAULT_LINCOMB),
+ lincomb_eps(DEFAULT_LINCOMB_EPS),
+ lincomb_iter_max(DEFAULT_LINCOMB_ITER_MAX),
+ lincomb_scale(DEFAULT_LINCOMB_SCALE),
+ lincomb_alpha(DEFAULT_LINCOMB_ALPHA),
+ lincomb_df_target(0),
+ lincomb_ties_method(DEFAULT_LINCOMB_TIES_METHOD),
+ lincomb_R_function(0),
+ cutpoint(cutpoint),
+ child_left(child_left),
+ coef_values(coef_values),
+ coef_indices(coef_indices),
+ leaf_pred_horizon(leaf_pred_horizon),
+ leaf_pred_surv(leaf_pred_surv),
+ leaf_pred_chf(leaf_pred_chf) {
+
+ }
+
 
  void Tree::init(Data* data,
                  int seed,
@@ -42,7 +108,6 @@
   this->data = data;
   this->n_cols_total = data->n_cols;
   this->n_rows_total = data->n_rows;
-
   this->seed = seed;
   this->mtry = mtry;
   this->leaf_min_events = leaf_min_events;
@@ -959,6 +1024,67 @@
   leaf_pred_chf.resize(n_nodes);
 
  } // Tree::grow
+
+ void Tree::predict_leaf(){
+
+  uvec result(data->get_n_rows()), obs_in_node;
+  arma::uvec::iterator it;
+  uword i, j;
+
+
+  for(i = 0; i < coef_values.size(); i++){
+
+   // if child_left == 0, it's a leaf
+   if(child_left[i] != 0){
+
+    if(i == 0){
+     obs_in_node = regspace<uvec>(0, 1, result.size()-1);
+    } else {
+     obs_in_node = find(result == i);
+    }
+
+
+    if(obs_in_node.size() > 0){
+
+     lincomb = data->x_submat(obs_in_node, coef_indices[i]) * coef_values[i];
+
+     it = obs_in_node.begin();
+
+     for(j = 0; j < lincomb.size(); ++j, ++it){
+
+      if(lincomb[j] <= cutpoint[i]) {
+
+       result[*it] = child_left[i];
+
+      } else {
+
+       result[*it] = child_left[i]+1;
+
+      }
+
+     }
+
+     if(VERBOSITY > 0){
+
+      uvec in_left = find(result == child_left[i]);
+      uvec in_right = find(result == child_left[i]+1);
+
+      Rcout << "N to node_" << child_left[i] << ": ";
+      Rcout << in_left.size() << "; ";
+      Rcout << "N to node_" << child_left[i]+1 << ": ";
+      Rcout << in_right.size() << std::endl;
+
+     }
+
+    }
+
+   }
+
+  }
+
+ }
+
+
 
  } // namespace aorsf
 

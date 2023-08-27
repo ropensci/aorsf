@@ -60,22 +60,32 @@
 
  const VariableImportance DEFAULT_IMPORTANCE = VI_NONE;
 
- const int DEFAULT_LEAF_MIN_OBS_CLASSIFICATION = 1;
- const int DEFAULT_LEAF_MIN_OBS_REGRESSION = 5;
- const int DEFAULT_LEAF_MIN_OBS_SURVIVAL = 10;
- const int DEFAULT_LEAF_MIN_OBS_PROBABILITY = 10;
+ const double DEFAULT_SPLIT_MAX_RETRY = 1;
 
- const int DEFAULT_MAX_RETRY = 3;
 
- const double DEFAULT_SPLIT_MIN_STAT = 3.84;
- const int DEFAULT_SPLIT_MIN_OBS = 10;
+ const double DEFAULT_LEAF_MIN_EVENTS = 1;
+ const double DEFAULT_LEAF_MIN_OBS = 5;
 
- const SplitRule DEFAULT_SPLITRULE_SURVIVAL = SPLIT_LOGRANK;
+ const SplitRule DEFAULT_SPLITRULE = SPLIT_LOGRANK;
+ const double    DEFAULT_SPLIT_MIN_EVENTS = 5;
+ const double    DEFAULT_SPLIT_MIN_OBS = 10;
+ const double    DEFAULT_SPLIT_MIN_STAT = 3.84;
+
+ const arma::uword DEFAULT_SPLIT_MAX_CUTS = 5;
+ const arma::uword DEFAULT_MAX_RETRY = 3;
+
+ const LinearCombo DEFAULT_LINCOMB = NEWTON_RAPHSON;
+ const double      DEFAULT_LINCOMB_EPS = 1e-9;
+ const arma::uword DEFAULT_LINCOMB_ITER_MAX = 20;
+ const bool        DEFAULT_LINCOMB_SCALE = true;
+ const double      DEFAULT_LINCOMB_ALPHA = 0.5;
+ const arma::uword DEFAULT_LINCOMB_TIES_METHOD = 1;
+
+ const double DEFAULT_ANOVA_VI_PVALUE = 0.01;
 
  const PredType DEFAULT_PRED_TYPE = RISK;
- const int DEFAULT_N_SPLIT = 5;
 
- const int VERBOSITY = 2;
+ const int VERBOSITY = 0;
 
  // Interval to print progress in seconds
  const double STATUS_INTERVAL = 15.0;
