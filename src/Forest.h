@@ -86,6 +86,12 @@ public:
 
  arma::mat predict(bool oobag);
 
+ void predict_in_threads(uint thread_idx,
+                         Data* prediction_data,
+                         bool oobag,
+                         mat* result_ptr,
+                         vec* denom_ptr);
+
  void showProgress(std::string operation, size_t max_progress);
 
  std::vector<std::vector<double>> get_cutpoint() {
@@ -96,6 +102,19 @@ public:
 
   for (auto& tree : trees) {
    result.push_back(tree->get_cutpoint());
+  }
+
+  return result;
+
+ }
+ std::vector<arma::uvec> get_rows_oobag() {
+
+  std::vector<arma::uvec> result;
+
+  result.reserve(n_tree);
+
+  for (auto& tree : trees) {
+   result.push_back(tree->get_rows_oobag());
   }
 
   return result;

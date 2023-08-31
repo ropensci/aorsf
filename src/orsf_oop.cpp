@@ -234,8 +234,12 @@
 
    forest->grow();
 
-   if(oobag) forest->predict(oobag);
+   if(oobag){
+    result.push_back(forest->predict(oobag), "pred_oobag");
+   }
 
+
+   forest_out.push_back(forest->get_rows_oobag(), "rows_oobag");
    forest_out.push_back(forest->get_cutpoint(), "cutpoint");
    forest_out.push_back(forest->get_child_left(), "child_left");
    forest_out.push_back(forest->get_coef_indices(), "coef_indices");

@@ -43,9 +43,6 @@ void Forest::load(arma::uword n_tree,
   );
  }
 
- // Create thread ranges
- equalSplit(thread_ranges, 0, n_tree - 1, n_thread);
-
 }
 
 void Forest::init(std::unique_ptr<Data> input_data,
@@ -171,22 +168,22 @@ void Forest::grow() {
  init_trees();
 
  // if multi-threading isn't required
- if(n_thread == 1){
-
-  vec* vi_numer_ptr = &this->vi_numer;
-  uvec* vi_denom_ptr = &this->vi_denom;
-
-  for(uint i = 0; i < n_tree; ++i){
-
-   // Abort if user has pressed Ctrl + C or Escape in R.
-   checkUserInterrupt();
-   trees[i]->grow(vi_numer_ptr, vi_denom_ptr);
-
-  }
-
-  return;
-
- }
+ // if(n_thread == 1){
+ //
+ //  vec* vi_numer_ptr = &this->vi_numer;
+ //  uvec* vi_denom_ptr = &this->vi_denom;
+ //
+ //  for(uint i = 0; i < n_tree; ++i){
+ //
+ //   // Abort if user has pressed Ctrl + C or Escape in R.
+ //   checkUserInterrupt();
+ //   trees[i]->grow(vi_numer_ptr, vi_denom_ptr);
+ //
+ //  }
+ //
+ //  return;
+ //
+ // }
 
  // Create thread ranges
  equalSplit(thread_ranges, 0, n_tree - 1, n_thread);
@@ -249,23 +246,97 @@ void Forest::grow_in_threads(uint thread_idx) {
 
 mat Forest::predict(bool oobag) {
 
- mat result(data->n_rows, pred_horizon.size());
+ mat result(data->n_rows, pred_horizon.size(), fill::zeros);
+ vec denom; if(oobag) denom.zeros(data->n_rows);
 
- vec denom;
+ if(n_thread == 1){
 
- if(oobag) denom.zeros(data->n_rows);
+  mat* result_ptr = &result;
+  vec* denom_ptr = &denom;
 
- mat* result_ptr = &result;
- vec* denom_ptr = &denom;
+  for(uint i = 0; i < n_tree; ++i){
+   trees[i]->predict_leaf(data.get(), oobag);
+   trees[i]->predict_value(result_ptr, denom_ptr,
+                           pred_horizon, 'S',
+                           oobag);
+  }
+ } else {
 
- for(uint i = 0; i < n_tree; ++i){
-  trees[i]->predict_leaf(data.get(), oobag);
-  trees[i]->predict_value(result_ptr, pred_horizon, 'S', oobag);
+  progress = 0;
+  aborted = false;
+  aborted_threads = 0;
+
+  std::vector<std::thread> threads;
+  std::vector<mat> result_threads(n_thread);
+  std::vector<vec> denom_threads(n_thread);
+
+  threads.reserve(n_thread);
+
+  for (uint i = 0; i < n_thread; ++i) {
+
+   result_threads[i].resize(data->n_rows, pred_horizon.size());
+   if(oobag) denom_threads[i].zeros(data->n_rows);
+
+   threads.emplace_back(&Forest::predict_in_threads,
+                        this, i, data.get(), oobag,
+                        &(result_threads[i]),
+                        &(denom_threads[i]));
+  }
+
+  showProgress("Predicting..", n_tree);
+
+  for (auto &thread : threads) {
+   thread.join();
+  }
+
+  for(uint i = 0; i < n_thread; ++i){
+   result += result_threads[i];
+   if(oobag) denom += denom_threads[i];
+  }
+
  }
 
- result /= n_tree;
+ if(oobag){
+  result.each_col() /= denom;
+ } else {
+  result /= n_tree;
+ }
 
  return(result);
+
+}
+
+void Forest::predict_in_threads(uint thread_idx,
+                               Data* prediction_data,
+                               bool oobag,
+                               mat* result_ptr,
+                               vec* denom_ptr) {
+
+ if (thread_ranges.size() > thread_idx + 1) {
+
+  for (uint i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
+
+   trees[i]->predict_leaf(prediction_data, oobag);
+   trees[i]->predict_value(result_ptr, denom_ptr,
+                           pred_horizon, 'S',
+                           oobag);
+
+   // Check for user interrupt
+   if (aborted) {
+    std::unique_lock<std::mutex> lock(mutex);
+    ++aborted_threads;
+    condition_variable.notify_one();
+    return;
+   }
+
+   // Increase progress by 1 tree
+   std::unique_lock<std::mutex> lock(mutex);
+   ++progress;
+   condition_variable.notify_one();
+
+  }
+
+ }
 
 }
 

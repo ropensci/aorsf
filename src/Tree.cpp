@@ -104,6 +104,8 @@
                  arma::uword lincomb_ties_method,
                  RObject lincomb_R_function){
 
+  // Initialize random number generator and set seed
+  random_number_generator.seed(seed);
 
   this->data = data;
   this->n_cols_total = data->n_cols;
@@ -133,9 +135,6 @@
 
  void Tree::sample_rows(){
 
-  // Initialize random number generator and set seed
-  random_number_generator.seed(seed);
-
   uword i, draw, n = data->n_rows;
 
   // Start with all samples OOB
@@ -164,9 +163,12 @@
  void Tree::sample_cols(){
 
   // Start empty
-  std::vector<uword> cols_assessed, cols_accepted;
-  cols_assessed.reserve(n_cols_total);
+  std::vector<uword> cols_accepted;
   cols_accepted.reserve(mtry);
+
+  // Set all to not selected
+  std::vector<bool> temp;
+  temp.resize(n_cols_total, false);
 
   std::uniform_int_distribution<uword> unif_dist(0, n_cols_total - 1);
 
@@ -174,19 +176,9 @@
 
   for (i = 0; i < n_cols_total; ++i) {
 
-   draw = unif_dist(random_number_generator);
+   do { draw = unif_dist(random_number_generator); } while (temp[draw]);
 
-   // Ensure the drawn number is not already in the sample
-   while (std::find(cols_assessed.begin(),
-                    cols_assessed.end(),
-                    draw) != cols_assessed.end()) {
-
-    draw = unif_dist(random_number_generator);
-
-
-   }
-
-   cols_assessed.push_back(draw);
+   temp[draw] = true;
 
    if(is_col_splittable(draw)){
     cols_accepted.push_back(draw);
@@ -523,49 +515,50 @@
 
   } else { // split_max_cuts < cuts_all.size()
 
-   cuts_sampled.set_size(split_max_cuts);
+   // cuts_sampled.set_size(split_max_cuts);
+   //
+   // std::uniform_int_distribution<uword> unif_dist(0, cuts_all.size() - 1);
+   //
+   // // sample without replacement
+   // for (uword i = 0; i < split_max_cuts; ++i) {
+   //
+   //  uword draw = unif_dist(random_number_generator);
+   //
+   //  // Ensure the drawn number is not already in the sample
+   //  while (std::find(cuts_sampled.begin(),
+   //                   cuts_sampled.end(),
+   //                   cuts_all[draw]) != cuts_sampled.end()) {
+   //
+   //   draw = unif_dist(random_number_generator);
+   //
+   //  }
+   //
+   //  cuts_sampled[i] = cuts_all[draw];
+   //
+   // }
+   //
+   //
+   //
+   // // important that cut-points are ordered from low to high
+   // cuts_sampled = sort(cuts_sampled);
+   //
+   // if(VERBOSITY > 1){
+   //
+   //  Rcout << "Randomly sampled cutpoints: ";
+   //  Rcout << std::endl;
+   //  Rcout << lincomb(lincomb_sort(cuts_sampled));
+   //  Rcout << std::endl;
+   //  Rcout << std::endl;
+   //
+   // }
 
-   std::uniform_int_distribution<uword> unif_dist(0, cuts_all.size() - 1);
-
-   // sample without replacement
-   for (uword i = 0; i < split_max_cuts; ++i) {
-
-    uword draw = unif_dist(random_number_generator);
-
-    // Ensure the drawn number is not already in the sample
-    while (std::find(cuts_sampled.begin(),
-                     cuts_sampled.end(),
-                     cuts_all[draw]) != cuts_sampled.end()) {
-
-     draw = unif_dist(random_number_generator);
-
-    }
-
-    cuts_sampled[i] = cuts_all[draw];
-
-   }
-
-
-
-   // important that cut-points are ordered from low to high
-   cuts_sampled = sort(cuts_sampled);
-
-   if(VERBOSITY > 1){
-
-    Rcout << "Randomly sampled cutpoints: ";
-    Rcout << std::endl;
-    Rcout << lincomb(lincomb_sort(cuts_sampled));
-    Rcout << std::endl;
-    Rcout << std::endl;
-
-   }
+   // non-random version
+   cuts_sampled = linspace<uvec>(cuts_all.front(),
+                                 cuts_all.back(),
+                                 split_max_cuts);
 
   }
 
-  // non-random version
-  // uvec cuts_sampled = linspace<uvec>(cuts_all.front(),
-  //                                    cuts_all.back(),
-  //                                    n_cuts);
 
   // initialize grouping for the current node
   // value of 1 indicates go to right node
@@ -1091,11 +1084,10 @@
 
   }
 
-  Rcout << pred_leaf << std::endl;
-
  }
 
  void Tree::predict_value(arma::mat* pred_output,
+                          arma::vec* pred_denom,
                           arma::vec& pred_times,
                           char pred_type,
                           bool oobag){
@@ -1105,16 +1097,7 @@
   uvec::iterator it = pred_leaf_sort.begin();
 
   // oobag leaf prediction has zeros for inbag rows
-  if(oobag){
-
-   Rcout << "Sorted boys: " << std::endl;
-   Rcout << pred_leaf(pred_leaf_sort) << std::endl;
-
-   while(pred_leaf[*it] == 0){
-    Rcout << "it points to leaf " << pred_leaf[*it] << std::endl;
-    ++it;
-   }
-  }
+  if(oobag){ while(pred_leaf[*it] == 0){ ++it; } }
 
   double pred_t0;
 
@@ -1134,8 +1117,6 @@
   do {
 
    uword leaf_id = pred_leaf[*it];
-
-   Rcout << leaf_id << std::endl;
 
    // copies of leaf data using same aux memory
    leaf_times = vec(leaf_pred_horizon[leaf_id].begin(),
@@ -1201,23 +1182,17 @@
    }
 
    (*pred_output).row(*it) += temp_vec.t();
+   if(oobag) (*pred_denom)[*it]++;
    ++it;
 
    if(it < pred_leaf_sort.end()){
 
-
     while(leaf_id == pred_leaf[*it]){
 
-     Rcout << "leaf id in lower loop: " << leaf_id << std::endl;
-
      (*pred_output).row(*it) += temp_vec.t();
+     if(oobag) (*pred_denom)[*it]++;
 
-     if (it == pred_leaf_sort.end()-1){
-      Rcout << "breaking b/c we at the end" << std::endl;
-      break;
-     } else {
-      ++it;
-     }
+     if (it == pred_leaf_sort.end()-1){ break; } else { ++it; }
 
     }
 

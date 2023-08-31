@@ -81,6 +81,7 @@
                     bool oobag);
 
   void predict_value(arma::mat* pred_output,
+                     arma::vec* pred_denom,
                      arma::vec& pred_times,
                      char pred_type,
                      bool oobag);
@@ -89,6 +90,10 @@
 
   std::vector<arma::uvec>& get_coef_indices() {
    return(coef_indices);
+  }
+
+  arma::uvec& get_rows_oobag() {
+   return(rows_oobag);
   }
 
   std::vector<arma::vec>& get_coef_values() {
