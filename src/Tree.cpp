@@ -1025,32 +1025,33 @@
 
  } // Tree::grow
 
- void Tree::predict_leaf(Data* prediction_data) {
+ void Tree::predict_leaf(Data* prediction_data, bool oobag) {
 
-  pred_leaf.resize(prediction_data->n_rows);
+  pred_leaf.zeros(prediction_data->n_rows);
 
   if(VERBOSITY > 0){
    Rcout << "---- computing leaf predictions ----" << std::endl;
   }
 
   uvec obs_in_node;
+  // it iterates over the observations in a node
+  uvec::iterator it;
 
-  arma::uvec::iterator it;
-
+  // i iterates over nodes, j over observations
   uword i, j;
-
 
   for(i = 0; i < coef_values.size(); i++){
 
    // if child_left == 0, it's a leaf (no need to find next child)
    if(child_left[i] != 0){
 
-    if(i == 0){
+    if(i == 0 && oobag){
+     obs_in_node = rows_oobag;
+    } else if (i == 0 && !oobag) {
      obs_in_node = regspace<uvec>(0, 1, pred_leaf.size()-1);
     } else {
      obs_in_node = find(pred_leaf == i);
     }
-
 
     if(obs_in_node.size() > 0){
 
@@ -1090,15 +1091,30 @@
 
   }
 
+  Rcout << pred_leaf << std::endl;
+
  }
 
  void Tree::predict_value(arma::mat* pred_output,
                           arma::vec& pred_times,
-                          char pred_type){
+                          char pred_type,
+                          bool oobag){
 
   uvec pred_leaf_sort = sort_index(pred_leaf, "ascend");
 
   uvec::iterator it = pred_leaf_sort.begin();
+
+  // oobag leaf prediction has zeros for inbag rows
+  if(oobag){
+
+   Rcout << "Sorted boys: " << std::endl;
+   Rcout << pred_leaf(pred_leaf_sort) << std::endl;
+
+   while(pred_leaf[*it] == 0){
+    Rcout << "it points to leaf " << pred_leaf[*it] << std::endl;
+    ++it;
+   }
+  }
 
   double pred_t0;
 
@@ -1117,18 +1133,14 @@
 
   do {
 
-   uword leaf_id = pred_leaf(*it);
+   uword leaf_id = pred_leaf[*it];
 
-   Rcout << "beginning leaf " << leaf_id << std::endl;
-
-   Rcout << leaf_pred_horizon[leaf_id] << std::endl << std::endl;
+   Rcout << leaf_id << std::endl;
 
    // copies of leaf data using same aux memory
    leaf_times = vec(leaf_pred_horizon[leaf_id].begin(),
                     leaf_pred_horizon[leaf_id].size(),
                     false);
-
-   Rcout << leaf_pred_surv[leaf_id] << std::endl;
 
    leaf_values = vec(leaf_pred_surv[leaf_id].begin(),
                      leaf_pred_surv[leaf_id].size(),
@@ -1193,12 +1205,19 @@
 
    if(it < pred_leaf_sort.end()){
 
-    while(leaf_id == pred_leaf(*it)){
+
+    while(leaf_id == pred_leaf[*it]){
+
+     Rcout << "leaf id in lower loop: " << leaf_id << std::endl;
 
      (*pred_output).row(*it) += temp_vec.t();
-     ++it;
 
-     if (it == pred_leaf_sort.end()-1) break;
+     if (it == pred_leaf_sort.end()-1){
+      Rcout << "breaking b/c we at the end" << std::endl;
+      break;
+     } else {
+      ++it;
+     }
 
     }
 

@@ -157,7 +157,7 @@
                bool pred_mode,
                arma::uword pred_type_R,
                arma::vec pred_horizon,
-               bool oobag_pred,
+               bool oobag,
                arma::uword oobag_eval_every,
                unsigned int n_thread){
 
@@ -205,7 +205,7 @@
                pred_type,
                pred_mode,
                pred_horizon,
-               oobag_pred,
+               oobag,
                oobag_eval_every,
                oobag_R_function,
                n_thread);
@@ -224,7 +224,7 @@
    forest->load(n_tree, cutpoint, child_left, coef_values, coef_indices,
                 leaf_pred_horizon, leaf_pred_surv, leaf_pred_chf);
 
-   arma::mat pred_mat = forest->predict();
+   arma::mat pred_mat = forest->predict(oobag);
 
    result.push_back(pred_mat, "predictions");
 
@@ -233,6 +233,8 @@
    forest->plant();
 
    forest->grow();
+
+   if(oobag) forest->predict(oobag);
 
    forest_out.push_back(forest->get_cutpoint(), "cutpoint");
    forest_out.push_back(forest->get_child_left(), "child_left");

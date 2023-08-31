@@ -84,7 +84,7 @@ public:
 
  void plant();
 
- arma::mat predict();
+ arma::mat predict(bool oobag);
 
  void showProgress(std::string operation, size_t max_progress);
 

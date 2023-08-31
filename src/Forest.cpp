@@ -247,15 +247,20 @@ void Forest::grow_in_threads(uint thread_idx) {
 
 }
 
-mat Forest::predict() {
+mat Forest::predict(bool oobag) {
 
  mat result(data->n_rows, pred_horizon.size());
 
+ vec denom;
+
+ if(oobag) denom.zeros(data->n_rows);
+
  mat* result_ptr = &result;
+ vec* denom_ptr = &denom;
 
  for(uint i = 0; i < n_tree; ++i){
-  trees[i]->predict_leaf(data.get());
-  trees[i]->predict_value(result_ptr, pred_horizon, 'S');
+  trees[i]->predict_leaf(data.get(), oobag);
+  trees[i]->predict_value(result_ptr, pred_horizon, 'S', oobag);
  }
 
  result /= n_tree;

@@ -77,11 +77,13 @@
   void grow(arma::vec* vi_numer,
             arma::uvec* vi_denom);
 
-  void predict_leaf(Data* prediction_data);
+  void predict_leaf(Data* prediction_data,
+                    bool oobag);
 
   void predict_value(arma::mat* pred_output,
                      arma::vec& pred_times,
-                     char pred_type);
+                     char pred_type,
+                     bool oobag);
 
   // void grow(arma::vec& vi_numer, arma::uvec& vi_denom);
 
