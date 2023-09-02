@@ -43,6 +43,9 @@ void Forest::load(arma::uword n_tree,
   );
  }
 
+ // Create thread ranges
+ equalSplit(thread_ranges, 0, n_tree - 1, n_thread);
+
 }
 
 void Forest::init(std::unique_ptr<Data> input_data,

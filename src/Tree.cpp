@@ -364,7 +364,7 @@
     Rcout << "N risk: " << n_risk           << std::endl;
    }
 
-   if(lincomb(*it) != lincomb(*(it-1))){
+   if(lincomb[*it] != lincomb[*(it-1)]){
 
     if( n_events >= leaf_min_events &&
         n_risk   >= leaf_min_obs ) {
@@ -413,7 +413,7 @@
   // only one valid cutpoint
   if(j == k){
 
-   uvec output = {j};
+   output = {j};
    return(output);
 
   }
@@ -423,7 +423,7 @@
 
   for(it = it_min+1;
       it < it_max; ++it){
-   if(lincomb(*it) != lincomb(*(it+1))){
+   if(lincomb[*it] != lincomb[*(it+1)]){
     output_middle[i] = it - lincomb_sort.begin();
     i++;
    }
@@ -515,47 +515,47 @@
 
   } else { // split_max_cuts < cuts_all.size()
 
-   // cuts_sampled.set_size(split_max_cuts);
-   //
-   // std::uniform_int_distribution<uword> unif_dist(0, cuts_all.size() - 1);
-   //
-   // // sample without replacement
-   // for (uword i = 0; i < split_max_cuts; ++i) {
-   //
-   //  uword draw = unif_dist(random_number_generator);
-   //
-   //  // Ensure the drawn number is not already in the sample
-   //  while (std::find(cuts_sampled.begin(),
-   //                   cuts_sampled.end(),
-   //                   cuts_all[draw]) != cuts_sampled.end()) {
-   //
-   //   draw = unif_dist(random_number_generator);
-   //
-   //  }
-   //
-   //  cuts_sampled[i] = cuts_all[draw];
-   //
-   // }
-   //
-   //
-   //
-   // // important that cut-points are ordered from low to high
-   // cuts_sampled = sort(cuts_sampled);
-   //
-   // if(VERBOSITY > 1){
-   //
-   //  Rcout << "Randomly sampled cutpoints: ";
-   //  Rcout << std::endl;
-   //  Rcout << lincomb(lincomb_sort(cuts_sampled));
-   //  Rcout << std::endl;
-   //  Rcout << std::endl;
-   //
-   // }
+   cuts_sampled.set_size(split_max_cuts);
 
-   // non-random version
-   cuts_sampled = linspace<uvec>(cuts_all.front(),
-                                 cuts_all.back(),
-                                 split_max_cuts);
+   std::uniform_int_distribution<uword> cut_sample_dist(0, cuts_all.size() - 1);
+
+   // sample without replacement
+   for (uword i = 0; i < split_max_cuts; ++i) {
+
+    uword draw = cut_sample_dist(random_number_generator);
+
+    // Ensure the drawn number is not already in the sample
+    while (std::find(cuts_sampled.begin(),
+                     cuts_sampled.end(),
+                     cuts_all[draw]) != cuts_sampled.end()) {
+
+     draw = cut_sample_dist(random_number_generator);
+
+    }
+
+    cuts_sampled[i] = cuts_all[draw];
+
+   }
+
+
+
+   // important that cut-points are ordered from low to high
+   cuts_sampled = sort(cuts_sampled);
+
+   if(VERBOSITY > 1){
+
+    Rcout << "Randomly sampled cutpoints: ";
+    Rcout << std::endl;
+    Rcout << lincomb(lincomb_sort(cuts_sampled));
+    Rcout << std::endl;
+    Rcout << std::endl;
+
+   }
+
+   // // non-random version
+   // cuts_sampled = linspace<uvec>(cuts_all.front(),
+   //                               cuts_all.back(),
+   //                               split_max_cuts);
 
   }
 
