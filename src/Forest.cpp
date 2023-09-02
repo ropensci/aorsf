@@ -112,7 +112,11 @@ void Forest::init(std::unique_ptr<Data> input_data,
 
  if(vi_type != VI_NONE){
   vi_numer.zeros(data->get_n_cols());
-  vi_denom.zeros(data->get_n_cols());
+
+  if(vi_type == VI_ANOVA){
+   vi_denom.zeros(data->get_n_cols());
+  }
+
  }
 
   if(VERBOSITY > 0){
@@ -197,10 +201,19 @@ void Forest::grow() {
  progress = 0;
 
  std::vector<std::thread> threads;
+ std::vector<vec> vi_numer_threads(n_thread);
+ std::vector<uvec> vi_denom_threads(n_thread);
+
  threads.reserve(n_thread);
 
  for (uint i = 0; i < n_thread; ++i) {
-  threads.emplace_back(&Forest::grow_in_threads, this, i);
+
+  vi_numer_threads[i].zeros(data->n_cols);
+  if(vi_type == VI_ANOVA) vi_denom_threads[i].zeros(data->n_cols);
+
+  threads.emplace_back(&Forest::grow_in_threads, this, i,
+                       &(vi_numer_threads[i]),
+                       &(vi_denom_threads[i]));
  }
 
  showProgress("Growing trees...", n_tree);
@@ -213,14 +226,23 @@ void Forest::grow() {
   throw std::runtime_error("User interrupt.");
  }
 
+ if(vi_type != VI_NONE){
 
+  for(uint i = 0; i < n_thread; ++i){
+
+   vi_numer += vi_numer_threads[i];
+   if(vi_type == VI_ANOVA) vi_denom += vi_denom_threads[i];
+
+  }
+
+ }
 
 }
 
-void Forest::grow_in_threads(uint thread_idx) {
+void Forest::grow_in_threads(uint thread_idx,
+                             vec* vi_numer_ptr,
+                             uvec* vi_denom_ptr) {
 
- vec* vi_numer_ptr = &this->vi_numer;
- uvec* vi_denom_ptr = &this->vi_denom;
 
  if (thread_ranges.size() > thread_idx + 1) {
 

@@ -80,7 +80,9 @@ public:
 
  void grow();
 
- void grow_in_threads(uint thread_idx);
+ void grow_in_threads(uint thread_idx,
+                      vec* vi_numer_ptr,
+                      uvec* vi_denom_ptr);
 
  void plant();
 
