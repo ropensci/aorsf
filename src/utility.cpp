@@ -90,6 +90,38 @@
   }
  }
 
+ vec find_unique_event_times(mat y){
+
+  vec result(y.n_rows);
+
+  // times should already be sorted from low to high
+  vec y_time = y.unsafe_col(0);
+  vec y_status = y.unsafe_col(1);
+  uword person = 0, i = 1;
+
+  // find the first event time
+  while(y_status[person] == 0){person++;}
+  // assign it to first value in result
+  result[0] = y_time[person];
+
+  // find the rest (uniques only)
+  for( ; person < y.n_rows; person++){
+
+   // loop refers to i-1 in result, so i=0 was manually done above
+   if(result[i-1] != y_time[person] && y_status[person] == 1){
+    result[i] = y_time[person];
+    i++;
+   }
+
+  }
+
+  // resize preserves data (set_size does not)
+  result.resize(i);
+
+  return(result);
+
+ }
+
  std::string uintToString(uint number) {
   return std::to_string(number);
  }

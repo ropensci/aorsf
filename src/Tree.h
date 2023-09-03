@@ -27,7 +27,8 @@
        std::vector<arma::uvec>& coef_indices,
        std::vector<arma::vec>& leaf_pred_horizon,
        std::vector<arma::vec>& leaf_pred_surv,
-       std::vector<arma::vec>& leaf_pred_chf);
+       std::vector<arma::vec>& leaf_pred_chf,
+       std::vector<double>& leaf_pred_mort);
 
   // deleting the copy constructor
   Tree(const Tree&) = delete;
@@ -35,6 +36,7 @@
   Tree& operator=(const Tree&) = delete;
 
   void init(Data* data,
+            arma::vec* unique_event_times,
             int seed,
             arma::uword mtry,
             double leaf_min_events,
@@ -74,6 +76,8 @@
 
   void node_sprout(arma::uword node_id);
 
+  double compute_mortality(arma::mat& leaf_data);
+
   void grow(arma::vec* vi_numer,
             arma::uvec* vi_denom);
 
@@ -112,6 +116,10 @@
    return(leaf_pred_chf);
   }
 
+  std::vector<double>& get_leaf_pred_mort(){
+   return(leaf_pred_mort);
+  }
+
   std::vector<double>& get_cutpoint(){
    return(cutpoint);
   }
@@ -128,6 +136,8 @@
   arma::vec* vi_numer;
   arma::uvec* vi_denom;
 
+  // pointer to event times in forest
+  arma::vec* unique_event_times;
 
   // Pointer to original data
   Data* data;
@@ -230,6 +240,7 @@
   std::vector<arma::vec> leaf_pred_horizon;
   std::vector<arma::vec> leaf_pred_surv;
   std::vector<arma::vec> leaf_pred_chf;
+  std::vector<double> leaf_pred_mort;
 
 
 

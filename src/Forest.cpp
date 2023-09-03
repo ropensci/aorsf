@@ -18,7 +18,8 @@ void Forest::load(arma::uword n_tree,
                   std::vector<std::vector<arma::uvec>>& forest_coef_indices,
                   std::vector<std::vector<arma::vec>>& forest_leaf_pred_horizon,
                   std::vector<std::vector<arma::vec>>& forest_leaf_pred_surv,
-                  std::vector<std::vector<arma::vec>>& forest_leaf_pred_chf) {
+                  std::vector<std::vector<arma::vec>>& forest_leaf_pred_chf,
+                  std::vector<std::vector<double>>& forest_leaf_pred_mort) {
 
  this->n_tree = n_tree;
 
@@ -39,7 +40,8 @@ void Forest::load(arma::uword n_tree,
                           forest_coef_indices[i],
                           forest_leaf_pred_horizon[i],
                           forest_leaf_pred_surv[i],
-                          forest_leaf_pred_chf[i])
+                          forest_leaf_pred_chf[i],
+                          forest_leaf_pred_mort[i])
   );
  }
 
@@ -134,6 +136,7 @@ void Forest::init_trees(){
  for(uword i = 0; i < n_tree; ++i){
 
   trees[i]->init(data.get(),
+                 &unique_event_times,
                  tree_seeds[i],
                  mtry,
                  leaf_min_events,
@@ -272,57 +275,42 @@ void Forest::grow_in_threads(uint thread_idx,
 mat Forest::predict(bool oobag) {
 
  mat result(data->n_rows, pred_horizon.size(), fill::zeros);
- vec denom; if(oobag) denom.zeros(data->n_rows);
+ vec oob_denom; if(oobag) oob_denom.zeros(data->n_rows);
 
- // if(n_thread == 1){
- //
- //  mat* result_ptr = &result;
- //  vec* denom_ptr = &denom;
- //
- //  for(uint i = 0; i < n_tree; ++i){
- //   trees[i]->predict_leaf(data.get(), oobag);
- //   trees[i]->predict_value(result_ptr, denom_ptr,
- //                           pred_horizon, 'S',
- //                           oobag);
- //  }
- // } else {
+ progress = 0;
+ aborted = false;
+ aborted_threads = 0;
 
-  progress = 0;
-  aborted = false;
-  aborted_threads = 0;
+ std::vector<std::thread> threads;
+ std::vector<mat> result_threads(n_thread);
+ std::vector<vec> oob_denom_threads(n_thread);
 
-  std::vector<std::thread> threads;
-  std::vector<mat> result_threads(n_thread);
-  std::vector<vec> denom_threads(n_thread);
+ threads.reserve(n_thread);
 
-  threads.reserve(n_thread);
+ for (uint i = 0; i < n_thread; ++i) {
 
-  for (uint i = 0; i < n_thread; ++i) {
+  result_threads[i].resize(data->n_rows, pred_horizon.size());
+  if(oobag) oob_denom_threads[i].zeros(data->n_rows);
 
-   result_threads[i].resize(data->n_rows, pred_horizon.size());
-   if(oobag) denom_threads[i].zeros(data->n_rows);
+  threads.emplace_back(&Forest::predict_in_threads,
+                       this, i, data.get(), oobag,
+                       &(result_threads[i]),
+                       &(oob_denom_threads[i]));
+ }
 
-   threads.emplace_back(&Forest::predict_in_threads,
-                        this, i, data.get(), oobag,
-                        &(result_threads[i]),
-                        &(denom_threads[i]));
-  }
+ showProgress("Predicting..", n_tree);
 
-  showProgress("Predicting..", n_tree);
+ for (auto &thread : threads) {
+  thread.join();
+ }
 
-  for (auto &thread : threads) {
-   thread.join();
-  }
-
-  for(uint i = 0; i < n_thread; ++i){
-   result += result_threads[i];
-   if(oobag) denom += denom_threads[i];
-  }
-
- // }
+ for(uint i = 0; i < n_thread; ++i){
+  result += result_threads[i];
+  if(oobag) oob_denom += oob_denom_threads[i];
+ }
 
  if(oobag){
-  result.each_col() /= denom;
+  result.each_col() /= oob_denom;
  } else {
   result /= n_tree;
  }
@@ -332,10 +320,10 @@ mat Forest::predict(bool oobag) {
 }
 
 void Forest::predict_in_threads(uint thread_idx,
-                               Data* prediction_data,
-                               bool oobag,
-                               mat* result_ptr,
-                               vec* denom_ptr) {
+                                Data* prediction_data,
+                                bool oobag,
+                                mat* result_ptr,
+                                vec* denom_ptr) {
 
  if (thread_ranges.size() > thread_idx + 1) {
 

@@ -47,7 +47,8 @@
             std::vector<arma::uvec>& coef_indices,
             std::vector<arma::vec>& leaf_pred_horizon,
             std::vector<arma::vec>& leaf_pred_surv,
-            std::vector<arma::vec>& leaf_pred_chf) :
+            std::vector<arma::vec>& leaf_pred_chf,
+            std::vector<double>& leaf_pred_mort) :
  data(0),
  n_cols_total(0),
  n_rows_total(0),
@@ -77,12 +78,14 @@
  coef_indices(coef_indices),
  leaf_pred_horizon(leaf_pred_horizon),
  leaf_pred_surv(leaf_pred_surv),
- leaf_pred_chf(leaf_pred_chf) {
+ leaf_pred_chf(leaf_pred_chf),
+ leaf_pred_mort(leaf_pred_mort){
 
  }
 
 
  void Tree::init(Data* data,
+                 arma::vec* unique_event_times,
                  int seed,
                  arma::uword mtry,
                  double leaf_min_events,
@@ -108,6 +111,7 @@
   random_number_generator.seed(seed);
 
   this->data = data;
+  this->unique_event_times = unique_event_times;
   this->n_cols_total = data->n_cols;
   this->n_rows_total = data->n_rows;
   this->seed = seed;
@@ -644,6 +648,7 @@
   leaf_data.at(0, 0) = y_node.at(person, 0);
 
   // if no events in this node:
+  // (TODO: should this case even occur? consider removing)
   if(person == y_node.n_rows){
 
    vec temp_surv(1, arma::fill::ones);
@@ -652,6 +657,7 @@
    leaf_pred_horizon[node_id] = leaf_data.col(0);
    leaf_pred_surv[node_id] = temp_surv;
    leaf_pred_chf[node_id] = temp_chf;
+   leaf_pred_mort[node_id] = 0.0;
 
    return;
 
@@ -723,6 +729,25 @@
   leaf_pred_horizon[node_id] = leaf_data.col(0);
   leaf_pred_surv[node_id] = leaf_data.col(1);
   leaf_pred_chf[node_id] = leaf_data.col(2);
+  leaf_pred_mort[node_id] = compute_mortality(leaf_data);
+
+ }
+
+ double Tree::compute_mortality(arma::mat& leaf_data){
+
+  double result = 0;
+  uword i=0, j=0;
+
+  for( ; i < (*unique_event_times).size(); i++){
+
+   if((*unique_event_times)[i] >= leaf_data.at(j, 0) &&
+      j < (leaf_data.n_rows-1)) {j++;}
+
+   result += leaf_data.at(j, 2);
+
+  }
+
+  return(result);
 
  }
 
@@ -794,6 +819,7 @@
   leaf_pred_horizon.resize(max_nodes);
   leaf_pred_surv.resize(max_nodes);
   leaf_pred_chf.resize(max_nodes);
+  leaf_pred_mort.resize(max_nodes);
 
   // coordinate the order that nodes are grown.
   std::vector<uword> nodes_open;
@@ -918,7 +944,7 @@
 
     }
 
-    } // switch lincomb_type
+    } // end switch lincomb_type
 
     vec beta_est = beta.unsafe_col(0);
 
@@ -1015,6 +1041,7 @@
   leaf_pred_horizon.resize(n_nodes);
   leaf_pred_surv.resize(n_nodes);
   leaf_pred_chf.resize(n_nodes);
+  leaf_pred_mort.resize(n_nodes);
 
  } // Tree::grow
 

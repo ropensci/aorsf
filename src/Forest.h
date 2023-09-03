@@ -37,7 +37,8 @@ public:
            std::vector<std::vector<arma::uvec>>& forest_coef_indices,
            std::vector<std::vector<arma::vec>>& forest_leaf_pred_horizon,
            std::vector<std::vector<arma::vec>>& forest_leaf_pred_surv,
-           std::vector<std::vector<arma::vec>>& forest_leaf_pred_chf);
+           std::vector<std::vector<arma::vec>>& forest_leaf_pred_chf,
+           std::vector<std::vector<double>>& forest_leaf_pred_mort);
 
  void init(std::unique_ptr<Data> input_data,
            Rcpp::IntegerVector& tree_seeds,
@@ -202,6 +203,27 @@ public:
   return result;
 
  }
+ std::vector<std::vector<double>> get_leaf_pred_mort() {
+
+  std::vector<std::vector<double>> result;
+
+  result.reserve(n_tree);
+
+  for (auto& tree : trees) {
+   result.push_back(tree->get_leaf_pred_mort());
+  }
+
+  return result;
+
+ }
+
+ void set_unique_event_times(arma::vec& x){
+  this->unique_event_times = x;
+ }
+
+ arma::vec& get_unique_event_times(){
+  return(unique_event_times);
+ }
 
 
  // Member variables
@@ -213,6 +235,8 @@ public:
  std::vector<std::unique_ptr<Tree>> trees;
 
  std::unique_ptr<Data> data;
+
+ arma::vec unique_event_times;
 
  // variable importance
  VariableImportance vi_type;
