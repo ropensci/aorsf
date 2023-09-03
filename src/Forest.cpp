@@ -274,18 +274,18 @@ mat Forest::predict(bool oobag) {
  mat result(data->n_rows, pred_horizon.size(), fill::zeros);
  vec denom; if(oobag) denom.zeros(data->n_rows);
 
- if(n_thread == 1){
-
-  mat* result_ptr = &result;
-  vec* denom_ptr = &denom;
-
-  for(uint i = 0; i < n_tree; ++i){
-   trees[i]->predict_leaf(data.get(), oobag);
-   trees[i]->predict_value(result_ptr, denom_ptr,
-                           pred_horizon, 'S',
-                           oobag);
-  }
- } else {
+ // if(n_thread == 1){
+ //
+ //  mat* result_ptr = &result;
+ //  vec* denom_ptr = &denom;
+ //
+ //  for(uint i = 0; i < n_tree; ++i){
+ //   trees[i]->predict_leaf(data.get(), oobag);
+ //   trees[i]->predict_value(result_ptr, denom_ptr,
+ //                           pred_horizon, 'S',
+ //                           oobag);
+ //  }
+ // } else {
 
   progress = 0;
   aborted = false;
@@ -319,7 +319,7 @@ mat Forest::predict(bool oobag) {
    if(oobag) denom += denom_threads[i];
   }
 
- }
+ // }
 
  if(oobag){
   result.each_col() /= denom;
