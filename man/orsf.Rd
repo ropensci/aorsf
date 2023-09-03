@@ -24,9 +24,12 @@ orsf(
   oobag_eval_every = n_tree,
   oobag_fun = NULL,
   importance = "anova",
+  group_factors = TRUE,
   tree_seeds = NULL,
   attach_data = TRUE,
   no_fit = FALSE,
+  na_action = "fail",
+  verbose_progress = FALSE,
   ...
 )
 
@@ -128,7 +131,7 @@ trees. When \code{oobag_fun = NULL} (the default), Harrell's C-statistic (1982) 
 \item \code{oobag_fun} should return a numeric output of length 1
 }
 
-For more details, see the out-of-bag \href{https://bcjaeger.github.io/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions}{vignette}.}
+For more details, see the out-of-bag \href{https://docs.ropensci.org/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions}{vignette}.}
 
 \item{importance}{(\emph{character}) Indicate method for variable importance:
 \itemize{
@@ -139,6 +142,9 @@ For more details, see the out-of-bag \href{https://bcjaeger.github.io/aorsf/arti
 }
 
 For details on these methods, see \link{orsf_vi}.}
+
+\item{group_factors}{(\emph{logical}) Only relevant if variable importance is
+being estimated. if \code{TRUE}, the importance of factor variables will be reported overall by aggregating the importance of individual levels of the factor. If \code{FALSE}, the importance of individual factor levels will be returned.}
 
 \item{tree_seeds}{(\emph{integer vector}) Optional. if specified, random seeds
 will be set using the values in \code{tree_seeds[i]}  before growing tree \code{i}.
@@ -156,6 +162,18 @@ to interpret the forest using its training data. Default is \code{TRUE}.}
 saved, but training is not initiated. The object returned can be
 directly submitted to \code{orsf_train()} so long as \code{attach_data} is \code{TRUE}.}
 
+\item{na_action}{(\emph{character}) what should happen when \code{data} contains missing values (i.e., \code{NA} values). Valid options are:
+\itemize{
+\item 'fail' : an error is thrown if \code{data} contains \code{NA} values
+\item 'omit' : rows in \code{data} with incomplete data will be dropped
+\item 'impute_meanmode' : missing values for continuous and categorical variables in \code{data} will be imputed using the mean and mode, respectively. Note that is this
+option is selected and \code{attach_data} is \code{TRUE}, the data attached
+to the output will be the imputed version of \code{data}.
+}}
+
+\item{verbose_progress}{(\emph{logical}) if \code{TRUE}, progress messages are
+printed in the console.}
+
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 
 \item{object}{an untrained 'aorsf' object, created by setting
@@ -168,7 +186,7 @@ an accelerated oblique RSF object (\code{aorsf})
 Fit an oblique random survival forest
 }
 \details{
-This function is based on and highly similar to the \code{ORSF} function
+This function is based on and similar to the \code{ORSF} function
 in the \code{obliqueRSF} R package. The primary difference is that this
 function runs much faster. The speed increase is attributable to better
 management of memory (i.e., no unnecessary copies of inputs) and using
@@ -194,6 +212,13 @@ variables in \code{data} (omitting those on the left hand side of
 \item The order of variables in the left hand side matters. i.e.,
 writing \code{status + time ~ .} will make \code{orsf} assume your
 \code{status} variable is actually the \code{time} variable.
+\item The response variable can be a survival object stored in \code{data}.
+For example, y ~ . is a valid formula if \code{data$y} inherits
+from the \code{Surv} class.
+\item Although you can fit an oblique random survival forest with 1 predictor
+variable, your formula should have at least 2 predictors. The reason for
+this recommendation is that a linear combination of predictors is trivial
+if there is only one predictor.
 }
 
 \strong{mtry}:
@@ -421,13 +446,12 @@ The AUC values, from highest to lowest:
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{sc$AUC$score[order(-AUC)]
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##     model times       AUC         se     lower     upper
-##    <fctr> <num>     <num>      <num>     <num>     <num>
-## 1:    pca  1788 0.9140542 0.01962854 0.8755830 0.9525254
-## 2:  accel  1788 0.9109875 0.02174062 0.8683766 0.9535983
-## 3:    net  1788 0.9081592 0.02161885 0.8657871 0.9505314
-## 4:    cph  1788 0.9072690 0.02122339 0.8656719 0.9488660
-## 5:  rando  1788 0.8681493 0.02418770 0.8207423 0.9155564
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    model times       AUC         se     lower     upper
+## 1:   net  1788 0.9107925 0.02116880 0.8693024 0.9522826
+## 2: accel  1788 0.9106308 0.02178112 0.8679406 0.9533210
+## 3:   cph  1788 0.9072690 0.02120139 0.8657150 0.9488229
+## 4:   pca  1788 0.8915619 0.02335399 0.8457889 0.9373349
+## 5: rando  1788 0.8900944 0.02228487 0.8464168 0.9337719
 }\if{html}{\out{</div>}}
 
 And the indices of prediction accuracy:
@@ -436,19 +460,18 @@ And the indices of prediction accuracy:
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##         model times       IPA
-##        <fctr> <num>     <num>
-## 1:      accel  1788 0.4893270
-## 2:        net  1788 0.4842680
-## 3:        cph  1788 0.4689101
-## 4:        pca  1788 0.4238639
-## 5:      rando  1788 0.3395780
+## 1:      accel  1788 0.4891448
+## 2:        cph  1788 0.4687734
+## 3:        net  1788 0.4652211
+## 4:      rando  1788 0.4011573
+## 5:        pca  1788 0.3845911
 ## 6: Null model  1788 0.0000000
 }\if{html}{\out{</div>}}
 
 From inspection,
 \itemize{
-\item the PCA approach has the highest discrimination, showing that you
-can do very well with just a two line custom function.
+\item the PCA approach has the highest discrimination, showing that you can
+do very well with just a two line custom function.
 \item the accelerated ORSF has the highest index of prediction accuracy
 \item the random coefficients generally don’t do that well.
 }
@@ -554,29 +577,29 @@ glimpse(results)
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## Rows: 276
 ## Columns: 23
-## $ id          <int> 7, 36, 52, 65, 67, 72, 79, 88, 89, 100, 127, 154, 161,~
-## $ trt         <fct> placebo, placebo, d_penicill_main, d_penicill_main, pl~
-## $ age         <dbl> 55.53457, 56.41068, 50.54073, 40.20260, 51.28816, 32.4~
-## $ sex         <fct> f, f, m, f, f, f, f, f, f, m, f, m, f, m, f, f, f, f, ~
-## $ ascites     <fct> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
-## $ hepato      <fct> 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, ~
-## $ spiders     <fct> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, ~
-## $ edema       <fct> 0, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0~
-## $ bili        <dbl> 1.0, 0.3, 6.0, 1.2, 1.1, 0.5, 0.8, 0.6, 2.0, 2.3, 0.5,~
-## $ chol        <int> 322, 172, 614, 256, 466, 320, 315, 296, 408, 178, 268,~
-## $ albumin     <dbl> 4.09, 3.39, 3.70, 3.60, 3.91, 3.54, 4.24, 4.06, 3.65, ~
-## $ copper      <int> 52, 18, 158, 74, 84, 51, 13, 37, 50, 145, 9, 225, 4, 2~
-## $ alk.phos    <dbl> 824.0, 558.0, 5084.4, 724.0, 1787.0, 1243.0, 1637.0, 1~
-## $ ast         <dbl> 60.45, 71.30, 206.40, 141.05, 328.60, 122.45, 170.50, ~
-## $ trig        <int> 213, 96, 93, 108, 185, 80, 70, 83, 98, 122, 95, 75, 18~
-## $ platelet    <int> 204, 311, 362, 430, 261, 225, 426, 442, 200, 119, 453,~
-## $ protime     <dbl> 9.7, 10.6, 10.6, 10.0, 10.0, 10.0, 10.9, 12.0, 11.4, 1~
-## $ stage       <ord> 3, 2, 1, 1, 3, 3, 3, 3, 2, 4, 2, 3, 2, 4, 4, 3, 3, 3, ~
-## $ time        <int> 1832, 3611, 2386, 3992, 2769, 4184, 3707, 2452, 1741, ~
-## $ status      <dbl> 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, ~
-## $ pred_aorsf  <dbl> 0.14427839, 0.01870334, 0.51377784, 0.04334777, 0.2191~
-## $ pred_rfsrc  <dbl> 0.14732022, 0.03156261, 0.55773866, 0.06502143, 0.1619~
-## $ pred_ranger <dbl> 0.14870388, 0.01662689, 0.57519043, 0.05876898, 0.1488~
+## $ id          <int> 2, 16, 27, 66, 79, 97, 107, 116, 136, 137, 158, 189, 193, ~
+## $ trt         <fct> d_penicill_main, placebo, placebo, d_penicill_main, d_peni~
+## $ age         <dbl> 56.44627, 40.44353, 54.43943, 46.45311, 46.51608, 71.89322~
+## $ sex         <fct> f, f, f, m, f, m, f, f, f, f, f, f, f, f, f, f, f, f, f, f~
+## $ ascites     <fct> 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~
+## $ hepato      <fct> 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1~
+## $ spiders     <fct> 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1~
+## $ edema       <fct> 0, 0, 0.5, 0, 0, 0.5, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~
+## $ bili        <dbl> 1.1, 0.7, 21.6, 1.4, 0.8, 2.0, 0.6, 3.0, 0.8, 1.1, 3.4, 1.~
+## $ chol        <int> 302, 204, 175, 427, 315, 420, 212, 458, 263, 399, 450, 360~
+## $ albumin     <dbl> 4.14, 3.66, 3.31, 3.70, 4.24, 3.26, 4.03, 3.63, 3.35, 3.60~
+## $ copper      <int> 54, 28, 221, 105, 13, 62, 10, 74, 27, 79, 32, 52, 267, 76,~
+## $ alk.phos    <dbl> 7394.8, 685.0, 3697.4, 1909.0, 1637.0, 3196.0, 648.0, 1588~
+## $ ast         <dbl> 113.52, 72.85, 101.91, 182.90, 170.50, 77.50, 71.30, 106.9~
+## $ trig        <int> 88, 58, 168, 171, 70, 91, 77, 382, 69, 152, 118, 164, 157,~
+## $ platelet    <int> 221, 198, 80, 123, 426, 344, 316, 438, 206, 344, 313, 256,~
+## $ protime     <dbl> 10.6, 10.8, 12.0, 11.0, 10.9, 11.4, 17.1, 9.9, 9.8, 10.1, ~
+## $ stage       <ord> 3, 3, 4, 3, 3, 3, 1, 3, 2, 2, 2, 3, 4, 4, 2, 2, 3, 3, 4, 4~
+## $ time        <int> 4500, 3672, 77, 4191, 3707, 611, 3388, 3336, 3098, 2990, 2~
+## $ status      <dbl> 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0~
+## $ pred_aorsf  <dbl> 0.21650571, 0.01569191, 0.93095617, 0.36737089, 0.12868206~
+## $ pred_rfsrc  <dbl> 0.15202784, 0.01104486, 0.81913559, 0.20173550, 0.13806608~
+## $ pred_ranger <dbl> 0.11418963, 0.02130315, 0.77073269, 0.22130305, 0.18419972~
 }\if{html}{\out{</div>}}
 
 And finish by aggregating the predictions and computing performance in
@@ -601,19 +624,17 @@ counts.
 ## 
 ## Results by model:
 ## 
-##     model times    AUC  lower  upper
-##    <fctr> <num> <char> <char> <char>
-## 1:  aorsf  1826   91.2   87.0   95.4
-## 2:  rfsrc  1826   90.5   86.4   94.6
-## 3: ranger  1826   90.3   86.2   94.5
+##     model times  AUC lower upper
+## 1:  aorsf  1826 90.1  85.7  94.6
+## 2:  rfsrc  1826 89.4  85.0  93.7
+## 3: ranger  1826 90.1  85.9  94.3
 ## 
 ## Results of model comparisons:
 ## 
-##    times  model reference delta.AUC  lower  upper     p
-##    <num> <fctr>    <fctr>    <char> <char> <char> <num>
-## 1:  1826  rfsrc     aorsf      -0.7   -2.3    0.8   0.4
-## 2:  1826 ranger     aorsf      -0.9   -2.3    0.5   0.2
-## 3:  1826 ranger     rfsrc      -0.1   -1.1    0.9   0.8
+##    times  model reference delta.AUC lower upper   p
+## 1:  1826  rfsrc     aorsf      -0.7  -2.3   0.8 0.4
+## 2:  1826 ranger     aorsf      -0.0  -1.7   1.6 1.0
+## 3:  1826 ranger     rfsrc       0.7  -0.4   1.8 0.2
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.
@@ -625,23 +646,21 @@ counts.
 ## 
 ## Results by model:
 ## 
-##         model   times  Brier  lower  upper    IPA
-##        <fctr>   <num> <char> <char> <char> <char>
-## 1: Null model 1826.25   20.5   18.1   22.9    0.0
-## 2:      aorsf 1826.25   10.5    8.3   12.7   48.7
-## 3:      rfsrc 1826.25   11.6    9.5   13.6   43.6
-## 4:     ranger 1826.25   11.5    9.5   13.6   43.6
+##         model   times Brier lower upper  IPA
+## 1: Null model 1826.25  20.5  18.1  22.9  0.0
+## 2:      aorsf 1826.25  11.1   8.8  13.4 45.8
+## 3:      rfsrc 1826.25  12.0   9.8  14.1 41.6
+## 4:     ranger 1826.25  11.8   9.7  13.9 42.5
 ## 
 ## Results of model comparisons:
 ## 
-##      times  model  reference delta.Brier  lower  upper            p
-##      <num> <fctr>     <fctr>      <char> <char> <char>        <num>
-## 1: 1826.25  aorsf Null model       -10.0  -12.6   -7.3 1.430444e-13
-## 2: 1826.25  rfsrc Null model        -8.9  -11.2   -6.7 5.508455e-15
-## 3: 1826.25 ranger Null model        -8.9  -11.3   -6.6 5.511591e-14
-## 4: 1826.25  rfsrc      aorsf         1.1    0.2    1.9 1.141214e-02
-## 5: 1826.25 ranger      aorsf         1.0    0.3    1.7 3.742797e-03
-## 6: 1826.25 ranger      rfsrc        -0.0   -0.5    0.5 9.730271e-01
+##      times  model  reference delta.Brier lower upper            p
+## 1: 1826.25  aorsf Null model        -9.4 -12.1  -6.6 2.423961e-11
+## 2: 1826.25  rfsrc Null model        -8.5 -10.8  -6.2 2.104905e-13
+## 3: 1826.25 ranger Null model        -8.7 -11.0  -6.4 1.802417e-13
+## 4: 1826.25  rfsrc      aorsf         0.9  -0.0   1.7 5.277607e-02
+## 5: 1826.25 ranger      aorsf         0.7  -0.1   1.5 1.008730e-01
+## 6: 1826.25 ranger      rfsrc        -0.2  -0.7   0.3 4.550782e-01
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.
@@ -813,8 +832,8 @@ From inspection,
 \itemize{
 \item \code{aorsf} appears to have a higher expected value for ‘surv.cindex’
 (higher is better)
-\item \code{aorsf} appears to have a lower expected value for ‘surv.graf’
-(lower is better)
+\item \code{aorsf} appears to have a lower expected value for ‘surv.graf’ (lower
+is better)
 \item \code{aorsf} has the lowest training time.
 }
 

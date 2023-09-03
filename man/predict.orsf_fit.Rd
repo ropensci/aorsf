@@ -39,8 +39,11 @@ options are
 \item{na_action}{(\emph{character}) what should happen when \code{new_data} contains missing values (i.e., \code{NA} values). Valid options are:
 \itemize{
 \item 'fail' : an error is thrown if \code{new_data} contains \code{NA} values
-\item 'pass' : the output will have \code{NA} in all rows where \code{new_data} has 1 or more \code{NA} value for the predictors used by \code{object}.
+\item 'pass' : the output will have \code{NA} in all rows where \code{new_data} has 1 or more \code{NA} value for the predictors used by \code{object}
 \item 'omit' : rows in \code{new_data} with incomplete data will be dropped
+\item 'impute_meanmode' : missing values for continuous and categorical variables in \code{new_data} will be imputed using the mean and mode, respectively. To clarify,
+the mean and mode used to impute missing values are from the
+training data of \code{object}, not from \code{new_data}.
 }}
 
 \item{boundary_checks}{(\emph{logical}) if \code{TRUE}, \code{pred_horizon} will be
@@ -56,8 +59,7 @@ to value \code{j} in \code{pred_horizon}. Row \code{i} of the matrix corresponds
 row \code{i} in \code{new_data}.
 }
 \description{
-Predicted risk or survival (someday also hazard or mortality)
-from an ORSF model.
+Predicted risk, survival, hazard, or mortality from an ORSF model.
 }
 \details{
 \code{new_data} must have the same columns with equivalent types as the data
@@ -101,12 +103,12 @@ predict(fit,
         pred_horizon = c(500, 1000, 1500))
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##             [,1]       [,2]       [,3]
-## [1,] 0.502277249 0.78369254 0.92143996
-## [2,] 0.035699097 0.07776627 0.14863153
-## [3,] 0.110355739 0.26854128 0.40820574
-## [4,] 0.011659607 0.02787088 0.07267587
-## [5,] 0.006644573 0.01591640 0.04903247
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##            [,1]       [,2]       [,3]
+## [1,] 0.48792661 0.75620281 0.90618133
+## [2,] 0.04293829 0.09112952 0.18602887
+## [3,] 0.12147573 0.27784498 0.41600114
+## [4,] 0.01136075 0.03401092 0.08236831
+## [5,] 0.01294947 0.02070625 0.05645823
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted survival, i.e., 1 - risk
@@ -117,11 +119,11 @@ predict(fit,
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##           [,1]      [,2]       [,3]
-## [1,] 0.4977228 0.2163075 0.07856004
-## [2,] 0.9643009 0.9222337 0.85136847
-## [3,] 0.8896443 0.7314587 0.59179426
-## [4,] 0.9883404 0.9721291 0.92732413
-## [5,] 0.9933554 0.9840836 0.95096753
+## [1,] 0.5120734 0.2437972 0.09381867
+## [2,] 0.9570617 0.9088705 0.81397113
+## [3,] 0.8785243 0.7221550 0.58399886
+## [4,] 0.9886393 0.9659891 0.91763169
+## [5,] 0.9870505 0.9792937 0.94354177
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted cumulative hazard function
@@ -132,12 +134,12 @@ predict(fit,
         pred_horizon = c(500, 1000, 1500))
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##             [,1]       [,2]       [,3]
-## [1,] 0.705240501 1.37551172 1.79408459
-## [2,] 0.037859536 0.09860152 0.20087409
-## [3,] 0.131539617 0.38704960 0.68840843
-## [4,] 0.011659607 0.02870233 0.08408614
-## [5,] 0.006644573 0.01789893 0.05801293
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##            [,1]       [,2]       [,3]
+## [1,] 0.68107429 1.28607479 1.70338193
+## [2,] 0.04519460 0.10911618 0.24871482
+## [3,] 0.14686474 0.41252079 0.69005048
+## [4,] 0.01149952 0.03951923 0.10628942
+## [5,] 0.01338978 0.02214232 0.06644605
 }\if{html}{\out{</div>}}
 
 Predict mortality, defined as the number of events in the forest’s
@@ -151,11 +153,11 @@ prediction horizon
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##           [,1]
-## [1,] 71.355153
-## [2,] 10.811443
-## [3,] 27.509084
-## [4,]  5.930542
-## [5,]  3.891028
+## [1,] 68.394152
+## [2,] 12.299344
+## [3,] 28.208251
+## [4,]  6.475339
+## [5,]  4.247305
 }\if{html}{\out{</div>}}
 }
 

@@ -1,3 +1,4 @@
+//
 // #include <RcppArmadillo.h>
 // #include <RcppArmadilloExtensions/sample.h>
 //
@@ -1428,15 +1429,15 @@
 //  vec_temp.resize( jit_vals.size() );
 //
 //  // protection from going out of bounds with jit_vals(k) below
-//  if(j == 0) jit_vals(jit_vals.size()-1)--;
+//  if(j == 0) jit_vals.at(jit_vals.size()-1)--;
 //
 //  // put the indices of potential cut-points into vec_temp
 //  for(k = 0; k < vec_temp.size(); k++){
-//   vec_temp[k] = XB(*(iit_best - jit_vals[k]));
+//   vec_temp[k] = XB.at(*(iit_best - jit_vals[k]));
 //  }
 //
 //  // back to how it was!
-//  if(j == 0) jit_vals(jit_vals.size()-1)++;
+//  if(j == 0) jit_vals.at(jit_vals.size()-1)++;
 //
 //  // if(verbose > 1){
 //  //
@@ -2293,24 +2294,24 @@
 //
 //   for(j = 0; j < times_pred.size(); j++){
 //
-//    time_pred = times_pred(j);
+//    time_pred = times_pred.at(j);
 //
-//    if(time_pred < leaf_node(leaf_node.n_rows - 1, 0)){
+//    if(time_pred < leaf_node.at(leaf_node.n_rows - 1, 0)){
 //
 //     for(; i < leaf_node.n_rows; i++){
 //
-//      if (leaf_node(i, 0) > time_pred){
+//      if (leaf_node.at(i, 0) > time_pred){
 //
 //       if(i == 0)
 //        temp1 = pred_t0;
 //       else
-//        temp1 = leaf_node(i-1, leaf_node_col);
+//        temp1 = leaf_node.at(i-1, leaf_node_col);
 //
 //       break;
 //
-//      } else if (leaf_node(i, 0) == time_pred){
+//      } else if (leaf_node.at(i, 0) == time_pred){
 //
-//       temp1 = leaf_node(i, leaf_node_col);
+//       temp1 = leaf_node.at(i, leaf_node_col);
 //       break;
 //
 //      }
@@ -2320,11 +2321,11 @@
 //    } else {
 //
 //     // go here if prediction horizon > max time in current leaf.
-//     temp1 = leaf_node(leaf_node.n_rows - 1, leaf_node_col);
+//     temp1 = leaf_node.at(leaf_node.n_rows - 1, leaf_node_col);
 //
 //    }
 //
-//    surv_pvec(j) = temp1;
+//    surv_pvec.at(j) = temp1;
 //
 //   }
 //
@@ -2333,7 +2334,7 @@
 //
 //   if(iit < iit_vals.end()){
 //
-//    while(person_leaf == leaf_pred(*iit)){
+//    while(person_leaf == leaf_pred.at(*iit)){
 //
 //     surv_pmat.row(*iit) += surv_pvec.t();
 //     ++iit;
@@ -2427,7 +2428,7 @@
 //   } else {
 //
 //    // go here if prediction horizon > max time in current leaf.
-//    temp1 = leaf_node(leaf_node.n_rows - 1, leaf_node_col);
+//    temp1 = leaf_node.at(leaf_node.n_rows - 1, leaf_node_col);
 //
 //    // --- EXPERIMENTAL ADD-ON --- //
 //    // if you are predicting beyond the max time in a node,
@@ -2441,14 +2442,14 @@
 //
 //   }
 //
-//   surv_pvec(*iit) += temp1;
+//   surv_pvec.at(*iit) += temp1;
 //   ++iit;
 //
 //   if(iit < iit_vals.end()){
 //
-//    while(person_leaf == leaf_pred(*iit)){
+//    while(person_leaf == leaf_pred.at(*iit)){
 //
-//     surv_pvec(*iit) += temp1;
+//     surv_pvec.at(*iit) += temp1;
 //     ++iit;
 //
 //     if (iit == iit_vals.end()) break;
@@ -2783,7 +2784,7 @@
 //
 //    n_cols_to_sample = sum(cols_to_sample_01);
 //
-//    if(n_cols_to_sample > 1){
+//    if(n_cols_to_sample >= 1){
 //
 //     n_events_total = sum(y_node.col(1) % w_node);
 //
@@ -2820,7 +2821,7 @@
 //     //  Rcout << "n_events per column: " << n_events_total/mtry_int << std::endl;
 //     // }
 //
-//     if(mtry_int > 1){
+//     if(mtry_int >= 1){
 //
 //      cols_to_sample = find(cols_to_sample_01);
 //
@@ -3160,11 +3161,13 @@
 //               Function       f_beta,
 //               const char&    type_beta_,
 //               Function       f_oobag_eval,
-//               const char&    type_oobag_eval_){
+//               const char&    type_oobag_eval_,
+//               const bool     verbose_progress){
 //
 //
 //  // convert inputs into arma objects
 //  x_input = mat(x.begin(), x.nrow(), x.ncol(), false);
+//
 //  y_input = mat(y.begin(), y.nrow(), y.ncol(), false);
 //
 //  w_user = vec(weights.begin(), weights.length(), false);
@@ -3213,6 +3216,9 @@
 //  if(cph_iter_max > 1) cph_do_scale = true;
 //
 //  if((type_beta == 'N') || (type_beta == 'U')) cph_do_scale = false;
+//
+//  if(cph_iter_max == 1) cph_do_scale = false;
+//
 //
 //  if(oobag_pred){
 //
@@ -3350,11 +3356,17 @@
 //   //
 //   // }
 //
+//   if(verbose_progress){
+//    Rcout << "\r growing tree no. " << tree << " of " << n_tree;
+//   }
+//
+//
 //   forest[tree] = ostree_fit(f_beta);
 //
 //   // add 1 to tree here instead of end of loop
 //   // (more convenient to compute tree % oobag_eval_every)
 //   tree++;
+//
 //
 //   if(oobag_pred){
 //
@@ -3396,7 +3408,9 @@
 //
 //  }
 //
-//
+//  if(verbose_progress){
+//   Rcout << std::endl;
+//  }
 //
 //  vec vimp(x_input.n_cols);
 //
@@ -3415,6 +3429,7 @@
 //  if(oobag_importance && n_tree > 0){
 //
 //   uvec betas_to_flip;
+//   // vec betas_temp;
 //   oobag_eval_counter--;
 //
 //   for(uword variable = 0; variable < x_input.n_cols; ++variable){
@@ -3445,7 +3460,9 @@
 //
 //     if(oobag_importance_type == 'N'){
 //      betas_to_flip = find(col_indices == variable);
+//      //betas_temp = betas.elem( betas_to_flip );
 //      betas.elem( betas_to_flip ) *= (-1);
+//      //betas.elem( betas_to_flip ) *= 0;
 //     }
 //
 //     denom_pred(rows_oobag) += 1;
@@ -3458,6 +3475,7 @@
 //
 //     if(oobag_importance_type == 'N'){
 //      betas.elem( betas_to_flip ) *= (-1);
+//      // betas.elem( betas_to_flip ) = betas_temp;
 //     }
 //
 //    }
@@ -3538,9 +3556,16 @@
 //  vec vimp(x_input.n_cols);
 //
 //  uvec betas_to_flip;
+//  // vec betas_temp;
 //  uword variable;
 //
+//  denom_pred.set_size(x_input.n_rows);
+//  surv_pvec.set_size(x_input.n_rows);
+//
 //  for(variable = 0; variable < x_input.n_cols; ++variable){
+//
+//   // Abort the routine if user has pressed Ctrl + C or Escape in R.
+//   Rcpp::checkUserInterrupt();
 //
 //   surv_pvec.fill(0);
 //   denom_pred.fill(0);
@@ -3563,6 +3588,9 @@
 //
 //    betas_to_flip = find(col_indices == variable);
 //
+//    // betas_temp = betas.elem( betas_to_flip );
+//    // betas.elem( betas_to_flip ) *= 0;
+//
 //    betas.elem( betas_to_flip ) *= (-1);
 //
 //    denom_pred(rows_oobag) += 1;
@@ -3574,6 +3602,7 @@
 //    oobag_pred_surv_uni(oobag_pred_type);
 //
 //    betas.elem( betas_to_flip ) *= (-1);
+//    // betas.elem( betas_to_flip ) = betas_temp;
 //
 //   }
 //
@@ -3625,7 +3654,13 @@
 //
 //  uword variable;
 //
+//  denom_pred.set_size(x_input.n_rows);
+//  surv_pvec.set_size(x_input.n_rows);
+//
 //  for(variable = 0; variable < x_input.n_cols; ++variable){
+//
+//   // Abort the routine if user has pressed Ctrl + C or Escape in R.
+//   Rcpp::checkUserInterrupt();
 //
 //   surv_pvec.fill(0);
 //   denom_pred.fill(0);
@@ -3805,6 +3840,9 @@
 //
 //  for(pd_i = 0; pd_i < x_vals.n_rows; pd_i++){
 //
+//   // Abort the routine if user has pressed Ctrl + C or Escape in R.
+//   Rcpp::checkUserInterrupt();
+//
 //   j = 0;
 //
 //   surv_pvec.fill(0);
@@ -3869,6 +3907,9 @@
 //
 //  for(pd_i = 0; pd_i < x_vals.n_rows; pd_i++){
 //
+//   // Abort the routine if user has pressed Ctrl + C or Escape in R.
+//   Rcpp::checkUserInterrupt();
+//
 //   j = 0;
 //   denom_pred.fill(0);
 //   surv_pvec.fill(0);
@@ -3923,7 +3964,7 @@
 //                      NumericMatrix& x_vals_,
 //                      NumericVector& probs_,
 //                      const double   time_dbl,
-//                      char     pred_type){
+//                      char           pred_type){
 //
 //
 //  uword pd_i;
@@ -3950,6 +3991,9 @@
 //  surv_pvec.set_size(x_pred.n_rows);
 //
 //  for(pd_i = 0; pd_i < x_vals.n_rows; pd_i++){
+//
+//   // Abort the routine if user has pressed Ctrl + C or Escape in R.
+//   Rcpp::checkUserInterrupt();
 //
 //   j = 0;
 //
@@ -4017,6 +4061,9 @@
 //
 //  for(pd_i = 0; pd_i < x_vals.n_rows; pd_i++){
 //
+//   // Abort the routine if user has pressed Ctrl + C or Escape in R.
+//   Rcpp::checkUserInterrupt();
+//
 //   j = 0;
 //   denom_pred.fill(0);
 //   surv_pvec.fill(0);
@@ -4062,6 +4109,3 @@
 //  return(output_ice);
 //
 // }
-//
-//
-//

@@ -1,7 +1,7 @@
 
-## R CMD check results 
+## R CMD check results
 
-Duration: 2m 31.7s
+Duration: 4m 3.8s
 
 0 errors v | 0 warnings v | 0 notes v
 
@@ -13,37 +13,27 @@ I have also run R CMD check on downstream dependencies of `aorsf`:
 
 - Rcpp
 - data.table. 
+- collapse
 
-Both packages passed.
+All packages passed.
 
-## Revision 1, 2022-08-22
+## Version 0.0.7
 
-Updates: 
+I noticed the package was removed from CRAN on 1-10 so I made some additional changes and am now re-submitting as these changes should fix the problems that appear on the ATLAS check page. 
 
-- ensured all links use https instead of http and have added trailing slashes where appropriate.
+## Version 0.0.6
 
-- added a reference to `DESCRIPTION` that discusses the methods used in `aorsf`.
+I reviewed the additional issues at https://cran.r-project.org/web/checks/check_results_aorsf.html and modified my testing scripts based on results appearing from ATLAS checks.
 
+## Version 0.0.5, submitted 2022-12-13
 
-## Revision 2, 2022-08-22
+## Version 0.0.4, submitted 2022-11-06
 
-Updates: 
+## Version 0.0.3, submitted 2022-10-07
 
-- the trailing slash on URL's to the arXiv paper was removed in the readme.
+R CMD check succeeded with no warnings or notes for `aorsf` and its dependencies.
 
-## Revision 3, 2022-08-22
-
-Updates: 
-
-- the trailing slash on URL's to the arXiv paper was removed in the aorsf vignette.
-
-## Revision 4, 2022-08-23
-
-- Extra spaces in `DESCRIPTION` removed.
-
-- `LICENSE` file fixed and names of authors added.
-
-## Revision 4, 2022-08-24
+## Version 0.0.2, submitted 2022-08-24
 
 I reviewed the additional issues at https://cran.r-project.org/web/checks/check_results_aorsf.html and modified my testing scripts based on results appearing from ATLAS and MKL checks.
 
@@ -53,4 +43,18 @@ Updates:
 
 - relegated time to train tests (`test-orsf.R`, line 617-655) to development version only. These tests can fail randomly (as it did on MKL) due to variations in computing environment.
 
+## Version 0.0.1, submitted 2022-08-22
 
+Updates: 
+
+- ensured all links use https instead of http and have added trailing slashes where appropriate.
+
+- added a reference to `DESCRIPTION` that discusses the methods used in `aorsf`.
+
+- Extra spaces in `DESCRIPTION` removed.
+
+- `LICENSE` file fixed and names of authors added.
+
+- the trailing slash on URL's to the arXiv paper was removed in the readme.
+
+- the trailing slash on URL's to the arXiv paper was removed in the aorsf vignette.

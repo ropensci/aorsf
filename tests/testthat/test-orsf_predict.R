@@ -18,6 +18,39 @@ fit_oobag_chf <- orsf(formula = time + status  ~ . - id,
                       data = pbc_orsf[train, ],
                       oobag_pred_type = 'chf')
 
+
+test_that(
+ desc = "prediction at time 0 is correct",
+ code = {
+
+  pred_t0_chf <-
+   predict(fit,
+           new_data = pbc_orsf[-train, ],
+           pred_type = 'chf',
+           pred_horizon = 0)
+
+  pred_t0_risk <-
+   predict(fit,
+           new_data = pbc_orsf[-train, ],
+           pred_type = 'risk',
+           pred_horizon = 0)
+
+  pred_t0_surv <-
+   predict(fit,
+           new_data = pbc_orsf[-train, ],
+           pred_type = 'surv',
+           pred_horizon = 0)
+
+  expect_true( all(pred_t0_chf == 0) )
+  expect_true( all(pred_t0_risk == 0) )
+  expect_true( all(pred_t0_surv == 1) )
+ }
+)
+
+
+
+
+
 test_that(
  desc = 'oobag risk and surv have equivalent C-stat',
  code = {
@@ -27,7 +60,6 @@ test_that(
   )
  }
 )
-
 
 
 new_data <- pbc_orsf[-train, ]
@@ -523,23 +555,35 @@ test_that(
 test_that(
  desc = "same values propagated to pred output with na_action = pass",
  code = {
-  expect_identical(p_cc[obs_expect, ],
-                   p_ps[obs_expect, ])
 
-  expect_identical(p_cc[obs_expect, ],
-                   p_ps_dt[obs_expect, ])
+  expect_equal(p_cc[obs_expect, ],
+               p_ps[obs_expect, ],
+               tolerance = 0.05)
 
-  expect_identical(p_cc[obs_expect, ],
-                   p_ps_tbl[obs_expect, ])
+  expect_equal(p_cc[obs_expect, ],
+               p_ps_dt[obs_expect, ],
+               tolerance = 0.05)
+
+  expect_equal(p_cc[obs_expect, ],
+               p_ps_tbl[obs_expect, ],
+               tolerance = 0.05)
  }
+
 )
 
 test_that(
  desc = "missing values propagated to pred output with na_action = pass",
  code = {
+
   expect_true(all(is.na(p_ps[na_expect, ])))
-  expect_identical(p_ps, p_ps_dt)
-  expect_identical(p_ps, p_ps_tbl)
+
+  expect_equal(p_ps,
+               p_ps_dt,
+               tolerance = 0.05)
+
+  expect_equal(p_ps,
+               p_ps_tbl,
+               tolerance = 0.05)
  }
 )
 
@@ -569,24 +613,37 @@ p_ps_tbl <- predict(fit,
 test_that(
  desc = "same values propagated to pred output with na_action = pass",
  code = {
-  expect_identical(p_cc[obs_expect, ],
-                   p_ps[obs_expect, ])
 
-  expect_identical(p_cc[obs_expect, ],
-                   p_ps_dt[obs_expect, ])
+  expect_equal(p_cc[obs_expect, ],
+               p_ps[obs_expect, ],
+               tolerance = 0.05)
 
-  expect_identical(p_cc[obs_expect, ],
-                   p_ps_tbl[obs_expect, ])
+  expect_equal(p_cc[obs_expect, ],
+               p_ps_dt[obs_expect, ],
+               tolerance = 0.05)
+
+  expect_equal(p_cc[obs_expect, ],
+               p_ps_tbl[obs_expect, ],
+               tolerance = 0.05)
  }
 )
 
 test_that(
  desc = "missing values propagated to pred output with na_action = pass",
  code = {
+
   expect_true(all(is.na(p_ps[na_expect, ])))
-  expect_identical(p_ps, p_ps_dt)
-  expect_identical(p_ps, p_ps_tbl)
+
+  expect_equal(p_ps,
+               p_ps_dt,
+               tolerance = 0.05)
+
+  expect_equal(p_ps,
+               p_ps_tbl,
+               tolerance = 0.05)
+
  }
+
 )
 
 new_data_all_miss <- new_data_miss

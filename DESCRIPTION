@@ -1,6 +1,6 @@
 Package: aorsf
 Title: Accelerated Oblique Random Survival Forests
-Version: 0.0.2.9000
+Version: 0.0.7.9000
 Authors@R: c(
     person(given = "Byron",
            family = "Jaeger",
@@ -38,10 +38,11 @@ Imports:
     Rcpp,
     data.table,
     utils,
-    stats
-URL: https://github.com/bcjaeger/aorsf/,
-    https://bcjaeger.github.io/aorsf/
-BugReports: https://github.com/bcjaeger/aorsf/issues/
+    stats,
+    collapse
+URL: https://github.com/ropensci/aorsf,
+    https://docs.ropensci.org/aorsf/
+BugReports: https://github.com/ropensci/aorsf/issues/
 Depends: 
     R (>= 3.6)
 Suggests: 

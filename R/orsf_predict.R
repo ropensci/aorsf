@@ -2,8 +2,7 @@
 
 #' Compute predictions using ORSF
 #'
-#' Predicted risk or survival (someday also hazard or mortality)
-#'   from an ORSF model.
+#' Predicted risk, survival, hazard, or mortality from an ORSF model.
 #'
 #' @srrstats {G1.4} *documented with Roxygen*
 #' @srrstats {ML1.1} *using the terms 'train' and 'test'.*
@@ -32,11 +31,14 @@
 #'   - 'chf': cumulative hazard function
 #'   - 'mort': mortality prediction
 #'
-#' @param na_action `r roxy_na_action_header()`
+#' @param na_action `r roxy_na_action_header("new_data")`
 #'
-#'   - `r roxy_na_action_fail()`
-#'   - `r roxy_na_action_pass()`
-#'   - `r roxy_na_action_omit()`
+#'   - `r roxy_na_action_fail("new_data")`
+#'   - `r roxy_na_action_pass("new_data")`
+#'   - `r roxy_na_action_omit("new_data")`
+#'   - `r roxy_na_action_impute_meanmode('new_data')`. To clarify,
+#'     the mean and mode used to impute missing values are from the
+#'     training data of `object`, not from `new_data`.
 #'
 #' @param boundary_checks (_logical_) if `TRUE`, `pred_horizon` will be
 #'  checked to make sure the requested values are less than the maximum
@@ -97,20 +99,35 @@ predict.orsf_fit <- function(object,
  pred_horizon_order <- order(pred_horizon)
  pred_horizon_ordered <- pred_horizon[pred_horizon_order]
 
- cc <- which(stats::complete.cases(select_cols(new_data, names_x_data)))
+ cc <- which(
+  stats::complete.cases(select_cols(new_data, names_x_data))
+ )
 
  check_complete_cases(cc, na_action, nrow(new_data))
+
+ if(na_action == 'impute_meanmode'){
+
+  new_data <- data_impute(new_data,
+                          cols = get_names_x(object),
+                          values = c(as.list(get_means(object)),
+                                     as.list(get_modes(object))))
+
+  cc <- collapse::seq_row(new_data)
+
+ }
 
  if(is.null(pred_horizon) && pred_type != 'mort'){
   stop("pred_horizon must be specified for ",
        pred_type, " predictions.", call. = FALSE)
  }
 
- x_new <- as.matrix(
-  ref_code(x_data = new_data[cc, ],
-           fi = get_fctr_info(object),
-           names_x_data = names_x_data)
- )
+ x_new <- prep_x_from_orsf(object, data = new_data[cc, ])
+
+ # x_new <- as.matrix(
+ #  ref_code(x_data = new_data[cc, ],
+ #           fi = get_fctr_info(object),
+ #           names_x_data = names_x_data)
+ # )
 
  pred_type_cpp <- switch(
   pred_type,

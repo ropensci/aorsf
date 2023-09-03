@@ -27,4 +27,4 @@ ice_oob
 
 ```
 
-Much more detailed examples are given in the [vignette](https://bcjaeger.github.io/aorsf/articles/pd.html#individual-conditional-expectations-ice)
+Much more detailed examples are given in the [vignette](https://docs.ropensci.org/aorsf/articles/pd.html#individual-conditional-expectations-ice)

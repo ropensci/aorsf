@@ -96,24 +96,28 @@ set.seed(32987)
 fit <- orsf(pbc_vi,
             formula = Surv(time, status) ~ age + sex + bili + junk + junk_cat,
             importance = "negate",
+            group_factors = FALSE,
             oobag_eval_every = 100)
 
 set.seed(32987)
 fit_anova <- orsf(pbc_vi,
                   formula = Surv(time, status) ~ age + sex + bili + junk + junk_cat,
                   importance = "anova",
+                  group_factors = FALSE,
                   oobag_eval_every = 100)
 
 set.seed(32987)
 fit_permute <- orsf(pbc_vi,
                     formula = Surv(time, status) ~ age + sex + bili + junk + junk_cat,
                     importance = "permute",
+                    group_factors = FALSE,
                     oobag_eval_every = 100)
 
 set.seed(32987)
 fit_no_vi <- orsf(pbc_vi,
                   formula = Surv(time, status) ~ age + sex + bili + junk + junk_cat,
                   importance = "none",
+                  group_factors = FALSE,
                   oobag_eval_every = 100)
 
 
@@ -294,7 +298,9 @@ data_with_empty_factor <- pbc_orsf
 levels(data_with_empty_factor$sex) <-
  c(levels(data_with_empty_factor$sex), 'o')
 
-fit <- orsf(data_with_empty_factor, time + status ~ . - id)
+fit <- orsf(data_with_empty_factor,
+            formula = time + status ~ . - id,
+            group_factors = FALSE)
 
 test_that(
  desc = 'unused factor levels have nan for importance, but this gets kicked out of the aggregated factor importance',
@@ -305,5 +311,104 @@ test_that(
 )
 
 
+# getting ungrouped VI values from an orsf fit
 
+
+test_that(
+ desc = "ungrouped VI can be recovered with group_factors = TRUE in orsf()",
+ code = {
+
+  expect_true('sex' %in% names(orsf_vi(fit_anova)))
+  expect_true('sex_f' %in% names(orsf_vi(fit_anova, group_factors = FALSE)))
+
+  permute_importance <- orsf_vi_permute(fit_anova, group_factors = FALSE)
+  negate_importance <- orsf_vi_negate(fit_anova, group_factors = FALSE)
+
+  expect_true('sex_f' %in% names(permute_importance))
+  expect_true('sex_f' %in% names(negate_importance))
+
+  # same but with group_factors TRUE
+
+  permute_importance <- orsf_vi_permute(fit_anova, group_factors = TRUE)
+  negate_importance <- orsf_vi_negate(fit_anova, group_factors = TRUE)
+
+  expect_true('sex' %in% names(permute_importance))
+  expect_true('sex' %in% names(negate_importance))
+
+
+ }
+)
+
+# repeat some tests with grouped factors
+set.seed(32987)
+fit <- orsf(pbc_vi,
+            formula = Surv(time, status) ~ age + sex + bili + junk + junk_cat,
+            importance = "negate",
+            group_factors = TRUE,
+            oobag_eval_every = 100)
+
+set.seed(32987)
+fit_anova <- orsf(pbc_vi,
+                  formula = Surv(time, status) ~ age + sex + bili + junk + junk_cat,
+                  importance = "anova",
+                  group_factors = TRUE,
+                  oobag_eval_every = 100)
+
+set.seed(32987)
+fit_permute <- orsf(pbc_vi,
+                    formula = Surv(time, status) ~ age + sex + bili + junk + junk_cat,
+                    importance = "permute",
+                    group_factors = TRUE,
+                    oobag_eval_every = 100)
+
+set.seed(32987)
+fit_no_vi <- orsf(pbc_vi,
+                  formula = Surv(time, status) ~ age + sex + bili + junk + junk_cat,
+                  importance = "none",
+                  group_factors = TRUE,
+                  oobag_eval_every = 100)
+
+test_that(
+ desc = "negation importance picks the right variable",
+ code = {
+  expect_gt(fit$importance['bili'], fit$importance['junk'])
+  expect_gt(fit$importance['bili'], fit$importance['junk_cat'])
+ }
+)
+
+test_that(
+ desc = "anova importance picks the right variable",
+ code = {
+  expect_gt(fit_anova$importance['bili'], fit_anova$importance['junk'])
+  expect_gt(fit_anova$importance['bili'], fit_anova$importance['junk_cat'])
+ }
+)
+
+test_that(
+ desc = "permutation importance picks the right variable",
+ code = {
+  expect_gt(fit_permute$importance['bili'], fit_anova$importance['junk'])
+  expect_gt(fit_permute$importance['bili'], fit_anova$importance['junk_cat'])
+ }
+)
+
+test_that(
+ desc = "can get both types of importance from scratch, grouped or not",
+ code = {
+
+  permute <- orsf_vi_permute(fit_no_vi, group_factors = FALSE)
+  negate <- orsf_vi_negate(fit_no_vi, group_factors = FALSE)
+
+  expect_true('sex_f' %in% names(permute))
+  expect_true('sex_f' %in% names(negate))
+
+  permute <- orsf_vi_permute(fit_no_vi, group_factors = TRUE)
+  negate <- orsf_vi_negate(fit_no_vi, group_factors = TRUE)
+
+  expect_true('sex' %in% names(permute))
+  expect_true('sex' %in% names(negate))
+
+
+ }
+)
 

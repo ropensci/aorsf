@@ -104,7 +104,6 @@ paste_collapse <- function(x, sep=', ', last = ' or '){
 
 }
 
-
 #' Find cut-point boundaries (R version)
 #'
 #'  Used to test the cpp version for finding cutpoints
@@ -152,6 +151,10 @@ cp_find_bounds_R <- function(y_node,
 
  cp_stats
 
+}
+
+has_units <- function(x){
+ inherits(x, 'units')
 }
 
 # Clean up after aorsf is unloaded.

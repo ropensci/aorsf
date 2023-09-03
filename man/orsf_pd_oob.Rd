@@ -155,13 +155,12 @@ You can compute partial dependence and ICE three ways with \code{aorsf}:
 pd_train
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon  bili      mean        lwr       medn       upr
-##           <num> <int>     <num>      <num>      <num>     <num>
-## 1:      1826.25     1 0.2065186 0.01461416 0.09406926 0.8053158
-## 2:      1826.25     2 0.2352372 0.02673697 0.12477942 0.8206148
-## 3:      1826.25     3 0.2754197 0.04359767 0.17630939 0.8406553
-## 4:      1826.25     4 0.3303309 0.09237920 0.24319095 0.8544871
-## 5:      1826.25     5 0.3841395 0.15224112 0.30174988 0.8663482
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean        lwr      medn       upr
+## 1:      1826.25    1 0.2054232 0.01599366 0.0929227 0.8077278
+## 2:      1826.25    2 0.2369077 0.02549869 0.1268457 0.8227315
+## 3:      1826.25    3 0.2808514 0.05027265 0.1720280 0.8457834
+## 4:      1826.25    4 0.3428065 0.09758988 0.2545869 0.8575243
+## 5:      1826.25    5 0.3992909 0.16392752 0.3232681 0.8634269
 }\if{html}{\out{</div>}}
 \item using out-of-bag predictions for the training data
 
@@ -170,13 +169,12 @@ pd_train
 pd_train
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon  bili      mean        lwr       medn       upr
-##           <num> <int>     <num>      <num>      <num>     <num>
-## 1:      1826.25     1 0.2075896 0.01389732 0.09063976 0.7998756
-## 2:      1826.25     2 0.2352634 0.02628113 0.12935779 0.8152149
-## 3:      1826.25     3 0.2750782 0.04254451 0.18877830 0.8371582
-## 4:      1826.25     4 0.3302680 0.08806724 0.24827784 0.8441472
-## 5:      1826.25     5 0.3846734 0.14808075 0.29926304 0.8562432
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean        lwr       medn       upr
+## 1:      1826.25    1 0.2068300 0.01479443 0.08824123 0.8053317
+## 2:      1826.25    2 0.2377046 0.02469718 0.12623031 0.8258154
+## 3:      1826.25    3 0.2810546 0.04080813 0.18721220 0.8484846
+## 4:      1826.25    4 0.3417839 0.09076851 0.24968438 0.8611884
+## 5:      1826.25    5 0.3979925 0.16098228 0.32147532 0.8554402
 }\if{html}{\out{</div>}}
 \item using predictions for a new set of data
 
@@ -187,25 +185,24 @@ pd_train
 pd_test
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon  bili      mean        lwr      medn       upr
-##           <num> <int>     <num>      <num>     <num>     <num>
-## 1:      1826.25     1 0.2541661 0.01581296 0.1912170 0.8103449
-## 2:      1826.25     2 0.2824737 0.03054392 0.2304441 0.8413602
-## 3:      1826.25     3 0.3205550 0.04959123 0.2736161 0.8495418
-## 4:      1826.25     4 0.3743186 0.10474085 0.3501337 0.8619464
-## 5:      1826.25     5 0.4258793 0.16727203 0.4032790 0.8626002
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean        lwr      medn       upr
+## 1:      1826.25    1 0.2510900 0.01631318 0.1872414 0.8162621
+## 2:      1826.25    2 0.2807327 0.02903956 0.2269297 0.8332956
+## 3:      1826.25    3 0.3247386 0.05860235 0.2841853 0.8481825
+## 4:      1826.25    4 0.3850799 0.10741224 0.3405760 0.8588955
+## 5:      1826.25    5 0.4394952 0.17572657 0.4050864 0.8657886
 }\if{html}{\out{</div>}}
 \item in-bag partial dependence indicates relationships that the model has
-learned during training. This is helpful if your goal is to
-interpret the model.
+learned during training. This is helpful if your goal is to interpret
+the model.
 \item out-of-bag partial dependence indicates relationships that the model
 has learned during training but using the out-of-bag data simulates
-application of the model to new data. if you want to test your
-model’s reliability or fairness in new data but you don’t have
-access to a large testing set.
-\item new data partial dependence shows how the model predicts outcomes
-for observations it has not seen. This is helpful if you want to
-test your model’s reliability or fairness.
+application of the model to new data. if you want to test your model’s
+reliability or fairness in new data but you don’t have access to a
+large testing set.
+\item new data partial dependence shows how the model predicts outcomes for
+observations it has not seen. This is helpful if you want to test your
+model’s reliability or fairness.
 }
 }
 }

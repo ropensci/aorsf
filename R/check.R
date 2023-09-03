@@ -807,7 +807,7 @@ check_orsf_inputs <- function(data = NULL,
 
   check_arg_gteq(arg_name = 'mtry',
                  arg_value = mtry,
-                 bound = 2)
+                 bound = 1)
 
   check_arg_length(arg_name = 'mtry',
                    arg_value = mtry,
@@ -942,9 +942,9 @@ check_orsf_inputs <- function(data = NULL,
                    arg_name = 'oobag_pred_horizon',
                    expected_length = 1)
 
-  check_arg_gt(arg_value = oobag_pred_horizon,
-               arg_name = 'oobag_pred_horizon',
-               bound = 0)
+  check_arg_gteq(arg_value = oobag_pred_horizon,
+                 arg_name = 'oobag_pred_horizon',
+                 bound = 0)
 
  }
 
@@ -1481,7 +1481,7 @@ check_predict <- function(object,
                           pred_horizon = NULL,
                           pred_type = NULL,
                           na_action = NULL,
-                          boundary_checks = NULL){
+                          boundary_checks = TRUE){
 
  if(!is.null(new_data)){
 
@@ -1572,9 +1572,9 @@ check_predict <- function(object,
                  arg_name = 'pred_horizon',
                  expected_type = 'numeric')
 
-  check_arg_gt(arg_value = pred_horizon,
-               arg_name = 'pred_horizon',
-               bound = 0)
+  check_arg_gteq(arg_value = pred_horizon,
+                 arg_name = 'pred_horizon',
+                 bound = 0)
 
   if(any(pred_horizon > get_max_time(object))){
 
@@ -1604,7 +1604,8 @@ check_predict <- function(object,
                      arg_name = 'na_action',
                      valid_options = c("fail",
                                        "pass",
-                                       "omit"))
+                                       "omit",
+                                       "impute_meanmode"))
 
  }
 

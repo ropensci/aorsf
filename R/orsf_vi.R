@@ -7,10 +7,7 @@
 #'
 #' @inheritParams predict.orsf_fit
 #'
-#' @param group_factors (_logical_) if `TRUE`, the importance of factor
-#'   variables will be reported overall by aggregating the importance
-#'   of individual levels of the factor. If `FALSE`, the importance of
-#'   individual factor levels will be returned.
+#' @param group_factors (_logical_) `r roxy_group_factors()`
 #'
 #' @param importance `r roxy_importance_header()`
 #' - `r roxy_importance_anova()`
@@ -32,7 +29,7 @@
 #'       importance is estimated.
 #'
 #' For more details, see the out-of-bag
-#' [vignette](https://bcjaeger.github.io/aorsf/articles/oobag.html).
+#' [vignette](https://docs.ropensci.org/aorsf/articles/oobag.html).
 #'
 #' @section Variable importance methods:
 #'
@@ -160,7 +157,7 @@ orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
        call. = FALSE)
 
  out <- switch(type_vi,
-               'anova' = as.matrix(object$importance),
+               'anova' = as.matrix(get_importance_values(object)),
                'negate' = orsf_vi_oobag_(object, type_vi, oobag_fun),
                'permute' = orsf_vi_oobag_(object, type_vi, oobag_fun))
 
@@ -226,9 +223,9 @@ orsf_vi_oobag_ <- function(object, type_vi, oobag_fun){
     is.null(oobag_fun) &&
     get_importance(object) == type_vi){
 
-  out <- matrix(object$importance, ncol = 1)
+  out <- matrix(get_importance_values(object), ncol = 1)
 
-  rownames(out) <- names(object$importance)
+  rownames(out) <- names(get_importance_values(object))
 
   return(out)
 
@@ -247,16 +244,12 @@ orsf_vi_oobag_ <- function(object, type_vi, oobag_fun){
 
  }
 
- y <- as.matrix(object$data[, get_names_y(object)])
+ y <- prep_y_from_orsf(object)
+ x <- prep_x_from_orsf(object)
 
  # Put data in the same order that it was in when object was fit
  sorted <- order(y[, 1], -y[, 2])
 
- x <- as.matrix(
-  ref_code(x_data = object$data,
-           fi = get_fctr_info(object),
-           names_x_data = get_names_x(object))
- )
 
  if(is.null(oobag_fun)) {
 
@@ -282,7 +275,6 @@ orsf_vi_oobag_ <- function(object, type_vi, oobag_fun){
   "risk" = "R",
   "chf"  = "H"
  )
-
 
  out <- f_oobag_vi(x = x[sorted, ],
                    y = y[sorted, ],

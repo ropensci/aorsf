@@ -33,10 +33,10 @@
 #'   - 'chf': cumulative hazard function
 #'   - 'mort': mortality prediction
 #'
-#' @param na_action `r roxy_na_action_header()`
+#' @param na_action `r roxy_na_action_header("new_data")`
 #'
-#'   - `r roxy_na_action_fail()`
-#'   - `r roxy_na_action_omit()`
+#'   - `r roxy_na_action_fail("new_data")`
+#'   - `r roxy_na_action_omit("new_data")`
 #'
 #' @param expand_grid (_logical_) if `TRUE`, partial dependence will be
 #'   computed at all possible combinations of inputs in `pred_spec`. If
@@ -343,13 +343,20 @@ orsf_pred_dependence <- function(object,
 
  check_complete_cases(cc, na_action, nrow(pd_data))
 
- x_new <- as.matrix(
-  ref_code(x_data = pd_data[cc, ],
-           fi = get_fctr_info(object),
-           names_x_data = names_x_data)
- )
+ x_new <- prep_x_from_orsf(object, data = pd_data[cc, ])
+
+
+ # the values in pred_spec need to be centered & scaled to match x_new,
+ # which is also centered and scaled
+ means <- get_means(object)
+ standard_deviations <- get_standard_deviations(object)
+
+ for(i in intersect(names(means), names(pred_spec))){
+  pred_spec[[i]] <- (pred_spec[[i]] - means[i]) / standard_deviations[i]
+ }
 
  if(is.data.frame(pred_spec)) type_input <- 'grid'
+
 
  pd_fun_structure <- switch(type_input,
                             'grid' = pd_grid,
@@ -397,6 +404,27 @@ orsf_pred_dependence <- function(object,
                   idcol = 'pred_horizon')
 
  out[, pred_horizon := as.numeric(pred_horizon)]
+
+ # put data back into original scale
+ for(j in intersect(names(means), names(pred_spec))){
+
+  if(j %in% names(out)){
+
+   var_index <- collapse::seq_row(out)
+   var_value <- (out[[j]] * standard_deviations[j]) + means[j]
+   var_name  <- j
+
+  } else {
+
+   var_index <- out$variable %==% j
+   var_value <- (out$value[var_index] * standard_deviations[j]) + means[j]
+   var_name  <- 'value'
+
+  }
+
+  set(out, i = var_index, j = var_name, value = var_value)
+
+ }
 
  # silent print after modify in place
  out[]
@@ -464,7 +492,7 @@ pd_grid <- function(object,
  pd_vals <- pd_fun_predict(forest      = object$forest,
                            x_new_      = x_new,
                            x_cols_     = x_cols-1,
-                           x_vals_     = as.matrix(pred_spec_new),
+                           x_vals_     = as_matrix(pred_spec_new),
                            probs_      = prob_values,
                            time_dbl    = pred_horizon,
                            pred_type   = pred_type_cpp)
