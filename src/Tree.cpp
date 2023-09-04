@@ -144,11 +144,11 @@
   // Start with all samples OOB
   vec w_inbag(n, fill::zeros);
 
-  std::uniform_int_distribution<uword> unif_dist(0, n - 1);
+  std::uniform_int_distribution<uword> udist_rows(0, n - 1);
 
   // sample with replacement
   for (i = 0; i < n; ++i) {
-   draw = unif_dist(random_number_generator);
+   draw = udist_rows(random_number_generator);
    ++w_inbag[draw];
   }
 
@@ -174,13 +174,13 @@
   std::vector<bool> temp;
   temp.resize(n_cols_total, false);
 
-  std::uniform_int_distribution<uword> unif_dist(0, n_cols_total - 1);
+  std::uniform_int_distribution<uword> udist_cols(0, n_cols_total - 1);
 
   uword i, draw;
 
   for (i = 0; i < n_cols_total; ++i) {
 
-   do { draw = unif_dist(random_number_generator); } while (temp[draw]);
+   do { draw = udist_cols(random_number_generator); } while (temp[draw]);
 
    temp[draw] = true;
 
@@ -521,19 +521,19 @@
 
    cuts_sampled.set_size(split_max_cuts);
 
-   std::uniform_int_distribution<uword> cut_sample_dist(0, cuts_all.size() - 1);
+   std::uniform_int_distribution<uword> udist_cuts(0, cuts_all.size() - 1);
 
    // sample without replacement
    for (uword i = 0; i < split_max_cuts; ++i) {
 
-    uword draw = cut_sample_dist(random_number_generator);
+    uword draw = udist_cuts(random_number_generator);
 
     // Ensure the drawn number is not already in the sample
     while (std::find(cuts_sampled.begin(),
                      cuts_sampled.end(),
                      cuts_all[draw]) != cuts_sampled.end()) {
 
-     draw = cut_sample_dist(random_number_generator);
+     draw = udist_cuts(random_number_generator);
 
     }
 

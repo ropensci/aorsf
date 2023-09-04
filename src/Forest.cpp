@@ -177,24 +177,6 @@ void Forest::grow() {
 
  init_trees();
 
- // if multi-threading isn't required
- // if(n_thread == 1){
- //
- //  vec* vi_numer_ptr = &this->vi_numer;
- //  uvec* vi_denom_ptr = &this->vi_denom;
- //
- //  for(uint i = 0; i < n_tree; ++i){
- //
- //   // Abort if user has pressed Ctrl + C or Escape in R.
- //   checkUserInterrupt();
- //   trees[i]->grow(vi_numer_ptr, vi_denom_ptr);
- //
- //  }
- //
- //  return;
- //
- // }
-
  // Create thread ranges
  equalSplit(thread_ranges, 0, n_tree - 1, n_thread);
  // catch interrupts from threads
