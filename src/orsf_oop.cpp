@@ -227,8 +227,9 @@
    std::vector<std::vector<arma::vec>>   leaf_pred_chf = loaded_forest["leaf_pred_chf"];
    std::vector<std::vector<double>>      leaf_pred_mort = loaded_forest["leaf_pred_mort"];
 
-   forest->load(n_tree, cutpoint, child_left, coef_values, coef_indices,
-                leaf_pred_horizon, leaf_pred_surv, leaf_pred_chf, leaf_pred_mort);
+   auto& temp = dynamic_cast<ForestSurvival&>(*forest);
+   temp.load(n_tree, cutpoint, child_left, coef_values, coef_indices,
+             leaf_pred_horizon, leaf_pred_surv, leaf_pred_chf, leaf_pred_mort);
 
    arma::mat pred_mat = forest->predict(oobag);
 
