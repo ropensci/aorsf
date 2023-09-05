@@ -1,8 +1,8 @@
 
 //  Forest.h
 
-#ifndef ForestSurvival_H
-#define ForestSurvival_H
+#ifndef FORESTSURVIVAL_H
+#define FORESTSURVIVAL_H
 
 #include "Data.h"
 #include "globals.h"
@@ -29,6 +29,9 @@ public:
            std::vector<std::vector<arma::vec>>& forest_leaf_pred_surv,
            std::vector<std::vector<arma::vec>>& forest_leaf_pred_chf,
            std::vector<std::vector<double>>& forest_leaf_pred_mort);
+
+ // growInternal() in ranger
+ void plant() override;
 
 
 };

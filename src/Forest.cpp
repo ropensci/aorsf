@@ -123,17 +123,6 @@ void Forest::init_trees(){
 
 }
 
-// growInternal() in ranger
-void Forest::plant() {
-
- trees.reserve(n_tree);
-
- for (arma::uword i = 0; i < n_tree; ++i) {
-  trees.push_back(std::make_unique<Tree>());
- }
-
-}
-
 void Forest::grow() {
 
  init_trees();

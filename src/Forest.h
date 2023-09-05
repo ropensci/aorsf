@@ -1,8 +1,8 @@
 
 //  Forest.h
 
-#ifndef Forest_H
-#define Forest_H
+#ifndef FOREST_H
+#define FOREST_H
 
 #include "Data.h"
 #include "globals.h"
@@ -77,7 +77,7 @@ public:
                       vec* vi_numer_ptr,
                       uvec* vi_denom_ptr);
 
- void plant();
+ virtual void plant() = 0;
 
  arma::mat predict(bool oobag);
 

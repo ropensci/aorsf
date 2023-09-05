@@ -2,6 +2,7 @@
 
 #include <RcppArmadillo.h>
 #include "ForestSurvival.h"
+#include "TreeSurvival.h"
 
 using namespace arma;
 using namespace Rcpp;
@@ -35,17 +36,28 @@ void ForestSurvival::load(arma::uword n_tree,
   trees.push_back(
    std::make_unique<Tree>(forest_cutpoint[i],
                           forest_child_left[i],
-                                           forest_coef_values[i],
-                                                             forest_coef_indices[i],
-                                                                                forest_leaf_pred_horizon[i],
-                                                                                                        forest_leaf_pred_surv[i],
-                                                                                                                             forest_leaf_pred_chf[i],
-                                                                                                                                                 forest_leaf_pred_mort[i])
+                          forest_coef_values[i],
+                          forest_coef_indices[i],
+                          forest_leaf_pred_horizon[i],
+                          forest_leaf_pred_surv[i],
+                          forest_leaf_pred_chf[i],
+                          forest_leaf_pred_mort[i])
   );
  }
 
  // Create thread ranges
  equalSplit(thread_ranges, 0, n_tree - 1, n_thread);
+
+}
+
+// growInternal() in ranger
+void ForestSurvival::plant() {
+
+ trees.reserve(n_tree);
+
+ for (arma::uword i = 0; i < n_tree; ++i) {
+  trees.push_back(std::make_unique<TreeSurvival>());
+ }
 
 }
 
