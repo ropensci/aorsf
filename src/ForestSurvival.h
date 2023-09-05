@@ -16,6 +16,11 @@ public:
 
  ForestSurvival();
 
+ ForestSurvival(double leaf_min_events,
+                double split_min_events,
+                arma::vec& pred_horizon,
+                arma::vec& unique_event_times);
+
  ForestSurvival(const ForestSurvival&) = delete;
  ForestSurvival& operator=(const ForestSurvival&) = delete;
 

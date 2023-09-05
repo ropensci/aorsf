@@ -22,6 +22,12 @@
   TreeSurvival(const TreeSurvival&) = delete;
   TreeSurvival& operator=(const TreeSurvival&) = delete;
 
+  double compute_max_leaves() override;
+
+  bool is_node_splittable_internal() override;
+
+  arma::uvec find_cutpoints() override;
+
  };
 
  } // namespace aorsf

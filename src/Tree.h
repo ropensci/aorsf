@@ -68,13 +68,17 @@
 
   bool is_node_splittable(arma::uword node_id);
 
-  arma::uvec find_cutpoints();
+  virtual bool is_node_splittable_internal();
+
+  virtual arma::uvec find_cutpoints();
 
   double score_logrank();
 
   double node_split(arma::uvec& cuts_all);
 
   void node_sprout(arma::uword node_id);
+
+  virtual double compute_max_leaves();
 
   double compute_mortality(arma::mat& leaf_data);
 
@@ -149,6 +153,9 @@
 
   double n_obs_inbag;
   double n_events_inbag;
+
+  double max_nodes;
+  double max_leaves;
 
 
   // views of data

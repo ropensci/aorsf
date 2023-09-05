@@ -18,11 +18,9 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   VariableImportance vi_type,
                   double vi_max_pvalue,
                   // leaves
-                  double leaf_min_events,
                   double leaf_min_obs,
                   // node splitting
                   SplitRule split_rule,
-                  double split_min_events,
                   double split_min_obs,
                   double split_min_stat,
                   arma::uword split_max_cuts,
@@ -39,7 +37,6 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   // predictions
                   PredType pred_type,
                   bool pred_mode,
-                  arma::vec pred_horizon,
                   bool oobag_pred,
                   arma::uword oobag_eval_every,
                   Rcpp::RObject oobag_R_function,
@@ -51,10 +48,8 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->mtry = mtry;
  this->vi_type = vi_type;
  this->vi_max_pvalue = vi_max_pvalue;
- this->leaf_min_events = leaf_min_events;
  this->leaf_min_obs = leaf_min_obs;
  this->split_rule = split_rule;
- this->split_min_events = split_min_events;
  this->split_min_obs = split_min_obs;
  this->split_min_stat = split_min_stat;
  this->split_max_cuts = split_max_cuts;

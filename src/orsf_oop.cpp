@@ -179,7 +179,12 @@
   // R functions cannot be called from multiple threads
   if(lincomb_type == R_FUNCTION){ n_thread = 1; }
 
-  forest = std::make_unique<ForestSurvival>();
+  vec y_times = find_unique_event_times(y);
+
+  forest = std::make_unique<ForestSurvival>(leaf_min_events,
+                                            split_min_events,
+                                            pred_horizon,
+                                            y_times);
 
   forest->init(std::move(data),
                tree_seeds,
@@ -187,10 +192,8 @@
                mtry,
                vi_type,
                vi_max_pvalue,
-               leaf_min_events,
                leaf_min_obs,
                split_rule,
-               split_min_events,
                split_min_obs,
                split_min_stat,
                split_max_cuts,
@@ -205,15 +208,10 @@
                lincomb_R_function,
                pred_type,
                pred_mode,
-               pred_horizon,
                oobag,
                oobag_eval_every,
                oobag_R_function,
                n_thread);
-
-  // only used for survival
-  vec y_times = find_unique_event_times(y);
-  forest->set_unique_event_times(y_times);
 
    // Load forest object if in prediction mode
   if(pred_mode){

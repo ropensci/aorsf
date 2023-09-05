@@ -39,11 +39,9 @@ public:
            VariableImportance vi_type,
            double vi_max_pvalue,
            // leaves
-           double leaf_min_events,
            double leaf_min_obs,
            // node splitting
            SplitRule split_rule,
-           double split_min_events,
            double split_min_obs,
            double split_min_stat,
            arma::uword split_max_cuts,
@@ -60,7 +58,6 @@ public:
            // predictions
            PredType pred_type,
            bool pred_mode,
-           arma::vec pred_horizon,
            bool oobag_pred,
            arma::uword oobag_eval_every,
            Rcpp::RObject oobag_R_function,

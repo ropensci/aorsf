@@ -266,20 +266,23 @@
   y_node = y_inbag.rows(rows_node);
   w_node = w_inbag(rows_node);
 
-  double n_risk = sum(w_node);
-  double n_events = sum(y_node.col(1) % w_node);
+  bool result = is_node_splittable_internal();
 
-  return(n_events >= 2*leaf_min_events &&
-         n_risk   >= 2*leaf_min_obs &&
-         n_events >=   split_min_events &&
-         n_risk   >=   split_min_obs);
+  return(result);
+
+ }
+
+ bool Tree::is_node_splittable_internal(){
+
+  double n_obs = sum(w_node);
+
+  return(n_obs >= 2*leaf_min_obs &&
+         n_obs >= split_min_obs);
 
  }
 
 
  uvec Tree::find_cutpoints(){
-
-  vec y_status = y_node.unsafe_col(1);
 
   // placeholder with values indicating invalid cps
   uvec output;
@@ -288,7 +291,7 @@
 
   uvec::iterator it, it_min, it_max;
 
-  double n_events = 0, n_risk = 0;
+  double n_obs = 0;
 
   if(VERBOSITY > 1){
    Rcout << "----- finding lower bound for cut-points -----" << std::endl;
@@ -297,16 +300,7 @@
   // stop at end-1 b/c we access it+1 in lincomb_sort
   for(it = lincomb_sort.begin(); it < lincomb_sort.end()-1; ++it){
 
-   n_events += y_status[*it] * w_node[*it];
-   n_risk += w_node[*it];
-
-
-   if(VERBOSITY > 2){
-    Rcout << "current value: "<< lincomb(*it) << " -- ";
-    Rcout << "next: "<< lincomb(*(it+1))      << " -- ";
-    Rcout << "N events: " << n_events         << " -- ";
-    Rcout << "N risk: "   << n_risk           << std::endl;
-   }
+   n_obs += w_node[*it];
 
    // If we want to make the current value of lincomb a cut-point, we need
    // to make sure the next value of lincomb isn't equal to this current value.
@@ -314,14 +308,12 @@
 
    if(lincomb[*it] != lincomb[*(it+1)]){
 
-    if( n_events >= leaf_min_events &&
-        n_risk   >= leaf_min_obs) {
+    if(n_obs >= leaf_min_obs) {
 
      if(VERBOSITY > 0){
       Rcout << std::endl;
       Rcout << "lower cutpoint: "         << lincomb(*it) << std::endl;
-      Rcout << " - n_events, left node: " << n_events << std::endl;
-      Rcout << " - n_risk, left node:   " << n_risk   << std::endl;
+      Rcout << " - n_obs, left node:   " << n_obs   << std::endl;
       Rcout << std::endl;
      }
 
@@ -349,7 +341,7 @@
   j = it - lincomb_sort.begin();
 
   // reset before finding the upper limit
-  n_events=0, n_risk=0;
+  n_obs=0;
 
   if(VERBOSITY > 1){
    Rcout << "----- finding upper bound for cut-points -----" << std::endl;
@@ -358,20 +350,11 @@
   // stop at beginning+1 b/c we access it-1 in lincomb_sort
   for(it = lincomb_sort.end()-1; it >= lincomb_sort.begin()+1; --it){
 
-   n_events += y_status[*it] * w_node[*it];
-   n_risk   += w_node[*it];
-
-   if(VERBOSITY > 2){
-    Rcout << "current value: "<< lincomb(*it)  << " ---- ";
-    Rcout << "next value: "<< lincomb(*(it-1)) << " ---- ";
-    Rcout << "N events: " << n_events       << " ---- ";
-    Rcout << "N risk: " << n_risk           << std::endl;
-   }
+   n_obs += w_node[*it];
 
    if(lincomb[*it] != lincomb[*(it-1)]){
 
-    if( n_events >= leaf_min_events &&
-        n_risk   >= leaf_min_obs ) {
+    if(n_obs >= leaf_min_obs) {
 
      // the upper cutpoint needs to be one step below the current
      // it value, because we use x <= cp to determine whether a
@@ -386,8 +369,7 @@
      if(VERBOSITY > 0){
       Rcout << std::endl;
       Rcout << "upper cutpoint: " << lincomb(*it) << std::endl;
-      Rcout << " - n_events, right node: " << n_events    << std::endl;
-      Rcout << " - n_risk, right node:   " << n_risk      << std::endl;
+      Rcout << " - n_obs, right node:   " << n_obs << std::endl;
       Rcout << std::endl;
      }
 
@@ -733,6 +715,23 @@
 
  }
 
+ double Tree::compute_max_leaves(){
+
+  // find maximum number of leaves for this tree
+  // there are two ways to have maximal tree size:
+  vec max_leaves_2ways = {
+   //  1. every leaf node has exactly leaf_min_obs,
+   n_obs_inbag / leaf_min_obs,
+   //  2. every leaf node has exactly split_min_obs - 1,
+   n_obs_inbag / (split_min_obs - 1)
+  };
+
+  double max_leaves = std::ceil(max(max_leaves_2ways));
+
+  return(max_leaves);
+
+ }
+
  double Tree::compute_mortality(arma::mat& leaf_data){
 
   double result = 0;
@@ -781,24 +780,8 @@
 
   node_assignments.zeros(n_rows_inbag);
 
-  // find maximum number of leaves for this tree
-  // there are four ways to have maximal tree size:
-  vec max_leaves_4ways = {
-   //  1. every leaf node has exactly leaf_min_obs,
-   n_obs_inbag / leaf_min_obs,
-   //  2. every leaf node has exactly leaf_min_events,
-   n_events_inbag / leaf_min_events,
-   //  3. every leaf node has exactly split_min_obs - 1,
-   n_obs_inbag / (split_min_obs - 1),
-   //  4. every leaf node has exactly split_min_events-1
-   n_events_inbag / (split_min_events - 1)
-  };
-
-  // number of nodes total in binary tree is 2*L - 1,
-  // where L is the number of leaf nodes in the tree.
-  // (can prove by induction)
-  double max_leaves = std::ceil(max(max_leaves_4ways));
-  double max_nodes = (2 * max_leaves) - 1;
+  this->max_leaves = compute_max_leaves();
+  this->max_nodes = (2 * max_leaves) - 1;
 
   if(VERBOSITY > 0){
 

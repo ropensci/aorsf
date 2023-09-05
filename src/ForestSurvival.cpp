@@ -11,6 +11,20 @@ namespace aorsf {
 
 ForestSurvival::ForestSurvival() { }
 
+ForestSurvival::ForestSurvival(double leaf_min_events,
+                               double split_min_events,
+                               arma::vec& pred_horizon,
+                               arma::vec& unique_event_times){
+
+ this->leaf_min_events = leaf_min_events;
+ this->split_min_events = split_min_events;
+ this->pred_horizon = pred_horizon;
+ this->unique_event_times = unique_event_times;
+
+}
+
+
+
 void ForestSurvival::load(arma::uword n_tree,
                           std::vector<std::vector<double>>& forest_cutpoint,
                           std::vector<std::vector<arma::uword>>& forest_child_left,
