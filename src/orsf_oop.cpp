@@ -15,6 +15,7 @@
 #include "Data.h"
 #include "Tree.h"
 #include "Forest.h"
+#include "ForestSurvival.h"
 #include "Coxph.h"
 #include "NodeSplitStats.h"
 
@@ -178,7 +179,7 @@
   // R functions cannot be called from multiple threads
   if(lincomb_type == R_FUNCTION){ n_thread = 1; }
 
-  forest = std::make_unique<Forest>();
+  forest = std::make_unique<ForestSurvival>();
 
   forest->init(std::move(data),
                tree_seeds,
