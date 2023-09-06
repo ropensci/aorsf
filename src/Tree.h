@@ -64,7 +64,7 @@
 
   void sample_cols();
 
-  bool is_col_splittable(arma::uword j);
+  virtual bool is_col_splittable(arma::uword j);
 
   bool is_node_splittable(arma::uword node_id);
 
@@ -72,7 +72,7 @@
 
   virtual arma::uvec find_cutpoints();
 
-  double score_logrank();
+  virtual double compute_split_score();
 
   double node_split(arma::uvec& cuts_all);
 

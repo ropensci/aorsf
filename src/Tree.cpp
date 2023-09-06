@@ -211,20 +211,15 @@
 
   for (i = rows_node.begin(); i != rows_node.end(); ++i) {
 
-   // if event occurred for this observation
-   if(y_inbag.at(*i, 1) == 1){
+   if(x_first_undef){
 
-    if(x_first_undef){
+    x_first_value = x_inbag.at(*i, j);
+    x_first_undef = false;
 
-     x_first_value = x_inbag.at(*i, j);
-     x_first_undef = false;
+   } else {
 
-    } else {
-
-     if(x_inbag.at(*i, j) != x_first_value){
-      return(true);
-     }
-
+    if(x_inbag.at(*i, j) != x_first_value){
+     return(true);
     }
 
    }
@@ -234,11 +229,6 @@
   if(VERBOSITY > 1){
 
    mat x_print = x_inbag.rows(rows_node);
-   mat y_print = y_inbag.rows(rows_node);
-
-   uvec rows_event = find(y_print.col(1) == 1);
-   x_print = x_print.rows(rows_event);
-
    Rcout << "Column " << j << " was sampled but ";
    Rcout << "unique values of column " << j << " are ";
    Rcout << unique(x_print.col(j)) << std::endl;
@@ -426,65 +416,16 @@
 
  }
 
- double Tree::score_logrank(){
+ double Tree::compute_split_score(){
 
-  double
-  n_risk=0,
-   g_risk=0,
-   observed=0,
-   expected=0,
-   V=0,
-   temp1,
-   temp2,
-   n_events;
+  // default method is to pick one completely at random
+  // (this won't stay the default - it's a placeholder)
 
-  vec y_time = y_node.unsafe_col(0);
-  vec y_status = y_node.unsafe_col(1);
+  std::normal_distribution<double> ndist_score(0, 1);
 
-  bool break_loop = false;
+  double result = ndist_score(random_number_generator);
 
-  uword i = y_node.n_rows-1;
-
-  // breaking condition of outer loop governed by inner loop
-  for (; ;){
-
-   temp1 = y_time[i];
-
-   n_events = 0;
-
-   for ( ; y_time[i] == temp1; i--) {
-
-    n_risk += w_node[i];
-    n_events += y_status[i] * w_node[i];
-    g_risk += g_node[i] * w_node[i];
-    observed += y_status[i] * g_node[i] * w_node[i];
-
-    if(i == 0){
-     break_loop = true;
-     break;
-    }
-
-   }
-
-   // should only do these calculations if n_events > 0,
-   // but in practice its often faster to multiply by 0
-   // versus check if n_events is > 0.
-
-   temp2 = g_risk / n_risk;
-   expected += n_events * temp2;
-
-   // update variance if n_risk > 1 (if n_risk == 1, variance is 0)
-   // definitely check if n_risk is > 1 b/c otherwise divide by 0
-   if (n_risk > 1){
-    temp1 = n_events * temp2 * (n_risk-n_events) / (n_risk-1);
-    V += temp1 * (1 - temp2);
-   }
-
-   if(break_loop) break;
-
-  }
-
-  return(pow(expected-observed, 2) / V);
+  return(result);
 
  }
 
@@ -561,7 +502,8 @@
    // flip node assignments from left to right, up to the next cutpoint
    g_node.elem(lincomb_sort.subvec(it_start, *it)).fill(0);
    // compute split statistics with this cut-point
-   stat = score_logrank();
+   stat = compute_split_score();
+   // stat = score_logrank();
    // update leaderboard
    if(stat > stat_best) { stat_best = stat; it_best = *it; }
    // set up next loop run
