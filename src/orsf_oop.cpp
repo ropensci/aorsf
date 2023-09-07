@@ -220,14 +220,14 @@
    std::vector<std::vector<arma::uword>> child_left = loaded_forest["child_left"];
    std::vector<std::vector<arma::vec>>   coef_values = loaded_forest["coef_values"];
    std::vector<std::vector<arma::uvec>>  coef_indices = loaded_forest["coef_indices"];
-   std::vector<std::vector<arma::vec>>   leaf_pred_horizon = loaded_forest["leaf_pred_horizon"];
-   std::vector<std::vector<arma::vec>>   leaf_pred_surv = loaded_forest["leaf_pred_surv"];
-   std::vector<std::vector<arma::vec>>   leaf_pred_chf = loaded_forest["leaf_pred_chf"];
-   std::vector<std::vector<double>>      leaf_pred_mort = loaded_forest["leaf_pred_mort"];
+   std::vector<std::vector<arma::vec>>   leaf_pred_indx = loaded_forest["leaf_pred_indx"];
+   std::vector<std::vector<arma::vec>>   leaf_pred_prob = loaded_forest["leaf_pred_prob"];
+   std::vector<std::vector<arma::vec>>   leaf_pred_chaz = loaded_forest["leaf_pred_chaz"];
+   std::vector<std::vector<double>>      leaf_summary = loaded_forest["leaf_summary"];
 
    auto& temp = dynamic_cast<ForestSurvival&>(*forest);
    temp.load(n_tree, cutpoint, child_left, coef_values, coef_indices,
-             leaf_pred_horizon, leaf_pred_surv, leaf_pred_chf, leaf_pred_mort);
+             leaf_pred_indx, leaf_pred_prob, leaf_pred_chaz, leaf_summary);
 
    arma::mat pred_mat = forest->predict(oobag);
 
@@ -249,10 +249,12 @@
    forest_out.push_back(forest->get_child_left(), "child_left");
    forest_out.push_back(forest->get_coef_indices(), "coef_indices");
    forest_out.push_back(forest->get_coef_values(), "coef_values");
-   forest_out.push_back(forest->get_leaf_pred_horizon(), "leaf_pred_horizon");
-   forest_out.push_back(forest->get_leaf_pred_surv(), "leaf_pred_surv");
-   forest_out.push_back(forest->get_leaf_pred_chf(), "leaf_pred_chf");
-   forest_out.push_back(forest->get_leaf_pred_mort(), "leaf_pred_mort");
+   forest_out.push_back(forest->get_leaf_summary(), "leaf_summary");
+
+   auto& temp = dynamic_cast<ForestSurvival&>(*forest);
+   forest_out.push_back(temp.get_leaf_pred_indx(), "leaf_pred_indx");
+   forest_out.push_back(temp.get_leaf_pred_prob(), "leaf_pred_prob");
+   forest_out.push_back(temp.get_leaf_pred_chaz(), "leaf_pred_chaz");
 
 
    result.push_back(forest_out, "forest");

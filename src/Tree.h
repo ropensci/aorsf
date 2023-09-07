@@ -25,10 +25,7 @@
        std::vector<arma::uword>& child_left,
        std::vector<arma::vec>& coef_values,
        std::vector<arma::uvec>& coef_indices,
-       std::vector<arma::vec>& leaf_pred_horizon,
-       std::vector<arma::vec>& leaf_pred_surv,
-       std::vector<arma::vec>& leaf_pred_chf,
-       std::vector<double>& leaf_pred_mort);
+       std::vector<double>& leaf_summary);
 
   // deleting the copy constructor
   Tree(const Tree&) = delete;
@@ -59,6 +56,7 @@
             Rcpp::RObject lincomb_R_function);
 
 
+  virtual void resize_leaves(arma::uword new_size);
 
   void sample_rows();
 
@@ -76,11 +74,9 @@
 
   double node_split(arma::uvec& cuts_all);
 
-  void node_sprout(arma::uword node_id);
+  virtual void node_sprout(arma::uword node_id);
 
   virtual double compute_max_leaves();
-
-  double compute_mortality(arma::mat& leaf_data);
 
   void grow(arma::vec* vi_numer,
             arma::uvec* vi_denom);
@@ -88,11 +84,11 @@
   void predict_leaf(Data* prediction_data,
                     bool oobag);
 
-  void predict_value(arma::mat* pred_output,
-                     arma::vec* pred_denom,
-                     arma::vec& pred_times,
-                     char pred_type,
-                     bool oobag);
+  virtual void predict_value(arma::mat* pred_output,
+                             arma::vec* pred_denom,
+                             arma::vec& pred_times,
+                             char pred_type,
+                             bool oobag);
 
   // void grow(arma::vec& vi_numer, arma::uvec& vi_denom);
 
@@ -108,20 +104,8 @@
    return(coef_values);
   }
 
-  std::vector<arma::vec>& get_leaf_pred_horizon(){
-   return(leaf_pred_horizon);
-  }
-
-  std::vector<arma::vec>& get_leaf_pred_surv(){
-   return(leaf_pred_surv);
-  }
-
-  std::vector<arma::vec>& get_leaf_pred_chf(){
-   return(leaf_pred_chf);
-  }
-
-  std::vector<double>& get_leaf_pred_mort(){
-   return(leaf_pred_mort);
+  std::vector<double>& get_leaf_summary(){
+   return(leaf_summary);
   }
 
   std::vector<double>& get_cutpoint(){
@@ -244,10 +228,7 @@
   // std::vector<arma::uvec> coef_indices;
 
   // leaf values (only in leaf nodes)
-  std::vector<arma::vec> leaf_pred_horizon;
-  std::vector<arma::vec> leaf_pred_surv;
-  std::vector<arma::vec> leaf_pred_chf;
-  std::vector<double> leaf_pred_mort;
+  std::vector<double> leaf_summary;
 
 
 

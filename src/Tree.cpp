@@ -45,10 +45,7 @@
             std::vector<arma::uword>& child_left,
             std::vector<arma::vec>& coef_values,
             std::vector<arma::uvec>& coef_indices,
-            std::vector<arma::vec>& leaf_pred_horizon,
-            std::vector<arma::vec>& leaf_pred_surv,
-            std::vector<arma::vec>& leaf_pred_chf,
-            std::vector<double>& leaf_pred_mort) :
+            std::vector<double>& leaf_summary) :
  data(0),
  n_cols_total(0),
  n_rows_total(0),
@@ -76,10 +73,7 @@
  child_left(child_left),
  coef_values(coef_values),
  coef_indices(coef_indices),
- leaf_pred_horizon(leaf_pred_horizon),
- leaf_pred_surv(leaf_pred_surv),
- leaf_pred_chf(leaf_pred_chf),
- leaf_pred_mort(leaf_pred_mort){
+ leaf_summary(leaf_summary){
 
  }
 
@@ -134,6 +128,12 @@
   this->lincomb_df_target = lincomb_df_target;
   this->lincomb_ties_method = lincomb_ties_method;
   this->lincomb_R_function = lincomb_R_function;
+
+ }
+
+ void Tree::resize_leaves(arma::uword new_size){
+
+  leaf_summary.resize(new_size);
 
  }
 
@@ -558,102 +558,7 @@
    Rcout << std::endl;
   }
 
-  // reserve as much size as could be needed (probably more)
-  mat leaf_data(y_node.n_rows, 3);
-
-  uword person = 0;
-
-  // find the first unique event time
-  while(y_node.at(person, 1) == 0 && person < y_node.n_rows){
-   person++;
-  }
-
-  // person corresponds to first event or last censor time
-  leaf_data.at(0, 0) = y_node.at(person, 0);
-
-  // if no events in this node:
-  // (TODO: should this case even occur? consider removing)
-  if(person == y_node.n_rows){
-
-   vec temp_surv(1, arma::fill::ones);
-   vec temp_chf(1, arma::fill::zeros);
-
-   leaf_pred_horizon[node_id] = leaf_data.col(0);
-   leaf_pred_surv[node_id] = temp_surv;
-   leaf_pred_chf[node_id] = temp_chf;
-   leaf_pred_mort[node_id] = 0.0;
-
-   return;
-
-  }
-
-  double temp_time = y_node.at(person, 0);
-
-  uword i = 1;
-
-  // find the rest of the unique event times
-  for( ; person < y_node.n_rows; person++){
-
-   if(temp_time != y_node.at(person, 0) && y_node.at(person, 1) == 1){
-
-    leaf_data.at(i, 0) = y_node.at(person,0);
-    temp_time = y_node.at(person, 0);
-    i++;
-
-   }
-
-  }
-
-  leaf_data.resize(i, 3);
-
-  // reset for kaplan meier loop
-  person = 0; i = 0;
-  double n_risk = sum(w_node);
-  double temp_surv = 1.0;
-  double temp_haz = 0.0;
-
-  do {
-
-   double n_events   = 0;
-   double n_risk_sub = 0;
-   temp_time = y_node.at(person, 0);
-
-   while(y_node.at(person, 0) == temp_time){
-
-    n_risk_sub += w_node.at(person);
-    n_events += y_node.at(person, 1) * w_node.at(person);
-
-    if(person == y_node.n_rows-1) break;
-
-    person++;
-
-   }
-
-   // only do km if a death was observed
-
-   if(n_events > 0){
-
-    temp_surv = temp_surv * (n_risk - n_events) / n_risk;
-
-    temp_haz = temp_haz + n_events / n_risk;
-
-    leaf_data.at(i, 1) = temp_surv;
-    leaf_data.at(i, 2) = temp_haz;
-    i++;
-
-   }
-
-   n_risk -= n_risk_sub;
-
-  } while (i < leaf_data.n_rows);
-
-
-  if(VERBOSITY > 1) print_mat(leaf_data, "leaf_data", 10, 5);
-
-  leaf_pred_horizon[node_id] = leaf_data.col(0);
-  leaf_pred_surv[node_id] = leaf_data.col(1);
-  leaf_pred_chf[node_id] = leaf_data.col(2);
-  leaf_pred_mort[node_id] = compute_mortality(leaf_data);
+  leaf_summary[node_id] = mean(y_node.col(0));
 
  }
 
@@ -674,24 +579,6 @@
 
  }
 
- double Tree::compute_mortality(arma::mat& leaf_data){
-
-  double result = 0;
-  uword i=0, j=0;
-
-  for( ; i < (*unique_event_times).size(); i++){
-
-   if((*unique_event_times)[i] >= leaf_data.at(j, 0) &&
-      j < (leaf_data.n_rows-1)) {j++;}
-
-   result += leaf_data.at(j, 2);
-
-  }
-
-  return(result);
-
- }
-
  void Tree::grow(arma::vec* vi_numer,
                  arma::uvec* vi_denom){
 
@@ -705,14 +592,11 @@
   this->y_inbag = data->y_rows(rows_inbag);
 
   this->n_obs_inbag = sum(w_inbag);
-  this->n_events_inbag = sum(w_inbag % y_inbag.col(1));
   this->n_rows_inbag = x_inbag.n_rows;
 
   if(VERBOSITY > 0){
 
    Rcout << "Effective sample size: " << n_obs_inbag;
-   Rcout << std::endl;
-   Rcout << "Effective number of events: " << n_events_inbag;
    Rcout << std::endl;
    Rcout << "Number of unique rows in x: " << n_rows_inbag;
    Rcout << std::endl;
@@ -741,10 +625,8 @@
   child_left.resize(max_nodes);
   coef_values.resize(max_nodes);
   coef_indices.resize(max_nodes);
-  leaf_pred_horizon.resize(max_nodes);
-  leaf_pred_surv.resize(max_nodes);
-  leaf_pred_chf.resize(max_nodes);
-  leaf_pred_mort.resize(max_nodes);
+  // memory for leaves based on corresponding tree type
+  resize_leaves(max_nodes);
 
   // coordinate the order that nodes are grown.
   std::vector<uword> nodes_open;
@@ -963,10 +845,8 @@
   child_left.resize(n_nodes);
   coef_values.resize(n_nodes);
   coef_indices.resize(n_nodes);
-  leaf_pred_horizon.resize(n_nodes);
-  leaf_pred_surv.resize(n_nodes);
-  leaf_pred_chf.resize(n_nodes);
-  leaf_pred_mort.resize(n_nodes);
+
+  resize_leaves(n_nodes);
 
  } // Tree::grow
 
@@ -1051,89 +931,11 @@
   // oobag leaf prediction has zeros for inbag rows
   if(oobag){ while(pred_leaf[*it] == 0){ ++it; } }
 
-  double pred_t0;
-
-  if(pred_type == 'S' || pred_type == 'R'){
-   pred_t0 = 1;
-  } else {
-   pred_t0 = 0;
-  }
-
-  uword i, j;
-
-  vec leaf_times, leaf_values;
-
-  vec temp_vec(pred_times.size());
-  double temp_dbl;
-
   do {
 
    uword leaf_id = pred_leaf[*it];
 
-   // copies of leaf data using same aux memory
-   leaf_times = vec(leaf_pred_horizon[leaf_id].begin(),
-                    leaf_pred_horizon[leaf_id].size(),
-                    false);
-
-   leaf_values = vec(leaf_pred_surv[leaf_id].begin(),
-                     leaf_pred_surv[leaf_id].size(),
-                     false);
-
-   if(leaf_values.is_empty()) Rcpp::stop("empty leaf");
-
-   // don't reset i in the loop.
-   // (wasteful b/c leaf_times ascend)
-   i = 0;
-
-   for(j = 0; j < pred_times.size(); j++){
-
-    // t is the current prediction time
-    double t = pred_times[j];
-
-   // if t < t', where t' is the max time in this leaf,
-   // then we may find a time t* such that t* < t < t'.
-   // If so, prediction should be anchored to t*.
-   // But, there may be multiple t* < t, and we want to
-   // find the largest t* that is < t, so we find the
-   // first t** > t and assign t* to be whatever came
-   // right before t**.
-   if(t < leaf_times.back()){
-
-    for(; i < leaf_times.size(); i++){
-
-     // we found t**
-     if (leaf_times[i] > t){
-
-      if(i == 0)
-       // first leaf event occurred after prediction time
-       temp_dbl = pred_t0;
-      else
-       // t* is the time value just before t**, so use i-1
-       temp_dbl = leaf_values[i-1];
-
-      break;
-
-     } else if (leaf_times[i] == t){
-      // pred_horizon just happens to equal a leaf time
-      temp_dbl = leaf_values[i];
-
-      break;
-
-     }
-
-    }
-
-   } else {
-    // if t > t' use the last recorded prediction
-    temp_dbl = leaf_values.back();
-
-   }
-
-   temp_vec[j] = temp_dbl;
-
-   }
-
-   (*pred_output).row(*it) += temp_vec.t();
+   (*pred_output).row(*it) += leaf_summary[leaf_id];
    if(oobag) (*pred_denom)[*it]++;
    ++it;
 
@@ -1141,7 +943,7 @@
 
     while(leaf_id == pred_leaf[*it]){
 
-     (*pred_output).row(*it) += temp_vec.t();
+     (*pred_output).row(*it) += leaf_summary[leaf_id];
      if(oobag) (*pred_denom)[*it]++;
 
      if (it == pred_leaf_sort.end()-1){ break; } else { ++it; }

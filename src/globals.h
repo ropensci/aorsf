@@ -32,7 +32,7 @@
  // Split mode
  enum SplitRule {
   SPLIT_LOGRANK = 1,
-  SPLIT_GINI = 2
+  SPLIT_CONCORD = 2
  };
 
  // Linear combination method

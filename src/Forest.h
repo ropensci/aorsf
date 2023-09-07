@@ -8,6 +8,7 @@
 #include "globals.h"
 #include "utility.h"
 #include "Tree.h"
+#include "TreeSurvival.h"
 
 #include <thread>
 #include <mutex>
@@ -153,53 +154,15 @@ public:
   return result;
 
  }
- std::vector<std::vector<arma::vec>> get_leaf_pred_horizon() {
 
-  std::vector<std::vector<arma::vec>> result;
-
-  result.reserve(n_tree);
-
-  for (auto& tree : trees) {
-   result.push_back(tree->get_leaf_pred_horizon());
-  }
-
-  return result;
-
- }
- std::vector<std::vector<arma::vec>> get_leaf_pred_surv() {
-
-  std::vector<std::vector<arma::vec>> result;
-
-  result.reserve(n_tree);
-
-  for (auto& tree : trees) {
-   result.push_back(tree->get_leaf_pred_surv());
-  }
-
-  return result;
-
- }
- std::vector<std::vector<arma::vec>> get_leaf_pred_chf() {
-
-  std::vector<std::vector<arma::vec>> result;
-
-  result.reserve(n_tree);
-
-  for (auto& tree : trees) {
-   result.push_back(tree->get_leaf_pred_chf());
-  }
-
-  return result;
-
- }
- std::vector<std::vector<double>> get_leaf_pred_mort() {
+ std::vector<std::vector<double>> get_leaf_summary() {
 
   std::vector<std::vector<double>> result;
 
   result.reserve(n_tree);
 
   for (auto& tree : trees) {
-   result.push_back(tree->get_leaf_pred_mort());
+   result.push_back(tree->get_leaf_summary());
   }
 
   return result;

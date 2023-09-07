@@ -30,10 +30,10 @@ void ForestSurvival::load(arma::uword n_tree,
                           std::vector<std::vector<arma::uword>>& forest_child_left,
                           std::vector<std::vector<arma::vec>>& forest_coef_values,
                           std::vector<std::vector<arma::uvec>>& forest_coef_indices,
-                          std::vector<std::vector<arma::vec>>& forest_leaf_pred_horizon,
-                          std::vector<std::vector<arma::vec>>& forest_leaf_pred_surv,
-                          std::vector<std::vector<arma::vec>>& forest_leaf_pred_chf,
-                          std::vector<std::vector<double>>& forest_leaf_pred_mort) {
+                          std::vector<std::vector<arma::vec>>& forest_leaf_pred_indx,
+                          std::vector<std::vector<arma::vec>>& forest_leaf_pred_prob,
+                          std::vector<std::vector<arma::vec>>& forest_leaf_pred_chaz,
+                          std::vector<std::vector<double>>& forest_leaf_summary) {
 
  this->n_tree = n_tree;
 
@@ -48,14 +48,14 @@ void ForestSurvival::load(arma::uword n_tree,
 
  for (uword i = 0; i < n_tree; ++i) {
   trees.push_back(
-   std::make_unique<Tree>(forest_cutpoint[i],
-                          forest_child_left[i],
-                          forest_coef_values[i],
-                          forest_coef_indices[i],
-                          forest_leaf_pred_horizon[i],
-                          forest_leaf_pred_surv[i],
-                          forest_leaf_pred_chf[i],
-                          forest_leaf_pred_mort[i])
+   std::make_unique<TreeSurvival>(forest_cutpoint[i],
+                                  forest_child_left[i],
+                                  forest_coef_values[i],
+                                  forest_coef_indices[i],
+                                  forest_leaf_pred_indx[i],
+                                  forest_leaf_pred_prob[i],
+                                  forest_leaf_pred_chaz[i],
+                                  forest_leaf_summary[i])
   );
  }
 
@@ -72,6 +72,51 @@ void ForestSurvival::plant() {
  for (arma::uword i = 0; i < n_tree; ++i) {
   trees.push_back(std::make_unique<TreeSurvival>());
  }
+
+}
+
+std::vector<std::vector<arma::vec>> ForestSurvival::get_leaf_pred_indx() {
+
+ std::vector<std::vector<arma::vec>> result;
+
+ result.reserve(n_tree);
+
+ for (auto& tree : trees) {
+  auto& temp = dynamic_cast<TreeSurvival&>(*tree);
+  result.push_back(temp.get_leaf_pred_indx());
+ }
+
+ return result;
+
+}
+
+std::vector<std::vector<arma::vec>> ForestSurvival::get_leaf_pred_prob() {
+
+ std::vector<std::vector<arma::vec>> result;
+
+ result.reserve(n_tree);
+
+ for (auto& tree : trees) {
+  auto& temp = dynamic_cast<TreeSurvival&>(*tree);
+  result.push_back(temp.get_leaf_pred_prob());
+ }
+
+ return result;
+
+}
+
+std::vector<std::vector<arma::vec>> ForestSurvival::get_leaf_pred_chaz() {
+
+ std::vector<std::vector<arma::vec>> result;
+
+ result.reserve(n_tree);
+
+ for (auto& tree : trees) {
+  auto& temp = dynamic_cast<TreeSurvival&>(*tree);
+  result.push_back(temp.get_leaf_pred_chaz());
+ }
+
+ return result;
 
 }
 
