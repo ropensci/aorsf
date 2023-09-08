@@ -70,7 +70,9 @@ void ForestSurvival::plant() {
  trees.reserve(n_tree);
 
  for (arma::uword i = 0; i < n_tree; ++i) {
-  trees.push_back(std::make_unique<TreeSurvival>());
+  trees.push_back(std::make_unique<TreeSurvival>(leaf_min_events,
+                                                 split_min_events,
+                                                 &unique_event_times));
  }
 
 }

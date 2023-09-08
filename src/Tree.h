@@ -202,9 +202,6 @@
   arma::uword   lincomb_ties_method;
   Rcpp::RObject lincomb_R_function;
 
-  // prediction members
-  double pred_horizon;
-
   // predicted leaf node
   arma::uvec pred_leaf;
 

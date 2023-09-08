@@ -16,6 +16,16 @@
 
  TreeSurvival::TreeSurvival() { }
 
+ TreeSurvival::TreeSurvival(double leaf_min_events,
+                            double split_min_events,
+                            arma::vec* unique_event_times){
+
+  this->leaf_min_events = leaf_min_events;
+  this->split_min_events = split_min_events;
+  this->unique_event_times = unique_event_times;
+
+ }
+
  TreeSurvival::TreeSurvival(std::vector<double>& cutpoint,
                             std::vector<arma::uword>& child_left,
                             std::vector<arma::vec>& coef_values,
@@ -306,6 +316,11 @@
    break;
   }
 
+  case SPLIT_CONCORD: {
+   result = score_concord();
+   break;
+  }
+
   }
 
   return(result);
@@ -371,6 +386,48 @@
   }
 
   return(pow(expected-observed, 2) / V);
+
+ }
+
+ double TreeSurvival::score_concord(){
+
+
+  vec y_time = y_node.unsafe_col(0);
+  vec y_status = y_node.unsafe_col(1);
+
+  uvec event_indices = find(y_status == 1);
+
+  uvec::iterator event;
+
+  double total=0, concordant=0;
+
+  for (event = event_indices.begin(); event < event_indices.end(); ++event) {
+
+   for(uword j = *event; j < y_node.n_rows; ++j){
+
+    if (y_time[j] > y_time[*event]) { // ties not counted
+
+     total += w_node[j];
+
+     if (g_node[j] > g_node[*event]){
+
+      concordant += w_node[j];
+
+     } else if (g_node[j] == g_node[*event]){
+
+      concordant += (w_node[j] / 2);
+
+     }
+
+    }
+
+   }
+
+  }
+
+  Rcout << "concordance is: " << concordant / total << std::endl;
+
+  return(concordant / total);
 
  }
 
@@ -510,7 +567,18 @@
   uvec::iterator it = pred_leaf_sort.begin();
 
   // oobag leaf prediction has zeros for inbag rows
-  if(oobag){ while(pred_leaf[*it] == 0){ ++it; } }
+  if(oobag){
+   while(pred_leaf(*it) == 0 && it < pred_leaf_sort.end()){
+    ++it;
+   }
+  }
+
+  if(it == pred_leaf_sort.end()){
+   if(VERBOSITY > 0){
+    Rcout << "Tree was empty, no predictions were made" << std::endl;
+   }
+   return;
+  }
 
   double pred_t0;
 

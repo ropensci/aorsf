@@ -178,6 +178,7 @@
 
   // R functions cannot be called from multiple threads
   if(lincomb_type == R_FUNCTION){ n_thread = 1; }
+  if(oobag_eval_every < n_tree){ n_thread = 1; }
 
   vec y_times = find_unique_event_times(y);
 

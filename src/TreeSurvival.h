@@ -19,8 +19,13 @@
  public:
 
   TreeSurvival();
+
   TreeSurvival(const TreeSurvival&) = delete;
   TreeSurvival& operator=(const TreeSurvival&) = delete;
+
+  TreeSurvival(double leaf_min_events,
+               double split_min_events,
+               arma::vec* unique_event_times);
 
   TreeSurvival(std::vector<double>& cutpoint,
                std::vector<arma::uword>& child_left,
@@ -44,6 +49,7 @@
   double compute_split_score() override;
 
   double score_logrank();
+  double score_concord();
 
   double compute_mortality(arma::mat& leaf_data);
 

@@ -90,7 +90,7 @@
   }
  }
 
- vec find_unique_event_times(mat y){
+ vec find_unique_event_times(mat& y){
 
   vec result(y.n_rows);
 

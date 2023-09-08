@@ -62,7 +62,6 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->lincomb_ties_method = lincomb_ties_method;
  this->lincomb_R_function = lincomb_R_function;
  this->pred_type = pred_type;
- this->pred_horizon = pred_horizon;
  this->oobag_pred = oobag_pred;
  this->oobag_eval_every = oobag_eval_every;
  this->oobag_R_function = oobag_R_function;
@@ -237,6 +236,7 @@ mat Forest::predict(bool oobag) {
  }
 
  if(oobag){
+  oob_denom.replace(0, 1); // in case an obs was never oobag.
   result.each_col() /= oob_denom;
  } else {
   result /= n_tree;
@@ -257,6 +257,7 @@ void Forest::predict_in_threads(uint thread_idx,
   for (uint i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
 
    trees[i]->predict_leaf(prediction_data, oobag);
+
    trees[i]->predict_value(result_ptr, denom_ptr,
                            pred_horizon, 'S',
                            oobag);

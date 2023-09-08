@@ -509,7 +509,7 @@
    // set up next loop run
    it_start = *it;
 
-   if(VERBOSITY > 1){
+   if(VERBOSITY > 0){
     mat temp = join_rows(lincomb, conv_to<vec>::from(g_node));
     temp = join_rows(temp, w_node);
     temp = temp.rows(lincomb_sort);
@@ -517,7 +517,7 @@
     Rcout << std::endl;
     Rcout << std::endl;
     print_mat(temp, "lincomb & g_node & w_node", 20, 20);
-    Rcout << "logrank stat for this cutpoint: " << stat;
+    Rcout << "split stat for this cutpoint: " << stat;
     Rcout << std::endl;
     Rcout << " ------------------------------------------- ";
     Rcout << std::endl;

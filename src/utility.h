@@ -24,7 +24,7 @@ aorsf may be modified and distributed under the terms of the MIT license.
   */
  void equalSplit(std::vector<uint>& result, uint start, uint end, uint num_parts);
 
- arma::vec find_unique_event_times(arma::mat y);
+ arma::vec find_unique_event_times(arma::mat& y);
 
 
  void print_mat(arma::mat& x,

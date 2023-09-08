@@ -13,6 +13,9 @@
 
  typedef unsigned int uint;
 
+ template <typename T>
+ using svec = std::vector<T>;
+
  // Tree types
  enum TreeType {
   TREE_CLASSIFICATION = 1,
