@@ -217,18 +217,20 @@
    // Load forest object if in prediction mode
   if(pred_mode){
 
-   std::vector<std::vector<double>>      cutpoint = loaded_forest["cutpoint"];
-   std::vector<std::vector<arma::uword>> child_left = loaded_forest["child_left"];
-   std::vector<std::vector<arma::vec>>   coef_values = loaded_forest["coef_values"];
-   std::vector<std::vector<arma::uvec>>  coef_indices = loaded_forest["coef_indices"];
+   std::vector<std::vector<double>>      cutpoint       = loaded_forest["cutpoint"];
+   std::vector<std::vector<arma::uword>> child_left     = loaded_forest["child_left"];
+   std::vector<std::vector<arma::vec>>   coef_values    = loaded_forest["coef_values"];
+   std::vector<std::vector<arma::uvec>>  coef_indices   = loaded_forest["coef_indices"];
    std::vector<std::vector<arma::vec>>   leaf_pred_indx = loaded_forest["leaf_pred_indx"];
    std::vector<std::vector<arma::vec>>   leaf_pred_prob = loaded_forest["leaf_pred_prob"];
    std::vector<std::vector<arma::vec>>   leaf_pred_chaz = loaded_forest["leaf_pred_chaz"];
-   std::vector<std::vector<double>>      leaf_summary = loaded_forest["leaf_summary"];
+   std::vector<std::vector<double>>      leaf_summary   = loaded_forest["leaf_summary"];
 
    auto& temp = dynamic_cast<ForestSurvival&>(*forest);
    temp.load(n_tree, cutpoint, child_left, coef_values, coef_indices,
              leaf_pred_indx, leaf_pred_prob, leaf_pred_chaz, leaf_summary);
+
+   // forest->load(n_tree, loaded_forest);
 
    arma::mat pred_mat = forest->predict(oobag);
 
@@ -240,9 +242,7 @@
 
    forest->grow();
 
-   if(oobag){
-    result.push_back(forest->predict(oobag), "pred_oobag");
-   }
+   if(oobag){ result.push_back(forest->predict(oobag), "pred_oobag"); }
 
 
    forest_out.push_back(forest->get_rows_oobag(), "rows_oobag");

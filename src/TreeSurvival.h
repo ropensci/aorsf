@@ -25,7 +25,8 @@
 
   TreeSurvival(double leaf_min_events,
                double split_min_events,
-               arma::vec* unique_event_times);
+               arma::vec* unique_event_times,
+               arma::vec pred_horizon);
 
   TreeSurvival(std::vector<double>& cutpoint,
                std::vector<arma::uword>& child_left,
@@ -34,7 +35,8 @@
                std::vector<arma::vec>& leaf_pred_indx,
                std::vector<arma::vec>& leaf_pred_prob,
                std::vector<arma::vec>& leaf_pred_chaz,
-               std::vector<double>& leaf_summary);
+               std::vector<double>& leaf_summary,
+               arma::vec pred_horizon);
 
   double compute_max_leaves() override;
 
@@ -55,8 +57,10 @@
 
   void node_sprout(uword node_id) override;
 
-  void predict_value(arma::mat* pred_output, arma::vec* pred_denom,
-                     arma::vec& pred_times, char pred_type, bool oobag) override;
+  void predict_value(arma::mat* pred_output,
+                     arma::vec* pred_denom,
+                     char pred_type,
+                     bool oobag) override;
 
   std::vector<arma::vec>& get_leaf_pred_indx(){
    return(leaf_pred_indx);
@@ -70,9 +74,20 @@
    return(leaf_pred_chaz);
   }
 
+  double compute_prediction_accuracy() override;
+
   std::vector<arma::vec> leaf_pred_indx;
   std::vector<arma::vec> leaf_pred_prob;
   std::vector<arma::vec> leaf_pred_chaz;
+
+  // pointer to event times in forest
+  arma::vec* unique_event_times;
+
+  // prediction times
+  arma::vec pred_horizon;
+
+  double leaf_min_events;
+  double split_min_events;
 
  };
 

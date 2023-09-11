@@ -33,15 +33,14 @@
   Tree& operator=(const Tree&) = delete;
 
   void init(Data* data,
-            arma::vec* unique_event_times,
             int seed,
             arma::uword mtry,
-            double leaf_min_events,
+            // double leaf_min_events,
             double leaf_min_obs,
             VariableImportance vi_type,
             double vi_max_pvalue,
             SplitRule split_rule,
-            double split_min_events,
+            // double split_min_events,
             double split_min_obs,
             double split_min_stat,
             arma::uword split_max_cuts,
@@ -86,7 +85,6 @@
 
   virtual void predict_value(arma::mat* pred_output,
                              arma::vec* pred_denom,
-                             arma::vec& pred_times,
                              char pred_type,
                              bool oobag);
 
@@ -123,9 +121,6 @@
   // pointers to variable importance in forest
   arma::vec* vi_numer;
   arma::uvec* vi_denom;
-
-  // pointer to event times in forest
-  arma::vec* unique_event_times;
 
   // Pointer to original data
   Data* data;
@@ -179,12 +174,12 @@
   std::mt19937_64 random_number_generator;
 
   // tree growing members
-  double leaf_min_events;
+  // double leaf_min_events;
   double leaf_min_obs;
 
   // node split members
   SplitRule split_rule;
-  double split_min_events;
+  // double split_min_events;
   double split_min_obs;
   double split_min_stat;
   arma::uword split_max_cuts;
@@ -226,6 +221,8 @@
 
   // leaf values (only in leaf nodes)
   std::vector<double> leaf_summary;
+
+  virtual double compute_prediction_accuracy();
 
 
 

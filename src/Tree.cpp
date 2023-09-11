@@ -22,10 +22,10 @@
    mtry(0),
    vi_type(VI_NONE),
    vi_max_pvalue(DEFAULT_ANOVA_VI_PVALUE),
-   leaf_min_events(DEFAULT_LEAF_MIN_EVENTS),
+   // leaf_min_events(DEFAULT_LEAF_MIN_EVENTS),
    leaf_min_obs(DEFAULT_LEAF_MIN_OBS),
    split_rule(DEFAULT_SPLITRULE),
-   split_min_events(DEFAULT_SPLIT_MIN_EVENTS),
+   // split_min_events(DEFAULT_SPLIT_MIN_EVENTS),
    split_min_obs(DEFAULT_SPLIT_MIN_OBS),
    split_min_stat(DEFAULT_SPLIT_MIN_STAT),
    split_max_cuts(DEFAULT_SPLIT_MAX_CUTS),
@@ -53,10 +53,10 @@
  mtry(0),
  vi_type(VI_NONE),
  vi_max_pvalue(DEFAULT_ANOVA_VI_PVALUE),
- leaf_min_events(DEFAULT_LEAF_MIN_EVENTS),
+ // leaf_min_events(DEFAULT_LEAF_MIN_EVENTS),
  leaf_min_obs(DEFAULT_LEAF_MIN_OBS),
  split_rule(DEFAULT_SPLITRULE),
- split_min_events(DEFAULT_SPLIT_MIN_EVENTS),
+ // split_min_events(DEFAULT_SPLIT_MIN_EVENTS),
  split_min_obs(DEFAULT_SPLIT_MIN_OBS),
  split_min_stat(DEFAULT_SPLIT_MIN_STAT),
  split_max_cuts(DEFAULT_SPLIT_MAX_CUTS),
@@ -79,15 +79,14 @@
 
 
  void Tree::init(Data* data,
-                 arma::vec* unique_event_times,
                  int seed,
                  arma::uword mtry,
-                 double leaf_min_events,
+                 // double leaf_min_events,
                  double leaf_min_obs,
                  VariableImportance vi_type,
                  double vi_max_pvalue,
                  SplitRule split_rule,
-                 double split_min_events,
+                 // double split_min_events,
                  double split_min_obs,
                  double split_min_stat,
                  arma::uword split_max_cuts,
@@ -105,17 +104,16 @@
   random_number_generator.seed(seed);
 
   this->data = data;
-  this->unique_event_times = unique_event_times;
   this->n_cols_total = data->n_cols;
   this->n_rows_total = data->n_rows;
   this->seed = seed;
   this->mtry = mtry;
-  this->leaf_min_events = leaf_min_events;
+  // this->leaf_min_events = leaf_min_events;
   this->leaf_min_obs = leaf_min_obs;
   this->vi_type = vi_type;
   this->vi_max_pvalue = vi_max_pvalue;
   this->split_rule = split_rule;
-  this->split_min_events = split_min_events;
+  // this->split_min_events = split_min_events;
   this->split_min_obs = split_min_obs;
   this->split_min_stat = split_min_stat;
   this->split_max_cuts = split_max_cuts;
@@ -920,7 +918,6 @@
 
  void Tree::predict_value(arma::mat* pred_output,
                           arma::vec* pred_denom,
-                          arma::vec& pred_times,
                           char pred_type,
                           bool oobag){
 
@@ -954,8 +951,10 @@
 
   } while (it < pred_leaf_sort.end());
 
+ }
 
-
+ double Tree::compute_prediction_accuracy(){
+  return(0.0);
  }
 
 

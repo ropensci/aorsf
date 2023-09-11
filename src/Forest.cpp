@@ -91,15 +91,12 @@ void Forest::init_trees(){
  for(uword i = 0; i < n_tree; ++i){
 
   trees[i]->init(data.get(),
-                 &unique_event_times,
                  tree_seeds[i],
                  mtry,
-                 leaf_min_events,
                  leaf_min_obs,
                  vi_type,
                  vi_max_pvalue,
                  split_rule,
-                 split_min_events,
                  split_min_obs,
                  split_min_stat,
                  split_max_cuts,
@@ -258,9 +255,7 @@ void Forest::predict_in_threads(uint thread_idx,
 
    trees[i]->predict_leaf(prediction_data, oobag);
 
-   trees[i]->predict_value(result_ptr, denom_ptr,
-                           pred_horizon, 'S',
-                           oobag);
+   trees[i]->predict_value(result_ptr, denom_ptr, 'S', oobag);
 
    // Check for user interrupt
    if (aborted) {

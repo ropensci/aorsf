@@ -42,7 +42,6 @@ void ForestSurvival::load(arma::uword n_tree,
   Rcout << std::endl << std::endl;
  }
 
-
  // Create trees
  trees.reserve(n_tree);
 
@@ -55,7 +54,8 @@ void ForestSurvival::load(arma::uword n_tree,
                                   forest_leaf_pred_indx[i],
                                   forest_leaf_pred_prob[i],
                                   forest_leaf_pred_chaz[i],
-                                  forest_leaf_summary[i])
+                                  forest_leaf_summary[i],
+                                  pred_horizon)
   );
  }
 
@@ -72,7 +72,8 @@ void ForestSurvival::plant() {
  for (arma::uword i = 0; i < n_tree; ++i) {
   trees.push_back(std::make_unique<TreeSurvival>(leaf_min_events,
                                                  split_min_events,
-                                                 &unique_event_times));
+                                                 &unique_event_times,
+                                                 pred_horizon));
  }
 
 }
