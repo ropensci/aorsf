@@ -197,8 +197,14 @@ void Forest::grow_in_threads(uint thread_idx,
 
 mat Forest::predict(bool oobag) {
 
- mat result(data->n_rows, pred_horizon.size(), fill::zeros);
- vec oob_denom; if(oobag) oob_denom.zeros(data->n_rows);
+ mat result;
+ vec oob_denom;
+
+ // No. of cols in pred mat depend on the type of forest
+ resize_pred_mat(result);
+
+ // oobag denominator tracks the number of times an obs is oobag
+ if(oobag) oob_denom.zeros(data->n_rows);
 
  progress = 0;
  aborted = false;
@@ -212,7 +218,7 @@ mat Forest::predict(bool oobag) {
 
  for (uint i = 0; i < n_thread; ++i) {
 
-  result_threads[i].resize(data->n_rows, pred_horizon.size());
+  resize_pred_mat(result_threads[i]);
   if(oobag) oob_denom_threads[i].zeros(data->n_rows);
 
   threads.emplace_back(&Forest::predict_in_threads,

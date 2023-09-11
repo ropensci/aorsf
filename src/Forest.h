@@ -177,6 +177,7 @@ public:
   return(unique_event_times);
  }
 
+ virtual void resize_pred_mat(arma::mat& p) = 0;
 
  // Member variables
 
@@ -221,7 +222,6 @@ public:
 
  // predictions
  PredType pred_type;
- arma::vec pred_horizon;
 
  // out-of-bag
  bool        oobag_pred;

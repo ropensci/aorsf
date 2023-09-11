@@ -37,9 +37,13 @@ public:
  // growInternal() in ranger
  void plant() override;
 
+ void resize_pred_mat(arma::mat& p) override;
+
  std::vector<std::vector<arma::vec>> get_leaf_pred_indx();
  std::vector<std::vector<arma::vec>> get_leaf_pred_prob();
  std::vector<std::vector<arma::vec>> get_leaf_pred_chaz();
+
+ arma::vec pred_horizon;
 
 
 };

@@ -78,6 +78,12 @@ void ForestSurvival::plant() {
 
 }
 
+void ForestSurvival::resize_pred_mat(arma::mat& p){
+
+ p.zeros(data->n_rows, pred_horizon.size());
+
+}
+
 std::vector<std::vector<arma::vec>> ForestSurvival::get_leaf_pred_indx() {
 
  std::vector<std::vector<arma::vec>> result;
