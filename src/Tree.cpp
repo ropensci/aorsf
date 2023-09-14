@@ -953,33 +953,42 @@
 
  }
 
- void Tree::permute_oobag_col(arma::uword j){
-
-  arma::vec x_oobag_j = x_oobag.unsafe_col(j);
-
-  // make and store a copy
-  this->x_oobag_restore = arma::vec(x_oobag_j.begin(), x_oobag_j.size(), true);
-
-  // shuffle the vector in-place
-  std::shuffle(x_oobag_j.begin(), x_oobag_j.end(), random_number_generator);
-
- }
-
- void Tree::restore_oobag_col(arma::uword j){
-
-  x_oobag.col(j) = x_oobag_restore;
-
+ double Tree::compute_prediction_accuracy(arma::vec& preds){
+  return(0.0);
  }
 
  void Tree::compute_vi_permutation(arma::vec* vi_numer) {
 
   x_oobag = data->x_rows(rows_oobag);
+  y_oobag = data->y_rows(rows_oobag);
+  w_oobag = data->w_subvec(rows_oobag);
+
+  std::unique_ptr<Data> data_oobag { };
+
+  data_oobag = std::make_unique<Data>(x_oobag, y_oobag, w_oobag);
+
+  predict_leaf(data_oobag.get(), false);
+
+  vec pred_values(data_oobag->n_rows);
+
+  for(uword i = 0; i < pred_values.size(); ++i){
+   pred_values[i] = leaf_summary[pred_leaf[i]];
+  }
 
   // Compute normal prediction accuracy for each tree. Predictions already computed..
-  double accuracy_normal = compute_prediction_accuracy();
+  double accuracy_normal = compute_prediction_accuracy(pred_values);
+
+  if(VERBOSITY > 1){
+   Rcout << "prediction accuracy before permutation: ";
+   Rcout << accuracy_normal << std::endl;
+   Rcout << "  - mean leaf pred: ";
+   Rcout << mean(conv_to<vec>::from(pred_leaf));
+   Rcout << std::endl << std::endl;
+  }
+
 
   // Randomly permute for all independent variables
-  for (uword pred = 0; pred < data->get_n_cols(); ++pred) {
+  for (uword pred_col = 0; pred_col < data->get_n_cols(); ++pred_col) {
 
    // Check whether the i-th variable is used in the
    // tree:
@@ -987,7 +996,7 @@
 
    for(uint j = 0; j < coef_indices.size(); ++j){
     for(uword k = 0; k < coef_indices[j].size(); ++k){
-     if(coef_indices[j][k] == pred){
+     if(coef_indices[j][k] == pred_col){
       pred_is_used = true;
       break;
      }
@@ -998,21 +1007,29 @@
    if (pred_is_used) {
     // Permute and compute prediction accuracy again for this permutation and save difference
 
-    vec tmp_vec = x_oobag.col(pred);
-    print_vec(tmp_vec, "before permute", 5);
+    data_oobag->permute_col(pred_col, random_number_generator);
 
-    permute_oobag_col(pred);
+    predict_leaf(data_oobag.get(), false);
 
-    tmp_vec = x_oobag.col(pred);
-    print_vec(tmp_vec, "after permute", 5);
+    for(uword i = 0; i < pred_values.size(); ++i){
+     pred_values[i] = leaf_summary[pred_leaf[i]];
+    }
 
-    double accuracy_permuted = compute_prediction_accuracy();
+    double accuracy_permuted = compute_prediction_accuracy(pred_values);
+
+    if(VERBOSITY>1){
+     Rcout << "prediction accuracy after permuting col " << pred_col << ": ";
+     Rcout << accuracy_permuted << std::endl;
+     Rcout << "  - mean leaf pred: ";
+     Rcout << mean(conv_to<vec>::from(pred_leaf));
+     Rcout << std::endl << std::endl;
+    }
 
     double accuracy_difference = accuracy_normal - accuracy_permuted;
 
-    (*vi_numer)[pred] += accuracy_difference;
+    (*vi_numer)[pred_col] += accuracy_difference;
 
-    restore_oobag_col(pred);
+    data_oobag->restore_col(pred_col);
 
    }
   }

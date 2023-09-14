@@ -644,24 +644,9 @@
 
  }
 
- double TreeSurvival::compute_prediction_accuracy(){
+ double TreeSurvival::compute_prediction_accuracy(arma::vec& preds){
 
-  y_oobag = data->y_rows(rows_oobag);
-  w_oobag = data->w_subvec(rows_oobag);
-
-  predict_leaf(this->data, true);
-
-  uvec pred_leaf_oobag = pred_leaf(rows_oobag);
-
-  vec pred_mort_oobag(rows_oobag.size());
-
-  for(uword i = 0; i < pred_mort_oobag.size(); ++i){
-   pred_mort_oobag[i] = leaf_summary[pred_leaf_oobag[i]];
-  }
-
-  double cindex = compute_concordance_index(y_oobag, w_oobag, pred_mort_oobag);
-
-  Rcout << cindex << std::endl;
+  double cindex = compute_concordance_index(y_oobag, w_oobag, preds);
 
   return cindex;
 
@@ -681,7 +666,7 @@
 
   for (uvec::iterator event = events.begin(); event < events.end(); ++event) {
 
-   for(uword i = *event; i < y_node.n_rows; ++i){
+   for(uword i = *event; i < y.n_rows; ++i){
 
     if (y_time[i] > y_time[*event]) { // ties not counted
 
@@ -727,7 +712,7 @@
 
   for (uvec::iterator event = events.begin(); event < events.end(); ++event) {
 
-   for(uword i = *event; i < y_node.n_rows; ++i){
+   for(uword i = *event; i < y.n_rows; ++i){
 
     if (y_time[i] > y_time[*event]) { // ties not counted
 

@@ -73,7 +73,7 @@
    return(leaf_pred_chaz);
   }
 
-  double compute_prediction_accuracy() override;
+  double compute_prediction_accuracy(arma::vec& preds) override;
 
   double compute_concordance_index(arma::mat& y,
                                    arma::vec& w,

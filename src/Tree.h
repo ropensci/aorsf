@@ -120,10 +120,6 @@
    return(pred_leaf);
   }
 
-  void permute_oobag_col(arma::uword j);
-
-  void restore_oobag_col(arma::uword j);
-
   // pointers to variable importance in forest
   arma::vec* vi_numer;
   arma::uvec* vi_denom;
@@ -230,7 +226,7 @@
   // leaf values (only in leaf nodes)
   std::vector<double> leaf_summary;
 
-  virtual double compute_prediction_accuracy() = 0;
+  virtual double compute_prediction_accuracy(arma::vec& preds);
 
 
 
