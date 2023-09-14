@@ -1007,7 +1007,7 @@
    if (pred_is_used) {
     // Permute and compute prediction accuracy again for this permutation and save difference
 
-    data_oobag->permute_col(pred_col, random_number_generator);
+    data_oobag->permute_col(pred_col);
 
     predict_leaf(data_oobag.get(), false);
 

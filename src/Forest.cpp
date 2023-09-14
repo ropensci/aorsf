@@ -176,9 +176,9 @@ void Forest::grow_in_threads(uint thread_idx,
 
    trees[i]->grow(vi_numer_ptr, vi_denom_ptr);
 
-   // if(vi_type == VI_PERMUTE){
-   //  trees[i]->compute_vi_permutation(vi_numer_ptr);
-   // }
+   if(vi_type == VI_PERMUTE){
+    trees[i]->compute_vi_permutation(vi_numer_ptr);
+   }
 
    // Check for user interrupt
    if (aborted) {

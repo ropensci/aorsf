@@ -76,8 +76,7 @@
    return(w(indices));
   }
 
-  void permute_col(arma::uword j,
-                   std::mt19937_64 random_number_generator){
+  void permute_col(arma::uword j){
 
    arma::vec x_j = x.unsafe_col(j);
 
@@ -85,7 +84,7 @@
    this->col_restore_values = arma::vec(x_j.begin(), x_j.size(), true);
 
    // shuffle the vector in-place
-   std::shuffle(x_j.begin(), x_j.end(), random_number_generator);
+   std::shuffle(x_j.begin(), x_j.end(), std::default_random_engine());
 
   }
 
