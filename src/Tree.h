@@ -88,6 +88,8 @@
                              char pred_type,
                              bool oobag);
 
+  void compute_vi_permutation(arma::vec* vi_numer);
+
   // void grow(arma::vec& vi_numer, arma::uvec& vi_denom);
 
   std::vector<arma::uvec>& get_coef_indices() {
@@ -118,6 +120,10 @@
    return(pred_leaf);
   }
 
+  void permute_oobag_col(arma::uword j);
+
+  void restore_oobag_col(arma::uword j);
+
   // pointers to variable importance in forest
   arma::vec* vi_numer;
   arma::uvec* vi_denom;
@@ -141,6 +147,8 @@
   arma::mat x_inbag;
   arma::mat x_oobag;
   arma::mat x_node;
+
+  arma::vec x_oobag_restore;
 
   arma::mat y_inbag;
   arma::mat y_oobag;
@@ -222,7 +230,7 @@
   // leaf values (only in leaf nodes)
   std::vector<double> leaf_summary;
 
-  virtual double compute_prediction_accuracy();
+  virtual double compute_prediction_accuracy() = 0;
 
 
 

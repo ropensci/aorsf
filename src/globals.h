@@ -28,7 +28,7 @@
  enum VariableImportance {
   VI_NONE = 0,
   VI_NEGATE = 1,
-  VI_PERM_BREIMAN = 2,
+  VI_PERMUTE = 2,
   VI_ANOVA = 3
  };
 

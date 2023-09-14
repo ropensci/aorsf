@@ -19,7 +19,7 @@
  TreeSurvival::TreeSurvival(double leaf_min_events,
                             double split_min_events,
                             arma::vec* unique_event_times,
-                            arma::vec pred_horizon){
+                            arma::vec* pred_horizon){
 
   this->leaf_min_events = leaf_min_events;
   this->split_min_events = split_min_events;
@@ -36,7 +36,7 @@
                             std::vector<arma::vec>& leaf_pred_prob,
                             std::vector<arma::vec>& leaf_pred_chaz,
                             std::vector<double>& leaf_summary,
-                            arma::vec pred_horizon) :
+                            arma::vec* pred_horizon) :
  Tree(cutpoint, child_left, coef_values, coef_indices, leaf_summary),
  leaf_pred_indx(leaf_pred_indx),
  leaf_pred_prob(leaf_pred_prob),
@@ -321,7 +321,7 @@
   }
 
   case SPLIT_CONCORD: {
-   result = score_concord();
+   result = compute_concordance_index(y_node, w_node, g_node);
    break;
   }
 
@@ -390,47 +390,6 @@
   }
 
   return(pow(expected-observed, 2) / V);
-
- }
-
- double TreeSurvival::score_concord(){
-
-
-  vec y_time = y_node.unsafe_col(0);
-  vec y_status = y_node.unsafe_col(1);
-
-  uvec event_indices = find(y_status == 1);
-
-  uvec::iterator event;
-
-  // protection from case where there are no comparables.
-  double total=0.001, concordant=0;
-
-  for (event = event_indices.begin(); event < event_indices.end(); ++event) {
-
-   for(uword j = *event; j < y_node.n_rows; ++j){
-
-    if (y_time[j] > y_time[*event]) { // ties not counted
-
-     total += w_node[j];
-
-     if (g_node[j] < g_node[*event]){
-
-      concordant += w_node[j];
-
-     } else if (g_node[j] == g_node[*event]){
-
-      concordant += (w_node[j] / 2);
-
-     }
-
-    }
-
-   }
-
-  }
-
-  return(concordant / total);
 
  }
 
@@ -594,7 +553,7 @@
 
   vec leaf_times, leaf_values;
 
-  vec temp_vec(pred_horizon.size());
+  vec temp_vec((*pred_horizon).size());
   double temp_dbl;
 
   do {
@@ -616,10 +575,10 @@
    // (wasteful b/c leaf_times ascend)
    i = 0;
 
-   for(j = 0; j < pred_horizon.size(); j++){
+   for(j = 0; j < (*pred_horizon).size(); j++){
 
     // t is the current prediction time
-    double t = pred_horizon[j];
+    double t = (*pred_horizon)[j];
 
     // if t < t', where t' is the max time in this leaf,
     // then we may find a time t* such that t* < t < t'.
@@ -687,53 +646,116 @@
 
  double TreeSurvival::compute_prediction_accuracy(){
 
+  y_oobag = data->y_rows(rows_oobag);
+  w_oobag = data->w_subvec(rows_oobag);
 
-  vec y_time = y_oobag.unsafe_col(0);
-  vec y_status = y_oobag.unsafe_col(1);
+  predict_leaf(this->data, true);
 
-  uvec oobag_pred_leaf = pred_leaf(rows_oobag);
+  uvec pred_leaf_oobag = pred_leaf(rows_oobag);
 
-  vec mortality(rows_oobag.size());
+  vec pred_mort_oobag(rows_oobag.size());
 
-  for(uword i = 0; i < mortality.size(); ++i){
-   mortality[i] = leaf_summary[oobag_pred_leaf[i]];
+  for(uword i = 0; i < pred_mort_oobag.size(); ++i){
+   pred_mort_oobag[i] = leaf_summary[pred_leaf_oobag[i]];
   }
 
-  Rcout << mortality << std::endl;
+  double cindex = compute_concordance_index(y_oobag, w_oobag, pred_mort_oobag);
 
-  // uvec event_indices = find(y_status == 1);
-  //
-  // uvec::iterator event;
-  //
-  // // protection from case where there are no comparables.
-  // double total=0.001, concordant=0;
-  //
-  // for (event = event_indices.begin(); event < event_indices.end(); ++event) {
-  //
-  //  for(uword j = *event; j < y_node.n_rows; ++j){
-  //
-  //   if (y_time[j] > y_time[*event]) { // ties not counted
-  //
-  //    total += w_node[j];
-  //
-  //    if (g_node[j] < g_node[*event]){
-  //
-  //     concordant += w_node[j];
-  //
-  //    } else if (g_node[j] == g_node[*event]){
-  //
-  //     concordant += (w_node[j] / 2);
-  //
-  //    }
-  //
-  //   }
-  //
-  //  }
-  //
-  // }
+  Rcout << cindex << std::endl;
 
-  // return(concordant / total);
-  return(0.0);
+  return cindex;
+
+ }
+
+ double TreeSurvival::compute_concordance_index(arma::mat& y,
+                                                arma::vec& w,
+                                                arma::vec& p){
+
+  vec y_time   = y.unsafe_col(0);
+  vec y_status = y.unsafe_col(1);
+
+  uvec events = find(y_status == 1);
+
+  // protection from case where there are no comparables.
+  double total=0, concordant=0;
+
+  for (uvec::iterator event = events.begin(); event < events.end(); ++event) {
+
+   for(uword i = *event; i < y_node.n_rows; ++i){
+
+    if (y_time[i] > y_time[*event]) { // ties not counted
+
+     total += w[i];
+
+     if (p[i] < p[*event]){
+
+      concordant += w[i];
+
+     } else if (p[i] == p[*event]){
+
+      concordant += (w[i] / 2);
+
+     }
+
+    }
+
+   }
+
+  }
+
+  // it's possible there won't be any valid comparisons, so:
+  if(total == 0) return(0.5);
+  // otherwise:
+  return(concordant / total);
+
+
+ }
+
+ double TreeSurvival::compute_concordance_index(arma::mat& y,
+                                                arma::vec& w,
+                                                arma::uvec& p){
+
+
+
+  vec y_time   = y.unsafe_col(0);
+  vec y_status = y.unsafe_col(1);
+
+  uvec events = find(y_status == 1);
+
+  // protection from case where there are no comparables.
+  double total=0, concordant=0;
+
+  for (uvec::iterator event = events.begin(); event < events.end(); ++event) {
+
+   for(uword i = *event; i < y_node.n_rows; ++i){
+
+    if (y_time[i] > y_time[*event]) { // ties not counted
+
+     total += w[i];
+
+     if (p[i] < p[*event]){
+
+      concordant += w[i];
+
+     } else if (p[i] == p[*event]){
+
+      concordant += (w[i] / 2);
+
+     }
+
+    }
+
+   }
+
+  }
+
+  // it's possible there won't be any valid comparisons, so:
+  if(total == 0) return(0.5);
+  // otherwise:
+  return(concordant / total);
+
+
+
 
  }
 

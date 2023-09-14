@@ -26,7 +26,7 @@
   TreeSurvival(double leaf_min_events,
                double split_min_events,
                arma::vec* unique_event_times,
-               arma::vec pred_horizon);
+               arma::vec* pred_horizon);
 
   TreeSurvival(std::vector<double>& cutpoint,
                std::vector<arma::uword>& child_left,
@@ -36,7 +36,7 @@
                std::vector<arma::vec>& leaf_pred_prob,
                std::vector<arma::vec>& leaf_pred_chaz,
                std::vector<double>& leaf_summary,
-               arma::vec pred_horizon);
+               arma::vec* pred_horizon);
 
   double compute_max_leaves() override;
 
@@ -51,7 +51,6 @@
   double compute_split_score() override;
 
   double score_logrank();
-  double score_concord();
 
   double compute_mortality(arma::mat& leaf_data);
 
@@ -76,6 +75,14 @@
 
   double compute_prediction_accuracy() override;
 
+  double compute_concordance_index(arma::mat& y,
+                                   arma::vec& w,
+                                   arma::vec& p);
+
+  double compute_concordance_index(arma::mat& y,
+                                   arma::vec& w,
+                                   arma::uvec& g);
+
   std::vector<arma::vec> leaf_pred_indx;
   std::vector<arma::vec> leaf_pred_prob;
   std::vector<arma::vec> leaf_pred_chaz;
@@ -84,7 +91,7 @@
   arma::vec* unique_event_times;
 
   // prediction times
-  arma::vec pred_horizon;
+  arma::vec* pred_horizon;
 
   double leaf_min_events;
   double split_min_events;

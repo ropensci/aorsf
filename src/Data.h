@@ -46,34 +46,34 @@
    return(n_cols);
   }
 
-  arma::mat x_rows(arma::uvec& vector_of_row_indices) {
-   return(x.rows(vector_of_row_indices));
+  arma::mat x_rows(arma::uvec& row_indices) {
+   return(x.rows(row_indices));
   }
 
-  arma::mat x_cols(arma::uvec& vector_of_column_indices) {
-   return(x.cols(vector_of_column_indices));
+  arma::mat x_cols(arma::uvec& column_indices) {
+   return(x.cols(column_indices));
   }
 
-  arma::mat y_rows(arma::uvec& vector_of_row_indices) {
-   return(y.rows(vector_of_row_indices));
+  arma::mat y_rows(arma::uvec& row_indices) {
+   return(y.rows(row_indices));
   }
 
-  arma::mat y_cols(arma::uvec& vector_of_column_indices) {
-   return(y.cols(vector_of_column_indices));
+  arma::mat y_cols(arma::uvec& column_indices) {
+   return(y.cols(column_indices));
   }
 
-  arma::mat x_submat(arma::uvec& vector_of_row_indices,
-                     arma::uvec& vector_of_column_indices){
-   return(x.submat(vector_of_row_indices, vector_of_column_indices));
+  arma::mat x_submat(arma::uvec& row_indices,
+                     arma::uvec& column_indices){
+   return(x.submat(row_indices, column_indices));
   }
 
-  arma::mat y_submat(arma::uvec& vector_of_row_indices,
-                     arma::uvec& vector_of_column_indices){
-   return(y.submat(vector_of_row_indices, vector_of_column_indices));
+  arma::mat y_submat(arma::uvec& row_indices,
+                     arma::uvec& column_indices){
+   return(y.submat(row_indices, column_indices));
   }
 
-  arma::vec w_subvec(arma::uvec& vector_of_indices){
-   return(w(vector_of_indices));
+  arma::vec w_subvec(arma::uvec& indices){
+   return(w(indices));
   }
 
   // member variables
@@ -81,6 +81,8 @@
   arma::uword n_cols;
   arma::uword n_rows;
   arma::vec w;
+
+  arma::vec col_restore_values;
 
   bool has_weights;
 

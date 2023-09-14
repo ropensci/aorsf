@@ -242,6 +242,12 @@
 
    forest->grow();
 
+   vec* vi_ptr = &(forest->vi_numer);
+
+   forest->trees[1]->compute_vi_permutation(vi_ptr);
+
+   Rcout << forest->vi_numer << std::endl;
+
    if(oobag){ result.push_back(forest->predict(oobag), "pred_oobag"); }
 
 

@@ -953,8 +953,69 @@
 
  }
 
- double Tree::compute_prediction_accuracy(){
-  return(0.0);
+ void Tree::permute_oobag_col(arma::uword j){
+
+  arma::vec x_oobag_j = x_oobag.unsafe_col(j);
+
+  // make and store a copy
+  this->x_oobag_restore = arma::vec(x_oobag_j.begin(), x_oobag_j.size(), true);
+
+  // shuffle the vector in-place
+  std::shuffle(x_oobag_j.begin(), x_oobag_j.end(), random_number_generator);
+
+ }
+
+ void Tree::restore_oobag_col(arma::uword j){
+
+  x_oobag.col(j) = x_oobag_restore;
+
+ }
+
+ void Tree::compute_vi_permutation(arma::vec* vi_numer) {
+
+  x_oobag = data->x_rows(rows_oobag);
+
+  // Compute normal prediction accuracy for each tree. Predictions already computed..
+  double accuracy_normal = compute_prediction_accuracy();
+
+  // Randomly permute for all independent variables
+  for (uword pred = 0; pred < data->get_n_cols(); ++pred) {
+
+   // Check whether the i-th variable is used in the
+   // tree:
+   bool pred_is_used = false;
+
+   for(uint j = 0; j < coef_indices.size(); ++j){
+    for(uword k = 0; k < coef_indices[j].size(); ++k){
+     if(coef_indices[j][k] == pred){
+      pred_is_used = true;
+      break;
+     }
+    }
+   }
+
+   // Only do permutations if the variable is used in the tree, otherwise variable importance is 0
+   if (pred_is_used) {
+    // Permute and compute prediction accuracy again for this permutation and save difference
+
+    vec tmp_vec = x_oobag.col(pred);
+    print_vec(tmp_vec, "before permute", 5);
+
+    permute_oobag_col(pred);
+
+    tmp_vec = x_oobag.col(pred);
+    print_vec(tmp_vec, "after permute", 5);
+
+    double accuracy_permuted = compute_prediction_accuracy();
+
+    double accuracy_difference = accuracy_normal - accuracy_permuted;
+
+    (*vi_numer)[pred] += accuracy_difference;
+
+    restore_oobag_col(pred);
+
+   }
+  }
  }
 
 
