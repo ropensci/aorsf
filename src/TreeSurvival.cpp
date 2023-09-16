@@ -520,7 +520,7 @@
 
  void TreeSurvival::predict_value(arma::mat* pred_output,
                                   arma::vec* pred_denom,
-                                  char pred_type,
+                                  PredType pred_type,
                                   bool oobag){
 
   uvec pred_leaf_sort = sort_index(pred_leaf, "ascend");
@@ -543,10 +543,12 @@
 
   double pred_t0;
 
-  if(pred_type == 'S' || pred_type == 'R'){
+  if(pred_type == SURVIVAL || pred_type == RISK){
    pred_t0 = 1;
-  } else {
+  } else if (pred_type == CUMULATIVE_HAZARD) {
    pred_t0 = 0;
+  } else {
+   stop("invalid pred_type");
   }
 
   uword i, j;
@@ -571,8 +573,7 @@
 
    if(leaf_values.is_empty()) Rcpp::stop("empty leaf");
 
-   // don't reset i in the loop.
-   // (wasteful b/c leaf_times ascend)
+   // don't reset i in the loop b/c leaf_times ascend
    i = 0;
 
    for(j = 0; j < (*pred_horizon).size(); j++){
@@ -622,6 +623,11 @@
     temp_vec[j] = temp_dbl;
 
    }
+
+   // old code for running mean - should i use it?
+   // temp2 = temp1 - surv_pvec[rows_oobag[*iit]];
+   // surv_pvec[rows_oobag[*iit]] += temp2 / denom_pred[rows_oobag[*iit]];
+
 
    (*pred_output).row(*it) += temp_vec.t();
    if(oobag) (*pred_denom)[*it]++;

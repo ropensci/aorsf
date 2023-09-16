@@ -176,8 +176,8 @@ void Forest::grow_in_threads(uint thread_idx,
 
    trees[i]->grow(vi_numer_ptr, vi_denom_ptr);
 
-   if(vi_type == VI_PERMUTE){
-    trees[i]->compute_vi_permutation(vi_numer_ptr);
+   if(vi_type == VI_PERMUTE || vi_type == VI_NEGATE){
+    trees[i]->compute_oobag_vi(vi_numer_ptr, vi_type);
    }
 
    // Check for user interrupt
@@ -231,7 +231,7 @@ mat Forest::predict(bool oobag) {
                        &(oob_denom_threads[i]));
  }
 
- showProgress("Predicting..", n_tree);
+ showProgress("Predicting...", n_tree);
 
  for (auto &thread : threads) {
   thread.join();
@@ -265,7 +265,7 @@ void Forest::predict_in_threads(uint thread_idx,
 
    trees[i]->predict_leaf(prediction_data, oobag);
 
-   trees[i]->predict_value(result_ptr, denom_ptr, 'S', oobag);
+   trees[i]->predict_value(result_ptr, denom_ptr, pred_type, oobag);
 
    // Check for user interrupt
    if (aborted) {
@@ -278,6 +278,17 @@ void Forest::predict_in_threads(uint thread_idx,
    // Increase progress by 1 tree
    std::unique_lock<std::mutex> lock(mutex);
    ++progress;
+
+   if(oobag && progress % oobag_eval_every == 0){
+
+    mat preds = (*result_ptr) / (*denom_ptr);
+
+    Rcout << "progress: " << progress << std::endl;
+
+    print_mat(preds, "Preds", 5, 5);
+
+   }
+
    condition_variable.notify_one();
 
   }

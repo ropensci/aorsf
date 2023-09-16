@@ -132,6 +132,7 @@
  List orsf_cpp(arma::mat& x,
                arma::mat& y,
                arma::vec& w,
+               arma::uword tree_type_R,
                Rcpp::IntegerVector& tree_seeds,
                Rcpp::List loaded_forest,
                Rcpp::RObject lincomb_R_function,
@@ -171,6 +172,7 @@
 
   // re-cast integer inputs from R into enumerations
   // see globals.h for definitions.
+  TreeType tree_type = (TreeType) tree_type_R;
   VariableImportance vi_type = (VariableImportance) vi_type_R;
   SplitRule split_rule = (SplitRule) split_rule_R;
   LinearCombo lincomb_type = (LinearCombo) lincomb_type_R;
@@ -180,12 +182,20 @@
   if(lincomb_type == R_FUNCTION){ n_thread = 1; }
   if(oobag_eval_every < n_tree){ n_thread = 1; }
 
-  vec y_times = find_unique_event_times(y);
+  if(tree_type == TREE_SURVIVAL){
 
-  forest = std::make_unique<ForestSurvival>(leaf_min_events,
-                                            split_min_events,
-                                            pred_horizon,
-                                            y_times);
+   vec unique_event_times = find_unique_event_times(y);
+
+   forest = std::make_unique<ForestSurvival>(leaf_min_events,
+                                             split_min_events,
+                                             pred_horizon,
+                                             unique_event_times);
+
+  } else {
+
+   Rcpp::stop("only survival trees are currently implemented");
+
+  }
 
   forest->init(std::move(data),
                tree_seeds,
@@ -217,20 +227,23 @@
    // Load forest object if in prediction mode
   if(pred_mode){
 
-   std::vector<std::vector<double>>      cutpoint       = loaded_forest["cutpoint"];
-   std::vector<std::vector<arma::uword>> child_left     = loaded_forest["child_left"];
-   std::vector<std::vector<arma::vec>>   coef_values    = loaded_forest["coef_values"];
-   std::vector<std::vector<arma::uvec>>  coef_indices   = loaded_forest["coef_indices"];
-   std::vector<std::vector<arma::vec>>   leaf_pred_indx = loaded_forest["leaf_pred_indx"];
-   std::vector<std::vector<arma::vec>>   leaf_pred_prob = loaded_forest["leaf_pred_prob"];
-   std::vector<std::vector<arma::vec>>   leaf_pred_chaz = loaded_forest["leaf_pred_chaz"];
-   std::vector<std::vector<double>>      leaf_summary   = loaded_forest["leaf_summary"];
+   std::vector<std::vector<double>> cutpoint     = loaded_forest["cutpoint"];
+   std::vector<std::vector<uword>>  child_left   = loaded_forest["child_left"];
+   std::vector<std::vector<vec>>    coef_values  = loaded_forest["coef_values"];
+   std::vector<std::vector<uvec>>   coef_indices = loaded_forest["coef_indices"];
+   std::vector<std::vector<double>> leaf_summary = loaded_forest["leaf_summary"];
 
-   auto& temp = dynamic_cast<ForestSurvival&>(*forest);
-   temp.load(n_tree, cutpoint, child_left, coef_values, coef_indices,
-             leaf_pred_indx, leaf_pred_prob, leaf_pred_chaz, leaf_summary);
+   if(tree_type == TREE_SURVIVAL){
 
-   // forest->load(n_tree, loaded_forest);
+    std::vector<std::vector<vec>> leaf_pred_indx = loaded_forest["leaf_pred_indx"];
+    std::vector<std::vector<vec>> leaf_pred_prob = loaded_forest["leaf_pred_prob"];
+    std::vector<std::vector<vec>> leaf_pred_chaz = loaded_forest["leaf_pred_chaz"];
+
+    auto& temp = dynamic_cast<ForestSurvival&>(*forest);
+    temp.load(n_tree, cutpoint, child_left, coef_values, coef_indices,
+              leaf_pred_indx, leaf_pred_prob, leaf_pred_chaz, leaf_summary);
+
+   }
 
    arma::mat pred_mat = forest->predict(oobag);
 
@@ -238,12 +251,13 @@
 
   } else {
 
+   // initialize the trees
    forest->plant();
 
+   // grow the trees
    forest->grow();
 
-   // Rcout << forest->vi_numer << std::endl;
-
+   // compute out-of-bag predictions if needed
    if(oobag){ result.push_back(forest->predict(oobag), "pred_oobag"); }
 
 
@@ -254,16 +268,17 @@
    forest_out.push_back(forest->get_coef_values(), "coef_values");
    forest_out.push_back(forest->get_leaf_summary(), "leaf_summary");
 
-   auto& temp = dynamic_cast<ForestSurvival&>(*forest);
-   forest_out.push_back(temp.get_leaf_pred_indx(), "leaf_pred_indx");
-   forest_out.push_back(temp.get_leaf_pred_prob(), "leaf_pred_prob");
-   forest_out.push_back(temp.get_leaf_pred_chaz(), "leaf_pred_chaz");
-
+   if(tree_type == TREE_SURVIVAL){
+    auto& temp = dynamic_cast<ForestSurvival&>(*forest);
+    forest_out.push_back(temp.get_leaf_pred_indx(), "leaf_pred_indx");
+    forest_out.push_back(temp.get_leaf_pred_prob(), "leaf_pred_prob");
+    forest_out.push_back(temp.get_leaf_pred_chaz(), "leaf_pred_chaz");
+    result.push_back(forest->get_unique_event_times(), "unique_event_times");
+   }
 
    result.push_back(forest_out, "forest");
-   result.push_back(forest->get_unique_event_times(), "unique_event_times");
-   result.push_back(forest->vi_numer, "vi_numer");
-   result.push_back(forest->vi_denom, "vi_denom");
+   result.push_back(forest->get_vi_numer(), "vi_numer");
+   result.push_back(forest->get_vi_denom(), "vi_denom");
 
 
   }

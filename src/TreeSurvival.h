@@ -58,7 +58,7 @@
 
   void predict_value(arma::mat* pred_output,
                      arma::vec* pred_denom,
-                     char pred_type,
+                     PredType pred_type,
                      bool oobag) override;
 
   std::vector<arma::vec>& get_leaf_pred_indx(){

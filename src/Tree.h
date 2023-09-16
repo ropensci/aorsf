@@ -27,6 +27,8 @@
        std::vector<arma::uvec>& coef_indices,
        std::vector<double>& leaf_summary);
 
+  virtual ~Tree() = default;
+
   // deleting the copy constructor
   Tree(const Tree&) = delete;
   // deleting the copy assignment operator
@@ -85,10 +87,12 @@
 
   virtual void predict_value(arma::mat* pred_output,
                              arma::vec* pred_denom,
-                             char pred_type,
+                             PredType pred_type,
                              bool oobag);
 
-  void compute_vi_permutation(arma::vec* vi_numer);
+  void negate_coef(arma::uword pred_col);
+
+  void compute_oobag_vi(arma::vec* vi_numer, VariableImportance vi_type);
 
   // void grow(arma::vec& vi_numer, arma::uvec& vi_denom);
 
@@ -119,6 +123,11 @@
   arma::uvec& get_pred_leaf(){
    return(pred_leaf);
   }
+
+
+ protected:
+
+  void allocate_oobag_memory();
 
   // pointers to variable importance in forest
   arma::vec* vi_numer;
@@ -227,12 +236,6 @@
   std::vector<double> leaf_summary;
 
   virtual double compute_prediction_accuracy(arma::vec& preds);
-
-
-
- protected:
-
-
 
  };
 

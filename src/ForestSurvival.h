@@ -34,14 +34,17 @@ public:
            std::vector<std::vector<arma::vec>>& forest_leaf_pred_chaz,
            std::vector<std::vector<double>>& forest_leaf_summary);
 
- // growInternal() in ranger
- void plant() override;
-
- void resize_pred_mat(arma::mat& p) override;
-
  std::vector<std::vector<arma::vec>> get_leaf_pred_indx();
  std::vector<std::vector<arma::vec>> get_leaf_pred_prob();
  std::vector<std::vector<arma::vec>> get_leaf_pred_chaz();
+
+ // growInternal() in ranger
+ void plant() override;
+
+protected:
+
+ void resize_pred_mat(arma::mat& p) override;
+
 
  arma::vec pred_horizon;
 

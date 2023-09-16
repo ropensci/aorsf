@@ -67,26 +67,6 @@ public:
  // Grow or predict
  void run();
 
- void init_trees();
-
- void grow();
-
- void grow_in_threads(uint thread_idx,
-                      vec* vi_numer_ptr,
-                      uvec* vi_denom_ptr);
-
- virtual void plant() = 0;
-
- arma::mat predict(bool oobag);
-
- void predict_in_threads(uint thread_idx,
-                         Data* prediction_data,
-                         bool oobag,
-                         mat* result_ptr,
-                         vec* denom_ptr);
-
- void showProgress(std::string operation, size_t max_progress);
-
  std::vector<std::vector<double>> get_cutpoint() {
 
   std::vector<std::vector<double>> result;
@@ -176,6 +156,39 @@ public:
  arma::vec& get_unique_event_times(){
   return(unique_event_times);
  }
+
+ arma::vec& get_vi_numer(){
+  return(vi_numer);
+ }
+
+ arma::uvec& get_vi_denom(){
+  return(vi_denom);
+ }
+
+ virtual void plant() = 0;
+
+ void grow();
+
+ arma::mat predict(bool oobag);
+
+protected:
+
+ void init_trees();
+
+
+ void grow_in_threads(uint thread_idx,
+                      vec* vi_numer_ptr,
+                      uvec* vi_denom_ptr);
+
+
+
+ void predict_in_threads(uint thread_idx,
+                         Data* prediction_data,
+                         bool oobag,
+                         mat* result_ptr,
+                         vec* denom_ptr);
+
+ void showProgress(std::string operation, size_t max_progress);
 
  virtual void resize_pred_mat(arma::mat& p) = 0;
 

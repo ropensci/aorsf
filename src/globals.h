@@ -19,9 +19,9 @@
  // Tree types
  enum TreeType {
   TREE_CLASSIFICATION = 1,
-  TREE_REGRESSION = 3,
-  TREE_SURVIVAL = 5,
-  TREE_PROBABILITY = 9
+  TREE_REGRESSION = 2,
+  TREE_SURVIVAL = 3,
+  TREE_PROBABILITY = 4
  };
 
  // Variable importance

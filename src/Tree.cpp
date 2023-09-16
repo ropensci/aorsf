@@ -129,6 +129,18 @@
 
  }
 
+ void Tree::allocate_oobag_memory(){
+
+  if(rows_oobag.size() == 0){
+   stop("attempting to allocate oob memory with empty rows_oobag");
+  }
+
+  x_oobag = data->x_rows(rows_oobag);
+  y_oobag = data->y_rows(rows_oobag);
+  w_oobag = data->w_subvec(rows_oobag);
+
+ }
+
  void Tree::resize_leaves(arma::uword new_size){
 
   leaf_summary.resize(new_size);
@@ -918,38 +930,10 @@
 
  void Tree::predict_value(arma::mat* pred_output,
                           arma::vec* pred_denom,
-                          char pred_type,
+                          PredType pred_type,
                           bool oobag){
 
-  uvec pred_leaf_sort = sort_index(pred_leaf, "ascend");
-
-  uvec::iterator it = pred_leaf_sort.begin();
-
-  // oobag leaf prediction has zeros for inbag rows
-  if(oobag){ while(pred_leaf[*it] == 0){ ++it; } }
-
-  do {
-
-   uword leaf_id = pred_leaf[*it];
-
-   (*pred_output).row(*it) += leaf_summary[leaf_id];
-   if(oobag) (*pred_denom)[*it]++;
-   ++it;
-
-   if(it < pred_leaf_sort.end()){
-
-    while(leaf_id == pred_leaf[*it]){
-
-     (*pred_output).row(*it) += leaf_summary[leaf_id];
-     if(oobag) (*pred_denom)[*it]++;
-
-     if (it == pred_leaf_sort.end()-1){ break; } else { ++it; }
-
-    }
-
-   }
-
-  } while (it < pred_leaf_sort.end());
+  return;
 
  }
 
@@ -957,16 +941,25 @@
   return(0.0);
  }
 
- void Tree::compute_vi_permutation(arma::vec* vi_numer) {
+ void Tree::negate_coef(arma::uword pred_col){
 
-  x_oobag = data->x_rows(rows_oobag);
-  y_oobag = data->y_rows(rows_oobag);
-  w_oobag = data->w_subvec(rows_oobag);
+  for(uint j = 0; j < coef_indices.size(); ++j){
+   for(uword k = 0; k < coef_indices[j].size(); ++k){
+    if(coef_indices[j][k] == pred_col){
+     coef_values[j][k] *= (-1);
+    }
+   }
+  }
 
+ }
+
+ void Tree::compute_oobag_vi(arma::vec* vi_numer, VariableImportance vi_type) {
+
+  allocate_oobag_memory();
   std::unique_ptr<Data> data_oobag { };
-
   data_oobag = std::make_unique<Data>(x_oobag, y_oobag, w_oobag);
 
+  // using oobag = false for predict b/c data_oobag is already subsetted
   predict_leaf(data_oobag.get(), false);
 
   vec pred_values(data_oobag->n_rows);
@@ -979,7 +972,7 @@
   double accuracy_normal = compute_prediction_accuracy(pred_values);
 
   if(VERBOSITY > 1){
-   Rcout << "prediction accuracy before permutation: ";
+   Rcout << "prediction accuracy before noising: ";
    Rcout << accuracy_normal << std::endl;
    Rcout << "  - mean leaf pred: ";
    Rcout << mean(conv_to<vec>::from(pred_leaf));
@@ -1003,11 +996,14 @@
     }
    }
 
-   // Only do permutations if the variable is used in the tree, otherwise variable importance is 0
+   // proceed if the variable is used in the tree, otherwise vi = 0
    if (pred_is_used) {
-    // Permute and compute prediction accuracy again for this permutation and save difference
 
-    data_oobag->permute_col(pred_col);
+    if(vi_type == VI_PERMUTE){
+     data_oobag->permute_col(pred_col, random_number_generator);
+    } else if (vi_type == VI_NEGATE){
+     negate_coef(pred_col);
+    }
 
     predict_leaf(data_oobag.get(), false);
 
@@ -1018,7 +1014,7 @@
     double accuracy_permuted = compute_prediction_accuracy(pred_values);
 
     if(VERBOSITY>1){
-     Rcout << "prediction accuracy after permuting col " << pred_col << ": ";
+     Rcout << "prediction accuracy after noising " << pred_col << ": ";
      Rcout << accuracy_permuted << std::endl;
      Rcout << "  - mean leaf pred: ";
      Rcout << mean(conv_to<vec>::from(pred_leaf));
@@ -1029,11 +1025,16 @@
 
     (*vi_numer)[pred_col] += accuracy_difference;
 
-    data_oobag->restore_col(pred_col);
+    if(vi_type == VI_PERMUTE){
+     data_oobag->restore_col(pred_col);
+    } else if (vi_type == VI_NEGATE){
+     negate_coef(pred_col);
+    }
 
    }
   }
  }
+
 
 
 
