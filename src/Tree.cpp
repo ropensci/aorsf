@@ -177,8 +177,8 @@
  void Tree::sample_cols(){
 
   // Start empty
-  std::vector<uword> cols_accepted;
-  cols_accepted.reserve(mtry);
+  this->cols_node.set_size(mtry);
+  uint cols_accepted = 0;
 
   // Set all to not selected
   std::vector<bool> temp;
@@ -195,17 +195,15 @@
    temp[draw] = true;
 
    if(is_col_splittable(draw)){
-    cols_accepted.push_back(draw);
+    cols_node[cols_accepted] = draw;
+    cols_accepted++;
    }
 
-   if(cols_accepted.size() == mtry) break;
+   if(cols_accepted == mtry) break;
 
   }
 
-  this->cols_node = uvec(cols_accepted.data(),
-                         cols_accepted.size(),
-                         false,
-                         true);
+  if(cols_accepted < mtry) cols_node.resize(cols_accepted);
 
  }
 
@@ -702,7 +700,9 @@
 
     x_node = x_inbag(rows_node, cols_node);
 
-    if(VERBOSITY > 1) {
+    if(VERBOSITY > 0) {
+
+
      print_mat(x_node, "x_node", 20, 20);
      print_mat(y_node, "y_node", 20, 20);
     }
@@ -813,6 +813,7 @@
       cutpoint[*node] = cut_point;
       coef_values[*node] = beta_est;
       coef_indices[*node] = cols_node;
+
       child_left[*node] = node_left;
       // re-assign observations in the current node
       // (note that g_node is 0 if left, 1 if right)
@@ -877,6 +878,9 @@
 
   for(i = 0; i < coef_values.size(); i++){
 
+   if(VERBOSITY > 0)
+    Rcout << "moving obs in node " << i << std::endl;
+
    // if child_left == 0, it's a leaf (no need to find next child)
    if(child_left[i] != 0){
 
@@ -891,6 +895,8 @@
     if(obs_in_node.size() > 0){
 
      lincomb = prediction_data->x_submat(obs_in_node, coef_indices[i]) * coef_values[i];
+
+     if(lincomb.size() == 0) stop("sommin wrong");
 
      it = obs_in_node.begin();
 
@@ -1004,6 +1010,7 @@
     } else if (vi_type == VI_NEGATE){
      negate_coef(pred_col);
     }
+
 
     predict_leaf(data_oobag.get(), false);
 
