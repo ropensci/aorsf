@@ -312,12 +312,16 @@ orsf <- function(data,
                  n_tree = 500,
                  n_split = 5,
                  n_retry = 3,
+                 n_thread = 1, # TODO: add docs+checks
                  mtry = NULL,
                  leaf_min_events = 1,
                  leaf_min_obs = 5,
+                 split_rule = 'logrank', # TODO: add docs+checks
                  split_min_events = 5,
                  split_min_obs = 10,
-                 split_min_stat = 3.841459,
+                 split_min_stat = switch(split_rule, # TODO: update docs
+                                         "logrank" = 3.841459,
+                                         "cstat" = 0.50),
                  oobag_pred_type = 'surv',
                  oobag_pred_horizon = NULL,
                  oobag_eval_every = n_tree,
@@ -659,8 +663,8 @@ orsf <- function(data,
 
  } else {
 
-  # tell orsf.cpp to make its own oobag_pred_horizon by setting this to 0
-  oobag_pred_horizon <- 0
+  # use training data to provide sensible default
+  oobag_pred_horizon <- stats::median(y[, 1])
 
  }
 
@@ -671,56 +675,66 @@ orsf <- function(data,
  x_sort <- x[sorted, , drop = FALSE]
  y_sort <- y[sorted, , drop = FALSE]
 
- if(is.null(weights)) weights <- double()
- if(is.null(tree_seeds)) tree_seeds <- vector(mode = 'integer', length = 0L)
+ if(is.null(weights)) weights <- rep(1, nrow(x))
 
- orsf_out <- orsf_fit(
-  x                 = x_sort,
-  y                 = y_sort,
-  weights           = if(length(weights) > 0) weights[sorted] else weights,
-  n_tree            = if(no_fit) 0 else n_tree,
-  n_split_          = n_split,
-  mtry_             = mtry,
-  leaf_min_events_  = leaf_min_events,
-  leaf_min_obs_     = leaf_min_obs,
-  split_min_events_ = split_min_events,
-  split_min_obs_    = split_min_obs,
-  split_min_stat_   = split_min_stat,
-  cph_method_       = switch(tolower(cph_method),
-                             'breslow' = 0,
-                             'efron'   = 1),
-  cph_eps_            = cph_eps,
-  cph_iter_max_       = cph_iter_max,
-  cph_do_scale_       = cph_do_scale,
-  net_alpha_          = net_alpha,
-  net_df_target_      = net_df_target,
-  oobag_pred_         = oobag_pred,
-  oobag_pred_type_    = switch(oobag_pred_type,
-                               "none" = "N",
-                               "surv" = "S",
-                               "risk" = "R",
-                               "chf"  = "H"),
-  oobag_pred_horizon_ = oobag_pred_horizon,
-  oobag_eval_every_   = oobag_eval_every,
-  oobag_importance_   = importance %in% c("negate", "permute"),
-  oobag_importance_type_ = switch(importance,
-                                  "none" = "O",
-                                  "anova" = "A",
-                                  "negate" = "N",
-                                  "permute" = "P"),
-  #' @srrstats {G2.4a} *converting to integer in case R does that thing where it assumes the integer values you gave it are supposed to be doubles*
-  tree_seeds        = as.integer(tree_seeds),
-  max_retry_        = n_retry,
-  f_beta            = f_beta,
-  type_beta_        = switch(orsf_type,
-                             'fast' = 'C',
-                             'cph' = 'C',
-                             'net' = 'N',
-                             'custom' = 'U'),
-  f_oobag_eval      = f_oobag_eval,
-  type_oobag_eval_  = type_oobag_eval,
-  verbose_progress  = verbose_progress
- )
+ if(length(tree_seeds) == 1) set.seed(tree_seeds)
+
+ if(is.null(tree_seeds) || length(tree_seeds) == 1)
+  tree_seeds <- sample(x = n_tree*2, size = n_tree, replace = FALSE)
+
+ vi_max_pvalue = 0.01
+
+ orsf_out <- orsf_cpp(x = x,
+                      y = y,
+                      w = weights,
+                      tree_type_R = 3,
+                      tree_seeds = as.integer(tree_seeds),
+                      loaded_forest = list(),
+                      n_tree = n_tree,
+                      mtry = mtry,
+                      vi_type_R = switch(importance,
+                                         "none" = 0,
+                                         "negate" = 1,
+                                         "permute" = 2,
+                                         "anova" = 3),
+                      vi_max_pvalue = vi_max_pvalue,
+                      lincomb_R_function = f_beta,
+                      oobag_R_function = f_oobag_eval,
+                      leaf_min_events = leaf_min_events,
+                      leaf_min_obs = leaf_min_obs,
+                      split_rule_R = switch(split_rule,
+                                            "logrank" = 1,
+                                            "cstat" = 2),
+                      split_min_events = split_min_events,
+                      split_min_obs = split_min_obs,
+                      split_min_stat = split_min_stat,
+                      split_max_cuts = n_split,
+                      split_max_retry = n_retry,
+                      lincomb_type_R = switch(orsf_type,
+                                              'fast' = 1,
+                                              'cph' = 1,
+                                              'random' = 2,
+                                              'net' = 3,
+                                              'custom' = 4),
+                      lincomb_eps = cph_eps,
+                      lincomb_iter_max = cph_iter_max,
+                      lincomb_scale = cph_do_scale,
+                      lincomb_alpha = net_alpha,
+                      lincomb_df_target = net_df_target,
+                      lincomb_ties_method = switch(tolower(cph_method),
+                                                   'breslow' = 0,
+                                                   'efron'   = 1),
+                      pred_type_R = switch(oobag_pred_type,
+                                           "none" = 0,
+                                           "risk" = 1,
+                                           "surv" = 2,
+                                           "chf"  = 3,
+                                           "mort" = 4),
+                      pred_mode = FALSE,
+                      pred_horizon = oobag_pred_horizon,
+                      oobag = oobag_pred,
+                      oobag_eval_every = oobag_eval_every,
+                      n_thread = n_thread)
 
  # if someone says no_fit and also says don't attach the data,
  # give them a warning but also do the right thing for them.
@@ -743,32 +757,19 @@ orsf <- function(data,
 
   orsf_out$eval_oobag$stat_type <-
    switch(EXPR = orsf_out$eval_oobag$stat_type,
-          'H' = "Harrell's C-statistic",
-          'U' = "User-specified function")
+          "1" = "Harrell's C-statistic",
+          "2" = "User-specified function")
 
   #' @srrstats {G2.10} *drop = FALSE for type consistency*
   orsf_out$pred_oobag <- orsf_out$pred_oobag[unsorted, , drop = FALSE]
 
  } else {
 
-  if(oobag_pred_horizon == 0)
-   # this would get added by orsf_fit if oobag_pred was TRUE
-   orsf_out$pred_horizon <- stats::median(y[, 1])
-  else
    orsf_out$pred_horizon <- oobag_pred_horizon
 
  }
 
- n_leaves_mean <- 0
-
- if(!no_fit) {
-  n_leaves_mean <-
-   collapse::fmean(
-    vapply(orsf_out$forest,
-           function(t) nrow(t$leaf_node_index),
-           FUN.VALUE = integer(1))
-   )
- }
+ n_leaves_mean <- compute_mean_leaves(orsf_out$forest)
 
  attr(orsf_out, 'control')             <- control
  attr(orsf_out, 'mtry')                <- mtry
@@ -811,11 +812,14 @@ orsf <- function(data,
  attr(orsf_out, 'oobag_fun')           <- oobag_fun
  attr(orsf_out, 'oobag_pred_type')     <- oobag_pred_type
  attr(orsf_out, 'oobag_eval_every')    <- oobag_eval_every
+ attr(orsf_out, 'oobag_pred_horizon')  <- oobag_pred_horizon
  attr(orsf_out, 'importance')          <- importance
  attr(orsf_out, 'importance_values')   <- orsf_out$importance
  attr(orsf_out, 'group_factors')       <- group_factors
  attr(orsf_out, 'weights_user')        <- weights
  attr(orsf_out, 'verbose_progress')    <- verbose_progress
+ attr(orsf_out, 'vi_max_pvalue')       <- vi_max_pvalue
+ attr(orsf_out, 'split_rule')          <- split_rule
 
  attr(orsf_out, 'tree_seeds') <- if(is.null(tree_seeds)) c() else tree_seeds
 
@@ -1027,52 +1031,59 @@ orsf_train_ <- function(object,
 
  weights <- get_weights_user(object)
 
- orsf_out <- orsf_fit(
-  x                 = x_sort,
-  y                 = y_sort,
-  weights           = if(length(weights) > 0) weights[sorted] else weights,
-  n_tree            = n_tree,
-  n_split_          = get_n_split(object),
-  mtry_             = get_mtry(object),
-  leaf_min_events_  = get_leaf_min_events(object),
-  leaf_min_obs_     = get_leaf_min_obs(object),
-  split_min_events_ = get_split_min_events(object),
-  split_min_obs_    = get_split_min_obs(object),
-  split_min_stat_   = get_split_min_stat(object),
-  cph_method_       = switch(tolower(get_cph_method(object)),
-                             'breslow' = 0,
-                             'efron'   = 1),
-  cph_eps_               = get_cph_eps(object), #
-  cph_iter_max_          = get_cph_iter_max(object),
-  cph_do_scale_          = get_cph_do_scale(object),
-  net_alpha_             = get_net_alpha(object),
-  net_df_target_         = get_net_df_target(object),
-  oobag_pred_            = get_oobag_pred(object),
-  oobag_pred_type_       = switch(get_oobag_pred_type(object),
-                                  "none" = "N",
-                                  "surv" = "S",
-                                  "risk" = "R",
-                                  "chf"  = "H"),
-  oobag_pred_horizon_    = object$pred_horizon,
-  oobag_eval_every_      = oobag_eval_every,
-  oobag_importance_      = get_importance(object) %in% c("negate", "permute"),
-  oobag_importance_type_ = switch(get_importance(object),
-                                  "none" = "O",
-                                  "anova" = "A",
-                                  "negate" = "N",
-                                  "permute" = "P"),
-  tree_seeds        = as.integer(get_tree_seeds(object)),
-  max_retry_        = get_n_retry(object),
-  f_beta            = get_f_beta(object),
-  type_beta_        = switch(get_orsf_type(object),
-                             'fast' = 'C',
-                             'cph' = 'C',
-                             'net' = 'N',
-                             'custom' = 'U'),
-  f_oobag_eval      = get_f_oobag_eval(object),
-  type_oobag_eval_  = get_type_oobag_eval(object),
-  verbose_progress  = get_verbose_progress(object)
- )
+ orsf_out <- orsf_cpp(x = x,
+                      y = y,
+                      w = weights,
+                      tree_type_R = 3,
+                      tree_seeds = get_tree_seeds(object),
+                      loaded_forest = list(),
+                      n_tree = get_n_tree(object),
+                      mtry = get_mtry(object),
+                      vi_type_R = switch(get_importance(object),
+                                         "none" = 0,
+                                         "negate" = 1,
+                                         "permute" = 2,
+                                         "anova" = 3),
+                      vi_max_pvalue = get_vi_max_pvalue(object),
+                      lincomb_R_function = get_f_beta(object),
+                      oobag_R_function = get_f_oobag_eval(object),
+                      leaf_min_events = get_leaf_min_events(object),
+                      leaf_min_obs = get_leaf_min_obs(object),
+                      split_rule_R = switch(get_split_rule(object),
+                                            "logrank" = 1,
+                                            "cstat" = 2),
+                      split_min_events = get_split_min_events(object),
+                      split_min_obs = get_split_min_obs(object),
+                      split_min_stat = get_split_min_stat(object),
+                      split_max_cuts = get_n_split(object),
+                      split_max_retry = get_n_retry(object),
+                      lincomb_type_R = switch(get_orsf_type(object),
+                                              'fast' = 1,
+                                              'cph' = 1,
+                                              'random' = 2,
+                                              'net' = 3,
+                                              'custom' = 4),
+                      lincomb_eps = get_cph_eps(object),
+                      lincomb_iter_max = get_cph_iter_max(object),
+                      lincomb_scale = get_cph_do_scale(object),
+                      lincomb_alpha = get_net_alpha(object),
+                      lincomb_df_target = get_net_df_target(object),
+                      lincomb_ties_method = switch(
+                       tolower(get_cph_method(object)),
+                       'breslow' = 0,
+                       'efron'   = 1
+                      ),
+                      pred_type_R = switch(get_oobag_pred_type(object),
+                                           "none" = 0,
+                                           "risk" = 1,
+                                           "surv" = 2,
+                                           "chf"  = 3,
+                                           "mort" = 4),
+                      pred_mode = FALSE,
+                      pred_horizon = get_oobag_pred_horizon(object),
+                      oobag = get_oobag_pred(object),
+                      oobag_eval_every = get_oobag_eval_every(object),
+                      n_thread = 5)
 
 
  object$forest       <- orsf_out$forest
@@ -1115,10 +1126,7 @@ orsf_train_ <- function(object,
 
  }
 
- attr(object, "n_leaves_mean") <-
-  mean(vapply(orsf_out$forest,
-              function(t) nrow(t$leaf_node_index),
-              FUN.VALUE = integer(1)))
+ attr(object, "n_leaves_mean") <- compute_mean_leaves(orsf_out$forest)
 
  attr(object, 'trained') <- TRUE
 

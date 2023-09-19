@@ -57,6 +57,8 @@ get_tree_seeds         <- function(object) attr(object, 'tree_seeds')
 get_weights_user       <- function(object) attr(object, 'weights_user')
 get_event_times        <- function(object) attr(object, 'event_times')
 get_verbose_progress   <- function(object) attr(object, 'verbose_progress')
+get_vi_max_pvalue      <- function(object) attr(object, 'vi_max_pvalue')
+get_split_rule         <- function(object) attr(object, 'split_rule')
 
 #' ORSF status
 #'

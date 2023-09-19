@@ -29,6 +29,8 @@ penalized_cph <- function(x_node,
                           alpha,
                           df_target){
 
+ colnames(y_node) <- c('time', 'status')
+
  suppressWarnings(
   fit <- try(
    glmnet::glmnet(x = x_node,

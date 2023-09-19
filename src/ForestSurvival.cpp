@@ -49,13 +49,13 @@ void ForestSurvival::load(arma::uword n_tree,
   trees.push_back(
    std::make_unique<TreeSurvival>(forest_cutpoint[i],
                                   forest_child_left[i],
-                                  forest_coef_values[i],
-                                  forest_coef_indices[i],
-                                  forest_leaf_pred_indx[i],
-                                  forest_leaf_pred_prob[i],
-                                  forest_leaf_pred_chaz[i],
-                                  forest_leaf_summary[i],
-                                  &pred_horizon)
+                                                   forest_coef_values[i],
+                                                                     forest_coef_indices[i],
+                                                                                        forest_leaf_pred_indx[i],
+                                                                                                             forest_leaf_pred_prob[i],
+                                                                                                                                  forest_leaf_pred_chaz[i],
+                                                                                                                                                       forest_leaf_summary[i],
+                                                                                                                                                                          &pred_horizon)
   );
  }
 
@@ -126,6 +126,41 @@ std::vector<std::vector<arma::vec>> ForestSurvival::get_leaf_pred_chaz() {
  }
 
  return result;
+
+}
+
+void ForestSurvival::resize_oobag_eval(){
+
+ uword n_evals = find_max_eval_steps();
+
+ oobag_eval.resize(n_evals, pred_horizon.size());
+
+}
+
+void ForestSurvival::compute_prediction_accuracy(Data* prediction_data,
+                                                 arma::uword row_fill,
+                                                 arma::mat& predictions){
+
+ mat y = prediction_data->get_y();
+ vec w = prediction_data->get_w();
+
+ compute_prediction_accuracy(y, w, row_fill, predictions);
+
+}
+
+void ForestSurvival::compute_prediction_accuracy(arma::mat& y,
+                                                 arma::vec& w,
+                                                 arma::uword row_fill,
+                                                 arma::mat& predictions){
+
+ bool pred_is_risklike = true;
+
+ if(pred_type == PRED_SURVIVAL) pred_is_risklike = false;
+
+ for(arma::uword i = 0; i < oobag_eval.n_cols; ++i){
+  vec p = predictions.unsafe_col(i);
+  oobag_eval(row_fill, i) = compute_cstat(y, w, p, pred_is_risklike);
+ }
 
 }
 

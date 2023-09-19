@@ -20,6 +20,7 @@
    n_rows_total(0),
    seed(0),
    mtry(0),
+   pred_type(DEFAULT_PRED_TYPE),
    vi_type(VI_NONE),
    vi_max_pvalue(DEFAULT_ANOVA_VI_PVALUE),
    // leaf_min_events(DEFAULT_LEAF_MIN_EVENTS),
@@ -51,6 +52,7 @@
  n_rows_total(0),
  seed(0),
  mtry(0),
+ pred_type(DEFAULT_PRED_TYPE),
  vi_type(VI_NONE),
  vi_max_pvalue(DEFAULT_ANOVA_VI_PVALUE),
  // leaf_min_events(DEFAULT_LEAF_MIN_EVENTS),
@@ -81,6 +83,7 @@
  void Tree::init(Data* data,
                  int seed,
                  arma::uword mtry,
+                 PredType pred_type,
                  // double leaf_min_events,
                  double leaf_min_obs,
                  VariableImportance vi_type,
@@ -108,6 +111,7 @@
   this->n_rows_total = data->n_rows;
   this->seed = seed;
   this->mtry = mtry;
+  this->pred_type = pred_type;
   // this->leaf_min_events = leaf_min_events;
   this->leaf_min_obs = leaf_min_obs;
   this->vi_type = vi_type;
@@ -437,7 +441,7 @@
 
  }
 
- double Tree::node_split(arma::uvec& cuts_all){
+ double Tree::split_node(arma::uvec& cuts_all){
 
   // sample a subset of cutpoints.
   uvec cuts_sampled;
@@ -558,7 +562,7 @@
 
  }
 
- void Tree::node_sprout(uword node_id){
+ void Tree::sprout_leaf(uword node_id){
 
   if(VERBOSITY > 0){
    Rcout << "sprouting new leaf with node " << node_id;
@@ -674,7 +678,7 @@
    // determine rows in the current node and if it can be split
    if(!is_node_splittable(*node)){
 
-    node_sprout(*node);
+    sprout_leaf(*node);
     continue;
 
    }
@@ -716,7 +720,7 @@
 
     switch (lincomb_type) {
 
-    case NEWTON_RAPHSON: {
+    case LC_NEWTON_RAPHSON: {
 
      beta = coxph_fit(x_node, y_node, w_node,
                       lincomb_scale, lincomb_ties_method,
@@ -727,7 +731,7 @@
 
     }
 
-    case RANDOM_COEFS: {
+    case LC_RANDOM_COEFS: {
 
      beta.set_size(x_node.n_cols, 1);
 
@@ -741,19 +745,37 @@
 
     }
 
-    case R_FUNCTION: {
+    case LC_GLMNET: {
 
-     // NumericMatrix xx = ;
-     // NumericMatrix yy = ;
-     // NumericVector ww = ;
+     NumericMatrix xx = wrap(x_node);
+     NumericMatrix yy = wrap(y_node);
+     NumericVector ww = wrap(w_node);
 
      // initialize function from tree object
      // (Functions can't be stored in C++ classes, but RObjects can)
      Function f_beta = as<Function>(lincomb_R_function);
 
-     NumericMatrix beta_R = f_beta(wrap(x_node),
-                                   wrap(y_node),
-                                   wrap(w_node));
+     NumericMatrix beta_R = f_beta(xx, yy, ww,
+                                   lincomb_alpha,
+                                   lincomb_df_target);
+
+     beta = mat(beta_R.begin(), beta_R.nrow(), beta_R.ncol(), false);
+
+     break;
+
+    }
+
+    case LC_R_FUNCTION: {
+
+     NumericMatrix xx = wrap(x_node);
+     NumericMatrix yy = wrap(y_node);
+     NumericVector ww = wrap(w_node);
+
+     // initialize function from tree object
+     // (Functions can't be stored in C++ classes, but RObjects can)
+     Function f_beta = as<Function>(lincomb_R_function);
+
+     NumericMatrix beta_R = f_beta(xx, yy, ww);
 
      beta = mat(beta_R.begin(), beta_R.nrow(), beta_R.ncol(), false);
 
@@ -776,11 +798,11 @@
     // empty cuts_all => no valid cutpoints => make leaf or retry
     if(!cuts_all.is_empty()){
 
-     double cut_point = node_split(cuts_all);
+     double cut_point = split_node(cuts_all);
 
      if(cut_point < R_PosInf){
 
-      if(vi_type == VI_ANOVA && lincomb_type == NEWTON_RAPHSON){
+      if(vi_type == VI_ANOVA && lincomb_type == LC_NEWTON_RAPHSON){
 
        // only do ANOVA variable importance when
        //  1. a split of the node is guaranteed
@@ -835,7 +857,7 @@
     }
 
     if(n_retry == split_max_retry){
-     node_sprout(*node);
+     sprout_leaf(*node);
      break;
     }
 

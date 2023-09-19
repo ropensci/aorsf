@@ -67,6 +67,19 @@ public:
  // Grow or predict
  void run();
 
+ virtual void compute_prediction_accuracy(
+   Data* prediction_data,
+   arma::uword row_fill,
+   arma::mat& predictions
+ ) = 0;
+
+ virtual void compute_prediction_accuracy(
+   arma::mat& y,
+   arma::vec& w,
+   arma::uword row_fill,
+   arma::mat& predictions
+ ) = 0;
+
  std::vector<std::vector<double>> get_cutpoint() {
 
   std::vector<std::vector<double>> result;
@@ -165,6 +178,10 @@ public:
   return(vi_denom);
  }
 
+ arma::mat& get_oobag_eval(){
+  return(oobag_eval);
+ }
+
  virtual void plant() = 0;
 
  void grow();
@@ -175,6 +192,8 @@ protected:
 
  void init_trees();
 
+ void grow_single_thread(vec* vi_numer_ptr,
+                         uvec* vi_denom_ptr);
 
  void grow_in_threads(uint thread_idx,
                       vec* vi_numer_ptr,
@@ -191,6 +210,10 @@ protected:
  void showProgress(std::string operation, size_t max_progress);
 
  virtual void resize_pred_mat(arma::mat& p) = 0;
+
+ arma::uword find_max_eval_steps();
+
+ virtual void resize_oobag_eval();
 
  // Member variables
 
@@ -238,6 +261,7 @@ protected:
 
  // out-of-bag
  bool        oobag_pred;
+ arma::mat   oobag_eval;
  arma::uword oobag_eval_every;
  RObject     oobag_R_function;
 

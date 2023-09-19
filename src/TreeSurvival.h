@@ -54,7 +54,7 @@
 
   double compute_mortality(arma::mat& leaf_data);
 
-  void node_sprout(uword node_id) override;
+  void sprout_leaf(uword node_id) override;
 
   void predict_value(arma::mat* pred_output,
                      arma::vec* pred_denom,
@@ -74,14 +74,6 @@
   }
 
   double compute_prediction_accuracy(arma::vec& preds) override;
-
-  double compute_concordance_index(arma::mat& y,
-                                   arma::vec& w,
-                                   arma::vec& p);
-
-  double compute_concordance_index(arma::mat& y,
-                                   arma::vec& w,
-                                   arma::uvec& g);
 
   std::vector<arma::vec> leaf_pred_indx;
   std::vector<arma::vec> leaf_pred_prob;

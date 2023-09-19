@@ -21,24 +21,12 @@
 
 #include <utility>
 #include <memory>
- // [[Rcpp::depends(RcppArmadillo)]]
+
+// [[Rcpp::depends(RcppArmadillo)]]
 
  using namespace Rcpp;
  using namespace arma;
  using namespace aorsf;
-
-
- // @description sample weights to mimic a bootstrap sample
- // arma::vec bootstrap_sample_testthat(arma::mat& x,
- //                                     arma::mat& y,
- //                                     arma::vec& w) {
- //
- //  Data data = Data(x, y, w);
- //  Data* data_ptr = &data;
- //  return bootstrap_sample(data_ptr);
- //
- // }
-
 
  // [[Rcpp::export]]
  List coxph_fit_exported(arma::mat& x_node,
@@ -65,6 +53,22 @@
   return(result);
 
  }
+
+ // [[Rcpp::export]]
+ double compute_cstat_exported_vec(
+   arma::mat& y,
+   arma::vec& w,
+   arma::vec& p,
+   bool pred_is_risklike
+ ){ return compute_cstat(y, w, p, pred_is_risklike); }
+
+ // [[Rcpp::export]]
+ double compute_cstat_exported_uvec(
+   arma::mat& y,
+   arma::vec& w,
+   arma::uvec& g,
+   bool pred_is_risklike
+ ){ return compute_cstat(y, w, g, pred_is_risklike); }
 
  // [[Rcpp::export]]
  List node_find_cps_exported(arma::mat& y_node,
@@ -179,8 +183,17 @@
   PredType pred_type = (PredType) pred_type_R;
 
   // R functions cannot be called from multiple threads
-  if(lincomb_type == R_FUNCTION){ n_thread = 1; }
-  if(oobag_eval_every < n_tree){ n_thread = 1; }
+  if(lincomb_type == LC_R_FUNCTION || lincomb_type == LC_GLMNET){
+   n_thread = 1;
+  }
+
+  // usually need to set n_thread to 1 if oobag pred is monitored
+  if(oobag_eval_every < n_tree){
+   // specifically if this isn't true we need to go single thread
+   if(n_tree/oobag_eval_every != n_thread){
+    n_thread = 1;
+   }
+  }
 
   if(tree_type == TREE_SURVIVAL){
 
@@ -258,7 +271,23 @@
    forest->grow();
 
    // compute out-of-bag predictions if needed
-   if(oobag){ result.push_back(forest->predict(oobag), "pred_oobag"); }
+   if(oobag){
+
+    mat pred_oobag = forest->predict(oobag);
+
+    result.push_back(pred_oobag, "pred_oobag");
+
+    if(oobag_eval_every == n_tree){
+     forest->compute_prediction_accuracy(y, w, 0, pred_oobag);
+    }
+
+    List eval_oobag_out = List::create(
+     _["stat_values"] = forest->get_oobag_eval(),
+     _["stat_type"] = 1
+    );
+
+    result.push_back(eval_oobag_out, "eval_oobag");
+   }
 
 
    forest_out.push_back(forest->get_rows_oobag(), "rows_oobag");
@@ -274,12 +303,24 @@
     forest_out.push_back(temp.get_leaf_pred_prob(), "leaf_pred_prob");
     forest_out.push_back(temp.get_leaf_pred_chaz(), "leaf_pred_chaz");
     result.push_back(forest->get_unique_event_times(), "unique_event_times");
+    result.push_back(pred_horizon, "pred_horizon");
    }
 
    result.push_back(forest_out, "forest");
-   result.push_back(forest->get_vi_numer(), "vi_numer");
-   result.push_back(forest->get_vi_denom(), "vi_denom");
 
+   vec vi_output;
+
+   if(vi_type != VI_NONE){
+
+    if(vi_type == VI_ANOVA){
+     vi_output = forest->get_vi_numer() / forest->get_vi_denom();
+    } else {
+     vi_output = forest->get_vi_numer() / n_tree;
+    }
+
+   }
+
+   result.push_back(vi_output, "importance");
 
   }
 

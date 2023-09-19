@@ -62,6 +62,16 @@ aorsf may be modified and distributed under the terms of the MIT license.
   return (R_ToplevelExec(chkIntFn, NULL) == FALSE);
  }
 
+ double compute_cstat(arma::mat& y,
+                                  arma::vec& w,
+                                  arma::vec& p,
+                                  bool pred_is_risklike);
+
+ double compute_cstat(arma::mat& y,
+                                  arma::vec& w,
+                                  arma::uvec& g,
+                                  bool pred_is_risklike);
+
 
  }
 

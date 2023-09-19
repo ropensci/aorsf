@@ -46,6 +46,18 @@
    return(n_cols);
   }
 
+  arma::mat& get_x(){
+   return(x);
+  }
+
+  arma::mat& get_y(){
+   return(y);
+  }
+
+  arma::vec& get_w(){
+   return(w);
+  }
+
   arma::mat x_rows(arma::uvec& row_indices) {
    return(x.rows(row_indices));
   }

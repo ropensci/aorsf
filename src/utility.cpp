@@ -160,5 +160,122 @@
   return result;
  }
 
+ double compute_cstat(arma::mat& y,
+                                  arma::vec& w,
+                                  arma::vec& p,
+                                  bool pred_is_risklike){
+
+  vec y_time   = y.unsafe_col(0);
+  vec y_status = y.unsafe_col(1);
+
+  uvec events = find(y_status == 1);
+
+  // protection from case where there are no comparables.
+  double total=0, concordant=0;
+
+  for (uvec::iterator event = events.begin(); event < events.end(); ++event) {
+
+   for(uword i = *event; i < y.n_rows; ++i){
+
+    if (y_time[i] > y_time[*event]) { // ties not counted
+
+     total += w[i];
+
+     if (p[i] < p[*event]){
+
+      concordant += w[i];
+
+     } else if (p[i] == p[*event]){
+
+      concordant += (w[i] / 2);
+
+     }
+
+    }
+
+   }
+
+  }
+
+  // it's possible there won't be any valid comparisons, so:
+  if(total == 0) return(0.5);
+
+  // code above assumes higher predictions mean more risk,
+  if(pred_is_risklike) return(concordant / total);
+  // if that isn't true (e.g., a survival prediction):
+  return(1 - (concordant / total));
+
+ }
+
+
+ double compute_cstat(arma::mat& y,
+                                  arma::vec& w,
+                                  arma::uvec& g,
+                                  bool pred_is_risklike){
+
+  // note: g must have only values of 0 and 1 to use this.
+  // note: this is a little different in its approach than
+  //       the analogous function for vec g. The reason it
+  //       is different is that I've benchmarked these across
+  //       big and small data and this version works best for
+  //       uvec g while the analogous approach works best for
+  //       vec g.
+
+  vec y_time   = y.unsafe_col(0);
+  vec y_status = y.unsafe_col(1);
+
+  double total=0, concordant=0;
+
+  for (uword i = 0; i < y.n_rows; ++i) {
+
+   if(y_status[i] == 1){
+
+    bool g_0 = g[i] == 0;
+
+    for(uword j = i; j < y.n_rows; ++j){
+     // ties not counted
+     if (y_time[j] > y_time[i]) {
+
+      total += w[j];
+
+      // time_i < time_j, and person i had an event,
+      // => if risk_i > risk_j we are concordant.
+      // if risk_i is 0, risk_j cannot be less than risk_i
+      // => best case scenario is a tie, i.e., g[j] == 0
+      // => if g[j] is 0, we want to add 1/2 to concordant
+      // => if g[j] is 1, we want to do nothing
+      // => subtract 1 from g, multiply by -1, divide by 2
+      if(g_0){
+
+       if(g[j] == 0) concordant += (w[j]/2);
+
+      } else if (g[j] == 1){
+
+       // if risk_i is 1 and risk_j is 1, a tie
+       concordant += (w[j]/2);
+
+      } else {
+
+       // if risk_i is 1 and risk_j is 0, concordance
+       concordant += (w[j]);
+
+      }
+
+     }
+
+    }
+
+   }
+
+  }
+
+  // it's possible there won't be any valid comparisons, so:
+  if(total == 0) return(0.5);
+  // code above assumes higher predictions mean more risk,
+  if(pred_is_risklike) return(concordant / total);
+  // if that isn't true (e.g., a survival prediction):
+  return(1 - (concordant / total));
+
+ }
 
  }

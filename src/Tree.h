@@ -37,6 +37,7 @@
   void init(Data* data,
             int seed,
             arma::uword mtry,
+            PredType pred_type,
             // double leaf_min_events,
             double leaf_min_obs,
             VariableImportance vi_type,
@@ -73,9 +74,9 @@
 
   virtual double compute_split_score();
 
-  double node_split(arma::uvec& cuts_all);
+  double split_node(arma::uvec& cuts_all);
 
-  virtual void node_sprout(arma::uword node_id);
+  virtual void sprout_leaf(arma::uword node_id);
 
   virtual double compute_max_leaves();
 
@@ -178,6 +179,9 @@
   int seed;
 
   arma::uword mtry;
+
+  // what type of predictions you compute
+  PredType pred_type;
 
   // variable importance
   VariableImportance vi_type;

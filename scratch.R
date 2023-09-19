@@ -1,7 +1,15 @@
-library(survival)
 library(tidyverse)
 library(riskRegression)
+library(survival)
 
+sink("orsf-output.txt")
+fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
+            n_tree = 100,
+            n_thread = 5,
+            oobag_pred_type = 'risk',
+            split_rule = 'cstat',
+            split_min_stat = .5)
+sink()
 
 .pbc_orsf <- pbc_orsf %>%
  mutate(stage = factor(stage, ordered = F))
@@ -30,9 +38,9 @@ f <- function(x, y, w){
  matrix(runif(ncol(x)), ncol=1)
 }
 
-pred_horizon <- median(y[, 'time'])
+pred_horizon <- 200 # median(y[, 'time'])
 
-sink("orsf-output.txt")
+# sink("orsf-output.txt")
 
 orsf_tree = aorsf:::orsf_cpp(x,
                              y,
@@ -63,12 +71,12 @@ orsf_tree = aorsf:::orsf_cpp(x,
                              lincomb_ties_method = 1,
                              pred_type_R = 1,
                              pred_mode = FALSE,
-                             pred_horizon = pred_horizon,
+                             pred_horizon = c(pred_horizon, 2*pred_horizon),
                              oobag = TRUE,
-                             oobag_eval_every = 500,
-                             n_thread = 1)
+                             oobag_eval_every = 100,
+                             n_thread = 6)
 
-sink()
+# sink()
 
 orsf_tree$forest[-1] |>
  as_tibble() |>
@@ -93,6 +101,7 @@ for(i in seq(5)){
  orsf_fit_1 = aorsf:::orsf_cpp(x[train_rows, ],
                                y[train_rows, ],
                                w[train_rows],
+                               tree_type_R = 3,
                                tree_seeds = 1:500,
                                loaded_forest = list(),
                                n_tree = 500,
@@ -126,6 +135,7 @@ for(i in seq(5)){
  orsf_fit_5 = aorsf:::orsf_cpp(x[train_rows, ],
                                y[train_rows, ],
                                w[train_rows],
+                               tree_type_R = 3,
                                tree_seeds = 1:500,
                                loaded_forest = list(),
                                n_tree = 500,
@@ -182,6 +192,7 @@ for(i in seq(5)){
  orsf_pred_1 = aorsf:::orsf_cpp(x[-train_rows, ],
                                 y[-train_rows, ],
                                 w[-train_rows],
+                                tree_type_R = 3,
                                 tree_seeds = 1:500,
                                 loaded_forest = orsf_fit_1$forest,
                                 n_tree = 500,
@@ -217,6 +228,7 @@ for(i in seq(5)){
  orsf_pred_10 = aorsf:::orsf_cpp(x[-train_rows, ],
                                  y[-train_rows, ],
                                  w[-train_rows],
+                                 tree_type_R = 3,
                                  tree_seeds = 1:500,
                                  loaded_forest = orsf_fit_1$forest,
                                  n_tree = 500,
@@ -283,6 +295,7 @@ microbenchmark::microbenchmark(
  orsf_fit = aorsf:::orsf_cpp(x,
                              y,
                              w,
+                             tree_type_R = 3,
                              tree_seeds = c(1:500),
                              loaded_forest = list(),
                              n_tree = 500,

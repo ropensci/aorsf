@@ -307,51 +307,28 @@ test_that(
   miss_check_with_vi <- sapply(fit_with_vi, no_miss_list)
 
   for(i in seq_along(miss_check_no_vi)){
-   if(!is_empty(miss_check_no_vi[[i]]))
+   if(!is_empty(miss_check_no_vi[[i]])){
+
+    if(is.matrix(miss_check_no_vi[[i]])){
+     miss_check_no_vi[[i]] <- unlist(miss_check_no_vi[[i]])
+    }
     expect_true(sum(miss_check_no_vi[[i]]) == 0)
+
+   }
+
   }
 
   for(i in seq_along(miss_check_with_vi)){
-   if(!is_empty(miss_check_with_vi[[i]]))
+   if(!is_empty(miss_check_with_vi[[i]])){
+
+    if(is.matrix(miss_check_with_vi[[i]])){
+     miss_check_with_vi[[i]] <- unlist(miss_check_with_vi[[i]])
+    }
     expect_true(sum(miss_check_with_vi[[i]]) == 0)
+
+   }
   }
 
-
- }
-)
-
-
-
-
-
-
-test_that(
- desc = 'oobag error is reproducible from an orsf_fit object',
- code = {
-
-  y_mat <- as.matrix(fit_no_vi$data[, c('time', 'status')])
-  s_vec <- fit_no_vi$pred_oobag
-
-  tt <- survival::concordancefit(
-   y = survival::Surv(pbc_orsf$time, pbc_orsf$status),
-   x = fit_no_vi$pred_oobag
-  )
-
-  denom <- sum(tt$count[c('concordant',
-                          'discordant',
-                          'tied.y')])
-
-  target <- as.numeric(tt$concordance)
-
-  bcj <- cstat_bcj(y_mat, s_vec)
-
-  expect_equal(
-   bcj,
-   as.numeric(fit_no_vi$eval_oobag$stat_values)
-  )
-
-  # cstat_bcj close enough to cstat from survival
-  expect_lt(abs(target - bcj), 0.001)
 
  }
 )

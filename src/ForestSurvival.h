@@ -21,6 +21,7 @@ public:
                 arma::vec& pred_horizon,
                 arma::vec& unique_event_times);
 
+
  ForestSurvival(const ForestSurvival&) = delete;
  ForestSurvival& operator=(const ForestSurvival&) = delete;
 
@@ -41,10 +42,24 @@ public:
  // growInternal() in ranger
  void plant() override;
 
+ void compute_prediction_accuracy(
+   Data* prediction_data,
+   arma::uword row_fill,
+   arma::mat& predictions
+ ) override;
+
+ void compute_prediction_accuracy(
+   arma::mat& y,
+   arma::vec& w,
+   arma::uword row_fill,
+   arma::mat& predictions
+ ) override;
+
 protected:
 
  void resize_pred_mat(arma::mat& p) override;
 
+ void resize_oobag_eval() override;
 
  arma::vec pred_horizon;
 
