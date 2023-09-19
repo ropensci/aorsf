@@ -70,67 +70,6 @@
    bool pred_is_risklike
  ){ return compute_cstat(y, w, g, pred_is_risklike); }
 
- // [[Rcpp::export]]
- List node_find_cps_exported(arma::mat& y_node,
-                             arma::vec& w_node,
-                             arma::vec& XB,
-                             double leaf_min_events,
-                             double leaf_min_obs){
-
-  // sort XB to iterate over the sorted indices
-  uvec XB_sorted = sort_index(XB, "ascend");
-
-  uvec cp_index = node_find_cps(y_node,
-                                w_node,
-                                XB,
-                                XB_sorted,
-                                leaf_min_events,
-                                leaf_min_obs);
-
-  // vec group(y_node.n_rows, fill::zeros);
-  // uvec::iterator XB_iter;
-  // uword j = 0;
-  // XB_iter = XB_sorted.begin();
-  // while(j <= cp_index(0)){
-  //  group(*XB_iter) = 1;
-  //  ++XB_iter;
-  //  ++j;
-  // }
-
-
-
-  return(
-   List::create(
-    _["cp_index"] = cp_index,
-    _["XB_sorted"] = XB_sorted
-   )
-  );
-
-
- }
-
- // [[Rcpp::export]]
- double node_compute_lrt_exported(arma::mat& y_node,
-                                  arma::vec& w_node,
-                                  arma::vec& group){
-
-  double out = node_compute_lrt(y_node, w_node, group);
-
-  return(out);
-
- }
-
- // [[Rcpp::export]]
- void node_fill_group_exported(arma::vec& group,
-                               arma::uvec& XB_sorted,
-                               arma::uword start,
-                               arma::uword stop,
-                               double value){
-
-  node_fill_group(group, XB_sorted, start, stop, value);
-
- }
-
  // [[Rcpp::plugins("cpp17")]]
  // [[Rcpp::export]]
  List orsf_cpp(arma::mat& x,

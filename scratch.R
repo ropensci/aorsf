@@ -6,6 +6,7 @@ sink("orsf-output.txt")
 fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
             n_tree = 100,
             n_thread = 5,
+            # control = orsf_control_net(),
             oobag_pred_type = 'risk',
             split_rule = 'cstat',
             split_min_stat = .5)
