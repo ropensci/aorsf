@@ -696,7 +696,7 @@ orsf <- function(data,
                       tree_type_R = 3,
                       tree_seeds = as.integer(tree_seeds),
                       loaded_forest = list(),
-                      n_tree = n_tree,
+                      n_tree = if(no_fit) 0 else n_tree,
                       mtry = mtry,
                       vi_type_R = switch(importance,
                                          "none" = 0,
@@ -745,7 +745,9 @@ orsf <- function(data,
                                                  'user' = 2),
                       oobag_eval_every = oobag_eval_every,
                       n_thread = n_thread,
-                      write_forest = !no_fit)
+                      write_forest = TRUE)
+
+ # browser()
 
  # if someone says no_fit and also says don't attach the data,
  # give them a warning but also do the right thing for them.

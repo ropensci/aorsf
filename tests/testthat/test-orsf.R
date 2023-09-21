@@ -32,7 +32,7 @@ add_noise <- function(x, eps = .Machine$double.eps){
 
 }
 
-change_scale <- function(x, mult_by = 10){
+change_scale <- function(x, mult_by = 1/2){
  x * mult_by
 }
 

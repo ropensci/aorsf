@@ -2,87 +2,21 @@ library(tidyverse)
 library(riskRegression)
 library(survival)
 
-sink("orsf-output.txt")
+# sink("orsf-output.txt")
 fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
             n_tree = 100,
             n_thread = 5,
             # control = orsf_control_net(),
-            oobag_pred_type = 'risk',
+            oobag_pred_type = 'none',
             split_rule = 'cstat',
-            split_min_stat = .5)
-sink()
+            split_min_stat = .5,
+            no_fit = TRUE)
+# sink()
 
 fit$eval_oobag
 
 
-.pbc_orsf <- pbc_orsf %>%
- mutate(stage = factor(stage, ordered = F))
-
-x <- model.matrix(~. -1, data = select(.pbc_orsf, -time, -status, -id))
-y <- as.matrix(.pbc_orsf[, c('time', 'status')])
-
-# .flchain <- flchain |>
-#  rename(time = futime, status = death) |>
-#  select(-chapter) |>
-#  tidyr::drop_na()
-# x <- model.matrix(~. -1, data = select(.flchain, -time, -status))
-# y <- as.matrix(.flchain[, c('time', 'status')])
-
-w <- rep(1, nrow(x))
-
-sorted <-
- collapse::radixorder(y[, 1],  # order this way for risk sets
-                      -y[, 2]) # order this way for oob C-statistic.
-
-y <- y[sorted, ]
-x <- x[sorted, ]
-w <- w[sorted]
-
-f <- function(x, y, w){
- matrix(runif(ncol(x)), ncol=1)
-}
-
-pred_horizon <- 200 # median(y[, 'time'])
-
-# sink("orsf-output.txt")
-
-orsf_tree = aorsf:::orsf_cpp(x,
-                             y,
-                             w,
-                             tree_type_R = 3,
-                             tree_seeds = 1:500,
-                             loaded_forest = list(),
-                             n_tree = 500,
-                             mtry = 3,
-                             vi_type_R = 2,
-                             vi_max_pvalue = 0.01,
-                             lincomb_R_function = f,
-                             oobag_R_function = f,
-                             leaf_min_events = 5,
-                             leaf_min_obs = 5,
-                             split_rule_R = 1,
-                             split_min_events = 5,
-                             split_min_obs = 10,
-                             split_min_stat = 0,
-                             split_max_cuts = 5,
-                             split_max_retry = 3,
-                             lincomb_type_R = 1,
-                             lincomb_eps = 1e-9,
-                             lincomb_iter_max = 1,
-                             lincomb_scale = TRUE,
-                             lincomb_alpha = 1,
-                             lincomb_df_target = 1,
-                             lincomb_ties_method = 1,
-                             pred_type_R = 1,
-                             pred_mode = FALSE,
-                             pred_horizon = c(pred_horizon, 2*pred_horizon),
-                             oobag = TRUE,
-                             oobag_eval_every = 100,
-                             n_thread = 6)
-
-# sink()
-
-orsf_tree$forest[-1] |>
+fit$forest[-1] |>
  as_tibble() |>
  slice(1) |>
  unnest(everything()) |>
