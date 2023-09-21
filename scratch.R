@@ -2,14 +2,47 @@ library(tidyverse)
 library(riskRegression)
 library(survival)
 
-# sink("orsf-output.txt")
+sink("orsf-output.txt")
 fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-            n_tree = 100,
-            n_thread = 1,
-            # control = orsf_control_net(),
-            oobag_pred_type = 'surv',
-            split_rule = 'cstat',
-            split_min_stat = .5)
+            n_tree = 500,
+            oobag_eval_every = 50,
+            n_thread = 10,
+            oobag_pred_type = 'mort',
+            split_rule = 'logrank',
+            importance = 'negate',
+            split_min_stat = 3)
+sink()
+orsf_vi(fit)
+
+
+library(randomForestSRC)
+
+microbenchmark::microbenchmark(
+ aorsf_1 = orsf(pbc_orsf, Surv(time, status) ~ . - id,
+                n_tree = 500,
+                mtry = 3,
+                leaf_min_obs = 10,
+                n_split = 5,
+                importance = 'permute',
+                n_thread = 1),
+ aorsf_5 = orsf(pbc_orsf, Surv(time, status) ~ . - id,
+                n_tree = 500,
+                mtry = 3,
+                leaf_min_obs = 10,
+                n_split = 5,
+                importance = 'permute',
+                n_thread = 5),
+ rfsrc = randomForestSRC::rfsrc(Surv(time, status) ~ .,
+                                ntree = 500,
+                                mtry = 3,
+                                nthread = 10,
+                                samptype = 'swr',
+                                importance = 'permute',
+                                nodesize = 10,
+                                nsplit = 5,
+                                data = as.data.frame(pbc_orsf))
+)
+
 # sink()
 
 fit$eval_oobag

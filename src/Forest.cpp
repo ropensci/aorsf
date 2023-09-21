@@ -38,6 +38,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   PredType pred_type,
                   bool pred_mode,
                   bool oobag_pred,
+                  EvalType oobag_eval_type,
                   arma::uword oobag_eval_every,
                   Rcpp::RObject oobag_R_function,
                   uint n_thread){
@@ -64,6 +65,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->pred_mode = pred_mode;
  this->pred_type = pred_type;
  this->oobag_pred = oobag_pred;
+ this->oobag_eval_type = oobag_eval_type;
  this->oobag_eval_every = oobag_eval_every;
  this->oobag_R_function = oobag_R_function;
  this->n_thread = n_thread;
@@ -97,20 +99,16 @@ void Forest::run(bool verbose, bool oobag){
 
   // initialize the trees
   plant();
-
   // grow the trees
   grow();
 
   // compute out-of-bag predictions if needed
   if(oobag){
-
    this->pred_values = predict(oobag);
+  }
 
-   if(oobag_eval_every == n_tree){
-    // if oobag_eval_every < n_tree, this is done during grow()
-    compute_prediction_accuracy(data->get_y(), data->get_w(), 0, pred_values);
-   }
-
+  if(vi_type == VI_PERMUTE || vi_type == VI_NEGATE){
+   compute_oobag_vi();
   }
 
  }
@@ -240,9 +238,72 @@ void Forest::grow_in_threads(uint thread_idx,
 
    trees[i]->grow(vi_numer_ptr, vi_denom_ptr);
 
-   if(vi_type == VI_PERMUTE || vi_type == VI_NEGATE){
-    trees[i]->compute_oobag_vi(vi_numer_ptr, vi_type);
+   // Check for user interrupt
+   if (aborted) {
+    std::unique_lock<std::mutex> lock(mutex);
+    ++aborted_threads;
+    condition_variable.notify_one();
+    return;
    }
+
+   // Increase progress by 1 tree
+   std::unique_lock<std::mutex> lock(mutex);
+   ++progress;
+   condition_variable.notify_one();
+
+  }
+
+ }
+
+}
+
+void Forest::compute_oobag_vi() {
+
+ // catch interrupts from threads
+ aborted = false;
+ aborted_threads = 0;
+
+ // show progress from threads
+ progress = 0;
+
+ std::vector<std::thread> threads;
+ std::vector<vec> vi_numer_threads(n_thread);
+ // no denominator b/c it is equal to n_tree for all oob vi methods
+
+ threads.reserve(n_thread);
+
+ for (uint i = 0; i < n_thread; ++i) {
+
+  vi_numer_threads[i].zeros(data->n_cols);
+
+  threads.emplace_back(&Forest::compute_oobag_vi_in_threads,
+                       this, i, &(vi_numer_threads[i]));
+ }
+
+ showProgress("Computing variable importance...", n_tree);
+
+ for (auto &thread : threads) {
+  thread.join();
+ }
+
+ if (aborted_threads > 0) {
+  throw std::runtime_error("User interrupt.");
+ }
+
+ for(uint i = 0; i < n_thread; ++i){
+  vi_numer += vi_numer_threads[i];
+ }
+
+}
+
+
+void Forest::compute_oobag_vi_in_threads(uint thread_idx, vec* vi_numer_ptr) {
+
+ if (thread_ranges.size() > thread_idx + 1) {
+
+  for(uint i=thread_ranges[thread_idx]; i<thread_ranges[thread_idx+1]; ++i){
+
+   trees[i]->compute_oobag_vi(vi_numer_ptr, vi_type);
 
    // Check for user interrupt
    if (aborted) {
@@ -318,15 +379,19 @@ mat Forest::predict(bool oobag) {
 
    // evaluate oobag error after joining each thread
    // (only safe to do this when the condition below holds)
-   if( n_tree/oobag_eval_every == n_thread && n_thread > 1 ){
+   if(n_tree/oobag_eval_every == n_thread && n_thread>1 && i<n_thread-1){
 
     mat result_scaled = result.each_col() / oob_denom;
 
-    print_mat(result_scaled, "result scaled", 10, 10);
+    // print_mat(result_scaled, "result scaled", 10, 10);
 
+    // i should be uint to access threads,
+    // eval_row should be uword to access oobag_eval
     uword eval_row = i;
 
     compute_prediction_accuracy(data.get(), eval_row, result_scaled);
+
+    Rcout << std::endl << oobag_eval << std::endl;
 
    }
   }
@@ -334,10 +399,15 @@ mat Forest::predict(bool oobag) {
  }
 
  if(oobag){
+
   oob_denom.replace(0, 1); // in case an obs was never oobag.
   result.each_col() /= oob_denom;
+  compute_prediction_accuracy(data.get(), oobag_eval.n_rows-1, result);
+
  } else {
+
   result /= n_tree;
+
  }
 
  return(result);

@@ -173,6 +173,7 @@
                pred_type,
                pred_mode,
                oobag,
+               oobag_eval_type,
                oobag_eval_every,
                oobag_R_function,
                n_thread);

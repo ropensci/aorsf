@@ -60,6 +60,7 @@ public:
            PredType pred_type,
            bool pred_mode,
            bool oobag_pred,
+           EvalType oobag_eval_type,
            arma::uword oobag_eval_every,
            Rcpp::RObject oobag_R_function,
            uint n_thread);
@@ -213,6 +214,11 @@ protected:
                          mat* result_ptr,
                          vec* denom_ptr);
 
+ void compute_oobag_vi();
+
+ void compute_oobag_vi_in_threads(uint thread_idx,
+                                  vec* vi_numer_ptr);
+
  void showProgress(std::string operation, size_t max_progress);
 
  virtual void resize_pred_mat(arma::mat& p) = 0;
@@ -271,6 +277,7 @@ protected:
  // out-of-bag
  bool        oobag_pred;
  arma::mat   oobag_eval;
+ EvalType    oobag_eval_type;
  arma::uword oobag_eval_every;
  RObject     oobag_R_function;
 

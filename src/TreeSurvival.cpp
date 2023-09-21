@@ -529,6 +529,8 @@
   uvec::iterator it = pred_leaf_sort.begin();
 
   // oobag leaf prediction has zeros for inbag rows
+  // TODO: Change this to be max_nodes+1
+  // (0 is a valid leaf for empty tree)
   if(oobag){
    while(pred_leaf(*it) == 0 && it < pred_leaf_sort.end()){
     ++it;
@@ -544,12 +546,12 @@
 
   double pred_t0;
 
-  if(pred_type == PRED_SURVIVAL || pred_type == PRED_RISK){
+  if(pred_type == PRED_SURVIVAL ||
+     pred_type == PRED_RISK){
    pred_t0 = 1;
-  } else if (pred_type == PRED_CUMULATIVE_HAZARD) {
+  } else if (pred_type == PRED_CHAZ ||
+             pred_type == PRED_MORTALITY) {
    pred_t0 = 0;
-  } else {
-   stop("invalid pred_type");
   }
 
   uword i, j;
@@ -568,60 +570,94 @@
                     leaf_pred_indx[leaf_id].size(),
                     false);
 
-   leaf_values = vec(leaf_pred_prob[leaf_id].begin(),
-                     leaf_pred_prob[leaf_id].size(),
-                     false);
+   switch (pred_type) {
 
-   if(leaf_values.is_empty()) Rcpp::stop("empty leaf");
+   case PRED_RISK: case PRED_SURVIVAL: {
+
+    leaf_values = vec(leaf_pred_prob[leaf_id].begin(),
+                      leaf_pred_prob[leaf_id].size(),
+                      false);
+
+    break;
+
+   }
+
+   case PRED_CHAZ: {
+
+    leaf_values = vec(leaf_pred_chaz[leaf_id].begin(),
+                      leaf_pred_chaz[leaf_id].size(),
+                      false);
+
+    break;
+
+   }
+
+   case PRED_MORTALITY: {
+
+    temp_vec.fill(leaf_summary[leaf_id]);
+
+    break;
+
+   }
+
+   default:
+    Rcout << "Invalid pred type; R will crash";
+    break;
+
+   }
 
    // don't reset i in the loop b/c leaf_times ascend
    i = 0;
 
-   for(j = 0; j < (*pred_horizon).size(); j++){
+   if(pred_type != PRED_MORTALITY){
 
-    // t is the current prediction time
-    double t = (*pred_horizon)[j];
+    for(j = 0; j < (*pred_horizon).size(); j++){
 
-    // if t < t', where t' is the max time in this leaf,
-    // then we may find a time t* such that t* < t < t'.
-    // If so, prediction should be anchored to t*.
-    // But, there may be multiple t* < t, and we want to
-    // find the largest t* that is < t, so we find the
-    // first t** > t and assign t* to be whatever came
-    // right before t**.
-    if(t < leaf_times.back()){
+     // t is the current prediction time
+     double t = (*pred_horizon)[j];
 
-     for(; i < leaf_times.size(); i++){
+     // if t < t', where t' is the max time in this leaf,
+     // then we may find a time t* such that t* < t < t'.
+     // If so, prediction should be anchored to t*.
+     // But, there may be multiple t* < t, and we want to
+     // find the largest t* that is < t, so we find the
+     // first t** > t and assign t* to be whatever came
+     // right before t**.
+     if(t < leaf_times.back()){
 
-      // we found t**
-      if (leaf_times[i] > t){
+      for(; i < leaf_times.size(); i++){
 
-       if(i == 0)
-        // first leaf event occurred after prediction time
-        temp_dbl = pred_t0;
-       else
-        // t* is the time value just before t**, so use i-1
-        temp_dbl = leaf_values[i-1];
+       // we found t**
+       if (leaf_times[i] > t){
 
-       break;
+        if(i == 0)
+         // first leaf event occurred after prediction time
+         temp_dbl = pred_t0;
+        else
+         // t* is the time value just before t**, so use i-1
+         temp_dbl = leaf_values[i-1];
 
-      } else if (leaf_times[i] == t){
-       // pred_horizon just happens to equal a leaf time
-       temp_dbl = leaf_values[i];
+        break;
 
-       break;
+       } else if (leaf_times[i] == t){
+        // pred_horizon just happens to equal a leaf time
+        temp_dbl = leaf_values[i];
+
+        break;
+
+       }
 
       }
 
+     } else {
+      // if t > t' use the last recorded prediction
+      temp_dbl = leaf_values.back();
+
      }
 
-    } else {
-     // if t > t' use the last recorded prediction
-     temp_dbl = leaf_values.back();
+     temp_vec[j] = temp_dbl;
 
     }
-
-    temp_vec[j] = temp_dbl;
 
    }
 
@@ -654,10 +690,7 @@
 
  double TreeSurvival::compute_prediction_accuracy(arma::vec& preds){
 
-  return compute_cstat(y_oobag,
-                                   w_oobag,
-                                   preds,
-                                   true);
+  return compute_cstat(y_oobag, w_oobag, preds, true);
 
  }
 
