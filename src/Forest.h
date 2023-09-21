@@ -183,7 +183,7 @@ public:
  }
 
  arma::mat& get_predictions(){
-  return(predictions);
+  return(pred_values);
  }
 
  void run(bool verbose, bool oobag);
@@ -266,7 +266,7 @@ protected:
  bool pred_mode;
  PredType pred_type;
 
- arma::mat predictions;
+ arma::mat pred_values;
 
  // out-of-bag
  bool        oobag_pred;

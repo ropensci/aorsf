@@ -5,12 +5,11 @@ library(survival)
 # sink("orsf-output.txt")
 fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
             n_tree = 100,
-            n_thread = 5,
+            n_thread = 1,
             # control = orsf_control_net(),
-            oobag_pred_type = 'none',
+            oobag_pred_type = 'surv',
             split_rule = 'cstat',
-            split_min_stat = .5,
-            no_fit = TRUE)
+            split_min_stat = .5)
 # sink()
 
 fit$eval_oobag

@@ -91,7 +91,7 @@ void Forest::run(bool verbose, bool oobag){
 
  if(pred_mode){
 
-  this->predictions = predict(oobag);
+  this->pred_values = predict(oobag);
 
  } else {
 
@@ -104,10 +104,11 @@ void Forest::run(bool verbose, bool oobag){
   // compute out-of-bag predictions if needed
   if(oobag){
 
-   this->predictions = predict(oobag);
+   this->pred_values = predict(oobag);
 
    if(oobag_eval_every == n_tree){
-    compute_prediction_accuracy(data->get_y(), data->get_w(), 0, predictions);
+    // if oobag_eval_every < n_tree, this is done during grow()
+    compute_prediction_accuracy(data->get_y(), data->get_w(), 0, pred_values);
    }
 
   }

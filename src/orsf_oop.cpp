@@ -205,7 +205,7 @@
 
   if(pred_mode){
 
-   result.push_back(forest->get_predictions(), "predictions");
+   result.push_back(forest->get_predictions(), "pred_new");
 
   } else {
 

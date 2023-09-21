@@ -7,7 +7,8 @@
 #include <RcppArmadillo.h>
 #include "Tree.h"
 #include "Coxph.h"
-// #include "NodeSplitStats.h"
+
+#include <memory>
 
  using namespace arma;
  using namespace Rcpp;
@@ -953,15 +954,6 @@
    }
 
   }
-
- }
-
- void Tree::predict_value(arma::mat* pred_output,
-                          arma::vec* pred_denom,
-                          PredType pred_type,
-                          bool oobag){
-
-  return;
 
  }
 

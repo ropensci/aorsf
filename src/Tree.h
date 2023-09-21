@@ -89,7 +89,7 @@
   virtual void predict_value(arma::mat* pred_output,
                              arma::vec* pred_denom,
                              PredType pred_type,
-                             bool oobag);
+                             bool oobag) = 0;
 
   void negate_coef(arma::uword pred_col);
 
