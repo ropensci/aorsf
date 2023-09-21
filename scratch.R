@@ -12,6 +12,9 @@ fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
             split_min_stat = .5)
 sink()
 
+fit$eval_oobag
+
+
 .pbc_orsf <- pbc_orsf %>%
  mutate(stage = factor(stage, ordered = F))
 

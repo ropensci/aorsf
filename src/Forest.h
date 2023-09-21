@@ -65,7 +65,7 @@ public:
            uint n_thread);
 
  // Grow or predict
- void run();
+ // void run(bool verbose, bool oobag);
 
  virtual void compute_prediction_accuracy(
    Data* prediction_data,
@@ -182,6 +182,12 @@ public:
   return(oobag_eval);
  }
 
+ arma::mat& get_predictions(){
+  return(predictions);
+ }
+
+ void run(bool verbose, bool oobag);
+
  virtual void plant() = 0;
 
  void grow();
@@ -257,7 +263,10 @@ protected:
  RObject     lincomb_R_function;
 
  // predictions
+ bool pred_mode;
  PredType pred_type;
+
+ arma::mat predictions;
 
  // out-of-bag
  bool        oobag_pred;

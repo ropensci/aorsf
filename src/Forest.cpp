@@ -61,6 +61,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->lincomb_df_target = lincomb_df_target;
  this->lincomb_ties_method = lincomb_ties_method;
  this->lincomb_R_function = lincomb_R_function;
+ this->pred_mode = pred_mode;
  this->pred_type = pred_type;
  this->oobag_pred = oobag_pred;
  this->oobag_eval_every = oobag_eval_every;
@@ -83,6 +84,36 @@ void Forest::init(std::unique_ptr<Data> input_data,
   Rcout << "-----------------------------------------------";
   Rcout << std::endl << std::endl;
  }
+
+}
+
+void Forest::run(bool verbose, bool oobag){
+
+ if(pred_mode){
+
+  this->predictions = predict(oobag);
+
+ } else {
+
+  // initialize the trees
+  plant();
+
+  // grow the trees
+  grow();
+
+  // compute out-of-bag predictions if needed
+  if(oobag){
+
+   this->predictions = predict(oobag);
+
+   if(oobag_eval_every == n_tree){
+    compute_prediction_accuracy(data->get_y(), data->get_w(), 0, predictions);
+   }
+
+  }
+
+ }
+
 
 }
 
@@ -128,9 +159,9 @@ void Forest::grow() {
   // not need to be a corresponding predict_single_thread
   // function b/c the R functions are only called during
   // the grow phase of the forest.
-  vec vi_numer(data->n_cols);
-  uvec vi_denom(data->n_cols);
-  grow_single_thread(&vi_numer, &vi_denom);
+  vec* vi_numer_ptr = &vi_numer;
+  uvec* vi_denom_ptr = &vi_denom;
+  grow_single_thread(vi_numer_ptr, vi_denom_ptr);
   return;
  }
 
@@ -239,10 +270,13 @@ mat Forest::predict(bool oobag) {
  // No. of cols in pred mat depend on the type of forest
  resize_pred_mat(result);
 
+ // Slots to hold oobag prediction accuracy
+ // (needs to be resized even if !oobag)
+ resize_oobag_eval();
+
  // oobag denominator tracks the number of times an obs is oobag
  if(oobag){
   oob_denom.zeros(data->n_rows);
-  resize_oobag_eval();
  }
 
  progress = 0;
@@ -357,6 +391,8 @@ void Forest::predict_in_threads(uint thread_idx,
 
 arma::uword Forest::find_max_eval_steps(){
 
+ if(!oobag_pred) return(0);
+
  uword n_evals = std::ceil(n_tree / oobag_eval_every);
 
  if(n_evals > n_tree) n_evals = n_tree;
@@ -370,12 +406,6 @@ void Forest::resize_oobag_eval(){
  uword n_evals = find_max_eval_steps();
 
  oobag_eval.resize(n_evals, 1);
-
- Rcout << std::endl << oobag_eval << std::endl;
-
-}
-
-void Forest::run() {
 
 }
 

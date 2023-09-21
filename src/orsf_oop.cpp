@@ -17,7 +17,6 @@
 #include "Forest.h"
 #include "ForestSurvival.h"
 #include "Coxph.h"
-#include "NodeSplitStats.h"
 
 #include <utility>
 #include <memory>
@@ -72,41 +71,43 @@
 
  // [[Rcpp::plugins("cpp17")]]
  // [[Rcpp::export]]
- List orsf_cpp(arma::mat& x,
-               arma::mat& y,
-               arma::vec& w,
-               arma::uword tree_type_R,
-               Rcpp::IntegerVector& tree_seeds,
-               Rcpp::List loaded_forest,
-               Rcpp::RObject lincomb_R_function,
-               Rcpp::RObject oobag_R_function,
-               arma::uword n_tree,
-               arma::uword mtry,
-               arma::uword vi_type_R,
-               double vi_max_pvalue,
-               double leaf_min_events,
-               double leaf_min_obs,
-               arma::uword split_rule_R,
-               double split_min_events,
-               double split_min_obs,
-               double split_min_stat,
-               arma::uword split_max_cuts,
-               arma::uword split_max_retry,
-               arma::uword lincomb_type_R,
-               double lincomb_eps,
-               arma::uword lincomb_iter_max,
-               bool lincomb_scale,
-               double lincomb_alpha,
-               arma::uword lincomb_df_target,
-               arma::uword lincomb_ties_method,
-               bool pred_mode,
-               arma::uword pred_type_R,
-               arma::vec pred_horizon,
-               bool oobag,
-               arma::uword oobag_eval_every,
-               unsigned int n_thread){
+ List orsf_cpp(arma::mat&            x,
+               arma::mat&            y,
+               arma::vec&            w,
+               arma::uword           tree_type_R,
+               Rcpp::IntegerVector&  tree_seeds,
+               Rcpp::List            loaded_forest,
+               Rcpp::RObject         lincomb_R_function,
+               Rcpp::RObject         oobag_R_function,
+               arma::uword           n_tree,
+               arma::uword           mtry,
+               arma::uword           vi_type_R,
+               double                vi_max_pvalue,
+               double                leaf_min_events,
+               double                leaf_min_obs,
+               arma::uword           split_rule_R,
+               double                split_min_events,
+               double                split_min_obs,
+               double                split_min_stat,
+               arma::uword           split_max_cuts,
+               arma::uword           split_max_retry,
+               arma::uword           lincomb_type_R,
+               double                lincomb_eps,
+               arma::uword           lincomb_iter_max,
+               bool                  lincomb_scale,
+               double                lincomb_alpha,
+               arma::uword           lincomb_df_target,
+               arma::uword           lincomb_ties_method,
+               bool                  pred_mode,
+               arma::uword           pred_type_R,
+               arma::vec             pred_horizon,
+               bool                  oobag,
+               arma::uword           oobag_eval_type_R,
+               arma::uword           oobag_eval_every,
+               unsigned int          n_thread,
+               bool                  write_forest){
 
-  List result, forest_out;
+  List result;
 
   std::unique_ptr<Forest> forest { };
   std::unique_ptr<Data> data { };
@@ -120,9 +121,12 @@
   SplitRule split_rule = (SplitRule) split_rule_R;
   LinearCombo lincomb_type = (LinearCombo) lincomb_type_R;
   PredType pred_type = (PredType) pred_type_R;
+  EvalType oobag_eval_type = (EvalType) oobag_eval_type_R;
 
   // R functions cannot be called from multiple threads
-  if(lincomb_type == LC_R_FUNCTION || lincomb_type == LC_GLMNET){
+  if(lincomb_type    == LC_R_FUNCTION  ||
+     lincomb_type    == LC_GLMNET      ||
+     oobag_eval_type == EVAL_R_FUNCTION){
    n_thread = 1;
   }
 
@@ -136,12 +140,9 @@
 
   if(tree_type == TREE_SURVIVAL){
 
-   vec unique_event_times = find_unique_event_times(y);
-
    forest = std::make_unique<ForestSurvival>(leaf_min_events,
                                              split_min_events,
-                                             pred_horizon,
-                                             unique_event_times);
+                                             pred_horizon);
 
   } else {
 
@@ -185,6 +186,7 @@
    std::vector<std::vector<uvec>>   coef_indices = loaded_forest["coef_indices"];
    std::vector<std::vector<double>> leaf_summary = loaded_forest["leaf_summary"];
 
+
    if(tree_type == TREE_SURVIVAL){
 
     std::vector<std::vector<vec>> leaf_pred_indx = loaded_forest["leaf_pred_indx"];
@@ -197,38 +199,30 @@
 
    }
 
-   arma::mat pred_mat = forest->predict(oobag);
+  }
 
-   result.push_back(pred_mat, "predictions");
+  forest->run(false, oobag);
+
+  if(pred_mode){
+
+   result.push_back(forest->get_predictions(), "predictions");
 
   } else {
 
-   // initialize the trees
-   forest->plant();
+   if (oobag) result.push_back(forest->get_predictions(), "pred_oobag");
 
-   // grow the trees
-   forest->grow();
+   List eval_oobag_out;
+   eval_oobag_out.push_back(forest->get_oobag_eval(), "stat_values");
+   eval_oobag_out.push_back(oobag_eval_type_R, "stat_type");
+   result.push_back(eval_oobag_out, "eval_oobag");
 
-   // compute out-of-bag predictions if needed
-   if(oobag){
-
-    mat pred_oobag = forest->predict(oobag);
-
-    result.push_back(pred_oobag, "pred_oobag");
-
-    if(oobag_eval_every == n_tree){
-     forest->compute_prediction_accuracy(y, w, 0, pred_oobag);
-    }
-
-    List eval_oobag_out = List::create(
-     _["stat_values"] = forest->get_oobag_eval(),
-     _["stat_type"] = 1
-    );
-
-    result.push_back(eval_oobag_out, "eval_oobag");
-   }
+  }
 
 
+
+  if(write_forest){
+
+   List forest_out;
    forest_out.push_back(forest->get_rows_oobag(), "rows_oobag");
    forest_out.push_back(forest->get_cutpoint(), "cutpoint");
    forest_out.push_back(forest->get_child_left(), "child_left");
@@ -241,28 +235,30 @@
     forest_out.push_back(temp.get_leaf_pred_indx(), "leaf_pred_indx");
     forest_out.push_back(temp.get_leaf_pred_prob(), "leaf_pred_prob");
     forest_out.push_back(temp.get_leaf_pred_chaz(), "leaf_pred_chaz");
-    result.push_back(forest->get_unique_event_times(), "unique_event_times");
-    result.push_back(pred_horizon, "pred_horizon");
+    // consider dropping unique_event_times; is it needed after grow()?
+    // result.push_back(forest->get_unique_event_times(), "unique_event_times");
    }
 
    result.push_back(forest_out, "forest");
 
+  }
+
+  if(vi_type != VI_NONE){
+
    vec vi_output;
 
-   if(vi_type != VI_NONE){
-
-    if(vi_type == VI_ANOVA){
-     vi_output = forest->get_vi_numer() / forest->get_vi_denom();
-    } else {
-     vi_output = forest->get_vi_numer() / n_tree;
-    }
-
+   if(vi_type == VI_ANOVA){
+    vi_output = forest->get_vi_numer() / forest->get_vi_denom();
+   } else {
+    vi_output = forest->get_vi_numer() / n_tree;
    }
 
    result.push_back(vi_output, "importance");
 
   }
 
-  return(result);
+
+
+ return(result);
 
  }

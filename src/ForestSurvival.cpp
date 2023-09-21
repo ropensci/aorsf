@@ -13,13 +13,11 @@ ForestSurvival::ForestSurvival() { }
 
 ForestSurvival::ForestSurvival(double leaf_min_events,
                                double split_min_events,
-                               arma::vec& pred_horizon,
-                               arma::vec& unique_event_times){
+                               arma::vec& pred_horizon){
 
  this->leaf_min_events = leaf_min_events;
  this->split_min_events = split_min_events;
  this->pred_horizon = pred_horizon;
- this->unique_event_times = unique_event_times;
 
 }
 
@@ -49,13 +47,13 @@ void ForestSurvival::load(arma::uword n_tree,
   trees.push_back(
    std::make_unique<TreeSurvival>(forest_cutpoint[i],
                                   forest_child_left[i],
-                                                   forest_coef_values[i],
-                                                                     forest_coef_indices[i],
-                                                                                        forest_leaf_pred_indx[i],
-                                                                                                             forest_leaf_pred_prob[i],
-                                                                                                                                  forest_leaf_pred_chaz[i],
-                                                                                                                                                       forest_leaf_summary[i],
-                                                                                                                                                                          &pred_horizon)
+                                  forest_coef_values[i],
+                                  forest_coef_indices[i],
+                                  forest_leaf_pred_indx[i],
+                                  forest_leaf_pred_prob[i],
+                                  forest_leaf_pred_chaz[i],
+                                  forest_leaf_summary[i],
+                                  &pred_horizon)
   );
  }
 
@@ -66,6 +64,8 @@ void ForestSurvival::load(arma::uword n_tree,
 
 // growInternal() in ranger
 void ForestSurvival::plant() {
+
+ this->unique_event_times = find_unique_event_times(data->get_y());
 
  trees.reserve(n_tree);
 

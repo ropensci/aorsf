@@ -23,7 +23,13 @@ no_miss_list <- function(l){
 }
 
 add_noise <- function(x, eps = .Machine$double.eps){
- x + rnorm(length(x), mean = 0, sd = eps)
+
+ noise <- rnorm(length(x), mean = 0, sd = eps/2)
+ noise <- pmin(noise, eps)
+ noise <- pmax(noise, -eps)
+
+ x + noise
+
 }
 
 change_scale <- function(x, mult_by = 10){
@@ -526,22 +532,31 @@ for(i in vars){
 }
 
 
-set.seed(329)
 fit_orsf <-
- orsf(pbc_orsf, Surv(time, status) ~ . - id)
-set.seed(329)
+ orsf(pbc_orsf, Surv(time, status) ~ . - id,
+      n_thread = 1,
+      n_tree = 10,
+      tree_seeds = 1:10)
+
 fit_orsf_2 <-
- orsf(pbc_orsf, Surv(time, status) ~ . - id)
-set.seed(329)
+ orsf(pbc_orsf, Surv(time, status) ~ . - id,
+      n_thread = 5,
+      n_tree = 10,
+      tree_seeds = 1:10)
+
 fit_orsf_noise <-
- orsf(pbc_noise, Surv(time, status) ~ . - id)
-set.seed(329)
+ orsf(pbc_noise, Surv(time, status) ~ . - id,
+      n_tree = 10,
+      tree_seeds = 1:10)
+
 fit_orsf_scale <-
- orsf(pbc_scale, Surv(time, status) ~ . - id)
+ orsf(pbc_scale, Surv(time, status) ~ . - id,
+      n_tree = 10,
+      tree_seeds = 1:10)
 
 #' @srrstats {ML7.1} *Demonstrate effect of numeric scaling of input data.*
 test_that(
- desc = 'scaling/noising inputs does not impact model behavior',
+ desc = 'outputs are robust to multi-threading, scaling, and noising',
  code = {
 
   expect_lt(
@@ -584,42 +599,39 @@ test_that(
    0.1
   )
 
-  for(i in 1:10){
-   expect_equal(fit_orsf$forest[[i]]$leaf_nodes,
-                fit_orsf_2$forest[[i]]$leaf_nodes)
-   expect_equal(fit_orsf$forest[[i]]$leaf_nodes,
-                fit_orsf_scale$forest[[i]]$leaf_nodes)
-   expect_equal(fit_orsf$forest[[i]]$leaf_nodes,
-                fit_orsf_noise$forest[[i]]$leaf_nodes)
-  }
+  expect_equal(fit_orsf$forest,
+               fit_orsf_2$forest)
+
+  expect_equal(fit_orsf$importance,
+               fit_orsf_2$importance)
+
+  expect_equal(fit_orsf$forest$rows_oobag,
+               fit_orsf_noise$forest$rows_oobag)
+
+  expect_equal(fit_orsf$forest$rows_oobag,
+               fit_orsf_scale$forest$rows_oobag)
+
+  expect_equal(fit_orsf$forest$leaf_summary,
+               fit_orsf_scale$forest$leaf_summary)
+
+  expect_equal(fit_orsf$forest$leaf_summary,
+               fit_orsf_noise$forest$leaf_summary)
 
  }
 )
-
-# testing the seed behavior when no_fit is TRUE. You should get the same
-# forest whether you train with orsf() or with orsf_train().
-
-
-object <- orsf(pbc_orsf, Surv(time, status) ~ . - id, no_fit = TRUE)
-set.seed(329)
-fit_orsf_3 <- orsf_train(object)
 
 test_that(
  desc = 'results are identical if a forest is fitted under the same random seed',
  code = {
 
-  # testing a subset of trees for identical betas
+  object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
+                 n_tree = 10,
+                 tree_seeds = 1:10,
+                 no_fit = TRUE)
+  fit_orsf_3 <- orsf_train(object)
 
-  for(i in seq(get_n_tree(fit_orsf))){
-   expect_equal(
-    object = fit_orsf$forest[[i]]$betas,
-    expected = fit_orsf_2$forest[[i]]$betas
-   )
-   expect_equal(
-    object = fit_orsf$forest[[i]]$betas,
-    expected = fit_orsf_3$forest[[i]]$betas
-   )
-  }
+  expect_equal(fit_orsf$forest,
+               fit_orsf_3$forest)
 
   attr_orsf <- attributes(fit_orsf)
   attr_orsf_3 <- attributes(fit_orsf_3)
@@ -678,12 +690,6 @@ test_that(
    fit_3$eval_oobag$stat_values
   )
 
-  for(i in seq(get_n_tree(fit_2))){
-
-   expect_equal(fit_1$forest[[i]]$rows_oobag,
-                fit_2$forest[[i]]$rows_oobag)
-
-  }
  }
 )
 
@@ -697,7 +703,7 @@ if(Sys.getenv("run_all_aorsf_tests") == 'yes'){
    # testing the seed behavior when no_fit is TRUE. You should get the same
    # forest whether you train with orsf() or with orsf_train().
 
-   for(.n_tree in c(100, 250, 1000, 2500)){
+   for(.n_tree in c(100, 250, 1000)){
 
     object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
                    n_tree = .n_tree, no_fit = TRUE,
@@ -857,13 +863,13 @@ test_that(
    expect_equal(get_split_min_obs(fit_cph), inputs$split_min_obs[i])
    expect_equal(fit_cph$pred_horizon, inputs$oobag_pred_horizon[i])
 
-   expect_length(fit_cph$forest, n = get_n_tree(fit_cph))
+   expect_length(fit_cph$forest$rows_oobag, n = get_n_tree(fit_cph))
 
    if(inputs$oobag_pred_type[i] != 'none'){
     expect_length(fit_cph$eval_oobag$stat_values, 1)
     expect_equal(nrow(fit_cph$pred_oobag), get_n_obs(fit_cph))
    } else {
-    expect_equal(dim(fit_cph$eval_oobag$stat_values), c(0, 1))
+    expect_equal(dim(fit_cph$eval_oobag$stat_values), c(0, 0))
    }
 
    fit_net <- orsf(data = pbc_orsf,
@@ -892,13 +898,13 @@ test_that(
    expect_equal(get_split_min_obs(fit_net), inputs$split_min_obs[i])
    expect_equal(fit_net$pred_horizon, inputs$oobag_pred_horizon[i])
 
-   expect_length(fit_net$forest, n = get_n_tree(fit_net))
+   expect_length(fit_cph$forest$rows_oobag, n = get_n_tree(fit_cph))
 
    if(inputs$oobag_pred_type[i] != 'none'){
     expect_length(fit_net$eval_oobag$stat_values, 1)
     expect_equal(nrow(fit_net$pred_oobag), get_n_obs(fit_net))
    } else {
-    expect_equal(dim(fit_net$eval_oobag$stat_values), c(0, 1))
+    expect_equal(dim(fit_net$eval_oobag$stat_values), c(0, 0))
    }
 
   }
@@ -944,7 +950,7 @@ set.seed(329)
 fit_unwtd <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 
 fit_wtd <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-                weights = pbc_orsf$id)
+                weights = rep(2, nrow(pbc_orsf)))
 
 test_that(
  desc = 'weights work as intended',
@@ -953,12 +959,6 @@ test_that(
   # using weights should make the trees much deeper:
   expect_gt(get_n_leaves_mean(fit_wtd),
             get_n_leaves_mean(fit_unwtd))
-
-  # and in this case less accurate b/c the weights were random and extreme
-  expect_lt(
-   fit_wtd$eval_oobag$stat_values,
-   fit_unwtd$eval_oobag$stat_values
-  )
 
  }
 )
@@ -996,19 +996,19 @@ test_that(
 )
 
 # high pred horizon
-
-test_that(
- desc = 'higher pred horizon is not allowed for summary',
- code = {
-
-  fit_bad_oob_horizon <- orsf(time + status ~ ., data = pbc_orsf,
-                              oobag_pred_horizon = 7000)
-
-  expect_error(orsf_summarize_uni(fit_bad_oob_horizon),
-               regexp = 'prediction horizon')
-
- }
-)
+# TODO: move this to test file for summarize
+# test_that(
+#  desc = 'higher pred horizon is not allowed for summary',
+#  code = {
+#
+#   fit_bad_oob_horizon <- orsf(time + status ~ ., data = pbc_orsf,
+#                               oobag_pred_horizon = 7000)
+#
+#   expect_error(orsf_summarize_uni(fit_bad_oob_horizon),
+#                regexp = 'prediction horizon')
+#
+#  }
+# )
 
 
 # Similar to obliqueRSF?

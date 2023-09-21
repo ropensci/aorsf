@@ -13,19 +13,7 @@ compute_cstat_exported_uvec <- function(y, w, g, pred_is_risklike) {
     .Call(`_aorsf_compute_cstat_exported_uvec`, y, w, g, pred_is_risklike)
 }
 
-node_find_cps_exported <- function(y_node, w_node, XB, leaf_min_events, leaf_min_obs) {
-    .Call(`_aorsf_node_find_cps_exported`, y_node, w_node, XB, leaf_min_events, leaf_min_obs)
-}
-
-node_compute_lrt_exported <- function(y_node, w_node, group) {
-    .Call(`_aorsf_node_compute_lrt_exported`, y_node, w_node, group)
-}
-
-node_fill_group_exported <- function(group, XB_sorted, start, stop, value) {
-    invisible(.Call(`_aorsf_node_fill_group_exported`, group, XB_sorted, start, stop, value))
-}
-
-orsf_cpp <- function(x, y, w, tree_type_R, tree_seeds, loaded_forest, lincomb_R_function, oobag_R_function, n_tree, mtry, vi_type_R, vi_max_pvalue, leaf_min_events, leaf_min_obs, split_rule_R, split_min_events, split_min_obs, split_min_stat, split_max_cuts, split_max_retry, lincomb_type_R, lincomb_eps, lincomb_iter_max, lincomb_scale, lincomb_alpha, lincomb_df_target, lincomb_ties_method, pred_mode, pred_type_R, pred_horizon, oobag, oobag_eval_every, n_thread) {
-    .Call(`_aorsf_orsf_cpp`, x, y, w, tree_type_R, tree_seeds, loaded_forest, lincomb_R_function, oobag_R_function, n_tree, mtry, vi_type_R, vi_max_pvalue, leaf_min_events, leaf_min_obs, split_rule_R, split_min_events, split_min_obs, split_min_stat, split_max_cuts, split_max_retry, lincomb_type_R, lincomb_eps, lincomb_iter_max, lincomb_scale, lincomb_alpha, lincomb_df_target, lincomb_ties_method, pred_mode, pred_type_R, pred_horizon, oobag, oobag_eval_every, n_thread)
+orsf_cpp <- function(x, y, w, tree_type_R, tree_seeds, loaded_forest, lincomb_R_function, oobag_R_function, n_tree, mtry, vi_type_R, vi_max_pvalue, leaf_min_events, leaf_min_obs, split_rule_R, split_min_events, split_min_obs, split_min_stat, split_max_cuts, split_max_retry, lincomb_type_R, lincomb_eps, lincomb_iter_max, lincomb_scale, lincomb_alpha, lincomb_df_target, lincomb_ties_method, pred_mode, pred_type_R, pred_horizon, oobag, oobag_eval_type_R, oobag_eval_every, n_thread, write_forest) {
+    .Call(`_aorsf_orsf_cpp`, x, y, w, tree_type_R, tree_seeds, loaded_forest, lincomb_R_function, oobag_R_function, n_tree, mtry, vi_type_R, vi_max_pvalue, leaf_min_events, leaf_min_obs, split_rule_R, split_min_events, split_min_obs, split_min_stat, split_max_cuts, split_max_retry, lincomb_type_R, lincomb_eps, lincomb_iter_max, lincomb_scale, lincomb_alpha, lincomb_df_target, lincomb_ties_method, pred_mode, pred_type_R, pred_horizon, oobag, oobag_eval_type_R, oobag_eval_every, n_thread, write_forest)
 }
 

@@ -234,13 +234,13 @@ orsf_vi_oobag_ <- function(object, type_vi, oobag_fun){
  if(is.null(oobag_fun)){
 
   f_oobag_eval <- function(x) x
-  type_oobag_eval <- 'H'
+  type_oobag_eval <- 'cstat'
 
  } else {
 
   check_oobag_fun(oobag_fun)
   f_oobag_eval <- oobag_fun
-  type_oobag_eval <- 'U'
+  type_oobag_eval <- 'user'
 
  }
 

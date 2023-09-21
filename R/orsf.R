@@ -364,6 +364,12 @@ orsf <- function(data,
   attach_data = attach_data
  )
 
+ #TODO: more polish
+ if(split_rule == "cstat" && split_min_stat >= 1){
+  stop("If split_rule is 'cstat', split_min_stat must be < 1",
+       call. = FALSE)
+ }
+
  oobag_pred <- oobag_pred_type != 'none'
 
  orsf_type <- attr(control, 'type')
@@ -412,16 +418,21 @@ orsf <- function(data,
 
  )
 
+ if(importance %in% c("permute", "negate") && !oobag_pred){
+  oobag_pred <- TRUE # Should I add a warning?
+  oobag_pred_type <- 'surv'
+ }
+
  if(is.null(oobag_fun)){
 
   f_oobag_eval <- function(x) x
-  type_oobag_eval <- 'H'
+  type_oobag_eval <- if(oobag_pred) 'cstat' else 'none'
 
  } else {
 
   check_oobag_fun(oobag_fun)
   f_oobag_eval <- oobag_fun
-  type_oobag_eval <- 'U'
+  type_oobag_eval <- 'user'
 
  }
 
@@ -431,11 +442,6 @@ orsf <- function(data,
  cph_do_scale <- control_cph$cph_do_scale
  net_alpha <- control_net$net_alpha
  net_df_target <- control_net$net_df_target
-
- if(importance %in% c("permute", "negate") && !oobag_pred){
-  oobag_pred <- TRUE # Should I add a warning?
-  oobag_pred_type <- 'surv'
- }
 
 
  formula_terms <- suppressWarnings(stats::terms(formula, data=data))
@@ -733,13 +739,17 @@ orsf <- function(data,
                       pred_mode = FALSE,
                       pred_horizon = oobag_pred_horizon,
                       oobag = oobag_pred,
+                      oobag_eval_type_R = switch(type_oobag_eval,
+                                                 'none' = 0,
+                                                 'cstat' = 1,
+                                                 'user' = 2),
                       oobag_eval_every = oobag_eval_every,
-                      n_thread = n_thread)
+                      n_thread = n_thread,
+                      write_forest = !no_fit)
 
  # if someone says no_fit and also says don't attach the data,
  # give them a warning but also do the right thing for them.
  orsf_out$data <- if(attach_data) data else NULL
-
 
  if(importance != 'none'){
   rownames(orsf_out$importance) <- colnames(x)
@@ -749,25 +759,24 @@ orsf <- function(data,
 
  if(oobag_pred){
 
-
   # put the oob predictions into the same order as the training data.
   unsorted <- collapse::radixorder(sorted)
 
-  # clear labels for oobag evaluation type
+  # makes labels for oobag evaluation type
 
   orsf_out$eval_oobag$stat_type <-
-   switch(EXPR = orsf_out$eval_oobag$stat_type,
+   switch(EXPR = as.character(orsf_out$eval_oobag$stat_type),
+          "0" = "None",
           "1" = "Harrell's C-statistic",
           "2" = "User-specified function")
+
 
   #' @srrstats {G2.10} *drop = FALSE for type consistency*
   orsf_out$pred_oobag <- orsf_out$pred_oobag[unsorted, , drop = FALSE]
 
- } else {
-
-   orsf_out$pred_horizon <- oobag_pred_horizon
-
  }
+
+ orsf_out$pred_horizon <- oobag_pred_horizon
 
  n_leaves_mean <- compute_mean_leaves(orsf_out$forest)
 
@@ -820,6 +829,7 @@ orsf <- function(data,
  attr(orsf_out, 'verbose_progress')    <- verbose_progress
  attr(orsf_out, 'vi_max_pvalue')       <- vi_max_pvalue
  attr(orsf_out, 'split_rule')          <- split_rule
+ attr(orsf_out, 'n_thread')            <- n_thread
 
  attr(orsf_out, 'tree_seeds') <- if(is.null(tree_seeds)) c() else tree_seeds
 
@@ -1015,6 +1025,10 @@ orsf_train_ <- function(object,
   x <- prep_x_from_orsf(object)
  }
 
+ if(is.null(n_tree)){
+  n_tree <- get_n_tree(object)
+ }
+
  if(is.null(sorted)){
   sorted <-
    collapse::radixorder(y[, 1],  # order this way for risk sets
@@ -1024,8 +1038,6 @@ orsf_train_ <- function(object,
 
  x_sort <- x[sorted, ]
  y_sort <- y[sorted, ]
-
- if(is.null(n_tree)) n_tree <- get_n_tree(object)
 
  oobag_eval_every <- min(n_tree, get_oobag_eval_every(object))
 
@@ -1037,7 +1049,7 @@ orsf_train_ <- function(object,
                       tree_type_R = 3,
                       tree_seeds = get_tree_seeds(object),
                       loaded_forest = list(),
-                      n_tree = get_n_tree(object),
+                      n_tree = n_tree,
                       mtry = get_mtry(object),
                       vi_type_R = switch(get_importance(object),
                                          "none" = 0,
@@ -1082,15 +1094,20 @@ orsf_train_ <- function(object,
                       pred_mode = FALSE,
                       pred_horizon = get_oobag_pred_horizon(object),
                       oobag = get_oobag_pred(object),
+                      oobag_eval_type_R = switch(get_type_oobag_eval(object),
+                                                 'none' = 0,
+                                                 'cstat' = 1,
+                                                 'user' = 2),
                       oobag_eval_every = get_oobag_eval_every(object),
-                      n_thread = 5)
+                      n_thread = get_n_thread(object),
+                      write_forest = TRUE)
 
 
- object$forest       <- orsf_out$forest
  object$pred_oobag   <- orsf_out$pred_oobag
- object$pred_horizon <- orsf_out$pred_horizon
  object$eval_oobag   <- orsf_out$eval_oobag
+ object$forest       <- orsf_out$forest
  object$importance   <- orsf_out$importance
+ object$pred_horizon <- get_oobag_pred_horizon(object)
 
  if(get_importance(object) != 'none'){
 
@@ -1118,9 +1135,10 @@ orsf_train_ <- function(object,
   # clear labels for oobag evaluation type
 
   object$eval_oobag$stat_type <-
-   switch(EXPR = object$eval_oobag$stat_type,
-          'H' = "Harrell's C-statistic",
-          'U' = "User-specified function")
+   switch(EXPR = as.character(object$eval_oobag$stat_type),
+          "0" = "None",
+          "1" = "Harrell's C-statistic",
+          "2" = "User-specified function")
 
   object$pred_oobag <- object$pred_oobag[unsorted, , drop = FALSE]
 
@@ -1129,7 +1147,6 @@ orsf_train_ <- function(object,
  attr(object, "n_leaves_mean") <- compute_mean_leaves(orsf_out$forest)
 
  attr(object, 'trained') <- TRUE
-
 
  object
 

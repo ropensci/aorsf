@@ -36,6 +36,7 @@
  };
 
  enum EvalType {
+  EVAL_NONE = 0,
   EVAL_CONCORD = 1,
   EVAL_R_FUNCTION = 2
  };
