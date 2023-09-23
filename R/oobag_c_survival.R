@@ -14,9 +14,13 @@
 
 oobag_c_survival <- function(y_mat, w_vec, s_vec){
 
- survival::concordancefit(
-  y = survival::Surv(y_mat),
-  x = s_vec
+ data <- as.data.frame(cbind(y_mat, s_vec))
+ names(data) = c("time", "status", "x")
+
+ survival::concordance(
+  survival::Surv(time, status) ~ x,
+  data = data,
+  weights = w_vec
  )$concordance
 
 }

@@ -177,17 +177,18 @@
 
    for(uword i = *event; i < y.n_rows; ++i){
 
-    if (y_time[i] > y_time[*event]) { // ties not counted
+    // tied events not counted
+    if (y_time[i] > y_time[*event] || y_status[i] == 0) {
 
-     total += w[i];
+     total += ( (w[i] + w[*event]) / 2 );
 
      if (p[i] < p[*event]){
 
-      concordant += w[i];
+      concordant += ( (w[i]+w[*event]) / 2 );
 
      } else if (p[i] == p[*event]){
 
-      concordant += (w[i] / 2);
+      concordant += ( (w[i]+w[*event]) / 4 );
 
      }
 
@@ -234,9 +235,9 @@
 
     for(uword j = i; j < y.n_rows; ++j){
      // ties not counted
-     if (y_time[j] > y_time[i]) {
+     if (y_time[j] > y_time[i] || y_status[j] == 0) {
 
-      total += w[j];
+      total += ( (w[i]+w[j]) / 2 );
 
       // time_i < time_j, and person i had an event,
       // => if risk_i > risk_j we are concordant.
@@ -247,17 +248,17 @@
       // => subtract 1 from g, multiply by -1, divide by 2
       if(g_0){
 
-       if(g[j] == 0) concordant += (w[j]/2);
+       if(g[j] == 0) concordant += ( (w[i]+w[j]) / 4 );
 
       } else if (g[j] == 1){
 
        // if risk_i is 1 and risk_j is 1, a tie
-       concordant += (w[j]/2);
+       concordant += ( (w[i]+w[j]) / 4 );
 
       } else {
 
        // if risk_i is 1 and risk_j is 0, concordance
-       concordant += (w[j]);
+       concordant += ( (w[i]+w[j]) / 2 );
 
       }
 
