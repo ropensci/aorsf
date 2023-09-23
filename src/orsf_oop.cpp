@@ -105,7 +105,8 @@
                arma::uword           oobag_eval_type_R,
                arma::uword           oobag_eval_every,
                unsigned int          n_thread,
-               bool                  write_forest){
+               bool                  write_forest,
+               bool                  run_forest){
 
   List result;
 
@@ -202,7 +203,10 @@
 
   }
 
-  forest->run(false, oobag);
+  if(run_forest){
+   forest->run(false, oobag);
+  }
+
 
   if(pred_mode){
 
@@ -248,10 +252,12 @@
 
    vec vi_output;
 
-   if(vi_type == VI_ANOVA){
-    vi_output = forest->get_vi_numer() / forest->get_vi_denom();
-   } else {
-    vi_output = forest->get_vi_numer() / n_tree;
+   if(run_forest){
+    if(vi_type == VI_ANOVA){
+     vi_output = forest->get_vi_numer() / forest->get_vi_denom();
+    } else {
+     vi_output = forest->get_vi_numer() / n_tree;
+    }
    }
 
    result.push_back(vi_output, "importance");

@@ -1616,8 +1616,8 @@ check_oobag_fun <- function(oobag_fun){
 
  oobag_fun_args <- names(formals(oobag_fun))
 
- if(length(oobag_fun_args) != 2) stop(
-  "oobag_fun should have 2 input arguments but instead has ",
+ if(length(oobag_fun_args) != 3) stop(
+  "oobag_fun should have 3 input arguments but instead has ",
   length(oobag_fun_args),
   call. = FALSE
  )
@@ -1628,8 +1628,14 @@ check_oobag_fun <- function(oobag_fun){
   call. = FALSE
  )
 
- if(oobag_fun_args[2] != 's_vec') stop(
-  "the second input argument of oobag_fun should be named 's_vec' ",
+ if(oobag_fun_args[2] != 'w_vec') stop(
+  "the second input argument of oobag_fun should be named 'w_vec' ",
+  "but is instead named '", oobag_fun_args[1], "'",
+  call. = FALSE
+ )
+
+ if(oobag_fun_args[3] != 's_vec') stop(
+  "the third input argument of oobag_fun should be named 's_vec' ",
   "but is instead named '", oobag_fun_args[2], "'",
   call. = FALSE
  )
@@ -1638,9 +1644,12 @@ check_oobag_fun <- function(oobag_fun){
  test_status <- rep(c(0,1), each = 50)
 
  .y_mat <- cbind(time = test_time, status = test_status)
+ .w_vec <- rep(1, times = 100)
  .s_vec <- seq(0.9, 0.1, length.out = 100)
 
- test_output <- try(oobag_fun(y_mat = .y_mat, s_vec = .s_vec),
+ test_output <- try(oobag_fun(y_mat = .y_mat,
+                              w_vec = .w_vec,
+                              s_vec = .s_vec),
                     silent = FALSE)
 
  if(is_error(test_output)){
@@ -1650,8 +1659,9 @@ check_oobag_fun <- function(oobag_fun){
        "test_time <- seq(from = 1, to = 5, length.out = 100)\n",
        "test_status <- rep(c(0,1), each = 50)\n\n",
        "y_mat <- cbind(time = test_time, status = test_status)\n",
+       "w_vec <- rep(1, times = 100)\n",
        "s_vec <- seq(0.9, 0.1, length.out = 100)\n\n",
-       "test_output <- oobag_fun(y_mat = y_mat, s_vec = s_vec)\n\n",
+       "test_output <- oobag_fun(y_mat = y_mat, w_vec = w_vec, s_vec = s_vec)\n\n",
        "test_output should be a numeric value of length 1",
        call. = FALSE)
 

@@ -137,25 +137,33 @@ void ForestSurvival::resize_oobag_eval(){
 
 }
 
-void ForestSurvival::compute_prediction_accuracy(Data* prediction_data,
-                                                 arma::uword row_fill,
-                                                 arma::mat& predictions){
-
- mat y = prediction_data->get_y();
- vec w = prediction_data->get_w();
-
- compute_prediction_accuracy(y, w, row_fill, predictions);
-
-}
-
 void ForestSurvival::compute_prediction_accuracy(arma::mat& y,
                                                  arma::vec& w,
-                                                 arma::uword row_fill,
-                                                 arma::mat& predictions){
+                                                 arma::mat& predictions,
+                                                 arma::uword row_fill){
 
  bool pred_is_risklike = true;
 
  if(pred_type == PRED_SURVIVAL) pred_is_risklike = false;
+
+
+ if(oobag_eval_type == EVAL_R_FUNCTION){
+
+ // initialize function from tree object
+ // (Functions can't be stored in C++ classes, but Robjects can)
+  Function f_oobag_eval = as<Function>(oobag_R_function);
+  NumericMatrix y_ = wrap(y);
+  NumericVector w_ = wrap(w);
+
+  for(arma::uword i = 0; i < oobag_eval.n_cols; ++i){
+   vec p = predictions.col(i);
+   NumericVector p_ = wrap(p);
+   NumericVector R_result = f_oobag_eval(y_, w_, p_);
+   oobag_eval(row_fill, i) = R_result[0];
+  }
+  return;
+ }
+
 
  for(arma::uword i = 0; i < oobag_eval.n_cols; ++i){
   vec p = predictions.unsafe_col(i);

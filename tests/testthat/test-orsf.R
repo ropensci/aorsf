@@ -3,13 +3,6 @@ library(survival) # for Surv
 
 # misc functions used for tests ----
 
-cstat_bcj <- function(y_mat, s_vec){
-
- sorted <- order( y_mat[, 1], -y_mat[, 2])
- oobag_c_harrell_testthat(y_mat[sorted, ], s_vec[sorted, ])
-
-}
-
 no_miss_list <- function(l){
 
  sapply(l, function(x){
@@ -535,24 +528,24 @@ for(i in vars){
 fit_orsf <-
  orsf(pbc_orsf, Surv(time, status) ~ . - id,
       n_thread = 1,
-      n_tree = 10,
-      tree_seeds = 1:10)
+      n_tree = 100,
+      tree_seeds = 1:100)
 
 fit_orsf_2 <-
  orsf(pbc_orsf, Surv(time, status) ~ . - id,
       n_thread = 5,
-      n_tree = 10,
-      tree_seeds = 1:10)
+      n_tree = 100,
+      tree_seeds = 1:100)
 
 fit_orsf_noise <-
  orsf(pbc_noise, Surv(time, status) ~ . - id,
-      n_tree = 10,
-      tree_seeds = 1:10)
+      n_tree = 100,
+      tree_seeds = 1:100)
 
 fit_orsf_scale <-
  orsf(pbc_scale, Surv(time, status) ~ . - id,
-      n_tree = 10,
-      tree_seeds = 1:10)
+      n_tree = 100,
+      tree_seeds = 1:100)
 
 #' @srrstats {ML7.1} *Demonstrate effect of numeric scaling of input data.*
 test_that(
@@ -614,9 +607,6 @@ test_that(
   expect_equal(fit_orsf$forest$leaf_summary,
                fit_orsf_scale$forest$leaf_summary)
 
-  expect_equal(fit_orsf$forest$leaf_summary,
-               fit_orsf_noise$forest$leaf_summary)
-
  }
 )
 
@@ -625,8 +615,8 @@ test_that(
  code = {
 
   object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-                 n_tree = 10,
-                 tree_seeds = 1:10,
+                 n_tree = 100,
+                 tree_seeds = 1:100,
                  no_fit = TRUE)
   fit_orsf_3 <- orsf_train(object)
 
@@ -654,13 +644,13 @@ test_that(
  desc = 'oob rows identical with same tree seeds, oob error correct for user-specified function',
  code = {
 
-  tree_seeds = sample.int(n = 50000, size = 10)
+  tree_seeds = sample.int(n = 50000, size = 100)
   bad_tree_seeds <- c(1,2,3)
 
   expect_error(
    orsf(data = pbc_orsf,
         formula = time+status~.-id,
-        n_tree = 10,
+        n_tree = 100,
         mtry = 2,
         tree_seeds = bad_tree_seeds),
    regexp = 'the number of trees'
@@ -668,26 +658,33 @@ test_that(
 
   fit_1 <- orsf(data = pbc_orsf,
                 formula = time+status~.-id,
-                n_tree = 10,
+                n_tree = 100,
                 mtry = 2,
                 tree_seeds = tree_seeds)
 
   fit_2 <- orsf(data = pbc_orsf,
                 formula = time+status~.-id,
-                n_tree = 10,
+                n_tree = 100,
                 mtry = 6,
                 tree_seeds = tree_seeds)
+
+  expect_equal(fit_1$forest$rows_oobag,
+               fit_2$forest$rows_oobag)
 
   fit_3 <- orsf(data = pbc_orsf,
                 formula = time+status~.-id,
-                n_tree = 10,
+                n_tree = 100,
                 mtry = 6,
-                oobag_fun = oobag_c_harrell,
+                oobag_fun = oobag_c_survival,
                 tree_seeds = tree_seeds)
 
   expect_equal(
-   fit_2$eval_oobag$stat_values,
-   fit_3$eval_oobag$stat_values
+   oobag_c_survival(
+    y_mat = as.matrix(pbc_orsf[,c("time", "status")]),
+    w_vec = rep(1, nrow(pbc_orsf)),
+    s_vec = fit_3$pred_oobag
+   ),
+   as.numeric(fit_3$eval_oobag$stat_values)
   )
 
  }

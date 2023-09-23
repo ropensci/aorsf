@@ -857,7 +857,7 @@
 
     }
 
-    if(n_retry == split_max_retry){
+    if(n_retry >= split_max_retry){
      sprout_leaf(*node);
      break;
     }
@@ -953,6 +953,10 @@
 
    }
 
+  }
+
+  if(VERBOSITY > 0){
+   Rcout << "---- done with leaf predictions ----" << std::endl;
   }
 
  }

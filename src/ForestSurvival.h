@@ -42,16 +42,10 @@ public:
  void plant() override;
 
  void compute_prediction_accuracy(
-   Data* prediction_data,
-   arma::uword row_fill,
-   arma::mat& predictions
- ) override;
-
- void compute_prediction_accuracy(
    arma::mat& y,
    arma::vec& w,
-   arma::uword row_fill,
-   arma::mat& predictions
+   arma::mat& predictions,
+   arma::uword row_fill
  ) override;
 
 protected:

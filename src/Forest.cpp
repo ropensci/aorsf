@@ -72,14 +72,15 @@ void Forest::init(std::unique_ptr<Data> input_data,
 
  if(vi_type != VI_NONE){
   vi_numer.zeros(data->get_n_cols());
-
   if(vi_type == VI_ANOVA){
    vi_denom.zeros(data->get_n_cols());
   }
-
  }
 
-  if(VERBOSITY > 0){
+ // oobag denominator tracks the number of times an obs is oobag
+ oobag_denom.zeros(data->get_n_rows());
+
+ if(VERBOSITY > 0){
   Rcout << "------------ input data dimensions ------------"   << std::endl;
   Rcout << "N obs total: "     << data->get_n_rows() << std::endl;
   Rcout << "N columns total: " << data->get_n_cols() << std::endl;
@@ -181,12 +182,12 @@ void Forest::grow() {
   vi_numer_threads[i].zeros(data->n_cols);
   if(vi_type == VI_ANOVA) vi_denom_threads[i].zeros(data->n_cols);
 
-  threads.emplace_back(&Forest::grow_in_threads, this, i,
+  threads.emplace_back(&Forest::grow_multi_thread, this, i,
                        &(vi_numer_threads[i]),
                        &(vi_denom_threads[i]));
  }
 
- showProgress("Growing trees...", n_tree);
+ show_progress("Growing trees...", n_tree);
 
  for (auto &thread : threads) {
   thread.join();
@@ -227,7 +228,7 @@ void Forest::grow_single_thread(vec* vi_numer_ptr,
   }
 
 
-void Forest::grow_in_threads(uint thread_idx,
+void Forest::grow_multi_thread(uint thread_idx,
                              vec* vi_numer_ptr,
                              uvec* vi_denom_ptr) {
 
@@ -266,6 +267,12 @@ void Forest::compute_oobag_vi() {
  // show progress from threads
  progress = 0;
 
+ if(n_thread == 1){
+  vec* vi_numer_ptr = &vi_numer;
+  compute_oobag_vi_single_thread(vi_numer_ptr);
+  return;
+ }
+
  std::vector<std::thread> threads;
  std::vector<vec> vi_numer_threads(n_thread);
  // no denominator b/c it is equal to n_tree for all oob vi methods
@@ -276,11 +283,11 @@ void Forest::compute_oobag_vi() {
 
   vi_numer_threads[i].zeros(data->n_cols);
 
-  threads.emplace_back(&Forest::compute_oobag_vi_in_threads,
+  threads.emplace_back(&Forest::compute_oobag_vi_multi_thread,
                        this, i, &(vi_numer_threads[i]));
  }
 
- showProgress("Computing variable importance...", n_tree);
+ show_progress("Computing variable importance...", n_tree);
 
  for (auto &thread : threads) {
   thread.join();
@@ -296,8 +303,19 @@ void Forest::compute_oobag_vi() {
 
 }
 
+void Forest::compute_oobag_vi_single_thread(vec* vi_numer_ptr) {
 
-void Forest::compute_oobag_vi_in_threads(uint thread_idx, vec* vi_numer_ptr) {
+ for(uint i = 0; i < n_tree; ++i){
+
+  trees[i]->compute_oobag_vi(vi_numer_ptr, vi_type);
+
+  Rcpp::checkUserInterrupt();
+
+ }
+
+}
+
+void Forest::compute_oobag_vi_multi_thread(uint thread_idx, vec* vi_numer_ptr) {
 
  if (thread_ranges.size() > thread_idx + 1) {
 
@@ -324,10 +342,23 @@ void Forest::compute_oobag_vi_in_threads(uint thread_idx, vec* vi_numer_ptr) {
 
 }
 
+void Forest::compute_prediction_accuracy(Data* prediction_data,
+                                         arma::mat& prediction_values,
+                                         arma::uword row_fill){
+
+ uvec valid_observations = find(oobag_denom > 0);
+
+ mat y_valid = prediction_data->y_rows(valid_observations);
+ vec w_valid = prediction_data->w_subvec(valid_observations);
+ mat p_valid = prediction_values(valid_observations);
+
+ compute_prediction_accuracy(y_valid, w_valid, p_valid, row_fill);
+
+}
+
 mat Forest::predict(bool oobag) {
 
  mat result;
- vec oob_denom;
 
  // No. of cols in pred mat depend on the type of forest
  resize_pred_mat(result);
@@ -336,73 +367,76 @@ mat Forest::predict(bool oobag) {
  // (needs to be resized even if !oobag)
  resize_oobag_eval();
 
- // oobag denominator tracks the number of times an obs is oobag
- if(oobag){
-  oob_denom.zeros(data->n_rows);
- }
-
  progress = 0;
  aborted = false;
  aborted_threads = 0;
 
- std::vector<std::thread> threads;
- std::vector<mat> result_threads(n_thread);
- std::vector<vec> oob_denom_threads(n_thread);
+ if(n_thread == 1){
+  // ensure safe usage of R functions
+  predict_single_thread(data.get(), oobag, result);
 
- threads.reserve(n_thread);
+ } else {
 
- for (uint i = 0; i < n_thread; ++i) {
+  std::vector<std::thread> threads;
+  std::vector<mat> result_threads(n_thread);
+  std::vector<vec> oobag_denom_threads(n_thread);
 
-  resize_pred_mat(result_threads[i]);
-  if(oobag) oob_denom_threads[i].zeros(data->n_rows);
+  threads.reserve(n_thread);
 
-  threads.emplace_back(&Forest::predict_in_threads,
-                       this, i, data.get(), oobag,
-                       &(result_threads[i]),
-                       &(oob_denom_threads[i]));
- }
+  for (uint i = 0; i < n_thread; ++i) {
 
- showProgress("Predicting...", n_tree);
+   resize_pred_mat(result_threads[i]);
+   if(oobag) oobag_denom_threads[i].zeros(data->n_rows);
 
- // wait for all threads to finish before proceeding
- for (auto &thread : threads) {
-  thread.join();
- }
-
- for(uint i = 0; i < n_thread; ++i){
-
-  result += result_threads[i];
-
-  if(oobag){
-
-   oob_denom += oob_denom_threads[i];
-
-   // evaluate oobag error after joining each thread
-   // (only safe to do this when the condition below holds)
-   if(n_tree/oobag_eval_every == n_thread && n_thread>1 && i<n_thread-1){
-
-    mat result_scaled = result.each_col() / oob_denom;
-
-    // print_mat(result_scaled, "result scaled", 10, 10);
-
-    // i should be uint to access threads,
-    // eval_row should be uword to access oobag_eval
-    uword eval_row = i;
-
-    compute_prediction_accuracy(data.get(), eval_row, result_scaled);
-
-    Rcout << std::endl << oobag_eval << std::endl;
-
-   }
+   threads.emplace_back(&Forest::predict_multi_thread,
+                        this, i, data.get(), oobag,
+                        &(result_threads[i]),
+                        &(oobag_denom_threads[i]));
   }
 
+  show_progress("Predicting...", n_tree);
+
+  // wait for all threads to finish before proceeding
+  for (auto &thread : threads) {
+   thread.join();
+  }
+
+  for(uint i = 0; i < n_thread; ++i){
+
+   result += result_threads[i];
+
+   if(oobag){
+
+    oobag_denom += oobag_denom_threads[i];
+
+    // evaluate oobag error after joining each thread
+    // (only safe to do this when the condition below holds)
+    if(n_tree/oobag_eval_every == n_thread && n_thread>1 && i<n_thread-1){
+
+     mat result_scaled = result.each_col() / oobag_denom;
+
+     // print_mat(result_scaled, "result scaled", 10, 10);
+
+     // i should be uint to access threads,
+     // eval_row should be uword to access oobag_eval
+     uword eval_row = i;
+
+     compute_prediction_accuracy(data.get(), result_scaled, eval_row);
+
+    }
+   }
+
+  }
+
+
  }
+
+
 
  if(oobag){
 
-  oob_denom.replace(0, 1); // in case an obs was never oobag.
-  result.each_col() /= oob_denom;
-  compute_prediction_accuracy(data.get(), oobag_eval.n_rows-1, result);
+  result.each_col() /= oobag_denom;
+  compute_prediction_accuracy(data.get(), result, oobag_eval.n_rows-1);
 
  } else {
 
@@ -414,11 +448,38 @@ mat Forest::predict(bool oobag) {
 
 }
 
-void Forest::predict_in_threads(uint thread_idx,
-                                Data* prediction_data,
-                                bool oobag,
-                                mat* result_ptr,
-                                vec* denom_ptr) {
+void Forest::predict_single_thread(Data* prediction_data,
+                                   bool oobag,
+                                   mat& result) {
+
+ for (uint i = 0; i < n_tree; ++i) {
+
+  trees[i]->predict_leaf(prediction_data, oobag);
+
+  trees[i]->predict_value(&result, &oobag_denom, pred_type, oobag);
+
+  progress++;
+
+  // if user wants to track oobag error over time:
+  if(oobag && (progress % oobag_eval_every == 0) ){
+
+   uword eval_row = (progress / oobag_eval_every) - 1;
+
+
+   mat preds = result.each_col() / oobag_denom;
+   compute_prediction_accuracy(prediction_data, preds, eval_row);
+
+  }
+
+ }
+
+}
+
+void Forest::predict_multi_thread(uint thread_idx,
+                                  Data* prediction_data,
+                                  bool oobag,
+                                  mat* result_ptr,
+                                  vec* denom_ptr) {
 
  if (thread_ranges.size() > thread_idx + 1) {
 
@@ -448,7 +509,7 @@ void Forest::predict_in_threads(uint thread_idx,
     mat preds = (*result_ptr);
     preds.each_col() /= (*denom_ptr);
 
-    compute_prediction_accuracy(prediction_data, eval_row, preds);
+    compute_prediction_accuracy(prediction_data, preds, eval_row);
 
    }
 
@@ -468,6 +529,8 @@ arma::uword Forest::find_max_eval_steps(){
 
  if(n_evals > n_tree) n_evals = n_tree;
 
+ if(n_evals < 1) n_evals = 1;
+
  return(n_evals);
 
 }
@@ -480,7 +543,7 @@ void Forest::resize_oobag_eval(){
 
 }
 
-void Forest::showProgress(std::string operation, size_t max_progress) {
+void Forest::show_progress(std::string operation, size_t max_progress) {
 
  using std::chrono::steady_clock;
  using std::chrono::duration_cast;

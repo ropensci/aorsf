@@ -678,10 +678,11 @@ orsf <- function(data,
   collapse::radixorder(y[, 1],  # order this way for risk sets
                        -y[, 2]) # order this way for oob C-statistic.
 
+ if(is.null(weights)) weights <- rep(1, nrow(x))
+
  x_sort <- x[sorted, , drop = FALSE]
  y_sort <- y[sorted, , drop = FALSE]
-
- if(is.null(weights)) weights <- rep(1, nrow(x))
+ w_sort <- weights[sorted]
 
  if(length(tree_seeds) == 1) set.seed(tree_seeds)
 
@@ -690,13 +691,13 @@ orsf <- function(data,
 
  vi_max_pvalue = 0.01
 
- orsf_out <- orsf_cpp(x = x,
-                      y = y,
-                      w = weights,
+ orsf_out <- orsf_cpp(x = x_sort,
+                      y = y_sort,
+                      w = w_sort,
                       tree_type_R = 3,
                       tree_seeds = as.integer(tree_seeds),
                       loaded_forest = list(),
-                      n_tree = if(no_fit) 0 else n_tree,
+                      n_tree = n_tree,
                       mtry = mtry,
                       vi_type_R = switch(importance,
                                          "none" = 0,
@@ -745,21 +746,20 @@ orsf <- function(data,
                                                  'user' = 2),
                       oobag_eval_every = oobag_eval_every,
                       n_thread = n_thread,
-                      write_forest = TRUE)
-
- # browser()
+                      write_forest = TRUE,
+                      run_forest = !no_fit)
 
  # if someone says no_fit and also says don't attach the data,
  # give them a warning but also do the right thing for them.
  orsf_out$data <- if(attach_data) data else NULL
 
- if(importance != 'none'){
+ if(importance != 'none' && !no_fit){
   rownames(orsf_out$importance) <- colnames(x)
   orsf_out$importance <-
    rev(orsf_out$importance[order(orsf_out$importance), , drop=TRUE])
  }
 
- if(oobag_pred){
+ if(oobag_pred && !no_fit){
 
   # put the oob predictions into the same order as the training data.
   unsorted <- collapse::radixorder(sorted)
@@ -833,7 +833,7 @@ orsf <- function(data,
  attr(orsf_out, 'split_rule')          <- split_rule
  attr(orsf_out, 'n_thread')            <- n_thread
 
- attr(orsf_out, 'tree_seeds') <- if(is.null(tree_seeds)) c() else tree_seeds
+ attr(orsf_out, 'tree_seeds') <- tree_seeds
 
  #' @srrstats {ML5.0a} *orsf output has its own class*
  class(orsf_out) <- "orsf_fit"
@@ -1037,17 +1037,17 @@ orsf_train_ <- function(object,
                         -y[, 2]) # order this way for oob C-statistic.
  }
 
+ weights <- get_weights_user(object)
 
  x_sort <- x[sorted, ]
  y_sort <- y[sorted, ]
+ w_sort <- weights[sorted]
 
  oobag_eval_every <- min(n_tree, get_oobag_eval_every(object))
 
- weights <- get_weights_user(object)
-
- orsf_out <- orsf_cpp(x = x,
-                      y = y,
-                      w = weights,
+ orsf_out <- orsf_cpp(x = x_sort,
+                      y = y_sort,
+                      w = w_sort,
                       tree_type_R = 3,
                       tree_seeds = get_tree_seeds(object),
                       loaded_forest = list(),
@@ -1100,9 +1100,10 @@ orsf_train_ <- function(object,
                                                  'none' = 0,
                                                  'cstat' = 1,
                                                  'user' = 2),
-                      oobag_eval_every = get_oobag_eval_every(object),
+                      oobag_eval_every = oobag_eval_every,
                       n_thread = get_n_thread(object),
-                      write_forest = TRUE)
+                      write_forest = TRUE,
+                      run_forest = TRUE)
 
 
  object$pred_oobag   <- orsf_out$pred_oobag

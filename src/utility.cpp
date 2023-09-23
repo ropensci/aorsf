@@ -161,9 +161,9 @@
  }
 
  double compute_cstat(arma::mat& y,
-                                  arma::vec& w,
-                                  arma::vec& p,
-                                  bool pred_is_risklike){
+                      arma::vec& w,
+                      arma::vec& p,
+                      bool pred_is_risklike){
 
   vec y_time   = y.unsafe_col(0);
   vec y_status = y.unsafe_col(1);
@@ -209,9 +209,9 @@
 
 
  double compute_cstat(arma::mat& y,
-                                  arma::vec& w,
-                                  arma::uvec& g,
-                                  bool pred_is_risklike){
+                      arma::vec& w,
+                      arma::uvec& g,
+                      bool pred_is_risklike){
 
   // note: g must have only values of 0 and 1 to use this.
   // note: this is a little different in its approach than

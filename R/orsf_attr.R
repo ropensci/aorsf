@@ -82,7 +82,7 @@ is_trained <- function(object) attr(object, 'trained')
 #'
 #' @noRd
 #'
-contains_oobag <- function(object) {!is_empty(object$pred_oobag)}
+contains_oobag <- function(object) {!is_empty(object$eval_oobag$stat_values)}
 
 #' Determine whether object has variable importance estimates
 #'

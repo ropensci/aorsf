@@ -69,16 +69,16 @@ public:
  // void run(bool verbose, bool oobag);
 
  virtual void compute_prediction_accuracy(
-   Data* prediction_data,
-   arma::uword row_fill,
-   arma::mat& predictions
- ) = 0;
+   Data*       prediction_data,
+   arma::mat&  prediction_values,
+   arma::uword row_fill
+ );
 
  virtual void compute_prediction_accuracy(
    arma::mat& y,
    arma::vec& w,
-   arma::uword row_fill,
-   arma::mat& predictions
+   arma::mat& predictions,
+   arma::uword row_fill
  ) = 0;
 
  std::vector<std::vector<double>> get_cutpoint() {
@@ -202,24 +202,27 @@ protected:
  void grow_single_thread(vec* vi_numer_ptr,
                          uvec* vi_denom_ptr);
 
- void grow_in_threads(uint thread_idx,
-                      vec* vi_numer_ptr,
-                      uvec* vi_denom_ptr);
+ void grow_multi_thread(uint thread_idx,
+                        vec* vi_numer_ptr,
+                        uvec* vi_denom_ptr);
 
+ void predict_single_thread(Data* prediction_data,
+                            bool oobag,
+                            mat& result);
 
-
- void predict_in_threads(uint thread_idx,
-                         Data* prediction_data,
-                         bool oobag,
-                         mat* result_ptr,
-                         vec* denom_ptr);
+ void predict_multi_thread(uint thread_idx,
+                           Data* prediction_data,
+                           bool oobag,
+                           mat* result_ptr,
+                           vec* denom_ptr);
 
  void compute_oobag_vi();
 
- void compute_oobag_vi_in_threads(uint thread_idx,
-                                  vec* vi_numer_ptr);
+ void compute_oobag_vi_single_thread(vec* vi_numer_ptr);
 
- void showProgress(std::string operation, size_t max_progress);
+ void compute_oobag_vi_multi_thread(uint thread_idx, vec* vi_numer_ptr);
+
+ void show_progress(std::string operation, size_t max_progress);
 
  virtual void resize_pred_mat(arma::mat& p) = 0;
 
@@ -276,6 +279,7 @@ protected:
 
  // out-of-bag
  bool        oobag_pred;
+ arma::vec   oobag_denom;
  arma::mat   oobag_eval;
  EvalType    oobag_eval_type;
  arma::uword oobag_eval_every;

@@ -559,6 +559,7 @@
   vec leaf_times, leaf_values;
 
   vec temp_vec((*pred_horizon).size());
+
   double temp_dbl;
 
   do {
