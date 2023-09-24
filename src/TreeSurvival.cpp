@@ -396,8 +396,9 @@
 
  void TreeSurvival::sprout_leaf(uword node_id){
 
-  if(VERBOSITY > 0){
-   Rcout << "sprouting new leaf with node " << node_id;
+  if(verbosity > 3){
+   Rcout << "-- sprouting node " << node_id << " into a leaf";
+   Rcout << " (N = " << sum(w_node) << ")";
    Rcout << std::endl;
    Rcout << std::endl;
   }

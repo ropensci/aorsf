@@ -4,13 +4,14 @@ library(survival)
 
 sink("orsf-output.txt")
 fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-            n_tree = 500,
-            oobag_eval_every = 50,
-            n_thread = 10,
+            n_tree = 2,
+            n_thread = 1,
+            mtry = 2,
             oobag_pred_type = 'mort',
             split_rule = 'logrank',
             importance = 'negate',
-            split_min_stat = 3)
+            split_min_stat = 3,
+            verbose_progress = 4)
 sink()
 orsf_vi(fit)
 

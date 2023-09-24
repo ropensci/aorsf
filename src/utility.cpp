@@ -37,10 +37,15 @@
 
   uword n_print = max_elem-1;
 
-  if(x.size() < n_print) n_print = x.size()-1;
-
+  if(x.size() <= n_print) n_print = x.size()-1;
   Rcout << "   ---- view of " << label << " ---- " << std::endl << std::endl;
-  Rcout << x.subvec(0, n_print);
+
+  if(x.size() == 0){
+   Rcout << "   empty vector";
+  } else {
+   Rcout << x.subvec(0, n_print).t();
+  }
+
   Rcout << std::endl << std::endl;
 
  }
@@ -49,9 +54,18 @@
                  std::string label,
                  arma::uword max_elem){
 
-  vec x_vec = conv_to<vec>::from(x);
+  uword n_print = max_elem-1;
 
-  print_vec(x_vec, label, max_elem);
+  if(x.size() <= n_print) n_print = x.size()-1;
+  Rcout << "   ---- view of " << label << " ---- " << std::endl << std::endl;
+
+  if(x.size() == 0){
+   Rcout << "   empty vector";
+  } else {
+   Rcout << x.subvec(0, n_print).t();
+  }
+
+  Rcout << std::endl << std::endl;
 
  }
 
@@ -204,6 +218,7 @@
   // code above assumes higher predictions mean more risk,
   if(pred_is_risklike) return(concordant / total);
   // if that isn't true (e.g., a survival prediction):
+
   return(1 - (concordant / total));
 
  }

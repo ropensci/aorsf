@@ -807,7 +807,7 @@ test_that(
 
 
 test_that(
- desc = 'orsf() runs as intended across numerous possible architectures',
+ desc = 'orsf() runs as intended for many valid inputs',
  code = {
 
   #' @srrstats {ML7.9a} *form combinations of inputs using `expand.grid()`.*
@@ -821,10 +821,21 @@ test_that(
    leaf_min_obs = c(5, 10),
    split_min_events = 5,
    split_min_obs = 15,
-   oobag_pred_type = c('none', 'risk', 'surv', 'chf'),
-   oobag_pred_horizon = c(1000),
+   oobag_pred_type = c('none', 'risk', 'surv', 'chf', 'mort'),
+   oobag_pred_horizon = c(1,2,3),
+   orsf_control = c('cph', 'net', 'custom'),
    stringsAsFactors = FALSE
   )
+
+  f_pca <- function(x_node, y_node, w_node) {
+
+   # estimate two principal components.
+   pca <- stats::prcomp(x_node, rank. = 2)
+
+   # use a random principal component to split the node
+   pca$rotation[, 2, drop = FALSE]
+
+  }
 
   for(i in seq(nrow(inputs))){
 
@@ -835,19 +846,29 @@ test_that(
     'data.table' = as.data.table
    )
 
-   fit_cph <- orsf(data = data_fun(pbc_orsf),
-                   formula = time + status ~ . - id,
-                   control = orsf_control_cph(),
-                   n_tree = inputs$n_tree[i],
-                   n_split = inputs$n_split[i],
-                   n_retry = inputs$n_retry[i],
-                   mtry = inputs$mtry[i],
-                   leaf_min_events = inputs$leaf_min_events[i],
-                   leaf_min_obs = inputs$leaf_min_obs[i],
-                   split_min_events = inputs$split_min_events[i],
-                   split_min_obs = inputs$split_min_obs[i],
-                   oobag_pred_type = inputs$oobag_pred_type[i],
-                   oobag_pred_horizon = inputs$oobag_pred_horizon[i])
+   pred_horizon <- switch(inputs$oobag_pred_horizon[i],
+                          '1' = 1000,
+                          '2' = c(1000, 2000),
+                          '3' = c(1000, 2000, 3000))
+
+   control <- switch(inputs$orsf_control[i],
+                     'cph' = orsf_control_cph(),
+                     'net' = orsf_control_net(),
+                     'custom' = orsf_control_custom(beta_fun = f_pca))
+
+   fit <- orsf(data = data_fun(pbc_orsf),
+               formula = time + status ~ . - id,
+               control = control,
+               n_tree = inputs$n_tree[i],
+               n_split = inputs$n_split[i],
+               n_retry = inputs$n_retry[i],
+               mtry = inputs$mtry[i],
+               leaf_min_events = inputs$leaf_min_events[i],
+               leaf_min_obs = inputs$leaf_min_obs[i],
+               split_min_events = inputs$split_min_events[i],
+               split_min_obs = inputs$split_min_obs[i],
+               oobag_pred_type = inputs$oobag_pred_type[i],
+               oobag_pred_horizon = pred_horizon)
 
    expect_s3_class(fit_cph, class = 'orsf_fit')
    expect_equal(get_n_tree(fit_cph), inputs$n_tree[i])
@@ -858,50 +879,17 @@ test_that(
    expect_equal(get_leaf_min_obs(fit_cph), inputs$leaf_min_obs[i])
    expect_equal(get_split_min_events(fit_cph), inputs$split_min_events[i])
    expect_equal(get_split_min_obs(fit_cph), inputs$split_min_obs[i])
-   expect_equal(fit_cph$pred_horizon, inputs$oobag_pred_horizon[i])
+   expect_equal(fit_cph$pred_horizon, pred_horizon)
 
    expect_length(fit_cph$forest$rows_oobag, n = get_n_tree(fit_cph))
 
    if(inputs$oobag_pred_type[i] != 'none'){
-    expect_length(fit_cph$eval_oobag$stat_values, 1)
+
+    expect_length(fit_cph$eval_oobag$stat_values, length(pred_horizon))
     expect_equal(nrow(fit_cph$pred_oobag), get_n_obs(fit_cph))
+
    } else {
     expect_equal(dim(fit_cph$eval_oobag$stat_values), c(0, 0))
-   }
-
-   fit_net <- orsf(data = pbc_orsf,
-                   formula = time + status ~ . - id,
-                   control = orsf_control_net(),
-                   n_tree = 1,
-                   n_split = inputs$n_split[i],
-                   n_retry = inputs$n_retry[i],
-                   mtry = inputs$mtry[i],
-                   leaf_min_events = inputs$leaf_min_events[i],
-                   leaf_min_obs = inputs$leaf_min_obs[i],
-                   split_min_events = inputs$split_min_events[i],
-                   split_min_obs = inputs$split_min_obs[i],
-                   oobag_pred_type = inputs$oobag_pred_type[i],
-                   oobag_pred_horizon = inputs$oobag_pred_horizon[i])
-
-
-   expect_s3_class(fit_net, class = 'orsf_fit')
-   expect_equal(get_n_tree(fit_net), inputs$n_tree[i])
-   expect_equal(get_n_split(fit_net), inputs$n_split[i])
-   expect_equal(get_n_retry(fit_net), inputs$n_retry[i])
-   expect_equal(get_mtry(fit_net), inputs$mtry[i])
-   expect_equal(get_leaf_min_events(fit_net), inputs$leaf_min_events[i])
-   expect_equal(get_leaf_min_obs(fit_net), inputs$leaf_min_obs[i])
-   expect_equal(get_split_min_events(fit_net), inputs$split_min_events[i])
-   expect_equal(get_split_min_obs(fit_net), inputs$split_min_obs[i])
-   expect_equal(fit_net$pred_horizon, inputs$oobag_pred_horizon[i])
-
-   expect_length(fit_cph$forest$rows_oobag, n = get_n_tree(fit_cph))
-
-   if(inputs$oobag_pred_type[i] != 'none'){
-    expect_length(fit_net$eval_oobag$stat_values, 1)
-    expect_equal(nrow(fit_net$pred_oobag), get_n_obs(fit_net))
-   } else {
-    expect_equal(dim(fit_net$eval_oobag$stat_values), c(0, 0))
    }
 
   }

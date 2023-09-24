@@ -106,7 +106,8 @@
                arma::uword           oobag_eval_every,
                unsigned int          n_thread,
                bool                  write_forest,
-               bool                  run_forest){
+               bool                  run_forest,
+               int                   verbosity){
 
   List result;
 
@@ -177,7 +178,8 @@
                oobag_eval_type,
                oobag_eval_every,
                oobag_R_function,
-               n_thread);
+               n_thread,
+               verbosity);
 
    // Load forest object if in prediction mode
   if(pred_mode){

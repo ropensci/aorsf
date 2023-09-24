@@ -55,7 +55,8 @@
             double lincomb_alpha,
             arma::uword lincomb_df_target,
             arma::uword lincomb_ties_method,
-            Rcpp::RObject lincomb_R_function);
+            Rcpp::RObject lincomb_R_function,
+            int verbosity);
 
 
   virtual void resize_leaves(arma::uword new_size);
@@ -214,6 +215,8 @@
   arma::uword   lincomb_ties_method;
   Rcpp::RObject lincomb_R_function;
 
+  int verbosity;
+
   // predicted leaf node
   arma::uvec pred_leaf;
 
@@ -238,6 +241,7 @@
 
   // leaf values (only in leaf nodes)
   std::vector<double> leaf_summary;
+
 
   virtual double compute_prediction_accuracy(arma::vec& preds);
 

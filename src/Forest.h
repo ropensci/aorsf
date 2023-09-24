@@ -63,7 +63,8 @@ public:
            EvalType oobag_eval_type,
            arma::uword oobag_eval_every,
            Rcpp::RObject oobag_R_function,
-           uint n_thread);
+           uint n_thread,
+           int verbosity);
 
  // Grow or predict
  // void run(bool verbose, bool oobag);
@@ -295,6 +296,9 @@ protected:
  size_t progress;
  size_t aborted_threads;
  bool aborted;
+
+ // printing to console
+ int verbosity;
 
 
 };

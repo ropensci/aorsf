@@ -939,13 +939,17 @@ check_orsf_inputs <- function(data = NULL,
                  arg_name = 'oobag_pred_horizon',
                  expected_type = 'numeric')
 
-  check_arg_length(arg_value = oobag_pred_horizon,
-                   arg_name = 'oobag_pred_horizon',
-                   expected_length = 1)
+  # check_arg_length(arg_value = oobag_pred_horizon,
+  #                  arg_name = 'oobag_pred_horizon',
+  #                  expected_length = 1)
 
-  check_arg_gteq(arg_value = oobag_pred_horizon,
-                 arg_name = 'oobag_pred_horizon',
-                 bound = 0)
+  for(i in seq_along(oobag_pred_horizon)){
+
+   check_arg_gteq(arg_value = oobag_pred_horizon[i],
+                  arg_name = 'oobag_pred_horizon',
+                  bound = 0)
+
+  }
 
  }
 

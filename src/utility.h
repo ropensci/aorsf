@@ -40,6 +40,7 @@ aorsf may be modified and distributed under the terms of the MIT license.
                  std::string label,
                  arma::uword max_elem);
 
+
  /**
   * Convert a unsigned integer to string
   * @param number Number to convert

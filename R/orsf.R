@@ -662,7 +662,7 @@ orsf <- function(data,
 
  if(!is.null(oobag_pred_horizon)){
 
-  if(oobag_pred_horizon <= 0)
+  if(any(oobag_pred_horizon <= 0))
 
    stop("Out of bag prediction horizon (oobag_pred_horizon) must be > 0",
         call. = FALSE)
@@ -747,7 +747,8 @@ orsf <- function(data,
                       oobag_eval_every = oobag_eval_every,
                       n_thread = n_thread,
                       write_forest = TRUE,
-                      run_forest = !no_fit)
+                      run_forest = !no_fit,
+                      verbosity = verbose_progress)
 
  # if someone says no_fit and also says don't attach the data,
  # give them a warning but also do the right thing for them.
@@ -1103,7 +1104,8 @@ orsf_train_ <- function(object,
                       oobag_eval_every = oobag_eval_every,
                       n_thread = get_n_thread(object),
                       write_forest = TRUE,
-                      run_forest = TRUE)
+                      run_forest = TRUE,
+                      verbosity = get_verbose_progress(object))
 
 
  object$pred_oobag   <- orsf_out$pred_oobag

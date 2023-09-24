@@ -39,7 +39,8 @@
    lincomb_alpha(DEFAULT_LINCOMB_ALPHA),
    lincomb_df_target(0),
    lincomb_ties_method(DEFAULT_LINCOMB_TIES_METHOD),
-   lincomb_R_function(0) {
+   lincomb_R_function(0),
+   verbosity(0){
 
  }
 
@@ -72,6 +73,7 @@
  lincomb_df_target(0),
  lincomb_ties_method(DEFAULT_LINCOMB_TIES_METHOD),
  lincomb_R_function(0),
+ verbosity(0),
  cutpoint(cutpoint),
  child_left(child_left),
  coef_values(coef_values),
@@ -102,7 +104,8 @@
                  double lincomb_alpha,
                  arma::uword lincomb_df_target,
                  arma::uword lincomb_ties_method,
-                 RObject lincomb_R_function){
+                 RObject lincomb_R_function,
+                 int verbosity){
 
   // Initialize random number generator and set seed
   random_number_generator.seed(seed);
@@ -131,6 +134,7 @@
   this->lincomb_df_target = lincomb_df_target;
   this->lincomb_ties_method = lincomb_ties_method;
   this->lincomb_R_function = lincomb_R_function;
+  this->verbosity = verbosity;
 
  }
 
@@ -477,25 +481,8 @@
 
    }
 
-
-
    // important that cut-points are ordered from low to high
    cuts_sampled = sort(cuts_sampled);
-
-   if(VERBOSITY > 1){
-
-    Rcout << "Randomly sampled cutpoints: ";
-    Rcout << std::endl;
-    Rcout << lincomb(lincomb_sort(cuts_sampled));
-    Rcout << std::endl;
-    Rcout << std::endl;
-
-   }
-
-   // // non-random version
-   // cuts_sampled = linspace<uvec>(cuts_all.front(),
-   //                               cuts_all.back(),
-   //                               split_max_cuts);
 
   }
 
@@ -522,31 +509,27 @@
    // set up next loop run
    it_start = *it;
 
-   if(VERBOSITY > 0){
-    mat temp = join_rows(lincomb, conv_to<vec>::from(g_node));
-    temp = join_rows(temp, w_node);
-    temp = temp.rows(lincomb_sort);
-    Rcout << "testing cutpoint: " << lincomb.at(lincomb_sort(*it));
-    Rcout << std::endl;
-    Rcout << std::endl;
-    print_mat(temp, "lincomb & g_node & w_node", 20, 20);
-    Rcout << "split stat for this cutpoint: " << stat;
-    Rcout << std::endl;
-    Rcout << " ------------------------------------------- ";
-    Rcout << std::endl;
+   if(verbosity > 3){
+    Rcout << "   ---- cutpoint (score): ";
+    Rcout << lincomb.at(lincomb_sort(*it));
+    Rcout << " (" << stat << "), ";
+    Rcout << "N = " << sum(g_node % w_node) << " moving right";
     Rcout << std::endl;
    }
 
   }
 
+  if(verbosity > 3){
+   Rcout << std::endl;
+   Rcout << "   ---- best stat:  " << stat_best;
+   Rcout << ", min to split: " << split_min_stat;
+   Rcout << std::endl;
+   Rcout << std::endl;
+  }
+
+
   // do not split if best stat < minimum stat
   if(stat_best < split_min_stat){
-
-   if(VERBOSITY > 1){
-    Rcout << "best split stat, " << stat_best;
-    Rcout << ", was < split_min_stat, " << split_min_stat;
-    Rcout << std::endl;
-   }
 
    return(R_PosInf);
 
@@ -565,8 +548,8 @@
 
  void Tree::sprout_leaf(uword node_id){
 
-  if(VERBOSITY > 0){
-   Rcout << "sprouting new leaf with node " << node_id;
+  if(verbosity > 3){
+   Rcout << "-- sprouting node " << node_id << " into a leaf";
    Rcout << std::endl;
    Rcout << std::endl;
   }
@@ -607,26 +590,20 @@
   this->n_obs_inbag = sum(w_inbag);
   this->n_rows_inbag = x_inbag.n_rows;
 
-  if(VERBOSITY > 0){
-
-   Rcout << "Effective sample size: " << n_obs_inbag;
-   Rcout << std::endl;
-   Rcout << "Number of unique rows in x: " << n_rows_inbag;
-   Rcout << std::endl;
-   Rcout << std::endl;
-
-  }
-
   node_assignments.zeros(n_rows_inbag);
 
   this->max_leaves = compute_max_leaves();
   this->max_nodes = (2 * max_leaves) - 1;
 
-  if(VERBOSITY > 0){
+  if(verbosity > 2){
 
-   Rcout << "Max number of nodes for this tree: " << max_nodes;
+   Rcout << "- N obs inbag: " << n_obs_inbag;
    Rcout << std::endl;
-   Rcout << "Max number of leaves for this tree: " << max_leaves;
+   Rcout << "- N row inbag: " << n_rows_inbag;
+   Rcout << std::endl;
+   Rcout << "- max nodes: " << max_nodes;
+   Rcout << std::endl;
+   Rcout << "- max leaves: " << max_leaves;
    Rcout << std::endl;
    Rcout << std::endl;
 
@@ -670,18 +647,10 @@
 
   for(node = nodes_open.begin(); node != nodes_open.end(); ++node){
 
-   if(VERBOSITY > 0){
-    Rcout << "growing node " << *node;
-    Rcout << std::endl << std::endl;
-   }
-
-
    // determine rows in the current node and if it can be split
    if(!is_node_splittable(*node)){
-
     sprout_leaf(*node);
     continue;
-
    }
 
    uword n_retry = 0;
@@ -694,22 +663,22 @@
    // repeat until all the retries are spent.
     n_retry++;
 
-    if(VERBOSITY > 1){
+    if(verbosity > 3){
 
-     Rcout << "beginning try no. " << n_retry;
-     Rcout << std::endl << std::endl;
-
+     Rcout << "-- attempting to split node " << *node;
+     Rcout << " (N = " << sum(w_node) << ",";
+     Rcout << " try number " << n_retry << ")";
+     Rcout << std::endl;
+     Rcout << std::endl;
     }
+
 
     sample_cols();
 
     x_node = x_inbag(rows_node, cols_node);
 
-    if(VERBOSITY > 0) {
-
-
-     print_mat(x_node, "x_node", 20, 20);
-     print_mat(y_node, "y_node", 20, 20);
+    if(verbosity > 3) {
+     print_uvec(cols_node, "columns sampled (showing up to 5)", 5);
     }
 
     // beta holds estimates (first item) and variance (second)
@@ -726,7 +695,6 @@
      beta = coxph_fit(x_node, y_node, w_node,
                       lincomb_scale, lincomb_ties_method,
                       lincomb_eps, lincomb_iter_max);
-
 
      break;
 
@@ -788,6 +756,11 @@
 
     vec beta_est = beta.unsafe_col(0);
 
+    if(verbosity > 3) {
+     print_vec(beta_est, "linear combo weights (showing up to 5)", 5);
+    }
+
+
     lincomb = x_node * beta_est;
 
     // sorted in ascending order
@@ -795,6 +768,14 @@
 
     // find all valid cutpoints for lincomb
     cuts_all = find_cutpoints();
+
+    if(verbosity > 3){
+
+     Rcout << "   ---- no. of cutpoints identified: " << cuts_all.size();
+     Rcout << std::endl;
+     Rcout << std::endl;
+
+    }
 
     // empty cuts_all => no valid cutpoints => make leaf or retry
     if(!cuts_all.is_empty()){
@@ -842,10 +823,11 @@
       // (note that g_node is 0 if left, 1 if right)
       node_assignments.elem(rows_node) = node_left + g_node;
 
-      if(VERBOSITY > 1){
-       Rcout << "Split successful: unique node assignments: ";
+      if(verbosity > 2){
+       Rcout << "-- node " << *node << " was split into ";
+       Rcout << "node " << node_left << " (left) and ";
+       Rcout << node_left+1 << " (right)";
        Rcout << std::endl;
-       Rcout << unique(node_assignments).t();
        Rcout << std::endl;
       }
 

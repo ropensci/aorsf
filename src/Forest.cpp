@@ -41,7 +41,8 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   EvalType oobag_eval_type,
                   arma::uword oobag_eval_every,
                   Rcpp::RObject oobag_R_function,
-                  uint n_thread){
+                  uint n_thread,
+                  int verbosity){
 
  this->data = std::move(input_data);
  this->tree_seeds = tree_seeds;
@@ -69,6 +70,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->oobag_eval_every = oobag_eval_every;
  this->oobag_R_function = oobag_R_function;
  this->n_thread = n_thread;
+ this->verbosity = verbosity;
 
  if(vi_type != VI_NONE){
   vi_numer.zeros(data->get_n_cols());
@@ -80,12 +82,15 @@ void Forest::init(std::unique_ptr<Data> input_data,
  // oobag denominator tracks the number of times an obs is oobag
  oobag_denom.zeros(data->get_n_rows());
 
- if(VERBOSITY > 0){
-  Rcout << "------------ input data dimensions ------------"   << std::endl;
-  Rcout << "N obs total: "     << data->get_n_rows() << std::endl;
-  Rcout << "N columns total: " << data->get_n_cols() << std::endl;
+ if(verbosity > 1){
+
+  Rcout << "------------ input data dimensions ------------" << std::endl;
+  Rcout << "N observations total: " << data->get_n_rows()    << std::endl;
+  Rcout << "N columns total: "      << data->get_n_cols()    << std::endl;
   Rcout << "-----------------------------------------------";
-  Rcout << std::endl << std::endl;
+  Rcout << std::endl;
+  Rcout << std::endl;
+
  }
 
 }
@@ -140,7 +145,8 @@ void Forest::init_trees(){
                  lincomb_alpha,
                  lincomb_df_target,
                  lincomb_ties_method,
-                 lincomb_R_function);
+                 lincomb_R_function,
+                 verbosity);
 
  }
 
@@ -215,9 +221,22 @@ void Forest::grow_single_thread(vec* vi_numer_ptr,
 
    for (uint i = 0; i < n_tree; ++i) {
 
+    if(verbosity > 1){
+     Rcout << "------------ Growing tree " << i << " --------------";
+     Rcout << std::endl;
+     Rcout << std::endl;
+    }
+
     trees[i]->grow(vi_numer_ptr, vi_denom_ptr);
 
     if(vi_type == VI_PERMUTE || vi_type == VI_NEGATE){
+
+     if(verbosity > 1){
+      Rcout << "------------ Computing VI for tree " << i << " -----";
+      Rcout << std::endl;
+      Rcout << std::endl;
+     }
+
      trees[i]->compute_oobag_vi(vi_numer_ptr, vi_type);
     }
 
@@ -229,8 +248,8 @@ void Forest::grow_single_thread(vec* vi_numer_ptr,
 
 
 void Forest::grow_multi_thread(uint thread_idx,
-                             vec* vi_numer_ptr,
-                             uvec* vi_denom_ptr) {
+                               vec* vi_numer_ptr,
+                               uvec* vi_denom_ptr) {
 
 
  if (thread_ranges.size() > thread_idx + 1) {
@@ -350,7 +369,7 @@ void Forest::compute_prediction_accuracy(Data* prediction_data,
 
  mat y_valid = prediction_data->y_rows(valid_observations);
  vec w_valid = prediction_data->w_subvec(valid_observations);
- mat p_valid = prediction_values(valid_observations);
+ mat p_valid = prediction_values.rows(valid_observations);
 
  compute_prediction_accuracy(y_valid, w_valid, p_valid, row_fill);
 
