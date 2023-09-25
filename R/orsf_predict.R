@@ -79,6 +79,7 @@ predict.orsf_fit <- function(object,
                              pred_type = 'risk',
                              na_action = 'fail',
                              boundary_checks = TRUE,
+                             n_thread = 1,
                              ...){
 
  # catch any arguments that didn't match and got relegated to ...
@@ -129,22 +130,64 @@ predict.orsf_fit <- function(object,
  #           names_x_data = names_x_data)
  # )
 
- pred_type_cpp <- switch(
+ pred_type_R <- switch(
   pred_type,
-  "risk" = "R",
-  "surv" = "S",
-  "chf"  = "H",
-  "mort" = "M"
+  "risk" = 1,
+  "surv" = 2,
+  "chf"  = 3,
+  "mort" = 4
  )
 
- out_values <-
-  if(pred_type_cpp == "M"){
-   orsf_pred_mort(object, x_new)
-  } else if (length(pred_horizon) == 1L) {
-   orsf_pred_uni(object$forest, x_new, pred_horizon_ordered, pred_type_cpp)
-  } else {
-   orsf_pred_multi(object$forest, x_new, pred_horizon_ordered, pred_type_cpp)
-  }
+ orsf_out <- orsf_cpp(x = x_new,
+                      y = matrix(1, ncol=2),
+                      w = rep(1, nrow(x_new)),
+                      tree_type_R = get_tree_type(object),
+                      tree_seeds = get_tree_seeds(object),
+                      loaded_forest = object$forest,
+                      n_tree = get_n_tree(object),
+                      mtry = get_mtry(object),
+                      vi_type_R = 0,
+                      vi_max_pvalue = get_vi_max_pvalue(object),
+                      lincomb_R_function = get_f_beta(object),
+                      oobag_R_function = get_f_oobag_eval(object),
+                      leaf_min_events = get_leaf_min_events(object),
+                      leaf_min_obs = get_leaf_min_obs(object),
+                      split_rule_R = switch(get_split_rule(object),
+                                            "logrank" = 1,
+                                            "cstat" = 2),
+                      split_min_events = get_split_min_events(object),
+                      split_min_obs = get_split_min_obs(object),
+                      split_min_stat = get_split_min_stat(object),
+                      split_max_cuts = get_n_split(object),
+                      split_max_retry = get_n_retry(object),
+                      lincomb_type_R = switch(get_orsf_type(object),
+                                              'fast' = 1,
+                                              'cph' = 1,
+                                              'random' = 2,
+                                              'net' = 3,
+                                              'custom' = 4),
+                      lincomb_eps = get_cph_eps(object),
+                      lincomb_iter_max = get_cph_iter_max(object),
+                      lincomb_scale = get_cph_do_scale(object),
+                      lincomb_alpha = get_net_alpha(object),
+                      lincomb_df_target = get_net_df_target(object),
+                      lincomb_ties_method = switch(
+                       tolower(get_cph_method(object)),
+                       'breslow' = 0,
+                       'efron'   = 1
+                      ),
+                      pred_type_R = pred_type_R,
+                      pred_mode = TRUE,
+                      pred_horizon = pred_horizon_ordered,
+                      oobag = FALSE,
+                      oobag_eval_type_R = 0,
+                      oobag_eval_every = get_n_tree(object),
+                      n_thread = n_thread,
+                      write_forest = FALSE,
+                      run_forest = TRUE,
+                      verbosity = 4)
+
+ out_values <- orsf_out$pred_new
 
  if(na_action == "pass"){
 
@@ -164,15 +207,6 @@ predict.orsf_fit <- function(object,
 
 }
 
-orsf_pred_mort <- function(object, x_new){
 
- pred_mat <- orsf_pred_multi(object$forest,
-                             x_new = x_new,
-                             time_vec = get_event_times(object),
-                             pred_type = 'H')
-
- matrix(apply(pred_mat, MARGIN = 1, FUN = sum), ncol = 1)
-
-}
 
 

@@ -817,8 +817,9 @@ test_that(
    n_split = 1,
    n_retry = 0,
    mtry = 3,
-   leaf_min_events = 1,
-   leaf_min_obs = c(5, 10),
+   leaf_min_events = 5,
+   leaf_min_obs = c(10),
+   split_rule = c("logrank", "cstat"),
    split_min_events = 5,
    split_min_obs = 15,
    oobag_pred_type = c('none', 'risk', 'surv', 'chf', 'mort'),
@@ -865,31 +866,50 @@ test_that(
                mtry = inputs$mtry[i],
                leaf_min_events = inputs$leaf_min_events[i],
                leaf_min_obs = inputs$leaf_min_obs[i],
+               split_rule = inputs$split_rule[i],
                split_min_events = inputs$split_min_events[i],
                split_min_obs = inputs$split_min_obs[i],
                oobag_pred_type = inputs$oobag_pred_type[i],
                oobag_pred_horizon = pred_horizon)
 
-   expect_s3_class(fit_cph, class = 'orsf_fit')
-   expect_equal(get_n_tree(fit_cph), inputs$n_tree[i])
-   expect_equal(get_n_split(fit_cph), inputs$n_split[i])
-   expect_equal(get_n_retry(fit_cph), inputs$n_retry[i])
-   expect_equal(get_mtry(fit_cph), inputs$mtry[i])
-   expect_equal(get_leaf_min_events(fit_cph), inputs$leaf_min_events[i])
-   expect_equal(get_leaf_min_obs(fit_cph), inputs$leaf_min_obs[i])
-   expect_equal(get_split_min_events(fit_cph), inputs$split_min_events[i])
-   expect_equal(get_split_min_obs(fit_cph), inputs$split_min_obs[i])
-   expect_equal(fit_cph$pred_horizon, pred_horizon)
+   expect_s3_class(fit, class = 'orsf_fit')
+   expect_equal(get_n_tree(fit), inputs$n_tree[i])
+   expect_equal(get_n_split(fit), inputs$n_split[i])
+   expect_equal(get_n_retry(fit), inputs$n_retry[i])
+   expect_equal(get_mtry(fit), inputs$mtry[i])
+   expect_equal(get_leaf_min_events(fit), inputs$leaf_min_events[i])
+   expect_equal(get_leaf_min_obs(fit), inputs$leaf_min_obs[i])
+   expect_equal(get_split_min_events(fit), inputs$split_min_events[i])
+   expect_equal(get_split_min_obs(fit), inputs$split_min_obs[i])
+   expect_equal(fit$pred_horizon, pred_horizon)
 
-   expect_length(fit_cph$forest$rows_oobag, n = get_n_tree(fit_cph))
+   expect_length(fit$forest$rows_oobag, n = get_n_tree(fit))
 
    if(inputs$oobag_pred_type[i] != 'none'){
 
-    expect_length(fit_cph$eval_oobag$stat_values, length(pred_horizon))
-    expect_equal(nrow(fit_cph$pred_oobag), get_n_obs(fit_cph))
+    expect_length(fit$eval_oobag$stat_values, length(pred_horizon))
+    expect_equal(nrow(fit$pred_oobag), get_n_obs(fit))
+
+    # these lengths should match for n_tree=1
+    # b/c only the oobag rows of the first tree
+    # will get a prediction value. Note that the
+    # vectors themselves aren't equal b/c rows_oobag
+    # corresponds to the sorted version of the data.
+    expect_equal(
+     length(which(complete.cases(fit$pred_oobag))),
+     length(fit$forest$rows_oobag[[1]])
+    )
+
+    oobag_preds <- na.omit(fit$pred_oobag)
+
+    expect_true(all(oobag_preds >= 0))
+
+    if(inputs$oobag_pred_type[i] %in% c("risk", "surv")){
+     expect_true(all(oobag_preds <= 1))
+    }
 
    } else {
-    expect_equal(dim(fit_cph$eval_oobag$stat_values), c(0, 0))
+    expect_equal(dim(fit$eval_oobag$stat_values), c(0, 0))
    }
 
   }

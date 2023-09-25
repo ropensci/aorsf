@@ -211,13 +211,14 @@ orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
 #'
 orsf_vi_oobag_ <- function(object, type_vi, oobag_fun){
 
- if(!contains_oobag(object)){
-  stop("cannot compute ",
-       switch(type_vi, 'negate' = 'negation', 'permute' = 'permutation'),
-       " importance if the orsf_fit object does not have out-of-bag error",
-       " (see oobag_pred in ?orsf).",
-       call. = FALSE)
- }
+ # can remove this b/c prediction accuracy is now computed at tree level
+ # if(!contains_oobag(object)){
+ #  stop("cannot compute ",
+ #       switch(type_vi, 'negate' = 'negation', 'permute' = 'permutation'),
+ #       " importance if the orsf_fit object does not have out-of-bag error",
+ #       " (see oobag_pred in ?orsf).",
+ #       call. = FALSE)
+ # }
 
  if(contains_vi(object) &&
     is.null(oobag_fun) &&

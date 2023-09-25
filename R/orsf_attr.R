@@ -60,6 +60,7 @@ get_verbose_progress   <- function(object) attr(object, 'verbose_progress')
 get_vi_max_pvalue      <- function(object) attr(object, 'vi_max_pvalue')
 get_split_rule         <- function(object) attr(object, 'split_rule')
 get_n_thread           <- function(object) attr(object, 'n_thread')
+get_tree_type          <- function(object) attr(object, 'tree_type')
 
 
 #' ORSF status

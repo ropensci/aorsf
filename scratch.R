@@ -2,19 +2,20 @@ library(tidyverse)
 library(riskRegression)
 library(survival)
 
-sink("orsf-output.txt")
 fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-            n_tree = 2,
+            n_tree = 3,
+            tree_seeds = 1:3,
             n_thread = 1,
             mtry = 2,
-            oobag_pred_type = 'mort',
-            split_rule = 'logrank',
-            importance = 'negate',
-            split_min_stat = 3,
-            verbose_progress = 4)
-sink()
-orsf_vi(fit)
+            oobag_pred_type = 'surv',
+            split_rule = 'cstat',
+            importance = 'none',
+            split_min_stat = 0.4,
+            verbose_progress = 1)
 
+sink("orsf-output.txt")
+prd <- predict(fit, new_data = pbc_orsf, pred_horizon = 1000, pred_type = 'risk')
+sink()
 
 library(randomForestSRC)
 

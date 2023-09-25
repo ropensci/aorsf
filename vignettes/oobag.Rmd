@@ -121,13 +121,13 @@ Second, you can pass your function into `orsf()`, and it will be used in place o
 
 fit <- orsf(data = pbc_orsf,
             formula = Surv(time, status) ~ . - id,
-            n_tree = 500,
+            n_tree = 50,
             oobag_pred_horizon = 2000,
             oobag_fun = oobag_fun_brier,
-            oobag_eval_every = 25)
+            oobag_eval_every = 1)
 
 plot(
- x = seq(25, 500, by = 25),
+ x = seq(1, 50, by = 1),
  y = fit$eval_oobag$stat_values, 
  main = 'Out-of-bag error computed after each new tree is grown.',
  sub = 'For the Brier score, lower values indicate more accurate predictions',
@@ -165,7 +165,7 @@ plot(
  y = fit$eval_oobag$stat_values, 
  main = 'Out-of-bag time-dependent AUC\ncomputed after each new tree is grown.',
  xlab = 'Number of trees grown',
- ylab = "AUC at t = 3,500"
+ ylab = "AUC at t = 2,000"
 )
 
 ```

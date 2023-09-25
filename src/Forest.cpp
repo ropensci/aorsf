@@ -15,6 +15,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   Rcpp::IntegerVector& tree_seeds,
                   arma::uword n_tree,
                   arma::uword mtry,
+                  bool grow_mode,
                   VariableImportance vi_type,
                   double vi_max_pvalue,
                   // leaves
@@ -48,6 +49,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->tree_seeds = tree_seeds;
  this->n_tree = n_tree;
  this->mtry = mtry;
+ this->grow_mode = grow_mode;
  this->vi_type = vi_type;
  this->vi_max_pvalue = vi_max_pvalue;
  this->leaf_min_obs = leaf_min_obs;
@@ -95,13 +97,15 @@ void Forest::init(std::unique_ptr<Data> input_data,
 
 }
 
-void Forest::run(bool verbose, bool oobag){
+void Forest::run(bool oobag){
 
  if(pred_mode){
 
+  init_trees();
+
   this->pred_values = predict(oobag);
 
- } else {
+ } else if (grow_mode) {
 
   // initialize the trees
   plant();
@@ -113,12 +117,11 @@ void Forest::run(bool verbose, bool oobag){
    this->pred_values = predict(oobag);
   }
 
-  if(vi_type == VI_PERMUTE || vi_type == VI_NEGATE){
-   compute_oobag_vi();
-  }
-
  }
 
+ if(vi_type == VI_PERMUTE || vi_type == VI_NEGATE){
+  compute_oobag_vi();
+ }
 
 }
 
@@ -154,35 +157,35 @@ void Forest::init_trees(){
 
 void Forest::grow() {
 
+ // initialize trees before doing anything else
  init_trees();
 
  // Create thread ranges
  equalSplit(thread_ranges, 0, n_tree - 1, n_thread);
 
+ // reset progress to 0
+ progress = 0;
+
  if(n_thread == 1){
   // ensure safe usage of R functions and glmnet
-  // by growing trees in a single thread. There does
-  // not need to be a corresponding predict_single_thread
-  // function b/c the R functions are only called during
-  // the grow phase of the forest.
-  vec* vi_numer_ptr = &vi_numer;
-  uvec* vi_denom_ptr = &vi_denom;
-  grow_single_thread(vi_numer_ptr, vi_denom_ptr);
+  // by growing trees in a single thread.
+  grow_single_thread(&vi_numer, &vi_denom);
   return;
  }
 
  // catch interrupts from threads
  aborted = false;
  aborted_threads = 0;
- // show progress from threads
- progress = 0;
 
+ // containers
  std::vector<std::thread> threads;
  std::vector<vec> vi_numer_threads(n_thread);
  std::vector<uvec> vi_denom_threads(n_thread);
 
+ // reserve memory
  threads.reserve(n_thread);
 
+ // begin multi-thread grow
  for (uint i = 0; i < n_thread; ++i) {
 
   vi_numer_threads[i].zeros(data->n_cols);
@@ -193,8 +196,11 @@ void Forest::grow() {
                        &(vi_denom_threads[i]));
  }
 
- show_progress("Growing trees...", n_tree);
+ if(verbosity == 1){
+  show_progress("Growing trees", n_tree);
+ }
 
+ // end multi-thread grow
  for (auto &thread : threads) {
   thread.join();
  }
@@ -203,13 +209,11 @@ void Forest::grow() {
   throw std::runtime_error("User interrupt.");
  }
 
- if(vi_type != VI_NONE){
+ if(vi_type == VI_ANOVA){
 
   for(uint i = 0; i < n_thread; ++i){
-
    vi_numer += vi_numer_threads[i];
-   if(vi_type == VI_ANOVA) vi_denom += vi_denom_threads[i];
-
+   vi_denom += vi_denom_threads[i];
   }
 
  }
@@ -219,32 +223,59 @@ void Forest::grow() {
 void Forest::grow_single_thread(vec* vi_numer_ptr,
                                 uvec* vi_denom_ptr){
 
-   for (uint i = 0; i < n_tree; ++i) {
 
-    if(verbosity > 1){
-     Rcout << "------------ Growing tree " << i << " --------------";
-     Rcout << std::endl;
-     Rcout << std::endl;
+ using std::chrono::steady_clock;
+ using std::chrono::duration_cast;
+ using std::chrono::seconds;
+
+ steady_clock::time_point start_time = steady_clock::now();
+ steady_clock::time_point last_time = steady_clock::now();
+ size_t max_progress = n_tree;
+
+ for (uint i = 0; i < n_tree; ++i) {
+
+  if(verbosity > 1){
+   Rcout << "------------ Growing tree " << i << " --------------";
+   Rcout << std::endl;
+   Rcout << std::endl;
+  }
+
+  trees[i]->grow(vi_numer_ptr, vi_denom_ptr);
+
+  ++progress;
+
+  if(verbosity == 1){
+
+   seconds elapsed_time = duration_cast<seconds>(steady_clock::now() - last_time);
+
+   if ((progress > 0 && elapsed_time.count() > STATUS_INTERVAL) ||
+       (progress == max_progress)) {
+
+    double relative_progress = (double) progress / (double) max_progress;
+    seconds time_from_start = duration_cast<seconds>(steady_clock::now() - start_time);
+    uint remaining_time = (1 / relative_progress - 1) * time_from_start.count();
+
+    Rcout << "Growing trees: ";
+    Rcout << round(100 * relative_progress) << "%. ";
+
+    if(progress < max_progress){
+     Rcout << "~ time remaining: ";
+     Rcout << beautifyTime(remaining_time) << ".";
     }
 
-    trees[i]->grow(vi_numer_ptr, vi_denom_ptr);
+    Rcout << std::endl;
 
-    if(vi_type == VI_PERMUTE || vi_type == VI_NEGATE){
-
-     if(verbosity > 1){
-      Rcout << "------------ Computing VI for tree " << i << " -----";
-      Rcout << std::endl;
-      Rcout << std::endl;
-     }
-
-     trees[i]->compute_oobag_vi(vi_numer_ptr, vi_type);
-    }
-
-    Rcpp::checkUserInterrupt();
+    last_time = steady_clock::now();
 
    }
 
   }
+
+  Rcpp::checkUserInterrupt();
+
+ }
+
+}
 
 
 void Forest::grow_multi_thread(uint thread_idx,
@@ -306,7 +337,9 @@ void Forest::compute_oobag_vi() {
                        this, i, &(vi_numer_threads[i]));
  }
 
- show_progress("Computing variable importance...", n_tree);
+ if(verbosity == 1){
+  show_progress("Computing importance", n_tree);
+ }
 
  for (auto &thread : threads) {
   thread.join();
@@ -324,9 +357,46 @@ void Forest::compute_oobag_vi() {
 
 void Forest::compute_oobag_vi_single_thread(vec* vi_numer_ptr) {
 
+ using std::chrono::steady_clock;
+ using std::chrono::duration_cast;
+ using std::chrono::seconds;
+
+ steady_clock::time_point start_time = steady_clock::now();
+ steady_clock::time_point last_time = steady_clock::now();
+ size_t max_progress = n_tree;
+
  for(uint i = 0; i < n_tree; ++i){
 
   trees[i]->compute_oobag_vi(vi_numer_ptr, vi_type);
+
+  ++progress;
+
+  if(verbosity == 1){
+
+   seconds elapsed_time = duration_cast<seconds>(steady_clock::now() - last_time);
+
+   if ((progress > 0 && elapsed_time.count() > STATUS_INTERVAL) ||
+       (progress == max_progress)) {
+
+    double relative_progress = (double) progress / (double) max_progress;
+    seconds time_from_start = duration_cast<seconds>(steady_clock::now() - start_time);
+    uint remaining_time = (1 / relative_progress - 1) * time_from_start.count();
+
+    Rcout << "Computing importance: ";
+    Rcout << round(100 * relative_progress) << "%. ";
+
+    if(progress < max_progress){
+     Rcout << "~ time remaining: ";
+     Rcout << beautifyTime(remaining_time) << ".";
+    }
+
+    Rcout << std::endl;
+
+    last_time = steady_clock::now();
+
+   }
+
+  }
 
   Rcpp::checkUserInterrupt();
 
@@ -365,12 +435,20 @@ void Forest::compute_prediction_accuracy(Data* prediction_data,
                                          arma::mat& prediction_values,
                                          arma::uword row_fill){
 
+ // avoid dividing by zero
  uvec valid_observations = find(oobag_denom > 0);
 
+ // subset each data input
  mat y_valid = prediction_data->y_rows(valid_observations);
  vec w_valid = prediction_data->w_subvec(valid_observations);
  mat p_valid = prediction_values.rows(valid_observations);
 
+ // scale predictions based on how many trees contributed
+ // (important to note it's different for each oobag obs)
+ vec valid_denom = oobag_denom(valid_observations);
+ p_valid.each_col() /= valid_denom;
+
+ // pass along to forest-specific version
  compute_prediction_accuracy(y_valid, w_valid, p_valid, row_fill);
 
 }
@@ -413,7 +491,9 @@ mat Forest::predict(bool oobag) {
                         &(oobag_denom_threads[i]));
   }
 
-  show_progress("Predicting...", n_tree);
+  if(verbosity == 1){
+   show_progress("Computing predictions", n_tree);
+  }
 
   // wait for all threads to finish before proceeding
   for (auto &thread : threads) {
@@ -430,32 +510,26 @@ mat Forest::predict(bool oobag) {
 
     // evaluate oobag error after joining each thread
     // (only safe to do this when the condition below holds)
-    if(n_tree/oobag_eval_every == n_thread && n_thread>1 && i<n_thread-1){
-
-     mat result_scaled = result.each_col() / oobag_denom;
-
-     // print_mat(result_scaled, "result scaled", 10, 10);
+    if(n_tree/oobag_eval_every == n_thread && i<n_thread-1){
 
      // i should be uint to access threads,
      // eval_row should be uword to access oobag_eval
      uword eval_row = i;
 
-     compute_prediction_accuracy(data.get(), result_scaled, eval_row);
+     compute_prediction_accuracy(data.get(), result, eval_row);
 
     }
    }
 
   }
 
-
  }
-
-
 
  if(oobag){
 
-  result.each_col() /= oobag_denom;
   compute_prediction_accuracy(data.get(), result, oobag_eval.n_rows-1);
+
+  result.each_col() /= oobag_denom;
 
  } else {
 
@@ -471,22 +545,55 @@ void Forest::predict_single_thread(Data* prediction_data,
                                    bool oobag,
                                    mat& result) {
 
+ using std::chrono::steady_clock;
+ using std::chrono::duration_cast;
+ using std::chrono::seconds;
+
+ steady_clock::time_point start_time = steady_clock::now();
+ steady_clock::time_point last_time = steady_clock::now();
+ size_t max_progress = n_tree;
+
  for (uint i = 0; i < n_tree; ++i) {
 
   trees[i]->predict_leaf(prediction_data, oobag);
-
+  Rcout << "made it here" << std::endl;
   trees[i]->predict_value(&result, &oobag_denom, pred_type, oobag);
-
+  Rcout << "made it here 2" << std::endl;
   progress++;
 
-  // if user wants to track oobag error over time:
+  if(verbosity == 1){
+
+   seconds elapsed_time = duration_cast<seconds>(steady_clock::now() - last_time);
+
+   if ((progress > 0 && elapsed_time.count() > STATUS_INTERVAL) ||
+       (progress == max_progress)) {
+
+    double relative_progress = (double) progress / (double) max_progress;
+    seconds time_from_start = duration_cast<seconds>(steady_clock::now() - start_time);
+    uint remaining_time = (1 / relative_progress - 1) * time_from_start.count();
+
+    Rcout << "Computing predictions: ";
+    Rcout << round(100 * relative_progress) << "%. ";
+
+    if(progress < max_progress){
+     Rcout << "~ time remaining: ";
+     Rcout << beautifyTime(remaining_time) << ".";
+    }
+
+    Rcout << std::endl;
+
+    last_time = steady_clock::now();
+
+   }
+
+  }
+
+  // if tracking oobag error over time:
   if(oobag && (progress % oobag_eval_every == 0) ){
 
    uword eval_row = (progress / oobag_eval_every) - 1;
-
-
-   mat preds = result.each_col() / oobag_denom;
-   compute_prediction_accuracy(prediction_data, preds, eval_row);
+   // mat preds = result.each_col() / oobag_denom;
+   compute_prediction_accuracy(prediction_data, result, eval_row);
 
   }
 
@@ -519,18 +626,6 @@ void Forest::predict_multi_thread(uint thread_idx,
    // Increase progress by 1 tree
    std::unique_lock<std::mutex> lock(mutex);
    ++progress;
-
-   // if user wants to track oobag error over time:
-   if( n_thread==1 && oobag && (progress%oobag_eval_every==0) ){
-
-    uword eval_row = (progress/oobag_eval_every) - 1;
-
-    mat preds = (*result_ptr);
-    preds.each_col() /= (*denom_ptr);
-
-    compute_prediction_accuracy(prediction_data, preds, eval_row);
-
-   }
 
    condition_variable.notify_one();
 
@@ -574,7 +669,9 @@ void Forest::show_progress(std::string operation, size_t max_progress) {
 
  // Wait for message from threads and show output if enough time elapsed
  while (progress < max_progress) {
+
   condition_variable.wait(lock);
+
   seconds elapsed_time = duration_cast<seconds>(steady_clock::now() - last_time);
 
   // Check for user interrupt
@@ -585,16 +682,21 @@ void Forest::show_progress(std::string operation, size_t max_progress) {
    return;
   }
 
-  if (progress > 0 && elapsed_time.count() > STATUS_INTERVAL) {
+  if ((progress > 0 && elapsed_time.count() > STATUS_INTERVAL) ||
+      (progress == max_progress)) {
 
    double relative_progress = (double) progress / (double) max_progress;
    seconds time_from_start = duration_cast<seconds>(steady_clock::now() - start_time);
    uint remaining_time = (1 / relative_progress - 1) * time_from_start.count();
 
-   Rcout << operation << "Progress: ";
+   Rcout << operation << ": ";
    Rcout << round(100 * relative_progress) << "%. ";
-   Rcout << "Estimated remaining time: ";
-   Rcout << beautifyTime(remaining_time) << ".";
+
+   if(progress < max_progress){
+    Rcout << "~ time remaining: ";
+    Rcout << beautifyTime(remaining_time) << ".";
+   }
+
    Rcout << std::endl;
 
    last_time = steady_clock::now();

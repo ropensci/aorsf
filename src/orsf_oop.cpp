@@ -152,10 +152,14 @@
 
   }
 
+  // does the forest need to be grown or is it already grown?
+  bool grow_mode = loaded_forest.size() == 0;
+
   forest->init(std::move(data),
                tree_seeds,
                n_tree,
                mtry,
+               grow_mode,
                vi_type,
                vi_max_pvalue,
                leaf_min_obs,
@@ -181,93 +185,89 @@
                n_thread,
                verbosity);
 
-   // Load forest object if in prediction mode
-  if(pred_mode){
+   // Load forest object if it was already grown
+   if(!grow_mode){
 
-   std::vector<std::vector<double>> cutpoint     = loaded_forest["cutpoint"];
-   std::vector<std::vector<uword>>  child_left   = loaded_forest["child_left"];
-   std::vector<std::vector<vec>>    coef_values  = loaded_forest["coef_values"];
-   std::vector<std::vector<uvec>>   coef_indices = loaded_forest["coef_indices"];
-   std::vector<std::vector<double>> leaf_summary = loaded_forest["leaf_summary"];
+    std::vector<std::vector<double>> cutpoint     = loaded_forest["cutpoint"];
+    std::vector<std::vector<uword>>  child_left   = loaded_forest["child_left"];
+    std::vector<std::vector<vec>>    coef_values  = loaded_forest["coef_values"];
+    std::vector<std::vector<uvec>>   coef_indices = loaded_forest["coef_indices"];
+    std::vector<std::vector<double>> leaf_summary = loaded_forest["leaf_summary"];
 
+    if(tree_type == TREE_SURVIVAL){
 
-   if(tree_type == TREE_SURVIVAL){
+     std::vector<std::vector<vec>> leaf_pred_indx = loaded_forest["leaf_pred_indx"];
+     std::vector<std::vector<vec>> leaf_pred_prob = loaded_forest["leaf_pred_prob"];
+     std::vector<std::vector<vec>> leaf_pred_chaz = loaded_forest["leaf_pred_chaz"];
 
-    std::vector<std::vector<vec>> leaf_pred_indx = loaded_forest["leaf_pred_indx"];
-    std::vector<std::vector<vec>> leaf_pred_prob = loaded_forest["leaf_pred_prob"];
-    std::vector<std::vector<vec>> leaf_pred_chaz = loaded_forest["leaf_pred_chaz"];
+     auto& temp = dynamic_cast<ForestSurvival&>(*forest);
+     temp.load(n_tree, cutpoint, child_left, coef_values, coef_indices,
+               leaf_pred_indx, leaf_pred_prob, leaf_pred_chaz, leaf_summary);
 
-    auto& temp = dynamic_cast<ForestSurvival&>(*forest);
-    temp.load(n_tree, cutpoint, child_left, coef_values, coef_indices,
-              leaf_pred_indx, leaf_pred_prob, leaf_pred_chaz, leaf_summary);
-
-   }
-
-  }
-
-  if(run_forest){
-   forest->run(false, oobag);
-  }
-
-
-  if(pred_mode){
-
-   result.push_back(forest->get_predictions(), "pred_new");
-
-  } else {
-
-   if (oobag) result.push_back(forest->get_predictions(), "pred_oobag");
-
-   List eval_oobag_out;
-   eval_oobag_out.push_back(forest->get_oobag_eval(), "stat_values");
-   eval_oobag_out.push_back(oobag_eval_type_R, "stat_type");
-   result.push_back(eval_oobag_out, "eval_oobag");
-
-  }
-
-
-
-  if(write_forest){
-
-   List forest_out;
-   forest_out.push_back(forest->get_rows_oobag(), "rows_oobag");
-   forest_out.push_back(forest->get_cutpoint(), "cutpoint");
-   forest_out.push_back(forest->get_child_left(), "child_left");
-   forest_out.push_back(forest->get_coef_indices(), "coef_indices");
-   forest_out.push_back(forest->get_coef_values(), "coef_values");
-   forest_out.push_back(forest->get_leaf_summary(), "leaf_summary");
-
-   if(tree_type == TREE_SURVIVAL){
-    auto& temp = dynamic_cast<ForestSurvival&>(*forest);
-    forest_out.push_back(temp.get_leaf_pred_indx(), "leaf_pred_indx");
-    forest_out.push_back(temp.get_leaf_pred_prob(), "leaf_pred_prob");
-    forest_out.push_back(temp.get_leaf_pred_chaz(), "leaf_pred_chaz");
-    // consider dropping unique_event_times; is it needed after grow()?
-    // result.push_back(forest->get_unique_event_times(), "unique_event_times");
-   }
-
-   result.push_back(forest_out, "forest");
-
-  }
-
-  if(vi_type != VI_NONE){
-
-   vec vi_output;
-
-   if(run_forest){
-    if(vi_type == VI_ANOVA){
-     vi_output = forest->get_vi_numer() / forest->get_vi_denom();
-    } else {
-     vi_output = forest->get_vi_numer() / n_tree;
     }
+
    }
 
-   result.push_back(vi_output, "importance");
+   if(run_forest){ forest->run(oobag); }
 
-  }
+   if(pred_mode){
 
+    result.push_back(forest->get_predictions(), "pred_new");
 
+   } else {
 
- return(result);
+    if (oobag) result.push_back(forest->get_predictions(), "pred_oobag");
+
+    List eval_oobag;
+    eval_oobag.push_back(forest->get_oobag_eval(), "stat_values");
+    eval_oobag.push_back(oobag_eval_type_R, "stat_type");
+    result.push_back(eval_oobag, "eval_oobag");
+
+   }
+
+   if(write_forest){
+
+    List forest_out;
+    forest_out.push_back(forest->get_rows_oobag(), "rows_oobag");
+    forest_out.push_back(forest->get_cutpoint(), "cutpoint");
+    forest_out.push_back(forest->get_child_left(), "child_left");
+    forest_out.push_back(forest->get_coef_indices(), "coef_indices");
+    forest_out.push_back(forest->get_coef_values(), "coef_values");
+    forest_out.push_back(forest->get_leaf_summary(), "leaf_summary");
+
+    if(tree_type == TREE_SURVIVAL){
+     auto& temp = dynamic_cast<ForestSurvival&>(*forest);
+     forest_out.push_back(temp.get_leaf_pred_indx(), "leaf_pred_indx");
+     forest_out.push_back(temp.get_leaf_pred_prob(), "leaf_pred_prob");
+     forest_out.push_back(temp.get_leaf_pred_chaz(), "leaf_pred_chaz");
+    }
+
+    result.push_back(forest_out, "forest");
+
+   }
+
+   if(vi_type != VI_NONE){
+
+    vec vi_output;
+
+    if(run_forest){
+
+     if(vi_type == VI_ANOVA){
+
+      vi_output = forest->get_vi_numer() / forest->get_vi_denom();
+
+     } else {
+
+      vi_output = forest->get_vi_numer() / n_tree;
+
+     }
+
+    }
+
+    result.push_back(vi_output, "importance");
+
+   }
+
+   return(result);
 
  }

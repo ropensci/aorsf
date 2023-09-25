@@ -25,7 +25,7 @@
   if(x.n_cols < max_cols) ncol_print = x.n_cols-1;
 
 
-  Rcout << "   ---- view of " << label << " ---- " << std::endl << std::endl;
+  Rcout << "   -- " << label << std::endl << std::endl;
   Rcout << x.submat(0, 0, nrow_print, ncol_print);
   Rcout << std::endl << std::endl;
 
@@ -38,7 +38,7 @@
   uword n_print = max_elem-1;
 
   if(x.size() <= n_print) n_print = x.size()-1;
-  Rcout << "   ---- view of " << label << " ---- " << std::endl << std::endl;
+  Rcout << "   -- " << label << std::endl << std::endl;
 
   if(x.size() == 0){
    Rcout << "   empty vector";
@@ -57,7 +57,7 @@
   uword n_print = max_elem-1;
 
   if(x.size() <= n_print) n_print = x.size()-1;
-  Rcout << "   ---- view of " << label << " ---- " << std::endl << std::endl;
+  Rcout << "   -- " << label << std::endl << std::endl;
 
   if(x.size() == 0){
    Rcout << "   empty vector";

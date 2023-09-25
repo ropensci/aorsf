@@ -497,6 +497,10 @@
 
   double stat, stat_best = 0;
 
+  if(verbosity > 3){
+   Rcout << "   -- cutpoint (score)" << std::endl;
+  }
+
   for(it = cuts_sampled.begin(); it != cuts_sampled.end(); ++it){
 
    // flip node assignments from left to right, up to the next cutpoint
@@ -510,7 +514,7 @@
    it_start = *it;
 
    if(verbosity > 3){
-    Rcout << "   ---- cutpoint (score): ";
+    Rcout << "   --- ";
     Rcout << lincomb.at(lincomb_sort(*it));
     Rcout << " (" << stat << "), ";
     Rcout << "N = " << sum(g_node % w_node) << " moving right";
@@ -521,7 +525,7 @@
 
   if(verbosity > 3){
    Rcout << std::endl;
-   Rcout << "   ---- best stat:  " << stat_best;
+   Rcout << "   -- best stat:  " << stat_best;
    Rcout << ", min to split: " << split_min_stat;
    Rcout << std::endl;
    Rcout << std::endl;
@@ -548,8 +552,9 @@
 
  void Tree::sprout_leaf(uword node_id){
 
-  if(verbosity > 3){
+  if(verbosity > 2){
    Rcout << "-- sprouting node " << node_id << " into a leaf";
+   Rcout << " (N = " << sum(w_node) << ")";
    Rcout << std::endl;
    Rcout << std::endl;
   }
@@ -769,10 +774,9 @@
     // find all valid cutpoints for lincomb
     cuts_all = find_cutpoints();
 
-    if(verbosity > 3){
+    if(verbosity > 3 && cuts_all.is_empty()){
 
-     Rcout << "   ---- no. of cutpoints identified: " << cuts_all.size();
-     Rcout << std::endl;
+     Rcout << "   -- no cutpoints identified";
      Rcout << std::endl;
 
     }
@@ -790,6 +794,10 @@
        //  1. a split of the node is guaranteed
        //  2. the method used for lincombs allows it
 
+       if(verbosity > 3){
+        Rcout << "   -- p-values:" << std::endl;
+       }
+
        vec beta_var = beta.unsafe_col(1);
 
        double pvalue;
@@ -802,11 +810,25 @@
 
          pvalue = R::pchisq(pow(beta_est[i],2)/beta_var[i], 1, false, false);
 
+         if(verbosity > 3){
+
+          Rcout << "   --- column " << cols_node[i] << ": ";
+          Rcout << pvalue;
+          if(pvalue < 0.05) Rcout << "*";
+          if(pvalue < 0.01) Rcout << "*";
+          if(pvalue < 0.001) Rcout << "*";
+          if(pvalue < vi_max_pvalue) Rcout << " [+1 to VI numerator]";
+          Rcout << std::endl;
+
+         }
+
          if(pvalue < vi_max_pvalue){ (*vi_numer)[cols_node[i]]++; }
 
         }
 
        }
+
+       if(verbosity > 3){ Rcout << std::endl; }
 
       }
 
@@ -875,6 +897,7 @@
   }
 
   uvec obs_in_node;
+
   // it iterates over the observations in a node
   uvec::iterator it;
 
@@ -883,8 +906,7 @@
 
   for(i = 0; i < coef_values.size(); i++){
 
-   if(VERBOSITY > 0)
-    Rcout << "moving obs in node " << i << std::endl;
+   Rcout << "moving obs in node " << i << std::endl;
 
    // if child_left == 0, it's a leaf (no need to find next child)
    if(child_left[i] != 0){
@@ -900,8 +922,6 @@
     if(obs_in_node.size() > 0){
 
      lincomb = prediction_data->x_submat(obs_in_node, coef_indices[i]) * coef_values[i];
-
-     if(lincomb.size() == 0) stop("sommin wrong");
 
      it = obs_in_node.begin();
 
@@ -919,8 +939,6 @@
 
      }
 
-     if(VERBOSITY > 0){
-
       uvec in_left = find(pred_leaf == child_left[i]);
       uvec in_right = find(pred_leaf == child_left[i]+1);
 
@@ -929,17 +947,15 @@
       Rcout << "No. to node " << child_left[i]+1 << ": ";
       Rcout << in_right.size() << std::endl << std::endl;
 
-     }
-
     }
 
    }
 
   }
 
-  if(VERBOSITY > 0){
-   Rcout << "---- done with leaf predictions ----" << std::endl;
-  }
+  if(oobag) pred_leaf.elem(rows_inbag).fill(max_nodes);
+
+  Rcout << "---- done with leaf predictions ----" << std::endl;
 
  }
 
@@ -950,11 +966,13 @@
  void Tree::negate_coef(arma::uword pred_col){
 
   for(uint j = 0; j < coef_indices.size(); ++j){
+
    for(uword k = 0; k < coef_indices[j].size(); ++k){
     if(coef_indices[j][k] == pred_col){
      coef_values[j][k] *= (-1);
     }
    }
+
   }
 
  }

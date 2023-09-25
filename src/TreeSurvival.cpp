@@ -396,7 +396,7 @@
 
  void TreeSurvival::sprout_leaf(uword node_id){
 
-  if(verbosity > 3){
+  if(verbosity > 2){
    Rcout << "-- sprouting node " << node_id << " into a leaf";
    Rcout << " (N = " << sum(w_node) << ")";
    Rcout << std::endl;
@@ -493,7 +493,11 @@
   } while (i < leaf_data.n_rows);
 
 
-  if(VERBOSITY > 1) print_mat(leaf_data, "leaf_data", 10, 5);
+  if(verbosity > 3){
+   mat tmp_mat = join_horiz(y_node, w_node);
+   print_mat(tmp_mat, "time & status & weights in this node", 10, 10);
+   print_mat(leaf_data, "leaf_data (showing up to 5 rows)", 5, 5);
+  }
 
   leaf_pred_indx[node_id] = leaf_data.col(0);
   leaf_pred_prob[node_id] = leaf_data.col(1);
@@ -529,21 +533,7 @@
 
   uvec::iterator it = pred_leaf_sort.begin();
 
-  // oobag leaf prediction has zeros for inbag rows
-  // TODO: Change this to be max_nodes+1
-  // (0 is a valid leaf for empty tree)
-  if(oobag){
-   while(pred_leaf(*it) == 0 && it < pred_leaf_sort.end()){
-    ++it;
-   }
-  }
-
-  if(it == pred_leaf_sort.end()){
-   if(VERBOSITY > 0){
-    Rcout << "Tree was empty, no predictions were made" << std::endl;
-   }
-   return;
-  }
+  uword leaf_id = pred_leaf[*it];
 
   double pred_t0;
 
@@ -565,12 +555,14 @@
 
   do {
 
-   uword leaf_id = pred_leaf[*it];
+   Rcout << "leaf_id: " << leaf_id << std::endl;
 
    // copies of leaf data using same aux memory
    leaf_times = vec(leaf_pred_indx[leaf_id].begin(),
                     leaf_pred_indx[leaf_id].size(),
                     false);
+
+   Rcout << "leaf_times: " << leaf_times.t() << std::endl;
 
    switch (pred_type) {
 
@@ -607,6 +599,8 @@
     break;
 
    }
+
+   Rcout << "leaf_values: " << leaf_values.t() << std::endl;
 
    // don't reset i in the loop b/c leaf_times ascend
    i = 0;
@@ -669,6 +663,22 @@
 
    if(pred_type == PRED_RISK) temp_vec = 1 - temp_vec;
 
+   // while (it < pred_leaf_sort.end()-1 && leaf_id == pred_leaf(*it)) {
+   //
+   //  Rcout << "*it: " << *it << std::endl;
+   //
+   //  (*pred_output).row(*it) += temp_vec.t();
+   //
+   //  Rcout << "it was safe" << std::endl;
+   //
+   //  if(oobag) (*pred_denom)[*it]++;
+   //
+   //  Rcout << "it was safe 2" << std::endl;
+   //
+   //  ++it;
+   //
+   // };
+
    (*pred_output).row(*it) += temp_vec.t();
    if(oobag) (*pred_denom)[*it]++;
    ++it;
@@ -686,7 +696,12 @@
 
    }
 
-  } while (it < pred_leaf_sort.end());
+   leaf_id = pred_leaf(*it);
+   Rcout << "new pred_leaf: " << leaf_id << std::endl;
+
+  } while (it < pred_leaf_sort.end() && (!oobag || leaf_id < max_nodes));
+
+  Rcout << "Made it out";
 
  }
 

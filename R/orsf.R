@@ -419,7 +419,7 @@ orsf <- function(data,
  )
 
  if(importance %in% c("permute", "negate") && !oobag_pred){
-  oobag_pred <- TRUE # Should I add a warning?
+  # oobag_pred <- TRUE # Should I add a warning?
   oobag_pred_type <- 'surv'
  }
 
@@ -690,11 +690,12 @@ orsf <- function(data,
   tree_seeds <- sample(x = n_tree*2, size = n_tree, replace = FALSE)
 
  vi_max_pvalue = 0.01
+ tree_type_R = 3
 
  orsf_out <- orsf_cpp(x = x_sort,
                       y = y_sort,
                       w = w_sort,
-                      tree_type_R = 3,
+                      tree_type_R = tree_type_R,
                       tree_seeds = as.integer(tree_seeds),
                       loaded_forest = list(),
                       n_tree = n_tree,
@@ -773,9 +774,10 @@ orsf <- function(data,
           "1" = "Harrell's C-statistic",
           "2" = "User-specified function")
 
-
   #' @srrstats {G2.10} *drop = FALSE for type consistency*
   orsf_out$pred_oobag <- orsf_out$pred_oobag[unsorted, , drop = FALSE]
+
+  orsf_out$pred_oobag[is.nan(orsf_out$pred_oobag)] <- NA_real_
 
  }
 
@@ -833,6 +835,7 @@ orsf <- function(data,
  attr(orsf_out, 'vi_max_pvalue')       <- vi_max_pvalue
  attr(orsf_out, 'split_rule')          <- split_rule
  attr(orsf_out, 'n_thread')            <- n_thread
+ attr(orsf_out, 'tree_type')           <- tree_type_R
 
  attr(orsf_out, 'tree_seeds') <- tree_seeds
 

@@ -37,6 +37,7 @@ public:
            Rcpp::IntegerVector& tree_seeds,
            arma::uword n_tree,
            arma::uword mtry,
+           bool grow_mode,
            VariableImportance vi_type,
            double vi_max_pvalue,
            // leaves
@@ -188,7 +189,7 @@ public:
   return(pred_values);
  }
 
- void run(bool verbose, bool oobag);
+ void run(bool oobag);
 
  virtual void plant() = 0;
 
@@ -275,6 +276,9 @@ protected:
  // predictions
  bool pred_mode;
  PredType pred_type;
+
+ // is forest already grown?
+ bool grow_mode;
 
  arma::mat pred_values;
 
