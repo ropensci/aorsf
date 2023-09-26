@@ -80,6 +80,8 @@ predict.orsf_fit <- function(object,
                              na_action = 'fail',
                              boundary_checks = TRUE,
                              n_thread = 1,
+                             verbose_progress = FALSE,
+                             pred_aggregate = TRUE,
                              ...){
 
  # catch any arguments that didn't match and got relegated to ...
@@ -135,7 +137,8 @@ predict.orsf_fit <- function(object,
   "risk" = 1,
   "surv" = 2,
   "chf"  = 3,
-  "mort" = 4
+  "mort" = 4,
+  "leaf" = 8
  )
 
  orsf_out <- orsf_cpp(x = x_new,
@@ -178,6 +181,7 @@ predict.orsf_fit <- function(object,
                       ),
                       pred_type_R = pred_type_R,
                       pred_mode = TRUE,
+                      pred_aggregate = pred_aggregate,
                       pred_horizon = pred_horizon_ordered,
                       oobag = FALSE,
                       oobag_eval_type_R = 0,
@@ -185,14 +189,14 @@ predict.orsf_fit <- function(object,
                       n_thread = n_thread,
                       write_forest = FALSE,
                       run_forest = TRUE,
-                      verbosity = 4)
+                      verbosity = as.integer(verbose_progress))
 
  out_values <- orsf_out$pred_new
 
  if(na_action == "pass"){
 
   out <- matrix(nrow = nrow(new_data),
-                ncol = length(pred_horizon))
+                ncol = ncol(out_values))
 
   out[cc, ] <- out_values
 
@@ -201,6 +205,8 @@ predict.orsf_fit <- function(object,
   out <- out_values
 
  }
+
+ if(pred_type == "leaf" || !pred_aggregate) return(out)
 
  # output in the same order as pred_horizon
  out[, order(pred_horizon_order), drop = FALSE]

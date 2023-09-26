@@ -1555,7 +1555,8 @@ check_predict <- function(object,
                      valid_options = c("risk",
                                        "surv",
                                        "chf",
-                                       "mort"))
+                                       "mort",
+                                       "leaf"))
 
  }
 

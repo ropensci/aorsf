@@ -533,6 +533,11 @@
 
   uvec::iterator it = pred_leaf_sort.begin();
 
+  if(verbosity > 2){
+   uvec tmp_uvec = find(pred_leaf < max_nodes);
+   Rcout << "   -- N preds expected: " << tmp_uvec.size() << std::endl;
+  }
+
   uword leaf_id = pred_leaf[*it];
 
   double pred_t0;
@@ -547,22 +552,23 @@
 
   uword i, j;
 
+  uword n_preds_made = 0;
+
   vec leaf_times, leaf_values;
 
   vec temp_vec((*pred_horizon).size());
 
   double temp_dbl;
+  bool break_loop = false;
 
-  do {
+  for(; ;) {
 
-   Rcout << "leaf_id: " << leaf_id << std::endl;
+   // Rcout << "leaf_id: " << leaf_id << std::endl;
 
    // copies of leaf data using same aux memory
    leaf_times = vec(leaf_pred_indx[leaf_id].begin(),
                     leaf_pred_indx[leaf_id].size(),
                     false);
-
-   Rcout << "leaf_times: " << leaf_times.t() << std::endl;
 
    switch (pred_type) {
 
@@ -599,8 +605,6 @@
     break;
 
    }
-
-   Rcout << "leaf_values: " << leaf_values.t() << std::endl;
 
    // don't reset i in the loop b/c leaf_times ascend
    i = 0;
@@ -657,51 +661,61 @@
 
    }
 
-   // old code for running mean - should i use it?
-   // temp2 = temp1 - surv_pvec[rows_oobag[*iit]];
-   // surv_pvec[rows_oobag[*iit]] += temp2 / denom_pred[rows_oobag[*iit]];
-
    if(pred_type == PRED_RISK) temp_vec = 1 - temp_vec;
 
-   // while (it < pred_leaf_sort.end()-1 && leaf_id == pred_leaf(*it)) {
-   //
-   //  Rcout << "*it: " << *it << std::endl;
-   //
-   //  (*pred_output).row(*it) += temp_vec.t();
-   //
-   //  Rcout << "it was safe" << std::endl;
-   //
-   //  if(oobag) (*pred_denom)[*it]++;
-   //
-   //  Rcout << "it was safe 2" << std::endl;
-   //
-   //  ++it;
-   //
-   // };
-
    (*pred_output).row(*it) += temp_vec.t();
+   n_preds_made++;
    if(oobag) (*pred_denom)[*it]++;
-   ++it;
 
-   if(it < pred_leaf_sort.end()){
+   // Rcout << "npreds: " << n_preds_made << ", ";
+   // Rcout << "*it: " << (*it) << std::endl;
 
-    while(leaf_id == pred_leaf[*it]){
+   // in case the last obs has a unique leaf assignment
+   if(it == pred_leaf_sort.end()-1) break;
 
-     (*pred_output).row(*it) += temp_vec.t();
-     if(oobag) (*pred_denom)[*it]++;
+   for(; ;){
 
-     if (it == pred_leaf_sort.end()-1){ break; } else { ++it; }
+    ++it;
+    if (it == pred_leaf_sort.end()-1){
+     // we've reached the final value of pred_leaf
+     // check to see if it's the same leaf as the obs before:
+     if (leaf_id == pred_leaf[*it]){
+      // if it is, add the value to the pred_output, and be done
+      (*pred_output).row(*it) += temp_vec.t();
+      n_preds_made++;
+      if(oobag) (*pred_denom)[*it]++;
+      break_loop = true;
+      break;
+     }
 
     }
 
+    if(leaf_id != pred_leaf[*it]) break;
+
+    (*pred_output).row(*it) += temp_vec.t();
+    n_preds_made++;
+    if(oobag) (*pred_denom)[*it]++;
+
+    // Rcout << "npreds: " << n_preds_made << ", ";
+    // Rcout << "*it (inner loop): " << (*it) << std::endl;
+
    }
 
+   if(break_loop) break;
+
    leaf_id = pred_leaf(*it);
-   Rcout << "new pred_leaf: " << leaf_id << std::endl;
 
-  } while (it < pred_leaf_sort.end() && (!oobag || leaf_id < max_nodes));
+   // case 3: we've finished out-of-bag predictions
+   if(leaf_id == max_nodes) break;
 
-  Rcout << "Made it out";
+  }
+
+  if(verbosity > 2){
+   Rcout << "   -- N preds made: " << n_preds_made;
+   Rcout << std::endl;
+   Rcout << std::endl;
+  }
+
 
  }
 

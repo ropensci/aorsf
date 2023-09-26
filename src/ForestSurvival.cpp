@@ -80,7 +80,15 @@ void ForestSurvival::plant() {
 
 void ForestSurvival::resize_pred_mat(arma::mat& p){
 
- p.zeros(data->n_rows, pred_horizon.size());
+ if(pred_type == PRED_TERMINAL_NODES || !pred_aggregate){
+
+  p.zeros(data->n_rows, n_tree);
+
+ } else {
+
+  p.zeros(data->n_rows, pred_horizon.size());
+
+ }
 
 }
 

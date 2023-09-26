@@ -38,6 +38,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   // predictions
                   PredType pred_type,
                   bool pred_mode,
+                  bool pred_aggregate,
                   bool oobag_pred,
                   EvalType oobag_eval_type,
                   arma::uword oobag_eval_every,
@@ -65,8 +66,9 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->lincomb_df_target = lincomb_df_target;
  this->lincomb_ties_method = lincomb_ties_method;
  this->lincomb_R_function = lincomb_R_function;
- this->pred_mode = pred_mode;
  this->pred_type = pred_type;
+ this->pred_mode = pred_mode;
+ this->pred_aggregate = pred_aggregate;
  this->oobag_pred = oobag_pred;
  this->oobag_eval_type = oobag_eval_type;
  this->oobag_eval_every = oobag_eval_every;
@@ -525,6 +527,10 @@ mat Forest::predict(bool oobag) {
 
  }
 
+ if(pred_type == PRED_TERMINAL_NODES || !pred_aggregate){
+  return(result);
+ }
+
  if(oobag){
 
   compute_prediction_accuracy(data.get(), result, oobag_eval.n_rows-1);
@@ -555,10 +561,27 @@ void Forest::predict_single_thread(Data* prediction_data,
 
  for (uint i = 0; i < n_tree; ++i) {
 
+  if(verbosity > 1){
+   if(oobag){
+    Rcout << "--- Computing oobag predictions: tree " << i << " ---";
+   } else {
+    Rcout << "------ Computing predictions: tree " << i << " -----";
+   }
+   Rcout << std::endl;
+   Rcout << std::endl;
+  }
+
   trees[i]->predict_leaf(prediction_data, oobag);
-  Rcout << "made it here" << std::endl;
-  trees[i]->predict_value(&result, &oobag_denom, pred_type, oobag);
-  Rcout << "made it here 2" << std::endl;
+
+  if(pred_type == PRED_TERMINAL_NODES){
+   result.col(i) = conv_to<vec>::from(trees[i]->get_pred_leaf());
+  } else if (!pred_aggregate){
+   vec col_i = result.unsafe_col(i);
+   trees[i]->predict_value(&col_i, &oobag_denom, pred_type, oobag);
+  } else {
+   trees[i]->predict_value(&result, &oobag_denom, pred_type, oobag);
+  }
+
   progress++;
 
   if(verbosity == 1){

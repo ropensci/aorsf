@@ -60,6 +60,7 @@ public:
            // predictions
            PredType pred_type,
            bool pred_mode,
+           bool pred_aggregate,
            bool oobag_pred,
            EvalType oobag_eval_type,
            arma::uword oobag_eval_every,
@@ -275,6 +276,7 @@ protected:
 
  // predictions
  bool pred_mode;
+ bool pred_aggregate;
  PredType pred_type;
 
  // is forest already grown?

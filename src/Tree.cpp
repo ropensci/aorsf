@@ -80,6 +80,9 @@
  coef_indices(coef_indices),
  leaf_summary(leaf_summary){
 
+  this->max_nodes = cutpoint.size()+1;
+  this->max_leaves = cutpoint.size()+1;
+
  }
 
 
@@ -906,8 +909,6 @@
 
   for(i = 0; i < coef_values.size(); i++){
 
-   Rcout << "moving obs in node " << i << std::endl;
-
    // if child_left == 0, it's a leaf (no need to find next child)
    if(child_left[i] != 0){
 
@@ -939,13 +940,14 @@
 
      }
 
+     if(verbosity > 4){
       uvec in_left = find(pred_leaf == child_left[i]);
       uvec in_right = find(pred_leaf == child_left[i]+1);
-
       Rcout << "No. to node " << child_left[i] << ": ";
       Rcout << in_left.size() << "; " << std::endl;
       Rcout << "No. to node " << child_left[i]+1 << ": ";
       Rcout << in_right.size() << std::endl << std::endl;
+     }
 
     }
 
@@ -954,8 +956,6 @@
   }
 
   if(oobag) pred_leaf.elem(rows_inbag).fill(max_nodes);
-
-  Rcout << "---- done with leaf predictions ----" << std::endl;
 
  }
 

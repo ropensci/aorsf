@@ -2,20 +2,42 @@ library(tidyverse)
 library(riskRegression)
 library(survival)
 
-fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-            n_tree = 3,
-            tree_seeds = 1:3,
-            n_thread = 1,
-            mtry = 2,
-            oobag_pred_type = 'surv',
-            split_rule = 'cstat',
-            importance = 'none',
-            split_min_stat = 0.4,
-            verbose_progress = 1)
+res <- oob <- vector(mode = 'numeric', length = 100)
 
-sink("orsf-output.txt")
-prd <- predict(fit, new_data = pbc_orsf, pred_horizon = 1000, pred_type = 'risk')
-sink()
+for(i in seq(100)){
+
+ train <- sample(nrow(pbc_orsf), 150)
+
+ fit <- orsf(pbc_orsf[train, ],
+             formula = Surv(time, status) ~ . - id,
+             oobag_pred_type = 'surv',
+             oobag_pred_horizon = 1000,
+             split_rule = 'logrank',
+             n_thread = 10)
+
+ oob[i] = as.numeric(fit$eval_oobag$stat_values)
+
+ # sink("orsf-output.txt")
+ prd <- predict(fit,
+                new_data = pbc_orsf[-train, ],
+                pred_horizon = 1000,
+                pred_type = 'risk',
+                n_thread = 10)
+
+ y_mat <- as.matrix(pbc_orsf[-train, c('time', 'status')])
+ w_vec <- rep(1, nrow(y_mat))
+ s_vec <- 1-prd
+
+ res[i] = oobag_c_survival(y_mat, w_vec, s_vec)
+
+
+}
+
+mean(oob)
+mean(res)
+mean(oob-res)
+
+# sink()
 
 library(randomForestSRC)
 
