@@ -786,10 +786,21 @@ orsf <- function(data,
           "1" = "Harrell's C-statistic",
           "2" = "User-specified function")
 
+  if(oobag_pred_type == 'leaf'){
+   all_rows <- seq(nrow(data))
+   for(i in seq(n_tree)){
+    rows_inbag <- setdiff(all_rows, orsf_out$forest$rows_oobag[[i]]+1)
+    orsf_out$pred_oobag[rows_inbag, i] <- NA
+   }
+  }
+
   #' @srrstats {G2.10} *drop = FALSE for type consistency*
   orsf_out$pred_oobag <- orsf_out$pred_oobag[unsorted, , drop = FALSE]
 
   orsf_out$pred_oobag[is.nan(orsf_out$pred_oobag)] <- NA_real_
+
+
+
 
  }
 

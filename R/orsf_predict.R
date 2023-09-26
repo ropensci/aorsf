@@ -90,6 +90,21 @@ predict.orsf_fit <- function(object,
 
  names_x_data <- intersect(get_names_x(object), names(new_data))
 
+ if(pred_type %in% c('leaf', 'mort') && !is.null(pred_horizon)){
+
+  extra_text <- if(length(pred_horizon)>1){
+   " Predictions at each value of pred_horizon will be identical."
+  } else {
+   ""
+  }
+
+  warning("pred_horizon does not impact predictions",
+          " when pred_type is '", pred_type, "'.",
+          extra_text, call. = FALSE)
+  # avoid copies of predictions and copies of this warning.
+  pred_horizon <- pred_horizon[1]
+ }
+
  pred_horizon <- infer_pred_horizon(object, pred_horizon)
 
  check_predict(object = object,
@@ -98,6 +113,27 @@ predict.orsf_fit <- function(object,
                pred_type = pred_type,
                na_action = na_action,
                boundary_checks = boundary_checks)
+
+ if(length(pred_horizon) > 1 && !pred_aggregate){
+
+  results <- lapply(
+   X = pred_horizon,
+   FUN = function(t){
+    predict(object = object,
+            new_data = new_data,
+            pred_horizon = t,
+            pred_type = pred_type,
+            na_action = na_action,
+            boundary_checks = boundary_checks,
+            n_thread = n_thread,
+            verbose_progress = verbose_progress,
+            pred_aggregate = pred_aggregate)
+   }
+  )
+
+  return(simplify2array(results))
+
+ }
 
  pred_horizon_order <- order(pred_horizon)
  pred_horizon_ordered <- pred_horizon[pred_horizon_order]
@@ -125,21 +161,6 @@ predict.orsf_fit <- function(object,
  }
 
  x_new <- prep_x_from_orsf(object, data = new_data[cc, ])
-
- # x_new <- as.matrix(
- #  ref_code(x_data = new_data[cc, ],
- #           fi = get_fctr_info(object),
- #           names_x_data = names_x_data)
- # )
-
- pred_type_R <- switch(
-  pred_type,
-  "risk" = 1,
-  "surv" = 2,
-  "chf"  = 3,
-  "mort" = 4,
-  "leaf" = 8
- )
 
  orsf_out <- orsf_cpp(x = x_new,
                       y = matrix(1, ncol=2),
@@ -179,7 +200,12 @@ predict.orsf_fit <- function(object,
                        'breslow' = 0,
                        'efron'   = 1
                       ),
-                      pred_type_R = pred_type_R,
+                      pred_type_R = switch(pred_type,
+                                           "risk" = 1,
+                                           "surv" = 2,
+                                           "chf"  = 3,
+                                           "mort" = 4,
+                                           "leaf" = 8),
                       pred_mode = TRUE,
                       pred_aggregate = pred_aggregate,
                       pred_horizon = pred_horizon_ordered,
@@ -212,6 +238,4 @@ predict.orsf_fit <- function(object,
  out[, order(pred_horizon_order), drop = FALSE]
 
 }
-
-
 

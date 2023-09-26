@@ -227,7 +227,9 @@ protected:
 
  void show_progress(std::string operation, size_t max_progress);
 
- virtual void resize_pred_mat(arma::mat& p) = 0;
+ virtual void resize_pred_mat(arma::mat& p);
+
+ virtual void resize_pred_mat_internal(arma::mat& p) = 0;
 
  arma::uword find_max_eval_steps();
 

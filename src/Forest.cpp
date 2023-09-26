@@ -641,7 +641,20 @@ void Forest::predict_multi_thread(uint thread_idx,
 
    trees[i]->predict_leaf(prediction_data, oobag);
 
-   trees[i]->predict_value(result_ptr, denom_ptr, pred_type, oobag);
+   if(pred_type == PRED_TERMINAL_NODES){
+
+    (*result_ptr).col(i) = conv_to<vec>::from(trees[i]->get_pred_leaf());
+
+   } else if (!pred_aggregate){
+
+    vec col_i = (*result_ptr).unsafe_col(i);
+    trees[i]->predict_value(&col_i, denom_ptr, pred_type, oobag);
+
+   } else {
+
+    trees[i]->predict_value(result_ptr, denom_ptr, pred_type, oobag);
+
+   }
 
    // Check for user interrupt
    if (aborted) {
@@ -731,6 +744,20 @@ void Forest::show_progress(std::string operation, size_t max_progress) {
 
   }
  }
+}
+
+void Forest::resize_pred_mat(arma::mat& p){
+
+ if(pred_type == PRED_TERMINAL_NODES || !pred_aggregate){
+
+  p.zeros(data->n_rows, n_tree);
+
+ } else {
+
+  resize_pred_mat_internal(p);
+
+ }
+
 }
 
 }
