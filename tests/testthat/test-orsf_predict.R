@@ -27,6 +27,16 @@ fit_oobag_mort <- orsf(formula = time + status  ~ . - id,
                        oobag_pred_type = 'mort',
                        tree_seeds = tree_seeds)
 
+fit_oobag_mort <- orsf(formula = time + status  ~ . - id,
+                       data = pbc_orsf[train, ],
+                       oobag_pred_type = 'mort',
+                       tree_seeds = tree_seeds)
+
+fit_oobag_leaf <- orsf(formula = time + status  ~ . - id,
+                       data = pbc_orsf[train, ],
+                       oobag_pred_type = 'leaf',
+                       tree_seeds = tree_seeds)
+
 
 test_that(
  desc = "prediction at time 0 is correct",

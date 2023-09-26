@@ -434,7 +434,17 @@ orsf <- function(data,
   f_oobag_eval <- oobag_fun
   type_oobag_eval <- 'user'
 
+  if(oobag_pred_type == 'leaf'){
+   stop("a user-supplied oobag function cannot be",
+        "applied when oobag_pred_type = 'leaf'",
+        call. = FALSE)
+  }
+
  }
+
+ # can't evaluate the oobag predictions if they aren't aggregated
+ if(oobag_pred_type == 'leaf') type_oobag_eval <- 'none'
+
 
  cph_method <- control_cph$cph_method
  cph_eps <- control_cph$cph_eps
@@ -737,9 +747,10 @@ orsf <- function(data,
                                            "risk" = 1,
                                            "surv" = 2,
                                            "chf"  = 3,
-                                           "mort" = 4),
+                                           "mort" = 4,
+                                           "leaf" = 8),
                       pred_mode = FALSE,
-                      pred_aggregate = TRUE,
+                      pred_aggregate = oobag_pred_type != 'leaf',
                       pred_horizon = oobag_pred_horizon,
                       oobag = oobag_pred,
                       oobag_eval_type_R = switch(type_oobag_eval,

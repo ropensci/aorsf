@@ -554,7 +554,6 @@ void Forest::predict_single_thread(Data* prediction_data,
  using std::chrono::steady_clock;
  using std::chrono::duration_cast;
  using std::chrono::seconds;
-
  steady_clock::time_point start_time = steady_clock::now();
  steady_clock::time_point last_time = steady_clock::now();
  size_t max_progress = n_tree;
@@ -574,12 +573,18 @@ void Forest::predict_single_thread(Data* prediction_data,
   trees[i]->predict_leaf(prediction_data, oobag);
 
   if(pred_type == PRED_TERMINAL_NODES){
+
    result.col(i) = conv_to<vec>::from(trees[i]->get_pred_leaf());
+
   } else if (!pred_aggregate){
+
    vec col_i = result.unsafe_col(i);
    trees[i]->predict_value(&col_i, &oobag_denom, pred_type, oobag);
+
   } else {
+
    trees[i]->predict_value(&result, &oobag_denom, pred_type, oobag);
+
   }
 
   progress++;
@@ -612,7 +617,7 @@ void Forest::predict_single_thread(Data* prediction_data,
   }
 
   // if tracking oobag error over time:
-  if(oobag && (progress % oobag_eval_every == 0) ){
+  if(oobag && (progress % oobag_eval_every == 0) && pred_aggregate){
 
    uword eval_row = (progress / oobag_eval_every) - 1;
    // mat preds = result.each_col() / oobag_denom;

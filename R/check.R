@@ -928,8 +928,9 @@ check_orsf_inputs <- function(data = NULL,
                      valid_options = c("none",
                                        "surv",
                                        "risk",
+                                       "chf",
                                        "mort",
-                                       "chf"))
+                                       "leaf"))
 
  }
 
