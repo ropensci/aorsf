@@ -28,7 +28,8 @@
                arma::vec* unique_event_times,
                arma::vec* pred_horizon);
 
-  TreeSurvival(std::vector<double>& cutpoint,
+  TreeSurvival(arma::uvec& rows_oobag,
+               std::vector<double>& cutpoint,
                std::vector<arma::uword>& child_left,
                std::vector<arma::vec>& coef_values,
                std::vector<arma::uvec>& coef_indices,

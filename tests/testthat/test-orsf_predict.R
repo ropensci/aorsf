@@ -66,6 +66,51 @@ test_that(
  }
 )
 
+test_that(
+ desc = "unaggregated predictions can reproduce aggregated ones",
+ code = {
+
+  for(i in c("surv", "risk", "mort", "chf")){
+
+   preds_single_thread_agg <- predict(fit,
+                                      new_data = pbc_orsf[-train, ],
+                                      pred_type = i,
+                                      n_thread = 1)
+
+   preds_multi_thread_agg <- predict(fit,
+                                     new_data = pbc_orsf[-train, ],
+                                     pred_type = i,
+                                     n_thread = 3)
+
+
+   preds_single_thread_raw <- predict(fit,
+                                      new_data = pbc_orsf[-train, ],
+                                      pred_type = i,
+                                      pred_aggregate = FALSE,
+                                      n_thread = 1)
+
+   preds_multi_thread_raw <- predict(fit,
+                                     new_data = pbc_orsf[-train, ],
+                                     pred_type = i,
+                                     pred_aggregate = FALSE,
+                                     n_thread = 3)
+
+   expect_equal(preds_single_thread_agg,
+                preds_multi_thread_agg,
+                tolerance = 1e-9)
+
+   expect_equal(as.numeric(preds_single_thread_agg),
+                apply(preds_single_thread_raw, 1, mean),
+                tolerance = 1e-9)
+
+   expect_equal(as.numeric(preds_single_thread_agg),
+                apply(preds_multi_thread_raw, 1, mean),
+                tolerance = 1e-9)
+
+  }
+
+ }
+)
 
 test_that(
  desc = 'oobag risk and surv have equivalent C-stat',
@@ -77,6 +122,44 @@ test_that(
  }
 )
 
+test_that(
+ desc = "warnings served if pred_horizon is not needed",
+ code = {
+
+  expect_warning(
+   predict(fit, new_data = pbc_orsf[1, ],
+           pred_horizon = c(50, 500),
+           pred_type = 'leaf'),
+   regexp = 'does not impact predictions'
+  )
+
+  expect_warning(
+   predict(fit, new_data = pbc_orsf[1, ],
+           pred_horizon = c(50, 500),
+           pred_type = 'mort'),
+   regexp = 'does not impact predictions'
+  )
+
+
+ }
+)
+
+test_that(
+ desc = "predictions are the same when using 1 or multiple threads",
+ code = {
+  for(i in c("surv", "risk", "mort", "chf")){
+   preds_single_thread <- predict(fit,
+                                  new_data = pbc_orsf[-train, ],
+                                  pred_type = i,
+                                  n_thread = 1)
+   preds_multi_thread <- predict(fit,
+                                 new_data = pbc_orsf[-train, ],
+                                 pred_type = i,
+                                 n_thread = 3)
+   expect_equal(preds_single_thread, preds_multi_thread, tolerance = 1e-9)
+  }
+ }
+)
 
 new_data <- pbc_orsf[-train, ]
 new_data_dt <- as.data.table(new_data)

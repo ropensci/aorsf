@@ -8,7 +8,15 @@ fit <- orsf(pbc_orsf,
             oobag_pred_type = 'leaf',
             oobag_pred_horizon = 1000,
             split_rule = 'logrank',
+            tree_seeds = 1:500,
+            # importance = 'permute',
             n_thread = 10)
+
+fit$importance->tmp
+
+# sink("orsf-output.txt")
+orsf_vi_permute(fit)->tmp2
+# sink()
 
 prd_5 = predict(fit, new_data = pbc_orsf, n_thread = 5, pred_type = 'mort',
                 pred_aggregate = F, pred_horizon = c(500, 1000))
@@ -39,7 +47,6 @@ for(i in seq(100)){
 
  oob[i] = as.numeric(fit$eval_oobag$stat_values)
 
- # sink("orsf-output.txt")
  prd <- predict(fit,
                 new_data = pbc_orsf[-train, ],
                 pred_horizon = 1000,

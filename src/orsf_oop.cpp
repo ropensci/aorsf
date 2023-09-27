@@ -190,6 +190,7 @@
    // Load forest object if it was already grown
    if(!grow_mode){
 
+    std::vector<arma::uvec>          rows_oobag   = loaded_forest["rows_oobag"];
     std::vector<std::vector<double>> cutpoint     = loaded_forest["cutpoint"];
     std::vector<std::vector<uword>>  child_left   = loaded_forest["child_left"];
     std::vector<std::vector<vec>>    coef_values  = loaded_forest["coef_values"];
@@ -203,8 +204,9 @@
      std::vector<std::vector<vec>> leaf_pred_chaz = loaded_forest["leaf_pred_chaz"];
 
      auto& temp = dynamic_cast<ForestSurvival&>(*forest);
-     temp.load(n_tree, cutpoint, child_left, coef_values, coef_indices,
-               leaf_pred_indx, leaf_pred_prob, leaf_pred_chaz, leaf_summary);
+     temp.load(n_tree, rows_oobag, cutpoint, child_left,
+               coef_values, coef_indices, leaf_pred_indx,
+               leaf_pred_prob, leaf_pred_chaz, leaf_summary);
 
     }
 

@@ -29,7 +29,8 @@
 
  }
 
- TreeSurvival::TreeSurvival(std::vector<double>& cutpoint,
+ TreeSurvival::TreeSurvival(arma::uvec& rows_oobag,
+                            std::vector<double>& cutpoint,
                             std::vector<arma::uword>& child_left,
                             std::vector<arma::vec>& coef_values,
                             std::vector<arma::uvec>& coef_indices,
@@ -38,7 +39,7 @@
                             std::vector<arma::vec>& leaf_pred_chaz,
                             std::vector<double>& leaf_summary,
                             arma::vec* pred_horizon) :
- Tree(cutpoint, child_left, coef_values, coef_indices, leaf_summary),
+ Tree(rows_oobag, cutpoint, child_left, coef_values, coef_indices, leaf_summary),
  leaf_pred_indx(leaf_pred_indx),
  leaf_pred_prob(leaf_pred_prob),
  leaf_pred_chaz(leaf_pred_chaz),

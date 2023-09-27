@@ -101,16 +101,18 @@ void Forest::init(std::unique_ptr<Data> input_data,
 
 void Forest::run(bool oobag){
 
- if(pred_mode){
+
+ if(pred_mode){ // case 1: a grown forest used for prediction
 
   init_trees();
-
   this->pred_values = predict(oobag);
 
- } else if (grow_mode) {
+ } else if (grow_mode) { // case 2: grow a new forest
 
-  // initialize the trees
+  // plant first
   plant();
+  // initialize trees
+  init_trees();
   // grow the trees
   grow();
 
@@ -119,6 +121,8 @@ void Forest::run(bool oobag){
    this->pred_values = predict(oobag);
   }
 
+ } else { // case 3: a grown forest used for variable importance
+  init_trees();
  }
 
  if(vi_type == VI_PERMUTE || vi_type == VI_NEGATE){
@@ -158,9 +162,6 @@ void Forest::init_trees(){
 }
 
 void Forest::grow() {
-
- // initialize trees before doing anything else
- init_trees();
 
  // Create thread ranges
  equalSplit(thread_ranges, 0, n_tree - 1, n_thread);

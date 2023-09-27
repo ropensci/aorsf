@@ -21,7 +21,8 @@
   Tree();
 
   // Create from loaded forest
-  Tree(std::vector<double>& cutpoint,
+  Tree(arma::uvec& rows_oobag,
+       std::vector<double>& cutpoint,
        std::vector<arma::uword>& child_left,
        std::vector<arma::vec>& coef_values,
        std::vector<arma::uvec>& coef_indices,
@@ -171,12 +172,6 @@
   // the 'g' is short for 'groups'
   arma::uvec g_node;
 
-  // which rows of data are held out while growing the tree
-  arma::uvec rows_inbag;
-  arma::uvec rows_oobag;
-  arma::uvec rows_node;
-  arma::uvec cols_node;
-
   int seed;
 
   arma::uword mtry;
@@ -216,6 +211,13 @@
   Rcpp::RObject lincomb_R_function;
 
   int verbosity;
+
+  // which rows of data are held out while growing the tree
+  arma::uvec rows_inbag;
+  arma::uvec rows_oobag;
+  arma::uvec rows_node;
+  arma::uvec cols_node;
+
 
   // predicted leaf node
   arma::uvec pred_leaf;

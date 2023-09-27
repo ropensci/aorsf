@@ -83,6 +83,8 @@ orsf_vi <- function(object,
                     group_factors = TRUE,
                     importance = NULL,
                     oobag_fun = NULL,
+                    n_thread = 1,
+                    verbose_progress = FALSE,
                     ...){
 
  check_dots(list(...), .f = orsf_vi)
@@ -110,30 +112,60 @@ orsf_vi <- function(object,
  orsf_vi_(object,
           group_factors = group_factors,
           type_vi = type_vi,
-          oobag_fun = oobag_fun)
+          oobag_fun = oobag_fun,
+          n_thread = n_thread,
+          verbose_progress = verbose_progress)
 
 
 }
 
 #' @rdname orsf_vi
 #' @export
-orsf_vi_negate <- function(object, group_factors = TRUE, oobag_fun = NULL, ...){
- check_dots(list(...), .f = orsf_vi_negate)
- orsf_vi_(object, group_factors, type_vi = 'negate', oobag_fun = oobag_fun)
-}
+orsf_vi_negate <-
+ function(object,
+          group_factors = TRUE,
+          oobag_fun = NULL,
+          n_thread = 1,
+          verbose_progress = FALSE,
+          ...) {
+  check_dots(list(...), .f = orsf_vi_negate)
+  orsf_vi_(object,
+           group_factors,
+           type_vi = 'negate',
+           oobag_fun = oobag_fun,
+           n_thread = n_thread,
+           verbose_progress = verbose_progress)
+ }
 
 #' @rdname orsf_vi
 #' @export
-orsf_vi_permute <- function(object, group_factors = TRUE, oobag_fun = NULL, ...){
- check_dots(list(...), .f = orsf_vi_permute)
- orsf_vi_(object, group_factors, type_vi = 'permute', oobag_fun = oobag_fun)
-}
+orsf_vi_permute <-
+ function(object,
+          group_factors = TRUE,
+          oobag_fun = NULL,
+          n_thread = 1,
+          verbose_progress = FALSE,
+          ...) {
+  check_dots(list(...), .f = orsf_vi_permute)
+  orsf_vi_(object,
+           group_factors,
+           type_vi = 'permute',
+           oobag_fun = oobag_fun,
+           n_thread = n_thread,
+           verbose_progress = verbose_progress)
+ }
 
 #' @rdname orsf_vi
 #' @export
-orsf_vi_anova <- function(object, group_factors = TRUE, ...){
+orsf_vi_anova <- function(object,
+                          group_factors = TRUE,
+                          ...) {
  check_dots(list(...), .f = orsf_vi_anova)
- orsf_vi_(object, group_factors, type_vi = 'anova', oobag_fun = NULL)
+ orsf_vi_(object,
+          group_factors,
+          type_vi = 'anova',
+          oobag_fun = NULL,
+          verbose_progress = FALSE)
 }
 
 #' Variable importance working function
@@ -143,7 +175,12 @@ orsf_vi_anova <- function(object, group_factors = TRUE, ...){
 #'
 #' @noRd
 #'
-orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
+orsf_vi_ <- function(object,
+                     group_factors,
+                     type_vi,
+                     oobag_fun,
+                     n_thread,
+                     verbose_progress){
 
  #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
 
@@ -156,10 +193,14 @@ orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
        " orsf object with importance = 'anova'",
        call. = FALSE)
 
- out <- switch(type_vi,
-               'anova' = as.matrix(get_importance_values(object)),
-               'negate' = orsf_vi_oobag_(object, type_vi, oobag_fun),
-               'permute' = orsf_vi_oobag_(object, type_vi, oobag_fun))
+ out <- switch(
+  type_vi,
+  'anova' = as.matrix(get_importance_values(object)),
+  'negate' = orsf_vi_oobag_(object, type_vi, oobag_fun,
+                            n_thread, verbose_progress),
+  'permute' = orsf_vi_oobag_(object, type_vi, oobag_fun,
+                             n_thread, verbose_progress)
+ )
 
  if(group_factors) {
 
@@ -209,7 +250,11 @@ orsf_vi_ <- function(object, group_factors, type_vi, oobag_fun = NULL){
 #'
 #' @noRd
 #'
-orsf_vi_oobag_ <- function(object, type_vi, oobag_fun){
+orsf_vi_oobag_ <- function(object,
+                           type_vi,
+                           oobag_fun,
+                           n_thread,
+                           verbose_progress){
 
  # can remove this b/c prediction accuracy is now computed at tree level
  # if(!contains_oobag(object)){
@@ -251,43 +296,64 @@ orsf_vi_oobag_ <- function(object, type_vi, oobag_fun){
  # Put data in the same order that it was in when object was fit
  sorted <- order(y[, 1], -y[, 2])
 
+ pred_type <- 'mort'
 
- if(is.null(oobag_fun)) {
+ orsf_out <- orsf_cpp(x = x[sorted, , drop = FALSE],
+                      y = y[sorted, , drop = FALSE],
+                      w = get_weights_user(object),
+                      tree_type_R = get_tree_type(object),
+                      tree_seeds = get_tree_seeds(object),
+                      loaded_forest = object$forest,
+                      n_tree = get_n_tree(object),
+                      mtry = get_mtry(object),
+                      vi_type_R = switch(type_vi,
+                                         'negate' = 1,
+                                         'permute' = 2),
+                      vi_max_pvalue = get_vi_max_pvalue(object),
+                      lincomb_R_function = get_f_beta(object),
+                      oobag_R_function = get_f_oobag_eval(object),
+                      leaf_min_events = get_leaf_min_events(object),
+                      leaf_min_obs = get_leaf_min_obs(object),
+                      split_rule_R = switch(get_split_rule(object),
+                                            "logrank" = 1,
+                                            "cstat" = 2),
+                      split_min_events = get_split_min_events(object),
+                      split_min_obs = get_split_min_obs(object),
+                      split_min_stat = get_split_min_stat(object),
+                      split_max_cuts = get_n_split(object),
+                      split_max_retry = get_n_retry(object),
+                      lincomb_type_R = switch(get_orsf_type(object),
+                                              'fast' = 1,
+                                              'cph' = 1,
+                                              'random' = 2,
+                                              'net' = 3,
+                                              'custom' = 4),
+                      lincomb_eps = get_cph_eps(object),
+                      lincomb_iter_max = get_cph_iter_max(object),
+                      lincomb_scale = get_cph_do_scale(object),
+                      lincomb_alpha = get_net_alpha(object),
+                      lincomb_df_target = get_net_df_target(object),
+                      lincomb_ties_method = switch(
+                       tolower(get_cph_method(object)),
+                       'breslow' = 0,
+                       'efron'   = 1
+                      ),
+                      pred_type_R = 4,
+                      pred_mode = FALSE,
+                      pred_aggregate = TRUE,
+                      pred_horizon = get_oobag_pred_horizon(object),
+                      oobag = FALSE,
+                      oobag_eval_type_R = switch(type_oobag_eval,
+                                                 'cstat' = 1,
+                                                 'user' = 2),
+                      oobag_eval_every = get_n_tree(object),
+                      n_thread = n_thread,
+                      write_forest = FALSE,
+                      run_forest = TRUE,
+                      verbosity = as.integer(verbose_progress))
 
-  last_eval_stat <-
-   last_value(object$eval_oobag$stat_values[, 1, drop=TRUE])
-
- } else {
-
-  last_eval_stat <-
-   f_oobag_eval(y_mat = y, s_vec = object$pred_oobag)
-
- }
-
- f_oobag_vi <- switch(
-  type_vi,
-  'negate' = orsf_oob_negate_vi,
-  'permute' = orsf_oob_permute_vi
- )
-
- pred_type <- switch(
-  get_oobag_pred_type(object),
-  "surv" = "S",
-  "risk" = "R",
-  "chf"  = "H"
- )
-
- out <- f_oobag_vi(x = x[sorted, ],
-                   y = y[sorted, ],
-                   forest = object$forest,
-                   last_eval_stat = last_eval_stat,
-                   time_pred_ = object$pred_horizon,
-                   f_oobag_eval = f_oobag_eval,
-                   pred_type_ = pred_type,
-                   type_oobag_eval_ = type_oobag_eval)
-
+ out <- orsf_out$importance
  rownames(out) <- colnames(x)
-
  out
 
 }

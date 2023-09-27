@@ -44,7 +44,8 @@
 
  }
 
- Tree::Tree(std::vector<double>& cutpoint,
+ Tree::Tree(arma::uvec& rows_oobag,
+            std::vector<double>& cutpoint,
             std::vector<arma::uword>& child_left,
             std::vector<arma::vec>& coef_values,
             std::vector<arma::uvec>& coef_indices,
@@ -74,6 +75,7 @@
  lincomb_ties_method(DEFAULT_LINCOMB_TIES_METHOD),
  lincomb_R_function(0),
  verbosity(0),
+ rows_oobag(rows_oobag),
  cutpoint(cutpoint),
  child_left(child_left),
  coef_values(coef_values),
@@ -1007,8 +1009,7 @@
   // Randomly permute for all independent variables
   for (uword pred_col = 0; pred_col < data->get_n_cols(); ++pred_col) {
 
-   // Check whether the i-th variable is used in the
-   // tree:
+   // Check whether the i-th variable is used in the tree:
    bool pred_is_used = false;
 
    for(uint j = 0; j < coef_indices.size(); ++j){
@@ -1024,11 +1025,12 @@
    if (pred_is_used) {
 
     if(vi_type == VI_PERMUTE){
+     // everyone gets the same permutation
+     random_number_generator.seed(seed);
      data_oobag->permute_col(pred_col, random_number_generator);
     } else if (vi_type == VI_NEGATE){
      negate_coef(pred_col);
     }
-
 
     predict_leaf(data_oobag.get(), false);
 

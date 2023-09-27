@@ -1,0 +1,6 @@
+------------ input data dimensions ------------
+N observations total: 276
+N columns total: 18
+-----------------------------------------------
+
+Called from: orsf_vi_oobag_(object, type_vi, oobag_fun, n_thread, verbose_progress)
