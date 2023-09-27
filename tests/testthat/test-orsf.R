@@ -528,24 +528,24 @@ for(i in vars){
 fit_orsf <-
  orsf(pbc_orsf, Surv(time, status) ~ . - id,
       n_thread = 1,
-      n_tree = 100,
-      tree_seeds = 1:100)
+      n_tree = 500,
+      tree_seeds = 1:500)
 
 fit_orsf_2 <-
  orsf(pbc_orsf, Surv(time, status) ~ . - id,
       n_thread = 5,
-      n_tree = 100,
-      tree_seeds = 1:100)
+      n_tree = 500,
+      tree_seeds = 1:500)
 
 fit_orsf_noise <-
  orsf(pbc_noise, Surv(time, status) ~ . - id,
-      n_tree = 100,
-      tree_seeds = 1:100)
+      n_tree = 500,
+      tree_seeds = 1:500)
 
 fit_orsf_scale <-
  orsf(pbc_scale, Surv(time, status) ~ . - id,
-      n_tree = 100,
-      tree_seeds = 1:100)
+      n_tree = 500,
+      tree_seeds = 1:500)
 
 #' @srrstats {ML7.1} *Demonstrate effect of numeric scaling of input data.*
 test_that(
@@ -578,17 +578,22 @@ test_that(
 
 
   expect_lt(
-   mean(abs(fit_orsf$pred_oobag - fit_orsf_scale$pred_oobag)),
+   max(abs(fit_orsf$pred_oobag - fit_orsf_scale$pred_oobag)),
    0.1
   )
 
   expect_lt(
-   mean(abs(fit_orsf$pred_oobag - fit_orsf_2$pred_oobag)),
+   max(abs(fit_orsf$pred_oobag - fit_orsf_2$pred_oobag)),
    0.1
   )
 
   expect_lt(
-   mean(abs(fit_orsf$pred_oobag - fit_orsf_noise$pred_oobag)),
+   max(abs(fit_orsf$pred_oobag - fit_orsf_noise$pred_oobag)),
+   0.1
+  )
+
+  expect_lt(
+   mean(abs(fit_orsf$importance - fit_orsf_noise$importance)),
    0.1
   )
 
@@ -615,8 +620,8 @@ test_that(
  code = {
 
   object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-                 n_tree = 100,
-                 tree_seeds = 1:100,
+                 n_tree = 500,
+                 tree_seeds = 1:500,
                  no_fit = TRUE)
   fit_orsf_3 <- orsf_train(object)
 
