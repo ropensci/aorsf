@@ -720,7 +720,7 @@
 
  }
 
- double TreeSurvival::compute_prediction_accuracy(arma::vec& preds){
+ double TreeSurvival::compute_prediction_accuracy_internal(arma::vec& preds){
 
   return compute_cstat(y_oobag, w_oobag, preds, true);
 

@@ -1,11 +1,11 @@
 
 
-oobag_fun_brier <- function(y_mat, s_vec){
+oobag_fun_brier <- function(y_mat, w_vec, s_vec){
 
  # risk = 1 - survival
  r_vec <- 1 - s_vec
 
- y <- y_mat[, 'status']
+ y <- y_mat[, 2L]
 
  # mean of the squared differences between predicted and observed risk
  bri <- mean( (y - r_vec)^2 )
@@ -20,49 +20,49 @@ oobag_fun_brier <- function(y_mat, s_vec){
 
 }
 
-oobag_fun_bad_name <- function(nope, s_vec){
+oobag_fun_bad_name <- function(nope, w_vec, s_vec){
 
  # risk = 1 - survival
  r_vec <- 1 - s_vec
 
  # mean of the squared differences between predicted and observed risk
- mean( (y_mat[, 'status'] - r_vec)^2 )
+ mean( (y_mat[, 2L] - r_vec)^2 )
 
 }
 
-oobag_fun_bad_name_2 <- function(y_mat, nope){
+oobag_fun_bad_name_2 <- function(y_mat, w_vec, nope){
 
  # risk = 1 - survival
  r_vec <- 1 - s_vec
 
  # mean of the squared differences between predicted and observed risk
- mean( (y_mat[, 'status'] - r_vec)^2 )
+ mean( (y_mat[, 2L] - r_vec)^2 )
 
 }
 
-oobag_fun_bad_out <- function(y_mat, s_vec){
+oobag_fun_bad_out <- function(y_mat, w_vec, s_vec){
 
  # risk = 1 - survival
  r_vec <- 1 - s_vec
 
  # mean of the squared differences between predicted and observed risk
- quantile( (y_mat[, 'status'] - r_vec)^2, probs = c(0.25, 0.50, 0.75) )
+ quantile( (y_mat[, 2L] - r_vec)^2, probs = c(0.25, 0.50, 0.75) )
 
 }
 
-oobag_fun_bad_out_2 <- function(y_mat, s_vec){
+oobag_fun_bad_out_2 <- function(y_mat, w_vec, s_vec){
 
  # mean of the squared differences between predicted and observed risk
  return("A")
 
 }
 
-oobag_fun_3_args <- function(y_mat, s_vec, nope){
+oobag_fun_4_args <- function(y_mat, w_vec, s_vec, nope){
 
  # risk = 1 - survival
  r_vec <- 1 - s_vec
 
- y <- y_mat[, 'status']
+ y <- y_mat[, 2L]
 
  # mean of the squared differences between predicted and observed risk
  bri <- mean( (y - r_vec)^2 )
@@ -206,8 +206,9 @@ test_that(
  code = {
 
   c_target <- last_value(fit$eval_oobag$stat_values)
-  c_estimate <- oobag_c_harrell(
+  c_estimate <- oobag_c_survival(
    y_mat = as.matrix(fit$data[, c('time', 'status')]),
+   w_vec = rep(1, nrow(fit$data)),
    s_vec = fit$pred_oobag
   )
 
@@ -222,12 +223,12 @@ test_that(
 
   expect_equal(
    orsf_vi_negate(fit, group_factors = T),
-   orsf_vi_negate(fit, oobag_fun = oobag_c_harrell, group_factors = T)
+   orsf_vi_negate(fit, oobag_fun = oobag_c_risk, group_factors = T)
   )
 
   expect_equal(
    orsf_vi_negate(fit),
-   orsf_vi_negate(fit_no_vi, oobag_fun = oobag_c_harrell)
+   orsf_vi_negate(fit_no_vi, oobag_fun = oobag_c_risk)
   )
 
   vi_bri <- orsf_vi_negate(fit, oobag_fun = oobag_fun_brier)
@@ -277,18 +278,9 @@ test_that(
 
 
   expect_error(
-   orsf_vi_negate(fit_no_vi, oobag_fun = oobag_fun_3_args),
-   regexp = 'has 3'
+   orsf_vi_negate(fit_no_vi, oobag_fun = oobag_fun_4_args),
+   regexp = 'has 4'
   )
-
-  fit_no_oob <- orsf(pbc_vi,
-                     formula = Surv(time, status) ~ age + sex + bili + junk,
-                     oobag_pred_type = 'none')
-
-  expect_error(orsf_vi_negate(fit_no_oob), regexp = 'out-of-bag')
-
-
-
 
  }
 )

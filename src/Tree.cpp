@@ -110,6 +110,8 @@
                  arma::uword lincomb_df_target,
                  arma::uword lincomb_ties_method,
                  RObject lincomb_R_function,
+                 RObject oobag_R_function,
+                 EvalType oobag_eval_type,
                  int verbosity){
 
   // Initialize random number generator and set seed
@@ -139,6 +141,8 @@
   this->lincomb_df_target = lincomb_df_target;
   this->lincomb_ties_method = lincomb_ties_method;
   this->lincomb_R_function = lincomb_R_function;
+  this->oobag_R_function = oobag_R_function;
+  this->oobag_eval_type = oobag_eval_type;
   this->verbosity = verbosity;
 
  }
@@ -962,7 +966,25 @@
  }
 
  double Tree::compute_prediction_accuracy(arma::vec& preds){
-  return(0.0);
+
+  if (oobag_eval_type == EVAL_R_FUNCTION){
+
+   NumericMatrix y_wrap = wrap(y_oobag);
+   NumericVector w_wrap = wrap(w_oobag);
+   NumericVector p_wrap = wrap(preds);
+
+   // initialize function from tree object
+   // (Functions can't be stored in C++ classes, but RObjects can)
+   Function f_oobag = as<Function>(oobag_R_function);
+
+   NumericVector result_R = f_oobag(y_wrap, w_wrap, p_wrap);
+
+   return(result_R[0]);
+
+  }
+
+  return(compute_prediction_accuracy_internal(preds));
+
  }
 
  void Tree::negate_coef(arma::uword pred_col){

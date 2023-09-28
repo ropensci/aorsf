@@ -2,20 +2,22 @@ library(tidyverse)
 library(riskRegression)
 library(survival)
 
-
+tictoc::tic()
 fit <- orsf(pbc_orsf,
             formula = Surv(time, status) ~ . - id,
             oobag_pred_type = 'leaf',
             oobag_pred_horizon = 1000,
             split_rule = 'logrank',
             tree_seeds = 1:500,
-            # importance = 'permute',
+            importance = 'negate',
             n_thread = 10)
-
+tictoc::toc()
 fit$importance->tmp
 
 # sink("orsf-output.txt")
-orsf_vi_permute(fit)->tmp2
+tictoc::tic()
+orsf_vi_negate(fit)->tmp2
+tictoc::toc()
 # sink()
 
 prd_5 = predict(fit, new_data = pbc_orsf, n_thread = 5, pred_type = 'mort',

@@ -357,7 +357,6 @@ orsf_pred_dependence <- function(object,
 
  if(is.data.frame(pred_spec)) type_input <- 'grid'
 
-
  pd_fun_structure <- switch(type_input,
                             'grid' = pd_grid,
                             'loop' = pd_loop)

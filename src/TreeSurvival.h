@@ -74,7 +74,7 @@
    return(leaf_pred_chaz);
   }
 
-  double compute_prediction_accuracy(arma::vec& preds) override;
+  double compute_prediction_accuracy_internal(arma::vec& preds) override;
 
   std::vector<arma::vec> leaf_pred_indx;
   std::vector<arma::vec> leaf_pred_prob;

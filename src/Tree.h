@@ -57,6 +57,8 @@
             arma::uword lincomb_df_target,
             arma::uword lincomb_ties_method,
             Rcpp::RObject lincomb_R_function,
+            Rcpp::RObject oobag_R_function,
+            EvalType oobag_eval_type,
             int verbosity);
 
 
@@ -210,6 +212,10 @@
   arma::uword   lincomb_ties_method;
   Rcpp::RObject lincomb_R_function;
 
+  // allow customization of oobag prediction accuracy
+  Rcpp::RObject oobag_R_function;
+  EvalType oobag_eval_type;
+
   int verbosity;
 
   // which rows of data are held out while growing the tree
@@ -246,6 +252,8 @@
 
 
   virtual double compute_prediction_accuracy(arma::vec& preds);
+
+  virtual double compute_prediction_accuracy_internal(arma::vec& preds) = 0;
 
  };
 

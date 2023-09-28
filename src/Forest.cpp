@@ -101,30 +101,33 @@ void Forest::init(std::unique_ptr<Data> input_data,
 
 void Forest::run(bool oobag){
 
-
- if(pred_mode){ // case 1: a grown forest used for prediction
-
-  init_trees();
-  this->pred_values = predict(oobag);
-
- } else if (grow_mode) { // case 2: grow a new forest
+ if (grow_mode) { // case 1: grow a new forest
 
   // plant first
   plant();
-  // initialize trees
+  // initialize
   init_trees();
-  // grow the trees
+  // grow
   grow();
 
-  // compute out-of-bag predictions if needed
+  // compute + evaluate out-of-bag predictions if oobag is true
   if(oobag){
    this->pred_values = predict(oobag);
   }
 
- } else { // case 3: a grown forest used for variable importance
+ } else {
+
+  // just initialize trees if the forest was already grown
   init_trees();
+
  }
 
+ // case 2: a grown forest used for prediction
+ if(pred_mode){
+  this->pred_values = predict(oobag);
+ }
+
+ // case 3: a grown forest used for variable importance
  if(vi_type == VI_PERMUTE || vi_type == VI_NEGATE){
   compute_oobag_vi();
  }
@@ -155,6 +158,8 @@ void Forest::init_trees(){
                  lincomb_df_target,
                  lincomb_ties_method,
                  lincomb_R_function,
+                 oobag_R_function,
+                 oobag_eval_type,
                  verbosity);
 
  }
@@ -534,8 +539,12 @@ mat Forest::predict(bool oobag) {
 
  if(oobag){
 
-  compute_prediction_accuracy(data.get(), result, oobag_eval.n_rows-1);
+  if(grow_mode){
+   compute_prediction_accuracy(data.get(), result, oobag_eval.n_rows-1);
+  }
 
+  // it's okay if we divide by 0 here. It makes the result NaN but
+  // that will be fixed when the results are post-processed in R/orsf.R
   result.each_col() /= oobag_denom;
 
  } else {
@@ -547,6 +556,29 @@ mat Forest::predict(bool oobag) {
  return(result);
 
 }
+
+// std::vector<mat> Forest::compute_dependence(bool oobag,
+//                                             mat x_vals,
+//                                             umat x_cols,
+//                                             bool summarize){
+//
+//  mat preds_summary;
+//
+//  for(uword i = 0; i < x_vals.n_rows){
+//
+//   data->fill_x(x_vals[i], x_cols[i]);
+//
+//   mat preds = predict(oobag);
+//
+//   data->restore_col(x_vals[i], x_cols[i]);
+//
+//   if(summarize) preds_summary = mean(preds,0);
+//
+//  }
+//
+//
+//
+// }
 
 void Forest::predict_single_thread(Data* prediction_data,
                                    bool oobag,
@@ -618,7 +650,7 @@ void Forest::predict_single_thread(Data* prediction_data,
   }
 
   // if tracking oobag error over time:
-  if(oobag && (progress % oobag_eval_every == 0) && pred_aggregate){
+  if(oobag && grow_mode && (progress%oobag_eval_every==0) && pred_aggregate){
 
    uword eval_row = (progress / oobag_eval_every) - 1;
    // mat preds = result.each_col() / oobag_denom;
