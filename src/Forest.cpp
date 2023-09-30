@@ -43,6 +43,10 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   EvalType oobag_eval_type,
                   arma::uword oobag_eval_every,
                   Rcpp::RObject oobag_R_function,
+                  PartialDepType pd_type,
+                  arma::mat& pd_x_vals,
+                  arma::uvec& pd_x_cols,
+                  arma::vec& pd_probs,
                   uint n_thread,
                   int verbosity){
 
@@ -73,6 +77,10 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->oobag_eval_type = oobag_eval_type;
  this->oobag_eval_every = oobag_eval_every;
  this->oobag_R_function = oobag_R_function;
+ this->pd_type = pd_type;
+ this->pd_x_vals = pd_x_vals;
+ this->pd_x_cols = pd_x_cols;
+ this->pd_probs = pd_probs;
  this->n_thread = n_thread;
  this->verbosity = verbosity;
 
@@ -101,7 +109,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
 
 void Forest::run(bool oobag){
 
- if (grow_mode) { // case 1: grow a new forest
+ if (grow_mode) { // if the forest hasn't been grown
 
   // plant first
   plant();
@@ -115,21 +123,24 @@ void Forest::run(bool oobag){
    this->pred_values = predict(oobag);
   }
 
- } else {
-
-  // just initialize trees if the forest was already grown
+ } else { // if the forest was already grown
+  // initialize trees
   init_trees();
-
  }
 
- // case 2: a grown forest used for prediction
+ // if using a grown forest for prediction
  if(pred_mode){
   this->pred_values = predict(oobag);
  }
 
- // case 3: a grown forest used for variable importance
+ // if using a grown forest for variable importance
  if(vi_type == VI_PERMUTE || vi_type == VI_NEGATE){
   compute_oobag_vi();
+ }
+
+ // if using a grown forest for partial dependence
+ if(pd_type == PD_SUMMARY || pd_type == PD_ICE){
+  this->pd_values = compute_dependence(oobag);
  }
 
 }
@@ -557,28 +568,40 @@ mat Forest::predict(bool oobag) {
 
 }
 
-// std::vector<mat> Forest::compute_dependence(bool oobag,
-//                                             mat x_vals,
-//                                             umat x_cols,
-//                                             bool summarize){
-//
-//  mat preds_summary;
-//
-//  for(uword i = 0; i < x_vals.n_rows){
-//
-//   data->fill_x(x_vals[i], x_cols[i]);
-//
-//   mat preds = predict(oobag);
-//
-//   data->restore_col(x_vals[i], x_cols[i]);
-//
-//   if(summarize) preds_summary = mean(preds,0);
-//
-//  }
-//
-//
-//
-// }
+std::vector<arma::mat> Forest::compute_dependence(bool oobag){
+
+ uword n = pd_x_vals.n_rows;
+
+ std::vector<arma::mat> result;
+ result.reserve(n);
+
+ for(uword i = 0; i < n; ++i){
+
+  uword j = 0;
+  for(const auto& x_col : pd_x_cols){
+   data->fill_col(pd_x_vals.at(i, j), x_col);
+   ++j;
+  }
+
+  mat preds = predict(oobag);
+
+  if(pd_type == PD_SUMMARY){
+
+   mat preds_quant = quantile(preds, pd_probs, 0);
+   mat preds_summary = mean(preds, 0);
+   result.push_back(join_vert(preds_summary, preds_quant));
+
+  } else if(pd_type == PD_ICE) {
+
+   result.push_back(preds);
+
+  }
+
+ }
+
+ return(result);
+
+}
 
 void Forest::predict_single_thread(Data* prediction_data,
                                    bool oobag,

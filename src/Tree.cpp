@@ -901,6 +901,9 @@
 
   pred_leaf.zeros(prediction_data->n_rows);
 
+  // if tree is root node, 0 is the correct leaf prediction
+  if(coef_values.size() == 0) return;
+
   if(VERBOSITY > 0){
    Rcout << "---- computing leaf predictions ----" << std::endl;
   }
@@ -961,7 +964,16 @@
 
   }
 
-  if(oobag) pred_leaf.elem(rows_inbag).fill(max_nodes);
+  if(oobag){
+   // If the forest is loaded, only rows_oobag is saved.
+   if(rows_inbag.size() == 0){
+    pred_leaf.elem(find(pred_leaf == 0)).fill(max_nodes);
+   } else {
+    pred_leaf.elem(rows_inbag).fill(max_nodes);
+   }
+
+
+  }
 
  }
 

@@ -86,6 +86,7 @@ orsf_pd_oob <- function(object,
                         prob_values = c(0.025, 0.50, 0.975),
                         prob_labels = c('lwr', 'medn', 'upr'),
                         boundary_checks = TRUE,
+                        n_thread = 1,
                         ...){
 
  check_dots(list(...), orsf_pd_oob)
@@ -99,6 +100,7 @@ orsf_pd_oob <- function(object,
                       prob_values = prob_values,
                       prob_labels = prob_labels,
                       boundary_checks = boundary_checks,
+                      n_thread = n_thread,
                       oobag = TRUE,
                       type_output = 'smry')
 
@@ -114,6 +116,7 @@ orsf_pd_inb <- function(object,
                         prob_values = c(0.025, 0.50, 0.975),
                         prob_labels = c('lwr', 'medn', 'upr'),
                         boundary_checks = TRUE,
+                        n_thread = 1,
                         ...){
 
  check_dots(list(...), orsf_pd_inb)
@@ -132,6 +135,7 @@ orsf_pd_inb <- function(object,
                       prob_values = prob_values,
                       prob_labels = prob_labels,
                       boundary_checks = boundary_checks,
+                      n_thread = n_thread,
                       oobag = FALSE,
                       type_output = 'smry')
 
@@ -149,6 +153,7 @@ orsf_pd_new <- function(object,
                         prob_values = c(0.025, 0.50, 0.975),
                         prob_labels = c('lwr', 'medn', 'upr'),
                         boundary_checks = TRUE,
+                        n_thread = 1,
                         ...){
 
  check_dots(list(...), orsf_pd_new)
@@ -163,6 +168,7 @@ orsf_pd_new <- function(object,
                       prob_values = prob_values,
                       prob_labels = prob_labels,
                       boundary_checks = boundary_checks,
+                      n_thread = n_thread,
                       oobag = FALSE,
                       type_output = 'smry')
 
@@ -192,6 +198,7 @@ orsf_ice_oob <- function(object,
                          pred_type = 'risk',
                          expand_grid = TRUE,
                          boundary_checks = TRUE,
+                         n_thread = 1,
                          ...){
 
  check_dots(list(...), orsf_ice_oob)
@@ -203,6 +210,7 @@ orsf_ice_oob <- function(object,
                       pred_type = pred_type,
                       expand_grid = expand_grid,
                       boundary_checks = boundary_checks,
+                      n_thread = n_thread,
                       oobag = TRUE,
                       type_output = 'ice')
 
@@ -216,6 +224,7 @@ orsf_ice_inb <- function(object,
                          pred_type = 'risk',
                          expand_grid = TRUE,
                          boundary_checks = TRUE,
+                         n_thread = 1,
                          ...){
 
  check_dots(list(...), orsf_ice_oob)
@@ -232,6 +241,7 @@ orsf_ice_inb <- function(object,
                       pred_type = pred_type,
                       expand_grid = expand_grid,
                       boundary_checks = boundary_checks,
+                      n_thread = n_thread,
                       oobag = FALSE,
                       type_output = 'ice')
 
@@ -247,6 +257,7 @@ orsf_ice_new <- function(object,
                          na_action = 'fail',
                          expand_grid = TRUE,
                          boundary_checks = TRUE,
+                         n_thread = 1,
                          ...){
 
  check_dots(list(...), orsf_ice_new)
@@ -259,6 +270,7 @@ orsf_ice_new <- function(object,
                       na_action = na_action,
                       expand_grid = expand_grid,
                       boundary_checks = boundary_checks,
+                      n_thread = n_thread,
                       oobag = FALSE,
                       type_output = 'ice')
 
@@ -290,9 +302,10 @@ orsf_pred_dependence <- function(object,
                                  expand_grid,
                                  prob_values = NULL,
                                  prob_labels = NULL,
+                                 boundary_checks,
+                                 n_thread,
                                  oobag,
-                                 type_output,
-                                 boundary_checks){
+                                 type_output){
 
  pred_horizon <- infer_pred_horizon(object, pred_horizon)
 
@@ -310,12 +323,12 @@ orsf_pred_dependence <- function(object,
                  pred_horizon    = pred_horizon,
                  na_action       = na_action)
 
- if(pred_type == 'mort') stop(
-  "mortality predictions aren't supported in partial dependence functions",
-  " yet. Sorry for the inconvenience - we plan on including this option",
-  " in a future update.",
-  call. = FALSE
- )
+ # if(pred_type == 'mort') stop(
+ #  "mortality predictions aren't supported in partial dependence functions",
+ #  " yet. Sorry for the inconvenience - we plan on including this option",
+ #  " in a future update.",
+ #  call. = FALSE
+ # )
 
  if(oobag && is.null(object$data))
   stop("no data were found in object. ",
@@ -345,7 +358,6 @@ orsf_pred_dependence <- function(object,
 
  x_new <- prep_x_from_orsf(object, data = pd_data[cc, ])
 
-
  # the values in pred_spec need to be centered & scaled to match x_new,
  # which is also centered and scaled
  means <- get_means(object)
@@ -357,50 +369,17 @@ orsf_pred_dependence <- function(object,
 
  if(is.data.frame(pred_spec)) type_input <- 'grid'
 
- pd_fun_structure <- switch(type_input,
-                            'grid' = pd_grid,
-                            'loop' = pd_loop)
+ pd_fun <- switch(type_input, 'grid' = pd_grid, 'loop' = pd_loop)
 
- pd_fun_predict <- switch(paste(oobag, type_output, sep = "_"),
-                          "TRUE_ice" = pd_oob_ice,
-                          "TRUE_smry" = pd_oob_smry,
-                          "FALSE_ice" = pd_new_ice,
-                          "FALSE_smry" = pd_new_smry)
+ pred_type_R <- switch(pred_type,
+                       "risk" = 1, "surv" = 2,
+                       "chf"  = 3, "mort" = 4)
 
- pred_type_cpp <- switch(
-  pred_type,
-  "risk" = "R",
-  "surv" = "S",
-  "chf"  = "H",
-  "mort" = "M"
- )
+ browser()
 
- out_list <- lapply(
-
-  X = pred_horizon,
-
-  FUN = function(.pred_horizon){
-
-   pd_fun_structure(object,
-                    x_new,
-                    pred_spec,
-                    .pred_horizon,
-                    pd_fun_predict,
-                    type_output,
-                    prob_values,
-                    prob_labels,
-                    oobag,
-                    pred_type_cpp)
-
-  }
-
- )
-
- names(out_list) <- as.character(pred_horizon)
-
- out <- rbindlist(l = out_list,
-                  fill = TRUE,
-                  idcol = 'pred_horizon')
+ out <- pd_fun(object, x_new, pred_spec, pred_horizon,
+               type_output, prob_values, prob_labels,
+               n_thread, oobag, pred_type_R)
 
  out[, pred_horizon := as.numeric(pred_horizon)]
 
@@ -452,12 +431,12 @@ pd_grid <- function(object,
                     x_new,
                     pred_spec,
                     pred_horizon,
-                    pd_fun_predict,
                     type_output,
                     prob_values,
                     prob_labels,
+                    n_thread,
                     oobag,
-                    pred_type_cpp){
+                    pred_type_R){
 
  if(!is.data.frame(pred_spec))
   pred_spec <- expand.grid(pred_spec, stringsAsFactors = TRUE)
@@ -488,36 +467,109 @@ pd_grid <- function(object,
 
  x_cols <- match(names(pred_spec_new), colnames(x_new))
 
- pd_vals <- pd_fun_predict(forest      = object$forest,
-                           x_new_      = x_new,
-                           x_cols_     = x_cols-1,
-                           x_vals_     = as_matrix(pred_spec_new),
-                           probs_      = prob_values,
-                           time_dbl    = pred_horizon,
-                           pred_type   = pred_type_cpp)
+ orsf_out <- orsf_cpp(x = x_new,
+                      y = matrix(1, ncol=2),
+                      w = rep(1, nrow(x_new)),
+                      tree_type_R = get_tree_type(object),
+                      tree_seeds = get_tree_seeds(object),
+                      loaded_forest = object$forest,
+                      n_tree = get_n_tree(object),
+                      mtry = get_mtry(object),
+                      vi_type_R = 0,
+                      vi_max_pvalue = get_vi_max_pvalue(object),
+                      lincomb_R_function = get_f_beta(object),
+                      oobag_R_function = get_f_oobag_eval(object),
+                      leaf_min_events = get_leaf_min_events(object),
+                      leaf_min_obs = get_leaf_min_obs(object),
+                      split_rule_R = switch(get_split_rule(object),
+                                            "logrank" = 1,
+                                            "cstat" = 2),
+                      split_min_events = get_split_min_events(object),
+                      split_min_obs = get_split_min_obs(object),
+                      split_min_stat = get_split_min_stat(object),
+                      split_max_cuts = get_n_split(object),
+                      split_max_retry = get_n_retry(object),
+                      lincomb_type_R = switch(get_orsf_type(object),
+                                              'fast' = 1,
+                                              'cph' = 1,
+                                              'random' = 2,
+                                              'net' = 3,
+                                              'custom' = 4),
+                      lincomb_eps = get_cph_eps(object),
+                      lincomb_iter_max = get_cph_iter_max(object),
+                      lincomb_scale = get_cph_do_scale(object),
+                      lincomb_alpha = get_net_alpha(object),
+                      lincomb_df_target = get_net_df_target(object),
+                      lincomb_ties_method = switch(
+                       tolower(get_cph_method(object)),
+                       'breslow' = 0,
+                       'efron'   = 1
+                      ),
+                      pred_type_R = pred_type_R,
+                      pred_mode = FALSE,
+                      pred_aggregate = TRUE,
+                      pred_horizon = pred_horizon,
+                      oobag = oobag,
+                      oobag_eval_type_R = 0,
+                      oobag_eval_every = get_n_tree(object),
+                      pd_type_R = switch(type_output,
+                                         "smry" = 1L,
+                                         "ice" = 2L),
+                      pd_vals = as.matrix(pred_spec_new),
+                      pd_cols = x_cols-1L,
+                      pd_probs = prob_values,
+                      n_thread = n_thread,
+                      write_forest = FALSE,
+                      run_forest = TRUE,
+                      verbosity = 0)
 
+ pd_vals <- orsf_out$pd_values
 
  if(type_output == 'smry'){
 
-  rownames(pd_vals) <- c('mean', prob_labels)
-  output <- cbind(pred_spec, t(pd_vals))
-  .names <- names(output)
+  pd_vals <- lapply(pd_vals, function(x){
+   m <- matrix(x, nrow=length(pred_horizon), byrow = T)
+   rownames(m) <- pred_horizon
+   colnames(m) <- c('mean', prob_labels)
+   data.table(m, keep.rownames = 'pred_horizon')
+  })
+
+
+ } else if(type_output == 'ice'){
+
+
+  for(i in seq_along(pd_vals)){
+
+   pd_vals[[i]] <- matrix(pd_vals[[i]],
+                          nrow = nrow(x_new),
+                          ncol = length(pred_horizon))
+
+   colnames(pd_vals[[i]]) <- pred_horizon
+
+   pd_vals[[i]] <- melt(as.data.table(pd_vals[[i]]),
+                        measure.vars = seq(length(pred_horizon)),
+                        variable.name = 'pred_horizon',
+                        variable.factor = FALSE)
+
+  }
 
  }
+
+ pd_vals <- rbindlist(pd_vals, idcol = 'id_variable')
+ pred_spec$id_variable <- seq(nrow(pred_spec))
+
+ output <- merge(as.data.table(pred_spec), pd_vals, by = 'id_variable')
+ ids <- c('id_variable')
 
  if(type_output == 'ice'){
-
-  colnames(pd_vals) <- c('id_variable', 'pred')
-  pred_spec$id_variable <- seq(nrow(pred_spec))
-  output <- merge(pred_spec, pd_vals, by = 'id_variable')
-  output$id_row <- rep(seq(nrow(x_new)), pred_horizon = nrow(pred_spec))
-
-  ids <- c('id_variable', 'id_row')
-  .names <- c(ids, setdiff(names(output), ids))
-
+  ids <- c(ids, 'id_row')
+  output[, id_row:= seq(.N), by = .(id_variable, pred_horizon)]
  }
 
- as.data.table(output[, .names])
+ .names <- c(ids, setdiff(names(output), ids))
+ setcolorder(output, neworder = .names)
+
+ output
 
 }
 
@@ -540,12 +592,12 @@ pd_loop <- function(object,
                     x_new,
                     pred_spec,
                     pred_horizon,
-                    pd_fun_predict,
                     type_output,
                     prob_values,
                     prob_labels,
+                    n_thread,
                     oobag,
-                    pred_type_cpp){
+                    pred_type_R){
 
  fi <- get_fctr_info(object)
 
@@ -563,10 +615,8 @@ pd_loop <- function(object,
   if(pd_name %in% fi$cols) {
 
    pd_bind$level <- as.character(pred_spec[[i]])
+   pd_new <- ref_code(pd_new, fi = fi, names_x_data = pd_name)
 
-   pd_new <- ref_code(pd_new,
-                      fi = fi,
-                      names_x_data = pd_name)
   } else {
 
    pd_bind$value <- pred_spec[[i]]
@@ -577,23 +627,70 @@ pd_loop <- function(object,
 
   x_vals <- x_new[, x_cols]
 
+  orsf_out <- orsf_cpp(x = x_new,
+                       y = matrix(1, ncol=2),
+                       w = rep(1, nrow(x_new)),
+                       tree_type_R = get_tree_type(object),
+                       tree_seeds = get_tree_seeds(object),
+                       loaded_forest = object$forest,
+                       n_tree = get_n_tree(object),
+                       mtry = get_mtry(object),
+                       vi_type_R = 0,
+                       vi_max_pvalue = get_vi_max_pvalue(object),
+                       lincomb_R_function = get_f_beta(object),
+                       oobag_R_function = get_f_oobag_eval(object),
+                       leaf_min_events = get_leaf_min_events(object),
+                       leaf_min_obs = get_leaf_min_obs(object),
+                       split_rule_R = switch(get_split_rule(object),
+                                             "logrank" = 1,
+                                             "cstat" = 2),
+                       split_min_events = get_split_min_events(object),
+                       split_min_obs = get_split_min_obs(object),
+                       split_min_stat = get_split_min_stat(object),
+                       split_max_cuts = get_n_split(object),
+                       split_max_retry = get_n_retry(object),
+                       lincomb_type_R = switch(get_orsf_type(object),
+                                               'fast' = 1,
+                                               'cph' = 1,
+                                               'random' = 2,
+                                               'net' = 3,
+                                               'custom' = 4),
+                       lincomb_eps = get_cph_eps(object),
+                       lincomb_iter_max = get_cph_iter_max(object),
+                       lincomb_scale = get_cph_do_scale(object),
+                       lincomb_alpha = get_net_alpha(object),
+                       lincomb_df_target = get_net_df_target(object),
+                       lincomb_ties_method = switch(
+                        tolower(get_cph_method(object)),
+                        'breslow' = 0,
+                        'efron'   = 1
+                       ),
+                       pred_type_R = 1,
+                       pred_mode = TRUE,
+                       pred_aggregate = TRUE,
+                       pred_horizon = pred_horizon,
+                       oobag = FALSE,
+                       oobag_eval_type_R = 0,
+                       oobag_eval_every = get_n_tree(object),
+                       pd_type_R = 1,
+                       pd_vals = as.matrix(pd_new),
+                       pd_cols = x_cols-1L,
+                       pd_probs = prob_values,
+                       n_thread = n_thread,
+                       write_forest = FALSE,
+                       run_forest = TRUE,
+                       verbosity = 0)
 
-  pd_vals <- pd_fun_predict(forest      = object$forest,
-                            x_new_      = x_new,
-                            x_cols_     = x_cols-1,
-                            x_vals_     = as.matrix(pd_new),
-                            probs_      = prob_values,
-                            time_dbl    = pred_horizon,
-                            pred_type   = pred_type_cpp)
-
-
-  # pd_fun_predict modifies x_new by reference, so reset it.
-  x_new[, x_cols] <- x_vals
+  pd_vals <- orsf_out$pd_values
 
   if(type_output == 'smry'){
 
-   rownames(pd_vals) <- c('mean', prob_labels)
-   output[[i]] <- cbind(pd_bind, t(pd_vals))
+   output[[i]] <- lapply(pd_vals, function(x){
+    m <- matrix(x, nrow=length(pred_horizon), byrow = T)
+    rownames(m) <- pred_horizon
+    colnames(m) <- c('mean', prob_labels)
+    data.table(m, keep.rownames = 'pred_horizon')
+   })
 
   }
 

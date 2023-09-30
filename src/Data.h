@@ -106,13 +106,39 @@
 
   }
 
+  void fill_col(double value, uword j){
+
+    x.col(j).fill(value);
+
+  }
+
+  void restore_cols(arma::uvec cols){
+
+   if(cols.size() != mat_restore_values.n_cols){
+    stop("restore_cols is not the right size");
+   }
+
+   uword i = 0;
+   for(const auto& j : cols){
+    x.col(j) = mat_restore_values.col(i);
+    ++i;
+   }
+
+  }
+
   // member variables
 
   arma::uword n_cols;
   arma::uword n_rows;
   arma::vec w;
 
+  // for single column ops (e.g., permutation importance)
   arma::vec col_restore_values;
+
+  // for multi-column ops (e.g., partial dependence)
+  arma::mat mat_restore_values;
+
+
 
   bool has_weights;
 

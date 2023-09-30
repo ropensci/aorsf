@@ -41,6 +41,12 @@
   EVAL_R_FUNCTION = 2
  };
 
+ enum PartialDepType {
+  PD_NONE = 0,
+  PD_SUMMARY = 1,
+  PD_ICE = 2
+ };
+
  // Linear combination method
  enum LinearCombo {
   LC_NEWTON_RAPHSON = 1,

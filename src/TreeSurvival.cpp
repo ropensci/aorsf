@@ -564,7 +564,6 @@
 
   for(; ;) {
 
-   // Rcout << "leaf_id: " << leaf_id << std::endl;
 
    // copies of leaf data using same aux memory
    leaf_times = vec(leaf_pred_indx[leaf_id].begin(),

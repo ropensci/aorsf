@@ -105,6 +105,10 @@
                bool                  oobag,
                arma::uword           oobag_eval_type_R,
                arma::uword           oobag_eval_every,
+               int                   pd_type_R,
+               arma::mat&            pd_vals,
+               arma::uvec&           pd_cols,
+               arma::vec&            pd_probs,
                unsigned int          n_thread,
                bool                  write_forest,
                bool                  run_forest,
@@ -125,6 +129,7 @@
   LinearCombo lincomb_type = (LinearCombo) lincomb_type_R;
   PredType pred_type = (PredType) pred_type_R;
   EvalType oobag_eval_type = (EvalType) oobag_eval_type_R;
+  PartialDepType pd_type = (PartialDepType) pd_type_R;
 
   // R functions cannot be called from multiple threads
   if(lincomb_type    == LC_R_FUNCTION  ||
@@ -184,6 +189,10 @@
                oobag_eval_type,
                oobag_eval_every,
                oobag_R_function,
+               pd_type,
+               pd_vals,
+               pd_cols,
+               pd_probs,
                n_thread,
                verbosity);
 
@@ -253,23 +262,19 @@
    if(vi_type != VI_NONE){
 
     vec vi_output;
-
     if(run_forest){
-
      if(vi_type == VI_ANOVA){
-
       vi_output = forest->get_vi_numer() / forest->get_vi_denom();
-
      } else {
-
       vi_output = forest->get_vi_numer() / n_tree;
-
      }
-
     }
-
     result.push_back(vi_output, "importance");
 
+   }
+
+   if(pd_type != PD_NONE){
+    result.push_back(forest->get_pd_values(), "pd_values");
    }
 
    return(result);

@@ -65,6 +65,10 @@ public:
            EvalType oobag_eval_type,
            arma::uword oobag_eval_every,
            Rcpp::RObject oobag_R_function,
+           PartialDepType pd_type,
+           arma::mat& pd_x_vals,
+           arma::uvec& pd_x_cols,
+           arma::vec& pd_probs,
            uint n_thread,
            int verbosity);
 
@@ -190,6 +194,10 @@ public:
   return(pred_values);
  }
 
+ std::vector<arma::mat>& get_pd_values(){
+  return(pd_values);
+ }
+
  void run(bool oobag);
 
  virtual void plant() = 0;
@@ -197,6 +205,8 @@ public:
  void grow();
 
  arma::mat predict(bool oobag);
+
+ std::vector<arma::mat> compute_dependence(bool oobag);
 
 protected:
 
@@ -276,15 +286,20 @@ protected:
  arma::uword lincomb_ties_method;
  RObject     lincomb_R_function;
 
- // predictions
- bool pred_mode;
- bool pred_aggregate;
- PredType pred_type;
-
- // is forest already grown?
  bool grow_mode;
 
+ // predictions
+ PredType pred_type;
+ bool pred_mode;
+ bool pred_aggregate;
  arma::mat pred_values;
+
+ // partial dependence
+ PartialDepType pd_type;
+ std::vector<arma::mat> pd_values;
+ arma::mat pd_x_vals;
+ arma::uvec pd_x_cols;
+ arma::vec pd_probs;
 
  // out-of-bag
  bool        oobag_pred;

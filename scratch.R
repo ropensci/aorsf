@@ -3,22 +3,26 @@ library(riskRegression)
 library(survival)
 
 tictoc::tic()
+sink("orsf-output.txt")
 fit <- orsf(pbc_orsf,
             formula = Surv(time, status) ~ . - id,
-            oobag_pred_type = 'leaf',
+            oobag_pred_type = 'risk',
             oobag_pred_horizon = 1000,
             split_rule = 'logrank',
+            split_min_stat = 0.1,
             tree_seeds = 1:500,
-            importance = 'negate',
-            n_thread = 10)
+            n_tree = 500,
+            importance = 'none',
+            n_thread = 1,
+            verbose_progress = 0)
+sink()
 tictoc::toc()
 fit$importance->tmp
 
-# sink("orsf-output.txt")
 tictoc::tic()
 orsf_vi_negate(fit)->tmp2
+orsf_pd_oob(fit, pred_spec = list(bili = c(1:5)))
 tictoc::toc()
-# sink()
 
 prd_5 = predict(fit, new_data = pbc_orsf, n_thread = 5, pred_type = 'mort',
                 pred_aggregate = F, pred_horizon = c(500, 1000))
