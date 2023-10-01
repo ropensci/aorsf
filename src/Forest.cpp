@@ -43,10 +43,6 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   EvalType oobag_eval_type,
                   arma::uword oobag_eval_every,
                   Rcpp::RObject oobag_R_function,
-                  PartialDepType pd_type,
-                  arma::mat& pd_x_vals,
-                  arma::uvec& pd_x_cols,
-                  arma::vec& pd_probs,
                   uint n_thread,
                   int verbosity){
 
@@ -77,10 +73,6 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->oobag_eval_type = oobag_eval_type;
  this->oobag_eval_every = oobag_eval_every;
  this->oobag_R_function = oobag_R_function;
- this->pd_type = pd_type;
- this->pd_x_vals = pd_x_vals;
- this->pd_x_cols = pd_x_cols;
- this->pd_probs = pd_probs;
  this->n_thread = n_thread;
  this->verbosity = verbosity;
 
@@ -140,6 +132,7 @@ void Forest::run(bool oobag){
 
  // if using a grown forest for partial dependence
  if(pd_type == PD_SUMMARY || pd_type == PD_ICE){
+  Rcout << pd_type << std::endl;
   this->pd_values = compute_dependence(oobag);
  }
 
@@ -568,34 +561,56 @@ mat Forest::predict(bool oobag) {
 
 }
 
-std::vector<arma::mat> Forest::compute_dependence(bool oobag){
+std::vector<std::vector<arma::mat>> Forest::compute_dependence(bool oobag){
 
- uword n = pd_x_vals.n_rows;
+ std::vector<std::vector<arma::mat>> result;
 
- std::vector<arma::mat> result;
- result.reserve(n);
+ result.reserve(pd_x_vals.size());
 
- for(uword i = 0; i < n; ++i){
+ data->mat_restore_values.zeros(data->n_rows, data->n_cols);
 
-  uword j = 0;
-  for(const auto& x_col : pd_x_cols){
-   data->fill_col(pd_x_vals.at(i, j), x_col);
-   ++j;
+ for(uword k = 0; k < pd_x_vals.size(); ++k){
+
+  uword n = pd_x_vals[k].n_rows;
+
+  std::vector<arma::mat> result_k;
+
+  result_k.reserve(n);
+
+  for(const auto& x_col : pd_x_cols[k]){
+   Rcout << x_col << std::endl;
+   data->save_col(x_col);
   }
 
-  mat preds = predict(oobag);
+  for(uword i = 0; i < n; ++i){
 
-  if(pd_type == PD_SUMMARY){
+   uword j = 0;
+   for(const auto& x_col : pd_x_cols[k]){
+    data->fill_col(pd_x_vals[k].at(i, j), x_col);
+    ++j;
+   }
 
-   mat preds_quant = quantile(preds, pd_probs, 0);
-   mat preds_summary = mean(preds, 0);
-   result.push_back(join_vert(preds_summary, preds_quant));
+   mat preds = predict(oobag);
 
-  } else if(pd_type == PD_ICE) {
+   if(pd_type == PD_SUMMARY){
 
-   result.push_back(preds);
+    mat preds_summary = mean(preds, 0);
+    mat preds_quant = quantile(preds, pd_probs, 0);
+    result_k.push_back(join_vert(preds_summary, preds_quant));
+
+   } else if(pd_type == PD_ICE) {
+
+    result_k.push_back(preds);
+
+   }
 
   }
+
+  for(const auto& x_col : pd_x_cols[k]){
+   data->restore_col_2(x_col);
+  }
+
+  result.push_back(result_k);
 
  }
 

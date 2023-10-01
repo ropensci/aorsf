@@ -3,24 +3,18 @@ library(riskRegression)
 library(survival)
 
 tictoc::tic()
-sink("orsf-output.txt")
-fit <- orsf(pbc_orsf,
-            formula = Surv(time, status) ~ . - id,
-            oobag_pred_type = 'risk',
-            oobag_pred_horizon = 1000,
-            split_rule = 'logrank',
-            split_min_stat = 0.1,
-            tree_seeds = 1:500,
-            n_tree = 500,
-            importance = 'none',
-            n_thread = 1,
-            verbose_progress = 0)
-sink()
+fit <- orsf(pbc_orsf, formula = time+status ~ . - id)
 tictoc::toc()
+
+sink("orsf-output.txt")
+orsf_pd_oob(fit,
+            pred_spec = list(bili = 1:5, trt = 'placebo'),
+            pred_horizon = seq(100, 1000, by=100))
+sink()
+
 fit$importance->tmp
 
 tictoc::tic()
-orsf_vi_negate(fit)->tmp2
 orsf_pd_oob(fit, pred_spec = list(bili = c(1:5)))
 tictoc::toc()
 

@@ -313,7 +313,7 @@
 
  double TreeSurvival::compute_split_score(){
 
-  double result;
+  double result=0;
 
   switch (split_rule) {
 

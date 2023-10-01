@@ -112,17 +112,15 @@
 
   }
 
-  void restore_cols(arma::uvec cols){
+  void save_col(arma::uword j){
 
-   if(cols.size() != mat_restore_values.n_cols){
-    stop("restore_cols is not the right size");
-   }
+   mat_restore_values.col(j) = x.col(j);
 
-   uword i = 0;
-   for(const auto& j : cols){
-    x.col(j) = mat_restore_values.col(i);
-    ++i;
-   }
+  }
+
+  void restore_col_2(arma::uword j){
+
+   x.col(j) = mat_restore_values.col(j);
 
   }
 

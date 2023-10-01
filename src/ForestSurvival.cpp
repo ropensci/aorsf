@@ -33,10 +33,18 @@ void ForestSurvival::load(
   std::vector<std::vector<arma::vec>>& forest_leaf_pred_indx,
   std::vector<std::vector<arma::vec>>& forest_leaf_pred_prob,
   std::vector<std::vector<arma::vec>>& forest_leaf_pred_chaz,
-  std::vector<std::vector<double>>& forest_leaf_summary
+  std::vector<std::vector<double>>& forest_leaf_summary,
+  PartialDepType pd_type,
+  std::vector<arma::mat>& pd_x_vals,
+  std::vector<arma::uvec>& pd_x_cols,
+  arma::vec& pd_probs
 ) {
 
- this->n_tree = n_tree;
+ this->n_tree    = n_tree;
+ this->pd_type   = pd_type;
+ this->pd_x_vals = pd_x_vals;
+ this->pd_x_cols = pd_x_cols;
+ this->pd_probs  = pd_probs;
 
  if(VERBOSITY > 0){
   Rcout << "---- loading forest from input list ----";

@@ -33,7 +33,11 @@ public:
            std::vector<std::vector<arma::vec>>& forest_leaf_pred_indx,
            std::vector<std::vector<arma::vec>>& forest_leaf_pred_prob,
            std::vector<std::vector<arma::vec>>& forest_leaf_pred_chaz,
-           std::vector<std::vector<double>>& forest_leaf_summary);
+           std::vector<std::vector<double>>& forest_leaf_summary,
+           PartialDepType pd_type,
+           std::vector<arma::mat>& pd_x_vals,
+           std::vector<arma::uvec>& pd_x_cols,
+           arma::vec& pd_probs);
 
  std::vector<std::vector<arma::vec>> get_leaf_pred_indx();
  std::vector<std::vector<arma::vec>> get_leaf_pred_prob();
