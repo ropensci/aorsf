@@ -521,7 +521,9 @@ mat Forest::predict(bool oobag) {
 
     // evaluate oobag error after joining each thread
     // (only safe to do this when the condition below holds)
-    if(n_tree/oobag_eval_every == n_thread && i<n_thread-1){
+    if(grow_mode &&
+       n_tree/oobag_eval_every == n_thread &&
+       i < n_thread - 1){
 
      // i should be uint to access threads,
      // eval_row should be uword to access oobag_eval
@@ -566,8 +568,7 @@ std::vector<std::vector<arma::mat>> Forest::compute_dependence(bool oobag){
 
  result.reserve(pd_x_vals.size());
 
- data->mat_restore_values.zeros(data->n_rows, data->n_cols);
-
+ // looping through each item in the pd list
  for(uword k = 0; k < pd_x_vals.size(); ++k){
 
   uword n = pd_x_vals[k].n_rows;
@@ -576,23 +577,35 @@ std::vector<std::vector<arma::mat>> Forest::compute_dependence(bool oobag){
 
   result_k.reserve(n);
 
+  // saving x values
   for(const auto& x_col : pd_x_cols[k]){
    data->save_col(x_col);
   }
 
+  print_mat(data->get_x(), "X", 100, 5);
+
+  // loop through each row in the current pd matrix
   for(uword i = 0; i < n; ++i){
 
    uword j = 0;
+   // fill x with current pd values
    for(const auto& x_col : pd_x_cols[k]){
     data->fill_col(pd_x_vals[k].at(i, j), x_col);
     ++j;
    }
 
+   if(oobag) oobag_denom.fill(0);
+
    mat preds = predict(oobag);
 
    if(pd_type == PD_SUMMARY){
 
+    print_mat(preds, "predictions", 10, 10);
+
     mat preds_summary = mean(preds, 0);
+
+    print_mat(preds_summary, "means", 10, 10);
+
     mat preds_quant = quantile(preds, pd_probs, 0);
     result_k.push_back(join_vert(preds_summary, preds_quant));
 
@@ -604,8 +617,9 @@ std::vector<std::vector<arma::mat>> Forest::compute_dependence(bool oobag){
 
   }
 
+  // bring back original values before moving to next pd item
   for(const auto& x_col : pd_x_cols[k]){
-   data->restore_col_2(x_col);
+   data->restore_col(x_col);
   }
 
   result.push_back(result_k);

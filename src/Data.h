@@ -32,6 +32,7 @@
    this->n_rows = x.n_rows;
    this->n_cols = x.n_cols;
    this->has_weights = !w.empty();
+   this->saved_values.resize(n_cols);
 
   }
 
@@ -91,38 +92,25 @@
   void permute_col(arma::uword j, std::mt19937_64& rng){
 
    arma::vec x_j = x.unsafe_col(j);
-
    // make and store a copy
-   this->col_restore_values = arma::vec(x_j.begin(), x_j.size(), true);
-
+   this->saved_values[j] = arma::vec(x_j.begin(), x_j.size(), true);
    // shuffle the vector in-place
    std::shuffle(x_j.begin(), x_j.end(), rng);
 
   }
 
+  void save_col(arma::uword j){
+   saved_values[j] = x.col(j);
+  }
+
   void restore_col(arma::uword j){
-
-   x.col(j) = col_restore_values;
-
+   x.col(j) = saved_values[j];
   }
 
   void fill_col(double value, uword j){
-
     x.col(j).fill(value);
-
   }
 
-  void save_col(arma::uword j){
-
-   mat_restore_values.col(j) = x.col(j);
-
-  }
-
-  void restore_col_2(arma::uword j){
-
-   x.col(j) = mat_restore_values.col(j);
-
-  }
 
   // member variables
 
@@ -130,13 +118,8 @@
   arma::uword n_rows;
   arma::vec w;
 
-  // for single column ops (e.g., permutation importance)
-  arma::vec col_restore_values;
-
   // for multi-column ops (e.g., partial dependence)
-  arma::mat mat_restore_values;
-
-
+  std::vector<arma::vec> saved_values;
 
   bool has_weights;
 

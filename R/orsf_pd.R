@@ -323,13 +323,6 @@ orsf_pred_dependence <- function(object,
                  pred_horizon    = pred_horizon,
                  na_action       = na_action)
 
- # if(pred_type == 'mort') stop(
- #  "mortality predictions aren't supported in partial dependence functions",
- #  " yet. Sorry for the inconvenience - we plan on including this option",
- #  " in a future update.",
- #  call. = FALSE
- # )
-
  if(oobag && is.null(object$data))
   stop("no data were found in object. ",
        "did you use attach_data = FALSE when ",
@@ -366,8 +359,10 @@ orsf_pred_dependence <- function(object,
  }
 
  pred_type_R <- switch(pred_type,
-                       "risk" = 1, "surv" = 2,
-                       "chf"  = 3, "mort" = 4)
+                       "risk" = 1,
+                       "surv" = 2,
+                       "chf"  = 3,
+                       "mort" = 4)
 
  fi <- get_fctr_info(object)
 
@@ -432,7 +427,7 @@ orsf_pred_dependence <- function(object,
 
    }
 
-   x_cols[[i]] <- match(names(pred_spec_new[[i]]), colnames(x_new))
+   x_cols[[i]] <- match(names(pred_spec_new[[i]]), colnames(x_new))-1
    pred_spec_new[[i]] <- as.matrix(pred_spec_new[[i]])
 
   }

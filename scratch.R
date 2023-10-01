@@ -3,14 +3,23 @@ library(riskRegression)
 library(survival)
 
 tictoc::tic()
-fit <- orsf(pbc_orsf, formula = time+status ~ . - id)
+fit <- orsf(pbc_orsf,
+            formula = time+status ~ . - id,
+            oobag_pred_type = 'risk')
 tictoc::toc()
+
+all(fit$data == pbc_orsf)
+
+tmp <- as.data.frame(cbind(y=as.numeric(fit$pred_oobag), x=pbc_orsf$bili))
+
+plot(x=tmp$x, y=tmp$y)
 
 sink("orsf-output.txt")
 pd_vals <- orsf_pd_oob(fit,
                        expand_grid = FALSE,
-                       pred_spec = list(bili = 1:5, trt = 'placebo'),
-                       pred_horizon = seq(100, 1000, by=100))
+                       pred_type = 'risk',
+                       pred_spec = list(bili = 1:5),
+                       pred_horizon = c(1000))
 sink()
 
 fit$importance->tmp
@@ -87,7 +96,8 @@ microbenchmark::microbenchmark(
                                 importance = 'none',
                                 nodesize = 10,
                                 nsplit = 5,
-                                data = as.data.frame(pbc_orsf))
+                                data = as.data.frame(pbc_orsf)),
+ times = 5
 )
 
 # sink()
@@ -116,7 +126,7 @@ microbenchmark::microbenchmark(
                 mtry = 3,
                 leaf_min_obs = 10,
                 n_split = 5,
-                importance = 'permute',
+                importance = 'none',
                 n_thread = 5),
 
  rfsrc = randomForestSRC::rfsrc(Surv(time, status) ~ .,
@@ -124,7 +134,7 @@ microbenchmark::microbenchmark(
                                 mtry = 3,
                                 nthread = 5,
                                 samptype = 'swr',
-                                importance = 'permute',
+                                importance = 'none',
                                 nodesize = 10,
                                 nsplit = 5,
                                 data = as.data.frame(flchain_orsf)),
