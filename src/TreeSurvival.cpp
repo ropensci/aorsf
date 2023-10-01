@@ -318,7 +318,7 @@
   switch (split_rule) {
 
   case SPLIT_LOGRANK: {
-   result = score_logrank();
+   result = compute_logrank(y_node, w_node, g_node);
    break;
   }
 

@@ -15,6 +15,8 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   Rcpp::IntegerVector& tree_seeds,
                   arma::uword n_tree,
                   arma::uword mtry,
+                  bool sample_with_replacement,
+                  double sample_fraction,
                   bool grow_mode,
                   VariableImportance vi_type,
                   double vi_max_pvalue,
@@ -50,6 +52,8 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->tree_seeds = tree_seeds;
  this->n_tree = n_tree;
  this->mtry = mtry;
+ this->sample_with_replacement = sample_with_replacement;
+ this->sample_fraction = sample_fraction;
  this->grow_mode = grow_mode;
  this->vi_type = vi_type;
  this->vi_max_pvalue = vi_max_pvalue;
@@ -144,6 +148,8 @@ void Forest::init_trees(){
   trees[i]->init(data.get(),
                  tree_seeds[i],
                  mtry,
+                 sample_with_replacement,
+                 sample_fraction,
                  pred_type,
                  leaf_min_obs,
                  vi_type,

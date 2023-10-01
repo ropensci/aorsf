@@ -38,6 +38,8 @@
   void init(Data* data,
             int seed,
             arma::uword mtry,
+            bool sample_with_replacement,
+            double sample_fraction,
             PredType pred_type,
             // double leaf_min_events,
             double leaf_min_obs,
@@ -177,6 +179,9 @@
   int seed;
 
   arma::uword mtry;
+
+  bool sample_with_replacement;
+  double sample_fraction;
 
   // what type of predictions you compute
   PredType pred_type;

@@ -61,6 +61,8 @@ get_vi_max_pvalue      <- function(object) attr(object, 'vi_max_pvalue')
 get_split_rule         <- function(object) attr(object, 'split_rule')
 get_n_thread           <- function(object) attr(object, 'n_thread')
 get_tree_type          <- function(object) attr(object, 'tree_type')
+get_sample_with_replacement <- function(object) attr(object, 'sample_with_replacement')
+get_sample_fraction         <- function(object) attr(object, 'sample_fraction')
 
 
 #' ORSF status

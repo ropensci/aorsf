@@ -91,6 +91,8 @@
  void Tree::init(Data* data,
                  int seed,
                  arma::uword mtry,
+                 bool sample_with_replacement,
+                 double sample_fraction,
                  PredType pred_type,
                  // double leaf_min_events,
                  double leaf_min_obs,
@@ -122,6 +124,8 @@
   this->n_rows_total = data->n_rows;
   this->seed = seed;
   this->mtry = mtry;
+  this->sample_with_replacement = sample_with_replacement;
+  this->sample_fraction = sample_fraction;
   this->pred_type = pred_type;
   // this->leaf_min_events = leaf_min_events;
   this->leaf_min_obs = leaf_min_obs;
@@ -174,10 +178,30 @@
 
   std::uniform_int_distribution<uword> udist_rows(0, n - 1);
 
-  // sample with replacement
-  for (i = 0; i < n; ++i) {
-   draw = udist_rows(random_number_generator);
-   ++w_inbag[draw];
+  if(sample_with_replacement){
+
+   for (i = 0; i < n; ++i) {
+    draw = udist_rows(random_number_generator);
+    ++w_inbag[draw];
+   }
+
+  } else {
+
+   if(sample_fraction == 1){
+    w_inbag.fill(1);
+   } else {
+
+    uword n_sample = (uword) std::round(n * sample_fraction);
+    for (i = 0; i < n_sample; ++i) {
+     draw = udist_rows(random_number_generator);
+     while(w_inbag[draw] == 1){
+      draw = udist_rows(random_number_generator);
+     }
+     ++w_inbag[draw];
+
+    }
+   }
+
   }
 
   // multiply w_inbag by user specified weights.

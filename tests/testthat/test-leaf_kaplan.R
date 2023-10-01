@@ -3,66 +3,48 @@
 
 #' @srrstats {G5.4b} *Correctness tests include tests against previous implementations, explicitly calling those implementations in testing.*
 
+#' @srrstats {G5.5} *Correctness tests are run with a fixed random seed*
+set.seed(329)
+
 library(survival)
 
 data("flchain", package = 'survival')
 
-df <- na.omit(flchain)
+flc <- na.omit(flchain)
 
-df$chapter <- NULL
+flc$chapter <- NULL
 
-time <- 'futime'
-status <- 'death'
+flc <- flc[flc$futime > 0, ]
 
-df_nomiss <- na.omit(df)
+sorted <- collapse::radixorder(flc$futime, -flc$death)
 
-df_sorted <- df_nomiss[order(df_nomiss[[time]]),]
+flc <- flc[sorted, ]
 
-df_x <- df_sorted
-df_x[[time]] <- NULL
-df_x[[status]] <- NULL
+weights <- sample(1:5, nrow(flc), replace = TRUE)
 
-flchain_x <- model.matrix(~.-1, data = df_x)
+# fit a normal tree with no bootstrap weights
+fit <- orsf(flc,
+            futime + death ~ .,
+            n_tree = 1,
+            weights = weights,
+            tree_seeds = 1,
+            sample_fraction = 1,
+            oobag_pred_type = 'none',
+            sample_with_replacement = FALSE,
+            split_rule = 'cstat',
+            split_min_stat = 0.999)
 
-flchain_y <- Surv(time = df_sorted[[time]],
-                  event = df_sorted[[status]])
+aorsf_surv <- fit$forest$leaf_pred_prob[[1]][[1]]
+aorsf_time <- fit$forest$leaf_pred_indx[[1]][[1]]
 
-y <- flchain_y
-ymat <- as.matrix(y)
-#' @srrstats {G5.5} *Correctness tests are run with a fixed random seed*
-set.seed(329)
-
-weights <- sample(1:5, length(y), replace = TRUE)
-
-rows <- sort(sample(nrow(ymat), 20))
-
-bcj <- leaf_kaplan_testthat(ymat[rows, ], weights[rows])
-
-
-
-kap <- survival::survfit(survival::Surv(ymat[rows,1], ymat[rows,2]) ~ 1,
-                         weights = weights[rows])
-
-kap <- data.frame(n.event = kap$n.event,
-                  time = kap$time,
-                  surv = kap$surv)
-
-kap <- subset(kap, n.event > 0)
+kap <- survfit(Surv(futime, death) ~ 1, data = flc, weights = weights)
 
 test_that(
- desc = 'leaf_kaplan has same length as survfit',
- code = {expect_equal(nrow(kap), nrow(bcj))}
+ desc = 'aorsf kaplan has same time values as survfit',
+ code = {expect_equal(kap$time, aorsf_time, tolerance = 1e-9)}
 )
 
 test_that(
- desc = 'leaf_kaplan has same time values as survfit',
- code = {expect_equal(kap$time, bcj[,1])}
+ desc = 'aorsf kaplan has same surv values as survfit',
+ code = {expect_equal(kap$surv, aorsf_surv, tolerance = 1e-9)}
 )
-
-test_that(
- desc = 'leaf_kaplan has same surv values as survfit',
- code = {expect_equal(kap$surv, bcj[,2])}
-)
-
-
-

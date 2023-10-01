@@ -174,6 +174,61 @@
   return result;
  }
 
+ double compute_logrank(arma::mat& y,
+                        arma::vec& w,
+                        arma::uvec& g){
+
+  double n_risk=0, g_risk=0, observed=0, expected=0, V=0,
+   temp1, temp2, n_events;
+
+  vec y_time = y.unsafe_col(0);
+  vec y_status = y.unsafe_col(1);
+
+  bool break_loop = false;
+
+  uword i = y.n_rows-1;
+
+  // breaking condition of outer loop governed by inner loop
+  for (; ;){
+
+   temp1 = y_time(i);
+
+   n_events = 0;
+
+   for ( ; y_time[i] == temp1; i--) {
+
+    n_risk += w[i];
+    n_events += y_status[i] * w[i];
+    g_risk += g[i] * w[i];
+    observed += y_status[i] * g[i] * w[i];
+
+    if(i == 0){
+     break_loop = true;
+     break;
+    }
+
+   }
+
+   // should only do these calculations if n_events > 0,
+   // but multiplying by 0 is usually faster than checking
+   temp2 = g_risk / n_risk;
+   expected += n_events * temp2;
+
+   // update variance if n_risk > 1 (if n_risk == 1, variance is 0)
+   // definitely check if n_risk is > 1 b/c otherwise divide by 0
+   if (n_risk > 1){
+    temp1 = n_events * temp2 * (n_risk-n_events) / (n_risk-1);
+    V += temp1 * (1 - temp2);
+   }
+
+   if(break_loop) break;
+
+  }
+
+  return(pow(expected-observed, 2) / V);
+
+ }
+
  double compute_cstat(arma::mat& y,
                       arma::vec& w,
                       arma::vec& p,

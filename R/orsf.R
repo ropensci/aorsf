@@ -314,6 +314,8 @@ orsf <- function(data,
                  n_retry = 3,
                  n_thread = 1, # TODO: add docs+checks
                  mtry = NULL,
+                 sample_with_replacement = TRUE, # TODO: add docs+checks
+                 sample_fraction = 0.632, # TODO: add docs+checks
                  leaf_min_events = 1,
                  leaf_min_obs = 5,
                  split_rule = 'logrank', # TODO: add docs+checks
@@ -371,6 +373,14 @@ orsf <- function(data,
  }
 
  oobag_pred <- oobag_pred_type != 'none'
+
+ if(sample_fraction == 1 && oobag_pred){
+  stop(
+   "cannot compute out-of-bag predictions if no samples are out-of-bag.",
+   "To resolve this, set sample_fraction < 1 or oobag_pred_type = 'none'.",
+   call. = FALSE
+  )
+ }
 
  orsf_type <- attr(control, 'type')
 
@@ -710,6 +720,8 @@ orsf <- function(data,
                       loaded_forest = list(),
                       n_tree = n_tree,
                       mtry = mtry,
+                      sample_with_replacement = sample_with_replacement,
+                      sample_fraction = sample_fraction,
                       vi_type_R = switch(importance,
                                          "none" = 0,
                                          "negate" = 1,
@@ -863,8 +875,9 @@ orsf <- function(data,
  attr(orsf_out, 'split_rule')          <- split_rule
  attr(orsf_out, 'n_thread')            <- n_thread
  attr(orsf_out, 'tree_type')           <- tree_type_R
-
- attr(orsf_out, 'tree_seeds') <- tree_seeds
+ attr(orsf_out, 'tree_seeds')          <- tree_seeds
+ attr(orsf_out, 'sample_with_replacement') <- sample_with_replacement
+ attr(orsf_out, 'sample_fraction')         <- sample_fraction
 
  #' @srrstats {ML5.0a} *orsf output has its own class*
  class(orsf_out) <- "orsf_fit"
@@ -1084,6 +1097,8 @@ orsf_train_ <- function(object,
                       loaded_forest = list(),
                       n_tree = n_tree,
                       mtry = get_mtry(object),
+                      sample_with_replacement = get_sample_with_replacement(object),
+                      sample_fraction = get_sample_fraction(object),
                       vi_type_R = switch(get_importance(object),
                                          "none" = 0,
                                          "negate" = 1,

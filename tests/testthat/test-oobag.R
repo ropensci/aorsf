@@ -2,7 +2,7 @@
 
 fit_custom_oobag <- orsf(pbc_orsf,
                          formula = Surv(time, status) ~ . - id,
-                         oobag_fun = oobag_c_harrell,
+                         oobag_fun = oobag_c_survival,
                          n_tree = 10,
                          tree_seeds = 1:10)
 

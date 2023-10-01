@@ -5,7 +5,9 @@ library(survival)
 tictoc::tic()
 fit <- orsf(pbc_orsf,
             formula = time+status ~ . - id,
-            oobag_pred_type = 'risk')
+            oobag_pred_type = 'none',
+            sample_with_replacement = FALSE,
+            sample_fraction = 2/3)
 tictoc::toc()
 
 all(fit$data == pbc_orsf)

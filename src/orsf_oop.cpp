@@ -69,6 +69,52 @@
    bool pred_is_risklike
  ){ return compute_cstat(y, w, g, pred_is_risklike); }
 
+ // [[Rcpp::export]]
+ double compute_logrank_exported(
+   arma::mat& y,
+   arma::vec& w,
+   arma::uvec& g
+ ){ return compute_logrank(y, w, g); }
+
+ // [[Rcpp::export]]
+ List cph_scale(arma::mat& x, arma::vec& w){
+
+  // set aside memory for outputs
+  // first column holds the mean values
+  // second column holds the scale values
+
+  uword n_vars = x.n_cols;
+
+  mat x_transforms(n_vars, 2, fill::zeros);
+  vec means  = x_transforms.unsafe_col(0);   // Reference to column 1
+  vec scales = x_transforms.unsafe_col(1);   // Reference to column 2
+
+  double w_sum = sum(w);
+
+  for(uword i = 0; i < n_vars; i++) {
+
+   means.at(i) = sum( w % x.col(i) ) / w_sum;
+
+   x.col(i) -= means.at(i);
+
+   scales.at(i) = sum(w % abs(x.col(i)));
+
+   if(scales(i) > 0)
+    scales.at(i) = w_sum / scales.at(i);
+   else
+    scales.at(i) = 1.0; // rare case of constant covariate;
+
+   x.col(i) *= scales.at(i);
+
+  }
+
+  List result;
+  result.push_back(x, "x_scaled");
+  result.push_back(x_transforms, "x_transforms");
+  return result;
+
+ }
+
  // [[Rcpp::plugins("cpp17")]]
  // [[Rcpp::export]]
  List orsf_cpp(arma::mat&               x,
@@ -81,6 +127,8 @@
                Rcpp::RObject            oobag_R_function,
                arma::uword              n_tree,
                arma::uword              mtry,
+               bool                     sample_with_replacement,
+               double                   sample_fraction,
                arma::uword              vi_type_R,
                double                   vi_max_pvalue,
                double                   leaf_min_events,
@@ -165,6 +213,8 @@
                tree_seeds,
                n_tree,
                mtry,
+               sample_with_replacement,
+               sample_fraction,
                grow_mode,
                vi_type,
                vi_max_pvalue,
