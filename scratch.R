@@ -7,9 +7,10 @@ fit <- orsf(pbc_orsf, formula = time+status ~ . - id)
 tictoc::toc()
 
 sink("orsf-output.txt")
-orsf_pd_oob(fit,
-            pred_spec = list(bili = 1:5, trt = 'placebo'),
-            pred_horizon = seq(100, 1000, by=100))
+pd_vals <- orsf_pd_oob(fit,
+                       expand_grid = FALSE,
+                       pred_spec = list(bili = 1:5, trt = 'placebo'),
+                       pred_horizon = seq(100, 1000, by=100))
 sink()
 
 fit$importance->tmp

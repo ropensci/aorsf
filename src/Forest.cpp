@@ -132,7 +132,6 @@ void Forest::run(bool oobag){
 
  // if using a grown forest for partial dependence
  if(pd_type == PD_SUMMARY || pd_type == PD_ICE){
-  Rcout << pd_type << std::endl;
   this->pd_values = compute_dependence(oobag);
  }
 
@@ -578,7 +577,6 @@ std::vector<std::vector<arma::mat>> Forest::compute_dependence(bool oobag){
   result_k.reserve(n);
 
   for(const auto& x_col : pd_x_cols[k]){
-   Rcout << x_col << std::endl;
    data->save_col(x_col);
   }
 
