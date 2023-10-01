@@ -18,8 +18,9 @@ sink("orsf-output.txt")
 pd_vals <- orsf_pd_oob(fit,
                        expand_grid = FALSE,
                        pred_type = 'risk',
-                       pred_spec = list(bili = 1:5),
-                       pred_horizon = c(1000))
+                       pred_spec = list(bili = 1:5,
+                                        sex = c("m", "f")),
+                       pred_horizon = c(1000, 2000, 4000))
 sink()
 
 fit$importance->tmp
@@ -28,19 +29,20 @@ tictoc::tic()
 orsf_pd_oob(fit, pred_spec = list(bili = c(1:5)))
 tictoc::toc()
 
-prd_5 = predict(fit, new_data = pbc_orsf, n_thread = 5, pred_type = 'mort',
-                pred_aggregate = F, pred_horizon = c(500, 1000))
+rfsrc_fit = randomForestSRC::rfsrc(Surv(time, status) ~ . -id,
+                               ntree = 500,
+                               mtry = 3,
+                               nthread = 5,
+                               samptype = 'swr',
+                               importance = 'none',
+                               nodesize = 10,
+                               nsplit = 5,
+                               data = as.data.frame(pbc_orsf))
 
 microbenchmark::microbenchmark(
- prd_1 = predict(fit, new_data = pbc_orsf, n_thread = 1, pred_type = 'leaf',
-                  pred_aggregate = F),
-
- prd_5 = predict(fit, new_data = pbc_orsf, n_thread = 5, pred_type = 'leaf',
-                  pred_aggregate = F)
+ prd_aorsf = predict(fit, new_data = pbc_orsf, n_thread = 10),
+ prd_rfsrc = predict(rfsrc_fit, newdata = pbc_orsf)
 )
-
-max(prd_1 - prd_5)
-
 
 res <- oob <- vector(mode = 'numeric', length = 100)
 

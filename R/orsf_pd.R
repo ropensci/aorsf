@@ -516,7 +516,7 @@ orsf_pred_dependence <- function(object,
     pd_vals[[i]][[j]] <- melt(data = pd_vals[[i]][[j]],
                               id.vars = 'pred_horizon',
                               variable.name = 'id_row',
-                              value.name = 'pred_value')
+                              value.name = 'pred')
 
   }
 
@@ -533,13 +533,17 @@ orsf_pred_dependence <- function(object,
 
  ids <- c('id_variable', if(type_output == 'ice') 'id_row')
 
- mid <- setdiff(names(out), c(ids, 'mean', prob_labels, 'pred_value'))
+ mid <- setdiff(names(out), c(ids, 'mean', prob_labels, 'pred'))
 
  end <- setdiff(names(out), c(ids, mid))
 
  setcolorder(out, neworder = c(ids, mid, end))
 
  out[, pred_horizon := as.numeric(pred_horizon)]
+
+ # not needed for summary
+ if(type_output == 'smry')
+  out[, id_variable := NULL]
 
  # put data back into original scale
  for(j in intersect(names(means), names(pred_spec))){

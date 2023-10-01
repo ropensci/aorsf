@@ -502,7 +502,7 @@
 
   uvec::iterator it;
 
-  uword it_start = 0, it_best;
+  uword it_start = 0, it_best = 0;
 
   double stat, stat_best = 0;
 

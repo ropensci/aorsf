@@ -541,13 +541,12 @@
 
   uword leaf_id = pred_leaf[*it];
 
-  double pred_t0;
+  // default for risk or survival at time 0
+  double pred_t0 = 1;
 
-  if(pred_type == PRED_SURVIVAL ||
-     pred_type == PRED_RISK){
-   pred_t0 = 1;
-  } else if (pred_type == PRED_CHAZ ||
-             pred_type == PRED_MORTALITY) {
+  // default otherwise
+  if (pred_type == PRED_CHAZ ||
+      pred_type == PRED_MORTALITY) {
    pred_t0 = 0;
   }
 
@@ -559,7 +558,7 @@
 
   vec temp_vec((*pred_horizon).size());
 
-  double temp_dbl;
+  double temp_dbl = pred_t0;
   bool break_loop = false;
 
   for(; ;) {

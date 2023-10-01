@@ -582,8 +582,6 @@ std::vector<std::vector<arma::mat>> Forest::compute_dependence(bool oobag){
    data->save_col(x_col);
   }
 
-  print_mat(data->get_x(), "X", 100, 5);
-
   // loop through each row in the current pd matrix
   for(uword i = 0; i < n; ++i){
 
@@ -600,11 +598,7 @@ std::vector<std::vector<arma::mat>> Forest::compute_dependence(bool oobag){
 
    if(pd_type == PD_SUMMARY){
 
-    print_mat(preds, "predictions", 10, 10);
-
     mat preds_summary = mean(preds, 0);
-
-    print_mat(preds_summary, "means", 10, 10);
 
     mat preds_quant = quantile(preds, pd_probs, 0);
     result_k.push_back(join_vert(preds_summary, preds_quant));
