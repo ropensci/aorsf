@@ -13,12 +13,16 @@ orsf(
   n_tree = 500,
   n_split = 5,
   n_retry = 3,
+  n_thread = 1,
   mtry = NULL,
+  sample_with_replacement = TRUE,
+  sample_fraction = 0.632,
   leaf_min_events = 1,
   leaf_min_obs = 5,
+  split_rule = "logrank",
   split_min_events = 5,
   split_min_obs = 10,
-  split_min_stat = 3.841459,
+  split_min_stat = switch(split_rule, logrank = 3.841459, cstat = 0.5),
   oobag_pred_type = "surv",
   oobag_pred_horizon = NULL,
   oobag_eval_every = n_tree,
@@ -79,16 +83,29 @@ will try again with a new linear combination based on a different set
 of randomly selected predictors, up to \code{n_retry} times. Default is
 \code{n_retry = 3}. Set \code{n_retry = 0} to prevent any retries.}
 
+\item{n_thread}{(\emph{integer}) number of threads to use. Default is one thread.}
+
 \item{mtry}{(\emph{integer}) Number of predictors randomly included as candidates
 for splitting a node. The default is the smallest integer greater than
 the square root of the number of total predictors, i.e.,
 \verb{mtry = ceiling(sqrt(number of predictors))}}
 
+\item{sample_with_replacement}{}
+
+\item{sample_fraction}{}
+
 \item{leaf_min_events}{(\emph{integer}) minimum number of events in a
 leaf node. Default is \code{leaf_min_events = 1}}
 
 \item{leaf_min_obs}{(\emph{integer}) minimum number of observations in a
-leaf node. Default is \code{leaf_min_obs = 5}}
+leaf node. Default is \code{leaf_min_obs = 5}.}
+
+\item{split_rule}{(\emph{character}) how to assess the quality of a potential
+splitting rule for a node. Valid options are
+\itemize{
+\item 'logrank' : a log-rank test statistic.
+\item 'cstat'   : Harrell's concordance statistic.
+}}
 
 \item{split_min_events}{(\emph{integer}) minimum number of events required
 in a node to consider splitting it. Default is \code{split_min_events = 5}}
@@ -97,20 +114,22 @@ in a node to consider splitting it. Default is \code{split_min_events = 5}}
 in a node to consider splitting it. Default is \code{split_min_obs = 10}.}
 
 \item{split_min_stat}{(double) minimum test statistic required to split
-a node. Default is 3.841459 for the log-rank test, which is roughly
-a p-value of 0.05}
+a node. Default is 3.841459 if \code{split_rule = 'logrank'} and 0.50 if
+\code{split_rule = 'cstat'}. If no splits are found with a statistic
+exceeding \code{split_min_stat}, the given node either becomes a leaf or
+a retry occurs (up to \code{n_retry} retries).}
 
 \item{oobag_pred_type}{(\emph{character}) The type of out-of-bag predictions
 to compute while fitting the ensemble. Valid options are
 \itemize{
 \item 'none' : don't compute out-of-bag predictions
-\item 'risk' : predict the probability of having an event at or before \code{oobag_pred_horizon}.
+\item 'risk' : probability of event occurring at or before \code{oobag_pred_horizon}.
 \item 'surv' : 1 - risk.
-\item 'chf'  : predict cumulative hazard function
-}
-
-Mortality ('mort')is not implemented for out of bag predictions yet, but it
-will be in a future update.}
+\item 'chf'  : cumulative hazard function at \code{oobag_pred_horizon}.
+\item 'mort' : mortality, i.e., the number of events expected if all
+observations in the training data were identical to a
+given observation.
+}}
 
 \item{oobag_pred_horizon}{(\emph{numeric}) A numeric value indicating what time
 should be used for out-of-bag predictions. Default is the median
@@ -235,6 +254,13 @@ occur when using \link{orsf_control_net}.
 If \code{oobag_fun} is specified, it will be used in to compute negation
 importance or permutation importance, but it will not have any role
 for ANOVA importance.
+
+\strong{n_thread}:
+
+If an R function must be called from C++ (i.e., user-supplied function to
+compute out-of-bag error or identify linear combinations of variables),
+\code{n_thread} will automatically be set to 1 because attempting to run R
+functions in multiple threads will cause the R session to crash.
 }
 
 \section{What is an oblique decision tree?}{
@@ -326,7 +352,7 @@ printing \code{fit} provides quick descriptive summaries:
 ##                  N trees: 500
 ##       N predictors total: 17
 ##    N predictors per node: 5
-##  Average leaves per tree: 24
+##  Average leaves per tree: 25
 ## Min observations in leaf: 5
 ##       Min events in leaf: 1
 ##           OOB stat value: 0.84
@@ -403,7 +429,7 @@ predictors.
  # estimate two principal components.
  pca <- stats::prcomp(x_node, rank. = 2)
  # use the second principal component to split the node
- pca$rotation[, 2L, drop = FALSE]
+ pca$rotation[, 1L, drop = FALSE]
 
 \}
 }\if{html}{\out{</div>}}
@@ -447,11 +473,11 @@ The AUC values, from highest to lowest:
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##    model times       AUC         se     lower     upper
-## 1:   net  1788 0.9107925 0.02116880 0.8693024 0.9522826
-## 2: accel  1788 0.9106308 0.02178112 0.8679406 0.9533210
-## 3:   cph  1788 0.9072690 0.02120139 0.8657150 0.9488229
-## 4:   pca  1788 0.8915619 0.02335399 0.8457889 0.9373349
-## 5: rando  1788 0.8900944 0.02228487 0.8464168 0.9337719
+## 1: accel  1788 0.9095660 0.02113628 0.8681397 0.9509924
+## 2:   net  1788 0.9093490 0.02158187 0.8670493 0.9516487
+## 3:   cph  1788 0.9066412 0.02196233 0.8635958 0.9496866
+## 4: rando  1788 0.9013929 0.02194349 0.8583845 0.9444014
+## 5:   pca  1788 0.9001017 0.02233370 0.8563284 0.9438749
 }\if{html}{\out{</div>}}
 
 And the indices of prediction accuracy:
@@ -460,20 +486,20 @@ And the indices of prediction accuracy:
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##         model times       IPA
-## 1:      accel  1788 0.4891448
-## 2:        cph  1788 0.4687734
-## 3:        net  1788 0.4652211
-## 4:      rando  1788 0.4011573
-## 5:        pca  1788 0.3845911
+## 1:      accel  1788 0.4812191
+## 2:        net  1788 0.4810210
+## 3:        cph  1788 0.4735707
+## 4:        pca  1788 0.4408537
+## 5:      rando  1788 0.4240110
 ## 6: Null model  1788 0.0000000
 }\if{html}{\out{</div>}}
 
 From inspection,
 \itemize{
-\item the PCA approach has the highest discrimination, showing that you can
-do very well with just a two line custom function.
-\item the accelerated ORSF has the highest index of prediction accuracy
-\item the random coefficients generally don’t do that well.
+\item the \code{glmnet} approach has the highest discrimination and index of
+prediction accuracy.
+\item the accelerated ORSF is a close second.
+\item the random coefficients don’t do that well, but they aren’t bad.
 }
 }
 
@@ -577,29 +603,29 @@ glimpse(results)
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## Rows: 276
 ## Columns: 23
-## $ id          <int> 2, 16, 27, 66, 79, 97, 107, 116, 136, 137, 158, 189, 193, ~
-## $ trt         <fct> d_penicill_main, placebo, placebo, d_penicill_main, d_peni~
-## $ age         <dbl> 56.44627, 40.44353, 54.43943, 46.45311, 46.51608, 71.89322~
-## $ sex         <fct> f, f, f, m, f, m, f, f, f, f, f, f, f, f, f, f, f, f, f, f~
-## $ ascites     <fct> 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~
-## $ hepato      <fct> 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1~
-## $ spiders     <fct> 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1~
-## $ edema       <fct> 0, 0, 0.5, 0, 0, 0.5, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~
-## $ bili        <dbl> 1.1, 0.7, 21.6, 1.4, 0.8, 2.0, 0.6, 3.0, 0.8, 1.1, 3.4, 1.~
-## $ chol        <int> 302, 204, 175, 427, 315, 420, 212, 458, 263, 399, 450, 360~
-## $ albumin     <dbl> 4.14, 3.66, 3.31, 3.70, 4.24, 3.26, 4.03, 3.63, 3.35, 3.60~
-## $ copper      <int> 54, 28, 221, 105, 13, 62, 10, 74, 27, 79, 32, 52, 267, 76,~
-## $ alk.phos    <dbl> 7394.8, 685.0, 3697.4, 1909.0, 1637.0, 3196.0, 648.0, 1588~
-## $ ast         <dbl> 113.52, 72.85, 101.91, 182.90, 170.50, 77.50, 71.30, 106.9~
-## $ trig        <int> 88, 58, 168, 171, 70, 91, 77, 382, 69, 152, 118, 164, 157,~
-## $ platelet    <int> 221, 198, 80, 123, 426, 344, 316, 438, 206, 344, 313, 256,~
-## $ protime     <dbl> 10.6, 10.8, 12.0, 11.0, 10.9, 11.4, 17.1, 9.9, 9.8, 10.1, ~
-## $ stage       <ord> 3, 3, 4, 3, 3, 3, 1, 3, 2, 2, 2, 3, 4, 4, 2, 2, 3, 3, 4, 4~
-## $ time        <int> 4500, 3672, 77, 4191, 3707, 611, 3388, 3336, 3098, 2990, 2~
-## $ status      <dbl> 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0~
-## $ pred_aorsf  <dbl> 0.21650571, 0.01569191, 0.93095617, 0.36737089, 0.12868206~
-## $ pred_rfsrc  <dbl> 0.15202784, 0.01104486, 0.81913559, 0.20173550, 0.13806608~
-## $ pred_ranger <dbl> 0.11418963, 0.02130315, 0.77073269, 0.22130305, 0.18419972~
+## $ id          <int> 17, 23, 34, 43, 50, 51, 61, 71, 78, 80, 92, 97, 100, 121, ~
+## $ trt         <fct> placebo, placebo, d_penicill_main, d_penicill_main, d_peni~
+## $ age         <dbl> 52.18344, 55.96715, 52.06023, 48.87064, 53.50856, 52.08761~
+## $ sex         <fct> f, f, f, f, f, f, m, f, f, m, f, m, m, m, f, m, f, f, f, f~
+## $ ascites     <fct> 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0~
+## $ hepato      <fct> 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0~
+## $ spiders     <fct> 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0~
+## $ edema       <fct> 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0.5, 0, 1, 0, 0, 0, 0, 0,~
+## $ bili        <dbl> 2.7, 17.4, 0.8, 1.1, 1.1, 0.8, 0.6, 1.2, 6.3, 7.2, 1.4, 2.~
+## $ chol        <int> 274, 395, 364, 361, 257, 276, 216, 258, 436, 247, 206, 420~
+## $ albumin     <dbl> 3.15, 2.94, 3.70, 3.64, 3.36, 3.60, 3.94, 3.57, 3.02, 3.72~
+## $ copper      <int> 159, 558, 37, 36, 43, 54, 28, 79, 75, 269, 36, 62, 145, 73~
+## $ alk.phos    <dbl> 1533.0, 6064.8, 1840.0, 5430.2, 1080.0, 4332.0, 601.0, 220~
+## $ ast         <dbl> 117.80, 227.04, 170.50, 67.08, 106.95, 99.33, 60.45, 120.9~
+## $ trig        <int> 128, 191, 64, 89, 73, 143, 188, 76, 104, 91, 70, 91, 122, ~
+## $ platelet    <int> 224, 214, 273, 203, 128, 273, 211, 410, 236, 360, 145, 344~
+## $ protime     <dbl> 10.5, 11.7, 10.5, 10.6, 10.6, 10.6, 13.0, 11.5, 10.6, 11.2~
+## $ stage       <ord> 4, 4, 2, 2, 4, 2, 1, 4, 4, 4, 4, 3, 4, 4, 4, 4, 2, 2, 2, 3~
+## $ time        <int> 769, 264, 3933, 4556, 2598, 3853, 4256, 4196, 1690, 890, 3~
+## $ status      <dbl> 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0~
+## $ pred_aorsf  <dbl> 0.45334129, 0.95144543, 0.05125555, 0.04889358, 0.10217167~
+## $ pred_rfsrc  <dbl> 0.399822742, 0.849260628, 0.078051369, 0.062322537, 0.0593~
+## $ pred_ranger <dbl> 0.37288105, 0.78251828, 0.04888381, 0.03342850, 0.05038629~
 }\if{html}{\out{</div>}}
 
 And finish by aggregating the predictions and computing performance in
@@ -625,16 +651,16 @@ counts.
 ## Results by model:
 ## 
 ##     model times  AUC lower upper
-## 1:  aorsf  1826 90.1  85.7  94.6
-## 2:  rfsrc  1826 89.4  85.0  93.7
-## 3: ranger  1826 90.1  85.9  94.3
+## 1:  aorsf  1826 90.0  85.4  94.7
+## 2:  rfsrc  1826 89.9  85.4  94.4
+## 3: ranger  1826 89.5  85.0  94.1
 ## 
 ## Results of model comparisons:
 ## 
 ##    times  model reference delta.AUC lower upper   p
-## 1:  1826  rfsrc     aorsf      -0.7  -2.3   0.8 0.4
-## 2:  1826 ranger     aorsf      -0.0  -1.7   1.6 1.0
-## 3:  1826 ranger     rfsrc       0.7  -0.4   1.8 0.2
+## 1:  1826  rfsrc     aorsf      -0.1  -1.5   1.2 0.8
+## 2:  1826 ranger     aorsf      -0.5  -2.0   1.0 0.5
+## 3:  1826 ranger     rfsrc      -0.4  -1.5   0.8 0.5
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.
@@ -648,19 +674,19 @@ counts.
 ## 
 ##         model   times Brier lower upper  IPA
 ## 1: Null model 1826.25  20.5  18.1  22.9  0.0
-## 2:      aorsf 1826.25  11.1   8.8  13.4 45.8
-## 3:      rfsrc 1826.25  12.0   9.8  14.1 41.6
-## 4:     ranger 1826.25  11.8   9.7  13.9 42.5
+## 2:      aorsf 1826.25  11.1   8.9  13.3 45.8
+## 3:      rfsrc 1826.25  11.8   9.6  13.9 42.5
+## 4:     ranger 1826.25  11.8   9.7  13.9 42.2
 ## 
 ## Results of model comparisons:
 ## 
 ##      times  model  reference delta.Brier lower upper            p
-## 1: 1826.25  aorsf Null model        -9.4 -12.1  -6.6 2.423961e-11
-## 2: 1826.25  rfsrc Null model        -8.5 -10.8  -6.2 2.104905e-13
-## 3: 1826.25 ranger Null model        -8.7 -11.0  -6.4 1.802417e-13
-## 4: 1826.25  rfsrc      aorsf         0.9  -0.0   1.7 5.277607e-02
-## 5: 1826.25 ranger      aorsf         0.7  -0.1   1.5 1.008730e-01
-## 6: 1826.25 ranger      rfsrc        -0.2  -0.7   0.3 4.550782e-01
+## 1: 1826.25  aorsf Null model        -9.4 -12.1  -6.6 1.836147e-11
+## 2: 1826.25  rfsrc Null model        -8.7 -10.9  -6.5 2.460068e-14
+## 3: 1826.25 ranger Null model        -8.6 -11.0  -6.3 3.215459e-13
+## 4: 1826.25  rfsrc      aorsf         0.7  -0.2   1.5 1.176276e-01
+## 5: 1826.25 ranger      aorsf         0.7  -0.0   1.5 5.782500e-02
+## 6: 1826.25 ranger      rfsrc         0.1  -0.5   0.6 8.143879e-01
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.
@@ -672,7 +698,6 @@ From inspection,
 \itemize{
 \item \code{aorsf} obtained slightly higher discrimination (AUC)
 \item \code{aorsf} obtained higher index of prediction accuracy (IPA)
-\item Way to go, \code{aorsf}
 }
 }
 
@@ -823,25 +848,17 @@ Let’s look at the overall results:
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 3 x 4
 ##   learner_id  surv.graf surv.cindex time_train
 ##   <chr>           <dbl>       <dbl>      <dbl>
-## 1 surv.aorsf      0.151       0.729      0.345
-## 2 surv.ranger     0.167       0.706      2.54 
-## 3 surv.rfsrc      0.156       0.715      0.783
+## 1 surv.aorsf      0.152       0.733      1.41 
+## 2 surv.ranger     0.166       0.712      1.95 
+## 3 surv.rfsrc      0.155       0.723      0.745
 }\if{html}{\out{</div>}}
 
 From inspection,
 \itemize{
-\item \code{aorsf} appears to have a higher expected value for ‘surv.cindex’
-(higher is better)
-\item \code{aorsf} appears to have a lower expected value for ‘surv.graf’ (lower
-is better)
-\item \code{aorsf} has the lowest training time.
+\item \code{aorsf} has a higher expected value for ‘surv.cindex’ (higher is
+better)
+\item \code{aorsf} has a lower expected value for ‘surv.graf’ (lower is better)
 }
-
-the lower training time for \code{aorsf} is likely due to the fact that there
-are many unique event times in the benchmark tasks. \code{ranger} and \code{rfsrc}
-create grids of time points based on each unique event time in each leaf
-of each decision tree, whereas \code{aorsf} also uses a grid but restricts it
-to the unique event times among observations in the current leaf.
 }
 }
 

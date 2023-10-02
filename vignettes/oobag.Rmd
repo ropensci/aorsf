@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 
-# library(aorsf)
+library(aorsf)
 library(survival)
 library(SurvMetrics)
 
@@ -174,7 +174,7 @@ plot(
 
 User-supplied functions must:
 
-1. have exactly two arguments named `y_mat` and `s_vec`.
+1. have exactly three arguments named `y_mat`, `w_vec`, and `s_vec`.
 1. return a numeric output of length 1
 
 If either of these conditions is not true, an error will occur. A simple test to make sure your user-supplied function will work with the aorsf package is below:
@@ -193,9 +193,11 @@ y_mat <- cbind(time = test_time, status = test_status)
 s_vec <- seq(0.9, 0.1, length.out = 100)
 
 # see 1 in the checklist above
-names(formals(oobag_fun_tdep_cstat)) == c("y_mat", "s_vec")
+names(formals(oobag_fun_tdep_cstat)) == c("y_mat", "w_vec", "s_vec")
 
-test_output <- oobag_fun_tdep_cstat(y_mat = y_mat, s_vec = s_vec)
+test_output <- oobag_fun_tdep_cstat(y_mat = y_mat, 
+                                    w_vec = w_vec,
+                                    s_vec = s_vec)
 
 # test output should be numeric
 is.numeric(test_output)
@@ -206,15 +208,27 @@ length(test_output) == 1
 
 ## User-supplied functions for negation importance.
 
-Negation importance is based on the out-of-bag error, so of course you may be curious about what negation importance would be if it were computed using different statistics. The workflow for doing this is exactly the same as the example above, except we have to specify `importance = 'negate'` when we fit our model. Also, to speed up computations, I am not going to monitor out-of-bag error here.
+Negation importance is based on the out-of-bag error, so of course you may be curious about what negation importance would be if it were computed using different statistics. The workflow for doing this is exactly the same as the example above, except for two things:
+
+1. We have to specify `importance = 'negate'` when we fit our model. 
+
+2. We want to use a modified version of the C-stat, specifically 1 - the C-stat, because of how `aorsf` computes variable importance.
+
+```{r}
+oobag_fun_tdep_cstat_inverse <- function(y_mat, w_vec, s_vec){
+ 1 - oobag_fun_tdep_cstat(y_mat, w_vec, s_vec)
+}
+```
+
+Also, to speed up computations, I am not going to monitor out-of-bag error here.
 
 ```{r}
 
 fit_tdep_cstat <- orsf(data = pbc_orsf,
                        formula = Surv(time, status) ~ . - id,
-                       n_tree = 50,
+                       n_tree = 100,
                        oobag_pred_horizon = 2000,
-                       oobag_fun = oobag_fun_tdep_cstat,
+                       oobag_fun = oobag_fun_tdep_cstat_inverse,
                        importance = 'negate')
 
 fit_tdep_cstat$importance

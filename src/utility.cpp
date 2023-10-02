@@ -5,7 +5,7 @@
 #----------------------------------------------------------------------------*/
 
 #include <RcppArmadillo.h>
-#include "Utility.h"
+#include "utility.h"
 #include "globals.h"
 
  using namespace arma;

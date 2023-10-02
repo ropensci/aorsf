@@ -710,185 +710,188 @@
      Rcout << std::endl;
     }
 
-
     sample_cols();
 
-    x_node = x_inbag(rows_node, cols_node);
+    if(!cols_node.is_empty()){
 
-    if(verbosity > 3) {
-     print_uvec(cols_node, "columns sampled (showing up to 5)", 5);
-    }
+     x_node = x_inbag(rows_node, cols_node);
 
-    // beta holds estimates (first item) and variance (second)
-    // for the regression coefficients that created lincomb.
-    // the variances are optional (only used for VI_ANOVA)
-    mat beta;
-
-    lincomb.zeros(x_node.n_rows);
-
-    switch (lincomb_type) {
-
-    case LC_NEWTON_RAPHSON: {
-
-     beta = coxph_fit(x_node, y_node, w_node,
-                      lincomb_scale, lincomb_ties_method,
-                      lincomb_eps, lincomb_iter_max);
-
-     break;
-
-    }
-
-    case LC_RANDOM_COEFS: {
-
-     beta.set_size(x_node.n_cols, 1);
-
-     std::uniform_real_distribution<double> unif_coef(0.0, 1.0);
-
-     for(uword i = 0; i < x_node.n_cols; ++i){
-      beta.at(i, 0) = unif_coef(random_number_generator);
+     if(verbosity > 3) {
+      print_uvec(cols_node, "columns sampled (showing up to 5)", 5);
      }
 
-     break;
+     // beta holds estimates (first item) and variance (second)
+     // for the regression coefficients that created lincomb.
+     // the variances are optional (only used for VI_ANOVA)
+     mat beta;
 
-    }
+     lincomb.zeros(x_node.n_rows);
 
-    case LC_GLMNET: {
+     switch (lincomb_type) {
 
-     NumericMatrix xx = wrap(x_node);
-     NumericMatrix yy = wrap(y_node);
-     NumericVector ww = wrap(w_node);
+     case LC_NEWTON_RAPHSON: {
 
-     // initialize function from tree object
-     // (Functions can't be stored in C++ classes, but RObjects can)
-     Function f_beta = as<Function>(lincomb_R_function);
+      beta = coxph_fit(x_node, y_node, w_node,
+                       lincomb_scale, lincomb_ties_method,
+                       lincomb_eps, lincomb_iter_max);
 
-     NumericMatrix beta_R = f_beta(xx, yy, ww,
-                                   lincomb_alpha,
-                                   lincomb_df_target);
+      break;
 
-     beta = mat(beta_R.begin(), beta_R.nrow(), beta_R.ncol(), false);
+     }
 
-     break;
+     case LC_RANDOM_COEFS: {
 
-    }
+      beta.set_size(x_node.n_cols, 1);
 
-    case LC_R_FUNCTION: {
+      std::uniform_real_distribution<double> unif_coef(0.0, 1.0);
 
-     NumericMatrix xx = wrap(x_node);
-     NumericMatrix yy = wrap(y_node);
-     NumericVector ww = wrap(w_node);
+      for(uword i = 0; i < x_node.n_cols; ++i){
+       beta.at(i, 0) = unif_coef(random_number_generator);
+      }
 
-     // initialize function from tree object
-     // (Functions can't be stored in C++ classes, but RObjects can)
-     Function f_beta = as<Function>(lincomb_R_function);
+      break;
 
-     NumericMatrix beta_R = f_beta(xx, yy, ww);
+     }
 
-     beta = mat(beta_R.begin(), beta_R.nrow(), beta_R.ncol(), false);
+     case LC_GLMNET: {
 
-     break;
+      NumericMatrix xx = wrap(x_node);
+      NumericMatrix yy = wrap(y_node);
+      NumericVector ww = wrap(w_node);
 
-    }
+      // initialize function from tree object
+      // (Functions can't be stored in C++ classes, but RObjects can)
+      Function f_beta = as<Function>(lincomb_R_function);
 
-    } // end switch lincomb_type
+      NumericMatrix beta_R = f_beta(xx, yy, ww,
+                                    lincomb_alpha,
+                                    lincomb_df_target);
 
-    vec beta_est = beta.unsafe_col(0);
+      beta = mat(beta_R.begin(), beta_R.nrow(), beta_R.ncol(), false);
 
-    if(verbosity > 3) {
-     print_vec(beta_est, "linear combo weights (showing up to 5)", 5);
-    }
+      break;
+
+     }
+
+     case LC_R_FUNCTION: {
+
+      NumericMatrix xx = wrap(x_node);
+      NumericMatrix yy = wrap(y_node);
+      NumericVector ww = wrap(w_node);
+
+      // initialize function from tree object
+      // (Functions can't be stored in C++ classes, but RObjects can)
+      Function f_beta = as<Function>(lincomb_R_function);
+
+      NumericMatrix beta_R = f_beta(xx, yy, ww);
+
+      beta = mat(beta_R.begin(), beta_R.nrow(), beta_R.ncol(), false);
+
+      break;
+
+     }
+
+     } // end switch lincomb_type
+
+     vec beta_est = beta.unsafe_col(0);
+
+     if(verbosity > 3) {
+      print_vec(beta_est, "linear combo weights (showing up to 5)", 5);
+     }
 
 
-    lincomb = x_node * beta_est;
+     lincomb = x_node * beta_est;
 
-    // sorted in ascending order
-    lincomb_sort = sort_index(lincomb);
+     // sorted in ascending order
+     lincomb_sort = sort_index(lincomb);
 
-    // find all valid cutpoints for lincomb
-    cuts_all = find_cutpoints();
+     // find all valid cutpoints for lincomb
+     cuts_all = find_cutpoints();
 
-    if(verbosity > 3 && cuts_all.is_empty()){
+     if(verbosity > 3 && cuts_all.is_empty()){
 
-     Rcout << "   -- no cutpoints identified";
-     Rcout << std::endl;
+      Rcout << "   -- no cutpoints identified";
+      Rcout << std::endl;
 
-    }
+     }
 
-    // empty cuts_all => no valid cutpoints => make leaf or retry
-    if(!cuts_all.is_empty()){
+     // empty cuts_all => no valid cutpoints => make leaf or retry
+     if(!cuts_all.is_empty()){
 
-     double cut_point = split_node(cuts_all);
+      double cut_point = split_node(cuts_all);
 
-     if(cut_point < R_PosInf){
+      if(cut_point < R_PosInf){
 
-      if(vi_type == VI_ANOVA && lincomb_type == LC_NEWTON_RAPHSON){
+       if(vi_type == VI_ANOVA && lincomb_type == LC_NEWTON_RAPHSON){
 
-       // only do ANOVA variable importance when
-       //  1. a split of the node is guaranteed
-       //  2. the method used for lincombs allows it
+        // only do ANOVA variable importance when
+        //  1. a split of the node is guaranteed
+        //  2. the method used for lincombs allows it
 
-       if(verbosity > 3){
-        Rcout << "   -- p-values:" << std::endl;
-       }
+        if(verbosity > 3){
+         Rcout << "   -- p-values:" << std::endl;
+        }
 
-       vec beta_var = beta.unsafe_col(1);
+        vec beta_var = beta.unsafe_col(1);
 
-       double pvalue;
+        double pvalue;
 
-       for(uword i = 0; i < beta_est.size(); ++i){
+        for(uword i = 0; i < beta_est.size(); ++i){
 
-        (*vi_denom)[cols_node[i]]++;
+         (*vi_denom)[cols_node[i]]++;
 
-        if(beta_est[i] != 0){
+         if(beta_est[i] != 0){
 
-         pvalue = R::pchisq(pow(beta_est[i],2)/beta_var[i], 1, false, false);
+          pvalue = R::pchisq(pow(beta_est[i],2)/beta_var[i], 1, false, false);
 
-         if(verbosity > 3){
+          if(verbosity > 3){
 
-          Rcout << "   --- column " << cols_node[i] << ": ";
-          Rcout << pvalue;
-          if(pvalue < 0.05) Rcout << "*";
-          if(pvalue < 0.01) Rcout << "*";
-          if(pvalue < 0.001) Rcout << "*";
-          if(pvalue < vi_max_pvalue) Rcout << " [+1 to VI numerator]";
-          Rcout << std::endl;
+           Rcout << "   --- column " << cols_node[i] << ": ";
+           Rcout << pvalue;
+           if(pvalue < 0.05) Rcout << "*";
+           if(pvalue < 0.01) Rcout << "*";
+           if(pvalue < 0.001) Rcout << "*";
+           if(pvalue < vi_max_pvalue) Rcout << " [+1 to VI numerator]";
+           Rcout << std::endl;
+
+          }
+
+          if(pvalue < vi_max_pvalue){ (*vi_numer)[cols_node[i]]++; }
 
          }
 
-         if(pvalue < vi_max_pvalue){ (*vi_numer)[cols_node[i]]++; }
-
         }
+
+        if(verbosity > 3){ Rcout << std::endl; }
 
        }
 
-       if(verbosity > 3){ Rcout << std::endl; }
+       // make new nodes if a valid cutpoint was found
+       node_left = n_nodes + 1;
+       n_nodes += 2;
+       // update tree parameters
+       cutpoint[*node] = cut_point;
+       coef_values[*node] = beta_est;
+       coef_indices[*node] = cols_node;
+
+       child_left[*node] = node_left;
+       // re-assign observations in the current node
+       // (note that g_node is 0 if left, 1 if right)
+       node_assignments.elem(rows_node) = node_left + g_node;
+
+       if(verbosity > 2){
+        Rcout << "-- node " << *node << " was split into ";
+        Rcout << "node " << node_left << " (left) and ";
+        Rcout << node_left+1 << " (right)";
+        Rcout << std::endl;
+        Rcout << std::endl;
+       }
+
+       nodes_queued.push_back(node_left);
+       nodes_queued.push_back(node_left + 1);
+       break;
 
       }
-
-      // make new nodes if a valid cutpoint was found
-      node_left = n_nodes + 1;
-      n_nodes += 2;
-      // update tree parameters
-      cutpoint[*node] = cut_point;
-      coef_values[*node] = beta_est;
-      coef_indices[*node] = cols_node;
-
-      child_left[*node] = node_left;
-      // re-assign observations in the current node
-      // (note that g_node is 0 if left, 1 if right)
-      node_assignments.elem(rows_node) = node_left + g_node;
-
-      if(verbosity > 2){
-       Rcout << "-- node " << *node << " was split into ";
-       Rcout << "node " << node_left << " (left) and ";
-       Rcout << node_left+1 << " (right)";
-       Rcout << std::endl;
-       Rcout << std::endl;
-      }
-
-      nodes_queued.push_back(node_left);
-      nodes_queued.push_back(node_left + 1);
-      break;
 
      }
 

@@ -92,33 +92,35 @@ pbc_vi$junk_cat <- factor(
  sample(letters[1:5], size = nrow(pbc_orsf), replace = TRUE)
 )
 
-set.seed(32987)
+tree_seeds <- 1:500
+
 fit <- orsf(pbc_vi,
             formula = Surv(time, status) ~ age + sex + bili + junk + junk_cat,
             importance = "negate",
             group_factors = FALSE,
-            oobag_eval_every = 100)
+            oobag_eval_every = 100,
+            tree_seeds = tree_seeds)
 
-set.seed(32987)
 fit_anova <- orsf(pbc_vi,
                   formula = Surv(time, status) ~ age + sex + bili + junk + junk_cat,
                   importance = "anova",
                   group_factors = FALSE,
-                  oobag_eval_every = 100)
+                  oobag_eval_every = 100,
+                  tree_seeds = tree_seeds)
 
-set.seed(32987)
 fit_permute <- orsf(pbc_vi,
                     formula = Surv(time, status) ~ age + sex + bili + junk + junk_cat,
                     importance = "permute",
                     group_factors = FALSE,
-                    oobag_eval_every = 100)
+                    oobag_eval_every = 100,
+                    tree_seeds = tree_seeds)
 
-set.seed(32987)
 fit_no_vi <- orsf(pbc_vi,
                   formula = Surv(time, status) ~ age + sex + bili + junk + junk_cat,
                   importance = "none",
                   group_factors = FALSE,
-                  oobag_eval_every = 100)
+                  oobag_eval_every = 100,
+                  tree_seeds = tree_seeds)
 
 
 test_that(
@@ -150,9 +152,7 @@ test_that(
   )
 
   # permutation results identical across api funs using same seed
-  set.seed(329)
   vi_permute_1 <- orsf_vi_permute(fit_no_vi)
-  set.seed(329)
   vi_permute_2 <- orsf_vi(fit_no_vi, importance = 'permute')
 
   expect_equal(vi_permute_2, vi_permute_1)

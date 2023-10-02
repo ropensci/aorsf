@@ -67,10 +67,10 @@ fit_rando
 ##                  N trees: 500
 ##       N predictors total: 17
 ##    N predictors per node: 5
-##  Average leaves per tree: 23
+##  Average leaves per tree: 20
 ## Min observations in leaf: 5
 ##       Min events in leaf: 1
-##           OOB stat value: 0.82
+##           OOB stat value: 0.83
 ##            OOB stat type: Harrell's C-statistic
 ##      Variable importance: anova
 ## 
@@ -110,7 +110,7 @@ prediction accuracy based on out-of-bag predictions:
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(riskRegression)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## riskRegression version 2022.11.28
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## riskRegression version 2023.09.08
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(survival)
@@ -135,15 +135,15 @@ The PCA ORSF does quite well! (higher IPA is better)
 ## 
 ##         model times  Brier  lower  upper    IPA
 ## 1: Null model  1788 20.479 18.090 22.868  0.000
-## 2:      rando  1788 12.381 10.175 14.588 39.541
-## 3:        pca  1788 12.496 10.476 14.515 38.983
+## 2:      rando  1788 11.674  9.605 13.743 42.995
+## 3:        pca  1788 12.741 10.813 14.668 37.787
 ## 
 ## Results of model comparisons:
 ## 
 ##    times model  reference delta.Brier   lower  upper            p
-## 1:  1788 rando Null model      -8.098 -10.392 -5.804 4.558033e-12
-## 2:  1788   pca Null model      -7.983  -9.888 -6.078 2.142713e-16
-## 3:  1788   pca      rando       0.114  -0.703  0.932 7.838255e-01
+## 1:  1788 rando Null model      -8.805 -10.992 -6.618 2.971574e-15
+## 2:  1788   pca Null model      -7.738  -9.445 -6.032 6.124683e-19
+## 3:  1788   pca      rando       1.067   0.209  1.924 1.477749e-02
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.

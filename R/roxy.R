@@ -14,6 +14,16 @@ roxy_data_allowed <- function(){
  )
 }
 
+# multi-threading ---------------------------------------------------------
+
+roxy_n_thread_header <- function(){
+ "(_integer_) number of threads to use. Default is one thread."
+}
+
+roxy_n_thread_details <- function(){
+ "(_integer_) number of threads to use. Default is one thread."
+}
+
 # importance --------------------------------------------------------------
 
 roxy_importance_header <- function(){

@@ -85,16 +85,28 @@
 #'  of randomly selected predictors, up to `n_retry` times. Default is
 #'  `n_retry = 3`. Set `n_retry = 0` to prevent any retries.
 #'
+#' @param n_thread `r roxy_n_thread_header()`
+#'
 #' @param mtry (_integer_) Number of predictors randomly included as candidates
 #'   for splitting a node. The default is the smallest integer greater than
 #'   the square root of the number of total predictors, i.e.,
 #'   `mtry = ceiling(sqrt(number of predictors))`
 #'
+#' @param sample_with_replacement
+#'
+#' @param sample_fraction
+#'
 #' @param leaf_min_events (_integer_) minimum number of events in a
 #'   leaf node. Default is `leaf_min_events = 1`
 #'
 #' @param leaf_min_obs (_integer_) minimum number of observations in a
-#'   leaf node. Default is `leaf_min_obs = 5`
+#'   leaf node. Default is `leaf_min_obs = 5`.
+#'
+#' @param split_rule (_character_) how to assess the quality of a potential
+#'   splitting rule for a node. Valid options are
+#'
+#'   - 'logrank' : a log-rank test statistic.
+#'   - 'cstat'   : Harrell's concordance statistic.
 #'
 #' @param split_min_events (_integer_) minimum number of events required
 #'   in a node to consider splitting it. Default is `split_min_events = 5`
@@ -103,19 +115,21 @@
 #'   in a node to consider splitting it. Default is `split_min_obs = 10`.
 #'
 #' @param split_min_stat (double) minimum test statistic required to split
-#'   a node. Default is 3.841459 for the log-rank test, which is roughly
-#'   a p-value of 0.05
+#'   a node. Default is 3.841459 if `split_rule = 'logrank'` and 0.50 if
+#'   `split_rule = 'cstat'`. If no splits are found with a statistic
+#'   exceeding `split_min_stat`, the given node either becomes a leaf or
+#'   a retry occurs (up to `n_retry` retries).
 #'
 #' @param oobag_pred_type (_character_) The type of out-of-bag predictions
 #'   to compute while fitting the ensemble. Valid options are
 #'
 #'   - 'none' : don't compute out-of-bag predictions
-#'   - 'risk' : predict the probability of having an event at or before `oobag_pred_horizon`.
+#'   - 'risk' : probability of event occurring at or before `oobag_pred_horizon`.
 #'   - 'surv' : 1 - risk.
-#'   - 'chf'  : predict cumulative hazard function
-#'
-#' Mortality ('mort')is not implemented for out of bag predictions yet, but it
-#'   will be in a future update.
+#'   - 'chf'  : cumulative hazard function at `oobag_pred_horizon`.
+#'   - 'mort' : mortality, i.e., the number of events expected if all
+#'              observations in the training data were identical to a
+#'              given observation.
 #'
 #' @param oobag_pred_horizon (_numeric_) A numeric value indicating what time
 #'   should be used for out-of-bag predictions. Default is the median
@@ -238,6 +252,13 @@
 #' If `oobag_fun` is specified, it will be used in to compute negation
 #'  importance or permutation importance, but it will not have any role
 #'  for ANOVA importance.
+#'
+#' **n_thread**:
+#'
+#' If an R function must be called from C++ (i.e., user-supplied function to
+#'  compute out-of-bag error or identify linear combinations of variables),
+#'  `n_thread` will automatically be set to 1 because attempting to run R
+#'  functions in multiple threads will cause the R session to crash.
 #'
 #' @section What is an oblique decision tree?:
 #'
