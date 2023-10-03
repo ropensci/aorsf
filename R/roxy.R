@@ -14,6 +14,20 @@ roxy_data_allowed <- function(){
  )
 }
 
+# multi-threading ---------------------------------------------------------
+
+roxy_n_thread_header <- function(action){
+ paste("(_integer_) number of threads to use while ",
+       action, ". Default is one thread. ",
+       "To use the maximum number of threads that ",
+       "your system provides for concurrent execution, ",
+       "set `n_thread = 0`.", sep = "")
+}
+
+roxy_n_thread_details <- function(){
+ "(_integer_) number of threads to use. Default is one thread."
+}
+
 # importance --------------------------------------------------------------
 
 roxy_importance_header <- function(){

@@ -13,6 +13,7 @@ orsf_ice_oob(
   pred_type = "risk",
   expand_grid = TRUE,
   boundary_checks = TRUE,
+  n_thread = 1,
   ...
 )
 
@@ -23,6 +24,7 @@ orsf_ice_inb(
   pred_type = "risk",
   expand_grid = TRUE,
   boundary_checks = TRUE,
+  n_thread = 1,
   ...
 )
 
@@ -35,6 +37,7 @@ orsf_ice_new(
   na_action = "fail",
   expand_grid = TRUE,
   boundary_checks = TRUE,
+  n_thread = 1,
   ...
 )
 }
@@ -79,6 +82,8 @@ in \code{pred_spec}, separately.}
 to make sure the requested values are between the 10th and 90th
 percentile in the object's training data. If \code{FALSE}, these checks are
 skipped.}
+
+\item{n_thread}{(\emph{integer}) number of threads to use while computing predictions. Default is one thread. To use the maximum number of threads that your system provides for concurrent execution, set \code{n_thread = 0}.}
 
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 
@@ -146,18 +151,18 @@ ice_oob <- orsf_ice_oob(fit, pred_spec, boundary_checks = FALSE)
 ice_oob
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##       pred_horizon id_variable id_row bili      pred
-##    1:         1788           1      1    1 0.8935318
-##    2:         1788           1      2    1 0.1025087
-##    3:         1788           1      3    1 0.6959198
-##    4:         1788           1      4    1 0.3465760
-##    5:         1788           1      5    1 0.1105536
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row pred_horizon bili      pred
+##    1:           1      1         1788    1 0.9011797
+##    2:           1      2         1788    1 0.1096207
+##    3:           1      3         1788    1 0.7646444
+##    4:           1      4         1788    1 0.3531060
+##    5:           1      5         1788    1 0.1228441
 ##   ---                                               
-## 6896:         1788          25    272   10 0.4409361
-## 6897:         1788          25    273   10 0.4493052
-## 6898:         1788          25    274   10 0.4696659
-## 6899:         1788          25    275   10 0.3892409
-## 6900:         1788          25    276   10 0.4565133
+## 6896:          25    272         1788   10 0.3089586
+## 6897:          25    273         1788   10 0.4005430
+## 6898:          25    274         1788   10 0.4933945
+## 6899:          25    275         1788   10 0.3134373
+## 6900:          25    276         1788   10 0.5002014
 }\if{html}{\out{</div>}}
 
 Much more detailed examples are given in the

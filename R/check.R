@@ -610,9 +610,13 @@ check_orsf_inputs <- function(data = NULL,
                               n_tree = NULL,
                               n_split = NULL,
                               n_retry = NULL,
+                              n_thread = NULL,
                               mtry = NULL,
+                              sample_with_replacement = NULL,
+                              sample_fraction = NULL,
                               leaf_min_events = NULL,
                               leaf_min_obs = NULL,
+                              split_rule = NULL,
                               split_min_events = NULL,
                               split_min_obs = NULL,
                               split_min_stat = NULL,
@@ -796,6 +800,25 @@ check_orsf_inputs <- function(data = NULL,
 
  }
 
+ if(!is.null(n_thread)){
+
+  check_arg_type(arg_value = n_thread,
+                 arg_name = 'n_thread',
+                 expected_type = 'numeric')
+
+  check_arg_is_integer(arg_name = 'n_thread',
+                       arg_value = n_thread)
+
+  check_arg_gteq(arg_name = 'n_thread',
+                 arg_value = n_thread,
+                 bound = 0)
+
+  check_arg_length(arg_name = 'n_thread',
+                   arg_value = n_thread,
+                   expected_length = 1)
+
+ }
+
  if(!is.null(mtry)){
 
   check_arg_type(arg_value = mtry,
@@ -811,6 +834,38 @@ check_orsf_inputs <- function(data = NULL,
 
   check_arg_length(arg_name = 'mtry',
                    arg_value = mtry,
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(sample_with_replacement)){
+
+  check_arg_type(arg_value = sample_with_replacement,
+                 arg_name = 'sample_with_replacement',
+                 expected_type = 'logical')
+
+  check_arg_length(arg_name = 'sample_with_replacement',
+                   arg_value = sample_with_replacement,
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(sample_fraction)){
+
+  check_arg_type(arg_value = sample_fraction,
+                 arg_name = 'sample_fraction',
+                 expected_type = 'numeric')
+
+  check_arg_gt(arg_value = sample_fraction,
+               arg_name = 'sample_fraction',
+               bound = 0)
+
+  check_arg_lteq(arg_value = sample_fraction,
+                 arg_name = 'sample_fraction',
+                 bound = 1)
+
+  check_arg_length(arg_value = sample_fraction,
+                   arg_name = 'sample_fraction',
                    expected_length = 1)
 
  }
@@ -849,6 +904,22 @@ check_orsf_inputs <- function(data = NULL,
   check_arg_length(arg_value = leaf_min_obs,
                    arg_name = 'leaf_min_obs',
                    expected_length = 1)
+
+ }
+
+ if(!is.null(split_rule)){
+
+  check_arg_type(arg_value = split_rule,
+                 arg_name = 'split_rule',
+                 expected_type = 'character')
+
+  check_arg_length(arg_value = split_rule,
+                   arg_name = 'split_rule',
+                   expected_length = 1)
+
+  check_arg_is_valid(arg_value = split_rule,
+                     arg_name = 'split_rule',
+                     valid_options = c("logrank", "cstat"))
 
  }
 
@@ -916,19 +987,14 @@ check_orsf_inputs <- function(data = NULL,
                    arg_name = 'oobag_pred_type',
                    expected_length = 1)
 
-  if(oobag_pred_type == 'mort') stop(
-   "Out-of-bag mortality predictions aren't supported yet. ",
-   " Sorry for the inconvenience - we plan on including this option",
-   " in a future update.",
-   call. = FALSE
-  )
-
   check_arg_is_valid(arg_value = oobag_pred_type,
                      arg_name = 'oobag_pred_type',
                      valid_options = c("none",
                                        "surv",
                                        "risk",
-                                       "chf"))
+                                       "chf",
+                                       "mort",
+                                       "leaf"))
 
  }
 
@@ -938,13 +1004,17 @@ check_orsf_inputs <- function(data = NULL,
                  arg_name = 'oobag_pred_horizon',
                  expected_type = 'numeric')
 
-  check_arg_length(arg_value = oobag_pred_horizon,
-                   arg_name = 'oobag_pred_horizon',
-                   expected_length = 1)
+  # check_arg_length(arg_value = oobag_pred_horizon,
+  #                  arg_name = 'oobag_pred_horizon',
+  #                  expected_length = 1)
 
-  check_arg_gteq(arg_value = oobag_pred_horizon,
-                 arg_name = 'oobag_pred_horizon',
-                 bound = 0)
+  for(i in seq_along(oobag_pred_horizon)){
+
+   check_arg_gteq(arg_value = oobag_pred_horizon[i],
+                  arg_name = 'oobag_pred_horizon',
+                  bound = 0)
+
+  }
 
  }
 
@@ -1000,7 +1070,7 @@ check_orsf_inputs <- function(data = NULL,
 
   check_arg_is_integer(tree_seeds, arg_name = 'tree_seeds')
 
-  if(length(tree_seeds) != n_tree){
+  if(length(tree_seeds) > 1 && length(tree_seeds) != n_tree){
 
    stop('tree_seeds should have length <', n_tree,
         "> (the number of trees) but instead has length <",
@@ -1550,7 +1620,8 @@ check_predict <- function(object,
                      valid_options = c("risk",
                                        "surv",
                                        "chf",
-                                       "mort"))
+                                       "mort",
+                                       "leaf"))
 
  }
 
@@ -1615,8 +1686,8 @@ check_oobag_fun <- function(oobag_fun){
 
  oobag_fun_args <- names(formals(oobag_fun))
 
- if(length(oobag_fun_args) != 2) stop(
-  "oobag_fun should have 2 input arguments but instead has ",
+ if(length(oobag_fun_args) != 3) stop(
+  "oobag_fun should have 3 input arguments but instead has ",
   length(oobag_fun_args),
   call. = FALSE
  )
@@ -1627,8 +1698,14 @@ check_oobag_fun <- function(oobag_fun){
   call. = FALSE
  )
 
- if(oobag_fun_args[2] != 's_vec') stop(
-  "the second input argument of oobag_fun should be named 's_vec' ",
+ if(oobag_fun_args[2] != 'w_vec') stop(
+  "the second input argument of oobag_fun should be named 'w_vec' ",
+  "but is instead named '", oobag_fun_args[1], "'",
+  call. = FALSE
+ )
+
+ if(oobag_fun_args[3] != 's_vec') stop(
+  "the third input argument of oobag_fun should be named 's_vec' ",
   "but is instead named '", oobag_fun_args[2], "'",
   call. = FALSE
  )
@@ -1637,9 +1714,12 @@ check_oobag_fun <- function(oobag_fun){
  test_status <- rep(c(0,1), each = 50)
 
  .y_mat <- cbind(time = test_time, status = test_status)
+ .w_vec <- rep(1, times = 100)
  .s_vec <- seq(0.9, 0.1, length.out = 100)
 
- test_output <- try(oobag_fun(y_mat = .y_mat, s_vec = .s_vec),
+ test_output <- try(oobag_fun(y_mat = .y_mat,
+                              w_vec = .w_vec,
+                              s_vec = .s_vec),
                     silent = FALSE)
 
  if(is_error(test_output)){
@@ -1649,8 +1729,9 @@ check_oobag_fun <- function(oobag_fun){
        "test_time <- seq(from = 1, to = 5, length.out = 100)\n",
        "test_status <- rep(c(0,1), each = 50)\n\n",
        "y_mat <- cbind(time = test_time, status = test_status)\n",
+       "w_vec <- rep(1, times = 100)\n",
        "s_vec <- seq(0.9, 0.1, length.out = 100)\n\n",
-       "test_output <- oobag_fun(y_mat = y_mat, s_vec = s_vec)\n\n",
+       "test_output <- oobag_fun(y_mat = y_mat, w_vec = w_vec, s_vec = s_vec)\n\n",
        "test_output should be a numeric value of length 1",
        call. = FALSE)
 

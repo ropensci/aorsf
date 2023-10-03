@@ -107,7 +107,7 @@ Let's make two customized functions to identify linear combinations of predictor
    # estimate two principal components.
    pca <- stats::prcomp(x_node, rank. = 2)
    # use the second principal component to split the node
-   pca$rotation[, 2L, drop = FALSE]
+   pca$rotation[, 1L, drop = FALSE]
    
   }
   
@@ -163,11 +163,11 @@ sc$Brier$score[order(-IPA), .(model, times, IPA)]
 
 From inspection,
 
-- the PCA approach has the highest discrimination, showing that you can do very well with just a two line custom function.
+- the `glmnet` approach has the highest discrimination and index of prediction accuracy.
 
-- the accelerated ORSF has the highest index of prediction accuracy
+- the accelerated ORSF is a close second.
 
-- the random coefficients generally don't do that well.
+- the random coefficients don't do that well, but they aren't bad.
 
 ## tidymodels
 
@@ -279,8 +279,8 @@ Score(
 From inspection, 
 
 - `aorsf` obtained slightly higher discrimination (AUC)
+
 - `aorsf` obtained higher index of prediction accuracy (IPA)
-- Way to go, `aorsf`
 
 
 ## mlr3 pipelines
@@ -443,9 +443,9 @@ tbl_data <-
  structure(
   list(
    learner_id = c("surv.aorsf", "surv.ranger", "surv.rfsrc"),
-   surv.graf = c(0.151447953930207, 0.166799975594481, 0.15586242346754),
-   surv.cindex = c(0.729057822587355, 0.706476104709337, 0.714969112063354),
-   time_train = c(0.344528301886968, 2.53641509434031, 0.782641509433885)
+   surv.graf = c(0.151771237677512, 0.166032273495838, 0.155174775571719),
+   surv.cindex = c(0.733123595064337, 0.71210747198625, 0.723016206784682),
+   time_train = c(1.41181818181788, 1.95254545454584, 0.744727272727191)
   ),
   row.names = c(NA, -3L),
   class = c("tbl_df", "tbl", "data.frame")
@@ -453,20 +453,11 @@ tbl_data <-
 
 tbl_data
 
-# knitr::kable(tbl_data,
-#              col.names = c('Learner',
-#                            'Brier score',
-#                            'C-index',
-#                            'Time to train')) %>% 
-#  kableExtra::kable_styling()
-
 ```
 
 
 From inspection,
 
-- `aorsf` appears to have a higher expected value for 'surv.cindex' (higher is better)
-- `aorsf` appears to have a lower expected value for 'surv.graf' (lower is better)
-- `aorsf` has the lowest training time.
+- `aorsf` has a higher expected value for 'surv.cindex' (higher is better)
 
-the lower training time for `aorsf` is likely due to the fact that there are many unique event times in the benchmark tasks. `ranger` and `rfsrc` create grids of time points based on each unique event time in each leaf of each decision tree, whereas `aorsf` also uses a grid but restricts it to the unique event times among observations in the current leaf.
+- `aorsf` has a lower expected value for 'surv.graf' (lower is better)

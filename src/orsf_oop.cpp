@@ -1,0 +1,335 @@
+/*-----------------------------------------------------------------------------
+ This file is part of aorsf, which is distributed under the MIT license
+
+ You should have received a copy of the MIT License along with aorsf.
+ If not, see <http://www.gnu.org/licenses/>.
+
+ Authors:
+ - Byron C. Jaeger (http://byronjaeger.com)
+ - test
+#----------------------------------------------------------------------------*/
+
+#include <RcppArmadillo.h>
+#include <vector>
+#include <memory>
+#include <utility>
+
+#include "globals.h"
+#include "Data.h"
+#include "Tree.h"
+#include "Forest.h"
+#include "ForestSurvival.h"
+#include "Coxph.h"
+#include "utility.h"
+
+// [[Rcpp::depends(RcppArmadillo)]]
+
+ using namespace Rcpp;
+ using namespace arma;
+ using namespace aorsf;
+
+ // [[Rcpp::export]]
+ List coxph_fit_exported(arma::mat& x_node,
+                         arma::mat& y_node,
+                         arma::vec& w_node,
+                         int method,
+                         double cph_eps,
+                         arma::uword cph_iter_max){
+
+  arma::uvec cols_node=regspace<uvec>(0, x_node.n_cols-1);
+
+  arma::mat out = coxph_fit(x_node,
+                            y_node,
+                            w_node,
+                            true,
+                            method,
+                            cph_eps,
+                            cph_iter_max);
+
+  List result;
+  result.push_back(out.col(0), "beta");
+  result.push_back(out.col(1), "var");
+
+  return(result);
+
+ }
+
+ // [[Rcpp::export]]
+ double compute_cstat_exported_vec(
+   arma::mat& y,
+   arma::vec& w,
+   arma::vec& p,
+   bool pred_is_risklike
+ ){ return compute_cstat(y, w, p, pred_is_risklike); }
+
+ // [[Rcpp::export]]
+ double compute_cstat_exported_uvec(
+   arma::mat& y,
+   arma::vec& w,
+   arma::uvec& g,
+   bool pred_is_risklike
+ ){ return compute_cstat(y, w, g, pred_is_risklike); }
+
+ // [[Rcpp::export]]
+ double compute_logrank_exported(
+   arma::mat& y,
+   arma::vec& w,
+   arma::uvec& g
+ ){ return compute_logrank(y, w, g); }
+
+ // [[Rcpp::export]]
+ List cph_scale(arma::mat& x, arma::vec& w){
+
+  // set aside memory for outputs
+  // first column holds the mean values
+  // second column holds the scale values
+
+  uword n_vars = x.n_cols;
+
+  mat x_transforms(n_vars, 2, fill::zeros);
+  vec means  = x_transforms.unsafe_col(0);   // Reference to column 1
+  vec scales = x_transforms.unsafe_col(1);   // Reference to column 2
+
+  double w_sum = sum(w);
+
+  for(uword i = 0; i < n_vars; i++) {
+
+   means.at(i) = sum( w % x.col(i) ) / w_sum;
+
+   x.col(i) -= means.at(i);
+
+   scales.at(i) = sum(w % abs(x.col(i)));
+
+   if(scales(i) > 0)
+    scales.at(i) = w_sum / scales.at(i);
+   else
+    scales.at(i) = 1.0; // rare case of constant covariate;
+
+   x.col(i) *= scales.at(i);
+
+  }
+
+  List result;
+  result.push_back(x, "x_scaled");
+  result.push_back(x_transforms, "x_transforms");
+  return result;
+
+ }
+
+ // [[Rcpp::plugins("cpp17")]]
+ // [[Rcpp::export]]
+ List orsf_cpp(arma::mat&               x,
+               arma::mat&               y,
+               arma::vec&               w,
+               arma::uword              tree_type_R,
+               Rcpp::IntegerVector&     tree_seeds,
+               Rcpp::List&              loaded_forest,
+               Rcpp::RObject            lincomb_R_function,
+               Rcpp::RObject            oobag_R_function,
+               arma::uword              n_tree,
+               arma::uword              mtry,
+               bool                     sample_with_replacement,
+               double                   sample_fraction,
+               arma::uword              vi_type_R,
+               double                   vi_max_pvalue,
+               double                   leaf_min_events,
+               double                   leaf_min_obs,
+               arma::uword              split_rule_R,
+               double                   split_min_events,
+               double                   split_min_obs,
+               double                   split_min_stat,
+               arma::uword              split_max_cuts,
+               arma::uword              split_max_retry,
+               arma::uword              lincomb_type_R,
+               double                   lincomb_eps,
+               arma::uword              lincomb_iter_max,
+               bool                     lincomb_scale,
+               double                   lincomb_alpha,
+               arma::uword              lincomb_df_target,
+               arma::uword              lincomb_ties_method,
+               bool                     pred_mode,
+               arma::uword              pred_type_R,
+               arma::vec                pred_horizon,
+               bool                     pred_aggregate,
+               bool                     oobag,
+               arma::uword              oobag_eval_type_R,
+               arma::uword              oobag_eval_every,
+               int                      pd_type_R,
+               std::vector<arma::mat>&  pd_x_vals,
+               std::vector<arma::uvec>& pd_x_cols,
+               arma::vec&               pd_probs,
+               unsigned int             n_thread,
+               bool                     write_forest,
+               bool                     run_forest,
+               int                      verbosity){
+
+  List result;
+
+  std::unique_ptr<Forest> forest { };
+  std::unique_ptr<Data> data { };
+
+  data = std::make_unique<Data>(x, y, w);
+
+  // re-cast integer inputs from R into enumerations
+  // see globals.h for definitions.
+  TreeType tree_type = (TreeType) tree_type_R;
+  VariableImportance vi_type = (VariableImportance) vi_type_R;
+  SplitRule split_rule = (SplitRule) split_rule_R;
+  LinearCombo lincomb_type = (LinearCombo) lincomb_type_R;
+  PredType pred_type = (PredType) pred_type_R;
+  EvalType oobag_eval_type = (EvalType) oobag_eval_type_R;
+  PartialDepType pd_type = (PartialDepType) pd_type_R;
+
+  if(n_thread == 0){
+   n_thread = std::thread::hardware_concurrency();
+  }
+
+  // R functions cannot be called from multiple threads
+  if(lincomb_type    == LC_R_FUNCTION  ||
+     lincomb_type    == LC_GLMNET      ||
+     oobag_eval_type == EVAL_R_FUNCTION){
+   n_thread = 1;
+  }
+
+  // usually need to set n_thread to 1 if oobag pred is monitored
+  if(oobag_eval_every < n_tree){
+   // specifically if this isn't true we need to go single thread
+   if(n_tree/oobag_eval_every != n_thread){
+    n_thread = 1;
+   }
+  }
+
+  if(tree_type == TREE_SURVIVAL){
+
+   forest = std::make_unique<ForestSurvival>(leaf_min_events,
+                                             split_min_events,
+                                             pred_horizon);
+
+  } else {
+
+   Rcpp::stop("only survival trees are currently implemented");
+
+  }
+
+  // does the forest need to be grown or is it already grown?
+  bool grow_mode = loaded_forest.size() == 0;
+
+  forest->init(std::move(data),
+               tree_seeds,
+               n_tree,
+               mtry,
+               sample_with_replacement,
+               sample_fraction,
+               grow_mode,
+               vi_type,
+               vi_max_pvalue,
+               leaf_min_obs,
+               split_rule,
+               split_min_obs,
+               split_min_stat,
+               split_max_cuts,
+               split_max_retry,
+               lincomb_type,
+               lincomb_eps,
+               lincomb_iter_max,
+               lincomb_scale,
+               lincomb_alpha,
+               lincomb_df_target,
+               lincomb_ties_method,
+               lincomb_R_function,
+               pred_type,
+               pred_mode,
+               pred_aggregate,
+               oobag,
+               oobag_eval_type,
+               oobag_eval_every,
+               oobag_R_function,
+               n_thread,
+               verbosity);
+
+   // Load forest object if it was already grown
+   if(!grow_mode){
+
+    std::vector<arma::uvec>          rows_oobag   = loaded_forest["rows_oobag"];
+    std::vector<std::vector<double>> cutpoint     = loaded_forest["cutpoint"];
+    std::vector<std::vector<uword>>  child_left   = loaded_forest["child_left"];
+    std::vector<std::vector<vec>>    coef_values  = loaded_forest["coef_values"];
+    std::vector<std::vector<uvec>>   coef_indices = loaded_forest["coef_indices"];
+    std::vector<std::vector<double>> leaf_summary = loaded_forest["leaf_summary"];
+
+    if(tree_type == TREE_SURVIVAL){
+
+     std::vector<std::vector<vec>> leaf_pred_indx = loaded_forest["leaf_pred_indx"];
+     std::vector<std::vector<vec>> leaf_pred_prob = loaded_forest["leaf_pred_prob"];
+     std::vector<std::vector<vec>> leaf_pred_chaz = loaded_forest["leaf_pred_chaz"];
+
+     auto& temp = dynamic_cast<ForestSurvival&>(*forest);
+
+     temp.load(n_tree, rows_oobag, cutpoint, child_left,
+               coef_values, coef_indices, leaf_pred_indx,
+               leaf_pred_prob, leaf_pred_chaz, leaf_summary,
+               pd_type, pd_x_vals, pd_x_cols, pd_probs);
+
+    }
+
+   }
+
+   if(run_forest){ forest->run(oobag); }
+
+   if(pred_mode){
+
+    result.push_back(forest->get_predictions(), "pred_new");
+
+   } else if (grow_mode) {
+
+    if (oobag) result.push_back(forest->get_predictions(), "pred_oobag");
+
+    List eval_oobag;
+    eval_oobag.push_back(forest->get_oobag_eval(), "stat_values");
+    eval_oobag.push_back(oobag_eval_type_R, "stat_type");
+    result.push_back(eval_oobag, "eval_oobag");
+
+   }
+
+   if(write_forest){
+
+    List forest_out;
+    forest_out.push_back(forest->get_rows_oobag(), "rows_oobag");
+    forest_out.push_back(forest->get_cutpoint(), "cutpoint");
+    forest_out.push_back(forest->get_child_left(), "child_left");
+    forest_out.push_back(forest->get_coef_indices(), "coef_indices");
+    forest_out.push_back(forest->get_coef_values(), "coef_values");
+    forest_out.push_back(forest->get_leaf_summary(), "leaf_summary");
+
+    if(tree_type == TREE_SURVIVAL){
+     auto& temp = dynamic_cast<ForestSurvival&>(*forest);
+     forest_out.push_back(temp.get_leaf_pred_indx(), "leaf_pred_indx");
+     forest_out.push_back(temp.get_leaf_pred_prob(), "leaf_pred_prob");
+     forest_out.push_back(temp.get_leaf_pred_chaz(), "leaf_pred_chaz");
+    }
+
+    result.push_back(forest_out, "forest");
+
+   }
+
+   if(vi_type != VI_NONE){
+
+    vec vi_output;
+    if(run_forest){
+     if(vi_type == VI_ANOVA){
+      vi_output = forest->get_vi_numer() / forest->get_vi_denom();
+     } else {
+      vi_output = forest->get_vi_numer() / n_tree;
+     }
+    }
+    result.push_back(vi_output, "importance");
+
+   }
+
+   if(pd_type != PD_NONE){
+    result.push_back(forest->get_pd_values(), "pd_values");
+   }
+
+   return(result);
+
+ }

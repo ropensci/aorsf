@@ -15,6 +15,7 @@ orsf_pd_oob(
   prob_values = c(0.025, 0.5, 0.975),
   prob_labels = c("lwr", "medn", "upr"),
   boundary_checks = TRUE,
+  n_thread = 1,
   ...
 )
 
@@ -27,6 +28,7 @@ orsf_pd_inb(
   prob_values = c(0.025, 0.5, 0.975),
   prob_labels = c("lwr", "medn", "upr"),
   boundary_checks = TRUE,
+  n_thread = 1,
   ...
 )
 
@@ -41,6 +43,7 @@ orsf_pd_new(
   prob_values = c(0.025, 0.5, 0.975),
   prob_labels = c("lwr", "medn", "upr"),
   boundary_checks = TRUE,
+  n_thread = 1,
   ...
 )
 }
@@ -97,6 +100,8 @@ value in \code{prob_values} should be labelled as in summarized outputs.
 to make sure the requested values are between the 10th and 90th
 percentile in the object's training data. If \code{FALSE}, these checks are
 skipped.}
+
+\item{n_thread}{(\emph{integer}) number of threads to use while computing predictions. Default is one thread. To use the maximum number of threads that your system provides for concurrent execution, set \code{n_thread = 0}.}
 
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 
@@ -155,12 +160,12 @@ You can compute partial dependence and ICE three ways with \code{aorsf}:
 pd_train
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean        lwr      medn       upr
-## 1:      1826.25    1 0.2054232 0.01599366 0.0929227 0.8077278
-## 2:      1826.25    2 0.2369077 0.02549869 0.1268457 0.8227315
-## 3:      1826.25    3 0.2808514 0.05027265 0.1720280 0.8457834
-## 4:      1826.25    4 0.3428065 0.09758988 0.2545869 0.8575243
-## 5:      1826.25    5 0.3992909 0.16392752 0.3232681 0.8634269
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean        lwr       medn       upr
+## 1:      1826.25    1 0.2151663 0.02028479 0.09634648 0.7997269
+## 2:      1826.25    2 0.2576618 0.03766695 0.15497447 0.8211875
+## 3:      1826.25    3 0.2998484 0.06436773 0.20771324 0.8425637
+## 4:      1826.25    4 0.3390664 0.08427149 0.25401067 0.8589590
+## 5:      1826.25    5 0.3699045 0.10650098 0.28284427 0.8689855
 }\if{html}{\out{</div>}}
 \item using out-of-bag predictions for the training data
 
@@ -170,11 +175,11 @@ pd_train
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean        lwr       medn       upr
-## 1:      1826.25    1 0.2068300 0.01479443 0.08824123 0.8053317
-## 2:      1826.25    2 0.2377046 0.02469718 0.12623031 0.8258154
-## 3:      1826.25    3 0.2810546 0.04080813 0.18721220 0.8484846
-## 4:      1826.25    4 0.3417839 0.09076851 0.24968438 0.8611884
-## 5:      1826.25    5 0.3979925 0.16098228 0.32147532 0.8554402
+## 1:      1826.25    1 0.2145044 0.01835000 0.09619052 0.7980629
+## 2:      1826.25    2 0.2566241 0.03535358 0.14185734 0.8173143
+## 3:      1826.25    3 0.2984693 0.05900059 0.20515477 0.8334243
+## 4:      1826.25    4 0.3383547 0.07887323 0.24347513 0.8469769
+## 5:      1826.25    5 0.3696260 0.10450534 0.28065473 0.8523756
 }\if{html}{\out{</div>}}
 \item using predictions for a new set of data
 
@@ -186,11 +191,11 @@ pd_test
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean        lwr      medn       upr
-## 1:      1826.25    1 0.2510900 0.01631318 0.1872414 0.8162621
-## 2:      1826.25    2 0.2807327 0.02903956 0.2269297 0.8332956
-## 3:      1826.25    3 0.3247386 0.05860235 0.2841853 0.8481825
-## 4:      1826.25    4 0.3850799 0.10741224 0.3405760 0.8588955
-## 5:      1826.25    5 0.4394952 0.17572657 0.4050864 0.8657886
+## 1:      1826.25    1 0.2542230 0.02901386 0.1943767 0.8143912
+## 2:      1826.25    2 0.2955726 0.05037316 0.2474559 0.8317684
+## 3:      1826.25    3 0.3388434 0.07453896 0.3010898 0.8488622
+## 4:      1826.25    4 0.3800254 0.10565022 0.3516805 0.8592057
+## 5:      1826.25    5 0.4124587 0.12292465 0.3915066 0.8690074
 }\if{html}{\out{</div>}}
 \item in-bag partial dependence indicates relationships that the model has
 learned during training. This is helpful if your goal is to interpret

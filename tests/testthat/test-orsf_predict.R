@@ -1,22 +1,41 @@
 
 
 #' @srrstats {G5.5} *Correctness tests are run with a fixed random seed*
+#' @srrstats {G5.5} *Also with fixed tree seeds (used by rng in c++)*
 set.seed(730)
+tree_seeds <- 1:500
 
 train <- sample(nrow(pbc_orsf), size = 170)
 
-set.seed(329)
-fit = orsf(formula = time + status  ~ . - id, data = pbc_orsf[train, ])
+fit = orsf(formula = time + status  ~ . - id,
+           data = pbc_orsf[train, ],
+           n_tree = 500,
+           tree_seeds = tree_seeds)
 
-set.seed(329)
 fit_oobag_risk <- orsf(formula = time + status  ~ . - id,
                        data = pbc_orsf[train, ],
-                       oobag_pred_type = 'risk')
+                       oobag_pred_type = 'risk',
+                       tree_seeds = tree_seeds)
 
-set.seed(329)
 fit_oobag_chf <- orsf(formula = time + status  ~ . - id,
                       data = pbc_orsf[train, ],
-                      oobag_pred_type = 'chf')
+                      oobag_pred_type = 'chf',
+                      tree_seeds = tree_seeds)
+
+fit_oobag_mort <- orsf(formula = time + status  ~ . - id,
+                       data = pbc_orsf[train, ],
+                       oobag_pred_type = 'mort',
+                       tree_seeds = tree_seeds)
+
+fit_oobag_mort <- orsf(formula = time + status  ~ . - id,
+                       data = pbc_orsf[train, ],
+                       oobag_pred_type = 'mort',
+                       tree_seeds = tree_seeds)
+
+fit_oobag_leaf <- orsf(formula = time + status  ~ . - id,
+                       data = pbc_orsf[train, ],
+                       oobag_pred_type = 'leaf',
+                       tree_seeds = tree_seeds)
 
 
 test_that(
@@ -47,9 +66,51 @@ test_that(
  }
 )
 
+test_that(
+ desc = "unaggregated predictions can reproduce aggregated ones",
+ code = {
+
+  for(i in c("surv", "risk", "mort", "chf")){
+
+   preds_single_thread_agg <- predict(fit,
+                                      new_data = pbc_orsf[-train, ],
+                                      pred_type = i,
+                                      n_thread = 1)
+
+   preds_multi_thread_agg <- predict(fit,
+                                     new_data = pbc_orsf[-train, ],
+                                     pred_type = i,
+                                     n_thread = 3)
 
 
+   preds_single_thread_raw <- predict(fit,
+                                      new_data = pbc_orsf[-train, ],
+                                      pred_type = i,
+                                      pred_aggregate = FALSE,
+                                      n_thread = 1)
 
+   preds_multi_thread_raw <- predict(fit,
+                                     new_data = pbc_orsf[-train, ],
+                                     pred_type = i,
+                                     pred_aggregate = FALSE,
+                                     n_thread = 3)
+
+   expect_equal(preds_single_thread_agg,
+                preds_multi_thread_agg,
+                tolerance = 1e-9)
+
+   expect_equal(as.numeric(preds_single_thread_agg),
+                apply(preds_single_thread_raw, 1, mean),
+                tolerance = 1e-9)
+
+   expect_equal(as.numeric(preds_single_thread_agg),
+                apply(preds_multi_thread_raw, 1, mean),
+                tolerance = 1e-9)
+
+  }
+
+ }
+)
 
 test_that(
  desc = 'oobag risk and surv have equivalent C-stat',
@@ -61,13 +122,48 @@ test_that(
  }
 )
 
+test_that(
+ desc = "warnings served if pred_horizon is not needed",
+ code = {
+
+  expect_warning(
+   predict(fit, new_data = pbc_orsf[1, ],
+           pred_horizon = c(50, 500),
+           pred_type = 'leaf'),
+   regexp = 'does not impact predictions'
+  )
+
+  expect_warning(
+   predict(fit, new_data = pbc_orsf[1, ],
+           pred_horizon = c(50, 500),
+           pred_type = 'mort'),
+   regexp = 'does not impact predictions'
+  )
+
+
+ }
+)
+
+test_that(
+ desc = "predictions are the same when using 1 or multiple threads",
+ code = {
+  for(i in c("surv", "risk", "mort", "chf")){
+   preds_single_thread <- predict(fit,
+                                  new_data = pbc_orsf[-train, ],
+                                  pred_type = i,
+                                  n_thread = 1)
+   preds_multi_thread <- predict(fit,
+                                 new_data = pbc_orsf[-train, ],
+                                 pred_type = i,
+                                 n_thread = 3)
+   expect_equal(preds_single_thread, preds_multi_thread, tolerance = 1e-9)
+  }
+ }
+)
 
 new_data <- pbc_orsf[-train, ]
 new_data_dt <- as.data.table(new_data)
 new_data_tbl <- tibble::as_tibble(new_data)
-
-
-
 
 test_that(
  desc = 'pred_horizon automatically set to object$pred_horizon if needed',
@@ -80,11 +176,19 @@ test_that(
 )
 
 test_that(
- desc = 'preds identical with na_action = pass/fail if no missing data',
+ desc = 'identical na_action = pass/fail/impute/omit if no missing data',
  code = {
   expect_equal(
    predict(fit, new_data = new_data, na_action = 'fail'),
    predict(fit, new_data = new_data, na_action = 'pass')
+  )
+  expect_equal(
+   predict(fit, new_data = new_data, na_action = 'fail'),
+   predict(fit, new_data = new_data, na_action = 'impute_meanmode')
+  )
+  expect_equal(
+   predict(fit, new_data = new_data, na_action = 'fail'),
+   predict(fit, new_data = new_data, na_action = 'omit')
   )
  }
 )
@@ -103,11 +207,15 @@ test_that(
  }
 )
 
-p1_chf <- predict(fit, new_data = new_data,
-                  pred_type = 'chf', pred_horizon = 1000)
+p1_chf <- predict(fit,
+                  new_data = new_data,
+                  pred_type = 'chf',
+                  pred_horizon = 1000)
 
-p1_surv <- predict(fit, new_data = new_data,
-                   pred_type = 'surv', pred_horizon = 1000)
+p1_surv <- predict(fit,
+                   new_data = new_data,
+                   pred_type = 'surv',
+                   pred_horizon = 1000)
 
 p1_mort <- predict(fit, new_data = new_data, pred_type = 'mort')
 
@@ -186,22 +294,26 @@ p2 <- predict(fit,
               pred_horizon = 1000,
               pred_type = 'surv')
 
+
 test_that(
  desc = 'risk is inverse of survival',
- code = {expect_true(all(p1_risk == 1 - p2))}
+ code = {
+  expect_equal(p1_risk, 1-p2, tolerance = 1e-9)
+ }
 )
 
 test_that(
- desc = 'predictions do not depend on observations in the data',
+ desc = 'predictions do not depend on other observations in the data',
  code = {
 
   for(i in seq(nrow(new_data))){
+
    p2_1row <- predict(fit,
                       new_data = new_data[i,],
                       pred_horizon = 1000,
                       pred_type = 'surv')
 
-   expect_equal(p2_1row, p2[i], ignore_attr = TRUE, tolerance = 0.015)
+   expect_equal(p2_1row, p2[i], ignore_attr = TRUE, tolerance = 1e-9)
   }
  }
 )
@@ -220,7 +332,7 @@ test_that(
                    pred_horizon = 1000,
                    pred_type = 'surv')
 
-  expect_equal(preds, p2[new_order], ignore_attr = TRUE, tolerance = 0.015)
+  expect_equal(preds, p2[new_order], ignore_attr = TRUE, tolerance = 1e-9)
 
  }
 )
@@ -465,10 +577,9 @@ test_that(
   units(pbc_units_trn$age) <- 'years'
   units(pbc_units_trn$bili) <- 'mg/dl'
 
-  #' @srrstats {G5.5} *Correctness tests are run with a fixed random seed*
-
-  set.seed(329)
-  fit_units = orsf(formula = time + status  ~ . - id, data = pbc_units_trn)
+  fit_units = orsf(formula = time + status  ~ . - id,
+                   data = pbc_units_trn,
+                   tree_seeds = tree_seeds)
 
   expect_error(
    predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000),
@@ -493,8 +604,6 @@ test_that(
   expect_equal(fit_units$eval_oobag$stat_values, fit$eval_oobag$stat_values)
   expect_equal(fit_units$forest, fit$forest)
 
-  # small difference in one or two cases, but the forests are identical.
-  # so...
   p3 <- predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000)
   expect_equal(p3, p1_risk)
 

@@ -78,7 +78,7 @@ orsf_scale_cph <- function(x_mat, w_vec = NULL){
        call. = FALSE)
 
  # pass x[, ] instead of x to prevent x from being modified in place.
- output <- x_node_scale_exported(x_mat[, ], w_vec)
+ output <- cph_scale(x_mat[, ], w_vec)
 
  colnames(output$x_scaled) <- colnames(x_mat)
  colnames(output$x_transforms) <- c("mean", "scale")

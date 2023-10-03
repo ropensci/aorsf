@@ -39,7 +39,7 @@ Let's fit an oblique random survival forest and plot the distribution of the ens
 fit <- orsf(data = pbc_orsf, 
             formula = Surv(time, status) ~ . - id,
             oobag_pred_type = 'surv',
-            oobag_pred_horizon = 3500)
+            oobag_pred_horizon = 2000)
 
 hist(fit$pred_oobag, 
      main = 'Ensemble out-of-bag survival predictions at t=3,500')
@@ -69,7 +69,8 @@ As each out-of-bag data set contains about one-third of the training set, the ou
 fit <- orsf(data = pbc_orsf,
             formula = Surv(time, status) ~ . - id,
             n_tree = 50,
-            oobag_pred_horizon = 3500,
+            oobag_pred_type = 'surv',
+            oobag_pred_horizon = 2000,
             oobag_eval_every = 1)
 
 plot(
@@ -90,7 +91,7 @@ In some cases, you may want more control over how out-of-bag error is estimated.
 
 ```{r}
 
-oobag_fun_brier <- function(y_mat, s_vec){
+oobag_fun_brier <- function(y_mat, w_vec, s_vec){
 
  # output is numeric vector of length 1
  as.numeric(
@@ -98,7 +99,7 @@ oobag_fun_brier <- function(y_mat, s_vec){
    object = Surv(time = y_mat[, 1], event = y_mat[, 2]), 
    pre_sp = s_vec,
    # t_star in Brier() should match oob_pred_horizon in orsf()
-   t_star = 3500
+   t_star = 2000
   )
  )
  
@@ -109,7 +110,7 @@ There are two ways to apply your own function to compute out-of-bag error. First
 
 ```{r}
 
-oobag_fun_brier(y_mat = fit$data[, c('time', 'status')],
+oobag_fun_brier(y_mat = pbc_orsf[,c('time', 'status')],
                 s_vec = fit$pred_oobag)
 
 ```
@@ -121,7 +122,7 @@ Second, you can pass your function into `orsf()`, and it will be used in place o
 fit <- orsf(data = pbc_orsf,
             formula = Surv(time, status) ~ . - id,
             n_tree = 50,
-            oobag_pred_horizon = 3500,
+            oobag_pred_horizon = 2000,
             oobag_fun = oobag_fun_brier,
             oobag_eval_every = 1)
 
@@ -140,13 +141,13 @@ We can also compute a time-dependent C-statistic instead of Harrell's C-statisti
 
 ```{r}
 
-oobag_fun_tdep_cstat <- function(y_mat, s_vec){
+oobag_fun_tdep_cstat <- function(y_mat, w_vec, s_vec){
 
  as.numeric(
   SurvMetrics::Cindex(
    object = Surv(time = y_mat[, 1], event = y_mat[, 2]), 
    predicted = s_vec,
-   t_star = 3500
+   t_star = 2000
   )
  )
 
@@ -155,7 +156,7 @@ oobag_fun_tdep_cstat <- function(y_mat, s_vec){
 fit <- orsf(data = pbc_orsf,
             formula = Surv(time, status) ~ . - id,
             n_tree = 50,
-            oobag_pred_horizon = 3500,
+            oobag_pred_horizon = 2000,
             oobag_fun = oobag_fun_tdep_cstat,
             oobag_eval_every = 1)
 
@@ -164,7 +165,7 @@ plot(
  y = fit$eval_oobag$stat_values, 
  main = 'Out-of-bag time-dependent AUC\ncomputed after each new tree is grown.',
  xlab = 'Number of trees grown',
- ylab = "AUC at t = 3,500"
+ ylab = "AUC at t = 2,000"
 )
 
 ```
@@ -173,7 +174,7 @@ plot(
 
 User-supplied functions must:
 
-1. have exactly two arguments named `y_mat` and `s_vec`.
+1. have exactly three arguments named `y_mat`, `w_vec`, and `s_vec`.
 1. return a numeric output of length 1
 
 If either of these conditions is not true, an error will occur. A simple test to make sure your user-supplied function will work with the aorsf package is below:
@@ -192,9 +193,11 @@ y_mat <- cbind(time = test_time, status = test_status)
 s_vec <- seq(0.9, 0.1, length.out = 100)
 
 # see 1 in the checklist above
-names(formals(oobag_fun_tdep_cstat)) == c("y_mat", "s_vec")
+names(formals(oobag_fun_tdep_cstat)) == c("y_mat", "w_vec", "s_vec")
 
-test_output <- oobag_fun_tdep_cstat(y_mat = y_mat, s_vec = s_vec)
+test_output <- oobag_fun_tdep_cstat(y_mat = y_mat, 
+                                    w_vec = w_vec,
+                                    s_vec = s_vec)
 
 # test output should be numeric
 is.numeric(test_output)
@@ -205,16 +208,28 @@ length(test_output) == 1
 
 ## User-supplied functions for negation importance.
 
-Negation importance is based on the out-of-bag error, so of course you may be curious about what negation importance would be if it were computed using different statistics. The workflow for doing this is exactly the same as the example above, except we have to specify `importance = 'negate'` when we fit our model. Also, to speed up computations, I am not going to monitor out-of-bag error here.
+Negation importance is based on the out-of-bag error, so of course you may be curious about what negation importance would be if it were computed using different statistics. The workflow for doing this is exactly the same as the example above, except for two things:
+
+1. We have to specify `importance = 'negate'` when we fit our model. 
+
+2. We want to use a modified version of the C-stat, specifically 1 - the C-stat, because of how `aorsf` computes variable importance.
+
+```{r}
+oobag_fun_tdep_cstat_inverse <- function(y_mat, w_vec, s_vec){
+ 1 - oobag_fun_tdep_cstat(y_mat, w_vec, s_vec)
+}
+```
+
+Also, to speed up computations, I am not going to monitor out-of-bag error here.
 
 ```{r}
 
 fit_tdep_cstat <- orsf(data = pbc_orsf,
-                 formula = Surv(time, status) ~ . - id,
-                 n_tree = 500,
-                 oobag_pred_horizon = 3500,
-                 oobag_fun = oobag_fun_tdep_cstat,
-                 importance = 'negate')
+                       formula = Surv(time, status) ~ . - id,
+                       n_tree = 100,
+                       oobag_pred_horizon = 2000,
+                       oobag_fun = oobag_fun_tdep_cstat_inverse,
+                       importance = 'negate')
 
 fit_tdep_cstat$importance
 

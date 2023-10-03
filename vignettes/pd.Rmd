@@ -193,8 +193,8 @@ PD can show the expected value of a model's predictions as a function of a speci
 ```{r}
 
 pred_spec = list(bili = seq(1, 5, length.out = 20),
-               edema = levels(pbc_orsf_train$edema),
-               trt = levels(pbc_orsf$trt))
+                 edema = levels(pbc_orsf_train$edema),
+                 trt = levels(pbc_orsf$trt))
 
 pd_bili_edema <- orsf_pd_oob(fit, pred_spec)
 
