@@ -132,7 +132,6 @@
 
  }
 
- // [[Rcpp::plugins("cpp17")]]
  // [[Rcpp::export]]
  List orsf_cpp(arma::mat&               x,
                arma::mat&               y,
