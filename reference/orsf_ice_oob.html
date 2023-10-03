@@ -89,6 +89,7 @@ You can compute individual conditional expectations three ways using a random fo
 <span>  pred_type <span class="op">=</span> <span class="st">"risk"</span>,</span>
 <span>  expand_grid <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  boundary_checks <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  n_thread <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -99,6 +100,7 @@ You can compute individual conditional expectations three ways using a random fo
 <span>  pred_type <span class="op">=</span> <span class="st">"risk"</span>,</span>
 <span>  expand_grid <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  boundary_checks <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  n_thread <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -111,6 +113,7 @@ You can compute individual conditional expectations three ways using a random fo
 <span>  na_action <span class="op">=</span> <span class="st">"fail"</span>,</span>
 <span>  expand_grid <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  boundary_checks <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  n_thread <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -164,6 +167,10 @@ in <code>pred_spec</code>, separately.</p></dd>
 to make sure the requested values are between the 10th and 90th
 percentile in the object's training data. If <code>FALSE</code>, these checks are
 skipped.</p></dd>
+
+
+<dt>n_thread</dt>
+<dd><p>(<em>integer</em>) number of threads to use while computing predictions. Default is one thread. To use the maximum number of threads that your system provides for concurrent execution, set <code>n_thread = 0</code>.</p></dd>
 
 
 <dt>...</dt>
@@ -220,18 +227,18 @@ specified prediction horizon(s).</p>
 <span><span class="va">ice_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_oob</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">pred_spec</span>, boundary_checks <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ice_oob</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##       pred_horizon id_variable id_row bili      pred</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##    1:         1788           1      1    1 0.8935318</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##    2:         1788           1      2    1 0.1025087</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##    3:         1788           1      3    1 0.6959198</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##    4:         1788           1      4    1 0.3465760</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##    5:         1788           1      5    1 0.1105536</span></span>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##       id_variable id_row pred_horizon bili      pred</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##    1:           1      1         1788    1 0.9011797</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##    2:           1      2         1788    1 0.1096207</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##    3:           1      3         1788    1 0.7646444</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##    4:           1      4         1788    1 0.3531060</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##    5:           1      5         1788    1 0.1228441</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##   ---                                               </span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 6896:         1788          25    272   10 0.4409361</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 6897:         1788          25    273   10 0.4493052</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## 6898:         1788          25    274   10 0.4696659</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">## 6899:         1788          25    275   10 0.3892409</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">## 6900:         1788          25    276   10 0.4565133</span></span></code></pre><p></p></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 6896:          25    272         1788   10 0.3089586</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 6897:          25    273         1788   10 0.4005430</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## 6898:          25    274         1788   10 0.4933945</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">## 6899:          25    275         1788   10 0.3134373</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">## 6900:          25    276         1788   10 0.5002014</span></span></code></pre><p></p></div>
 <p>Much more detailed examples are given in the
 <a href="https://docs.ropensci.org/aorsf/articles/pd.html#individual-conditional-expectations-ice" class="external-link">vignette</a></p>
     </div>
