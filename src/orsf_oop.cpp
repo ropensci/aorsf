@@ -180,6 +180,10 @@
   EvalType oobag_eval_type = (EvalType) oobag_eval_type_R;
   PartialDepType pd_type = (PartialDepType) pd_type_R;
 
+  if(n_thread == 0){
+   n_thread = std::thread::hardware_concurrency();
+  }
+
   // R functions cannot be called from multiple threads
   if(lincomb_type    == LC_R_FUNCTION  ||
      lincomb_type    == LC_GLMNET      ||

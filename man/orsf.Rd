@@ -83,7 +83,7 @@ will try again with a new linear combination based on a different set
 of randomly selected predictors, up to \code{n_retry} times. Default is
 \code{n_retry = 3}. Set \code{n_retry = 0} to prevent any retries.}
 
-\item{n_thread}{(\emph{integer}) number of threads to use while growing trees, computing predictions, and computing importance.. Default is one thread.}
+\item{n_thread}{(\emph{integer}) number of threads to use while growing trees, computing predictions, and computing importance.. Default is one thread.To use the maximum number of threads that your system provides for concurrent execution, set \code{n_thread = 0}.}
 
 \item{mtry}{(\emph{integer}) Number of predictors randomly included as candidates
 for splitting a node. The default is the smallest integer greater than

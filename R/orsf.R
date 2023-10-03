@@ -85,7 +85,7 @@
 #'  of randomly selected predictors, up to `n_retry` times. Default is
 #'  `n_retry = 3`. Set `n_retry = 0` to prevent any retries.
 #'
-#' @param n_thread `r roxy_n_thread_header("growing trees, computing predictions, and computing importance.")`
+#' @param n_thread `r roxy_n_thread_header("growing trees, computing predictions, and computing importance")`
 #'
 #' @param mtry (_integer_) Number of predictors randomly included as candidates
 #'   for splitting a node. The default is the smallest integer greater than

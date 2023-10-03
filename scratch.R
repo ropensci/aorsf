@@ -5,7 +5,14 @@ library(survival)
 tictoc::tic()
 fit <- orsf(pbc_orsf,
             formula = time+status ~ . - id,
-            n_tree = 2)
+            n_tree = 1000)
+tictoc::toc()
+
+tictoc::tic()
+fit <- orsf(pbc_orsf,
+            formula = time+status ~ . - id,
+            n_tree = 1000,
+            n_thread = 0)
 tictoc::toc()
 
 all(fit$data == pbc_orsf)
@@ -89,11 +96,11 @@ microbenchmark::microbenchmark(
                 leaf_min_obs = 10,
                 n_split = 5,
                 importance = 'none',
-                n_thread = 5),
+                n_thread = 0),
  rfsrc = randomForestSRC::rfsrc(Surv(time, status) ~ . -id,
                                 ntree = 500,
                                 mtry = 3,
-                                nthread = 5,
+                                nthread = 0,
                                 samptype = 'swr',
                                 importance = 'none',
                                 nodesize = 10,
@@ -106,6 +113,7 @@ microbenchmark::microbenchmark(
 
 fit$eval_oobag
 
+library(tidyverse)
 
 fit$forest[-1] |>
  as_tibble() |>
@@ -115,7 +123,7 @@ fit$forest[-1] |>
         .before = 1) |>
  print(n=100)
 
-flchain_orsf <- flchain |>
+flchain_orsf <- survival::flchain |>
  rename(time = futime, status = death) |>
  select(-chapter) |>
  filter(time > 0) %>%
@@ -129,12 +137,12 @@ microbenchmark::microbenchmark(
                 leaf_min_obs = 10,
                 n_split = 5,
                 importance = 'none',
-                n_thread = 5),
+                n_thread = 0),
 
  rfsrc = randomForestSRC::rfsrc(Surv(time, status) ~ .,
                                 ntree = 500,
                                 mtry = 3,
-                                nthread = 5,
+                                nthread = 0,
                                 samptype = 'swr',
                                 importance = 'none',
                                 nodesize = 10,
