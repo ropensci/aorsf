@@ -17,6 +17,10 @@ compute_logrank_exported <- function(y, w, g) {
     .Call(`_aorsf_compute_logrank_exported`, y, w, g)
 }
 
+is_col_splittable_exported <- function(x, y, r, j) {
+    .Call(`_aorsf_is_col_splittable_exported`, x, y, r, j)
+}
+
 cph_scale <- function(x, w) {
     .Call(`_aorsf_cph_scale`, x, w)
 }

@@ -68,6 +68,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// is_col_splittable_exported
+bool is_col_splittable_exported(arma::mat& x, arma::mat& y, arma::uvec& r, arma::uword j);
+RcppExport SEXP _aorsf_is_col_splittable_exported(SEXP xSEXP, SEXP ySEXP, SEXP rSEXP, SEXP jSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type r(rSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type j(jSEXP);
+    rcpp_result_gen = Rcpp::wrap(is_col_splittable_exported(x, y, r, j));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cph_scale
 List cph_scale(arma::mat& x, arma::vec& w);
 RcppExport SEXP _aorsf_cph_scale(SEXP xSEXP, SEXP wSEXP) {
@@ -140,6 +154,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_compute_cstat_exported_vec", (DL_FUNC) &_aorsf_compute_cstat_exported_vec, 4},
     {"_aorsf_compute_cstat_exported_uvec", (DL_FUNC) &_aorsf_compute_cstat_exported_uvec, 4},
     {"_aorsf_compute_logrank_exported", (DL_FUNC) &_aorsf_compute_logrank_exported, 3},
+    {"_aorsf_is_col_splittable_exported", (DL_FUNC) &_aorsf_is_col_splittable_exported, 4},
     {"_aorsf_cph_scale", (DL_FUNC) &_aorsf_cph_scale, 2},
     {"_aorsf_orsf_cpp", (DL_FUNC) &_aorsf_orsf_cpp, 44},
     {NULL, NULL, 0}

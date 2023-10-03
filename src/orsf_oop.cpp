@@ -78,6 +78,22 @@
  ){ return compute_logrank(y, w, g); }
 
  // [[Rcpp::export]]
+ bool is_col_splittable_exported(arma::mat& x,
+                                 arma::mat& y,
+                                 arma::uvec& r,
+                                 arma::uword j){
+
+  TreeSurvival tree;
+
+  tree.set_x_inbag(x);
+  tree.set_y_inbag(y);
+  tree.set_rows_node(r);
+
+  return(tree.is_col_splittable(j));
+
+ }
+
+ // [[Rcpp::export]]
  List cph_scale(arma::mat& x, arma::vec& w){
 
   // set aside memory for outputs

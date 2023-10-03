@@ -130,6 +130,19 @@
    return(pred_leaf);
   }
 
+  // helper function used to help test tree functions in R
+  void set_x_inbag(arma::mat x){
+   this->x_inbag = x;
+  }
+
+  void set_y_inbag(arma::mat y){
+   this->y_inbag = y;
+  }
+
+  void set_rows_node(arma::uvec rows){
+   this->rows_node = rows;
+  }
+
 
  protected:
 
