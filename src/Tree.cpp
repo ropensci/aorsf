@@ -518,7 +518,6 @@
 
   }
 
-  // cuts_sampled = sort(cuts_sampled);
   // initialize grouping for the current node
   // value of 1 indicates go to right node
   g_node.ones(lincomb.size());

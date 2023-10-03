@@ -101,6 +101,8 @@ to make sure the requested values are between the 10th and 90th
 percentile in the object's training data. If \code{FALSE}, these checks are
 skipped.}
 
+\item{n_thread}{(\emph{integer}) number of threads to use while computing predictions. Default is one thread.}
+
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 
 \item{new_data}{a \link{data.frame}, \link[tibble:tibble-package]{tibble}, or \link[data.table:data.table]{data.table} to compute predictions in.}
@@ -158,12 +160,12 @@ You can compute partial dependence and ICE three ways with \code{aorsf}:
 pd_train
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean        lwr      medn       upr
-## 1:      1826.25    1 0.2167954 0.01432475 0.0946650 0.8243506
-## 2:      1826.25    2 0.2520765 0.03084190 0.1333465 0.8442959
-## 3:      1826.25    3 0.2964487 0.05324065 0.1937964 0.8578131
-## 4:      1826.25    4 0.3518250 0.09798050 0.2751326 0.8699063
-## 5:      1826.25    5 0.3936739 0.14573200 0.2984227 0.8781099
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean        lwr       medn       upr
+## 1:      1826.25    1 0.2151663 0.02028479 0.09634648 0.7997269
+## 2:      1826.25    2 0.2576618 0.03766695 0.15497447 0.8211875
+## 3:      1826.25    3 0.2998484 0.06436773 0.20771324 0.8425637
+## 4:      1826.25    4 0.3390664 0.08427149 0.25401067 0.8589590
+## 5:      1826.25    5 0.3699045 0.10650098 0.28284427 0.8689855
 }\if{html}{\out{</div>}}
 \item using out-of-bag predictions for the training data
 
@@ -172,12 +174,12 @@ pd_train
 pd_train
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean        lwr      medn       upr
-## 1:      1826.25    1 0.2161745 0.01183390 0.1001640 0.8304537
-## 2:      1826.25    2 0.2521996 0.02447359 0.1419482 0.8484741
-## 3:      1826.25    3 0.2961802 0.04854875 0.1992512 0.8640601
-## 4:      1826.25    4 0.3532215 0.10111235 0.2666702 0.8642393
-## 5:      1826.25    5 0.3940203 0.14768055 0.3270825 0.8737186
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean        lwr       medn       upr
+## 1:      1826.25    1 0.2145044 0.01835000 0.09619052 0.7980629
+## 2:      1826.25    2 0.2566241 0.03535358 0.14185734 0.8173143
+## 3:      1826.25    3 0.2984693 0.05900059 0.20515477 0.8334243
+## 4:      1826.25    4 0.3383547 0.07887323 0.24347513 0.8469769
+## 5:      1826.25    5 0.3696260 0.10450534 0.28065473 0.8523756
 }\if{html}{\out{</div>}}
 \item using predictions for a new set of data
 
@@ -189,11 +191,11 @@ pd_test
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean        lwr      medn       upr
-## 1:      1826.25    1 0.2643571 0.01758300 0.2098936 0.8410357
-## 2:      1826.25    2 0.2990417 0.04063388 0.2516202 0.8547441
-## 3:      1826.25    3 0.3432271 0.06843859 0.3056799 0.8664949
-## 4:      1826.25    4 0.3967879 0.11801725 0.3593064 0.8721247
-## 5:      1826.25    5 0.4388518 0.16038177 0.4094224 0.8800138
+## 1:      1826.25    1 0.2542230 0.02901386 0.1943767 0.8143912
+## 2:      1826.25    2 0.2955726 0.05037316 0.2474559 0.8317684
+## 3:      1826.25    3 0.3388434 0.07453896 0.3010898 0.8488622
+## 4:      1826.25    4 0.3800254 0.10565022 0.3516805 0.8592057
+## 5:      1826.25    5 0.4124587 0.12292465 0.3915066 0.8690074
 }\if{html}{\out{</div>}}
 \item in-bag partial dependence indicates relationships that the model has
 learned during training. This is helpful if your goal is to interpret

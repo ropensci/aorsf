@@ -85,16 +85,23 @@
 #'  of randomly selected predictors, up to `n_retry` times. Default is
 #'  `n_retry = 3`. Set `n_retry = 0` to prevent any retries.
 #'
-#' @param n_thread `r roxy_n_thread_header()`
+#' @param n_thread `r roxy_n_thread_header("growing trees, computing predictions, and computing importance.")`
 #'
 #' @param mtry (_integer_) Number of predictors randomly included as candidates
 #'   for splitting a node. The default is the smallest integer greater than
 #'   the square root of the number of total predictors, i.e.,
 #'   `mtry = ceiling(sqrt(number of predictors))`
 #'
-#' @param sample_with_replacement
+#' @param sample_with_replacement (_logical_) If `TRUE` (the default),
+#'   observations are sampled with replacement when an in-bag sample
+#'   is created for a decision tree. If `FALSE`, observations are
+#'   sampled without replacement and each tree will have an in-bag sample
+#'   containing `sample_fraction`% of the original sample.
 #'
-#' @param sample_fraction
+#' @param sample_fraction (_double_) the proportion of observations that
+#'   each trees' in-bag sample will contain, relative to the number of
+#'   rows in `data`. Only used if `sample_with_replacement` is `FALSE`.
+#'   Default value is 0.632.
 #'
 #' @param leaf_min_events (_integer_) minimum number of events in a
 #'   leaf node. Default is `leaf_min_events = 1`
@@ -186,7 +193,7 @@
 #'     to the output will be the imputed version of `data`.
 #'
 #' @param verbose_progress (_logical_) if `TRUE`, progress messages are
-#'   printed in the console.
+#'   printed in the console. If `FALSE` (the default), nothing is printed.
 #'
 #' @param ... `r roxy_dots()`
 #'

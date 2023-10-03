@@ -78,9 +78,9 @@ oobag_fun_4_args <- function(y_mat, w_vec, s_vec, nope){
 }
 
 
-oobag_fun_errors_on_test <- function(y_mat, s_vec){
+oobag_fun_errors_on_test <- function(y_mat, w_vec, s_vec){
 
- stop("I can't do anything!", call. = FALSE)
+ stop("expected error occurred!", call. = FALSE)
 
 }
 
@@ -269,13 +269,10 @@ test_that(
    regexp = 'type character'
   )
 
-  if(Sys.getenv("run_all_aorsf_tests") == 'yes'){
-   expect_error(
-    orsf_vi_negate(fit_no_vi, oobag_fun = oobag_fun_errors_on_test),
-    regexp = 'encountered an error'
-   )
-  }
-
+  expect_error(
+   orsf_vi_negate(fit_no_vi, oobag_fun = oobag_fun_errors_on_test),
+   regexp = 'encountered an error'
+  )
 
   expect_error(
    orsf_vi_negate(fit_no_vi, oobag_fun = oobag_fun_4_args),

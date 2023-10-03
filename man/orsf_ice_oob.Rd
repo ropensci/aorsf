@@ -83,6 +83,8 @@ to make sure the requested values are between the 10th and 90th
 percentile in the object's training data. If \code{FALSE}, these checks are
 skipped.}
 
+\item{n_thread}{(\emph{integer}) number of threads to use while computing predictions. Default is one thread.}
+
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 
 \item{new_data}{a \link{data.frame}, \link[tibble:tibble-package]{tibble}, or \link[data.table:data.table]{data.table} to compute predictions in.}
@@ -150,17 +152,17 @@ ice_oob
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row pred_horizon bili      pred
-##    1:           1      1         1788    1 0.9295584
-##    2:           1      2         1788    1 0.1412476
-##    3:           1      3         1788    1 0.7047846
-##    4:           1      4         1788    1 0.3673939
-##    5:           1      5         1788    1 0.1206201
+##    1:           1      1         1788    1 0.9011797
+##    2:           1      2         1788    1 0.1096207
+##    3:           1      3         1788    1 0.7646444
+##    4:           1      4         1788    1 0.3531060
+##    5:           1      5         1788    1 0.1228441
 ##   ---                                               
-## 6896:          25    272         1788   10 0.3909254
-## 6897:          25    273         1788   10 0.4854526
-## 6898:          25    274         1788   10 0.4417335
-## 6899:          25    275         1788   10 0.3639220
-## 6900:          25    276         1788   10 0.5409864
+## 6896:          25    272         1788   10 0.3089586
+## 6897:          25    273         1788   10 0.4005430
+## 6898:          25    274         1788   10 0.4933945
+## 6899:          25    275         1788   10 0.3134373
+## 6900:          25    276         1788   10 0.5002014
 }\if{html}{\out{</div>}}
 
 Much more detailed examples are given in the

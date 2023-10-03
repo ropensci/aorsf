@@ -45,6 +45,18 @@
 #'  observed time in `object`'s training data. If `FALSE`, these checks
 #'  are skipped.
 #'
+#' @param n_thread `r roxy_n_thread_header("computing predictions")`
+#'
+#' @param pred_aggregate (_logical_) If `TRUE` (the default), predictions
+#'   will be aggregated over all trees by taking the mean. If `FALSE`, the
+#'   returned output will contain one row per observation and one column
+#'   for each tree. If the length of `pred_horizon` is two or more and
+#'   `pred_aggregate` is `FALSE`, then the result will be a list of such
+#'   matrices, with the i'th item in the list corresponding to the i'th
+#'   value of `pred_horizon`.
+#'
+#' @inheritParams orsf
+#'
 #' @param ... `r roxy_dots()`
 #'
 #' @return a `matrix` of predictions. Column `j` of the matrix corresponds
@@ -119,15 +131,15 @@ predict.orsf_fit <- function(object,
   results <- lapply(
    X = pred_horizon,
    FUN = function(t){
-    predict(object = object,
-            new_data = new_data,
-            pred_horizon = t,
-            pred_type = pred_type,
-            na_action = na_action,
-            boundary_checks = boundary_checks,
-            n_thread = n_thread,
-            verbose_progress = verbose_progress,
-            pred_aggregate = pred_aggregate)
+    predict.orsf_fit(object = object,
+                     new_data = new_data,
+                     pred_horizon = t,
+                     pred_type = pred_type,
+                     na_action = na_action,
+                     boundary_checks = boundary_checks,
+                     n_thread = n_thread,
+                     verbose_progress = verbose_progress,
+                     pred_aggregate = pred_aggregate)
    }
   )
 

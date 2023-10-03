@@ -83,16 +83,23 @@ will try again with a new linear combination based on a different set
 of randomly selected predictors, up to \code{n_retry} times. Default is
 \code{n_retry = 3}. Set \code{n_retry = 0} to prevent any retries.}
 
-\item{n_thread}{(\emph{integer}) number of threads to use. Default is one thread.}
+\item{n_thread}{(\emph{integer}) number of threads to use while growing trees, computing predictions, and computing importance.. Default is one thread.}
 
 \item{mtry}{(\emph{integer}) Number of predictors randomly included as candidates
 for splitting a node. The default is the smallest integer greater than
 the square root of the number of total predictors, i.e.,
 \verb{mtry = ceiling(sqrt(number of predictors))}}
 
-\item{sample_with_replacement}{}
+\item{sample_with_replacement}{(\emph{logical}) If \code{TRUE} (the default),
+observations are sampled with replacement when an in-bag sample
+is created for a decision tree. If \code{FALSE}, observations are
+sampled without replacement and each tree will have an in-bag sample
+containing \code{sample_fraction}\% of the original sample.}
 
-\item{sample_fraction}{}
+\item{sample_fraction}{(\emph{double}) the proportion of observations that
+each trees' in-bag sample will contain, relative to the number of
+rows in \code{data}. Only used if \code{sample_with_replacement} is \code{FALSE}.
+Default value is 0.632.}
 
 \item{leaf_min_events}{(\emph{integer}) minimum number of events in a
 leaf node. Default is \code{leaf_min_events = 1}}
@@ -191,7 +198,7 @@ to the output will be the imputed version of \code{data}.
 }}
 
 \item{verbose_progress}{(\emph{logical}) if \code{TRUE}, progress messages are
-printed in the console.}
+printed in the console. If \code{FALSE} (the default), nothing is printed.}
 
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 

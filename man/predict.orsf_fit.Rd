@@ -54,6 +54,19 @@ checked to make sure the requested values are less than the maximum
 observed time in \code{object}'s training data. If \code{FALSE}, these checks
 are skipped.}
 
+\item{n_thread}{(\emph{integer}) number of threads to use while computing predictions. Default is one thread.}
+
+\item{verbose_progress}{(\emph{logical}) if \code{TRUE}, progress messages are
+printed in the console. If \code{FALSE} (the default), nothing is printed.}
+
+\item{pred_aggregate}{(\emph{logical}) If \code{TRUE} (the default), predictions
+will be aggregated over all trees by taking the mean. If \code{FALSE}, the
+returned output will contain one row per observation and one column
+for each tree. If the length of \code{pred_horizon} is two or more and
+\code{pred_aggregate} is \code{FALSE}, then the result will be a list of such
+matrices, with the i'th item in the list corresponding to the i'th
+value of \code{pred_horizon}.}
+
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 }
 \value{
@@ -107,11 +120,11 @@ predict(fit,
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##            [,1]       [,2]       [,3]
-## [1,] 0.49828550 0.77570208 0.91812971
-## [2,] 0.04475471 0.09161544 0.17682278
-## [3,] 0.12850458 0.27603519 0.41455070
-## [4,] 0.01279086 0.02980402 0.06458151
-## [5,] 0.01277317 0.02249769 0.04875677
+## [1,] 0.49679905 0.77309053 0.90830168
+## [2,] 0.03363621 0.08527972 0.17061414
+## [3,] 0.15129784 0.30402666 0.43747212
+## [4,] 0.01152480 0.02950914 0.07068198
+## [5,] 0.01035341 0.01942262 0.05117679
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted survival, i.e., 1 - risk
@@ -122,11 +135,11 @@ predict(fit,
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##           [,1]      [,2]       [,3]
-## [1,] 0.5017145 0.2242979 0.08187029
-## [2,] 0.9552453 0.9083846 0.82317722
-## [3,] 0.8714954 0.7239648 0.58544930
-## [4,] 0.9872091 0.9701960 0.93541849
-## [5,] 0.9872268 0.9775023 0.95124323
+## [1,] 0.5032009 0.2269095 0.09169832
+## [2,] 0.9663638 0.9147203 0.82938586
+## [3,] 0.8487022 0.6959733 0.56252788
+## [4,] 0.9884752 0.9704909 0.92931802
+## [5,] 0.9896466 0.9805774 0.94882321
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted cumulative hazard function
@@ -138,11 +151,11 @@ predict(fit,
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##            [,1]       [,2]       [,3]
-## [1,] 0.70791303 1.40367742 1.79658865
-## [2,] 0.04954335 0.11460828 0.24130253
-## [3,] 0.16616222 0.43287394 0.71524591
-## [4,] 0.01443848 0.03640393 0.08366798
-## [5,] 0.01435412 0.02680792 0.06203327
+## [1,] 0.74442414 1.39538511 1.78344589
+## [2,] 0.03473938 0.10418984 0.24047328
+## [3,] 0.19732086 0.47015754 0.73629459
+## [4,] 0.01169147 0.03223257 0.09564168
+## [5,] 0.01072007 0.02240040 0.06464319
 }\if{html}{\out{</div>}}
 
 Predict mortality, defined as the number of events in the forest’s
@@ -156,11 +169,11 @@ prediction horizon
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##          [,1]
-## [1,] 82.87688
-## [2,] 28.34298
-## [3,] 42.42506
-## [4,] 16.15515
-## [5,] 10.86385
+## [1,] 83.08611
+## [2,] 27.48146
+## [3,] 43.52432
+## [4,] 15.20281
+## [5,] 10.56334
 }\if{html}{\out{</div>}}
 }
 

@@ -60,6 +60,8 @@
 #'  percentile in the object's training data. If `FALSE`, these checks are
 #'  skipped.
 #'
+#' @param n_thread `r roxy_n_thread_header("computing predictions")`
+#'
 #' @param ... `r roxy_dots()`
 #'
 #' @return a [data.table][data.table::data.table-package] containing
@@ -308,6 +310,9 @@ orsf_pred_dependence <- function(object,
                                  type_output){
 
  pred_horizon <- infer_pred_horizon(object, pred_horizon)
+
+ # make a visible binding for CRAN
+ id_variable = NULL
 
  if(is.null(prob_values)) prob_values <- c(0.025, 0.50, 0.975)
  if(is.null(prob_labels)) prob_labels <- c('lwr', 'medn', 'upr')
