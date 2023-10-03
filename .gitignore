@@ -10,4 +10,3 @@ src-i386
 Rmd/*_cache/
 Rmd/figure*
 Rmd/*.html
-^scratch\.R$
