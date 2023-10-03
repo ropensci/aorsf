@@ -114,7 +114,7 @@
 
   }
 
-  if(VERBOSITY > 1){
+  if(verbosity > 3){
 
    mat x_print = x_inbag.rows(rows_node);
    mat y_print = y_inbag.rows(rows_node);
@@ -122,8 +122,8 @@
    uvec rows_event = find(y_print.col(1) == 1);
    x_print = x_print.rows(rows_event);
 
-   Rcout << "Column " << j << " was sampled but ";
-   Rcout << "unique values of column " << j << " are ";
+   Rcout << "  --- Column " << j << " was sampled but ";
+   Rcout << " unique values of column " << j << " are ";
    Rcout << unique(x_print.col(j)) << std::endl;
 
   }

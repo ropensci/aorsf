@@ -335,8 +335,7 @@ void Forest::compute_oobag_vi() {
  progress = 0;
 
  if(n_thread == 1){
-  vec* vi_numer_ptr = &vi_numer;
-  compute_oobag_vi_single_thread(vi_numer_ptr);
+  compute_oobag_vi_single_thread(&vi_numer);
   return;
  }
 

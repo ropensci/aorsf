@@ -7,8 +7,6 @@
 #ifndef GLOBALS_H_
 #define GLOBALS_H_
 
-#include <armadillo>
-
  namespace aorsf {
 
  typedef unsigned int uint;

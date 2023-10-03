@@ -7,7 +7,6 @@
 #ifndef TREE_H_
 #define TREE_H_
 
-
 #include "Data.h"
 #include "globals.h"
 #include "utility.h"
@@ -135,6 +134,8 @@
  protected:
 
   void allocate_oobag_memory();
+
+  void restore_rows_inbag(arma::uword n_obs);
 
   // pointers to variable importance in forest
   arma::vec* vi_numer;

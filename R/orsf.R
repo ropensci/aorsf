@@ -725,10 +725,13 @@ orsf <- function(data,
  y_sort <- y[sorted, , drop = FALSE]
  w_sort <- weights[sorted]
 
- if(length(tree_seeds) == 1) set.seed(tree_seeds)
+ if(length(tree_seeds) == 1 && n_tree > 1){
+  set.seed(tree_seeds)
+  tree_seeds <- sample(x = n_tree*10, size = n_tree, replace = FALSE)
+ } else if(is.null(tree_seeds)){
+  tree_seeds <- sample(x = n_tree*10, size = n_tree, replace = FALSE)
+ }
 
- if(is.null(tree_seeds) || length(tree_seeds) == 1)
-  tree_seeds <- sample(x = n_tree*2, size = n_tree, replace = FALSE)
 
  vi_max_pvalue = 0.01
  tree_type_R = 3

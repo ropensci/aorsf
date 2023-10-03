@@ -9,6 +9,7 @@
 #include "Coxph.h"
 
 #include <memory>
+#include <random>
 
  using namespace arma;
  using namespace Rcpp;
@@ -232,7 +233,7 @@
 
   for (i = 0; i < n_cols_total; ++i) {
 
-   do { draw = udist_cols(random_number_generator); } while (temp[draw]);
+   do {draw = udist_cols(random_number_generator); } while (temp[draw]);
 
    temp[draw] = true;
 
@@ -492,25 +493,23 @@
 
   } else { // split_max_cuts < cuts_all.size()
 
-   cuts_sampled.set_size(split_max_cuts);
+   cuts_sampled.resize(split_max_cuts);
 
    std::uniform_int_distribution<uword> udist_cuts(0, cuts_all.size() - 1);
 
-   // sample without replacement
+   // Set all to not selected
+   std::vector<bool> temp;
+   temp.resize(cuts_all.size(), false);
+
+   uword draw;
+
    for (uword i = 0; i < split_max_cuts; ++i) {
 
-    uword draw = udist_cuts(random_number_generator);
+    do {draw = udist_cuts(random_number_generator); } while (temp[draw]);
 
-    // Ensure the drawn number is not already in the sample
-    while (std::find(cuts_sampled.begin(),
-                     cuts_sampled.end(),
-                     cuts_all[draw]) != cuts_sampled.end()) {
+    temp[draw] = true;
 
-     draw = udist_cuts(random_number_generator);
-
-    }
-
-    cuts_sampled[i] = cuts_all[draw];
+    cuts_sampled[i] = draw;
 
    }
 
@@ -519,7 +518,7 @@
 
   }
 
-
+  // cuts_sampled = sort(cuts_sampled);
   // initialize grouping for the current node
   // value of 1 indicates go to right node
   g_node.ones(lincomb.size());
@@ -999,7 +998,6 @@
     pred_leaf.elem(rows_inbag).fill(max_nodes);
    }
 
-
   }
 
  }
@@ -1121,6 +1119,36 @@
 
    }
   }
+ }
+
+ void Tree::restore_rows_inbag(arma::uword n_obs) {
+
+  rows_inbag.set_size(n_obs);
+  uword rows_inbag_counter = 0;
+
+  if(rows_oobag[0] != 0){
+   rows_inbag[0] = 0;
+   rows_inbag_counter = 1;
+  }
+
+  for(arma::uword i = 1; i < rows_oobag.size(); i++){
+   if(rows_oobag[i-1]+1 != rows_oobag[i]){
+    for(arma::uword j = rows_oobag[i-1]+1; j < rows_oobag[i]; ++j){
+     rows_inbag[rows_inbag_counter] = j;
+     rows_inbag_counter++;
+    }
+   }
+  }
+
+  if(rows_oobag.back() < n_obs){
+   for(arma::uword j = rows_oobag.back()+1; j < n_obs; ++j){
+    rows_inbag[rows_inbag_counter] = j;
+    rows_inbag_counter++;
+   }
+  }
+
+  rows_inbag.resize(rows_inbag_counter);
+
  }
 
 

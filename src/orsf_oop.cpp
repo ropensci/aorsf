@@ -10,6 +10,9 @@
 #----------------------------------------------------------------------------*/
 
 #include <RcppArmadillo.h>
+#include <vector>
+#include <memory>
+#include <utility>
 
 #include "globals.h"
 #include "Data.h"
@@ -17,9 +20,7 @@
 #include "Forest.h"
 #include "ForestSurvival.h"
 #include "Coxph.h"
-
-#include <utility>
-#include <memory>
+#include "utility.h"
 
 // [[Rcpp::depends(RcppArmadillo)]]
 
@@ -275,7 +276,7 @@
 
     result.push_back(forest->get_predictions(), "pred_new");
 
-   } else {
+   } else if (grow_mode) {
 
     if (oobag) result.push_back(forest->get_predictions(), "pred_oobag");
 

@@ -152,11 +152,11 @@ the ‘raw’ variable importance values can be accessed from the fit object
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##   ascites_1     edema_1        bili      copper     albumin         age 
-##   0.4391711   0.4159605   0.2995144   0.2165056   0.2142857   0.1982379 
-##     protime   edema_0.5   spiders_1        chol       stage       sex_f 
-##   0.1877984   0.1877432   0.1743852   0.1735495   0.1597052   0.1553260 
-##         ast    hepato_1        trig    alk.phos    platelet trt_placebo 
-##   0.1546716   0.1460259   0.1235324   0.1234032   0.1047957   0.0964256
+##  0.44989185  0.43904209  0.29908016  0.22471022  0.20573664  0.19373368 
+##   edema_0.5     protime        chol       stage   spiders_1         ast 
+##  0.19096711  0.17582704  0.17527675  0.17057992  0.16721527  0.16061635 
+##       sex_f    hepato_1        trig    alk.phos    platelet trt_placebo 
+##  0.14513788  0.14241390  0.12698834  0.12228332  0.10395510  0.09001406
 }\if{html}{\out{</div>}}
 
 these are ‘raw’ because values for factors have not been aggregated into
@@ -175,24 +175,24 @@ To get aggregated values across all levels of each factor,
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit$importance
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##   ascites      bili     edema    copper   albumin       age   protime   spiders 
-## 0.4391711 0.2995144 0.2801168 0.2165056 0.2142857 0.1982379 0.1877984 0.1743852 
-##      chol     stage       sex       ast    hepato      trig  alk.phos  platelet 
-## 0.1735495 0.1597052 0.1553260 0.1546716 0.1460259 0.1235324 0.1234032 0.1047957 
-##       trt 
-## 0.0964256
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper    albumin        age    protime 
+## 0.44989185 0.29908016 0.29137841 0.22471022 0.20573664 0.19373368 0.17582704 
+##       chol      stage    spiders        ast        sex     hepato       trig 
+## 0.17527675 0.17057992 0.16721527 0.16061635 0.14513788 0.14241390 0.12698834 
+##   alk.phos   platelet        trt 
+## 0.12228332 0.10395510 0.09001406
 }\if{html}{\out{</div>}}
 \item use \code{orsf_vi()} with group_factors set to \code{TRUE} (the default)
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi(fit)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##   ascites      bili     edema    copper   albumin       age   protime   spiders 
-## 0.4391711 0.2995144 0.2801168 0.2165056 0.2142857 0.1982379 0.1877984 0.1743852 
-##      chol     stage       sex       ast    hepato      trig  alk.phos  platelet 
-## 0.1735495 0.1597052 0.1553260 0.1546716 0.1460259 0.1235324 0.1234032 0.1047957 
-##       trt 
-## 0.0964256
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper    albumin        age    protime 
+## 0.44989185 0.29908016 0.29137841 0.22471022 0.20573664 0.19373368 0.17582704 
+##       chol      stage    spiders        ast        sex     hepato       trig 
+## 0.17527675 0.17057992 0.16721527 0.16061635 0.14513788 0.14241390 0.12698834 
+##   alk.phos   platelet        trt 
+## 0.12228332 0.10395510 0.09001406
 }\if{html}{\out{</div>}}
 }
 
@@ -215,25 +215,25 @@ You can fit an ORSF without VI, then add VI later
 orsf_vi_negate(fit_no_vi)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##         bili       copper          sex        stage          age      protime 
-## 0.1196317067 0.0465652932 0.0359883920 0.0233434956 0.0232368840 0.0223260165 
-##      albumin      ascites         chol          ast          trt        edema 
-## 0.0211517044 0.0145175907 0.0138658597 0.0109819326 0.0073382729 0.0070133157 
-##       hepato      spiders     alk.phos     platelet         trig 
-## 0.0060972904 0.0057602440 0.0030635500 0.0009602817 0.0009438331
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##        bili      copper         sex       stage     protime         age 
+## 0.117730704 0.046729117 0.038092882 0.026541912 0.024044523 0.022579987 
+##     albumin     ascites        chol         ast      hepato       edema 
+## 0.020445566 0.015747970 0.013665771 0.011546707 0.007505877 0.007380968 
+##         trt     spiders    alk.phos        trig    platelet 
+## 0.006090162 0.005384646 0.003535311 0.003363440 0.001137152
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi_permute(fit_no_vi)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili        copper         stage           age       ascites 
-##  0.0539069325  0.0225538556  0.0139800024  0.0130956672  0.0124856974 
-##       protime       albumin           ast         edema          chol 
-##  0.0120074964  0.0118859065  0.0066242266  0.0059325712  0.0050016594 
-##       spiders        hepato           sex      alk.phos      platelet 
-##  0.0038100501  0.0037567798  0.0021379186  0.0016186567  0.0004227819 
-##          trig           trt 
-##  0.0001305134 -0.0004753489
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili        copper       protime           age       albumin 
+##  0.0548467795  0.0223917526  0.0145052464  0.0143080180  0.0129163843 
+##       ascites         stage          chol        hepato           ast 
+##  0.0126002596  0.0123809698  0.0067530051  0.0063142977  0.0061418741 
+##         edema           sex       spiders          trig      alk.phos 
+##  0.0056802985  0.0036623429  0.0036022538  0.0018681065  0.0016083830 
+##      platelet           trt 
+##  0.0008698127 -0.0018486429
 }\if{html}{\out{</div>}}
 }
 
@@ -249,14 +249,12 @@ fit an ORSF and compute vi at the same time
 orsf_vi_permute(fit_permute_vi)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili        copper           age         stage       protime 
-##  0.0535951482  0.0213747603  0.0130213093  0.0125902848  0.0125355222 
-##       albumin       ascites         edema          chol           ast 
-##  0.0117643836  0.0110165950  0.0066711126  0.0053913018  0.0053687844 
-##       spiders        hepato           sex          trig      alk.phos 
-##  0.0050364087  0.0033189806  0.0023822496  0.0021329131  0.0013342218 
-##      platelet           trt 
-##  0.0004832179 -0.0008167108
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##         bili       copper      protime          age      ascites        stage 
+##  0.054096726  0.021642597  0.012982646  0.012791086  0.011814535  0.011340900 
+##      albumin          ast        edema         chol       hepato      spiders 
+##  0.011210041  0.007311084  0.005830548  0.005810293  0.004883486  0.004378305 
+##          sex     platelet         trig     alk.phos          trt 
+##  0.002637627  0.001703578  0.001330196  0.001088634 -0.000672300
 }\if{html}{\out{</div>}}
 
 You can still get negation VI from this fit, but it needs to be computed
@@ -264,12 +262,12 @@ You can still get negation VI from this fit, but it needs to be computed
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi_negate(fit_permute_vi)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##        bili      copper         sex     protime       stage         age 
-## 0.121239249 0.045054227 0.036316795 0.022854700 0.021762492 0.021568727 
-##     albumin     ascites        chol         ast       edema         trt 
-## 0.020454217 0.013668746 0.012727654 0.010759856 0.008141249 0.007707799 
-##     spiders      hepato    alk.phos        trig    platelet 
-## 0.006221536 0.004144837 0.003004906 0.002690560 0.001059348
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##        bili      copper         sex         age     protime       stage 
+## 0.121157363 0.046443795 0.036413372 0.022874454 0.021931876 0.020768489 
+##     albumin     ascites         ast        chol       edema     spiders 
+## 0.018865052 0.014014246 0.013016756 0.011260147 0.007998584 0.006157751 
+##         trt      hepato        trig    alk.phos    platelet 
+## 0.005142056 0.005064243 0.003148662 0.003033804 0.002143418
 }\if{html}{\out{</div>}}
 }
 }
