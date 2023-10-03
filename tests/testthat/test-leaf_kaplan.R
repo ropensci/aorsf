@@ -18,7 +18,7 @@ flc <- flc[flc$futime > 0, ]
 
 sorted <- collapse::radixorder(flc$futime, -flc$death)
 
-flc <- flc[sorted, ]
+# flc <- flc[sorted, ]
 
 weights <- sample(1:5, nrow(flc), replace = TRUE)
 
@@ -28,12 +28,16 @@ fit <- orsf(flc,
             n_tree = 1,
             weights = weights,
             tree_seeds = 1,
-            sample_fraction = 1,
             oobag_pred_type = 'none',
+            # this makes every observation part of the in-bag data
+            sample_fraction = 1,
             sample_with_replacement = FALSE,
+            # this forces the tree to make a leaf at the root
             split_rule = 'cstat',
             split_min_stat = 0.999)
 
+# so the result should be equivalent to fitting a kaplan-meier curve
+# to the original training data, using replicate weights
 aorsf_surv <- fit$forest$leaf_pred_prob[[1]][[1]]
 aorsf_time <- fit$forest$leaf_pred_indx[[1]][[1]]
 

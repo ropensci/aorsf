@@ -649,7 +649,9 @@ orsf <- function(data,
    },
 
    'omit' = {
-    data <- collapse::na_omit(data, cols = names_x_data)
+    # data <- collapse::na_omit(data, cols = names_x_data)
+    cc <- stats::complete.cases(data[, names_x_data])
+    data <- data[cc, ]
    },
 
    'impute_meanmode' = {
