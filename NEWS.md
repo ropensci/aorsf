@@ -1,4 +1,12 @@
-# aorsf 0.0.8
+# aorsf 0.1.0 (unreleased)
+
+* Re-worked `aorsf`'s C++, code following the design of `ranger`, to set it up for classification and regression trees.
+
+* Allowed multi-threading to be performed in `orsf()`, `predict.orsf_fit()`, and functions in the `orsf_vi()` and `orsf_pd()` family.
+
+* Allowed for sampling without replacement and sampling a specific fraction of observations in `orsf()`
+
+* Included Harrell's C-statistic as an option for assessing goodness of splits while growing trees.
 
 * Fixed an issue where an uninformative error message would occur when `pred_horizon` was > max(time) for `orsf_summarize_uni`. Thanks to @JyHao1 and @DustinMLong for finding this!
 
