@@ -610,9 +610,13 @@ check_orsf_inputs <- function(data = NULL,
                               n_tree = NULL,
                               n_split = NULL,
                               n_retry = NULL,
+                              n_thread = NULL,
                               mtry = NULL,
+                              sample_with_replacement = NULL,
+                              sample_fraction = NULL,
                               leaf_min_events = NULL,
                               leaf_min_obs = NULL,
+                              split_rule = NULL,
                               split_min_events = NULL,
                               split_min_obs = NULL,
                               split_min_stat = NULL,
@@ -796,6 +800,25 @@ check_orsf_inputs <- function(data = NULL,
 
  }
 
+ if(!is.null(n_thread)){
+
+  check_arg_type(arg_value = n_thread,
+                 arg_name = 'n_thread',
+                 expected_type = 'numeric')
+
+  check_arg_is_integer(arg_name = 'n_thread',
+                       arg_value = n_thread)
+
+  check_arg_gteq(arg_name = 'n_thread',
+                 arg_value = n_thread,
+                 bound = 0)
+
+  check_arg_length(arg_name = 'n_thread',
+                   arg_value = n_thread,
+                   expected_length = 1)
+
+ }
+
  if(!is.null(mtry)){
 
   check_arg_type(arg_value = mtry,
@@ -811,6 +834,38 @@ check_orsf_inputs <- function(data = NULL,
 
   check_arg_length(arg_name = 'mtry',
                    arg_value = mtry,
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(sample_with_replacement)){
+
+  check_arg_type(arg_value = sample_with_replacement,
+                 arg_name = 'sample_with_replacement',
+                 expected_type = 'logical')
+
+  check_arg_length(arg_name = 'sample_with_replacement',
+                   arg_value = sample_with_replacement,
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(sample_fraction)){
+
+  check_arg_type(arg_value = sample_fraction,
+                 arg_name = 'sample_fraction',
+                 expected_type = 'numeric')
+
+  check_arg_gt(arg_value = sample_fraction,
+               arg_name = 'sample_fraction',
+               bound = 0)
+
+  check_arg_lteq(arg_value = sample_fraction,
+                 arg_name = 'sample_fraction',
+                 bound = 1)
+
+  check_arg_length(arg_value = sample_fraction,
+                   arg_name = 'sample_fraction',
                    expected_length = 1)
 
  }
@@ -849,6 +904,22 @@ check_orsf_inputs <- function(data = NULL,
   check_arg_length(arg_value = leaf_min_obs,
                    arg_name = 'leaf_min_obs',
                    expected_length = 1)
+
+ }
+
+ if(!is.null(split_rule)){
+
+  check_arg_type(arg_value = split_rule,
+                 arg_name = 'split_rule',
+                 expected_type = 'character')
+
+  check_arg_length(arg_value = split_rule,
+                   arg_name = 'split_rule',
+                   expected_length = 1)
+
+  check_arg_is_valid(arg_value = split_rule,
+                     arg_name = 'split_rule',
+                     valid_options = c("logrank", "cstat"))
 
  }
 
@@ -915,13 +986,6 @@ check_orsf_inputs <- function(data = NULL,
   check_arg_length(arg_value = oobag_pred_type,
                    arg_name = 'oobag_pred_type',
                    expected_length = 1)
-
-  # if(oobag_pred_type == 'mort') stop(
-  #  "Out-of-bag mortality predictions aren't supported yet. ",
-  #  " Sorry for the inconvenience - we plan on including this option",
-  #  " in a future update.",
-  #  call. = FALSE
-  # )
 
   check_arg_is_valid(arg_value = oobag_pred_type,
                      arg_name = 'oobag_pred_type',
@@ -1006,7 +1070,7 @@ check_orsf_inputs <- function(data = NULL,
 
   check_arg_is_integer(tree_seeds, arg_name = 'tree_seeds')
 
-  if(length(tree_seeds) != n_tree){
+  if(length(tree_seeds) > 1 && length(tree_seeds) != n_tree){
 
    stop('tree_seeds should have length <', n_tree,
         "> (the number of trees) but instead has length <",
