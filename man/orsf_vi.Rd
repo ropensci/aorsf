@@ -71,7 +71,7 @@ importance is estimated.
 For more details, see the out-of-bag
 \href{https://docs.ropensci.org/aorsf/articles/oobag.html}{vignette}.}
 
-\item{n_thread}{(\emph{integer}) number of threads to use while computing predictions. Default is one thread.To use the maximum number of threads that your system provides for concurrent execution, set \code{n_thread = 0}.}
+\item{n_thread}{(\emph{integer}) number of threads to use while computing predictions. Default is one thread. To use the maximum number of threads that your system provides for concurrent execution, set \code{n_thread = 0}.}
 
 \item{verbose_progress}{(\emph{logical}) if \code{TRUE}, progress messages are
 printed in the console. If \code{FALSE} (the default), nothing is printed.}

@@ -101,7 +101,7 @@ to make sure the requested values are between the 10th and 90th
 percentile in the object's training data. If \code{FALSE}, these checks are
 skipped.}
 
-\item{n_thread}{(\emph{integer}) number of threads to use while computing predictions. Default is one thread.To use the maximum number of threads that your system provides for concurrent execution, set \code{n_thread = 0}.}
+\item{n_thread}{(\emph{integer}) number of threads to use while computing predictions. Default is one thread. To use the maximum number of threads that your system provides for concurrent execution, set \code{n_thread = 0}.}
 
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 
