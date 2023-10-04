@@ -460,6 +460,7 @@ orsf <- function(data,
 
  )
 
+ # TODO: drop this; importance is computed with mort
  if(importance %in% c("permute", "negate") && !oobag_pred){
   # oobag_pred <- TRUE # Should I add a warning?
   oobag_pred_type <- 'surv'

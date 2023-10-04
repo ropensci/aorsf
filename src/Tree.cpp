@@ -1040,6 +1040,7 @@
  void Tree::compute_oobag_vi(arma::vec* vi_numer, VariableImportance vi_type) {
 
   allocate_oobag_memory();
+
   std::unique_ptr<Data> data_oobag { };
   data_oobag = std::make_unique<Data>(x_oobag, y_oobag, w_oobag);
 
@@ -1055,14 +1056,15 @@
   // Compute normal prediction accuracy for each tree. Predictions already computed..
   double accuracy_normal = compute_prediction_accuracy(pred_values);
 
-  if(VERBOSITY > 1){
-   Rcout << "prediction accuracy before noising: ";
+  if(verbosity > 1){
+   Rcout << "  -- prediction accuracy before noising: ";
    Rcout << accuracy_normal << std::endl;
-   Rcout << "  - mean leaf pred: ";
+   Rcout << "  -- mean leaf pred: ";
    Rcout << mean(conv_to<vec>::from(pred_leaf));
    Rcout << std::endl << std::endl;
   }
 
+  random_number_generator.seed(seed);
 
   // Randomly permute for all independent variables
   for (uword pred_col = 0; pred_col < data->get_n_cols(); ++pred_col) {
@@ -1084,7 +1086,6 @@
 
     if(vi_type == VI_PERMUTE){
      // everyone gets the same permutation
-     random_number_generator.seed(seed);
      data_oobag->permute_col(pred_col, random_number_generator);
     } else if (vi_type == VI_NEGATE){
      negate_coef(pred_col);

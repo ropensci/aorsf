@@ -296,8 +296,6 @@ orsf_vi_oobag_ <- function(object,
  # Put data in the same order that it was in when object was fit
  sorted <- order(y[, 1], -y[, 2])
 
- pred_type <- 'mort'
-
  orsf_out <- orsf_cpp(x = x[sorted, , drop = FALSE],
                       y = y[sorted, , drop = FALSE],
                       w = get_weights_user(object),
@@ -356,7 +354,7 @@ orsf_vi_oobag_ <- function(object,
                       n_thread = n_thread,
                       write_forest = FALSE,
                       run_forest = TRUE,
-                      verbosity = as.integer(verbose_progress))
+                      verbosity = get_verbose_progress(object))
 
  out <- orsf_out$importance
  rownames(out) <- colnames(x)

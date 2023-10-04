@@ -77,7 +77,6 @@ oobag_fun_4_args <- function(y_mat, w_vec, s_vec, nope){
 
 }
 
-
 oobag_fun_errors_on_test <- function(y_mat, w_vec, s_vec){
 
  stop("expected error occurred!", call. = FALSE)
@@ -154,8 +153,10 @@ test_that(
   # permutation results identical across api funs using same seed
   vi_permute_1 <- orsf_vi_permute(fit_no_vi)
   vi_permute_2 <- orsf_vi(fit_no_vi, importance = 'permute')
+  vi_permute_3 <- orsf_vi(fit_permute)
 
   expect_equal(vi_permute_2, vi_permute_1)
+  expect_equal(vi_permute_3, vi_permute_1)
 
   expect_error(orsf_vi_anova(fit, group_factors = FALSE),
                regexp = "ANOVA")
