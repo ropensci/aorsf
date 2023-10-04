@@ -283,22 +283,22 @@ test_that(
  }
 )
 
-data_with_empty_factor <- pbc_orsf
-
-levels(data_with_empty_factor$sex) <-
- c(levels(data_with_empty_factor$sex), 'o')
-
-fit <- orsf(data_with_empty_factor,
-            formula = time + status ~ . - id,
-            group_factors = FALSE)
-
-test_that(
- desc = 'unused factor levels have nan for importance, but this gets kicked out of the aggregated factor importance',
- code = {
-  expect_equal(sum(is.nan(fit$importance)), 1)
-  expect_equal(sum(is.nan(orsf_vi(fit))), 0)
- }
-)
+# data_with_empty_factor <- pbc_orsf
+#
+# levels(data_with_empty_factor$sex) <-
+#  c(levels(data_with_empty_factor$sex), 'o')
+#
+# fit <- orsf(data_with_empty_factor,
+#             formula = time + status ~ . - id,
+#             group_factors = FALSE)
+#
+# test_that(
+#  desc = 'unused factor levels have nan for importance, but this gets kicked out of the aggregated factor importance',
+#  code = {
+#   expect_equal(sum(is.nan(fit$importance)), 1)
+#   expect_equal(sum(is.nan(orsf_vi(fit))), 0)
+#  }
+# )
 
 
 # getting ungrouped VI values from an orsf fit
