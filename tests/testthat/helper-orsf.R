@@ -26,3 +26,13 @@ add_noise <- function(x, eps = .Machine$double.eps){
 change_scale <- function(x, mult_by = 1/2){
  x * mult_by
 }
+
+f_pca <- function(x_node, y_node, w_node) {
+
+ # estimate two principal components.
+ pca <- stats::prcomp(x_node, rank. = 2)
+
+ # use a random principal component to split the node
+ pca$rotation[, 2, drop = FALSE]
+
+}

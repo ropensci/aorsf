@@ -718,16 +718,6 @@ test_that(
    stringsAsFactors = FALSE
   )
 
-  f_pca <- function(x_node, y_node, w_node) {
-
-   # estimate two principal components.
-   pca <- stats::prcomp(x_node, rank. = 2)
-
-   # use a random principal component to split the node
-   pca$rotation[, 2, drop = FALSE]
-
-  }
-
   for(i in seq(nrow(inputs))){
 
    data_fun <- switch(
