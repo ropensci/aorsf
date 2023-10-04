@@ -233,14 +233,14 @@ orsf_vi_negate(fit_no_vi)
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi_permute(fit_no_vi)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili        copper       albumin       protime       ascites 
-##  0.0538801986  0.0235904126  0.0144632299  0.0142037786  0.0123519716 
-##         stage           age         edema        hepato          chol 
-##  0.0120377993  0.0110782938  0.0055307145  0.0052409958  0.0047839166 
-##           ast       spiders           sex          trig      alk.phos 
-##  0.0042115620  0.0039660651  0.0028902730  0.0021803920  0.0018880548 
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili        copper       protime       albumin         stage 
+##  0.0511641625  0.0244676999  0.0160869571  0.0133334120  0.0130092352 
+##       ascites           age        hepato         edema          chol 
+##  0.0127421184  0.0113532728  0.0050851329  0.0050477457  0.0049382275 
+##           ast       spiders           sex      alk.phos          trig 
+##  0.0047345189  0.0038719163  0.0025231267  0.0018408350  0.0011528848 
 ##      platelet           trt 
-##  0.0005279898 -0.0024330707
+## -0.0002875319 -0.0024330707
 }\if{html}{\out{</div>}}
 }
 
@@ -256,14 +256,14 @@ fit an ORSF and compute vi at the same time
 orsf_vi_permute(fit_permute_vi)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili        copper           age       albumin       ascites 
-##  0.0513074950  0.0217622790  0.0131467379  0.0121683721  0.0120025410 
-##         stage       protime          chol         edema           ast 
-##  0.0112281635  0.0108887695  0.0064301068  0.0061316531  0.0055392320 
-##       spiders        hepato           sex      alk.phos          trig 
-##  0.0046819086  0.0026387295  0.0026066599  0.0017043328  0.0012899918 
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili        copper           age       albumin       protime 
+##  0.0502725526  0.0201473283  0.0135888938  0.0127241082  0.0126629150 
+##         stage       ascites           ast         edema          chol 
+##  0.0124866976  0.0123508555  0.0060741690  0.0059166139  0.0053767371 
+##       spiders           sex        hepato          trig      alk.phos 
+##  0.0042600602  0.0028177750  0.0023470782  0.0021331719  0.0016874102 
 ##      platelet           trt 
-##  0.0007224274 -0.0005790547
+##  0.0002117061 -0.0005790547
 }\if{html}{\out{</div>}}
 
 You can still get negation VI from this fit, but it needs to be computed

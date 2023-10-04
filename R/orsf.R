@@ -1115,9 +1115,7 @@ orsf_train_ <- function(object,
  }
 
  if(is.null(sorted)){
-  sorted <-
-   collapse::radixorder(y[, 1],  # order this way for risk sets
-                        -y[, 2]) # order this way for oob C-statistic.
+  sorted <- collapse::radixorder(y[, 1], -y[, 2])
  }
 
  weights <- get_weights_user(object)
@@ -1179,7 +1177,7 @@ orsf_train_ <- function(object,
                                            "chf"  = 3,
                                            "mort" = 4),
                       pred_mode = FALSE,
-                      pred_aggregate = TRUE,
+                      pred_aggregate = get_oobag_pred_type(object) != 'leaf',
                       pred_horizon = get_oobag_pred_horizon(object),
                       oobag = get_oobag_pred(object),
                       oobag_eval_type_R = switch(get_type_oobag_eval(object),
