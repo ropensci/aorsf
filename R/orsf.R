@@ -826,18 +826,20 @@ orsf <- function(data,
    rev(orsf_out$importance[order(orsf_out$importance), , drop=TRUE])
  }
 
- if(oobag_pred && !no_fit){
-
-  # put the oob predictions into the same order as the training data.
-  unsorted <- collapse::radixorder(sorted)
-
-  # makes labels for oobag evaluation type
+ if(oobag_pred){
 
   orsf_out$eval_oobag$stat_type <-
    switch(EXPR = as.character(orsf_out$eval_oobag$stat_type),
           "0" = "None",
           "1" = "Harrell's C-statistic",
           "2" = "User-specified function")
+
+  if(!no_fit){
+
+  # put the oob predictions into the same order as the training data.
+  unsorted <- collapse::radixorder(sorted)
+
+  # makes labels for oobag evaluation type
 
   if(oobag_pred_type == 'leaf'){
    all_rows <- seq(nrow(data))
@@ -852,8 +854,7 @@ orsf <- function(data,
 
   orsf_out$pred_oobag[is.nan(orsf_out$pred_oobag)] <- NA_real_
 
-
-
+  }
 
  }
 

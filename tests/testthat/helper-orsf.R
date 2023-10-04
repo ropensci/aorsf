@@ -1,4 +1,6 @@
 
+library(survival)
+
 # misc functions used for tests
 
 no_miss_list <- function(l){
@@ -35,4 +37,16 @@ f_pca <- function(x_node, y_node, w_node) {
  # use a random principal component to split the node
  pca$rotation[, 2, drop = FALSE]
 
+}
+
+expect_equal_leaf_summary <- function(x, y){
+ expect_equal(x$forest$leaf_summary,
+              y$forest$leaf_summary,
+              tolerance = 1e-9)
+}
+
+expect_equal_oobag_eval <- function(x, y){
+ expect_equal(x$eval_oobag$stat_values,
+              y$eval_oobag$stat_values,
+              tolerance = 1e-9)
 }

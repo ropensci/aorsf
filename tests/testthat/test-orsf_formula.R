@@ -1,26 +1,4 @@
 
-require(survival)
-
-# set id to a factor so that it can trigger the id error
-pbc_orsf$id <- factor(pbc_orsf$id)
-pbc_orsf$status <- pbc_orsf$status+1
-
-f1 <- Surv(time, status) ~ unknown_variable + bili
-# dropped test - see https://github.com/mlr-org/mlr3extralearners/issues/259
-# f2 <- Surv(time, status) ~ bili
-f3 <- Surv(time, status) ~ bili + factor(hepato)
-f4 <- Surv(time, status) ~ bili * ascites
-f5 <- Surv(time, status) ~ bili + id
-f6 <- Surv(time, not_right) ~ .
-f7 <- Surv(not_right, status) ~ .
-f8 <- Surv(start, time, status) ~ .
-f9 <- Surv(status, time) ~ . - id
-f10 <- Surv(time, time) ~ . - id
-f11 <- Surv(time, id) ~ . -id
-f12 <- Surv(time, status) ~ . -id
-f13 <- ~ .
-f14 <- status + time ~ . - id
-f15 <- time + status ~ id + bili
 
 #' @srrstats {G5.2} *Appropriate error behaviour is explicitly demonstrated through tests.*
 #' @srrstats {G5.2b} *Tests demonstrate conditions which trigger error messages.*
@@ -28,21 +6,40 @@ test_that(
  desc = 'formula inputs are vetted',
  code = {
 
-  expect_error(orsf(pbc_orsf, f1), 'not found in data')
-  # # dropped - see https://github.com/mlr-org/mlr3extralearners/issues/259
-  # expect_warning(orsf(pbc_orsf, f2), 'at least 2 predictors')
-  expect_error(orsf(pbc_orsf, f3), 'unrecognized')
-  expect_error(orsf(pbc_orsf, f4), 'unrecognized')
-  expect_error(orsf(pbc_orsf, f5), 'id variable?')
-  expect_error(orsf(pbc_orsf, f6), 'not_right')
-  expect_error(orsf(pbc_orsf, f7), 'not_right')
-  expect_error(orsf(pbc_orsf, f8), 'must have two variables')
-  expect_error(orsf(pbc_orsf, f9), 'Did you enter')
-  expect_error(orsf(pbc_orsf, f10), 'must have two variables')
-  expect_error(orsf(pbc_orsf, f11), 'detected >1 event type')
-  expect_error(orsf(pbc_orsf, f13), 'must be two sided')
-  expect_error(orsf(pbc_orsf, f14), 'Did you enter')
-  expect_error(orsf(pbc_orsf, f15), "as many levels as there are rows")
+  # set id to a factor so that it can trigger the id error
+  pbc_orsf$id <- factor(pbc_orsf$id)
+
+  expect_error(orsf(pbc_orsf, Surv(time, status) ~ unknown_variable + bili),
+               'not found in data')
+
+  expect_error(orsf(pbc_orsf, Surv(time, status) ~ bili + factor(hepato)),
+               'unrecognized')
+
+  expect_error(orsf(pbc_orsf, Surv(time, status) ~ bili * ascites),
+               'unrecognized')
+
+  expect_error(orsf(pbc_orsf, Surv(time, status) ~ bili + id),
+               'id variable?')
+
+  expect_error(orsf(pbc_orsf, Surv(time, not_right) ~ .),
+               'not_right')
+
+  expect_error(orsf(pbc_orsf, Surv(not_right, status) ~ .),
+               'not_right')
+
+  expect_error(orsf(pbc_orsf, Surv(start, time, status) ~ .),
+               'must have two variables')
+
+  expect_error(orsf(pbc_orsf, Surv(time, time) ~ . - id),
+               'must have two variables')
+
+  expect_error(orsf(pbc_orsf, Surv(time, id) ~ . -id),
+               'detected >1 event type')
+
+  expect_error(orsf(pbc_orsf, ~ .), 'must be two sided')
+
+  expect_error(orsf(pbc_orsf, time + status ~ id + bili),
+               "as many levels as there are rows")
 
  }
 )
@@ -51,25 +48,7 @@ test_that(
  desc = 'long formulas with repetition are allowed',
  code = {
 
-  x_vars <- c(
-   "trt",
-   "age",
-   "sex",
-   "ascites",
-   "hepato",
-   "spiders",
-   "edema",
-   "bili",
-   "chol",
-   "albumin",
-   "copper",
-   "alk.phos",
-   "ast",
-   "trig",
-   "platelet",
-   "protime",
-   "stage"
-  )
+  x_vars <- c(setdiff(names(pbc_orsf), c('time', 'status', 'id')))
 
   long_rhs <- paste(x_vars, collapse = ' + ')
 
@@ -79,12 +58,66 @@ test_that(
 
   f_long <- as.formula(paste("time + status ~", long_rhs))
 
-  fit_long <- orsf(formula = f_long, pbc_orsf, n_tree = 10)
+  fit_long <- orsf(pbc_orsf,
+                   formula = f_long,
+                   n_tree = 10,
+                   tree_seeds = seeds_standard)
 
   # fits the orsf as expected
   expect_s3_class(fit_long, 'orsf_fit')
   # keeps unique names
   expect_equal(x_vars, get_names_x(fit_long))
+  # is the same forest as standard
+  expect_equal_leaf_summary(fit_long, fit_standard)
 
+ }
+)
+
+test_that(
+ desc = "Surv objects in formula are used correctly",
+ code = {
+
+  pbc_surv <- Surv(pbc_orsf$time, pbc_orsf$status)
+
+  pbc_surv_data <- cbind(pbc_orsf, surv_object = pbc_surv)
+
+  fit_surv <- orsf(
+   pbc_surv_data,
+   formula = surv_object ~ . - id - time - status,
+   n_tree = 10,
+   tree_seed = seeds_standard
+  )
+
+  # name of surv object is correctly stored, values can be reproduced
+  expect_equal(
+   pbc_surv_data[[get_names_y(fit_surv)]],
+   pbc_surv
+  )
+
+  # different formula but same as standard forest
+  expect_equal_leaf_summary(fit_surv, fit_standard)
+ }
+)
+
+test_that(
+ desc = "Status can be 0/1 or 1/2, or generally x/x+1",
+ code = {
+  for(i in seq(1:5)){
+
+  pbc_orsf$status <- pbc_orsf$status+1
+
+  fit_status_modified <- orsf(pbc_orsf,
+                              time + status ~ . - id,
+                              n_tree = 10,
+                              tree_seeds = seeds_standard)
+
+  expect_equal_leaf_summary(fit_status_modified, fit_standard)
+
+  expect_error(
+   orsf(pbc_orsf, Surv(status, time) ~ . - id),
+   'Did you enter'
+  )
+
+  }
  }
 )

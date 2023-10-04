@@ -1,52 +1,7 @@
 
-library(survival) # for Surv
+
 
 #' @srrstats {G5.0} *tests use the PBC data, a standard set that has been widely studied and disseminated in other R package (e.g., survival and randomForestSRC)*
-
-# catch bad inputs, give informative error
-
-pbc_temp <- pbc_orsf
-pbc_temp$id <- factor(pbc_temp$id)
-pbc_temp$status <- pbc_temp$status+1
-
-# should get the same forest, whether status is 1/2 or 0/1 or a surv object
-
-pbc_surv <- Surv(pbc_temp$time, pbc_temp$status)
-pbc_surv_data <- cbind(pbc_temp, surv_object=pbc_surv)
-
-fit_surv <- orsf(pbc_surv_data,
-                 formula = surv_object ~ . - id - time - status,
-                 n_tree = 10,
-                 tree_seed = 1:10)
-
-fit_surv_untrained <- orsf(pbc_surv_data,
-                           formula = surv_object ~ . - id - time - status,
-                           n_tree = 10,
-                           tree_seed = 1:10,
-                           no_fit = TRUE)
-
-fit_surv_trained <- orsf_train(fit_surv_untrained)
-
-fit_12 <- orsf(pbc_temp,
-               formula = Surv(time, status) ~ . -id,
-               n_tree = 10,
-               tree_seeds = 1:10)
-
-fit_01 <- orsf(pbc_orsf,
-               formula = time + status ~ . -id,
-               n_tree = 10,
-               tree_seeds = 1:10)
-
-
-test_that(
- desc = 'New status, same forest',
- code = {
-  expect_identical(fit_12$forest, fit_01$forest)
-  expect_identical(fit_surv$forest, fit_01$forest)
-  expect_identical(fit_surv_trained$forest, fit_01$forest)
- }
-)
-
 
 f <- time + status ~ . - id
 
@@ -62,8 +17,9 @@ test_that(
   expect_error(orsf(pbc_orsf, f, attachData = TRUE), 'attach_data?')
   expect_error(orsf(pbc_orsf, f, Control = 0), 'control?')
 
-  pbc_temp$date_var <- Sys.Date()
-  expect_error(orsf(pbc_temp, f), 'unsupported type')
+  pbc_orsf$date_var <- Sys.Date()
+  expect_error(orsf(pbc_orsf, f), 'unsupported type')
+  pbc_orsf$date_var <- NULL
 
  }
 )
