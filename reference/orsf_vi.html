@@ -273,14 +273,14 @@ by setting <code>group_factors</code> to <code>FALSE</code> in the <code>orsf_vi
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##      alk.phos      platelet </span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0029918139 -0.0003309069</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">fit_no_vi</span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##          bili        copper       albumin       protime       ascites </span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0538801986  0.0235904126  0.0144632299  0.0142037786  0.0123519716 </span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##         stage           age         edema        hepato          chol </span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0120377993  0.0110782938  0.0055307145  0.0052409958  0.0047839166 </span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##           ast       spiders           sex          trig      alk.phos </span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0042115620  0.0039660651  0.0028902730  0.0021803920  0.0018880548 </span></span>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##          bili        copper       protime       albumin         stage </span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0511641625  0.0244676999  0.0160869571  0.0133334120  0.0130092352 </span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##       ascites           age        hepato         edema          chol </span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0127421184  0.0113532728  0.0050851329  0.0050477457  0.0049382275 </span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##           ast       spiders           sex      alk.phos          trig </span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0047345189  0.0038719163  0.0025231267  0.0018408350  0.0011528848 </span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##      platelet           trt </span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0005279898 -0.0024330707</span></span></code></pre><p></p></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## -0.0002875319 -0.0024330707</span></span></code></pre><p></p></div>
 </div>
 
 <div class="section">
@@ -294,14 +294,14 @@ by setting <code>group_factors</code> to <code>FALSE</code> in the <code>orsf_vi
 <span></span>
 <span><span class="co"># get the vi instantly (i.e., it doesn't need to be computed again)</span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">fit_permute_vi</span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##          bili        copper           age       albumin       ascites </span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0513074950  0.0217622790  0.0131467379  0.0121683721  0.0120025410 </span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##         stage       protime          chol         edema           ast </span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0112281635  0.0108887695  0.0064301068  0.0061316531  0.0055392320 </span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##       spiders        hepato           sex      alk.phos          trig </span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0046819086  0.0026387295  0.0026066599  0.0017043328  0.0012899918 </span></span>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##          bili        copper           age       albumin       protime </span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0502725526  0.0201473283  0.0135888938  0.0127241082  0.0126629150 </span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##         stage       ascites           ast         edema          chol </span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0124866976  0.0123508555  0.0060741690  0.0059166139  0.0053767371 </span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##       spiders           sex        hepato          trig      alk.phos </span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0042600602  0.0028177750  0.0023470782  0.0021331719  0.0016874102 </span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##      platelet           trt </span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0007224274 -0.0005790547</span></span></code></pre><p></p></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0002117061 -0.0005790547</span></span></code></pre><p></p></div>
 <p>You can still get negation VI from this fit, but it needs to be computed</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">fit_permute_vi</span><span class="op">)</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##         bili       copper          sex        stage          age      protime </span></span>
