@@ -70,7 +70,7 @@ fit_rando
 ##  Average leaves per tree: 20
 ## Min observations in leaf: 5
 ##       Min events in leaf: 1
-##           OOB stat value: 0.83
+##           OOB stat value: 0.84
 ##            OOB stat type: Harrell's C-statistic
 ##      Variable importance: anova
 ## 
@@ -108,12 +108,7 @@ How well do our two customized ORSFs do? Let’s compute their indices of
 prediction accuracy based on out-of-bag predictions:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(riskRegression)
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## riskRegression version 2023.03.22
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(survival)
+library(survival)
 
 risk_preds <- list(rando = 1 - fit_rando$pred_oobag,
                     pca = 1 - fit_pca$pred_oobag)
@@ -134,18 +129,16 @@ The PCA ORSF does quite well! (higher IPA is better)
 ## Results by model:
 ## 
 ##         model times  Brier  lower  upper    IPA
-##        <fctr> <num> <char> <char> <char> <char>
 ## 1: Null model  1788 20.479 18.090 22.868  0.000
-## 2:      rando  1788 11.672  9.596 13.748 43.006
-## 3:        pca  1788 12.917 10.885 14.950 36.924
+## 2:      rando  1788 11.554  9.476 13.631 43.584
+## 3:        pca  1788 12.673 10.692 14.654 38.118
 ## 
 ## Results of model comparisons:
 ## 
-##    times  model  reference delta.Brier   lower  upper            p
-##    <num> <fctr>     <fctr>      <char>  <char> <char>        <num>
-## 1:  1788  rando Null model      -8.807 -10.905 -6.709 1.896108e-16
-## 2:  1788    pca Null model      -7.562  -9.235 -5.888 8.331729e-19
-## 3:  1788    pca      rando       1.245   0.439  2.052 2.476657e-03
+##    times model  reference delta.Brier   lower  upper            p
+## 1:  1788 rando Null model      -8.926 -11.071 -6.780 3.491749e-16
+## 2:  1788   pca Null model      -7.806  -9.534 -6.079 8.192570e-19
+## 3:  1788   pca      rando       1.119   0.350  1.889 4.354090e-03
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.

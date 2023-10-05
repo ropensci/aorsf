@@ -160,13 +160,12 @@ You can compute partial dependence and ICE three ways with \code{aorsf}:
 pd_train
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon  bili      mean        lwr       medn       upr
-##           <num> <num>     <num>      <num>      <num>     <num>
-## 1:      1826.25     1 0.2151663 0.02028479 0.09634648 0.7997269
-## 2:      1826.25     2 0.2576618 0.03766695 0.15497447 0.8211875
-## 3:      1826.25     3 0.2998484 0.06436773 0.20771324 0.8425637
-## 4:      1826.25     4 0.3390664 0.08427149 0.25401067 0.8589590
-## 5:      1826.25     5 0.3699045 0.10650098 0.28284427 0.8689855
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean        lwr       medn       upr
+## 1:      1826.25    1 0.2151663 0.02028479 0.09634648 0.7997269
+## 2:      1826.25    2 0.2576618 0.03766695 0.15497447 0.8211875
+## 3:      1826.25    3 0.2998484 0.06436773 0.20771324 0.8425637
+## 4:      1826.25    4 0.3390664 0.08427149 0.25401067 0.8589590
+## 5:      1826.25    5 0.3699045 0.10650098 0.28284427 0.8689855
 }\if{html}{\out{</div>}}
 \item using out-of-bag predictions for the training data
 
@@ -175,13 +174,12 @@ pd_train
 pd_train
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon  bili      mean        lwr       medn       upr
-##           <num> <num>     <num>      <num>      <num>     <num>
-## 1:      1826.25     1 0.2145044 0.01835000 0.09619052 0.7980629
-## 2:      1826.25     2 0.2566241 0.03535358 0.14185734 0.8173143
-## 3:      1826.25     3 0.2984693 0.05900059 0.20515477 0.8334243
-## 4:      1826.25     4 0.3383547 0.07887323 0.24347513 0.8469769
-## 5:      1826.25     5 0.3696260 0.10450534 0.28065473 0.8523756
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean        lwr       medn       upr
+## 1:      1826.25    1 0.2145044 0.01835000 0.09619052 0.7980629
+## 2:      1826.25    2 0.2566241 0.03535358 0.14185734 0.8173143
+## 3:      1826.25    3 0.2984693 0.05900059 0.20515477 0.8334243
+## 4:      1826.25    4 0.3383547 0.07887323 0.24347513 0.8469769
+## 5:      1826.25    5 0.3696260 0.10450534 0.28065473 0.8523756
 }\if{html}{\out{</div>}}
 \item using predictions for a new set of data
 
@@ -192,13 +190,12 @@ pd_train
 pd_test
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon  bili      mean        lwr      medn       upr
-##           <num> <num>     <num>      <num>     <num>     <num>
-## 1:      1826.25     1 0.2542230 0.02901386 0.1943767 0.8143912
-## 2:      1826.25     2 0.2955726 0.05037316 0.2474559 0.8317684
-## 3:      1826.25     3 0.3388434 0.07453896 0.3010898 0.8488622
-## 4:      1826.25     4 0.3800254 0.10565022 0.3516805 0.8592057
-## 5:      1826.25     5 0.4124587 0.12292465 0.3915066 0.8690074
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean        lwr      medn       upr
+## 1:      1826.25    1 0.2542230 0.02901386 0.1943767 0.8143912
+## 2:      1826.25    2 0.2955726 0.05037316 0.2474559 0.8317684
+## 3:      1826.25    3 0.3388434 0.07453896 0.3010898 0.8488622
+## 4:      1826.25    4 0.3800254 0.10565022 0.3516805 0.8592057
+## 5:      1826.25    5 0.4124587 0.12292465 0.3915066 0.8690074
 }\if{html}{\out{</div>}}
 \item in-bag partial dependence indicates relationships that the model has
 learned during training. This is helpful if your goal is to interpret

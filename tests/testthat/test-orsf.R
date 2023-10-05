@@ -1,8 +1,5 @@
 
 
-
-#' @srrstats {G5.0} *tests use the PBC data, a standard set that has been widely studied and disseminated in other R package (e.g., survival and randomForestSRC)*
-
 f <- time + status ~ . - id
 
 test_that(

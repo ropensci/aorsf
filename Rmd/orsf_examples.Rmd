@@ -51,8 +51,7 @@ The accelerated ORSF ensemble is the default because it has a nice balance of co
 
 fit_accel <- orsf(pbc_orsf, 
                   control = orsf_control_fast(),
-                  formula = Surv(time, status) ~ . - id,
-                  tree_seeds = 1:500)
+                  formula = Surv(time, status) ~ . - id)
 
 ```
 
@@ -64,8 +63,7 @@ fit_accel <- orsf(pbc_orsf,
 
 fit_cph <- orsf(pbc_orsf, 
                 control = orsf_control_cph(),
-                formula = Surv(time, status) ~ . - id,
-                tree_seeds = 1:500)
+                formula = Surv(time, status) ~ . - id)
 
 ```
 
@@ -79,8 +77,7 @@ fit_net <- orsf(pbc_orsf,
                 # select 3 predictors out of 5 to be used in
                 # each linear combination of predictors.
                 control = orsf_control_net(df_target = 3),
-                formula = Surv(time, status) ~ . - id,
-                tree_seeds = 1:500)
+                formula = Surv(time, status) ~ . - id)
 
 ```
 
@@ -113,19 +110,51 @@ Let's make two customized functions to identify linear combinations of predictor
   
   ```
 
+- The third uses `orsf()` inside of `orsf()` (aka reinforcement learning trees [RLTs]).
+
+  ```{r}
+  
+  # some special care is taken to prevent your R session from crashing.
+  # Specifically, random coefficients are used when n_obs <= 10
+  # or n_events <= 5. 
+  
+  f_aorsf <- function(x_node, y_node, w_node){
+   
+   colnames(y_node) <- c('time', 'status')
+   colnames(x_node) <- paste("x", seq(ncol(x_node)), sep = '')
+   
+   data <- as.data.frame(cbind(y_node, x_node))
+  
+   if(nrow(data) <= 10 || sum(y_node[,'status']) <= 5) 
+    return(matrix(runif(ncol(x_node)), ncol = 1))
+    
+   fit <- orsf(data, time + status ~ ., 
+               weights = as.numeric(w_node),
+               n_tree = 25,
+               importance = 'anova')
+   
+   out <- orsf_vi(fit)[colnames(x_node)]
+   
+   matrix(out, ncol = 1)
+   
+  }
+  
+  ```
+
 We can plug these functions into `orsf_control_custom()`, and then pass the result into `orsf()`:
 
 ```{r}
 
 fit_rando <- orsf(pbc_orsf,
                   Surv(time, status) ~ . - id,
-                  control = orsf_control_custom(beta_fun = f_rando),
-                  tree_seeds = 1:500)
+                  control = orsf_control_custom(beta_fun = f_rando))
 
 fit_pca <- orsf(pbc_orsf,
                 Surv(time, status) ~ . - id,
-                control = orsf_control_custom(beta_fun = f_pca),
-                tree_seeds = 1:500)
+                control = orsf_control_custom(beta_fun = f_pca))
+
+fit_rlt <- orsf(pbc_orsf, time + status ~ . - id, 
+                control = orsf_control_custom(beta_fun = f_aorsf))
 
 ```
 
@@ -138,7 +167,8 @@ risk_preds <- list(
  cph   = 1 - fit_cph$pred_oobag,
  net   = 1 - fit_net$pred_oobag,
  rando = 1 - fit_rando$pred_oobag,
- pca   = 1 - fit_pca$pred_oobag
+ pca   = 1 - fit_pca$pred_oobag,
+ rlt   = 1 - fit_rlt$pred_oobag
 )
 
 sc <- Score(object = risk_preds, 
@@ -164,8 +194,6 @@ sc$Brier$score[order(-IPA), .(model, times, IPA)]
 From inspection,
 
 - the `glmnet` approach has the highest discrimination and index of prediction accuracy.
-
-- the accelerated ORSF is a close second.
 
 - the random coefficients don't do that well, but they aren't bad.
 
@@ -461,3 +489,4 @@ From inspection,
 - `aorsf` has a higher expected value for 'surv.cindex' (higher is better)
 
 - `aorsf` has a lower expected value for 'surv.graf' (lower is better)
+

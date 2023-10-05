@@ -6,20 +6,6 @@
 #' @srrstats {G5.5} *Correctness tests are run with a fixed random seed*
 set.seed(329)
 
-library(survival)
-
-data("flchain", package = 'survival')
-
-flc <- na.omit(flchain)
-
-flc$chapter <- NULL
-
-flc <- flc[flc$futime > 0, ]
-
-sorted <- collapse::radixorder(flc$futime, -flc$death)
-
-# flc <- flc[sorted, ]
-
 weights <- sample(1:5, nrow(flc), replace = TRUE)
 
 # fit a normal tree with no bootstrap weights

@@ -202,6 +202,9 @@ orsf_vi_ <- function(object,
                              n_thread, verbose_progress)
  )
 
+ # nan's occur if a variable was never used, so:
+ out[is.nan(out)] <- 0
+
  if(group_factors) {
 
   if(is.null(object$data)){

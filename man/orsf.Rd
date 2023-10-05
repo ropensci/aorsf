@@ -440,6 +440,34 @@ predictors.
 
 \}
 }\if{html}{\out{</div>}}
+\item The third uses \code{orsf()} inside of \code{orsf()} (aka reinforcement learning
+trees \link{RLTs}).
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# some special care is taken to prevent your R session from crashing.
+# Specifically, random coefficients are used when n_obs <= 10
+# or n_events <= 5. 
+
+f_aorsf <- function(x_node, y_node, w_node)\{
+
+ colnames(y_node) <- c('time', 'status')
+ colnames(x_node) <- paste("x", seq(ncol(x_node)), sep = '')
+
+ data <- as.data.frame(cbind(y_node, x_node))
+
+ if(nrow(data) <= 10 || sum(y_node[,'status']) <= 5) 
+  return(matrix(runif(ncol(x_node)), ncol = 1))
+
+ fit <- orsf(data, time + status ~ ., 
+             weights = as.numeric(w_node),
+             n_tree = 25,
+             importance = 'anova')
+
+ out <- orsf_vi(fit)[colnames(x_node)]
+
+ matrix(out, ncol = 1)
+
+\}
+}\if{html}{\out{</div>}}
 }
 
 We can plug these functions into \code{orsf_control_custom()}, and then pass
@@ -454,6 +482,10 @@ fit_pca <- orsf(pbc_orsf,
                 Surv(time, status) ~ . - id,
                 control = orsf_control_custom(beta_fun = f_pca),
                 tree_seeds = 1:500)
+
+fit_rlt <- orsf(pbc_orsf, time + status ~ . - id, 
+                control = orsf_control_custom(beta_fun = f_aorsf),
+                tree_seeds = 1:500)
 }\if{html}{\out{</div>}}
 
 So which fit seems to work best in this example? Let’s find out by
@@ -464,7 +496,8 @@ evaluating the out-of-bag survival predictions.
  cph   = 1 - fit_cph$pred_oobag,
  net   = 1 - fit_net$pred_oobag,
  rando = 1 - fit_rando$pred_oobag,
- pca   = 1 - fit_pca$pred_oobag
+ pca   = 1 - fit_pca$pred_oobag,
+ rlt   = 1 - fit_rlt$pred_oobag
 )
 
 sc <- Score(object = risk_preds, 
@@ -483,8 +516,9 @@ The AUC values, from highest to lowest:
 ## 1:   net  1788 0.9179396 0.02012887 0.8784877 0.9573915
 ## 2: accel  1788 0.9106396 0.02076004 0.8699507 0.9513286
 ## 3:   cph  1788 0.9061167 0.02277540 0.8614777 0.9507556
-## 4: rando  1788 0.8997729 0.02201363 0.8566270 0.9429188
-## 5:   pca  1788 0.8996927 0.02245483 0.8556821 0.9437034
+## 4:   rlt  1788 0.9012605 0.02178982 0.8585533 0.9439678
+## 5: rando  1788 0.8997729 0.02201363 0.8566270 0.9429188
+## 6:   pca  1788 0.8996927 0.02245483 0.8556821 0.9437034
 }\if{html}{\out{</div>}}
 
 And the indices of prediction accuracy:
@@ -497,15 +531,15 @@ And the indices of prediction accuracy:
 ## 2:        cph  1788 0.4759061
 ## 3:      accel  1788 0.4743392
 ## 4:        pca  1788 0.4398468
-## 5:      rando  1788 0.4219209
-## 6: Null model  1788 0.0000000
+## 5:        rlt  1788 0.4373910
+## 6:      rando  1788 0.4219209
+## 7: Null model  1788 0.0000000
 }\if{html}{\out{</div>}}
 
 From inspection,
 \itemize{
 \item the \code{glmnet} approach has the highest discrimination and index of
 prediction accuracy.
-\item the accelerated ORSF is a close second.
 \item the random coefficients don’t do that well, but they aren’t bad.
 }
 }
@@ -610,29 +644,29 @@ glimpse(results)
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## Rows: 276
 ## Columns: 23
-## $ id          <int> 8, 13, 31, 33, 35, 38, 83, 120, 127, 133, 143, 163, 165, 1~
-## $ trt         <fct> placebo, placebo, placebo, placebo, placebo, placebo, d_pe~
-## $ age         <dbl> 53.05681, 45.68925, 41.55236, 51.28268, 48.61875, 36.62697~
-## $ sex         <fct> f, f, f, f, f, f, f, m, f, m, f, f, m, f, f, f, f, f, f, f~
-## $ ascites     <fct> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~
-## $ hepato      <fct> 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1~
-## $ spiders     <fct> 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1~
-## $ edema       <fct> 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,~
-## $ bili        <dbl> 0.3, 0.7, 4.7, 0.8, 1.2, 3.3, 1.3, 3.5, 0.5, 1.5, 2.9, 0.3~
-## $ chol        <int> 280, 281, 296, 210, 314, 383, 250, 325, 268, 331, 332, 233~
-## $ albumin     <dbl> 4.00, 3.85, 3.44, 3.19, 3.20, 3.53, 3.50, 3.98, 4.08, 3.95~
-## $ copper      <int> 52, 40, 114, 82, 201, 102, 48, 444, 9, 13, 86, 20, 80, 67,~
-## $ alk.phos    <dbl> 4651.2, 1181.0, 9933.2, 1592.0, 12258.8, 1234.0, 1138.0, 7~
-## $ ast         <dbl> 28.38, 88.35, 206.40, 218.55, 72.24, 137.95, 71.30, 130.20~
-## $ trig        <int> 189, 130, 101, 113, 151, 87, 100, 210, 95, 99, 103, 68, 14~
-## $ platelet    <int> 373, 244, 195, 180, 431, 234, 81, 344, 453, 165, 277, 358,~
-## $ protime     <dbl> 11.0, 10.6, 10.3, 12.0, 10.6, 11.0, 12.9, 10.6, 10.0, 10.1~
-## $ stage       <ord> 3, 3, 2, 3, 3, 4, 4, 3, 2, 4, 4, 3, 4, 3, 2, 3, 4, 3, 3, 3~
-## $ time        <int> 2466, 3577, 3839, 3170, 2847, 3244, 4050, 2033, 3255, 2796~
-## $ status      <dbl> 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0~
-## $ pred_aorsf  <dbl> 0.06002419, 0.01954988, 0.35024244, 0.29486541, 0.23418878~
-## $ pred_rfsrc  <dbl> 0.052628661, 0.010204564, 0.401535927, 0.259857534, 0.3263~
-## $ pred_ranger <dbl> 0.040042884, 0.012915865, 0.392153766, 0.347688672, 0.3015~
+## $ id          <int> 16, 29, 43, 62, 79, 82, 103, 105, 111, 114, 115, 139, 141,~
+## $ trt         <fct> placebo, placebo, d_penicill_main, placebo, d_penicill_mai~
+## $ age         <dbl> 40.44353, 63.87680, 48.87064, 60.70637, 46.51608, 67.31006~
+## $ sex         <fct> f, f, f, f, f, f, f, f, f, m, f, f, f, f, f, f, f, f, f, f~
+## $ ascites     <fct> 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0~
+## $ hepato      <fct> 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1~
+## $ spiders     <fct> 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1~
+## $ edema       <fct> 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~
+## $ bili        <dbl> 0.7, 0.7, 1.1, 1.3, 0.8, 4.5, 2.5, 1.1, 5.5, 3.2, 0.7, 1.1~
+## $ chol        <int> 204, 370, 361, 302, 315, 472, 188, 464, 528, 259, 303, 328~
+## $ albumin     <dbl> 3.66, 3.78, 3.64, 2.75, 4.24, 4.09, 3.67, 4.20, 4.18, 4.30~
+## $ copper      <int> 28, 24, 36, 58, 13, 154, 57, 38, 77, 208, 81, 159, 59, 76,~
+## $ alk.phos    <dbl> 685.0, 5833.0, 5430.2, 1523.0, 1637.0, 1580.0, 1273.0, 164~
+## $ ast         <dbl> 72.85, 73.53, 67.08, 43.40, 170.50, 117.80, 119.35, 151.90~
+## $ trig        <int> 58, 86, 89, 112, 70, 272, 102, 102, 78, 78, 156, 134, 56, ~
+## $ platelet    <int> 198, 390, 203, 329, 426, 412, 110, 348, 467, 268, 307, 142~
+## $ protime     <dbl> 10.8, 10.6, 10.6, 13.2, 10.9, 11.1, 11.1, 10.3, 10.7, 11.7~
+## $ stage       <ord> 3, 2, 2, 4, 3, 3, 4, 3, 3, 3, 3, 4, 2, 2, 3, 4, 2, 3, 4, 4~
+## $ time        <int> 3672, 4509, 4556, 3090, 3707, 3574, 110, 3092, 2350, 3395,~
+## $ status      <dbl> 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0~
+## $ pred_aorsf  <dbl> 0.02210163, 0.12510110, 0.07571520, 0.59580668, 0.12839078~
+## $ pred_rfsrc  <dbl> 0.01861595, 0.15632904, 0.07635485, 0.62281617, 0.19145913~
+## $ pred_ranger <dbl> 0.02143363, 0.13367920, 0.05892584, 0.54481330, 0.21380654~
 }\if{html}{\out{</div>}}
 
 And finish by aggregating the predictions and computing performance in
@@ -658,16 +692,16 @@ counts.
 ## Results by model:
 ## 
 ##     model times  AUC lower upper
-## 1:  aorsf  1826 91.3  87.2  95.5
-## 2:  rfsrc  1826 90.0  85.8  94.3
-## 3: ranger  1826 90.6  86.6  94.7
+## 1:  aorsf  1826 91.0  86.8  95.2
+## 2:  rfsrc  1826 89.2  84.8  93.7
+## 3: ranger  1826 89.6  85.3  94.0
 ## 
 ## Results of model comparisons:
 ## 
-##    times  model reference delta.AUC lower upper   p
-## 1:  1826  rfsrc     aorsf      -1.3  -2.9   0.3 0.1
-## 2:  1826 ranger     aorsf      -0.7  -2.3   0.9 0.4
-## 3:  1826 ranger     rfsrc       0.6  -0.5   1.7 0.3
+##    times  model reference delta.AUC lower upper    p
+## 1:  1826  rfsrc     aorsf      -1.7  -3.4  -0.1 0.04
+## 2:  1826 ranger     aorsf      -1.3  -2.9   0.2 0.08
+## 3:  1826 ranger     rfsrc       0.4  -0.8   1.6 0.52
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.
@@ -681,19 +715,19 @@ counts.
 ## 
 ##         model   times Brier lower upper  IPA
 ## 1: Null model 1826.25  20.5  18.1  22.9  0.0
-## 2:      aorsf 1826.25  10.6   8.5  12.8 48.0
-## 3:      rfsrc 1826.25  11.8   9.7  13.9 42.4
-## 4:     ranger 1826.25  11.5   9.5  13.5 44.0
+## 2:      aorsf 1826.25  10.9   8.7  13.1 46.9
+## 3:      rfsrc 1826.25  12.0   9.9  14.2 41.3
+## 4:     ranger 1826.25  12.0   9.9  14.1 41.5
 ## 
 ## Results of model comparisons:
 ## 
 ##      times  model  reference delta.Brier lower upper            p
-## 1: 1826.25  aorsf Null model        -9.8 -12.5  -7.2 1.872048e-13
-## 2: 1826.25  rfsrc Null model        -8.7 -10.9  -6.5 2.176184e-14
-## 3: 1826.25 ranger Null model        -9.0 -11.3  -6.7 1.387967e-14
-## 4: 1826.25  rfsrc      aorsf         1.1   0.3   2.0 8.934160e-03
-## 5: 1826.25 ranger      aorsf         0.8   0.1   1.6 3.287486e-02
-## 6: 1826.25 ranger      rfsrc        -0.3  -0.9   0.2 2.459287e-01
+## 1: 1826.25  aorsf Null model        -9.6 -12.2  -7.0 9.364941e-13
+## 2: 1826.25  rfsrc Null model        -8.5 -10.7  -6.2 2.074175e-13
+## 3: 1826.25 ranger Null model        -8.5 -10.8  -6.2 3.712823e-13
+## 4: 1826.25  rfsrc      aorsf         1.1   0.3   2.0 1.075856e-02
+## 5: 1826.25 ranger      aorsf         1.1   0.3   1.9 4.825778e-03
+## 6: 1826.25 ranger      rfsrc        -0.1  -0.6   0.5 8.429772e-01
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.
