@@ -68,7 +68,7 @@ test_that(
   # keeps unique names
   expect_equal(x_vars, get_names_x(fit_long))
   # is the same forest as standard
-  expect_equal_leaf_summary(fit_long, fit_standard)
+  expect_equal_leaf_summary(fit_long, fit_standard_pbc)
 
  }
 )
@@ -95,7 +95,7 @@ test_that(
   )
 
   # different formula but same as standard forest
-  expect_equal_leaf_summary(fit_surv, fit_standard)
+  expect_equal_leaf_summary(fit_surv, fit_standard_pbc)
  }
 )
 
@@ -111,7 +111,7 @@ test_that(
                               n_tree = 10,
                               tree_seeds = seeds_standard)
 
-  expect_equal_leaf_summary(fit_status_modified, fit_standard)
+  expect_equal_leaf_summary(fit_status_modified, fit_standard_pbc)
 
   expect_error(
    orsf(pbc_orsf, Surv(status, time) ~ . - id),

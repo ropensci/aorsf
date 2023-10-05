@@ -383,8 +383,7 @@ function to find linear combinations of predictors.
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_accel <- orsf(pbc_orsf, 
                   control = orsf_control_fast(),
-                  formula = Surv(time, status) ~ . - id,
-                  tree_seeds = 1:500)
+                  formula = Surv(time, status) ~ . - id)
 }\if{html}{\out{</div>}}
 }
 
@@ -396,8 +395,7 @@ combinations of predictors:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_cph <- orsf(pbc_orsf, 
                 control = orsf_control_cph(),
-                formula = Surv(time, status) ~ . - id,
-                tree_seeds = 1:500)
+                formula = Surv(time, status) ~ . - id)
 }\if{html}{\out{</div>}}
 }
 
@@ -413,8 +411,7 @@ than the other options.
                 # select 3 predictors out of 5 to be used in
                 # each linear combination of predictors.
                 control = orsf_control_net(df_target = 3),
-                formula = Surv(time, status) ~ . - id,
-                tree_seeds = 1:500)
+                formula = Surv(time, status) ~ . - id)
 }\if{html}{\out{</div>}}
 }
 
@@ -475,17 +472,14 @@ the result into \code{orsf()}:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_rando <- orsf(pbc_orsf,
                   Surv(time, status) ~ . - id,
-                  control = orsf_control_custom(beta_fun = f_rando),
-                  tree_seeds = 1:500)
+                  control = orsf_control_custom(beta_fun = f_rando))
 
 fit_pca <- orsf(pbc_orsf,
                 Surv(time, status) ~ . - id,
-                control = orsf_control_custom(beta_fun = f_pca),
-                tree_seeds = 1:500)
+                control = orsf_control_custom(beta_fun = f_pca))
 
 fit_rlt <- orsf(pbc_orsf, time + status ~ . - id, 
-                control = orsf_control_custom(beta_fun = f_aorsf),
-                tree_seeds = 1:500)
+                control = orsf_control_custom(beta_fun = f_aorsf))
 }\if{html}{\out{</div>}}
 
 So which fit seems to work best in this example? Let’s find out by

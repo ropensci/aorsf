@@ -6,11 +6,13 @@
 #' @srrstats {G5.5} *Correctness tests are run with a fixed random seed*
 set.seed(329)
 
+flc <- flc[flc$status==1, ]
+
 weights <- sample(1:5, nrow(flc), replace = TRUE)
 
 # fit a normal tree with no bootstrap weights
 fit <- orsf(flc,
-            futime + death ~ .,
+            time + status ~ .,
             n_tree = 1,
             weights = weights,
             tree_seeds = 1,
@@ -27,7 +29,7 @@ fit <- orsf(flc,
 aorsf_surv <- fit$forest$leaf_pred_prob[[1]][[1]]
 aorsf_time <- fit$forest$leaf_pred_indx[[1]][[1]]
 
-kap <- survfit(Surv(futime, death) ~ 1, data = flc, weights = weights)
+kap <- survfit(Surv(time, status) ~ 1, data = flc, weights = weights)
 
 test_that(
  desc = 'aorsf kaplan has same time values as survfit',

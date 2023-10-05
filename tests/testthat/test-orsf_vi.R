@@ -140,6 +140,8 @@ test_that(
  desc = 'informative errors for custom functions',
  code = {
 
+  fit_no_vi <- orsf(pbc_vi, formula, importance = 'none', n_tree = 1)
+
   expect_error(
    orsf_vi_anova(object = 'nope'),
    regexp = 'inherit'
