@@ -110,10 +110,10 @@ Let's make two customized functions to identify linear combinations of predictor
   
   ```
 
-- The third uses `orsf()` inside of `orsf()` (aka reinforcement learning trees [RLTs]).
+- The third uses `orsf()` inside of `orsf()`.
 
   ```{r}
-  
+  # This approach is known as reinforcement learning trees.  
   # some special care is taken to prevent your R session from crashing.
   # Specifically, random coefficients are used when n_obs <= 10
   # or n_events <= 5. 
@@ -131,7 +131,7 @@ Let's make two customized functions to identify linear combinations of predictor
    fit <- orsf(data, time + status ~ ., 
                weights = as.numeric(w_node),
                n_tree = 25,
-               importance = 'anova')
+               importance = 'permute')
    
    out <- orsf_vi(fit)[colnames(x_node)]
    
