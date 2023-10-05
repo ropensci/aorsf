@@ -383,7 +383,8 @@ function to find linear combinations of predictors.
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_accel <- orsf(pbc_orsf, 
                   control = orsf_control_fast(),
-                  formula = Surv(time, status) ~ . - id)
+                  formula = Surv(time, status) ~ . - id,
+                  tree_seeds = 329)
 }\if{html}{\out{</div>}}
 }
 
@@ -395,7 +396,8 @@ combinations of predictors:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_cph <- orsf(pbc_orsf, 
                 control = orsf_control_cph(),
-                formula = Surv(time, status) ~ . - id)
+                formula = Surv(time, status) ~ . - id,
+                tree_seeds = 329)
 }\if{html}{\out{</div>}}
 }
 
@@ -407,11 +409,12 @@ linear combinations of predictors. This can be really helpful if you
 want to do feature selection within the node, but it is a lot slower
 than the other options.
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_net <- orsf(pbc_orsf, 
-                # select 3 predictors out of 5 to be used in
-                # each linear combination of predictors.
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# select 3 predictors out of 5 to be used in
+# each linear combination of predictors.
+fit_net <- orsf(pbc_orsf, 
                 control = orsf_control_net(df_target = 3),
-                formula = Surv(time, status) ~ . - id)
+                formula = Surv(time, status) ~ . - id,
+                tree_seeds = 329)
 }\if{html}{\out{</div>}}
 }
 
@@ -437,10 +440,10 @@ predictors.
 
 \}
 }\if{html}{\out{</div>}}
-\item The third uses \code{orsf()} inside of \code{orsf()} (aka reinforcement learning
-trees \link{RLTs}).
+\item The third uses \code{orsf()} inside of \code{orsf()}.
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{# some special care is taken to prevent your R session from crashing.
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# This approach is known as reinforcement learning trees.  
+# some special care is taken to prevent your R session from crashing.
 # Specifically, random coefficients are used when n_obs <= 10
 # or n_events <= 5. 
 
@@ -457,9 +460,16 @@ f_aorsf <- function(x_node, y_node, w_node)\{
  fit <- orsf(data, time + status ~ ., 
              weights = as.numeric(w_node),
              n_tree = 25,
-             importance = 'anova')
+             importance = 'permute')
 
- out <- orsf_vi(fit)[colnames(x_node)]
+ out <- orsf_vi(fit)
+
+ # drop the least two important variables
+ n_vars <- length(out)
+ out[c(n_vars, n_vars-1)] <- 0
+
+ # ensure out has same variable order as input
+ out <- out[colnames(x_node)]
 
  matrix(out, ncol = 1)
 
@@ -472,14 +482,17 @@ the result into \code{orsf()}:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_rando <- orsf(pbc_orsf,
                   Surv(time, status) ~ . - id,
-                  control = orsf_control_custom(beta_fun = f_rando))
+                  control = orsf_control_custom(beta_fun = f_rando),
+                  tree_seeds = 329)
 
 fit_pca <- orsf(pbc_orsf,
                 Surv(time, status) ~ . - id,
-                control = orsf_control_custom(beta_fun = f_pca))
+                control = orsf_control_custom(beta_fun = f_pca),
+                tree_seeds = 329)
 
 fit_rlt <- orsf(pbc_orsf, time + status ~ . - id, 
-                control = orsf_control_custom(beta_fun = f_aorsf))
+                control = orsf_control_custom(beta_fun = f_aorsf),
+                tree_seeds = 329)
 }\if{html}{\out{</div>}}
 
 So which fit seems to work best in this example? Let’s find out by
@@ -532,9 +545,9 @@ And the indices of prediction accuracy:
 
 From inspection,
 \itemize{
-\item the \code{glmnet} approach has the highest discrimination and index of
+\item \code{net}, \code{accel}, and \code{rlt} have high discrimination and index of
 prediction accuracy.
-\item the random coefficients don’t do that well, but they aren’t bad.
+\item \code{rando} and \code{pca} do less well, but they aren’t bad.
 }
 }
 

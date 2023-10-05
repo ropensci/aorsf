@@ -51,7 +51,8 @@ The accelerated ORSF ensemble is the default because it has a nice balance of co
 
 fit_accel <- orsf(pbc_orsf, 
                   control = orsf_control_fast(),
-                  formula = Surv(time, status) ~ . - id)
+                  formula = Surv(time, status) ~ . - id,
+                  tree_seeds = 329)
 
 ```
 
@@ -63,7 +64,8 @@ fit_accel <- orsf(pbc_orsf,
 
 fit_cph <- orsf(pbc_orsf, 
                 control = orsf_control_cph(),
-                formula = Surv(time, status) ~ . - id)
+                formula = Surv(time, status) ~ . - id,
+                tree_seeds = 329)
 
 ```
 
@@ -73,11 +75,12 @@ fit_cph <- orsf(pbc_orsf,
 
 ```{r}
 
+# select 3 predictors out of 5 to be used in
+# each linear combination of predictors.
 fit_net <- orsf(pbc_orsf, 
-                # select 3 predictors out of 5 to be used in
-                # each linear combination of predictors.
                 control = orsf_control_net(df_target = 3),
-                formula = Surv(time, status) ~ . - id)
+                formula = Surv(time, status) ~ . - id,
+                tree_seeds = 329)
 
 ```
 
@@ -133,7 +136,14 @@ Let's make two customized functions to identify linear combinations of predictor
                n_tree = 25,
                importance = 'permute')
    
-   out <- orsf_vi(fit)[colnames(x_node)]
+   out <- orsf_vi(fit)
+   
+   # drop the least two important variables
+   n_vars <- length(out)
+   out[c(n_vars, n_vars-1)] <- 0
+   
+   # ensure out has same variable order as input
+   out <- out[colnames(x_node)]
    
    matrix(out, ncol = 1)
    
@@ -147,14 +157,17 @@ We can plug these functions into `orsf_control_custom()`, and then pass the resu
 
 fit_rando <- orsf(pbc_orsf,
                   Surv(time, status) ~ . - id,
-                  control = orsf_control_custom(beta_fun = f_rando))
+                  control = orsf_control_custom(beta_fun = f_rando),
+                  tree_seeds = 329)
 
 fit_pca <- orsf(pbc_orsf,
                 Surv(time, status) ~ . - id,
-                control = orsf_control_custom(beta_fun = f_pca))
+                control = orsf_control_custom(beta_fun = f_pca),
+                tree_seeds = 329)
 
 fit_rlt <- orsf(pbc_orsf, time + status ~ . - id, 
-                control = orsf_control_custom(beta_fun = f_aorsf))
+                control = orsf_control_custom(beta_fun = f_aorsf),
+                tree_seeds = 329)
 
 ```
 
@@ -193,9 +206,9 @@ sc$Brier$score[order(-IPA), .(model, times, IPA)]
 
 From inspection,
 
-- the `glmnet` approach has the highest discrimination and index of prediction accuracy.
+- `net`, `accel`, and `rlt` have high discrimination and index of prediction accuracy.
 
-- the random coefficients don't do that well, but they aren't bad.
+- `rando` and `pca` do less well, but they aren't bad.
 
 ## tidymodels
 
