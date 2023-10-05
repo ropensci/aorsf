@@ -4,6 +4,8 @@
 #include "ForestSurvival.h"
 #include "TreeSurvival.h"
 
+#include <memory>
+
 using namespace arma;
 using namespace Rcpp;
 
