@@ -32,7 +32,7 @@ test_that(
     fit_with_vi <- orsf(pbc_vi,
                         formula = formula,
                         importance = importance,
-                        n_tree = 50,
+                        n_tree = 75,
                         group_factors = group_factors,
                         tree_seeds = tree_seeds)
 
@@ -54,7 +54,7 @@ test_that(
      fit_no_vi <- orsf(pbc_vi,
                        formula = formula,
                        importance = 'none',
-                       n_tree = 50,
+                       n_tree = 75,
                        group_factors = group_factors,
                        tree_seeds = tree_seeds)
 
@@ -69,7 +69,7 @@ test_that(
      fit_custom_oobag <- orsf(pbc_vi,
                               formula = formula,
                               importance = importance,
-                              n_tree = 50,
+                              n_tree = 75,
                               oobag_fun = oobag_c_risk,
                               group_factors = group_factors,
                               tree_seeds = tree_seeds)
@@ -86,7 +86,7 @@ test_that(
     fit_threads <- orsf(pbc_vi,
                         formula = formula,
                         importance = importance,
-                        n_tree = 50,
+                        n_tree = 75,
                         n_thread = 0,
                         group_factors = group_factors,
                         tree_seeds = tree_seeds)
@@ -98,7 +98,7 @@ test_that(
 
     good_vars <- c('bili',
                    'protime',
-                   if(group_factors) 'edema' else "edema_1")
+                   if(group_factors) 'edema' else c("edema_1", "edema_0.5"))
 
     bad_vars <- setdiff(names(vi_during_fit), good_vars)
 

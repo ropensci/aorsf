@@ -94,6 +94,54 @@
  }
 
  // [[Rcpp::export]]
+ arma::uvec find_cutpoints_survival_exported(arma::mat& y,
+                                             arma::vec& w,
+                                             arma::vec& lincomb,
+                                             double leaf_min_events,
+                                             double leaf_min_obs){
+
+  TreeSurvival tree;
+
+  arma::uvec lincomb_sort = sort_index(lincomb);
+
+  tree.set_y_node(y);
+  tree.set_w_node(w);
+  tree.set_lincomb(lincomb);
+  tree.set_lincomb_sort(lincomb_sort);
+  tree.set_leaf_min_obs(leaf_min_obs);
+  tree.set_leaf_min_events(leaf_min_events);
+  return(tree.find_cutpoints());
+
+ }
+
+ // [[Rcpp::export]]
+ List sprout_node_survival_exported(arma::mat& y,
+                                    arma::vec& w){
+
+  TreeSurvival tree;
+
+  arma::uword node_id = 0;
+  arma::uword leaf_size = 1;
+
+  tree.unique_event_times = new vec(find_unique_event_times(y));
+  tree.set_y_node(y);
+  tree.set_w_node(w);
+
+  tree.resize_leaves(leaf_size);
+  tree.sprout_leaf(node_id);
+
+  List result;
+
+  result.push_back(tree.get_leaf_pred_indx(), "indx");
+  result.push_back(tree.get_leaf_pred_prob(), "prob");
+  result.push_back(tree.get_leaf_pred_chaz(), "chaz");
+  result.push_back(tree.get_leaf_summary(),   "mort");
+
+  return(result);
+
+ }
+
+ // [[Rcpp::export]]
  List cph_scale(arma::mat& x, arma::vec& w){
 
   // set aside memory for outputs

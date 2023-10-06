@@ -562,19 +562,13 @@
    Rcout << std::endl;
   }
 
-
   // do not split if best stat < minimum stat
-  if(stat_best < split_min_stat){
-
-   return(R_PosInf);
-
-  }
+  if(stat_best < split_min_stat){ return(R_PosInf); }
 
   // backtrack g_node to be what it was when best it was found
   if(it_best < it_start){
    g_node.elem(lincomb_sort.subvec(it_best+1, it_start)).fill(1);
   }
-
 
   // return the cut-point from best split
   return(lincomb[lincomb_sort[it_best]]);

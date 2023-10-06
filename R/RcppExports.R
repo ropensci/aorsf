@@ -21,6 +21,14 @@ is_col_splittable_exported <- function(x, y, r, j) {
     .Call(`_aorsf_is_col_splittable_exported`, x, y, r, j)
 }
 
+find_cutpoints_survival_exported <- function(y, w, lincomb, leaf_min_events, leaf_min_obs) {
+    .Call(`_aorsf_find_cutpoints_survival_exported`, y, w, lincomb, leaf_min_events, leaf_min_obs)
+}
+
+sprout_node_survival_exported <- function(y, w) {
+    .Call(`_aorsf_sprout_node_survival_exported`, y, w)
+}
+
 cph_scale <- function(x, w) {
     .Call(`_aorsf_cph_scale`, x, w)
 }

@@ -51,8 +51,6 @@
 
   double compute_split_score() override;
 
-  double score_logrank();
-
   double compute_mortality(arma::mat& leaf_data);
 
   void sprout_leaf(uword node_id) override;
@@ -72,6 +70,14 @@
 
   std::vector<arma::vec>& get_leaf_pred_chaz(){
    return(leaf_pred_chaz);
+  }
+
+  void set_unique_event_times(arma::vec event_times){
+   this->unique_event_times = &event_times;
+  }
+
+  void set_leaf_min_events(double value){
+   this->leaf_min_events = value;
   }
 
   double compute_prediction_accuracy_internal(arma::vec& preds) override;

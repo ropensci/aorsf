@@ -139,8 +139,40 @@
    this->y_inbag = y;
   }
 
+  void set_w_inbag(arma::vec w){
+   this->w_inbag = w;
+  }
+
+  void set_x_node(arma::mat x){
+   this->x_node = x;
+  }
+
+  void set_y_node(arma::mat y){
+   this->y_node = y;
+  }
+
+  void set_w_node(arma::vec w){
+   this->w_node = w;
+  }
+
   void set_rows_node(arma::uvec rows){
    this->rows_node = rows;
+  }
+
+  void set_lincomb(arma::vec lc){
+   this->lincomb = lc;
+  }
+
+  void set_lincomb_sort(arma::uvec lc_sort){
+   this->lincomb_sort = lc_sort;
+  }
+
+  void set_leaf_min_obs(double value){
+   this->leaf_min_obs = value;
+  }
+
+  void set_verbosity(int value){
+   this->verbosity = value;
   }
 
 

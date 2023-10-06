@@ -157,23 +157,11 @@
 
   double n_events = 0, n_risk = 0;
 
-  if(VERBOSITY > 1){
-   Rcout << "----- finding lower bound for cut-points -----" << std::endl;
-  }
-
   // stop at end-1 b/c we access it+1 in lincomb_sort
   for(it = lincomb_sort.begin(); it < lincomb_sort.end()-1; ++it){
 
    n_events += y_status[*it] * w_node[*it];
    n_risk += w_node[*it];
-
-
-   if(VERBOSITY > 2){
-    Rcout << "current value: "<< lincomb(*it) << " -- ";
-    Rcout << "next: "<< lincomb(*(it+1))      << " -- ";
-    Rcout << "N events: " << n_events         << " -- ";
-    Rcout << "N risk: "   << n_risk           << std::endl;
-   }
 
    // If we want to make the current value of lincomb a cut-point, we need
    // to make sure the next value of lincomb isn't equal to this current value.
@@ -184,11 +172,11 @@
     if( n_events >= leaf_min_events &&
         n_risk   >= leaf_min_obs ) {
 
-     if(VERBOSITY > 0){
+     if(verbosity > 2){
       Rcout << std::endl;
-      Rcout << "lower cutpoint: "         << lincomb(*it) << std::endl;
-      Rcout << " - n_events, left node: " << n_events << std::endl;
-      Rcout << " - n_risk, left node:   " << n_risk   << std::endl;
+      Rcout << "  -- lower cutpoint: "        << lincomb(*it) << std::endl;
+      Rcout << "     - n_events, left node: " << n_events << std::endl;
+      Rcout << "     - n_risk, left node:   " << n_risk   << std::endl;
       Rcout << std::endl;
      }
 
@@ -204,8 +192,8 @@
 
   if(it == lincomb_sort.end()-1) {
 
-   if(VERBOSITY > 1){
-    Rcout << "Could not find a valid cut-point" << std::endl;
+   if(verbosity > 2){
+    Rcout << "   -- Could not find a valid cut-point" << std::endl;
    }
 
    return(output);
@@ -218,22 +206,11 @@
   // reset before finding the upper limit
   n_events=0, n_risk=0;
 
-  if(VERBOSITY > 1){
-   Rcout << "----- finding upper bound for cut-points -----" << std::endl;
-  }
-
   // stop at beginning+1 b/c we access it-1 in lincomb_sort
   for(it = lincomb_sort.end()-1; it >= lincomb_sort.begin()+1; --it){
 
    n_events += y_status[*it] * w_node[*it];
    n_risk   += w_node[*it];
-
-   if(VERBOSITY > 2){
-    Rcout << "current value: "<< lincomb(*it)  << " ---- ";
-    Rcout << "next value: "<< lincomb(*(it-1)) << " ---- ";
-    Rcout << "N events: " << n_events       << " ---- ";
-    Rcout << "N risk: " << n_risk           << std::endl;
-   }
 
    if(lincomb[*it] != lincomb[*(it-1)]){
 
@@ -250,11 +227,11 @@
 
      --it;
 
-     if(VERBOSITY > 0){
+     if(verbosity > 2){
       Rcout << std::endl;
-      Rcout << "upper cutpoint: " << lincomb(*it) << std::endl;
-      Rcout << " - n_events, right node: " << n_events    << std::endl;
-      Rcout << " - n_risk, right node:   " << n_risk      << std::endl;
+      Rcout << "  -- upper cutpoint: " << lincomb(*it) << std::endl;
+      Rcout << "     - n_events, right node: " << n_events    << std::endl;
+      Rcout << "     - n_risk, right node:   " << n_risk      << std::endl;
       Rcout << std::endl;
      }
 
@@ -273,7 +250,7 @@
 
   if(j > k){
 
-   if(VERBOSITY > 0) {
+   if(verbosity > 2) {
     Rcout << "Could not find valid cut-points" << std::endl;
    }
 
@@ -333,68 +310,6 @@
 
  }
 
- double TreeSurvival::score_logrank(){
-
-  double
-  n_risk=0,
-   g_risk=0,
-   observed=0,
-   expected=0,
-   V=0,
-   temp1,
-   temp2,
-   n_events;
-
-  vec y_time = y_node.unsafe_col(0);
-  vec y_status = y_node.unsafe_col(1);
-
-  bool break_loop = false;
-
-  uword i = y_node.n_rows-1;
-
-  // breaking condition of outer loop governed by inner loop
-  for (; ;){
-
-   temp1 = y_time[i];
-
-   n_events = 0;
-
-   for ( ; y_time[i] == temp1; i--) {
-
-    n_risk += w_node[i];
-    n_events += y_status[i] * w_node[i];
-    g_risk += g_node[i] * w_node[i];
-    observed += y_status[i] * g_node[i] * w_node[i];
-
-    if(i == 0){
-     break_loop = true;
-     break;
-    }
-
-   }
-
-   // should only do these calculations if n_events > 0,
-   // but in practice its often faster to multiply by 0
-   // versus check if n_events is > 0.
-
-   temp2 = g_risk / n_risk;
-   expected += n_events * temp2;
-
-   // update variance if n_risk > 1 (if n_risk == 1, variance is 0)
-   // definitely check if n_risk is > 1 b/c otherwise divide by 0
-   if (n_risk > 1){
-    temp1 = n_events * temp2 * (n_risk-n_events) / (n_risk-1);
-    V += temp1 * (1 - temp2);
-   }
-
-   if(break_loop) break;
-
-  }
-
-  return(pow(expected-observed, 2) / V);
-
- }
-
  void TreeSurvival::sprout_leaf(uword node_id){
 
   if(verbosity > 2){
@@ -403,6 +318,7 @@
    Rcout << std::endl;
    Rcout << std::endl;
   }
+
 
   // reserve as much size as could be needed (probably more)
   mat leaf_data(y_node.n_rows, 3);
@@ -414,6 +330,7 @@
    person++;
   }
 
+
   // person corresponds to first event or last censor time
   leaf_data.at(0, 0) = y_node.at(person, 0);
 
@@ -421,8 +338,8 @@
   // (TODO: should this case even occur? consider removing)
   if(person == y_node.n_rows){
 
-   vec temp_surv(1, arma::fill::ones);
-   vec temp_chf(1, arma::fill::zeros);
+   vec temp_surv(1, fill::ones);
+   vec temp_chf(1, fill::zeros);
 
    leaf_pred_indx[node_id] = leaf_data.col(0);
    leaf_pred_prob[node_id] = temp_surv;
@@ -514,8 +431,11 @@
 
   for( ; i < (*unique_event_times).size(); i++){
 
-   if((*unique_event_times)[i] >= leaf_data.at(j, 0) &&
-      j < (leaf_data.n_rows-1)) {j++;}
+
+   while((*unique_event_times)[i] > leaf_data.at(j, 0) &&
+          j < (leaf_data.n_rows-1)) {
+    j++;
+   }
 
    result += leaf_data.at(j, 2);
 
@@ -524,6 +444,24 @@
   return(result);
 
  }
+
+ // double TreeSurvival::compute_mortality(arma::mat& leaf_data){
+ //
+ //  double result = 0;
+ //  uword i=0, j=0;
+ //
+ //  for( ; i < (*unique_event_times).size(); i++){
+ //
+ //   if((*unique_event_times)[i] >= leaf_data.at(j, 0) &&
+ //      j < (leaf_data.n_rows-1)) {j++;}
+ //
+ //   result += leaf_data.at(j, 2);
+ //
+ //  }
+ //
+ //  return(result);
+ //
+ // }
 
  void TreeSurvival::predict_value(arma::mat* pred_output,
                                   arma::vec* pred_denom,
