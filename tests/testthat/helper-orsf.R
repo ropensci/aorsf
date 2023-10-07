@@ -190,6 +190,12 @@ expect_equal_oobag_eval <- function(x, y){
               tolerance = 1e-9)
 }
 
+expect_no_missing <- function(x){
+
+ expect_true(!any(is.na(x)))
+
+}
+
 # data processing ----
 
 prep_test_matrices <- function(data, outcomes = c("time", "status")){

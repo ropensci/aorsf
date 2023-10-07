@@ -32,14 +32,13 @@ citEntry(
                         as.person("Matthew W. Segar"),
                         as.person("Ambarish Pandey"),
                         as.person("Nicholas M. Pajewski")),
-  journal  = "arXiv",
-  year     = "2022",
-  url      = "https://arxiv.org/abs/2208.01129",
+  journal  = "Journal of Computational and Graphical Statistics",
+  year     = "2023",
+  url      = "https://doi.org/10.1080/10618600.2023.2231048",
   textVersion = paste(
    "Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM.",
    "Accelerated and interpretable oblique random survival forests.",
-   "arXiv e-prints.",
-   "2022 Aug 3:arXiv-2208."
+   "Journal of Computational and Graphical Statistics. 2023 Aug 3:1-6."
   )
 )
 

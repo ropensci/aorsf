@@ -113,11 +113,10 @@ predict.orsf_fit <- function(object,
   warning("pred_horizon does not impact predictions",
           " when pred_type is '", pred_type, "'.",
           extra_text, call. = FALSE)
-  # avoid copies of predictions and copies of this warning.
-  pred_horizon <- pred_horizon[1]
+
  }
 
- pred_horizon <- infer_pred_horizon(object, pred_horizon)
+ pred_horizon <- infer_pred_horizon(object, pred_type, pred_horizon)
 
  check_predict(object = object,
                new_data = new_data,
@@ -167,7 +166,7 @@ predict.orsf_fit <- function(object,
 
  }
 
- if(is.null(pred_horizon) && pred_type != 'mort'){
+ if(is.null(pred_horizon) && !(pred_type %in% c('mort', 'leaf'))){
   stop("pred_horizon must be specified for ",
        pred_type, " predictions.", call. = FALSE)
  }

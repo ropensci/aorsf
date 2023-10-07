@@ -133,46 +133,6 @@ fit_no_vi <- orsf(data = pbc_orsf,
                   importance = 'none',
                   n_tree = 50)
 
-
-#' @srrstats {G5.3} *Explicit test expected to return objects containing no missing (`NA`) or undefined (`NaN`, `Inf`) values are explicitly tested.*
-
-test_that(
- "output contains no missing values",
- code = {
-
-  miss_check_no_vi <- sapply(fit_no_vi, no_miss_list)
-  miss_check_with_vi <- sapply(fit_with_vi, no_miss_list)
-
-  for(i in seq_along(miss_check_no_vi)){
-   if(!is_empty(miss_check_no_vi[[i]])){
-
-    if(is.matrix(miss_check_no_vi[[i]])){
-     miss_check_no_vi[[i]] <- unlist(miss_check_no_vi[[i]])
-    }
-    expect_true(sum(miss_check_no_vi[[i]]) == 0)
-
-   }
-
-  }
-
-  for(i in seq_along(miss_check_with_vi)){
-   if(!is_empty(miss_check_with_vi[[i]])){
-
-    if(is.matrix(miss_check_with_vi[[i]])){
-     miss_check_with_vi[[i]] <- unlist(miss_check_with_vi[[i]])
-    }
-    expect_true(sum(miss_check_with_vi[[i]]) == 0)
-
-   }
-  }
-
-
- }
-)
-
-
-#' @srrstats {G5.7} **Algorithm performance tests** *test that implementation performs as expected as properties of data change. These tests shows that as data size increases, fit time increases. Conversely, fit time decreases as convergence thresholds increase. Also, fit time decreases as the maximum iterations decrease.*
-
 # I'm making the difference in data size very big because I don't want this
 # test to fail on some operating systems.
 pbc_small <- pbc_orsf[1:50, ]
@@ -706,6 +666,11 @@ test_that(
                oobag_pred_horizon = pred_horizon)
 
    expect_s3_class(fit, class = 'orsf_fit')
+
+   expect_no_missing(fit$forest)
+   expect_no_missing(fit$importance)
+   expect_no_missing(fit$pred_horizon)
+
    expect_equal(get_n_tree(fit), inputs$n_tree[i])
    expect_equal(get_n_split(fit), inputs$n_split[i])
    expect_equal(get_n_retry(fit), inputs$n_retry[i])
@@ -717,10 +682,21 @@ test_that(
    expect_equal(fit$pred_horizon, pred_horizon)
 
    expect_length(fit$forest$rows_oobag, n = get_n_tree(fit))
+   expect_length(fit$forest$cutpoint, n = get_n_tree(fit))
+   expect_length(fit$forest$child_left, n = get_n_tree(fit))
+   expect_length(fit$forest$coef_indices, n = get_n_tree(fit))
+   expect_length(fit$forest$coef_values, n = get_n_tree(fit))
+   expect_length(fit$forest$leaf_summary, n = get_n_tree(fit))
 
    if(inputs$oobag_pred_type[i] != 'none'){
 
-    expect_length(fit$eval_oobag$stat_values, length(pred_horizon))
+    if(inputs$oobag_pred_type[i] %in% c("chf","surv","risk")){
+     expect_length(fit$eval_oobag$stat_values, length(pred_horizon))
+    } else if(inputs$oobag_pred_type[i] == 'mort'){
+     expect_length(fit$eval_oobag$stat_values, 1)
+    }
+
+
     expect_equal(nrow(fit$pred_oobag), get_n_obs(fit))
 
     # these lengths should match for n_tree=1

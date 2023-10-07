@@ -55,7 +55,7 @@ pbc_mats <- prep_test_matrices(pbc, outcomes = c("time", "status"))
 data_list_pbc <- list(pbc_standard = pbc,
                       pbc_status_12 = pbc_status_12,
                       pbc_scaled = pbc_scale,
-                      pbc_noiced = pbc_noise)
+                      pbc_noised = pbc_noise)
 
 # matric lists ----
 
@@ -67,9 +67,38 @@ mat_list_surv <- list(pbc = pbc_mats,
 
 # standards used to check validity of other fits
 
-seeds_standard <- c(5, 20, 1000, 30, 50, 98, 22, 100, 329, 10)
+seeds_standard <- 329
+n_tree_test <- 10
 
-fit_standard_pbc <- orsf(pbc,
-                         formula = time + status ~ .,
-                         n_tree = 10,
-                         tree_seed = seeds_standard)
+controls <- list(
+ fast = orsf_control_fast(),
+ cph = orsf_control_cph(),
+ net = orsf_control_net(),
+ custom = orsf_control_custom(beta_fun = f_pca)
+)
+
+fit_standard_pbc <- lapply(
+ controls,
+ function(cntrl){
+  orsf(pbc,
+       formula = time + status ~ .,
+       n_tree = n_tree_test,
+       control = cntrl,
+       tree_seed = seeds_standard)
+ }
+)
+
+# training and testing data ----
+
+pred_types_surv <- c(risk = 'risk',
+                     surv = 'surv',
+                     chf = 'chf',
+                     mort = 'mort',
+                     leaf = 'leaf')
+
+pbc_train_rows <- sample(nrow(pbc_orsf), size = 170)
+
+pbc_train <- pbc[pbc_train_rows, ]
+pbc_test <- pbc[-pbc_train_rows, ]
+
+

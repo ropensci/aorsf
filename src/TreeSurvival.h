@@ -28,7 +28,8 @@
                arma::vec* unique_event_times,
                arma::vec* pred_horizon);
 
-  TreeSurvival(arma::uvec& rows_oobag,
+  TreeSurvival(arma::uword n_obs,
+               arma::uvec& rows_oobag,
                std::vector<double>& cutpoint,
                std::vector<arma::uword>& child_left,
                std::vector<arma::vec>& coef_values,
@@ -47,7 +48,7 @@
 
   bool is_node_splittable_internal() override;
 
-  arma::uvec find_cutpoints() override;
+  void find_all_cuts() override;
 
   double compute_split_score() override;
 

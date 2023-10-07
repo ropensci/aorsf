@@ -81,7 +81,7 @@
  const SplitRule DEFAULT_SPLITRULE = SPLIT_LOGRANK;
  const double    DEFAULT_SPLIT_MIN_EVENTS = 5;
  const double    DEFAULT_SPLIT_MIN_OBS = 10;
- const double    DEFAULT_SPLIT_MIN_STAT = 3.84;
+ const double    DEFAULT_SPLIT_MIN_STAT = 0;
 
  const arma::uword DEFAULT_SPLIT_MAX_CUTS = 5;
  const arma::uword DEFAULT_MAX_RETRY = 3;

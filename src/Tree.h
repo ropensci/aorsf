@@ -75,11 +75,13 @@
 
   virtual bool is_node_splittable_internal();
 
-  virtual arma::uvec find_cutpoints();
+  virtual void find_all_cuts();
 
   virtual double compute_split_score();
 
-  double split_node(arma::uvec& cuts_all);
+  void sample_cuts();
+
+  double find_best_cut();
 
   virtual void sprout_leaf(arma::uword node_id);
 
@@ -110,6 +112,11 @@
    return(rows_oobag);
   }
 
+  arma::uvec& get_rows_inbag(){
+   return(rows_inbag);
+  }
+
+
   std::vector<arma::vec>& get_coef_values() {
    return(coef_values);
   }
@@ -128,6 +135,14 @@
 
   arma::uvec& get_pred_leaf(){
    return(pred_leaf);
+  }
+
+  arma::uvec& get_cuts_all(){
+   return(cuts_all);
+  }
+
+  arma::uvec& get_cuts_sampled(){
+   return(cuts_sampled);
   }
 
   // helper function used to help test tree functions in R
@@ -159,6 +174,10 @@
    this->rows_node = rows;
   }
 
+  void set_rows_oobag(arma::uvec rows){
+   this->rows_oobag = rows;
+  }
+
   void set_lincomb(arma::vec lc){
    this->lincomb = lc;
   }
@@ -175,12 +194,23 @@
    this->verbosity = value;
   }
 
+  void set_seed(int value){
+   random_number_generator.seed(seed);
+  }
+
+  void set_split_max_cuts(uword value){
+   this->split_max_cuts = value;
+  }
+
+  void set_split_rule(SplitRule value){
+   this->split_rule = value;
+  }
+
+  void find_rows_inbag(arma::uword n_obs);
 
  protected:
 
-  void allocate_oobag_memory();
-
-  void restore_rows_inbag(arma::uword n_obs);
+  void resize_oobag_data();
 
   // pointers to variable importance in forest
   arma::vec* vi_numer;
@@ -268,6 +298,12 @@
   EvalType oobag_eval_type;
 
   int verbosity;
+
+
+  // all possible cut-points for a linear combination
+  uvec cuts_all;
+  // a sampled subset of cutpoints.
+  uvec cuts_sampled;
 
   // which rows of data are held out while growing the tree
   arma::uvec rows_inbag;

@@ -82,9 +82,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// find_cutpoints_survival_exported
-arma::uvec find_cutpoints_survival_exported(arma::mat& y, arma::vec& w, arma::vec& lincomb, double leaf_min_events, double leaf_min_obs);
-RcppExport SEXP _aorsf_find_cutpoints_survival_exported(SEXP ySEXP, SEXP wSEXP, SEXP lincombSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP) {
+// find_cuts_survival_exported
+List find_cuts_survival_exported(arma::mat& y, arma::vec& w, arma::vec& lincomb, double leaf_min_events, double leaf_min_obs, int split_rule_R);
+RcppExport SEXP _aorsf_find_cuts_survival_exported(SEXP ySEXP, SEXP wSEXP, SEXP lincombSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP, SEXP split_rule_RSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -93,7 +93,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec& >::type lincomb(lincombSEXP);
     Rcpp::traits::input_parameter< double >::type leaf_min_events(leaf_min_eventsSEXP);
     Rcpp::traits::input_parameter< double >::type leaf_min_obs(leaf_min_obsSEXP);
-    rcpp_result_gen = Rcpp::wrap(find_cutpoints_survival_exported(y, w, lincomb, leaf_min_events, leaf_min_obs));
+    Rcpp::traits::input_parameter< int >::type split_rule_R(split_rule_RSEXP);
+    rcpp_result_gen = Rcpp::wrap(find_cuts_survival_exported(y, w, lincomb, leaf_min_events, leaf_min_obs, split_rule_R));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -106,6 +107,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat& >::type y(ySEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type w(wSEXP);
     rcpp_result_gen = Rcpp::wrap(sprout_node_survival_exported(y, w));
+    return rcpp_result_gen;
+END_RCPP
+}
+// find_rows_inbag_exported
+arma::uvec find_rows_inbag_exported(arma::uvec rows_oobag, arma::uword n_obs);
+RcppExport SEXP _aorsf_find_rows_inbag_exported(SEXP rows_oobagSEXP, SEXP n_obsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::uvec >::type rows_oobag(rows_oobagSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type n_obs(n_obsSEXP);
+    rcpp_result_gen = Rcpp::wrap(find_rows_inbag_exported(rows_oobag, n_obs));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -182,8 +195,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_compute_cstat_exported_uvec", (DL_FUNC) &_aorsf_compute_cstat_exported_uvec, 4},
     {"_aorsf_compute_logrank_exported", (DL_FUNC) &_aorsf_compute_logrank_exported, 3},
     {"_aorsf_is_col_splittable_exported", (DL_FUNC) &_aorsf_is_col_splittable_exported, 4},
-    {"_aorsf_find_cutpoints_survival_exported", (DL_FUNC) &_aorsf_find_cutpoints_survival_exported, 5},
+    {"_aorsf_find_cuts_survival_exported", (DL_FUNC) &_aorsf_find_cuts_survival_exported, 6},
     {"_aorsf_sprout_node_survival_exported", (DL_FUNC) &_aorsf_sprout_node_survival_exported, 2},
+    {"_aorsf_find_rows_inbag_exported", (DL_FUNC) &_aorsf_find_rows_inbag_exported, 2},
     {"_aorsf_cph_scale", (DL_FUNC) &_aorsf_cph_scale, 2},
     {"_aorsf_orsf_cpp", (DL_FUNC) &_aorsf_orsf_cpp, 44},
     {NULL, NULL, 0}

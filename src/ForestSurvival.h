@@ -25,6 +25,7 @@ public:
  ForestSurvival& operator=(const ForestSurvival&) = delete;
 
  void load(arma::uword n_tree,
+           arma::uword n_obs,
            std::vector<arma::uvec>& rows_oobag,
            std::vector<std::vector<double>>& forest_cutpoint,
            std::vector<std::vector<arma::uword>>& forest_child_left,

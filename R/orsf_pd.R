@@ -309,7 +309,7 @@ orsf_pred_dependence <- function(object,
                                  oobag,
                                  type_output){
 
- pred_horizon <- infer_pred_horizon(object, pred_horizon)
+ pred_horizon <- infer_pred_horizon(object, pred_type, pred_horizon)
 
  # make a visible binding for CRAN
  id_variable = NULL

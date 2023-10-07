@@ -29,7 +29,8 @@
 
  }
 
- TreeSurvival::TreeSurvival(arma::uvec& rows_oobag,
+ TreeSurvival::TreeSurvival(arma::uword n_obs,
+                            arma::uvec& rows_oobag,
                             std::vector<double>& cutpoint,
                             std::vector<arma::uword>& child_left,
                             std::vector<arma::vec>& coef_values,
@@ -43,7 +44,11 @@
  leaf_pred_indx(leaf_pred_indx),
  leaf_pred_prob(leaf_pred_prob),
  leaf_pred_chaz(leaf_pred_chaz),
- pred_horizon(pred_horizon){ }
+ pred_horizon(pred_horizon){
+
+  find_rows_inbag(n_obs);
+
+ }
 
  void TreeSurvival::resize_leaves(arma::uword new_size) {
 
@@ -144,12 +149,12 @@
 
  }
 
- uvec TreeSurvival::find_cutpoints(){
+ void TreeSurvival::find_all_cuts(){
 
   vec y_status = y_node.unsafe_col(1);
 
-  // placeholder with values indicating invalid cps
-  uvec output;
+  // assume no valid cutpoints at first
+  cuts_all.resize(0);
 
   uword i, j, k;
 
@@ -196,7 +201,7 @@
     Rcout << "   -- Could not find a valid cut-point" << std::endl;
    }
 
-   return(output);
+   return;
 
   }
 
@@ -254,15 +259,15 @@
     Rcout << "Could not find valid cut-points" << std::endl;
    }
 
-   return(output);
+   return;
 
   }
 
   // only one valid cutpoint
   if(j == k){
 
-   output = {j};
-   return(output);
+   cuts_all = {j};
+   return;
 
   }
 
@@ -282,9 +287,7 @@
   uvec output_left = {j};
   uvec output_right = {k};
 
-  output = join_vert(output_left, output_middle, output_right);
-
-  return(output);
+  cuts_all = join_vert(output_left, output_middle, output_right);
 
  }
 
@@ -474,6 +477,12 @@
 
   if(verbosity > 2){
    uvec tmp_uvec = find(pred_leaf < max_nodes);
+
+   if(tmp_uvec.size() == 0){
+    Rcout << pred_leaf<< std::endl;
+    Rcout << "max_nodes: " << max_nodes << std::endl;
+   }
+
    Rcout << "   -- N preds expected: " << tmp_uvec.size() << std::endl;
   }
 

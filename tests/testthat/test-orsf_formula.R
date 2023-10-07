@@ -58,17 +58,22 @@ test_that(
 
   f_long <- as.formula(paste("time + status ~", long_rhs))
 
-  fit_long <- orsf(pbc_orsf,
-                   formula = f_long,
-                   n_tree = 10,
-                   tree_seeds = seeds_standard)
+  for(i in seq_along(fit_standard_pbc)){
 
-  # fits the orsf as expected
-  expect_s3_class(fit_long, 'orsf_fit')
-  # keeps unique names
-  expect_equal(x_vars, get_names_x(fit_long))
-  # is the same forest as standard
-  expect_equal_leaf_summary(fit_long, fit_standard_pbc)
+   fit_long <- orsf(pbc_orsf,
+                    formula = f_long,
+                    control = controls[[i]],
+                    n_tree = n_tree_test,
+                    tree_seeds = seeds_standard)
+
+   # fits the orsf as expected
+   expect_s3_class(fit_long, 'orsf_fit')
+   # keeps unique names
+   expect_equal(x_vars, get_names_x(fit_long))
+   # is the same forest as standard
+   expect_equal_leaf_summary(fit_long, fit_standard_pbc[[i]])
+
+  }
 
  }
 )
@@ -81,21 +86,25 @@ test_that(
 
   pbc_surv_data <- cbind(pbc_orsf, surv_object = pbc_surv)
 
-  fit_surv <- orsf(
-   pbc_surv_data,
-   formula = surv_object ~ . - id - time - status,
-   n_tree = 10,
-   tree_seed = seeds_standard
-  )
+  for(i in seq_along(controls)){
+   fit_surv <- orsf(
+    pbc_surv_data,
+    formula = surv_object ~ . - id - time - status,
+    n_tree = n_tree_test,
+    control = controls[[i]],
+    tree_seed = seeds_standard
+   )
 
-  # name of surv object is correctly stored, values can be reproduced
-  expect_equal(
-   pbc_surv_data[[get_names_y(fit_surv)]],
-   pbc_surv
-  )
+   # name of surv object is correctly stored, values can be reproduced
+   expect_equal(
+    pbc_surv_data[[get_names_y(fit_surv)]],
+    pbc_surv
+   )
 
-  # different formula but same as standard forest
-  expect_equal_leaf_summary(fit_surv, fit_standard_pbc)
+   # different formula but same as standard forest
+   expect_equal_leaf_summary(fit_surv, fit_standard_pbc[[i]])
+  }
+
  }
 )
 
@@ -106,12 +115,17 @@ test_that(
 
   pbc_orsf$status <- pbc_orsf$status+1
 
-  fit_status_modified <- orsf(pbc_orsf,
-                              time + status ~ . - id,
-                              n_tree = 10,
-                              tree_seeds = seeds_standard)
+  for(j in seq_along(fit_standard_pbc)){
 
-  expect_equal_leaf_summary(fit_status_modified, fit_standard_pbc)
+   fit_status_modified <- orsf(pbc_orsf,
+                               time + status ~ . - id,
+                               n_tree = n_tree_test,
+                               control = controls[[j]],
+                               tree_seeds = seeds_standard)
+
+   expect_equal_leaf_summary(fit_status_modified, fit_standard_pbc[[j]])
+
+  }
 
   expect_error(
    orsf(pbc_orsf, Surv(status, time) ~ . - id),

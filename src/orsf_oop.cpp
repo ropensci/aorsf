@@ -94,14 +94,16 @@
  }
 
  // [[Rcpp::export]]
- arma::uvec find_cutpoints_survival_exported(arma::mat& y,
-                                             arma::vec& w,
-                                             arma::vec& lincomb,
-                                             double leaf_min_events,
-                                             double leaf_min_obs){
+ List find_cuts_survival_exported(arma::mat& y,
+                                  arma::vec& w,
+                                  arma::vec& lincomb,
+                                  double leaf_min_events,
+                                  double leaf_min_obs,
+                                  int split_rule_R){
+
 
   TreeSurvival tree;
-
+  SplitRule split_rule = (SplitRule) split_rule_R;
   arma::uvec lincomb_sort = sort_index(lincomb);
 
   tree.set_y_node(y);
@@ -110,7 +112,22 @@
   tree.set_lincomb_sort(lincomb_sort);
   tree.set_leaf_min_obs(leaf_min_obs);
   tree.set_leaf_min_events(leaf_min_events);
-  return(tree.find_cutpoints());
+  tree.set_seed(329);
+  tree.set_split_max_cuts(5);
+  tree.set_split_rule(split_rule);
+
+  tree.find_all_cuts();
+  tree.sample_cuts();
+
+  double best_cut = tree.find_best_cut();
+
+  List result;
+
+  result.push_back(tree.get_cuts_all(), "cuts_all");
+  result.push_back(tree.get_cuts_sampled(), "cuts_sampled");
+  result.push_back(best_cut, "best_cut");
+
+  return(result);
 
  }
 
@@ -138,6 +155,19 @@
   result.push_back(tree.get_leaf_summary(),   "mort");
 
   return(result);
+
+ }
+
+ // [[Rcpp::export]]
+ arma::uvec find_rows_inbag_exported(arma::uvec rows_oobag,
+                                     arma::uword n_obs){
+
+  TreeSurvival tree;
+
+  tree.set_rows_oobag(rows_oobag);
+  tree.find_rows_inbag(n_obs);
+
+  return(tree.get_rows_inbag());
 
  }
 
@@ -233,6 +263,8 @@
 
   data = std::make_unique<Data>(x, y, w);
 
+  uword n_obs = data->get_n_rows();
+
   // re-cast integer inputs from R into enumerations
   // see globals.h for definitions.
   TreeType tree_type = (TreeType) tree_type_R;
@@ -313,7 +345,9 @@
    // Load forest object if it was already grown
    if(!grow_mode){
 
-    std::vector<arma::uvec>          rows_oobag   = loaded_forest["rows_oobag"];
+    uword n_obs = loaded_forest["n_obs"];
+
+    std::vector<uvec>                rows_oobag   = loaded_forest["rows_oobag"];
     std::vector<std::vector<double>> cutpoint     = loaded_forest["cutpoint"];
     std::vector<std::vector<uword>>  child_left   = loaded_forest["child_left"];
     std::vector<std::vector<vec>>    coef_values  = loaded_forest["coef_values"];
@@ -328,7 +362,7 @@
 
      auto& temp = dynamic_cast<ForestSurvival&>(*forest);
 
-     temp.load(n_tree, rows_oobag, cutpoint, child_left,
+     temp.load(n_tree, n_obs, rows_oobag, cutpoint, child_left,
                coef_values, coef_indices, leaf_pred_indx,
                leaf_pred_prob, leaf_pred_chaz, leaf_summary,
                pd_type, pd_x_vals, pd_x_cols, pd_probs);
@@ -357,6 +391,7 @@
    if(write_forest){
 
     List forest_out;
+    forest_out.push_back(n_obs, "n_obs");
     forest_out.push_back(forest->get_rows_oobag(), "rows_oobag");
     forest_out.push_back(forest->get_cutpoint(), "cutpoint");
     forest_out.push_back(forest->get_child_left(), "child_left");

@@ -829,6 +829,7 @@ orsf <- function(data,
 
  if(oobag_pred){
 
+  # makes labels for oobag evaluation type
   orsf_out$eval_oobag$stat_type <-
    switch(EXPR = as.character(orsf_out$eval_oobag$stat_type),
           "0" = "None",
@@ -840,8 +841,6 @@ orsf <- function(data,
   # put the oob predictions into the same order as the training data.
   unsorted <- collapse::radixorder(sorted)
 
-  # makes labels for oobag evaluation type
-
   if(oobag_pred_type == 'leaf'){
    all_rows <- seq(nrow(data))
    for(i in seq(n_tree)){
@@ -850,10 +849,18 @@ orsf <- function(data,
    }
   }
 
-  #' @srrstats {G2.10} *drop = FALSE for type consistency*
   orsf_out$pred_oobag <- orsf_out$pred_oobag[unsorted, , drop = FALSE]
-
   orsf_out$pred_oobag[is.nan(orsf_out$pred_oobag)] <- NA_real_
+
+  # mortality predictions should always be 1 column
+  # b/c they do not depend on the prediction horizon
+  if(oobag_pred_type == 'mort'){
+   orsf_out$pred_oobag <-
+    orsf_out$pred_oobag[, 1L, drop = FALSE]
+
+   orsf_out$eval_oobag$stat_values <-
+    orsf_out$eval_oobag$stat_values[, 1, drop = FALSE]
+  }
 
   }
 
@@ -1233,6 +1240,16 @@ orsf_train_ <- function(object,
           "2" = "User-specified function")
 
   object$pred_oobag <- object$pred_oobag[unsorted, , drop = FALSE]
+
+  # mortality predictions should always be 1 column
+  # b/c they do not depend on the prediction horizon
+  if(get_oobag_pred_type(object) == 'mort'){
+   object$pred_oobag <-
+    object$pred_oobag[, 1L, drop = FALSE]
+
+   object$eval_oobag$stat_values <-
+    object$eval_oobag$stat_values[, 1, drop = FALSE]
+  }
 
  }
 

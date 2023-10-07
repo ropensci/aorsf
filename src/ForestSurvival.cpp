@@ -27,6 +27,7 @@ ForestSurvival::ForestSurvival(double leaf_min_events,
 
 void ForestSurvival::load(
   arma::uword n_tree,
+  arma::uword n_obs,
   std::vector<arma::uvec>& forest_rows_oobag,
   std::vector<std::vector<double>>& forest_cutpoint,
   std::vector<std::vector<arma::uword>>& forest_child_left,
@@ -58,7 +59,8 @@ void ForestSurvival::load(
 
  for (uword i = 0; i < n_tree; ++i) {
   trees.push_back(
-   std::make_unique<TreeSurvival>(forest_rows_oobag[i],
+   std::make_unique<TreeSurvival>(n_obs,
+                                  forest_rows_oobag[i],
                                   forest_cutpoint[i],
                                   forest_child_left[i],
                                   forest_coef_values[i],
