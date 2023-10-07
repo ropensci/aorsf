@@ -538,6 +538,9 @@ orsf_pred_dependence <- function(object,
 
  out <- rbindlist(pd_vals)
 
+ # missings may occur when oobag=TRUE and n_tree is small
+ out <- collapse::na_omit(out)
+
  ids <- c('id_variable', if(type_output == 'ice') 'id_row')
 
  mid <- setdiff(names(out), c(ids, 'mean', prob_labels, 'pred'))

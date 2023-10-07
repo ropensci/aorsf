@@ -126,11 +126,20 @@ The importance of individual variables can be estimated in three ways using `aor
   
   ```
 
-You can supply your own R function to estimate out-of-bag error when using negation or permutation importance. This feature is experimental and may be changed in the future (see [oob vignette](https://docs.ropensci.org/aorsf/articles/oobag.html))
+You can supply your own R function to estimate out-of-bag error when using negation or permutation importance (see [oob vignette](https://docs.ropensci.org/aorsf/articles/oobag.html))
 
 ### Partial dependence (PD) 
 
 `r aorsf:::roxy_pd_explain()`
+
+The summary function, `orsf_summarize_uni()`, computes PD for as many variables as you ask it to, using sensible values.
+
+```{r}
+
+orsf_summarize_uni(fit, n_variables = 2)
+
+```
+
 
 For more on PD, see the [vignette](https://docs.ropensci.org/aorsf/articles/pd.html)
 

@@ -3,16 +3,14 @@
 #' @srrstats {G5.3} *Test that fits returned contain no missing (`NA`) or undefined (`NaN`, `Inf`) values.*
 #' @srrstats {G5.8, G5.8d} **Edge condition tests** * an error is thrown when partial dependence functions are asked to predict estimates outside of boundaries determined by the aorsf model's training data*
 
-fit <- orsf(formula = Surv(time, status) ~ .,
-            data = pbc_orsf)
-
-fit_nodat <- orsf(formula = Surv(time, status) ~ .,
-                  data = pbc_orsf,
-                  attach_data = FALSE)
-
 test_that(
  desc = "oob stops if there are no data",
  code = {
+
+  fit_nodat <- orsf(formula = Surv(time, status) ~ .,
+                    data = pbc_orsf,
+                    attach_data = FALSE)
+
   expect_error(
    orsf_pd_oob(fit_nodat, pred_spec = list(bili = c(0.8))),
    regexp = 'no data'
@@ -20,12 +18,13 @@ test_that(
  }
 )
 
+fit <- fit_standard_pbc$fast
+
 test_that(
  "user cant supply empty pred_spec",
  code = {
   expect_error(
-   orsf_ice_oob(fit,
-                pred_spec = list()),
+   orsf_ice_oob(fit, pred_spec = list()),
    regexp = 'pred_spec is empty'
   )
  }
@@ -37,8 +36,8 @@ test_that(
   expect_error(
    orsf_ice_oob(fit,
                 pred_spec = list(bili = 1:5,
-                               nope = c(1,2),
-                               no_sir = 1),
+                                 nope = c(1,2),
+                                 no_sir = 1),
                 pred_horizon = 1000),
    regexp = 'nope and no_sir'
   )
@@ -105,6 +104,7 @@ test_that(
 test_that(
  'No missing values in output',
  code = {
+
   expect_false(any(is.na(pd_vals_ice)))
   expect_false(any(is.nan(as.matrix(pd_vals_ice))))
   expect_false(any(is.infinite(as.matrix(pd_vals_ice))))
@@ -117,7 +117,6 @@ test_that(
 
 test_that(
  'multi-valued horizon inputs are allowed',
- # as a bonus, repeat the test for equality with oob
  code = {
 
   pd_smry_multi_horiz <- orsf_pd_oob(

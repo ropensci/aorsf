@@ -603,9 +603,14 @@ std::vector<std::vector<arma::mat>> Forest::compute_dependence(bool oobag){
 
    if(pd_type == PD_SUMMARY){
 
-    mat preds_summary = mean(preds, 0);
+    if(preds.has_nonfinite()){
+     uvec is_finite = find_finite(preds.col(0));
+     preds = preds.rows(is_finite);
+    }
 
+    mat preds_summary = mean(preds, 0);
     mat preds_quant = quantile(preds, pd_probs, 0);
+
     result_k.push_back(join_vert(preds_summary, preds_quant));
 
    } else if(pd_type == PD_ICE) {

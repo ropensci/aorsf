@@ -229,9 +229,15 @@ print.orsf_summary_uni <- function(x, n_variables = NULL, ...){
 
  if(is.null(n_variables)) n_variables <- length(unique(x$dt$variable))
 
- risk_or_surv <- if(x$pred_type == 'risk') "risk" else "survival"
+ pred_label <- switch(
+  x$pred_type,
+  'risk' = 'Risk',
+  'surv' = 'Survival',
+  'chf'  = 'Cumulative hazard',
+  'mort' = 'Mortality',
+ )
 
- msg_btm <- paste("Predicted", risk_or_surv,
+ msg_btm <- paste("Predicted", tolower(pred_label),
                   "at time t =", x$pred_horizon,
                   "for top", n_variables,
                   "predictors")
@@ -324,7 +330,7 @@ print.orsf_summary_uni <- function(x, n_variables = NULL, ...){
   banner_value_length <- banner_value_length + 1
 
   header_length <-
-   (banner_input_length - banner_value_length - nchar(risk_or_surv)) / 2
+   (banner_input_length - banner_value_length - nchar(pred_label)) / 2
 
   header_length <- header_length - 1.5
 
@@ -332,7 +338,7 @@ print.orsf_summary_uni <- function(x, n_variables = NULL, ...){
    paste(rep(" ", times = banner_value_length), collapse = ''),
    paste(c("|",rep("-", times = header_length)), collapse = ''),
    " ",
-   risk_or_surv,
+   pred_label,
    " ",
    paste(c(rep("-", times = header_length), "|"), collapse = ''),
    collapse = '',

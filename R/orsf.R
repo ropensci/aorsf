@@ -395,7 +395,8 @@ orsf <- function(data,
   oobag_eval_every = oobag_eval_every,
   importance = importance,
   tree_seeds = tree_seeds,
-  attach_data = attach_data
+  attach_data = attach_data,
+  verbose_progress = verbose_progress
  )
 
  #TODO: more polish

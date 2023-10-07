@@ -150,12 +150,14 @@ using `aorsf`:
   ``` r
 
   orsf_vi_negate(fit)
-  #>          bili           age           sex           ast       ascites 
-  #>  0.0959635932  0.0162247725  0.0136525524  0.0085081124  0.0059358924 
-  #>         edema         stage        copper        hepato          chol 
-  #>  0.0051286110  0.0019786308  0.0015829046  0.0007914523 -0.0003957262 
-  #>      alk.phos       albumin       spiders           trt      platelet 
-  #> -0.0021764939 -0.0023743569 -0.0043529877 -0.0045508508 -0.0059358924
+  #>          bili           sex        copper           ast           age 
+  #>  0.1190578208  0.0619364315  0.0290605798  0.0260108174  0.0251162396 
+  #>         stage       protime         edema       ascites        hepato 
+  #>  0.0237810058  0.0158443269  0.0117270641  0.0105685230  0.0092028195 
+  #>       albumin          chol           trt      alk.phos       spiders 
+  #>  0.0082647861  0.0041510636  0.0036548364  0.0010239241 -0.0003298163 
+  #>          trig      platelet 
+  #> -0.0011111508 -0.0045314656
   ```
 
 - **permutation**: Each variable is assessed separately by randomly
@@ -169,12 +171,14 @@ using `aorsf`:
   ``` r
 
   orsf_vi_permute(fit)
-  #>          bili       ascites           sex           age         edema 
-  #>  0.0096952909  0.0073209339  0.0067273447  0.0065294816  0.0037989711 
-  #>       albumin         stage       protime        hepato          chol 
-  #>  0.0031658093  0.0029679462  0.0023743569  0.0019786308  0.0007914523 
-  #>           ast       spiders        copper           trt          trig 
-  #>  0.0003957262 -0.0019786308 -0.0027700831 -0.0049465770 -0.0055401662
+  #>          bili        copper           ast           age           sex 
+  #>  0.0514084384  0.0170611427  0.0142227933  0.0140274813  0.0131527430 
+  #>         stage       protime       ascites         edema       albumin 
+  #>  0.0119752045  0.0102865556  0.0098067817  0.0081730899  0.0080568255 
+  #>        hepato          chol      alk.phos          trig       spiders 
+  #>  0.0069734562  0.0032811220  0.0015862128  0.0014909643  0.0007811902 
+  #>           trt      platelet 
+  #> -0.0007067631 -0.0022135241
   ```
 
 - **analysis of variance (ANOVA)**<sup>3</sup>: A p-value is computed
@@ -190,17 +194,16 @@ using `aorsf`:
   ``` r
 
   orsf_vi_anova(fit)
-  #>    ascites       bili      edema        sex        age     copper      stage 
-  #> 0.35231788 0.33216374 0.31401592 0.22045995 0.19044776 0.18155620 0.16907605 
-  #>        ast     hepato    albumin       chol       trig    protime    spiders 
-  #> 0.14183124 0.13736655 0.12611012 0.11461988 0.10847044 0.10697115 0.08802817 
-  #>   alk.phos   platelet        trt 
-  #> 0.07943094 0.06150342 0.04411765
+  #>    ascites       bili      edema        sex     copper        age        ast 
+  #> 0.39107612 0.36316990 0.36316238 0.24720893 0.20547180 0.19213732 0.19029233 
+  #>    albumin      stage     hepato       trig       chol    protime   alk.phos 
+  #> 0.17219680 0.17068758 0.16126761 0.13379872 0.12964021 0.12659698 0.12352611 
+  #>    spiders   platelet        trt 
+  #> 0.11728395 0.08997135 0.07305095
   ```
 
 You can supply your own R function to estimate out-of-bag error when
-using negation or permutation importance. This feature is experimental
-and may be changed in the future (see [oob
+using negation or permutation importance (see [oob
 vignette](https://docs.ropensci.org/aorsf/articles/oobag.html))
 
 ### Partial dependence (PD)
@@ -210,6 +213,31 @@ function of a single predictor or multiple predictors. The expectation
 is marginalized over the values of all other predictors, giving
 something like a multivariable adjusted estimate of the model’s
 prediction.
+
+The summary function, `orsf_summarize_uni()`, computes PD for as many
+variables as you ask it to, using sensible values.
+
+``` r
+
+orsf_summarize_uni(fit, n_variables = 2)
+#> 
+#> -- bili (VI Rank: 1) ----------------------------
+#> 
+#>        |----------------- risk -----------------|
+#>  Value      Mean     Median     25th %    75th %
+#>   0.70 0.2074286 0.09039332 0.03827337 0.3146957
+#>    1.3 0.2261739 0.10784929 0.04915971 0.3425934
+#>    3.2 0.3071951 0.21242141 0.11889617 0.4358309
+#> 
+#> -- sex (VI Rank: 2) -----------------------------
+#> 
+#>        |----------------- risk -----------------|
+#>  Value      Mean    Median     25th %    75th %
+#>      m 0.3648659 0.2572239 0.15554270 0.5735661
+#>      f 0.2479179 0.1021787 0.04161796 0.3591612
+#> 
+#>  Predicted risk at time t = 1826.25 for top 2 predictors
+```
 
 For more on PD, see the
 [vignette](https://docs.ropensci.org/aorsf/articles/pd.html)

@@ -59,6 +59,7 @@ test_preds_surv <- function(pred_type){
 
 
  if(pred_type %in% c("risk", "surv")){
+
   test_that(
    desc = paste("predictions of type", pred_type, "are bounded"),
    code = {
@@ -67,6 +68,25 @@ test_preds_surv <- function(pred_type){
    }
   )
 
+ }
+
+ if(pred_type == 'mort'){
+
+  test_that(
+   desc = "predictions are accurate",
+   code = {
+
+    surv_concord <- survival::concordance(
+     survival::Surv(time, status) ~ prd_agg,
+     data = pbc_test
+    )
+
+    mort_cstat <- 1 - surv_concord$concordance
+
+    expect_true(mort_cstat > 0.60)
+
+   }
+  )
 
  }
 

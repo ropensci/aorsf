@@ -625,7 +625,8 @@ check_orsf_inputs <- function(data = NULL,
                               oobag_eval_every = NULL,
                               importance = NULL,
                               tree_seeds = NULL,
-                              attach_data = NULL){
+                              attach_data = NULL,
+                              verbose_progress = NULL){
 
  if(!is.null(data)){
 
@@ -1088,6 +1089,18 @@ check_orsf_inputs <- function(data = NULL,
 
   check_arg_length(arg_value = attach_data,
                    arg_name = 'attach_data',
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(verbose_progress)){
+
+  check_arg_type(arg_value = verbose_progress,
+                 arg_name = 'verbose_progress',
+                 expected_type = 'logical')
+
+  check_arg_length(arg_value = verbose_progress,
+                   arg_name = 'verbose_progress',
                    expected_length = 1)
 
  }

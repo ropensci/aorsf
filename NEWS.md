@@ -2,7 +2,7 @@
 
 * Re-worked internal C++ routines following the design of `ranger`. 
 
-* re-worked how progress is printed to console when `verbose_progress` is `TRUE`, following the design of `ranger`. Messages now indicate the action being taken, the % complete, and the approximate time until finishing the action. 
+* Re-worked how progress is printed to console when `verbose_progress` is `TRUE`, following the design of `ranger`. Messages now indicate the action being taken, the % complete, and the approximate time until finishing the action. 
 
 * Allowed multi-threading to be performed in `orsf()`, `predict.orsf_fit()`, and functions in the `orsf_vi()` and `orsf_pd()` family.
 
