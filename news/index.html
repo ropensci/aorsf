@@ -56,7 +56,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="aorsf-010-unreleased">aorsf 0.1.0 (unreleased)<a class="anchor" aria-label="anchor" href="#aorsf-010-unreleased"></a></h2>
-<ul><li><p>Re-worked <code>aorsf</code>’s C++, code following the design of <code>ranger</code>, to set it up for classification and regression trees.</p></li>
+<ul><li><p>Re-worked internal C++ routines following the design of <code>ranger</code>.</p></li>
+<li><p>re-worked how progress is printed to console when <code>verbose_progress</code> is <code>TRUE</code>, following the design of <code>ranger</code>. Messages now indicate the action being taken, the % complete, and the approximate time until finishing the action.</p></li>
 <li><p>Allowed multi-threading to be performed in <code><a href="../reference/orsf.html">orsf()</a></code>, <code><a href="../reference/predict.orsf_fit.html">predict.orsf_fit()</a></code>, and functions in the <code><a href="../reference/orsf_vi.html">orsf_vi()</a></code> and <code>orsf_pd()</code> family.</p></li>
 <li><p>Allowed for sampling without replacement and sampling a specific fraction of observations in <code><a href="../reference/orsf.html">orsf()</a></code></p></li>
 <li><p>Included Harrell’s C-statistic as an option for assessing goodness of splits while growing trees.</p></li>
