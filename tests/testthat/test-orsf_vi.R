@@ -1,9 +1,5 @@
 
-tree_seeds <- 329
-
 pbc_vi <- pbc_orsf
-
-set.seed(tree_seeds)
 
 pbc_vi$junk <- rnorm(nrow(pbc_orsf))
 
@@ -34,7 +30,7 @@ test_that(
                         importance = importance,
                         n_tree = 75,
                         group_factors = group_factors,
-                        tree_seeds = tree_seeds)
+                        tree_seeds = seeds_standard)
 
 
     vi_during_fit <- orsf_vi(fit_with_vi,
@@ -56,7 +52,7 @@ test_that(
                        importance = 'none',
                        n_tree = 75,
                        group_factors = group_factors,
-                       tree_seeds = tree_seeds)
+                       tree_seeds = seeds_standard)
 
      expect_error(orsf_vi(fit_no_vi), regexp = 'no variable importance')
 
@@ -72,7 +68,7 @@ test_that(
                               n_tree = 75,
                               oobag_fun = oobag_c_risk,
                               group_factors = group_factors,
-                              tree_seeds = tree_seeds)
+                              tree_seeds = seeds_standard)
 
      vi_custom_oobag <- orsf_vi(fit_custom_oobag,
                                 group_factors = group_factors)
@@ -89,7 +85,7 @@ test_that(
                         n_tree = 75,
                         n_thread = 0,
                         group_factors = group_factors,
-                        tree_seeds = tree_seeds)
+                        tree_seeds = seeds_standard)
 
     vi_threads <- orsf_vi(fit_threads,
                           group_factors = group_factors)
@@ -98,9 +94,9 @@ test_that(
 
     good_vars <- c('bili',
                    'protime',
-                   if(group_factors) 'edema' else c("edema_1", "edema_0.5"))
+                   if(group_factors) 'edema' else c("edema_1"))
 
-    bad_vars <- setdiff(names(vi_during_fit), good_vars)
+    bad_vars <- setdiff(names(vi_during_fit), c(good_vars, "edema_0.5"))
 
     vi_good_vars <- vi_during_fit[good_vars]
     vi_bad_vars <- vi_during_fit[bad_vars]

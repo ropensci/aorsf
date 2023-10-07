@@ -3,7 +3,6 @@ test_that(
  desc = 'C-statistic is close to survival::concordance',
  code = {
 
-  library(survival)
   y_mat <- as.matrix(pbc_orsf[, c('time', 'status')])
 
   sorted <-
@@ -12,8 +11,6 @@ test_that(
   y_mat <- y_mat[sorted, ]
 
   x_vars <- c("bili", "chol", "trig")
-
-  set.seed(329)
 
   n_runs <- 100
 
