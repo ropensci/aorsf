@@ -539,7 +539,7 @@ orsf_pred_dependence <- function(object,
  out <- rbindlist(pd_vals)
 
  # missings may occur when oobag=TRUE and n_tree is small
- out <- collapse::na_omit(out)
+ if(type_output == 'ice') out <- collapse::na_omit(out, cols = 'pred')
 
  ids <- c('id_variable', if(type_output == 'ice') 'id_row')
 
