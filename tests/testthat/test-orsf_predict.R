@@ -358,14 +358,17 @@ test_that(
  desc = 'leaf predictions do not depend on other observations in the data',
  code = {
 
-  p_leaf <- predict(fit, new_data = new_data, pred_type = 'leaf')
+  for(pred_type in pred_types_surv){
 
-  for(i in seq(nrow(new_data))){
+   p_all <- predict(fit, new_data = new_data, pred_type = pred_type)
 
-   p_1row <- predict(fit, new_data = new_data[i,], pred_type = 'leaf')
-   expect_equal(p_1row, p_leaf[i, , drop=FALSE])
+   for(i in seq(nrow(new_data))){
+    p_1row <- predict(fit, new_data = new_data[i,], pred_type = pred_type)
+    expect_equal(p_1row, p_all[i, , drop=FALSE])
+   }
 
   }
+
  }
 )
 
@@ -373,7 +376,7 @@ test_that(
  'leaf predictions do not depend on order of the data',
  code = {
 
-  for(pred_type in c('leaf')){
+  for(pred_type in pred_types_surv){
 
    p_before <- predict(fit,
                        new_data = new_data,
@@ -388,7 +391,6 @@ test_that(
    expect_equal(p_before[new_order, , drop = FALSE], p_after)
 
   }
-
  }
 )
 

@@ -164,11 +164,14 @@
 
  }
 
+ // not currently used but will be in the future
+ // # nocov start
  void Tree::resize_leaves(arma::uword new_size){
 
   leaf_summary.resize(new_size);
 
  }
+ // # nocov end
 
  void Tree::sample_rows(){
 
@@ -288,6 +291,8 @@
 
  }
 
+ // not currently used but will be in the future
+ // # nocov start
  bool Tree::is_col_splittable(uword j){
 
   uvec::iterator i;
@@ -327,6 +332,7 @@
   return(false);
 
  }
+ // # nocov end
 
  bool Tree::is_node_splittable(uword node_id){
 
@@ -351,6 +357,8 @@
 
  }
 
+ // not currently used but will be in the future
+ // # nocov start
  bool Tree::is_node_splittable_internal(){
 
   double n_obs = sum(w_node);
@@ -359,7 +367,10 @@
          n_obs >= split_min_obs);
 
  }
+ // # nocov end
 
+ // not currently used but will be in the future
+ // # nocov start
  void Tree::find_all_cuts(){
 
   // assume no valid cutpoints at first
@@ -496,6 +507,7 @@
   cuts_all = join_vert(output_left, output_middle, output_right);
 
  }
+ // # nocov end
 
  double Tree::find_best_cut(){
 
@@ -613,6 +625,8 @@
 
  }
 
+ // not currently used but will be in the future
+ // # nocov start
  double Tree::compute_split_score(){
 
   // default method is to pick one completely at random
@@ -625,7 +639,10 @@
   return(result);
 
  }
+ // # nocov end
 
+ // not currently used but will be in the future
+ // # nocov start
  double Tree::compute_max_leaves(){
 
   // find maximum number of leaves for this tree
@@ -642,6 +659,7 @@
   return(max_leaves);
 
  }
+ // # nocov end
 
  void Tree::compute_oobag_vi(arma::vec* vi_numer,
                              VariableImportance vi_type) {

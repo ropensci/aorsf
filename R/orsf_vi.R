@@ -182,8 +182,6 @@ orsf_vi_ <- function(object,
                      n_thread,
                      verbose_progress){
 
- #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
-
  if(!is_aorsf(object)) stop("object must inherit from 'orsf_fit' class.",
                             call. = FALSE)
 
@@ -192,6 +190,13 @@ orsf_vi_ <- function(object,
        " is being fitted. To get ANOVA importance values, re-grow your",
        " orsf object with importance = 'anova'",
        call. = FALSE)
+
+ if(is.null(object$data)){
+  stop("training data were not found in object, ",
+       "but are needed to collapse factor importance values. ",
+       "Did you use attach_data = FALSE when ",
+       "running orsf()?", call. = FALSE)
+ }
 
  out <- switch(
   type_vi,
@@ -206,13 +211,6 @@ orsf_vi_ <- function(object,
  out[is.nan(out)] <- 0
 
  if(group_factors) {
-
-  if(is.null(object$data)){
-   stop("training data were not found in object, ",
-        "but are needed to collapse factor importance values. ",
-        "Did you use attach_data = FALSE when ",
-        "running orsf()?", call. = FALSE)
-  }
 
   fi <- get_fctr_info(object)
 

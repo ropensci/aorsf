@@ -12,7 +12,6 @@ levels(pbc_vi$edema) <- c(levels(pbc_vi$edema), 'empty_lvl')
 
 formula <- Surv(time, status) ~ protime + edema + bili + junk + junk_cat
 
-
 test_that(
  desc = paste(
   "(1) variable importance is independent from function order",
@@ -35,6 +34,19 @@ test_that(
 
     vi_during_fit <- orsf_vi(fit_with_vi,
                              group_factors = group_factors)
+
+    wrapper_fun <- switch(
+     importance,
+     'anova' = orsf_vi_anova,
+     'permute' = orsf_vi_permute,
+     'negate' = orsf_vi_negate
+    )
+
+    expect_equal(
+     vi_during_fit,
+     wrapper_fun(fit_with_vi, group_factors = group_factors)
+    )
+
 
     if(group_factors){
      expect_true("edema" %in% names(vi_during_fit))
@@ -60,7 +72,25 @@ test_that(
                              importance = importance,
                              group_factors = group_factors)
 
+     fit_vi_custom <- orsf(pbc_vi,
+                           formula = formula,
+                           n_tree = 75,
+                           oobag_fun = oobag_c_risk,
+                           importance = importance,
+                           tree_seeds = seeds_standard)
+
+     vi_custom_during_fit <- orsf_vi(fit_vi_custom,
+                                     group_factors = group_factors)
+
+     vi_custom_after_fit <- orsf_vi(fit_no_vi,
+                                    importance = importance,
+                                    group_factors = group_factors,
+                                    oobag_fun = oobag_c_risk)
+
+
      expect_equal(vi_during_fit, vi_after_fit)
+     expect_equal(vi_custom_after_fit, vi_after_fit)
+     expect_equal(vi_custom_during_fit, vi_after_fit)
 
      fit_custom_oobag <- orsf(pbc_vi,
                               formula = formula,
@@ -113,23 +143,28 @@ test_that(
 
 )
 
-## TODO: move to big output check loop?
-# test_that(
-#  desc = 'cstat from last run of orsf is reproducible',
-#  code = {
-#
-#   c_target <- last_value(fit$eval_oobag$stat_values)
-#   c_estimate <- oobag_c_survival(
-#    y_mat = as.matrix(fit$data[, c('time', 'status')]),
-#    w_vec = rep(1, nrow(fit$data)),
-#    s_vec = fit$pred_oobag
-#   )
-#
-#   expect_equal(c_target, c_estimate)
-#
-#  }
-# )
+test_that(
+ desc = 'can only compute anova vi during fit',
+ code = {
+  fit_no_vi <- orsf(pbc_vi, time+status~.,
+                    n_tree = n_tree_test,
+                    importance = 'none')
+  expect_error(orsf_vi_anova(fit_no_vi), regexp = 'ANOVA')
+  expect_error(orsf_vi(fit_no_vi, importance = 'anova'), regexp = 'ANOVA')
+ }
+)
 
+test_that(
+ desc = 'can only compute vi if data were attached to fit',
+ code = {
+  fit_no_data <- orsf(pbc_vi, time+status~.,
+                      n_tree = n_tree_test,
+                      attach_data = FALSE)
+  expect_error(orsf_vi_anova(fit_no_data), regexp = 'training data')
+  expect_error(orsf_vi_negate(fit_no_data), regexp = 'training data')
+  expect_error(orsf_vi_permute(fit_no_data), regexp = 'training data')
+ }
+)
 
 
 test_that(
@@ -175,4 +210,5 @@ test_that(
 
  }
 )
+
 
