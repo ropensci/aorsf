@@ -316,12 +316,12 @@
   }
 
   if(verbosity > 4){
-
+   // # nocov start
    mat x_print = x_inbag.rows(rows_node);
    Rcout << "   -- Column " << j << " was sampled but ";
    Rcout << "its unique values are " << unique(x_print.col(j));
    Rcout << std::endl;
-
+   // # nocov end
   }
 
   return(false);
@@ -385,10 +385,12 @@
     if(n_obs >= leaf_min_obs) {
 
      if(verbosity > 3){
+      // # nocov start
       Rcout << std::endl;
       Rcout << "   -- lower cutpoint: " << lincomb(*it) << std::endl;
       Rcout << "      - n_obs, left node:   " << n_obs   << std::endl;
       Rcout << std::endl;
+      // # nocov end
      }
 
      break;
@@ -404,7 +406,9 @@
   if(it == lincomb_sort.end()-1) {
 
    if(verbosity > 3){
+    // # nocov start
     Rcout << "   -- Could not find a valid cut-point" << std::endl;
+    // # nocov end
    }
 
    return;
@@ -437,10 +441,12 @@
      --it;
 
      if(verbosity > 3){
+      // # nocov start
       Rcout << std::endl;
       Rcout << "   -- upper cutpoint: " << lincomb(*it) << std::endl;
       Rcout << "      - n_obs, right node:   " << n_obs << std::endl;
       Rcout << std::endl;
+      // # nocov end
      }
 
      break;
@@ -459,7 +465,9 @@
   if(j > k){
 
    if(verbosity > 2) {
+    // # nocov start
     Rcout << "   -- Could not find valid cut-points" << std::endl;
+    // # nocov end
    }
 
    return;
@@ -502,7 +510,9 @@
   double stat, stat_best = 0;
 
   if(verbosity > 3){
+   // # nocov start
    Rcout << "   -- cutpoint (score)" << std::endl;
+   // # nocov end
   }
 
   for(it = cuts_sampled.begin(); it != cuts_sampled.end(); ++it){
@@ -517,21 +527,25 @@
    it_start = *it;
 
    if(verbosity > 3){
+    // # nocov start
     Rcout << "   --- ";
     Rcout << lincomb.at(lincomb_sort(*it));
     Rcout << " (" << stat << "), ";
     Rcout << "N = " << sum(g_node % w_node) << " moving right";
     Rcout << std::endl;
+    // # nocov end
    }
 
   }
 
   if(verbosity > 3){
+   // # nocov start
    Rcout << std::endl;
    Rcout << "   -- best stat:  " << stat_best;
    Rcout << ", min to split: " << split_min_stat;
    Rcout << std::endl;
    Rcout << std::endl;
+   // # nocov end
   }
 
   // do not split if best stat < minimum stat
@@ -587,10 +601,12 @@
  void Tree::sprout_leaf(uword node_id){
 
   if(verbosity > 2){
+   // # nocov start
    Rcout << "-- sprouting node " << node_id << " into a leaf";
    Rcout << " (N = " << sum(w_node) << ")";
    Rcout << std::endl;
    Rcout << std::endl;
+   // # nocov end
   }
 
   leaf_summary[node_id] = mean(y_node.col(0));
@@ -648,11 +664,13 @@
   double accuracy_normal = compute_prediction_accuracy(pred_values);
 
   if(verbosity > 1){
+   // # nocov start
    Rcout << "  -- prediction accuracy before noising: ";
    Rcout << accuracy_normal << std::endl;
    Rcout << "  -- mean leaf pred: ";
    Rcout << mean(conv_to<vec>::from(pred_leaf));
    Rcout << std::endl << std::endl;
+   // # nocov end
   }
 
   random_number_generator.seed(seed);
@@ -691,11 +709,13 @@
     double accuracy_permuted = compute_prediction_accuracy(pred_values);
 
     if(verbosity > 3){
+     // # nocov start
      Rcout << "   -- prediction accuracy after noising " << pred_col << ": ";
      Rcout << accuracy_permuted << std::endl;
      Rcout << "      - mean leaf pred: ";
      Rcout << mean(conv_to<vec>::from(pred_leaf));
      Rcout << std::endl << std::endl;
+     // # nocov end
     }
 
     double accuracy_difference = accuracy_normal - accuracy_permuted;
@@ -733,7 +753,7 @@
   this->max_nodes = (2 * max_leaves) - 1;
 
   if(verbosity > 2){
-
+   // # nocov start
    Rcout << "- N obs inbag: " << n_obs_inbag;
    Rcout << std::endl;
    Rcout << "- N row inbag: " << n_rows_inbag;
@@ -743,8 +763,7 @@
    Rcout << "- max leaves: " << max_leaves;
    Rcout << std::endl;
    Rcout << std::endl;
-
-
+   // # nocov end
   }
 
   // reserve memory for outputs (likely more than we need)
@@ -798,12 +817,13 @@
     n_retry++;
 
     if(verbosity > 3){
-
+     // # nocov start
      Rcout << "-- attempting to split node " << *node;
      Rcout << " (N = " << sum(w_node) << ",";
      Rcout << " try number " << n_retry << ")";
      Rcout << std::endl;
      Rcout << std::endl;
+     // # nocov end
     }
 
     sample_cols();
@@ -813,7 +833,9 @@
      x_node = x_inbag(rows_node, cols_node);
 
      if(verbosity > 3) {
+      // # nocov start
       print_uvec(cols_node, "columns sampled (showing up to 5)", 5);
+      // # nocov end
      }
 
      // beta holds estimates (first item) and variance (second)
@@ -892,7 +914,9 @@
      vec beta_est = beta.unsafe_col(0);
 
      if(verbosity > 3) {
+      // # nocov start
       print_vec(beta_est, "linear combo weights (showing up to 5)", 5);
+      // # nocov end
      }
 
      bool beta_all_zeros = find(beta_est != 0).is_empty();
@@ -908,10 +932,10 @@
       find_all_cuts();
 
       if(verbosity > 3 && cuts_all.is_empty()){
-
+       // # nocov start
        Rcout << "   -- no cutpoints identified";
        Rcout << std::endl;
-
+       // # nocov end
       }
 
       // empty cuts_all => no valid cutpoints => make leaf or retry
@@ -930,7 +954,9 @@
          //  2. the method used for lincombs allows it
 
          if(verbosity > 3){
+          // # nocov start
           Rcout << "   -- p-values:" << std::endl;
+          // # nocov end
          }
 
          vec beta_var = beta.unsafe_col(1);
@@ -946,7 +972,7 @@
            pvalue = R::pchisq(pow(beta_est[i],2)/beta_var[i], 1, false, false);
 
            if(verbosity > 3){
-
+            // # nocov start
             Rcout << "   --- column " << cols_node[i] << ": ";
             Rcout << pvalue;
             if(pvalue < 0.05) Rcout << "*";
@@ -954,7 +980,7 @@
             if(pvalue < 0.001) Rcout << "*";
             if(pvalue < vi_max_pvalue) Rcout << " [+1 to VI numerator]";
             Rcout << std::endl;
-
+            // # nocov end
            }
 
            if(pvalue < vi_max_pvalue){ (*vi_numer)[cols_node[i]]++; }
@@ -963,7 +989,11 @@
 
          }
 
-         if(verbosity > 3){ Rcout << std::endl; }
+         if(verbosity > 3){
+          // # nocov start
+          Rcout << std::endl;
+          // # nocov end
+         }
 
         }
 
@@ -981,11 +1011,13 @@
         node_assignments.elem(rows_node) = node_left + g_node;
 
         if(verbosity > 2){
+         // # nocov start
          Rcout << "-- node " << *node << " was split into ";
          Rcout << "node " << node_left << " (left) and ";
          Rcout << node_left+1 << " (right)";
          Rcout << std::endl;
          Rcout << std::endl;
+         // # nocov end
         }
 
         nodes_queued.push_back(node_left);
@@ -1035,7 +1067,9 @@
   if(coef_values.size() == 0) return;
 
   if(verbosity > 2){
+   // # nocov start
    Rcout << "   -- computing leaf predictions" << std::endl;
+   // # nocov end
   }
 
   uvec obs_in_node;
@@ -1080,12 +1114,14 @@
      }
 
      if(verbosity > 4){
+      // # nocov start
       uvec in_left = find(pred_leaf == child_left[i]);
       uvec in_right = find(pred_leaf == child_left[i]+1);
       Rcout << "No. to node " << child_left[i] << ": ";
       Rcout << in_left.size() << "; " << std::endl;
       Rcout << "No. to node " << child_left[i]+1 << ": ";
       Rcout << in_right.size() << std::endl << std::endl;
+      // # nocov end
      }
 
     }

@@ -26,10 +26,8 @@ infer_pred_horizon <- function(object, pred_type, pred_horizon){
 
  # throw error if pred_type requires pred_horizon
  if(is.null(pred_horizon)){
-
   stop("pred_horizon was not specified and could not be found in object.",
        call. = FALSE)
-
  }
 
 

@@ -90,6 +90,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
  // oobag denominator tracks the number of times an obs is oobag
  oobag_denom.zeros(data->get_n_rows());
 
+ // # nocov start
  if(verbosity > 1){
 
   Rcout << "------------ input data dimensions ------------" << std::endl;
@@ -100,6 +101,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
   Rcout << std::endl;
 
  }
+ // # nocov end
 
 }
 

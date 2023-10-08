@@ -120,7 +120,7 @@
   }
 
   if(verbosity > 3){
-
+   // # nocov start
    mat x_print = x_inbag.rows(rows_node);
    mat y_print = y_inbag.rows(rows_node);
 
@@ -130,7 +130,7 @@
    Rcout << "  --- Column " << j << " was sampled but ";
    Rcout << " unique values of column " << j << " are ";
    Rcout << unique(x_print.col(j)) << std::endl;
-
+   // # nocov end
   }
 
   return(false);
@@ -178,11 +178,13 @@
         n_risk   >= leaf_min_obs ) {
 
      if(verbosity > 2){
+      // # nocov start
       Rcout << std::endl;
       Rcout << "  -- lower cutpoint: "        << lincomb(*it) << std::endl;
       Rcout << "     - n_events, left node: " << n_events << std::endl;
       Rcout << "     - n_risk, left node:   " << n_risk   << std::endl;
       Rcout << std::endl;
+      // # nocov end
      }
 
      break;
@@ -198,7 +200,9 @@
   if(it == lincomb_sort.end()-1) {
 
    if(verbosity > 2){
+    // # nocov start
     Rcout << "   -- Could not find a valid cut-point" << std::endl;
+    // # nocov end
    }
 
    return;
@@ -233,11 +237,13 @@
      --it;
 
      if(verbosity > 2){
+      // # nocov start
       Rcout << std::endl;
       Rcout << "  -- upper cutpoint: " << lincomb(*it) << std::endl;
       Rcout << "     - n_events, right node: " << n_events    << std::endl;
       Rcout << "     - n_risk, right node:   " << n_risk      << std::endl;
       Rcout << std::endl;
+      // # nocov end
      }
 
      break;
@@ -256,7 +262,9 @@
   if(j > k){
 
    if(verbosity > 2) {
+    // # nocov start
     Rcout << "Could not find valid cut-points" << std::endl;
+    // # nocov end
    }
 
    return;
@@ -316,10 +324,12 @@
  void TreeSurvival::sprout_leaf(uword node_id){
 
   if(verbosity > 2){
+   // # nocov start
    Rcout << "-- sprouting node " << node_id << " into a leaf";
    Rcout << " (N = " << sum(w_node) << ")";
    Rcout << std::endl;
    Rcout << std::endl;
+   // # nocov end
   }
 
 
@@ -415,9 +425,11 @@
 
 
   if(verbosity > 3){
+   // # nocov start
    mat tmp_mat = join_horiz(y_node, w_node);
    print_mat(tmp_mat, "time & status & weights in this node", 10, 10);
    print_mat(leaf_data, "leaf_data (showing up to 5 rows)", 5, 5);
+   // # nocov end
   }
 
   leaf_pred_indx[node_id] = leaf_data.col(0);
@@ -476,6 +488,7 @@
   uvec::iterator it = pred_leaf_sort.begin();
 
   if(verbosity > 2){
+   // # nocov start
    uvec tmp_uvec = find(pred_leaf < max_nodes);
 
    if(tmp_uvec.size() == 0){
@@ -484,6 +497,7 @@
    }
 
    Rcout << "   -- N preds expected: " << tmp_uvec.size() << std::endl;
+   // # nocov end
   }
 
   uword leaf_id = pred_leaf[*it];
@@ -657,9 +671,11 @@
   }
 
   if(verbosity > 2){
+   // # nocov start
    Rcout << "   -- N preds made: " << n_preds_made;
    Rcout << std::endl;
    Rcout << std::endl;
+   // # nocov end
   }
 
 

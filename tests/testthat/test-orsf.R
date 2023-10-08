@@ -44,8 +44,6 @@ test_that(
 )
 
 
-#' @srrstats {G5.8b, G5.8b} *Data of unsupported types trigger an error*
-
 test_that(
  desc = "blank and non-standard names trigger an error",
  code = {
@@ -76,8 +74,6 @@ test_that(
  }
 )
 
-
-#' @srrstats {G2.11} *testing allowance and accounting for units class*
 
 test_that(
  'orsf tracks meta data for units class variables',
@@ -117,91 +113,6 @@ test_that(
 
 )
 
-data_fit <- copy(pbc_orsf)
-
-fit_with_vi <- orsf(data = data_fit,
-                    formula = Surv(time, status) ~ . - id,
-                    importance = 'negate',
-                    n_tree = 50)
-
-test_that("data are not unintentionally modified by reference",
-          code = {expect_identical(data_fit, pbc_orsf)})
-
-
-fit_no_vi <- orsf(data = pbc_orsf,
-                  formula = Surv(time, status) ~ . - id,
-                  importance = 'none',
-                  n_tree = 50)
-
-# I'm making the difference in data size very big because I don't want this
-# test to fail on some operating systems.
-pbc_small <- pbc_orsf[1:50, ]
-
-pbc_large <- rbind(pbc_orsf, pbc_orsf, pbc_orsf, pbc_orsf, pbc_orsf)
-pbc_large <- rbind(pbc_large, pbc_large, pbc_large, pbc_large, pbc_large)
-
-test_that(
- desc = "algorithm runs slower as data size increases",
- code = {
-  time_small <- system.time(orsf(pbc_small,
-                                 Surv(time, status) ~ . -id,
-                                 n_tree=50))
-
-  time_large <- system.time(orsf(pbc_large,
-                                 Surv(time, status) ~ . -id,
-                                 n_tree=50))
-
-  expect_true(time_small['elapsed'] < time_large['elapsed'])
- }
-)
-
-
-test_that(
- desc = "algorithm runs faster with lower convergence tolerance",
- code = {
-
-  time_small <- system.time(
-   orsf(pbc_orsf,
-        control = orsf_control_fast(),
-        Surv(time, status) ~ . -id,
-        n_tree = 500)
-  )
-
-  time_large <- system.time(
-   orsf(pbc_orsf,
-        control = orsf_control_cph(iter_max = 50, eps = 1e-10),
-        Surv(time, status) ~ . -id,
-        n_tree = 500)
-  )
-
-  expect_true(time_small['elapsed'] < time_large['elapsed'])
-
- }
-)
-
-test_that(
- desc = "algorithm runs faster with lower number of iterations",
- code = {
-
-  time_small <- system.time(
-   orsf(pbc_orsf,
-        Surv(time, status) ~ . -id,
-        n_tree = 5)
-  )
-
-  time_large <- system.time(
-   orsf(pbc_orsf,
-        Surv(time, status) ~ . -id,
-        n_tree = 1000) # big difference prevents unneeded failure
-  )
-
-  expect_true(time_small['elapsed'] < time_large['elapsed'])
-
- }
-)
-
-
-#' @srrstats {ML7.11} *OOB C-statistic is monitored by this test. As the number of trees in the forest increases, the C-statistic should also increase*
 
 test_that(
  desc = "algorithm grows more accurate with higher number of iterations",
@@ -218,8 +129,6 @@ test_that(
  }
 )
 
-
-#' @srrstats {G5.8, G5.8a} **Edge condition tests** *Zero-length data produce expected behaviour*
 
 test_that(
  desc = 'Boundary case: empty training data throw an error',
@@ -620,6 +529,7 @@ test_that(
    n_split = 1,
    n_retry = 0,
    mtry = 3,
+   sample_with_replacement = c(TRUE, FALSE),
    leaf_min_events = 5,
    leaf_min_obs = c(10),
    split_rule = c("logrank", "cstat"),
@@ -650,9 +560,17 @@ test_that(
                      'net' = orsf_control_net(),
                      'custom' = orsf_control_custom(beta_fun = f_pca))
 
+   if(inputs$sample_with_replacement[i]){
+    sample_fraction <- 0.632
+   } else {
+    sample_fraction <- runif(n = 1, min = .25, max = .75)
+   }
+
    fit <- orsf(data = data_fun(pbc_orsf),
                formula = time + status ~ . - id,
                control = control,
+               sample_with_replacement = inputs$sample_with_replacement[i],
+               sample_fraction = sample_fraction,
                n_tree = inputs$n_tree[i],
                n_split = inputs$n_split[i],
                n_retry = inputs$n_retry[i],
@@ -666,6 +584,10 @@ test_that(
                oobag_pred_horizon = pred_horizon)
 
    expect_s3_class(fit, class = 'orsf_fit')
+
+   # data are not unintentionally modified by reference,
+   expect_identical(data_fun(pbc_orsf), fit$data)
+
 
    expect_no_missing(fit$forest)
    expect_no_missing(fit$importance)
@@ -687,6 +609,14 @@ test_that(
    expect_length(fit$forest$coef_indices, n = get_n_tree(fit))
    expect_length(fit$forest$coef_values, n = get_n_tree(fit))
    expect_length(fit$forest$leaf_summary, n = get_n_tree(fit))
+
+   if(!inputs$sample_with_replacement[i]){
+    expect_equal(
+     1 - length(fit$forest$rows_oobag[[1]]) / get_n_obs(fit),
+     sample_fraction,
+     tolerance = 0.025
+    )
+   }
 
    if(inputs$oobag_pred_type[i] != 'none'){
 

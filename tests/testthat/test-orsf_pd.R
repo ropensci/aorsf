@@ -60,6 +60,60 @@ test_that(
  }
 )
 
+funs <- list(
+ ice_new = orsf_ice_new,
+ ice_inb = orsf_ice_inb,
+ ice_oob = orsf_ice_oob,
+ pd_new = orsf_pd_new,
+ pd_inb = orsf_pd_inb,
+ pd_oob = orsf_pd_oob
+)
+
+args_loop <- args_grid <- list(
+ object = fit,
+ pred_spec = list(bili = 1:4, sex = c("m", "f")),
+ new_data = pbc_test,
+ pred_horizon = 1000,
+ pred_type = 'risk',
+ na_action = 'fail',
+ expand_grid = TRUE,
+ prob_values = c(0.025, 0.50, 0.975),
+ prob_labels = c("lwr", "medn", "upr"),
+ boundary_checks = TRUE,
+ n_thread = 3
+)
+
+args_loop$expand_grid <- FALSE
+
+for(i in seq_along(funs)){
+
+ f_name <- names(funs)[i]
+
+ formals <- setdiff(names(formals(funs[[i]])), '...')
+
+ pd_object_grid <- do.call(funs[[i]], args = args_grid[formals])
+ pd_object_loop <- do.call(funs[[i]], args = args_loop[formals])
+
+ test_that(
+  desc = paste('pred_spec data are returned on the original scale',
+               ' for orsf_', f_name, sep = ''),
+  code = {
+   expect_equal(unique(pd_object_grid$bili), 1:4)
+   expect_equal(unique(pd_object_loop[variable == 'bili', value]), 1:4)
+  }
+ )
+
+ test_that(
+  desc = paste(f_name, 'returns a data.table'),
+  code = {
+   expect_s3_class(pd_object_grid, 'data.table')
+   expect_s3_class(pd_object_loop, 'data.table')
+  }
+ )
+
+
+}
+
 pd_vals_ice <- orsf_ice_new(
  fit,
  new_data = pbc_orsf,
@@ -72,18 +126,6 @@ pd_vals_smry <- orsf_pd_new(
  new_data = pbc_orsf,
  pred_spec = list(bili = 1:4),
  pred_horizon = 1000
-)
-
-test_that(
- 'pred_spec data are returned on the original scale',
-
- code = {
-
-  expect_equal(unique(pd_vals_ice$bili), 1:4)
-  expect_equal(unique(pd_vals_smry$bili), 1:4)
-
- }
-
 )
 
 test_that(

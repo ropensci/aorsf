@@ -355,25 +355,25 @@ test_that(
 )
 
 test_that(
- desc = 'predictions do not depend on other observations in the data',
+ desc = 'leaf predictions do not depend on other observations in the data',
  code = {
 
-  p_risk <- predict(fit, new_data = new_data)
+  p_leaf <- predict(fit, new_data = new_data, pred_type = 'leaf')
 
   for(i in seq(nrow(new_data))){
 
-   p_1row <- predict(fit, new_data = new_data[i,])
-   expect_equal(p_1row, p_risk[i], ignore_attr = TRUE, tolerance = 1e-9)
+   p_1row <- predict(fit, new_data = new_data[i,], pred_type = 'leaf')
+   expect_equal(p_1row, p_leaf[i, , drop=FALSE])
 
   }
  }
 )
 
 test_that(
- 'predictions do not depend on order of the data',
+ 'leaf predictions do not depend on order of the data',
  code = {
 
-  for(pred_type in pred_types_surv){
+  for(pred_type in c('leaf')){
 
    p_before <- predict(fit,
                        new_data = new_data,

@@ -37,15 +37,15 @@ data_impute <- function(data, cols, values){
 }
 
 
-data_impute_nocheck <- function(data, cols, values){
-
- for(col in cols)
-  data <- collapse::replace_NA(data,
-                               cols = col,
-                               value = values[[col]])
-
- data
-
-}
+# data_impute_nocheck <- function(data, cols, values){
+#
+#  for(col in cols)
+#   data <- collapse::replace_NA(data,
+#                                cols = col,
+#                                value = values[[col]])
+#
+#  data
+#
+# }
 
 
