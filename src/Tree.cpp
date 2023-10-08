@@ -1078,9 +1078,9 @@
   uvec::iterator it;
 
   // i iterates over nodes, j over observations
-  uword i, j;
+  // uword i, j;
 
-  for(i = 0; i < coef_values.size(); i++){
+  for(uword i = 0; i < coef_values.size(); i++){
 
    // if child_left == 0, it's a leaf (no need to find next child)
    if(child_left[i] != 0){
@@ -1095,11 +1095,19 @@
 
     if(obs_in_node.size() > 0){
 
-     lincomb = prediction_data->x_submat(obs_in_node, coef_indices[i]) * coef_values[i];
+     // lincomb = prediction_data->x_submat(obs_in_node, coef_indices[i]) * coef_values[i];
+
+     x_node = prediction_data->x_submat(obs_in_node, coef_indices[i]);
+     lincomb.set_size(x_node.n_rows);
+
+     for(uword k = 0; k < lincomb.size(); k++){
+      vec new_lincomb_value = (x_node.row(k) * coef_values[i]);
+      lincomb[k] = new_lincomb_value(0);
+     }
 
      it = obs_in_node.begin();
 
-     for(j = 0; j < lincomb.size(); ++j, ++it){
+     for(uword j = 0; j < lincomb.size(); ++j, ++it){
 
       if(lincomb[j] <= cutpoint[i]) {
 
