@@ -46,6 +46,7 @@ orsf_vs <- function(object,
   forest_weights <- NULL
 
  forest_outcomes <- get_names_y(object)
+
  formula <- stats::as.formula(
   paste( paste(forest_outcomes, collapse = ' + '), "~ ." )
  )
@@ -62,19 +63,7 @@ orsf_vs <- function(object,
   predictor_dropped = rep(NA_character_, n_predictors)
  )
 
- oob_last_stat_value <- get_last_oob_stat_value(forest_object)
- oob_worst_predictor <- get_last_vi(forest_object)
-
- oob_data[n_predictors,
-          `:=`(n_predictors = n_predictors,
-               stat_value = oob_last_stat_value,
-               predictors_included = forest_predictors,
-               predictor_dropped = oob_worst_predictor)]
-
- cols_kept <- c(
-  forest_outcomes,
-  setdiff(forest_predictors, oob_worst_predictor)
- )
+ cols_kept <- c(forest_outcomes, forest_predictors)
 
  while(n_predictors > n_predictor_min){
 
@@ -92,7 +81,7 @@ orsf_vs <- function(object,
                         split_min_events = get_split_min_events(object),
                         split_min_obs = get_split_min_obs(object),
                         split_min_stat = get_split_min_stat(object),
-                        oobag_pred_type = get_oobag_pred_type(object),
+                        oobag_pred_type = 'mort',
                         oobag_pred_horizon = get_oobag_pred_horizon(object),
                         oobag_eval_every = get_n_tree(object),
                         oobag_fun = get_oobag_fun(object),
