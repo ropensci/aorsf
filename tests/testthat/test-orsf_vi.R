@@ -189,6 +189,11 @@ test_that(
   )
 
   expect_error(
+   orsf_vi_negate(fit_no_vi, oobag_fun = oobag_fun_bad_name_3),
+   regexp = 'w_vec'
+  )
+
+  expect_error(
    orsf_vi_negate(fit_no_vi, oobag_fun = oobag_fun_bad_out),
    regexp = 'length 1'
   )

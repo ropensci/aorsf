@@ -121,6 +121,16 @@ oobag_fun_bad_name_2 <- function(y_mat, w_vec, nope){
 
 }
 
+oobag_fun_bad_name_3 <- function(y_mat, nope, s_vec){
+
+ # risk = 1 - survival
+ r_vec <- 1 - s_vec
+
+ # mean of the squared differences between predicted and observed risk
+ mean( (y_mat[, 2L] - r_vec)^2 )
+
+}
+
 oobag_fun_bad_out <- function(y_mat, w_vec, s_vec){
 
  # risk = 1 - survival

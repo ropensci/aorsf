@@ -410,7 +410,7 @@ orsf <- function(data,
  if(sample_fraction == 1 && oobag_pred){
   stop(
    "cannot compute out-of-bag predictions if no samples are out-of-bag.",
-   "To resolve this, set sample_fraction < 1 or oobag_pred_type = 'none'.",
+   " Try setting sample_fraction < 1 or oobag_pred_type = 'none'.",
    call. = FALSE
   )
  }
@@ -473,9 +473,9 @@ orsf <- function(data,
   type_oobag_eval <- 'user'
 
   if(oobag_pred_type == 'leaf'){
-   stop("a user-supplied oobag function cannot be",
-        "applied when oobag_pred_type = 'leaf'",
-        call. = FALSE)
+   warning("a user-supplied oobag function cannot be",
+           "applied when oobag_pred_type = 'leaf'",
+           call. = FALSE)
   }
 
  }

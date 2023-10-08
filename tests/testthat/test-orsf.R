@@ -1,18 +1,22 @@
 
 
-f <- time + status ~ . - id
+f <- time + status ~ .
 
 test_that(
  desc = 'non-formula inputs are vetted',
  code = {
 
-  expect_error(orsf(pbc_orsf, f, n_tree = 0), "should be >= 1")
-  expect_error(orsf(pbc_orsf, f, n_split = "3"), "should have type")
-  expect_error(orsf(pbc_orsf, f, mtry = 5000), 'should be <=')
-  expect_error(orsf(pbc_orsf, f, leaf_min_events = 5000), 'should be <=')
-  expect_error(orsf(pbc_orsf, f, leaf_min_obs = 5000), 'should be <=')
-  expect_error(orsf(pbc_orsf, f, attachData = TRUE), 'attach_data?')
-  expect_error(orsf(pbc_orsf, f, Control = 0), 'control?')
+  expect_error(orsf(pbc, f, n_tree = 0), "should be >= 1")
+  expect_error(orsf(pbc, f, n_split = "3"), "should have type")
+  expect_error(orsf(pbc, f, mtry = 5000), 'should be <=')
+  expect_error(orsf(pbc, f, leaf_min_events = 5000), 'should be <=')
+  expect_error(orsf(pbc, f, leaf_min_obs = 5000), 'should be <=')
+  expect_error(orsf(pbc, f, attachData = TRUE), 'attach_data?')
+  expect_error(orsf(pbc, f, Control = 0), 'control?')
+  expect_error(orsf(pbc, f, sample_fraction = 1, oobag_pred_type = 'risk'),
+               'no samples are out-of-bag')
+  expect_error(orsf(pbc, f, split_rule = 'cstat', split_min_stat = 1),
+               'must be < 1')
 
   pbc_orsf$date_var <- Sys.Date()
   expect_error(orsf(pbc_orsf, f), 'unsupported type')
@@ -403,45 +407,40 @@ test_that(
 )
 
 
-if(Sys.getenv("run_all_aorsf_tests") == 'yes'){
+test_that(
+ desc = 'orsf_time_to_train is reasonable at approximating time to train',
+ code = {
 
- test_that(
-  desc = 'orsf_time_to_train is reasonable at approximating time to train',
-  code = {
+  # testing the seed behavior when no_fit is TRUE. You should get the same
+  # forest whether you train with orsf() or with orsf_train().
 
-   # testing the seed behavior when no_fit is TRUE. You should get the same
-   # forest whether you train with orsf() or with orsf_train().
+  for(.n_tree in c(100, 250, 1000)){
 
-   for(.n_tree in c(100, 250, 1000)){
+   object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
+                  n_tree = .n_tree, no_fit = TRUE,
+                  importance = 'anova')
+   set.seed(89)
+   time_estimated <- orsf_time_to_train(object, n_tree_subset = 50)
 
-    object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-                   n_tree = .n_tree, no_fit = TRUE,
-                   importance = 'anova')
-    set.seed(89)
-    time_estimated <- orsf_time_to_train(object, n_tree_subset = 50)
+   set.seed(89)
+   time_true_start <- Sys.time()
+   fit_orsf_3 <- orsf_train(object)
+   time_true_stop <- Sys.time()
 
-    set.seed(89)
-    time_true_start <- Sys.time()
-    fit_orsf_3 <- orsf_train(object)
-    time_true_stop <- Sys.time()
+   time_true <- time_true_stop - time_true_start
 
-    time_true <- time_true_stop - time_true_start
+   diff_abs <- abs(as.numeric(time_true - time_estimated))
+   diff_rel <- diff_abs / as.numeric(time_true)
 
-    diff_abs <- abs(as.numeric(time_true - time_estimated))
-    diff_rel <- diff_abs / as.numeric(time_true)
+   # expect the difference between estimated and true time is < 5 second.
+   expect_lt(diff_abs, 5)
+   # expect that the difference is not greater than 5x the
+   # magnitude of the actual time it took to fit the forest
+   expect_lt(diff_rel, 5)
 
-    # expect the difference between estimated and true time is < 5 second.
-    expect_lt(diff_abs, 5)
-    # expect that the difference is not greater than 5x the
-    # magnitude of the actual time it took to fit the forest
-    expect_lt(diff_rel, 5)
-
-   }
   }
- )
-
-}
-
+ }
+)
 
 test_that(
  desc = 'orsf_train does not accept bad inputs',
