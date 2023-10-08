@@ -78,7 +78,8 @@ separating the two classes.
 The `orsf()` function can fit several types of ORSF ensembles. My
 personal favorite is the accelerated ORSF because it has a great
 combination of prediction accuracy and computational efficiency (see
-[arXiv paper](https://arxiv.org/abs/2208.01129)).<sup>2</sup>
+[JCGS
+paper](https://doi.org/10.1080/10618600.2023.2231048)).<sup>2</sup>
 
 ``` r
 
@@ -144,20 +145,20 @@ using `aorsf`:
   require permutation and it emphasizes variables with larger
   coefficients in linear combinations, but it is also relatively new and
   hasn’t been studied as much as permutation importance. See [Jaeger,
-  2022](https://arxiv.org/abs/2208.01129) for more details on this
-  technique.
+  2023](https://doi.org/10.1080/10618600.2023.2231048) for more details
+  on this technique.
 
   ``` r
 
   orsf_vi_negate(fit)
   #>          bili           sex        copper           ast           age 
-  #>  0.1190578208  0.0619364315  0.0290605798  0.0260108174  0.0251162396 
+  #>  0.1190290560  0.0619448918  0.0290622719  0.0260108174  0.0251263919 
   #>         stage       protime         edema       ascites        hepato 
-  #>  0.0237810058  0.0158443269  0.0117270641  0.0105685230  0.0092028195 
+  #>  0.0237725455  0.0158527871  0.0117258458  0.0105685230  0.0092045115 
   #>       albumin          chol           trt      alk.phos       spiders 
-  #>  0.0082647861  0.0041510636  0.0036548364  0.0010239241 -0.0003298163 
+  #>  0.0082732463  0.0041510636  0.0036632967  0.0010256161 -0.0003298163 
   #>          trig      platelet 
-  #> -0.0011111508 -0.0045314656
+  #> -0.0011060747 -0.0045517701
   ```
 
 - **permutation**: Each variable is assessed separately by randomly
@@ -172,13 +173,13 @@ using `aorsf`:
 
   orsf_vi_permute(fit)
   #>          bili        copper           ast           age           sex 
-  #>  0.0514084384  0.0170611427  0.0142227933  0.0140274813  0.0131527430 
+  #>  0.0514033622  0.0170611427  0.0142515581  0.0140224052  0.0131459748 
   #>         stage       protime       ascites         edema       albumin 
-  #>  0.0119752045  0.0102865556  0.0098067817  0.0081730899  0.0080568255 
+  #>  0.0119768965  0.0102950158  0.0098067817  0.0081730899  0.0080652857 
   #>        hepato          chol      alk.phos          trig       spiders 
-  #>  0.0069734562  0.0032811220  0.0015862128  0.0014909643  0.0007811902 
+  #>  0.0069734562  0.0032811220  0.0015862128  0.0014943484  0.0007825752 
   #>           trt      platelet 
-  #> -0.0007067631 -0.0022135241
+  #> -0.0007067631 -0.0022338286
   ```
 
 - **analysis of variance (ANOVA)**<sup>3</sup>: A p-value is computed
@@ -223,18 +224,18 @@ orsf_summarize_uni(fit, n_variables = 2)
 #> 
 #> -- bili (VI Rank: 1) ----------------------------
 #> 
-#>        |----------------- risk -----------------|
+#>        |----------------- Risk -----------------|
 #>  Value      Mean     Median     25th %    75th %
-#>   0.70 0.2074286 0.09039332 0.03827337 0.3146957
-#>    1.3 0.2261739 0.10784929 0.04915971 0.3425934
-#>    3.2 0.3071951 0.21242141 0.11889617 0.4358309
+#>   0.70 0.2094827 0.09046313 0.03827429 0.3184979
+#>    1.3 0.2283358 0.11078307 0.05347112 0.3492104
+#>    3.2 0.3090977 0.21368937 0.11889617 0.4412656
 #> 
 #> -- sex (VI Rank: 2) -----------------------------
 #> 
-#>        |----------------- risk -----------------|
+#>        |----------------- Risk -----------------|
 #>  Value      Mean    Median     25th %    75th %
-#>      m 0.3648659 0.2572239 0.15554270 0.5735661
-#>      f 0.2479179 0.1021787 0.04161796 0.3591612
+#>      m 0.3667488 0.2614335 0.15611841 0.5836574
+#>      f 0.2507675 0.1051310 0.04355687 0.3596206
 #> 
 #>  Predicted risk at time t = 1826.25 for top 2 predictors
 ```
@@ -255,7 +256,7 @@ For more on ICE, see the
 ## Comparison to existing software
 
 Comparisons between `aorsf` and existing software are presented in our
-[arXiv paper](https://arxiv.org/abs/2208.01129). The paper
+[JCGS paper](https://doi.org/10.1080/10618600.2023.2231048). The paper:
 
 - describes `aorsf` in detail with a summary of the procedures used in
   the tree fitting algorithm
@@ -286,8 +287,9 @@ examples](https://docs.ropensci.org/aorsf/reference/orsf.html#tidymodels)
 
 2.  Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A,
     Pajewski NM. Accelerated and interpretable oblique random survival
-    forests. *arXiv e-prints* 2022 Aug; arXiv-2208. URL:
-    <https://arxiv.org/abs/2208.01129>
+    forests. *Journal of Computational and Graphical Statistics*
+    Published online 08 Aug 2023. URL:
+    <https://doi.org/10.1080/10618600.2023.2231048>
 
 3.  Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique
     random forests. *Joint European Conference on Machine Learning and

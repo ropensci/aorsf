@@ -76,7 +76,7 @@
 #'
 #' `r roxy_cite_menze_2011()`
 #'
-#' `r roxy_cite_jaeger_2022()`
+#' `r roxy_cite_jaeger_2023()`
 #'
 #'
 orsf_vi <- function(object,

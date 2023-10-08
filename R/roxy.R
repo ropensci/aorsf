@@ -191,15 +191,16 @@ roxy_cite_jaeger_2019 <- function(){
 
 }
 
-roxy_cite_jaeger_2022 <- function(){
+roxy_cite_jaeger_2023 <- function(){
 
  roxy_cite(
   authors = "Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM",
   title = "Accelerated and interpretable oblique random survival forests",
-  journal = "arXiv e-prints",
-  date = "2022 Aug",
-  number = 'arXiv-2208',
-  url = "https://arxiv.org/abs/2208.01129"
+  journal = "Journal of Computational and Graphical Statistics",
+  date = "Published online 08 Aug 2023",
+  number = NULL,
+  # doi = "10.1080/10618600.2023.2231048",
+  url = "https://doi.org/10.1080/10618600.2023.2231048"
  )
 
 }
@@ -270,7 +271,7 @@ roxy_dots <- function(){
 roxy_vi_describe <- function(type){
 
  switch(type,
-        'negate' = "Each variable is assessed separately by multiplying the variable's coefficients by -1 and then determining how much the model's performance changes. The worse the model's performance after negating coefficients for a given variable, the more important the variable. This technique is promising b/c it does not require permutation and it emphasizes variables with larger coefficients in linear combinations, but it is also relatively new and hasn't been studied as much as permutation importance. See [Jaeger, 2022](https://arxiv.org/abs/2208.01129) for more details on this technique.",
+        'negate' = "Each variable is assessed separately by multiplying the variable's coefficients by -1 and then determining how much the model's performance changes. The worse the model's performance after negating coefficients for a given variable, the more important the variable. This technique is promising b/c it does not require permutation and it emphasizes variables with larger coefficients in linear combinations, but it is also relatively new and hasn't been studied as much as permutation importance. See [Jaeger, 2023](https://doi.org/10.1080/10618600.2023.2231048) for more details on this technique.",
         'permute' = "Each variable is assessed separately by randomly permuting the variable's values and then determining how much the model's performance changes. The worse the model's performance after permuting the values of a given variable, the more important the variable. This technique is flexible, intuitive, and frequently used. It also has several [known limitations](https://christophm.github.io/interpretable-ml-book/feature-importance.html#disadvantages-9)",
         'anova' = "A p-value is computed for each coefficient in each linear combination of variables in each decision tree. Importance for an individual predictor variable is the proportion of times a p-value for its coefficient is < 0.01. This technique is very efficient computationally, but may not be as effective as permutation or negation in terms of selecting signal over noise variables. See [Menze, 2011](https://link.springer.com/chapter/10.1007/978-3-642-23783-6_29) for more details on this technique.")
 

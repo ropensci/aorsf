@@ -610,20 +610,21 @@
 
  }
 
+ // not currently used but will be in the future
+ // # nocov start
  void Tree::sprout_leaf(uword node_id){
 
   if(verbosity > 2){
-   // # nocov start
    Rcout << "-- sprouting node " << node_id << " into a leaf";
    Rcout << " (N = " << sum(w_node) << ")";
    Rcout << std::endl;
    Rcout << std::endl;
-   // # nocov end
   }
 
   leaf_summary[node_id] = mean(y_node.col(0));
 
  }
+ // # nocov end
 
  // not currently used but will be in the future
  // # nocov start

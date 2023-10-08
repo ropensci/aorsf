@@ -78,7 +78,7 @@ knitr::include_graphics('man/figures/tree_axis_v_oblique.png')
 
 ## Examples
 
-The `orsf()` function can fit several types of ORSF ensembles. My personal favorite is the accelerated ORSF because it has a great combination of prediction accuracy and computational efficiency (see [arXiv paper](https://arxiv.org/abs/2208.01129)).^2^
+The `orsf()` function can fit several types of ORSF ensembles. My personal favorite is the accelerated ORSF because it has a great combination of prediction accuracy and computational efficiency (see [JCGS paper](https://doi.org/10.1080/10618600.2023.2231048)).^2^
 
 ```{r, child='Rmd/orsf-fit-accelerated.Rmd'}
 
@@ -152,7 +152,7 @@ For more on ICE, see the [vignette](https://docs.ropensci.org/aorsf/articles/pd.
 
 ## Comparison to existing software
 
-Comparisons between `aorsf` and existing software are presented in our [arXiv paper](https://arxiv.org/abs/2208.01129). The paper
+Comparisons between `aorsf` and existing software are presented in our [JCGS paper](https://doi.org/10.1080/10618600.2023.2231048). The paper:
 
 - describes `aorsf` in detail with a summary of the procedures used in the tree fitting algorithm 
 
@@ -173,7 +173,7 @@ A more hands-on comparison of `aorsf` and other R packages is provided in [orsf 
 
 cat("1. ", aorsf:::roxy_cite_jaeger_2019(), '\n\n')
 
-cat("2. ", aorsf:::roxy_cite_jaeger_2022(), '\n\n')
+cat("2. ", aorsf:::roxy_cite_jaeger_2023(), '\n\n')
 
 cat("3. ", aorsf:::roxy_cite_menze_2011())
 

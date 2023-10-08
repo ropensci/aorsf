@@ -1,11 +1,15 @@
+## Version 0.1.0
 
 ## R CMD check results
 
-Duration: 4m 3.8s
+Duration: 3m 53.1s
 
-0 errors v | 0 warnings v | 0 notes v
+❯ checking C++ specification ... NOTE
+    Specified C++14: please drop specification unless essential
 
-R CMD check succeeded
+0 errors ✔ | 0 warnings ✔ | 1 note ✖
+
+I have specified C++14 for this release. C++14 is essential, as this release uses `std::make_unique`.
 
 ## Downstream dependencies
 

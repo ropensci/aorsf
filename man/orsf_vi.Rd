@@ -109,7 +109,7 @@ or not (see examples).
 \section{Variable importance methods}{
 
 
-\strong{negation importance}: Each variable is assessed separately by multiplying the variable's coefficients by -1 and then determining how much the model's performance changes. The worse the model's performance after negating coefficients for a given variable, the more important the variable. This technique is promising b/c it does not require permutation and it emphasizes variables with larger coefficients in linear combinations, but it is also relatively new and hasn't been studied as much as permutation importance. See \href{https://arxiv.org/abs/2208.01129}{Jaeger, 2022} for more details on this technique.
+\strong{negation importance}: Each variable is assessed separately by multiplying the variable's coefficients by -1 and then determining how much the model's performance changes. The worse the model's performance after negating coefficients for a given variable, the more important the variable. This technique is promising b/c it does not require permutation and it emphasizes variables with larger coefficients in linear combinations, but it is also relatively new and hasn't been studied as much as permutation importance. See \href{https://doi.org/10.1080/10618600.2023.2231048}{Jaeger, 2023} for more details on this technique.
 
 \strong{permutation importance}: Each variable is assessed separately by randomly permuting the variable's values and then determining how much the model's performance changes. The worse the model's performance after permuting the values of a given variable, the more important the variable. This technique is flexible, intuitive, and frequently used. It also has several \href{https://christophm.github.io/interpretable-ml-book/feature-importance.html#disadvantages-9}{known limitations}
 
@@ -221,24 +221,24 @@ orsf_vi_negate(fit_no_vi)
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##        bili      copper         sex       stage     protime         age 
-## 0.117812588 0.046758641 0.038085253 0.026584826 0.023881400 0.022583421 
+## 0.117833946 0.046771025 0.038096005 0.026596235 0.023892153 0.022568331 
 ##     albumin     ascites        chol         ast       edema      hepato 
-## 0.020499282 0.015799793 0.013503968 0.011507068 0.007446917 0.007302135 
+## 0.020502226 0.015764542 0.013505575 0.011507061 0.007444267 0.007318432 
 ##         trt     spiders    alk.phos        trig    platelet 
-## 0.006136687 0.005411473 0.003425486 0.003358903 0.001218844
+## 0.006135388 0.005416366 0.003385460 0.003359579 0.001225734
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi_permute(fit_no_vi)
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili        copper           age       protime       albumin 
-##  0.0557765573  0.0229935033  0.0142175615  0.0138958680  0.0138130775 
+##  0.0557854459  0.0230058852  0.0142318894  0.0139189306  0.0138242166 
 ##       ascites         stage          chol           ast         edema 
-##  0.0122566919  0.0122549383  0.0062487607  0.0060082953  0.0057947595 
+##  0.0122576604  0.0122514140  0.0062628391  0.0060073065  0.0057933534 
 ##        hepato       spiders           sex          trig      alk.phos 
-##  0.0052884525  0.0038391405  0.0031617255  0.0014482532  0.0009073479 
+##  0.0052890246  0.0038620727  0.0031610738  0.0014580912  0.0009063636 
 ##      platelet           trt 
-##  0.0001091183 -0.0018037065
+##  0.0001124081 -0.0017971380
 }\if{html}{\out{</div>}}
 }
 
@@ -255,13 +255,13 @@ orsf_vi_permute(fit_permute_vi)
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili        copper           age       ascites       protime 
-##  0.0537366984  0.0232882267  0.0135861353  0.0127592970  0.0125356157 
+##  0.0537706105  0.0232845222  0.0135823364  0.0127916446  0.0125320108 
 ##       albumin         stage           ast         edema        hepato 
-##  0.0114480445  0.0108792612  0.0063934776  0.0062786593  0.0048395390 
-##          chol       spiders           sex          trig      platelet 
-##  0.0042838996  0.0030700999  0.0025439674  0.0022397137  0.0010979018 
-##      alk.phos           trt 
-##  0.0010942194 -0.0006194685
+##  0.0115100144  0.0109035858  0.0063943212  0.0062769135  0.0048230621 
+##          chol       spiders           sex          trig      alk.phos 
+##  0.0042752565  0.0030699653  0.0025422803  0.0022410492  0.0010977282 
+##      platelet           trt 
+##  0.0010972387 -0.0005947093
 }\if{html}{\out{</div>}}
 
 You can still get negation VI from this fit, but it needs to be computed
@@ -270,11 +270,11 @@ You can still get negation VI from this fit, but it needs to be computed
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##        bili      copper         sex         age     protime       stage 
-## 0.120813894 0.046517819 0.036351782 0.022681350 0.021826811 0.021032630 
+## 0.120854614 0.046515980 0.036380485 0.022668834 0.021816803 0.021111101 
 ##     albumin     ascites         ast        chol       edema     spiders 
-## 0.018906444 0.014062700 0.013029040 0.011226505 0.008009926 0.006151980 
+## 0.018969867 0.014101778 0.013042103 0.011220170 0.008009693 0.006193354 
 ##         trt      hepato        trig    alk.phos    platelet 
-## 0.005108172 0.005105800 0.003378537 0.003155270 0.002240910
+## 0.005184060 0.005113622 0.003389060 0.003156121 0.002242597
 }\if{html}{\out{</div>}}
 }
 }
@@ -286,5 +286,5 @@ Breiman L. Random forests. \emph{Machine learning} 2001 Oct; 45(1):5-32. DOI: 10
 
 Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. \emph{Joint European Conference on Machine Learning and Knowledge Discovery in Databases} 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29
 
-Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{arXiv e-prints} 2022 Aug; arXiv-2208. URL: https://arxiv.org/abs/2208.01129
+Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{Journal of Computational and Graphical Statistics} Published online 08 Aug 2023. URL: https://doi.org/10.1080/10618600.2023.2231048
 }

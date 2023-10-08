@@ -471,6 +471,73 @@ void Forest::compute_prediction_accuracy(Data* prediction_data,
 
 }
 
+std::vector<std::vector<arma::mat>> Forest::compute_dependence(bool oobag){
+
+ std::vector<std::vector<arma::mat>> result;
+
+ result.reserve(pd_x_vals.size());
+
+ // looping through each item in the pd list
+ for(uword k = 0; k < pd_x_vals.size(); ++k){
+
+  uword n = pd_x_vals[k].n_rows;
+
+  std::vector<arma::mat> result_k;
+
+  result_k.reserve(n);
+
+  // saving x values
+  for(const auto& x_col : pd_x_cols[k]){
+   data->save_col(x_col);
+  }
+
+  // loop through each row in the current pd matrix
+  for(uword i = 0; i < n; ++i){
+
+   uword j = 0;
+   // fill x with current pd values
+   for(const auto& x_col : pd_x_cols[k]){
+    data->fill_col(pd_x_vals[k].at(i, j), x_col);
+    ++j;
+   }
+
+   if(oobag) oobag_denom.fill(0);
+
+   mat preds = predict(oobag);
+
+   if(pd_type == PD_SUMMARY){
+
+    if(preds.has_nonfinite()){
+     uvec is_finite = find_finite(preds.col(0));
+     preds = preds.rows(is_finite);
+    }
+
+    mat preds_summary = mean(preds, 0);
+    mat preds_quant = quantile(preds, pd_probs, 0);
+
+    result_k.push_back(join_vert(preds_summary, preds_quant));
+
+   } else if(pd_type == PD_ICE) {
+
+    result_k.push_back(preds);
+
+   }
+
+  }
+
+  // bring back original values before moving to next pd item
+  for(const auto& x_col : pd_x_cols[k]){
+   data->restore_col(x_col);
+  }
+
+  result.push_back(result_k);
+
+ }
+
+ return(result);
+
+}
+
 mat Forest::predict(bool oobag) {
 
  mat result;
@@ -569,72 +636,6 @@ mat Forest::predict(bool oobag) {
 
 }
 
-std::vector<std::vector<arma::mat>> Forest::compute_dependence(bool oobag){
-
- std::vector<std::vector<arma::mat>> result;
-
- result.reserve(pd_x_vals.size());
-
- // looping through each item in the pd list
- for(uword k = 0; k < pd_x_vals.size(); ++k){
-
-  uword n = pd_x_vals[k].n_rows;
-
-  std::vector<arma::mat> result_k;
-
-  result_k.reserve(n);
-
-  // saving x values
-  for(const auto& x_col : pd_x_cols[k]){
-   data->save_col(x_col);
-  }
-
-  // loop through each row in the current pd matrix
-  for(uword i = 0; i < n; ++i){
-
-   uword j = 0;
-   // fill x with current pd values
-   for(const auto& x_col : pd_x_cols[k]){
-    data->fill_col(pd_x_vals[k].at(i, j), x_col);
-    ++j;
-   }
-
-   if(oobag) oobag_denom.fill(0);
-
-   mat preds = predict(oobag);
-
-   if(pd_type == PD_SUMMARY){
-
-    if(preds.has_nonfinite()){
-     uvec is_finite = find_finite(preds.col(0));
-     preds = preds.rows(is_finite);
-    }
-
-    mat preds_summary = mean(preds, 0);
-    mat preds_quant = quantile(preds, pd_probs, 0);
-
-    result_k.push_back(join_vert(preds_summary, preds_quant));
-
-   } else if(pd_type == PD_ICE) {
-
-    result_k.push_back(preds);
-
-   }
-
-  }
-
-  // bring back original values before moving to next pd item
-  for(const auto& x_col : pd_x_cols[k]){
-   data->restore_col(x_col);
-  }
-
-  result.push_back(result_k);
-
- }
-
- return(result);
-
-}
 
 void Forest::predict_single_thread(Data* prediction_data,
                                    bool oobag,
@@ -787,6 +788,20 @@ void Forest::resize_oobag_eval(){
 
 }
 
+void Forest::resize_pred_mat(arma::mat& p){
+
+ if(pred_type == PRED_TERMINAL_NODES || !pred_aggregate){
+
+  p.zeros(data->n_rows, n_tree);
+
+ } else {
+
+  resize_pred_mat_internal(p);
+
+ }
+
+}
+
 void Forest::show_progress(std::string operation, size_t max_progress) {
 
  using std::chrono::steady_clock;
@@ -835,19 +850,6 @@ void Forest::show_progress(std::string operation, size_t max_progress) {
  }
 }
 
-void Forest::resize_pred_mat(arma::mat& p){
-
- if(pred_type == PRED_TERMINAL_NODES || !pred_aggregate){
-
-  p.zeros(data->n_rows, n_tree);
-
- } else {
-
-  resize_pred_mat_internal(p);
-
- }
-
-}
 
 }
 

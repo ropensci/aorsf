@@ -27,7 +27,7 @@ The oblique random survival forest (ORSF) is an extension of the axis-based RSF 
 
 - See [orsf](https://docs.ropensci.org/aorsf/reference/orsf.html) for more details on ORSFs.
 
-- see the [arXiv](https://arxiv.org/abs/2208.01129) paper for more details on algorithms used specifically by `aorsf`.
+- see the [JCGS](https://doi.org/10.1080/10618600.2023.2231048) paper for more details on algorithms used specifically by `aorsf`.
 
 ## Accelerated ORSF
 

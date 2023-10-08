@@ -325,7 +325,7 @@
 #'
 #' `r roxy_cite_jaeger_2019()`
 #'
-#' `r roxy_cite_jaeger_2022()`
+#' `r roxy_cite_jaeger_2023()`
 #'
 #' @export
 #'
