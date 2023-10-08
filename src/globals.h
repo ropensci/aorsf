@@ -97,8 +97,6 @@
 
  const PredType DEFAULT_PRED_TYPE = PRED_RISK;
 
- const int VERBOSITY = 0;
-
  // Interval to print progress in seconds
  const double STATUS_INTERVAL = 1.0;
 

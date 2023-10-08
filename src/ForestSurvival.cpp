@@ -49,7 +49,7 @@ void ForestSurvival::load(
  this->pd_x_cols = pd_x_cols;
  this->pd_probs  = pd_probs;
 
- if(VERBOSITY > 0){
+ if(verbosity > 2){
   Rcout << "---- loading forest from input list ----";
   Rcout << std::endl << std::endl;
  }

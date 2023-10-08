@@ -209,5 +209,21 @@ test_that(
 #  }
 # )
 
+# bili_seq <- seq(1, 5, length.out=20)
+#
+# microbenchmark::microbenchmark(
+#  pd_reference = partial(fit,
+#                         pred.var = "bili",
+#                         pred.grid = data.frame(bili = bili_seq),
+#                         pred.fun = pred_aorsf,
+#                         plot = FALSE,
+#                         ice = TRUE,
+#                         train = pbc_orsf),
+#  pd_aorsf = orsf_ice_new(fit,
+#                          new_data = pbc_orsf,
+#                          pred_spec = list(bili=bili_seq),
+#                          pred_horizon = 1000,
+#                          expand_grid = TRUE)
+# )
 
 

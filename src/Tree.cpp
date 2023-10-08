@@ -315,12 +315,12 @@
 
   }
 
-  if(VERBOSITY > 1){
+  if(verbosity > 4){
 
    mat x_print = x_inbag.rows(rows_node);
-   Rcout << "Column " << j << " was sampled but ";
-   Rcout << "unique values of column " << j << " are ";
-   Rcout << unique(x_print.col(j)) << std::endl;
+   Rcout << "   -- Column " << j << " was sampled but ";
+   Rcout << "its unique values are " << unique(x_print.col(j));
+   Rcout << std::endl;
 
   }
 
@@ -371,10 +371,6 @@
 
   double n_obs = 0;
 
-  if(VERBOSITY > 1){
-   Rcout << "----- finding lower bound for cut-points -----" << std::endl;
-  }
-
   // stop at end-1 b/c we access it+1 in lincomb_sort
   for(it = lincomb_sort.begin(); it < lincomb_sort.end()-1; ++it){
 
@@ -388,10 +384,10 @@
 
     if(n_obs >= leaf_min_obs) {
 
-     if(VERBOSITY > 0){
+     if(verbosity > 3){
       Rcout << std::endl;
-      Rcout << "lower cutpoint: "         << lincomb(*it) << std::endl;
-      Rcout << " - n_obs, left node:   " << n_obs   << std::endl;
+      Rcout << "   -- lower cutpoint: " << lincomb(*it) << std::endl;
+      Rcout << "      - n_obs, left node:   " << n_obs   << std::endl;
       Rcout << std::endl;
      }
 
@@ -407,8 +403,8 @@
 
   if(it == lincomb_sort.end()-1) {
 
-   if(VERBOSITY > 1){
-    Rcout << "Could not find a valid cut-point" << std::endl;
+   if(verbosity > 3){
+    Rcout << "   -- Could not find a valid cut-point" << std::endl;
    }
 
    return;
@@ -420,10 +416,6 @@
 
   // reset before finding the upper limit
   n_obs=0;
-
-  if(VERBOSITY > 1){
-   Rcout << "----- finding upper bound for cut-points -----" << std::endl;
-  }
 
   // stop at beginning+1 b/c we access it-1 in lincomb_sort
   for(it = lincomb_sort.end()-1; it >= lincomb_sort.begin()+1; --it){
@@ -444,10 +436,10 @@
 
      --it;
 
-     if(VERBOSITY > 0){
+     if(verbosity > 3){
       Rcout << std::endl;
-      Rcout << "upper cutpoint: " << lincomb(*it) << std::endl;
-      Rcout << " - n_obs, right node:   " << n_obs << std::endl;
+      Rcout << "   -- upper cutpoint: " << lincomb(*it) << std::endl;
+      Rcout << "      - n_obs, right node:   " << n_obs << std::endl;
       Rcout << std::endl;
      }
 
@@ -466,8 +458,8 @@
 
   if(j > k){
 
-   if(VERBOSITY > 0) {
-    Rcout << "Could not find valid cut-points" << std::endl;
+   if(verbosity > 2) {
+    Rcout << "   -- Could not find valid cut-points" << std::endl;
    }
 
    return;
@@ -698,10 +690,10 @@
 
     double accuracy_permuted = compute_prediction_accuracy(pred_values);
 
-    if(VERBOSITY>1){
-     Rcout << "prediction accuracy after noising " << pred_col << ": ";
+    if(verbosity > 3){
+     Rcout << "   -- prediction accuracy after noising " << pred_col << ": ";
      Rcout << accuracy_permuted << std::endl;
-     Rcout << "  - mean leaf pred: ";
+     Rcout << "      - mean leaf pred: ";
      Rcout << mean(conv_to<vec>::from(pred_leaf));
      Rcout << std::endl << std::endl;
     }
