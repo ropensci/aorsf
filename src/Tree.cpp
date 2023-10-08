@@ -1095,21 +1095,13 @@
 
     if(obs_in_node.size() > 0){
 
-     // lincomb = prediction_data->x_submat(obs_in_node, coef_indices[i]) * coef_values[i];
-
      x_node = prediction_data->x_submat(obs_in_node, coef_indices[i]);
-     lincomb.set_size(x_node.n_rows);
-
-     for(uword k = 0; k < lincomb.size(); k++){
-      vec new_lincomb_value = (x_node.row(k) * coef_values[i]);
-      lincomb[k] = new_lincomb_value(0);
-     }
 
      it = obs_in_node.begin();
 
-     for(uword j = 0; j < lincomb.size(); ++j, ++it){
+     for(uword j = 0; j < obs_in_node.size(); ++j, ++it){
 
-      if(lincomb[j] <= cutpoint[i]) {
+      if(dot(x_node.row(j), coef_values[i]) <= cutpoint[i]) {
 
        pred_leaf[*it] = child_left[i];
 
