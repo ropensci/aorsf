@@ -461,12 +461,6 @@ orsf <- function(data,
 
  )
 
- # TODO: drop this; importance is computed with mort
- if(importance %in% c("permute", "negate") && !oobag_pred){
-  # oobag_pred <- TRUE # Should I add a warning?
-  oobag_pred_type <- 'surv'
- }
-
  if(is.null(oobag_fun)){
 
   f_oobag_eval <- function(x) x
@@ -651,9 +645,9 @@ orsf <- function(data,
    },
 
    'omit' = {
-    # data <- collapse::na_omit(data, cols = names_x_data)
-    cc <- stats::complete.cases(data[, names_x_data])
-    data <- data[cc, ]
+    data <- collapse::na_omit(data, cols = names_x_data)
+    # cc <- stats::complete.cases(data[, names_x_data])
+    # data <- data[cc, ]
    },
 
    'impute_meanmode' = {
