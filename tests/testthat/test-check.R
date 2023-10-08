@@ -5,6 +5,13 @@ test_that(
  code = {
 
   expect_error(
+   check_arg_uni(uni = c('a', 'b', 'd'),
+                 arg_name = 'ok',
+                 expected_uni = c('a', 'b', 'c')),
+   regexp = 'should contain'
+  )
+
+  expect_error(
    check_arg_is_integer(arg_name = 'x',
                         arg_value = c(1, 2, 3.3)),
    regexp = 'only integer values'
