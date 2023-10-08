@@ -173,11 +173,11 @@ referred to as out-of-bag) accuracy of the ORSF model.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;        bili      copper         sex         age     protime       stage </span></span>
-<span><span class="co">#&gt; 0.121621567 0.047727757 0.036002033 0.023469251 0.023015475 0.020971782 </span></span>
+<span><span class="co">#&gt; 0.121631672 0.047411683 0.036171387 0.023457763 0.023034525 0.021089996 </span></span>
 <span><span class="co">#&gt;     albumin     ascites         ast        chol       edema         trt </span></span>
-<span><span class="co">#&gt; 0.019397629 0.014492331 0.011663708 0.011557300 0.007728836 0.006915897 </span></span>
+<span><span class="co">#&gt; 0.019176288 0.014565868 0.011659856 0.011531020 0.007795482 0.007019298 </span></span>
 <span><span class="co">#&gt;     spiders    alk.phos      hepato        trig    platelet </span></span>
-<span><span class="co">#&gt; 0.004759847 0.003466967 0.003096219 0.002773073 0.001744811</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.004760330 0.003543684 0.003033946 0.002905468 0.001811919</span></span></code></pre></div>
 </li>
 <li>
 <p>You can also compute variable importance using permutation, a
@@ -186,13 +186,13 @@ more classical approach.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          bili        copper         stage           age       protime </span></span>
-<span><span class="co">#&gt;  0.0563382689  0.0223553029  0.0141044701  0.0136840332  0.0125594010 </span></span>
+<span><span class="co">#&gt;  0.0564840181  0.0223880653  0.0142133903  0.0135207317  0.0125704438 </span></span>
 <span><span class="co">#&gt;       ascites       albumin           ast         edema          chol </span></span>
-<span><span class="co">#&gt;  0.0114588381  0.0112551183  0.0063896381  0.0058597754  0.0050008533 </span></span>
+<span><span class="co">#&gt;  0.0115005317  0.0111809674  0.0062756534  0.0059328841  0.0049740436 </span></span>
 <span><span class="co">#&gt;       spiders           sex      alk.phos          trig        hepato </span></span>
-<span><span class="co">#&gt;  0.0046071325  0.0029557681  0.0020509537  0.0013510330  0.0009279290 </span></span>
+<span><span class="co">#&gt;  0.0047703653  0.0029546672  0.0021904898  0.0012955343  0.0009303920 </span></span>
 <span><span class="co">#&gt;      platelet           trt </span></span>
-<span><span class="co">#&gt;  0.0002097984 -0.0010695131</span></span></code></pre></div>
+<span><span class="co">#&gt;  0.0003236044 -0.0010258821</span></span></code></pre></div>
 </li>
 <li>
 <p>A faster alternative to permutation and negation importance is
@@ -202,11 +202,11 @@ obtains a low p-value (p &lt; 0.01) while the forest is grown.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    ascites       bili      edema     copper        age    albumin    protime </span></span>
-<span><span class="co">#&gt; 0.42926829 0.30005133 0.28307417 0.21974605 0.20161698 0.19367284 0.18475384 </span></span>
+<span><span class="co">#&gt; 0.42817294 0.30059141 0.28426857 0.21943005 0.20141521 0.19357326 0.18584305 </span></span>
 <span><span class="co">#&gt;      stage        ast       chol        sex    spiders     hepato       trig </span></span>
-<span><span class="co">#&gt; 0.16479913 0.15931052 0.15823438 0.15274199 0.14765751 0.13382443 0.12667896 </span></span>
+<span><span class="co">#&gt; 0.16470910 0.15964407 0.15792194 0.15172667 0.14802844 0.13351750 0.12661567 </span></span>
 <span><span class="co">#&gt;   alk.phos   platelet        trt </span></span>
-<span><span class="co">#&gt; 0.12193232 0.10931900 0.09903714</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.12163561 0.10985915 0.09887394</span></span></code></pre></div>
 </li>
 </ul>
 </div>
@@ -258,7 +258,7 @@ are still much slower than <code>cph</code> ones:</p>
 <span> <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   4.216   0.000   4.217</span></span>
+<span><span class="co">#&gt;   5.740   0.008   5.749</span></span>
 <span></span>
 <span><span class="co"># and how long it takes to fit 50 cph trees</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
@@ -270,11 +270,11 @@ are still much slower than <code>cph</code> ones:</p>
 <span> <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   0.051   0.000   0.051</span></span>
+<span><span class="co">#&gt;   0.067   0.000   0.068</span></span>
 <span></span>
 <span><span class="va">t1</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">t2</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span></span>
 <span><span class="co">#&gt;  elapsed </span></span>
-<span><span class="co">#&gt; 82.68627</span></span></code></pre></div>
+<span><span class="co">#&gt; 84.54412</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="aorsf-and-other-machine-learning-software">aorsf and other machine learning software<a class="anchor" aria-label="anchor" href="#aorsf-and-other-machine-learning-software"></a>
