@@ -171,7 +171,7 @@ or not (see examples).</p>
     
 
 
-<p><strong>negation importance</strong>: Each variable is assessed separately by multiplying the variable's coefficients by -1 and then determining how much the model's performance changes. The worse the model's performance after negating coefficients for a given variable, the more important the variable. This technique is promising b/c it does not require permutation and it emphasizes variables with larger coefficients in linear combinations, but it is also relatively new and hasn't been studied as much as permutation importance. See <a href="https://arxiv.org/abs/2208.01129" class="external-link">Jaeger, 2022</a> for more details on this technique.</p>
+<p><strong>negation importance</strong>: Each variable is assessed separately by multiplying the variable's coefficients by -1 and then determining how much the model's performance changes. The worse the model's performance after negating coefficients for a given variable, the more important the variable. This technique is promising b/c it does not require permutation and it emphasizes variables with larger coefficients in linear combinations, but it is also relatively new and hasn't been studied as much as permutation importance. See <a href="https://doi.org/10.1080/10618600.2023.2231048" class="external-link">Jaeger, 2023</a> for more details on this technique.</p>
 <p><strong>permutation importance</strong>: Each variable is assessed separately by randomly permuting the variable's values and then determining how much the model's performance changes. The worse the model's performance after permuting the values of a given variable, the more important the variable. This technique is flexible, intuitive, and frequently used. It also has several <a href="https://christophm.github.io/interpretable-ml-book/feature-importance.html#disadvantages-9" class="external-link">known limitations</a></p>
 <p><strong>analysis of variance (ANOVA) importance</strong>: A p-value is computed for each coefficient in each linear combination of variables in each decision tree. Importance for an individual predictor variable is the proportion of times a p-value for its coefficient is &lt; 0.01. This technique is very efficient computationally, but may not be as effective as permutation or negation in terms of selecting signal over noise variables. See <a href="https://link.springer.com/chapter/10.1007/978-3-642-23783-6_29" class="external-link">Menze, 2011</a> for more details on this technique.</p>
     </div>
@@ -265,20 +265,20 @@ by setting <code>group_factors</code> to <code>FALSE</code> in the <code>orsf_vi
 <span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">fit_no_vi</span><span class="op">)</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##        bili      copper         sex       stage     protime         age </span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 0.117812588 0.046758641 0.038085253 0.026584826 0.023881400 0.022583421 </span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 0.117833946 0.046771025 0.038096005 0.026596235 0.023892153 0.022568331 </span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##     albumin     ascites        chol         ast       edema      hepato </span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 0.020499282 0.015799793 0.013503968 0.011507068 0.007446917 0.007302135 </span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 0.020502226 0.015764542 0.013505575 0.011507061 0.007444267 0.007318432 </span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##         trt     spiders    alk.phos        trig    platelet </span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 0.006136687 0.005411473 0.003425486 0.003358903 0.001218844</span></span></code></pre><p></p></div>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 0.006135388 0.005416366 0.003385460 0.003359579 0.001225734</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">fit_no_vi</span><span class="op">)</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##          bili        copper           age       protime       albumin </span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0557765573  0.0229935033  0.0142175615  0.0138958680  0.0138130775 </span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0557854459  0.0230058852  0.0142318894  0.0139189306  0.0138242166 </span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##       ascites         stage          chol           ast         edema </span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0122566919  0.0122549383  0.0062487607  0.0060082953  0.0057947595 </span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0122576604  0.0122514140  0.0062628391  0.0060073065  0.0057933534 </span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##        hepato       spiders           sex          trig      alk.phos </span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0052884525  0.0038391405  0.0031617255  0.0014482532  0.0009073479 </span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0052890246  0.0038620727  0.0031610738  0.0014580912  0.0009063636 </span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##      platelet           trt </span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0001091183 -0.0018037065</span></span></code></pre><p></p></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0001124081 -0.0017971380</span></span></code></pre><p></p></div>
 </div>
 
 <div class="section">
@@ -293,21 +293,21 @@ by setting <code>group_factors</code> to <code>FALSE</code> in the <code>orsf_vi
 <span><span class="co"># get the vi instantly (i.e., it doesn't need to be computed again)</span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">fit_permute_vi</span><span class="op">)</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##          bili        copper           age       ascites       protime </span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0537366984  0.0232882267  0.0135861353  0.0127592970  0.0125356157 </span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0537706105  0.0232845222  0.0135823364  0.0127916446  0.0125320108 </span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##       albumin         stage           ast         edema        hepato </span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0114480445  0.0108792612  0.0063934776  0.0062786593  0.0048395390 </span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##          chol       spiders           sex          trig      platelet </span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0042838996  0.0030700999  0.0025439674  0.0022397137  0.0010979018 </span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##      alk.phos           trt </span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0010942194 -0.0006194685</span></span></code></pre><p></p></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0115100144  0.0109035858  0.0063943212  0.0062769135  0.0048230621 </span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##          chol       spiders           sex          trig      alk.phos </span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0042752565  0.0030699653  0.0025422803  0.0022410492  0.0010977282 </span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##      platelet           trt </span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  0.0010972387 -0.0005947093</span></span></code></pre><p></p></div>
 <p>You can still get negation VI from this fit, but it needs to be computed</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">fit_permute_vi</span><span class="op">)</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##        bili      copper         sex         age     protime       stage </span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 0.120813894 0.046517819 0.036351782 0.022681350 0.021826811 0.021032630 </span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 0.120854614 0.046515980 0.036380485 0.022668834 0.021816803 0.021111101 </span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##     albumin     ascites         ast        chol       edema     spiders </span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 0.018906444 0.014062700 0.013029040 0.011226505 0.008009926 0.006151980 </span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 0.018969867 0.014101778 0.013042103 0.011220170 0.008009693 0.006193354 </span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##         trt      hepato        trig    alk.phos    platelet </span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 0.005108172 0.005105800 0.003378537 0.003155270 0.002240910</span></span></code></pre><p></p></div>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 0.005184060 0.005113622 0.003389060 0.003156121 0.002242597</span></span></code></pre><p></p></div>
 </div>
 
     </div>
@@ -316,7 +316,7 @@ by setting <code>group_factors</code> to <code>FALSE</code> in the <code>orsf_vi
     <p>Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. Evaluating the Yield of Medical Tests. <em>JAMA</em> 1982; 247(18):2543-2546. DOI: 10.1001/jama.1982.03320430047030</p>
 <p>Breiman L. Random forests. <em>Machine learning</em> 2001 Oct; 45(1):5-32. DOI: 10.1023/A:1010933404324</p>
 <p>Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. <em>Joint European Conference on Machine Learning and Knowledge Discovery in Databases</em> 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29</p>
-<p>Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. <em>arXiv e-prints</em> 2022 Aug; arXiv-2208. URL: https://arxiv.org/abs/2208.01129</p>
+<p>Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. <em>Journal of Computational and Graphical Statistics</em> Published online 08 Aug 2023. URL: https://doi.org/10.1080/10618600.2023.2231048</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

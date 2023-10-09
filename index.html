@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="Fit, interpret, and make predictions with oblique random survival forests. Oblique decision trees are notoriously slow compared to their axis based counterparts, but aorsf runs as fast or faster than axis-based decision tree algorithms for right-censored time-to-event outcomes. Methods to accelerate and interpret the oblique random survival forest are described in Jaeger et al., (2022) &lt;arXiv:2208.01129&gt;.">
+<meta name="description" content="Fit, interpret, and make predictions with oblique random survival forests. Oblique decision trees are notoriously slow compared to their axis based counterparts, but aorsf runs as fast or faster than axis-based decision tree algorithms for right-censored time-to-event outcomes. Methods to accelerate and interpret the oblique random survival forest are described in Jaeger et al., (2023) &lt;DOI: 10.1080/10618600.2023.2231048&gt;.">
 <title>Accelerated Oblique Random Survival Forests • aorsf</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -18,7 +18,7 @@
 <script src="deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Accelerated Oblique Random Survival Forests">
-<meta property="og:description" content="Fit, interpret, and make predictions with oblique random survival forests. Oblique decision trees are notoriously slow compared to their axis based counterparts, but aorsf runs as fast or faster than axis-based decision tree algorithms for right-censored time-to-event outcomes. Methods to accelerate and interpret the oblique random survival forest are described in Jaeger et al., (2022) &lt;arXiv:2208.01129&gt;.">
+<meta property="og:description" content="Fit, interpret, and make predictions with oblique random survival forests. Oblique decision trees are notoriously slow compared to their axis based counterparts, but aorsf runs as fast or faster than axis-based decision tree algorithms for right-censored time-to-event outcomes. Methods to accelerate and interpret the oblique random survival forest are described in Jaeger et al., (2023) &lt;DOI: 10.1080/10618600.2023.2231048&gt;.">
 <meta property="og:image" content="https://bcjaeger.github.io/aorsf/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -119,7 +119,7 @@
 <div class="section level2">
 <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
-<p>The <code><a href="reference/orsf.html">orsf()</a></code> function can fit several types of ORSF ensembles. My personal favorite is the accelerated ORSF because it has a great combination of prediction accuracy and computational efficiency (see <a href="https://arxiv.org/abs/2208.01129" class="external-link">arXiv paper</a>).<sup>2</sup></p>
+<p>The <code><a href="reference/orsf.html">orsf()</a></code> function can fit several types of ORSF ensembles. My personal favorite is the accelerated ORSF because it has a great combination of prediction accuracy and computational efficiency (see <a href="https://doi.org/10.1080/10618600.2023.2231048" class="external-link">JCGS paper</a>).<sup>2</sup></p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
@@ -168,18 +168,18 @@
 <p>The importance of individual variables can be estimated in three ways using <code>aorsf</code>:</p>
 <ul>
 <li>
-<p><strong>negation</strong><sup>2</sup>: Each variable is assessed separately by multiplying the variable’s coefficients by -1 and then determining how much the model’s performance changes. The worse the model’s performance after negating coefficients for a given variable, the more important the variable. This technique is promising b/c it does not require permutation and it emphasizes variables with larger coefficients in linear combinations, but it is also relatively new and hasn’t been studied as much as permutation importance. See <a href="https://arxiv.org/abs/2208.01129" class="external-link">Jaeger, 2022</a> for more details on this technique.</p>
+<p><strong>negation</strong><sup>2</sup>: Each variable is assessed separately by multiplying the variable’s coefficients by -1 and then determining how much the model’s performance changes. The worse the model’s performance after negating coefficients for a given variable, the more important the variable. This technique is promising b/c it does not require permutation and it emphasizes variables with larger coefficients in linear combinations, but it is also relatively new and hasn’t been studied as much as permutation importance. See <a href="https://doi.org/10.1080/10618600.2023.2231048" class="external-link">Jaeger, 2023</a> for more details on this technique.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          bili           sex        copper           ast           age </span></span>
-<span><span class="co">#&gt;  0.1190578208  0.0619364315  0.0290605798  0.0260108174  0.0251162396 </span></span>
+<span><span class="co">#&gt;  0.1190290560  0.0619448918  0.0290622719  0.0260108174  0.0251263919 </span></span>
 <span><span class="co">#&gt;         stage       protime         edema       ascites        hepato </span></span>
-<span><span class="co">#&gt;  0.0237810058  0.0158443269  0.0117270641  0.0105685230  0.0092028195 </span></span>
+<span><span class="co">#&gt;  0.0237725455  0.0158527871  0.0117258458  0.0105685230  0.0092045115 </span></span>
 <span><span class="co">#&gt;       albumin          chol           trt      alk.phos       spiders </span></span>
-<span><span class="co">#&gt;  0.0082647861  0.0041510636  0.0036548364  0.0010239241 -0.0003298163 </span></span>
+<span><span class="co">#&gt;  0.0082732463  0.0041510636  0.0036632967  0.0010256161 -0.0003298163 </span></span>
 <span><span class="co">#&gt;          trig      platelet </span></span>
-<span><span class="co">#&gt; -0.0011111508 -0.0045314656</span></span></code></pre></div>
+<span><span class="co">#&gt; -0.0011060747 -0.0045517701</span></span></code></pre></div>
 </li>
 <li>
 <p><strong>permutation</strong>: Each variable is assessed separately by randomly permuting the variable’s values and then determining how much the model’s performance changes. The worse the model’s performance after permuting the values of a given variable, the more important the variable. This technique is flexible, intuitive, and frequently used. It also has several <a href="https://christophm.github.io/interpretable-ml-book/feature-importance.html#disadvantages-9" class="external-link">known limitations</a></p>
@@ -187,13 +187,13 @@
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          bili        copper           ast           age           sex </span></span>
-<span><span class="co">#&gt;  0.0514084384  0.0170611427  0.0142227933  0.0140274813  0.0131527430 </span></span>
+<span><span class="co">#&gt;  0.0514033622  0.0170611427  0.0142515581  0.0140224052  0.0131459748 </span></span>
 <span><span class="co">#&gt;         stage       protime       ascites         edema       albumin </span></span>
-<span><span class="co">#&gt;  0.0119752045  0.0102865556  0.0098067817  0.0081730899  0.0080568255 </span></span>
+<span><span class="co">#&gt;  0.0119768965  0.0102950158  0.0098067817  0.0081730899  0.0080652857 </span></span>
 <span><span class="co">#&gt;        hepato          chol      alk.phos          trig       spiders </span></span>
-<span><span class="co">#&gt;  0.0069734562  0.0032811220  0.0015862128  0.0014909643  0.0007811902 </span></span>
+<span><span class="co">#&gt;  0.0069734562  0.0032811220  0.0015862128  0.0014943484  0.0007825752 </span></span>
 <span><span class="co">#&gt;           trt      platelet </span></span>
-<span><span class="co">#&gt; -0.0007067631 -0.0022135241</span></span></code></pre></div>
+<span><span class="co">#&gt; -0.0007067631 -0.0022338286</span></span></code></pre></div>
 </li>
 <li>
 <p><strong>analysis of variance (ANOVA)</strong><sup>3</sup>: A p-value is computed for each coefficient in each linear combination of variables in each decision tree. Importance for an individual predictor variable is the proportion of times a p-value for its coefficient is &lt; 0.01. This technique is very efficient computationally, but may not be as effective as permutation or negation in terms of selecting signal over noise variables. See <a href="https://link.springer.com/chapter/10.1007/978-3-642-23783-6_29" class="external-link">Menze, 2011</a> for more details on this technique.</p>
@@ -221,18 +221,18 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -- bili (VI Rank: 1) ----------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |----------------- risk -----------------|</span></span>
+<span><span class="co">#&gt;        |----------------- Risk -----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean     Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;   0.70 0.2074286 0.09039332 0.03827337 0.3146957</span></span>
-<span><span class="co">#&gt;    1.3 0.2261739 0.10784929 0.04915971 0.3425934</span></span>
-<span><span class="co">#&gt;    3.2 0.3071951 0.21242141 0.11889617 0.4358309</span></span>
+<span><span class="co">#&gt;   0.70 0.2094827 0.09046313 0.03827429 0.3184979</span></span>
+<span><span class="co">#&gt;    1.3 0.2283358 0.11078307 0.05347112 0.3492104</span></span>
+<span><span class="co">#&gt;    3.2 0.3090977 0.21368937 0.11889617 0.4412656</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -- sex (VI Rank: 2) -----------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |----------------- risk -----------------|</span></span>
+<span><span class="co">#&gt;        |----------------- Risk -----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;      m 0.3648659 0.2572239 0.15554270 0.5735661</span></span>
-<span><span class="co">#&gt;      f 0.2479179 0.1021787 0.04161796 0.3591612</span></span>
+<span><span class="co">#&gt;      m 0.3667488 0.2614335 0.15611841 0.5836574</span></span>
+<span><span class="co">#&gt;      f 0.2507675 0.1051310 0.04355687 0.3596206</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Predicted risk at time t = 1826.25 for top 2 predictors</span></span></code></pre></div>
 <p>For more on PD, see the <a href="https://docs.ropensci.org/aorsf/articles/pd.html" class="external-link">vignette</a></p>
@@ -247,7 +247,7 @@
 <div class="section level2">
 <h2 id="comparison-to-existing-software">Comparison to existing software<a class="anchor" aria-label="anchor" href="#comparison-to-existing-software"></a>
 </h2>
-<p>Comparisons between <code>aorsf</code> and existing software are presented in our <a href="https://arxiv.org/abs/2208.01129" class="external-link">arXiv paper</a>. The paper</p>
+<p>Comparisons between <code>aorsf</code> and existing software are presented in our <a href="https://doi.org/10.1080/10618600.2023.2231048" class="external-link">JCGS paper</a>. The paper:</p>
 <ul>
 <li><p>describes <code>aorsf</code> in detail with a summary of the procedures used in the tree fitting algorithm</p></li>
 <li><p>runs a general benchmark comparing <code>aorsf</code> with <code>obliqueRSF</code> and several other learners</p></li>
@@ -262,7 +262,7 @@
 </h2>
 <ol style="list-style-type: decimal">
 <li><p>Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA, Howard G, Simon N. Oblique random survival forests. <em>Annals of applied statistics</em> 2019 Sep; 13(3):1847-83. DOI: 10.1214/19-AOAS1261</p></li>
-<li><p>Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. <em>arXiv e-prints</em> 2022 Aug; arXiv-2208. URL: <a href="https://arxiv.org/abs/2208.01129" class="external-link uri">https://arxiv.org/abs/2208.01129</a></p></li>
+<li><p>Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. <em>Journal of Computational and Graphical Statistics</em> Published online 08 Aug 2023. URL: <a href="https://doi.org/10.1080/10618600.2023.2231048" class="external-link uri">https://doi.org/10.1080/10618600.2023.2231048</a></p></li>
 <li><p>Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. <em>Joint European Conference on Machine Learning and Knowledge Discovery in Databases</em> 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29</p></li>
 </ol>
 </div>
