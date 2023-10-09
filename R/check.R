@@ -1287,7 +1287,8 @@ check_pd_inputs <- function(object,
                new_data = new_data,
                pred_horizon = pred_horizon,
                pred_type = pred_type,
-               na_action = na_action)
+               na_action = na_action,
+               valid_pred_types = c("risk", "surv", "chf", "mort"))
 
 }
 
@@ -1564,7 +1565,8 @@ check_predict <- function(object,
                           pred_horizon = NULL,
                           pred_type = NULL,
                           na_action = NULL,
-                          boundary_checks = TRUE){
+                          boundary_checks = TRUE,
+                          valid_pred_types = c("risk", "surv", "chf", "mort", "leaf")){
 
  if(!is.null(new_data)){
 
@@ -1630,11 +1632,7 @@ check_predict <- function(object,
 
   check_arg_is_valid(arg_value = pred_type,
                      arg_name = 'pred_type',
-                     valid_options = c("risk",
-                                       "surv",
-                                       "chf",
-                                       "mort",
-                                       "leaf"))
+                     valid_options = valid_pred_types)
 
  }
 

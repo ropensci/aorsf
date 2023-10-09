@@ -556,6 +556,10 @@ orsf_pred_dependence <- function(object,
  if(type_output == 'smry')
   out[, id_variable := NULL]
 
+ # not needed for mort
+ if(pred_type == 'mort')
+  out[, pred_horizon := NULL]
+
  # put data back into original scale
  for(j in intersect(names(means), names(pred_spec))){
 

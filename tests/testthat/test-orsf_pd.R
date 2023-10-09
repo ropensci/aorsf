@@ -9,6 +9,7 @@ test_that(
 
   fit_nodat <- orsf(formula = Surv(time, status) ~ .,
                     data = pbc_orsf,
+                    n_tree = 1,
                     attach_data = FALSE)
 
   expect_error(
@@ -91,25 +92,60 @@ for(i in seq_along(funs)){
 
  formals <- setdiff(names(formals(funs[[i]])), '...')
 
- pd_object_grid <- do.call(funs[[i]], args = args_grid[formals])
- pd_object_loop <- do.call(funs[[i]], args = args_loop[formals])
+ for(pred_type in setdiff(pred_types_surv, 'leaf')){
 
- test_that(
-  desc = paste('pred_spec data are returned on the original scale',
-               ' for orsf_', f_name, sep = ''),
-  code = {
-   expect_equal(unique(pd_object_grid$bili), 1:4)
-   expect_equal(unique(pd_object_loop[variable == 'bili', value]), 1:4)
-  }
- )
+  args_grid$pred_type = pred_type
+  args_loop$pred_type = pred_type
 
- test_that(
-  desc = paste(f_name, 'returns a data.table'),
-  code = {
-   expect_s3_class(pd_object_grid, 'data.table')
-   expect_s3_class(pd_object_loop, 'data.table')
-  }
- )
+  pd_object_grid <- do.call(funs[[i]], args = args_grid[formals])
+  pd_object_loop <- do.call(funs[[i]], args = args_loop[formals])
+
+  test_that(
+   desc = paste('pred_spec data are returned on the original scale',
+                ' for orsf_', f_name, sep = ''),
+   code = {
+    expect_equal(unique(pd_object_grid$bili), 1:4)
+    expect_equal(unique(pd_object_loop[variable == 'bili', value]), 1:4)
+   }
+  )
+
+  test_that(
+   desc = paste(f_name, 'returns a data.table'),
+   code = {
+    expect_s3_class(pd_object_grid, 'data.table')
+    expect_s3_class(pd_object_loop, 'data.table')
+   }
+  )
+
+  test_that(
+   desc = 'output is named correctly',
+   code = {
+
+    if(f_name %in% c("ice_new", "ice_inb", "ice_oob")){
+     expect_true('id_variable' %in% names(pd_object_grid))
+     expect_true('id_variable' %in% names(pd_object_loop))
+     expect_true('id_row' %in% names(pd_object_grid))
+     expect_true('id_row' %in% names(pd_object_loop))
+    }
+
+    expect_true('variable' %in% names(pd_object_loop))
+    expect_true('value' %in% names(pd_object_loop))
+
+    vars <- names(args_loop$pred_spec)
+    expect_true(all(vars %in% names(pd_object_grid)))
+    expect_true(all(vars %in% unique(pd_object_loop$variable)))
+
+    if(pred_type == 'mort'){
+     expect_false('pred_horizon' %in% names(pd_object_grid))
+     expect_false('pred_horizon' %in% names(pd_object_loop))
+    }
+
+   }
+  )
+
+
+
+ }
 
 
 }
