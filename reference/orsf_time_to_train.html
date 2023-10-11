@@ -29,6 +29,7 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/pd.html">PD and ICE curves with ORSF</a>
     <a class="dropdown-item" href="../articles/oobag.html">Out-of-bag predictions and evaluation</a>
+    <a class="dropdown-item" href="../articles/fast.html">Tips to speed up computation</a>
   </div>
 </li>
 <li class="nav-item">
@@ -94,7 +95,7 @@ as this usually gives a good enough approximation.</p></dd>
 <span class="r-in"><span><span class="va">time_estimated</span> <span class="op">&lt;-</span> <span class="fu">orsf_time_to_train</span><span class="op">(</span><span class="va">object</span>, n_tree_subset <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">time_estimated</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Time difference of 0.2352841 secs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Time difference of 0.2313263 secs</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># let's see how close the approximation was</span></span></span>
 <span class="r-in"><span><span class="va">time_true_start</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span></span>
@@ -104,11 +105,11 @@ as this usually gives a good enough approximation.</p></dd>
 <span class="r-in"><span><span class="va">time_true</span> <span class="op">&lt;-</span> <span class="va">time_true_stop</span> <span class="op">-</span> <span class="va">time_true_start</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">time_true</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Time difference of 0.2162521 secs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Time difference of 0.2167304 secs</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># error</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">time_true</span> <span class="op">-</span> <span class="va">time_estimated</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Time difference of 0.019032 secs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Time difference of 0.01459599 secs</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
