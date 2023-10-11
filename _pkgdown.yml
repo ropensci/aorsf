@@ -16,6 +16,7 @@ articles:
   - aorsf
   - pd
   - oobag
+  - fast
 
 reference:
 - title: Oblique random survival forests (ORSFs)
