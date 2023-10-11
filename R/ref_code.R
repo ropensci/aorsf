@@ -32,7 +32,7 @@ ref_code <- function (x_data, fi, names_x_data){
 
    if(fi$ordr[i]){
 
-    x_data[[ col_i ]] <- collapse::as_numeric_factor( x_data[[ col_i ]] )
+    x_data[[ col_i ]] <- as.integer( x_data[[ col_i ]] )
 
    } else {
 
