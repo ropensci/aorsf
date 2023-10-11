@@ -1221,19 +1221,15 @@ orsf_train_ <- function(object,
 
  if(get_oobag_pred(object)){
 
-  # put the oob predictions into the same order as the training data.
-  # TODO: this can be faster; see predict unsorting
-  unsorted <- vector(mode = 'integer', length = length(sorted))
-  for(i in seq_along(unsorted)) unsorted[ sorted[i] ] <- i
-
   # clear labels for oobag evaluation type
-
   object$eval_oobag$stat_type <-
    switch(EXPR = as.character(object$eval_oobag$stat_type),
           "0" = "None",
           "1" = "Harrell's C-statistic",
           "2" = "User-specified function")
 
+  # put the oob predictions into the same order as the training data.
+  unsorted <- collapse::radixorder(sorted)
   object$pred_oobag <- object$pred_oobag[unsorted, , drop = FALSE]
 
   # mortality predictions should always be 1 column

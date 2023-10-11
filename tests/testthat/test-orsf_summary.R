@@ -108,4 +108,19 @@ test_that("bad inputs caught", {
 
 })
 
+# high pred horizon
+test_that(
+ desc = 'higher pred horizon is not allowed for summary',
+ code = {
+
+  fit_bad_oob_horizon <- orsf(pbc,
+                              time + status ~ .,
+                              n_tree = 1,
+                              oobag_pred_horizon = 7000)
+
+  expect_error(orsf_summarize_uni(fit_bad_oob_horizon),
+               regexp = 'prediction horizon')
+
+ }
+)
 

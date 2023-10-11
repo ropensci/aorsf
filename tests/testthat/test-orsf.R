@@ -762,22 +762,6 @@ test_that(
 
 
 
-# high pred horizon
-# TODO: move this to test file for summarize
-# test_that(
-#  desc = 'higher pred horizon is not allowed for summary',
-#  code = {
-#
-#   fit_bad_oob_horizon <- orsf(time + status ~ ., data = pbc_orsf,
-#                               oobag_pred_horizon = 7000)
-#
-#   expect_error(orsf_summarize_uni(fit_bad_oob_horizon),
-#                regexp = 'prediction horizon')
-#
-#  }
-# )
-
-
 # Similar to obliqueRSF?
 # suppressPackageStartupMessages({
 #  library(obliqueRSF)

@@ -348,7 +348,7 @@
   leaf_data.at(0, 0) = y_node.at(person, 0);
 
   // if no events in this node:
-  // (TODO: should this case even occur? consider removing)
+  // should this case even occur? consider removing
   if(person == y_node.n_rows){
 
    vec temp_surv(1, fill::ones);

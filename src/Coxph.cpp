@@ -459,8 +459,8 @@
 
     break_loop = false;
 
-    XB = x_node * beta_new;
-    Risk = exp(XB) % w_node;
+    // XB = x_node * beta_new;
+    // Risk = exp(XB) % w_node;
 
 
     for( ; ; ){
@@ -475,18 +475,18 @@
 
       n_risk++;
 
-      xb = XB.at(person);
-      risk = Risk.at(person);
+      // xb = XB.at(person);
+      // risk = Risk.at(person);
 
-      // xb = 0;
-      //
-      // for(i = 0; i < n_vars; i++){
-      //   xb += beta.at(i) * x_node.at(person, i);
-      // }
+      xb = 0;
+
+      for(i = 0; i < n_vars; i++){
+        xb += beta_new.at(i) * x_node.at(person, i);
+      }
 
       w_node_person = w_node.at(person);
 
-      // risk = exp(xb) * w_node_person;
+      risk = exp(xb) * w_node_person;
 
       if (y_node.at(person, 1) == 0) {
 
