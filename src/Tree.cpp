@@ -226,6 +226,13 @@
   this->cols_node.set_size(mtry);
   uint cols_accepted = 0;
 
+  uword mtry_safe = find_safe_mtry();
+
+  if(mtry_safe == 0){
+   cols_node.resize(0);
+   return;
+  }
+
   // Set all to not selected
   std::vector<bool> temp;
   temp.resize(n_cols_total, false);
@@ -245,7 +252,7 @@
     cols_accepted++;
    }
 
-   if(cols_accepted == mtry) break;
+   if(cols_accepted == mtry_safe) break;
 
   }
 
@@ -573,6 +580,11 @@
 
  }
 
+ uword Tree::find_safe_mtry(){
+  // only relevant for survival trees at the moment
+  return(this->mtry);
+ }
+
  void Tree::find_rows_inbag(arma::uword n_obs) {
 
   // it is assumed that:
@@ -821,6 +833,8 @@
 
    // determine rows in the current node and if it can be split
    if(!is_node_splittable(*node)){
+    // this step creates y_node and w_node for the current node
+    // x_node is created once a set of columns are sampled.
     sprout_leaf(*node);
     continue;
    }

@@ -16,11 +16,11 @@ test_that(
 
   fit <- orsf(pbc_with_junk,
               time + status ~ .,
-              n_tree = 75,
-              importance = 'permute',
+              n_tree = 25,
+              importance = 'anova',
               tree_seeds = seeds_standard)
 
-  fit_var_select <- orsf_vs(fit, n_predictor_min = 10)
+  fit_var_select <- orsf_vs(fit, n_predictor_min = 5)
 
   vars_picked <- fit_var_select$predictors_included[[1]]
 

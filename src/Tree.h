@@ -77,6 +77,8 @@
 
   virtual void find_all_cuts();
 
+  virtual uword find_safe_mtry();
+
   virtual double compute_split_score();
 
   void sample_cuts();

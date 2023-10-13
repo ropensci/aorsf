@@ -299,6 +299,26 @@
 
  }
 
+ arma::uword TreeSurvival::find_safe_mtry(){
+
+  uword safer_mtry = mtry;
+
+  if(lincomb_type == LC_NEWTON_RAPHSON){
+
+   // Need 3:1 ratio of unweighted events:predictors
+   uword n_events_total = sum(y_node.col(1));
+
+   while(n_events_total / safer_mtry < 3){
+    --safer_mtry;
+    if(safer_mtry == 0) break;
+   }
+
+  }
+
+  return(safer_mtry);
+
+ }
+
  double TreeSurvival::compute_split_score(){
 
   double result=0;

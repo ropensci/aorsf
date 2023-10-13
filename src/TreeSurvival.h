@@ -81,6 +81,8 @@
    this->leaf_min_events = value;
   }
 
+  arma::uword find_safe_mtry() override;
+
   double compute_prediction_accuracy_internal(arma::vec& preds) override;
 
   std::vector<arma::vec> leaf_pred_indx;
