@@ -132,7 +132,7 @@ at 5 years.</p>
 <span><span class="co">#&gt;                  N trees: 500</span></span>
 <span><span class="co">#&gt;       N predictors total: 17</span></span>
 <span><span class="co">#&gt;    N predictors per node: 5</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 12</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 10</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;       Min events in leaf: 1</span></span>
 <span><span class="co">#&gt;           OOB stat value: 0.83</span></span>
@@ -154,11 +154,11 @@ at 5 years.</p>
 <span></span>
 <span><span class="va">pd_inb</span></span>
 <span><span class="co">#&gt;    pred_horizon bili      mean        lwr      medn       upr</span></span>
-<span><span class="co">#&gt; 1:      1826.25    1 0.2185157 0.01435497 0.0970635 0.8244006</span></span>
-<span><span class="co">#&gt; 2:      1826.25    2 0.2537791 0.03094375 0.1375934 0.8443459</span></span>
-<span><span class="co">#&gt; 3:      1826.25    3 0.2980089 0.05332399 0.1956020 0.8578012</span></span>
-<span><span class="co">#&gt; 4:      1826.25    4 0.3532776 0.09828527 0.2759155 0.8699563</span></span>
-<span><span class="co">#&gt; 5:      1826.25    5 0.3950478 0.14481534 0.2998934 0.8782313</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:      1826.25    1 0.2051019 0.02133505 0.1041901 0.7767571</span></span>
+<span><span class="co">#&gt; 2:      1826.25    2 0.2375037 0.03381034 0.1317682 0.8012817</span></span>
+<span><span class="co">#&gt; 3:      1826.25    3 0.2789144 0.05481241 0.1837621 0.8168042</span></span>
+<span><span class="co">#&gt; 4:      1826.25    4 0.3291518 0.09241597 0.2449438 0.8348067</span></span>
+<span><span class="co">#&gt; 5:      1826.25    5 0.3646945 0.12594131 0.2830947 0.8379429</span></span></code></pre></div>
 </li>
 <li>
 <p>using out-of-bag predictions for the training data</p>
@@ -168,11 +168,11 @@ at 5 years.</p>
 <span></span>
 <span><span class="va">pd_oob</span></span>
 <span><span class="co">#&gt;    pred_horizon bili      mean        lwr      medn       upr</span></span>
-<span><span class="co">#&gt; 1:      1826.25    1 0.2181099 0.01218789 0.1004867 0.8311560</span></span>
-<span><span class="co">#&gt; 2:      1826.25    2 0.2540728 0.02447359 0.1455362 0.8494611</span></span>
-<span><span class="co">#&gt; 3:      1826.25    3 0.2980036 0.04854875 0.1998871 0.8641245</span></span>
-<span><span class="co">#&gt; 4:      1826.25    4 0.3550648 0.09984838 0.2693004 0.8647180</span></span>
-<span><span class="co">#&gt; 5:      1826.25    5 0.3958124 0.14627606 0.3262588 0.8741973</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:      1826.25    1 0.2057925 0.02172816 0.1123039 0.7770151</span></span>
+<span><span class="co">#&gt; 2:      1826.25    2 0.2376552 0.03557858 0.1421651 0.7975343</span></span>
+<span><span class="co">#&gt; 3:      1826.25    3 0.2783471 0.05443407 0.1808253 0.8059614</span></span>
+<span><span class="co">#&gt; 4:      1826.25    4 0.3286654 0.09472187 0.2397779 0.8234719</span></span>
+<span><span class="co">#&gt; 5:      1826.25    5 0.3637542 0.12856484 0.2807135 0.8243895</span></span></code></pre></div>
 </li>
 <li>
 <p>using predictions for a new set of data</p>
@@ -184,11 +184,11 @@ at 5 years.</p>
 <span></span>
 <span><span class="va">pd_test</span></span>
 <span><span class="co">#&gt;    pred_horizon bili      mean        lwr      medn       upr</span></span>
-<span><span class="co">#&gt; 1:      1826.25    1 0.2643299 0.01758300 0.2098936 0.8408190</span></span>
-<span><span class="co">#&gt; 2:      1826.25    2 0.2989177 0.04071722 0.2510869 0.8551052</span></span>
-<span><span class="co">#&gt; 3:      1826.25    3 0.3431601 0.06852192 0.3050132 0.8668560</span></span>
-<span><span class="co">#&gt; 4:      1826.25    4 0.3967849 0.11810058 0.3592089 0.8724041</span></span>
-<span><span class="co">#&gt; 5:      1826.25    5 0.4387927 0.16022391 0.4094224 0.8806860</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:      1826.25    1 0.2438990 0.02179705 0.1779682 0.8047647</span></span>
+<span><span class="co">#&gt; 2:      1826.25    2 0.2754938 0.03964752 0.2152529 0.8222641</span></span>
+<span><span class="co">#&gt; 3:      1826.25    3 0.3180577 0.06354033 0.2671143 0.8375648</span></span>
+<span><span class="co">#&gt; 4:      1826.25    4 0.3688818 0.10422564 0.3255283 0.8540203</span></span>
+<span><span class="co">#&gt; 5:      1826.25    5 0.4045088 0.13846933 0.3595994 0.8570826</span></span></code></pre></div>
 </li>
 <li><p>in-bag PD indicates relationships that the model has learned
 during training. This is helpful if your goal is to interpret the
@@ -221,9 +221,9 @@ next sections.</p>
 <span><span class="va">pd_sex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"f"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_sex</span></span>
-<span><span class="co">#&gt;    pred_horizon sex      mean         lwr      medn       upr</span></span>
-<span><span class="co">#&gt; 1:      1826.25   m 0.3636796 0.048601116 0.2450203 0.9536765</span></span>
-<span><span class="co">#&gt; 2:      1826.25   f 0.3043006 0.009488887 0.1552474 0.9558234</span></span></code></pre></div>
+<span><span class="co">#&gt;    pred_horizon sex      mean       lwr      medn       upr</span></span>
+<span><span class="co">#&gt; 1:      1826.25   m 0.3451974 0.0427366 0.2331537 0.9327978</span></span>
+<span><span class="co">#&gt; 2:      1826.25   f 0.2978609 0.0136574 0.1579864 0.9440116</span></span></code></pre></div>
 <p>The output shows that the expected predicted mortality risk for men
 is substantially higher than women at 5 years after baseline.</p>
 </div>
@@ -275,14 +275,14 @@ list the variable values in <code>pred_spec</code> and specify
 <span>             expand_grid <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_two_vars</span></span>
-<span><span class="co">#&gt;    pred_horizon variable value level      mean         lwr      medn       upr</span></span>
-<span><span class="co">#&gt; 1:      1826.25      sex    NA     m 0.3636796 0.048601116 0.2450203 0.9536765</span></span>
-<span><span class="co">#&gt; 2:      1826.25      sex    NA     f 0.3043006 0.009488887 0.1552474 0.9558234</span></span>
-<span><span class="co">#&gt; 3:      1826.25     bili     1  &lt;NA&gt; 0.2485802 0.011564981 0.1291795 0.9002107</span></span>
-<span><span class="co">#&gt; 4:      1826.25     bili     2  &lt;NA&gt; 0.2998066 0.037689685 0.1917402 0.9201019</span></span>
-<span><span class="co">#&gt; 5:      1826.25     bili     3  &lt;NA&gt; 0.3550793 0.065043688 0.2640451 0.9320806</span></span>
-<span><span class="co">#&gt; 6:      1826.25     bili     4  &lt;NA&gt; 0.4015254 0.092934248 0.3215990 0.9422651</span></span>
-<span><span class="co">#&gt; 7:      1826.25     bili     5  &lt;NA&gt; 0.4369651 0.113674025 0.3658016 0.9445660</span></span></code></pre></div>
+<span><span class="co">#&gt;    pred_horizon variable value level      mean        lwr      medn       upr</span></span>
+<span><span class="co">#&gt; 1:      1826.25      sex    NA     m 0.3451974 0.04273660 0.2331537 0.9327978</span></span>
+<span><span class="co">#&gt; 2:      1826.25      sex    NA     f 0.2978609 0.01365740 0.1579864 0.9440116</span></span>
+<span><span class="co">#&gt; 3:      1826.25     bili     1  &lt;NA&gt; 0.2377429 0.01650482 0.1303688 0.8575800</span></span>
+<span><span class="co">#&gt; 4:      1826.25     bili     2  &lt;NA&gt; 0.2867698 0.04155204 0.1765653 0.8932449</span></span>
+<span><span class="co">#&gt; 5:      1826.25     bili     3  &lt;NA&gt; 0.3373077 0.06634432 0.2427874 0.9101957</span></span>
+<span><span class="co">#&gt; 6:      1826.25     bili     4  &lt;NA&gt; 0.3837022 0.09015452 0.3056544 0.9105841</span></span>
+<span><span class="co">#&gt; 7:      1826.25     bili     5  &lt;NA&gt; 0.4175154 0.12377812 0.3476088 0.9125227</span></span></code></pre></div>
 <p>Now would it be tedious if you wanted to do this for all the
 variables? You bet. That’s why we made a function for that. As a bonus,
 the printed output is sorted from most to least important variables.</p>
@@ -296,133 +296,133 @@ the printed output is sorted from most to least important variables.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;             0.80 0.2426718 0.1279552 0.04984847 0.3943018</span></span>
-<span><span class="co">#&gt;              1.4 0.2650919 0.1511846 0.06806841 0.4204671</span></span>
-<span><span class="co">#&gt;              3.5 0.3813791 0.3006846 0.17681607 0.5728243</span></span>
+<span><span class="co">#&gt;             0.80 0.2327133 0.1276946 0.05237649 0.3619835</span></span>
+<span><span class="co">#&gt;              1.4 0.2528210 0.1474908 0.06277984 0.3820733</span></span>
+<span><span class="co">#&gt;              3.5 0.3642485 0.2821089 0.15739236 0.5383749</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -- copper (VI Rank: 2) -----------------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;               43 0.2711192 0.1364832 0.05085395 0.4742508</span></span>
-<span><span class="co">#&gt;               74 0.2919267 0.1648166 0.06045514 0.5024584</span></span>
-<span><span class="co">#&gt;              129 0.3474690 0.2264488 0.11666296 0.5862955</span></span>
+<span><span class="co">#&gt;               43 0.2627892 0.1430477 0.05239847 0.4404427</span></span>
+<span><span class="co">#&gt;               74 0.2818189 0.1623311 0.06048325 0.4828843</span></span>
+<span><span class="co">#&gt;              129 0.3344419 0.2233296 0.10952284 0.5430557</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -- sex (VI Rank: 3) --------------------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;                m 0.3636796 0.2450203 0.13134161 0.5913622</span></span>
-<span><span class="co">#&gt;                f 0.3043006 0.1552474 0.05258204 0.5581216</span></span>
+<span><span class="co">#&gt;                m 0.3451974 0.2331537 0.11147842 0.5720925</span></span>
+<span><span class="co">#&gt;                f 0.2978609 0.1579864 0.05257254 0.5329951</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- age (VI Rank: 4) --------------------------------------</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
-<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;               42 0.2776103 0.1367878 0.04780102 0.4702551</span></span>
-<span><span class="co">#&gt;               50 0.3111019 0.1894254 0.05323669 0.5350162</span></span>
-<span><span class="co">#&gt;               57 0.3463241 0.2451927 0.07903236 0.5834995</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- protime (VI Rank: 5) ----------------------------------</span></span>
+<span><span class="co">#&gt; -- stage (VI Rank: 4) ------------------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;               10 0.2879205 0.1465481 0.05326982 0.5140322</span></span>
-<span><span class="co">#&gt;               11 0.3046243 0.1672641 0.05801802 0.5359534</span></span>
-<span><span class="co">#&gt;               11 0.3293300 0.1909532 0.07686704 0.5723693</span></span>
+<span><span class="co">#&gt;                1 0.2568042 0.1364586 0.04826090 0.4308291</span></span>
+<span><span class="co">#&gt;                2 0.2681925 0.1445437 0.04785007 0.4609626</span></span>
+<span><span class="co">#&gt;                3 0.2924500 0.1646026 0.05226510 0.5065589</span></span>
+<span><span class="co">#&gt;                4 0.3370752 0.2083311 0.08155862 0.5754540</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- stage (VI Rank: 6) ------------------------------------</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
-<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;                1 0.2681668 0.1380835 0.05029263 0.4674358</span></span>
-<span><span class="co">#&gt;                2 0.2796755 0.1378881 0.04858443 0.4914603</span></span>
-<span><span class="co">#&gt;                3 0.3026613 0.1627288 0.05474229 0.5632632</span></span>
-<span><span class="co">#&gt;                4 0.3496420 0.2114635 0.09079857 0.6061424</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- albumin (VI Rank: 7) ----------------------------------</span></span>
+<span><span class="co">#&gt; -- albumin (VI Rank: 5) ----------------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;              3.3 0.3261637 0.2004845 0.05692253 0.6069932</span></span>
-<span><span class="co">#&gt;              3.5 0.3034620 0.1750030 0.05259209 0.5646301</span></span>
-<span><span class="co">#&gt;              3.8 0.2884844 0.1592976 0.05317897 0.5088161</span></span>
+<span><span class="co">#&gt;              3.3 0.3189682 0.1890327 0.06882698 0.5634286</span></span>
+<span><span class="co">#&gt;              3.5 0.2932022 0.1594218 0.05570448 0.5272234</span></span>
+<span><span class="co">#&gt;              3.8 0.2762511 0.1513096 0.05220714 0.4862937</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- ascites (VI Rank: 8) ----------------------------------</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
-<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;                0 0.3050133 0.1684231 0.05309663 0.5701751</span></span>
-<span><span class="co">#&gt;                1 0.4807880 0.3999962 0.27558768 0.6522981</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- ast (VI Rank: 9) --------------------------------------</span></span>
+<span><span class="co">#&gt; -- protime (VI Rank: 6) ----------------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;               82 0.2908882 0.1513240 0.04828883 0.5229041</span></span>
-<span><span class="co">#&gt;              117 0.3089912 0.1725868 0.05538041 0.5554213</span></span>
-<span><span class="co">#&gt;              153 0.3310741 0.1871842 0.06924725 0.5943776</span></span>
+<span><span class="co">#&gt;               10 0.2804891 0.1543938 0.05164468 0.4924859</span></span>
+<span><span class="co">#&gt;               11 0.2945915 0.1689627 0.05912412 0.5214456</span></span>
+<span><span class="co">#&gt;               11 0.3162286 0.1898853 0.07036679 0.5532870</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- age (VI Rank: 7) --------------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;               42 0.2717577 0.1388202 0.05264347 0.4541974</span></span>
+<span><span class="co">#&gt;               50 0.2985259 0.1797617 0.05562463 0.5285119</span></span>
+<span><span class="co">#&gt;               57 0.3298805 0.2328557 0.07349113 0.5641154</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- ast (VI Rank: 8) --------------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;               82 0.2805643 0.1468324 0.05099136 0.5042377</span></span>
+<span><span class="co">#&gt;              117 0.2974411 0.1529651 0.05662912 0.5347199</span></span>
+<span><span class="co">#&gt;              153 0.3214486 0.1820013 0.06881978 0.5836435</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- ascites (VI Rank: 9) ----------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;                0 0.2978562 0.1652968 0.05503683 0.5213956</span></span>
+<span><span class="co">#&gt;                1 0.4612987 0.3958924 0.25509873 0.6458299</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -- chol (VI Rank: 10) ------------------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;              250 0.2947493 0.1517498 0.04584494 0.4921210</span></span>
-<span><span class="co">#&gt;              310 0.3043914 0.1701447 0.05171725 0.5278263</span></span>
-<span><span class="co">#&gt;              401 0.3273137 0.1931407 0.07655706 0.5632925</span></span>
+<span><span class="co">#&gt;              250 0.2861065 0.1528316 0.04722530 0.4946336</span></span>
+<span><span class="co">#&gt;              310 0.2941216 0.1591265 0.05254708 0.4988147</span></span>
+<span><span class="co">#&gt;              401 0.3154760 0.1890564 0.07563854 0.5148573</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- trt (VI Rank: 11) -------------------------------------</span></span>
+<span><span class="co">#&gt; -- hepato (VI Rank: 11) ----------------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;  d_penicill_main 0.3169260 0.1832524 0.06007976 0.5796638</span></span>
-<span><span class="co">#&gt;          placebo 0.3103546 0.1698117 0.05309663 0.5662393</span></span>
+<span><span class="co">#&gt;                0 0.2862485 0.1593974 0.05157100 0.5025263</span></span>
+<span><span class="co">#&gt;                1 0.3190555 0.1835008 0.07087698 0.5626892</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -- edema (VI Rank: 12) -----------------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;                0 0.3002624 0.1504964 0.05258204 0.5595393</span></span>
-<span><span class="co">#&gt;              0.5 0.3654657 0.2587416 0.10582704 0.6117316</span></span>
-<span><span class="co">#&gt;                1 0.4734729 0.3835527 0.27861278 0.6677314</span></span>
+<span><span class="co">#&gt;                0 0.2934074 0.1619484 0.05366214 0.5174757</span></span>
+<span><span class="co">#&gt;              0.5 0.3522489 0.2426686 0.10376815 0.5853984</span></span>
+<span><span class="co">#&gt;                1 0.4561646 0.3621368 0.26357824 0.6406115</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- hepato (VI Rank: 13) ----------------------------------</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
-<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;                0 0.2961537 0.1655051 0.04855092 0.5286287</span></span>
-<span><span class="co">#&gt;                1 0.3283298 0.1921262 0.06411885 0.5836396</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- trig (VI Rank: 14) ------------------------------------</span></span>
+<span><span class="co">#&gt; -- spiders (VI Rank: 13) ---------------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;               85 0.3044697 0.1600411 0.05319142 0.5347385</span></span>
-<span><span class="co">#&gt;              108 0.3106696 0.1654541 0.05589819 0.5305391</span></span>
-<span><span class="co">#&gt;              151 0.3251355 0.1923483 0.06240310 0.5549847</span></span>
+<span><span class="co">#&gt;                0 0.2918349 0.1561874 0.05157100 0.5115626</span></span>
+<span><span class="co">#&gt;                1 0.3325745 0.2117035 0.08822863 0.5619282</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- spiders (VI Rank: 15) ---------------------------------</span></span>
+<span><span class="co">#&gt; -- trt (VI Rank: 14) -------------------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;                0 0.3015973 0.1572040 0.05135863 0.5571251</span></span>
-<span><span class="co">#&gt;                1 0.3467316 0.2258213 0.09670998 0.5929005</span></span>
+<span><span class="co">#&gt;  d_penicill_main 0.3066250 0.1732905 0.06037907 0.5329951</span></span>
+<span><span class="co">#&gt;          placebo 0.3025089 0.1587980 0.05366214 0.5531033</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- trig (VI Rank: 15) ------------------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
+<span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;               85 0.2922057 0.1538922 0.05008490 0.5097474</span></span>
+<span><span class="co">#&gt;              108 0.3009226 0.1647050 0.05206774 0.5217247</span></span>
+<span><span class="co">#&gt;              151 0.3154298 0.1814550 0.06141081 0.5207955</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -- alk.phos (VI Rank: 16) --------------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;              922 0.3126952 0.1742767 0.05466852 0.5832064</span></span>
-<span><span class="co">#&gt;             1278 0.3129036 0.1773399 0.05205471 0.5760135</span></span>
-<span><span class="co">#&gt;             2068 0.3162769 0.1753477 0.05602455 0.5857620</span></span>
+<span><span class="co">#&gt;              922 0.3034132 0.1650884 0.05647195 0.5507628</span></span>
+<span><span class="co">#&gt;             1278 0.3041575 0.1668115 0.05783564 0.5506103</span></span>
+<span><span class="co">#&gt;             2068 0.3080757 0.1681812 0.05979272 0.5577576</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -- platelet (VI Rank: 17) --------------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;                  |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;            Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;              200 0.3182309 0.1720752 0.05991039 0.5820997</span></span>
-<span><span class="co">#&gt;              257 0.3120849 0.1677648 0.05375493 0.5762923</span></span>
-<span><span class="co">#&gt;              318 0.3073012 0.1738184 0.05505376 0.5522198</span></span>
+<span><span class="co">#&gt;              200 0.3087603 0.1702265 0.05788128 0.5620491</span></span>
+<span><span class="co">#&gt;              257 0.3028452 0.1611317 0.05491025 0.5524962</span></span>
+<span><span class="co">#&gt;              318 0.2981837 0.1641031 0.05500888 0.5324483</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Predicted risk at time t = 1826.25 for top 17 predictors</span></span></code></pre></div>
 <p>It’s easy enough to turn this ‘summary’ object into a
@@ -431,12 +431,12 @@ the printed output is sorted from most to least important variables.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">pd_smry</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    variable importance Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt; 1:     bili 0.11650695  0.80 0.2426718 0.1279552 0.04984847 0.3943018</span></span>
-<span><span class="co">#&gt; 2:     bili 0.11650695   1.4 0.2650919 0.1511846 0.06806841 0.4204671</span></span>
-<span><span class="co">#&gt; 3:     bili 0.11650695   3.5 0.3813791 0.3006846 0.17681607 0.5728243</span></span>
-<span><span class="co">#&gt; 4:   copper 0.04768827    43 0.2711192 0.1364832 0.05085395 0.4742508</span></span>
-<span><span class="co">#&gt; 5:   copper 0.04768827    74 0.2919267 0.1648166 0.06045514 0.5024584</span></span>
-<span><span class="co">#&gt; 6:   copper 0.04768827   129 0.3474690 0.2264488 0.11666296 0.5862955</span></span>
+<span><span class="co">#&gt; 1:     bili 0.12455311  0.80 0.2327133 0.1276946 0.05237649 0.3619835</span></span>
+<span><span class="co">#&gt; 2:     bili 0.12455311   1.4 0.2528210 0.1474908 0.06277984 0.3820733</span></span>
+<span><span class="co">#&gt; 3:     bili 0.12455311   3.5 0.3642485 0.2821089 0.15739236 0.5383749</span></span>
+<span><span class="co">#&gt; 4:   copper 0.05316189    43 0.2627892 0.1430477 0.05239847 0.4404427</span></span>
+<span><span class="co">#&gt; 5:   copper 0.05316189    74 0.2818189 0.1623311 0.06048325 0.4828843</span></span>
+<span><span class="co">#&gt; 6:   copper 0.05316189   129 0.3344419 0.2233296 0.10952284 0.5430557</span></span>
 <span><span class="co">#&gt;    pred_horizon level</span></span>
 <span><span class="co">#&gt; 1:      1826.25  &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; 2:      1826.25  &lt;NA&gt;</span></span>
@@ -532,17 +532,17 @@ to generate ICE curves that go beyond the 90th percentile of
 <span></span>
 <span><span class="va">ice_oob</span></span>
 <span><span class="co">#&gt;       id_variable id_row pred_horizon bili      pred</span></span>
-<span><span class="co">#&gt;    1:           1      1      1826.25    1 0.9249698</span></span>
-<span><span class="co">#&gt;    2:           1      2      1826.25    1 0.1039755</span></span>
-<span><span class="co">#&gt;    3:           1      3      1826.25    1 0.7438315</span></span>
-<span><span class="co">#&gt;    4:           1      4      1826.25    1 0.3883298</span></span>
-<span><span class="co">#&gt;    5:           1      5      1826.25    1 0.1252893</span></span>
+<span><span class="co">#&gt;    1:           1      1      1826.25    1 0.8765990</span></span>
+<span><span class="co">#&gt;    2:           1      2      1826.25    1 0.1130416</span></span>
+<span><span class="co">#&gt;    3:           1      3      1826.25    1 0.7143673</span></span>
+<span><span class="co">#&gt;    4:           1      4      1826.25    1 0.3291217</span></span>
+<span><span class="co">#&gt;    5:           1      5      1826.25    1 0.1019858</span></span>
 <span><span class="co">#&gt;   ---                                               </span></span>
-<span><span class="co">#&gt; 6896:          25    272      1826.25   10 0.3402022</span></span>
-<span><span class="co">#&gt; 6897:          25    273      1826.25   10 0.4858345</span></span>
-<span><span class="co">#&gt; 6898:          25    274      1826.25   10 0.5194659</span></span>
-<span><span class="co">#&gt; 6899:          25    275      1826.25   10 0.2836209</span></span>
-<span><span class="co">#&gt; 6900:          25    276      1826.25   10 0.5541267</span></span></code></pre></div>
+<span><span class="co">#&gt; 6896:          25    272      1826.25   10 0.2732672</span></span>
+<span><span class="co">#&gt; 6897:          25    273      1826.25   10 0.4605414</span></span>
+<span><span class="co">#&gt; 6898:          25    274      1826.25   10 0.4609702</span></span>
+<span><span class="co">#&gt; 6899:          25    275      1826.25   10 0.2830265</span></span>
+<span><span class="co">#&gt; 6900:          25    276      1826.25   10 0.5527966</span></span></code></pre></div>
 <ul>
 <li><p><code>id_variable</code> is an identifier for the current value
 of the variable(s) that are in the data. It is redundant if you only
