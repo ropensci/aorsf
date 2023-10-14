@@ -1,4 +1,8 @@
-# aorsf 0.1.0 (unreleased)
+# aorsf 0.1.1
+
+* fixed an uninitialized value for `pd_type`
+
+# aorsf 0.1.0
 
 * Re-worked internal C++ routines following the design of `ranger`. 
 
