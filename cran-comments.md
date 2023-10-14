@@ -1,5 +1,7 @@
 ## Version 0.1.1
 
+This version is being submitted to CRAN early due to a memory error that was identified in version 1.0.0. I apologize for the oversight. As `aorsf` would be removed from CRAN if the issue is not fixed before October 28, I would like to request an expedited submission. I have run the current submission's tests and examples with valgrind to ensure the memory error has been fixed. 
+
 ## R CMD check results
 
 Duration: 4m 8.3s

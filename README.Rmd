@@ -28,7 +28,7 @@ knitr::opts_chunk$set(
 [![Status at rOpenSci Software Peer Review](https://badges.ropensci.org/532_status.svg)](https://github.com/ropensci/software-review/issues/532/)
 <a href="https://joss.theoj.org/papers/10.21105/joss.04705"><img src="https://joss.theoj.org/papers/10.21105/joss.04705/status.svg"></a>
 [![CRAN status](https://www.r-pkg.org/badges/version/aorsf)](https://CRAN.R-project.org/package=aorsf)
-[![DOI](https://zenodo.org/badge/394311897.svg)](https://zenodo.org/badge/latestdoi/394311897)
+[![DOI](https://zenodo.org/badge/394311897.svg)](https://zenodo.org/doi/10.5281/zenodo.7116854)
 <!-- badges: end -->
 
 Fit, interpret, and make predictions with oblique random survival forests (ORSFs).  

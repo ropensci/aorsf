@@ -16,7 +16,7 @@ Review](https://badges.ropensci.org/532_status.svg)](https://github.com/ropensci
 <a href="https://joss.theoj.org/papers/10.21105/joss.04705"><img src="https://joss.theoj.org/papers/10.21105/joss.04705/status.svg"></a>
 [![CRAN
 status](https://www.r-pkg.org/badges/version/aorsf)](https://CRAN.R-project.org/package=aorsf)
-[![DOI](https://zenodo.org/badge/394311897.svg)](https://zenodo.org/badge/latestdoi/394311897)
+[![DOI](https://zenodo.org/badge/394311897.svg)](https://zenodo.org/doi/10.5281/zenodo.7116854)
 <!-- badges: end -->
 
 Fit, interpret, and make predictions with oblique random survival
@@ -113,7 +113,7 @@ fit
 #>                  N trees: 500
 #>       N predictors total: 17
 #>    N predictors per node: 5
-#>  Average leaves per tree: 12
+#>  Average leaves per tree: 10
 #> Min observations in leaf: 5
 #>       Min events in leaf: 1
 #>           OOB stat value: 0.83
@@ -144,21 +144,20 @@ using `aorsf`:
   important the variable. This technique is promising b/c it does not
   require permutation and it emphasizes variables with larger
   coefficients in linear combinations, but it is also relatively new and
-  hasn’t been studied as much as permutation importance. See [Jaeger,
-  2023](https://doi.org/10.1080/10618600.2023.2231048) for more details
-  on this technique.
+  hasn’t been studied as much as permutation importance. See
+  Jaeger, (2023) for more details on this technique.
 
   ``` r
 
   orsf_vi_negate(fit)
-  #>          bili           sex        copper           ast           age 
-  #>  0.1190290560  0.0619448918  0.0290622719  0.0260108174  0.0251263919 
-  #>         stage       protime         edema       ascites        hepato 
-  #>  0.0237725455  0.0158527871  0.0117258458  0.0105685230  0.0092045115 
-  #>       albumin          chol           trt      alk.phos       spiders 
-  #>  0.0082732463  0.0041510636  0.0036632967  0.0010256161 -0.0003298163 
-  #>          trig      platelet 
-  #> -0.0011060747 -0.0045517701
+  #>          bili           sex        copper         stage           age 
+  #>  0.1162463868  0.0517905362  0.0375565841  0.0240450064  0.0239056901 
+  #>           ast       protime        hepato         edema       ascites 
+  #>  0.0191083400  0.0158014897  0.0139536512  0.0119264604  0.0100865906 
+  #>       albumin          chol       spiders           trt          trig 
+  #>  0.0085394443  0.0037903802  0.0030727468  0.0020617896  0.0018361632 
+  #>      alk.phos      platelet 
+  #>  0.0006586211 -0.0044967624
   ```
 
 - **permutation**: Each variable is assessed separately by randomly
@@ -172,14 +171,14 @@ using `aorsf`:
   ``` r
 
   orsf_vi_permute(fit)
-  #>          bili        copper           ast           age           sex 
-  #>  0.0514033622  0.0170611427  0.0142515581  0.0140224052  0.0131459748 
-  #>         stage       protime       ascites         edema       albumin 
-  #>  0.0119768965  0.0102950158  0.0098067817  0.0081730899  0.0080652857 
-  #>        hepato          chol      alk.phos          trig       spiders 
-  #>  0.0069734562  0.0032811220  0.0015862128  0.0014943484  0.0007825752 
+  #>          bili        copper           age         stage           sex 
+  #>  0.0523994364  0.0187964038  0.0152246586  0.0115192591  0.0110127557 
+  #>           ast        hepato         edema       ascites       albumin 
+  #>  0.0100104477  0.0082889176  0.0079183046  0.0077834483  0.0070642325 
+  #>       protime          trig          chol       spiders      alk.phos 
+  #>  0.0066513097  0.0015656325  0.0014474560  0.0006015308  0.0001369292 
   #>           trt      platelet 
-  #> -0.0007067631 -0.0022338286
+  #> -0.0013984860 -0.0022427356
   ```
 
 - **analysis of variance (ANOVA)**<sup>3</sup>: A p-value is computed
@@ -195,12 +194,12 @@ using `aorsf`:
   ``` r
 
   orsf_vi_anova(fit)
-  #>    ascites       bili      edema        sex     copper        age        ast 
-  #> 0.39107612 0.36316990 0.36316238 0.24720893 0.20547180 0.19213732 0.19029233 
-  #>    albumin      stage     hepato       trig       chol    protime   alk.phos 
-  #> 0.17219680 0.17068758 0.16126761 0.13379872 0.12964021 0.12659698 0.12352611 
-  #>    spiders   platelet        trt 
-  #> 0.11728395 0.08997135 0.07305095
+  #>       bili    ascites      edema     copper      stage        sex        age 
+  #> 0.48778004 0.44943820 0.41677872 0.31865585 0.26675095 0.26458616 0.25448430 
+  #>        ast     hepato    albumin       chol    protime       trig    spiders 
+  #> 0.21743929 0.19945726 0.18191604 0.15240328 0.15076561 0.13709677 0.11833550 
+  #>   alk.phos   platelet        trt 
+  #> 0.10113636 0.06302021 0.05019305
   ```
 
 You can supply your own R function to estimate out-of-bag error when
@@ -222,20 +221,20 @@ variables as you ask it to, using sensible values.
 
 orsf_summarize_uni(fit, n_variables = 2)
 #> 
-#> -- bili (VI Rank: 1) ----------------------------
+#> -- bili (VI Rank: 1) ---------------------------
 #> 
-#>        |----------------- Risk -----------------|
-#>  Value      Mean     Median     25th %    75th %
-#>   0.70 0.2094827 0.09046313 0.03827429 0.3184979
-#>    1.3 0.2283358 0.11078307 0.05347112 0.3492104
-#>    3.2 0.3090977 0.21368937 0.11889617 0.4412656
-#> 
-#> -- sex (VI Rank: 2) -----------------------------
-#> 
-#>        |----------------- Risk -----------------|
+#>        |---------------- Risk ----------------|
 #>  Value      Mean    Median     25th %    75th %
-#>      m 0.3667488 0.2614335 0.15611841 0.5836574
-#>      f 0.2507675 0.1051310 0.04355687 0.3596206
+#>   0.70 0.1986719 0.1044026 0.04354701 0.2968290
+#>    1.3 0.2132847 0.1210276 0.05245387 0.3208855
+#>    3.2 0.2883814 0.1917119 0.11951296 0.4147258
+#> 
+#> -- sex (VI Rank: 2) ----------------------------
+#> 
+#>        |---------------- Risk ----------------|
+#>  Value      Mean    Median     25th %    75th %
+#>      m 0.3394141 0.2313787 0.13762339 0.5311308
+#>      f 0.2390067 0.1112093 0.04782891 0.3773551
 #> 
 #>  Predicted risk at time t = 1826.25 for top 2 predictors
 ```
@@ -288,8 +287,7 @@ examples](https://docs.ropensci.org/aorsf/reference/orsf.html#tidymodels)
 2.  Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A,
     Pajewski NM. Accelerated and interpretable oblique random survival
     forests. *Journal of Computational and Graphical Statistics*
-    Published online 08 Aug 2023. URL:
-    <https://doi.org/10.1080/10618600.2023.2231048>
+    Published online 08 Aug 2023. DOI: 10.1080/10618600.2023.2231048
 
 3.  Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique
     random forests. *Joint European Conference on Machine Learning and
