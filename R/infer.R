@@ -43,9 +43,20 @@ infer_pred_horizon <- function(object, pred_type, pred_horizon){
 #'
 #' @return character value: 'survival', 'regression' or 'classification'
 #'
+#' @details
+#' formulas without a left hand side will not work. It is assumed
+#'   that the formula is checked for an outcome before it gets here.
+#'
+#'
 #' @examples
 #'
+#' formula_regr <- bili ~ sex + age
+#' formula_clsf <- sex ~ bili + age
+#' formula_surv <- time + status ~ bili + sex + age
 #'
+#' infer_outcome_type(formula_regr, pbc_orsf)
+#' infer_outcome_type(formula_clsf, pbc_orsf)
+#' infer_outcome_type(formula_surv, pbc_orsf)
 #'
 #' @noRd
 infer_outcome_type <- function(formula, data){
@@ -64,5 +75,6 @@ infer_outcome_type <- function(formula, data){
    return("regression")
   }
 
+  stop("could not infer outcome type", call. = FALSE)
 
 }
