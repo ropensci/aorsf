@@ -150,7 +150,7 @@
 <span><span class="co">#&gt;                  N trees: 500</span></span>
 <span><span class="co">#&gt;       N predictors total: 17</span></span>
 <span><span class="co">#&gt;    N predictors per node: 5</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 12</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 10</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;       Min events in leaf: 1</span></span>
 <span><span class="co">#&gt;           OOB stat value: 0.83</span></span>
@@ -169,44 +169,44 @@
 <p>The importance of individual variables can be estimated in three ways using <code>aorsf</code>:</p>
 <ul>
 <li>
-<p><strong>negation</strong><sup>2</sup>: Each variable is assessed separately by multiplying the variable’s coefficients by -1 and then determining how much the model’s performance changes. The worse the model’s performance after negating coefficients for a given variable, the more important the variable. This technique is promising b/c it does not require permutation and it emphasizes variables with larger coefficients in linear combinations, but it is also relatively new and hasn’t been studied as much as permutation importance. See <a href="https://doi.org/10.1080/10618600.2023.2231048" class="external-link">Jaeger, 2023</a> for more details on this technique.</p>
+<p><strong>negation</strong><sup>2</sup>: Each variable is assessed separately by multiplying the variable’s coefficients by -1 and then determining how much the model’s performance changes. The worse the model’s performance after negating coefficients for a given variable, the more important the variable. This technique is promising b/c it does not require permutation and it emphasizes variables with larger coefficients in linear combinations, but it is also relatively new and hasn’t been studied as much as permutation importance. See Jaeger, (2023) for more details on this technique.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          bili           sex        copper           ast           age </span></span>
-<span><span class="co">#&gt;  0.1190290560  0.0619448918  0.0290622719  0.0260108174  0.0251263919 </span></span>
-<span><span class="co">#&gt;         stage       protime         edema       ascites        hepato </span></span>
-<span><span class="co">#&gt;  0.0237725455  0.0158527871  0.0117258458  0.0105685230  0.0092045115 </span></span>
-<span><span class="co">#&gt;       albumin          chol           trt      alk.phos       spiders </span></span>
-<span><span class="co">#&gt;  0.0082732463  0.0041510636  0.0036632967  0.0010256161 -0.0003298163 </span></span>
-<span><span class="co">#&gt;          trig      platelet </span></span>
-<span><span class="co">#&gt; -0.0011060747 -0.0045517701</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili           sex        copper         stage           age </span></span>
+<span><span class="co">#&gt;  0.1162463868  0.0517905362  0.0375565841  0.0240450064  0.0239056901 </span></span>
+<span><span class="co">#&gt;           ast       protime        hepato         edema       ascites </span></span>
+<span><span class="co">#&gt;  0.0191083400  0.0158014897  0.0139536512  0.0119264604  0.0100865906 </span></span>
+<span><span class="co">#&gt;       albumin          chol       spiders           trt          trig </span></span>
+<span><span class="co">#&gt;  0.0085394443  0.0037903802  0.0030727468  0.0020617896  0.0018361632 </span></span>
+<span><span class="co">#&gt;      alk.phos      platelet </span></span>
+<span><span class="co">#&gt;  0.0006586211 -0.0044967624</span></span></code></pre></div>
 </li>
 <li>
 <p><strong>permutation</strong>: Each variable is assessed separately by randomly permuting the variable’s values and then determining how much the model’s performance changes. The worse the model’s performance after permuting the values of a given variable, the more important the variable. This technique is flexible, intuitive, and frequently used. It also has several <a href="https://christophm.github.io/interpretable-ml-book/feature-importance.html#disadvantages-9" class="external-link">known limitations</a></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          bili        copper           ast           age           sex </span></span>
-<span><span class="co">#&gt;  0.0514033622  0.0170611427  0.0142515581  0.0140224052  0.0131459748 </span></span>
-<span><span class="co">#&gt;         stage       protime       ascites         edema       albumin </span></span>
-<span><span class="co">#&gt;  0.0119768965  0.0102950158  0.0098067817  0.0081730899  0.0080652857 </span></span>
-<span><span class="co">#&gt;        hepato          chol      alk.phos          trig       spiders </span></span>
-<span><span class="co">#&gt;  0.0069734562  0.0032811220  0.0015862128  0.0014943484  0.0007825752 </span></span>
+<span><span class="co">#&gt;          bili        copper           age         stage           sex </span></span>
+<span><span class="co">#&gt;  0.0523994364  0.0187964038  0.0152246586  0.0115192591  0.0110127557 </span></span>
+<span><span class="co">#&gt;           ast        hepato         edema       ascites       albumin </span></span>
+<span><span class="co">#&gt;  0.0100104477  0.0082889176  0.0079183046  0.0077834483  0.0070642325 </span></span>
+<span><span class="co">#&gt;       protime          trig          chol       spiders      alk.phos </span></span>
+<span><span class="co">#&gt;  0.0066513097  0.0015656325  0.0014474560  0.0006015308  0.0001369292 </span></span>
 <span><span class="co">#&gt;           trt      platelet </span></span>
-<span><span class="co">#&gt; -0.0007067631 -0.0022338286</span></span></code></pre></div>
+<span><span class="co">#&gt; -0.0013984860 -0.0022427356</span></span></code></pre></div>
 </li>
 <li>
 <p><strong>analysis of variance (ANOVA)</strong><sup>3</sup>: A p-value is computed for each coefficient in each linear combination of variables in each decision tree. Importance for an individual predictor variable is the proportion of times a p-value for its coefficient is &lt; 0.01. This technique is very efficient computationally, but may not be as effective as permutation or negation in terms of selecting signal over noise variables. See <a href="https://link.springer.com/chapter/10.1007/978-3-642-23783-6_29" class="external-link">Menze, 2011</a> for more details on this technique.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    ascites       bili      edema        sex     copper        age        ast </span></span>
-<span><span class="co">#&gt; 0.39107612 0.36316990 0.36316238 0.24720893 0.20547180 0.19213732 0.19029233 </span></span>
-<span><span class="co">#&gt;    albumin      stage     hepato       trig       chol    protime   alk.phos </span></span>
-<span><span class="co">#&gt; 0.17219680 0.17068758 0.16126761 0.13379872 0.12964021 0.12659698 0.12352611 </span></span>
-<span><span class="co">#&gt;    spiders   platelet        trt </span></span>
-<span><span class="co">#&gt; 0.11728395 0.08997135 0.07305095</span></span></code></pre></div>
+<span><span class="co">#&gt;       bili    ascites      edema     copper      stage        sex        age </span></span>
+<span><span class="co">#&gt; 0.48778004 0.44943820 0.41677872 0.31865585 0.26675095 0.26458616 0.25448430 </span></span>
+<span><span class="co">#&gt;        ast     hepato    albumin       chol    protime       trig    spiders </span></span>
+<span><span class="co">#&gt; 0.21743929 0.19945726 0.18191604 0.15240328 0.15076561 0.13709677 0.11833550 </span></span>
+<span><span class="co">#&gt;   alk.phos   platelet        trt </span></span>
+<span><span class="co">#&gt; 0.10113636 0.06302021 0.05019305</span></span></code></pre></div>
 </li>
 </ul>
 <p>You can supply your own R function to estimate out-of-bag error when using negation or permutation importance (see <a href="https://docs.ropensci.org/aorsf/articles/oobag.html" class="external-link">oob vignette</a>)</p>
@@ -220,20 +220,20 @@
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="reference/orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">fit</span>, n_variables <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- bili (VI Rank: 1) ----------------------------</span></span>
+<span><span class="co">#&gt; -- bili (VI Rank: 1) ---------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |----------------- Risk -----------------|</span></span>
-<span><span class="co">#&gt;  Value      Mean     Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;   0.70 0.2094827 0.09046313 0.03827429 0.3184979</span></span>
-<span><span class="co">#&gt;    1.3 0.2283358 0.11078307 0.05347112 0.3492104</span></span>
-<span><span class="co">#&gt;    3.2 0.3090977 0.21368937 0.11889617 0.4412656</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- sex (VI Rank: 2) -----------------------------</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |----------------- Risk -----------------|</span></span>
+<span><span class="co">#&gt;        |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;      m 0.3667488 0.2614335 0.15611841 0.5836574</span></span>
-<span><span class="co">#&gt;      f 0.2507675 0.1051310 0.04355687 0.3596206</span></span>
+<span><span class="co">#&gt;   0.70 0.1986719 0.1044026 0.04354701 0.2968290</span></span>
+<span><span class="co">#&gt;    1.3 0.2132847 0.1210276 0.05245387 0.3208855</span></span>
+<span><span class="co">#&gt;    3.2 0.2883814 0.1917119 0.11951296 0.4147258</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- sex (VI Rank: 2) ----------------------------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;        |---------------- Risk ----------------|</span></span>
+<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;      m 0.3394141 0.2313787 0.13762339 0.5311308</span></span>
+<span><span class="co">#&gt;      f 0.2390067 0.1112093 0.04782891 0.3773551</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Predicted risk at time t = 1826.25 for top 2 predictors</span></span></code></pre></div>
 <p>For more on PD, see the <a href="https://docs.ropensci.org/aorsf/articles/pd.html" class="external-link">vignette</a></p>
@@ -263,7 +263,7 @@
 </h2>
 <ol style="list-style-type: decimal">
 <li><p>Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA, Howard G, Simon N. Oblique random survival forests. <em>Annals of applied statistics</em> 2019 Sep; 13(3):1847-83. DOI: 10.1214/19-AOAS1261</p></li>
-<li><p>Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. <em>Journal of Computational and Graphical Statistics</em> Published online 08 Aug 2023. URL: <a href="https://doi.org/10.1080/10618600.2023.2231048" class="external-link uri">https://doi.org/10.1080/10618600.2023.2231048</a></p></li>
+<li><p>Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. <em>Journal of Computational and Graphical Statistics</em> Published online 08 Aug 2023. DOI: 10.1080/10618600.2023.2231048</p></li>
 <li><p>Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. <em>Joint European Conference on Machine Learning and Knowledge Discovery in Databases</em> 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29</p></li>
 </ol>
 </div>
@@ -322,7 +322,7 @@
 <li><a href="https://github.com/ropensci/software-review/issues/532/" class="external-link"><img src="https://badges.ropensci.org/532_status.svg" alt="Status at rOpenSci Software Peer Review"></a></li>
 <li><a href="https://joss.theoj.org/papers/10.21105/joss.04705" class="external-link"><img src="https://joss.theoj.org/papers/10.21105/joss.04705/status.svg"></a></li>
 <li><a href="https://CRAN.R-project.org/package=aorsf" class="external-link"><img src="https://www.r-pkg.org/badges/version/aorsf" alt="CRAN status"></a></li>
-<li><a href="https://zenodo.org/badge/latestdoi/394311897" class="external-link"><img src="https://zenodo.org/badge/394311897.svg" alt="DOI"></a></li>
+<li><a href="https://zenodo.org/doi/10.5281/zenodo.7116854" class="external-link"><img src="https://zenodo.org/badge/394311897.svg" alt="DOI"></a></li>
 </ul>
 </div>
 
