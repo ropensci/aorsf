@@ -1128,13 +1128,15 @@
 
     if(obs_in_node.size() > 0){
 
-     x_node = prediction_data->x_submat(obs_in_node, coef_indices[i]);
+     lincomb = prediction_data->x_submat_mult_beta(obs_in_node,
+                                                   coef_indices[i],
+                                                   coef_values[i]);
 
      it = obs_in_node.begin();
 
      for(uword j = 0; j < obs_in_node.size(); ++j, ++it){
 
-      if(dot(x_node.row(j), coef_values[i]) <= cutpoint[i]) {
+      if(lincomb[j] <= cutpoint[i]) {
 
        pred_leaf[*it] = child_left[i];
 
