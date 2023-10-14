@@ -6,7 +6,6 @@
 
  Authors:
  - Byron C. Jaeger (http://byronjaeger.com)
- - test
 #----------------------------------------------------------------------------*/
 
 #include <RcppArmadillo.h>
@@ -168,6 +167,22 @@
   tree.find_rows_inbag(n_obs);
 
   return(tree.get_rows_inbag());
+
+ }
+
+ // [[Rcpp::export]]
+ arma::vec x_submat_mult_beta_exported(arma::mat& x,
+                                       arma::mat& y,
+                                       arma::vec& w,
+                                       arma::uvec& x_rows,
+                                       arma::uvec& x_cols,
+                                       arma::vec& beta){
+
+  std::unique_ptr<Data> data = std::make_unique<Data>(x, y, w);
+
+  vec out = data->x_submat_mult_beta(x_rows, x_cols, beta);
+
+  return(out);
 
  }
 
