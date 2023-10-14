@@ -38,4 +38,18 @@ test_that(
 )
 
 
+test_that(
+ desc = 'inferred outcome type is correct',
+ code = {
+
+  f_surv_1 <- time + status ~ .      # aorsf-specific way to specify
+  f_surv_2 <- Surv(time, status) ~ . # common form of survival outcome
+  f_surv_3 <- y ~ .                  # y is a 'surv' object
+
+  expect_equal(infer_)
+
+ }
+)
+
+
 

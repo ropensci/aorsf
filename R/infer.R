@@ -34,3 +34,35 @@ infer_pred_horizon <- function(object, pred_type, pred_horizon){
  pred_horizon
 
 }
+
+
+#' helper for guessing outcome type
+#'
+#' @param formula formula object
+#' @param data data to look for terms in
+#'
+#' @return character value: 'survival', 'regression' or 'classification'
+#'
+#' @examples
+#'
+#'
+#'
+#' @noRd
+infer_outcome_type <- function(formula, data){
+
+ outcome <- as.character(formula[[2]])
+
+ if(length(outcome) >= 2) return("survival")
+
+  y <- with(data, get(outcome))
+
+  if(is.factor(y)){
+   return("classification")
+  } else if(inherits(y, 'Surv')) {
+   return("survival")
+  } else {
+   return("regression")
+  }
+
+
+}
