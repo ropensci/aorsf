@@ -38,41 +38,38 @@ infer_pred_horizon <- function(object, pred_type, pred_horizon){
 
 #' helper for guessing outcome type
 #'
-#' @param formula formula object
-#' @param data data to look for terms in
+#' @param names_y_data character vector of outcome names
+#' @param data dataset containing outcomes
 #'
 #' @return character value: 'survival', 'regression' or 'classification'
 #'
-#' @details
-#' formulas without a left hand side will not work. It is assumed
-#'   that the formula is checked for an outcome before it gets here.
-#'
-#'
 #' @examples
 #'
-#' formula_regr <- bili ~ sex + age
-#' formula_clsf <- sex ~ bili + age
-#' formula_surv <- time + status ~ bili + sex + age
-#'
-#' infer_outcome_type(formula_regr, pbc_orsf)
-#' infer_outcome_type(formula_clsf, pbc_orsf)
-#' infer_outcome_type(formula_surv, pbc_orsf)
+#' infer_outcome_type('bili', pbc_orsf)
+#' infer_outcome_type('sex', pbc_orsf)
+#' infer_outcome_type(c('time', 'status'), pbc_orsf)
+#' infer_outcome_type(Surv(pbc_orsf$time, pbc_orsf$status), pbc_orsf)
 #'
 #' @noRd
-infer_outcome_type <- function(formula, data){
+infer_outcome_type <- function(names_y_data, data){
 
- outcome <- as.character(formula[[2]])
+ if(length(names_y_data) > 2){
+  stop("formula should have at most two variables as the response",
+       call. = FALSE)
+ }
 
- if(length(outcome) >= 2) return("survival")
+ if(length(names_y_data) == 2) {
+  return("survival")
+ }
 
-  if(is.factor(data[[outcome]])){
-   return("classification")
-  } else if(inherits(data[[outcome]], 'Surv')) {
-   return("survival")
-  } else {
-   return("regression")
-  }
+ if(is.factor(data[[names_y_data]])){
+  return("classification")
+ } else if(inherits(data[[names_y_data]], 'Surv')) {
+  return("survival")
+ } else {
+  return("regression")
+ }
 
-  stop("could not infer outcome type", call. = FALSE)
+ stop("could not infer outcome type", call. = FALSE)
 
 }

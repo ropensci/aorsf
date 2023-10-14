@@ -44,19 +44,10 @@ test_that(
 
   pbc$surv_y <- Surv(pbc_orsf$time, pbc_orsf$status)
 
-  f_surv_1 <- time + status ~ age      # aorsf-specific way to specify
-  f_surv_2 <- Surv(time, status) ~ age # common form of survival outcome
-  f_surv_3 <- surv_y ~ age             # a 'surv' object
-
-  expect_equal(infer_outcome_type(f_surv_1, pbc), 'survival')
-  expect_equal(infer_outcome_type(f_surv_2, pbc), 'survival')
-  expect_equal(infer_outcome_type(f_surv_3, pbc), 'survival')
-
-  f_regr_1 <- age ~ 1
-  f_clsf_1 <- sex ~ age
-
-  expect_equal(infer_outcome_type(f_regr_1, pbc), 'regression')
-  expect_equal(infer_outcome_type(f_clsf_1, pbc), 'classification')
+  expect_equal(infer_outcome_type(c('time', 'status'), pbc), 'survival')
+  expect_equal(infer_outcome_type('surv_y', pbc), 'survival')
+  expect_equal(infer_outcome_type('age', pbc), 'regression')
+  expect_equal(infer_outcome_type('sex', pbc), 'classification')
 
  }
 )
