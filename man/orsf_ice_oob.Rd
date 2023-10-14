@@ -132,7 +132,7 @@ fit
 ##                  N trees: 500
 ##       N predictors total: 17
 ##    N predictors per node: 5
-##  Average leaves per tree: 25
+##  Average leaves per tree: 21
 ## Min observations in leaf: 5
 ##       Min events in leaf: 1
 ##           OOB stat value: 0.84
@@ -152,17 +152,17 @@ ice_oob
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row pred_horizon bili      pred
-##    1:           1      1         1788    1 0.9295584
-##    2:           1      2         1788    1 0.1422392
-##    3:           1      3         1788    1 0.7047846
-##    4:           1      4         1788    1 0.3845760
-##    5:           1      5         1788    1 0.1206201
+##    1:           1      1         1788    1 0.8976716
+##    2:           1      2         1788    1 0.1202763
+##    3:           1      3         1788    1 0.6842180
+##    4:           1      4         1788    1 0.3865812
+##    5:           1      5         1788    1 0.1184953
 ##   ---                                               
-## 6896:          25    272         1788   10 0.3878561
-## 6897:          25    273         1788   10 0.4854526
-## 6898:          25    274         1788   10 0.4389557
-## 6899:          25    275         1788   10 0.3639220
-## 6900:          25    276         1788   10 0.5461205
+## 6896:          25    272         1788   10 0.3421749
+## 6897:          25    273         1788   10 0.4296413
+## 6898:          25    274         1788   10 0.4496536
+## 6899:          25    275         1788   10 0.3186596
+## 6900:          25    276         1788   10 0.5490316
 }\if{html}{\out{</div>}}
 
 Much more detailed examples are given in the

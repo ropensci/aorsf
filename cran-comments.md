@@ -1,3 +1,27 @@
+## Version 0.1.1
+
+## R CMD check results
+
+Duration: 4m 8.3s
+
+0 errors ✔ | 0 warnings ✔ | 0 notes ✔
+
+R CMD check succeeded
+
+## valgrind
+
+The error spotted by valgrind on initial submission of 0.1.0, "a conditional jump or move depends on uninitialized values has been fixed".
+
+## Downstream dependencies
+
+I have also run R CMD check on downstream dependencies of `aorsf`: 
+
+- Rcpp
+- data.table. 
+- collapse
+
+All packages passed.
+
 ## Version 0.1.0
 
 ## R CMD check results
