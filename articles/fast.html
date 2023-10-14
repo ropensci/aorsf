@@ -150,7 +150,7 @@ striking. For example:</p>
 <span><span class="co"># control_fast() is much faster</span></span>
 <span><span class="va">time_net</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">time_fast</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span></span>
 <span><span class="co">#&gt;  elapsed </span></span>
-<span><span class="co">#&gt; 34.96091</span></span></code></pre></div>
+<span><span class="co">#&gt; 34.77959</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="use-n_thread">Use <code>n_thread</code><a class="anchor" aria-label="anchor" href="#use-n_thread"></a>
@@ -183,10 +183,10 @@ number for you.</p>
 <span></span>
 <span><span class="va">time_1_thread</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">time_5_thread</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span></span>
 <span><span class="co">#&gt;   elapsed </span></span>
-<span><span class="co">#&gt; 0.4437422</span></span>
+<span><span class="co">#&gt; 0.3299163</span></span>
 <span><span class="va">time_1_thread</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">time_auto_thread</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span></span>
-<span><span class="co">#&gt;   elapsed </span></span>
-<span><span class="co">#&gt; 0.7691316</span></span></code></pre></div>
+<span><span class="co">#&gt;  elapsed </span></span>
+<span><span class="co">#&gt; 0.773646</span></span></code></pre></div>
 <p>Because R is a single threaded language, multi-threading cannot be
 applied when <code><a href="../reference/orsf.html">orsf()</a></code> needs to call R functions from C++,
 which occurs when a customized R function is used to find linear
@@ -223,7 +223,7 @@ sooner</p></li>
 <span><span class="co"># about two times faster than auto thread with defaults</span></span>
 <span><span class="va">time_auto_thread</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">time_lightweight</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span></span>
 <span><span class="co">#&gt;  elapsed </span></span>
-<span><span class="co">#&gt; 2.439858</span></span></code></pre></div>
+<span><span class="co">#&gt; 2.361446</span></span></code></pre></div>
 <p>While these default values do make <code><a href="../reference/orsf.html">orsf()</a></code> run slower,
 they also usually make its predictions more accurate or make the fit
 easier to interpret.</p>
@@ -241,11 +241,10 @@ running less slow.</p>
 <span>                    n_thread <span class="op">=</span> <span class="fl">0</span>, </span>
 <span>                    n_tree <span class="op">=</span> <span class="fl">500</span>, </span>
 <span>                    verbose_progress <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Growing trees: 18%. ~ time remaining: 9 seconds.</span></span>
-<span><span class="co">#&gt; Growing trees: 35%. ~ time remaining: 7 seconds.</span></span>
-<span><span class="co">#&gt; Growing trees: 54%. ~ time remaining: 5 seconds.</span></span>
-<span><span class="co">#&gt; Growing trees: 72%. ~ time remaining: 3 seconds.</span></span>
-<span><span class="co">#&gt; Growing trees: 89%. ~ time remaining: 1 seconds.</span></span>
+<span><span class="co">#&gt; Growing trees: 20%. ~ time remaining: 8 seconds.</span></span>
+<span><span class="co">#&gt; Growing trees: 40%. ~ time remaining: 6 seconds.</span></span>
+<span><span class="co">#&gt; Growing trees: 63%. ~ time remaining: 3 seconds.</span></span>
+<span><span class="co">#&gt; Growing trees: 82%. ~ time remaining: 1 seconds.</span></span>
 <span><span class="co">#&gt; Growing trees: 100%. </span></span>
 <span><span class="co">#&gt; Computing predictions: 100%.</span></span></code></pre></div>
 </div>

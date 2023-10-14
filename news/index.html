@@ -56,7 +56,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.1.0" id="aorsf-010-unreleased">aorsf 0.1.0 (unreleased)<a class="anchor" aria-label="anchor" href="#aorsf-010-unreleased"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.1.0" id="aorsf-010-unreleased">aorsf 0.1.0 (unreleased)<a class="anchor" aria-label="anchor" href="#aorsf-010-unreleased"></a></h2><p class="text-muted">CRAN release: 2023-10-13</p>
 <ul><li><p>Re-worked internal C++ routines following the design of <code>ranger</code>.</p></li>
 <li><p>Re-worked how progress is printed to console when <code>verbose_progress</code> is <code>TRUE</code>, following the design of <code>ranger</code>. Messages now indicate the action being taken, the % complete, and the approximate time until finishing the action.</p></li>
 <li><p>Improved variable importance, following the design of <code>ranger</code>. Importance is now computed tree-by-tree instead of by aggregate. Additionally, mortality is the type of prediction used for importance with survival trees, since mortality does not depend on <code>pred_horizon</code>.</p></li>
