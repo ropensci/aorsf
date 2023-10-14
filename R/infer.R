@@ -65,11 +65,9 @@ infer_outcome_type <- function(formula, data){
 
  if(length(outcome) >= 2) return("survival")
 
-  y <- with(data, get(outcome))
-
-  if(is.factor(y)){
+  if(is.factor(data[[outcome]])){
    return("classification")
-  } else if(inherits(y, 'Surv')) {
+  } else if(inherits(data[[outcome]], 'Surv')) {
    return("survival")
   } else {
    return("regression")
