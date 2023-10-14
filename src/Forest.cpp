@@ -41,6 +41,10 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   PredType pred_type,
                   bool pred_mode,
                   bool pred_aggregate,
+                  PartialDepType pd_type,
+                  std::vector<arma::mat>& pd_x_vals,
+                  std::vector<arma::uvec>& pd_x_cols,
+                  arma::vec& pd_probs,
                   bool oobag_pred,
                   EvalType oobag_eval_type,
                   arma::uword oobag_eval_every,
@@ -73,6 +77,10 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->pred_type = pred_type;
  this->pred_mode = pred_mode;
  this->pred_aggregate = pred_aggregate;
+ this->pd_type = pd_type;
+ this->pd_x_vals = pd_x_vals;
+ this->pd_x_cols = pd_x_cols;
+ this->pd_probs = pd_probs;
  this->oobag_pred = oobag_pred;
  this->oobag_eval_type = oobag_eval_type;
  this->oobag_eval_every = oobag_eval_every;
