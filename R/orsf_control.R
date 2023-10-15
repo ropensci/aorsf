@@ -3,17 +3,8 @@
 
 #' Accelerated ORSF control
 #'
-#' @srrstats {ML3.5} *The orsf_control_ function family allows users to control optimization algorithms used to grow random forests*
-#' @srrstats {G1.4} *documented with Roxygen*
-#' @srrstats {ML2.4} *Default values of all transformations are explicitly documented.*
-#' @srrstats {G1.3} *clarify Newton-Raphson scoring and Cox PH.*
-#' @srrstats {ML3.5a} *Specify Newton-Raphson scoring or penalized regression as the type of algorithm used to explore the search space, i.e., the space of possible linear combinations*
-#' @srrstats {ML3.6, ML3.6a} *Implement usage of multiple ways of exploring search space*
-#' @srrstats {G3.0} *use eps to avoid comparing floating point numbers for equality*
-#' @srrstats {ML2.5} *Provide the option to bypass default transformations.*
-#'
-#' Use a single iteration of Newton-Raphson scoring to identify linear
-#' combinations of predictors while fitting an [orsf] model.
+#' Fast methods to identify linear combinations of predictors while
+#'   fitting an [orsf] model.
 #'
 #' @param method (_character_) a character string specifying the method
 #'   for tie handling. If there are no ties, all the methods are
@@ -42,9 +33,7 @@
 #'
 #' Adjust `do_scale` _at your own risk_. Setting `do_scale = FALSE` will
 #'  reduce computation time but will also make the `orsf` model dependent
-#'  on the scale of your data, which is why the default value is `TRUE`. It
-#'  would be a good idea to center and scale your predictors prior to running
-#'  `orsf()` if you plan on setting `do_scale = FALSE`.
+#'  on the scale of your data, which is why the default value is `TRUE`.
 #'
 #'
 #' @examples
@@ -59,16 +48,20 @@ orsf_control_fast <- function(method = 'efron',
 
  check_dots(list(...), orsf_control_fast)
 
+ method <- tolower(method)
+
  check_control_cph(method = method, do_scale = do_scale)
 
- structure(
-  .Data = list(cph_method = method,
-               cph_eps = 1e-9,
-               cph_iter_max = 1,
-               cph_do_scale = do_scale),
-  class = 'orsf_control',
-  type = 'fast'
- )
+ ties_method <- method
+
+ orsf_control(tree_type = 'unknown',
+              method = 'glm',
+              scale_x = do_scale,
+              ties = ties_method,
+              net_mix = 0.5,
+              target_df = NULL,
+              max_iter = 1,
+              epsilon = 1e-9)
 
 }
 
@@ -125,7 +118,6 @@ orsf_control_cph <- function(method = 'efron',
                              ...){
 
 
- #' @srrstats {G2.3b} *ensure input of character parameters is not case dependent*
  method <- tolower(method)
 
  check_dots(list(...), orsf_control_cph)
@@ -134,22 +126,20 @@ orsf_control_cph <- function(method = 'efron',
                    eps = eps,
                    iter_max = iter_max)
 
- structure(
-  .Data = list(cph_method = method,
-               cph_eps = eps,
-               cph_iter_max = iter_max,
-               cph_do_scale = TRUE),
-  class = 'orsf_control',
-  type = 'cph'
- )
+ ties_method <- method
+
+ orsf_control(tree_type = 'unknown',
+              method = 'glm',
+              scale_x = TRUE,
+              ties = ties_method,
+              net_mix = 0.5,
+              target_df = NULL,
+              max_iter = iter_max,
+              epsilon = eps)
 
 }
 
 #' Penalized Cox regression ORSF control
-#'
-#' @srrstats {ML3.5a} *Specify regularization of the coxph model as the type of algorithm used to explore the search space*
-#'
-#' @srrstats {ML3.6b} *Use the loss function associated with the penalized coxph model instead of the Newton Raphson scoring algorithm (default).*
 #'
 #' Use regularized Cox proportional hazard models to identify linear
 #'   combinations of input variables while fitting an [orsf] model.
@@ -199,12 +189,14 @@ orsf_control_net <- function(alpha = 1/2,
  check_dots(list(...), orsf_control_net)
  check_control_net(alpha, df_target)
 
- structure(
-  .Data = list(net_alpha = alpha,
-               net_df_target = df_target),
-  class = 'orsf_control',
-  type = 'net'
- )
+ orsf_control(tree_type = 'unknown',
+              method = 'net',
+              scale_x = TRUE,
+              ties = 'efron',
+              net_mix = alpha,
+              target_df = df_target,
+              max_iter = 20,
+              epsilon = 1e-9)
 
 }
 
@@ -238,12 +230,215 @@ orsf_control_custom <- function(beta_fun, ...){
  check_dots(list(...), .f = orsf_control_custom)
  check_beta_fun(beta_fun)
 
+ orsf_control(tree_type = 'unknown',
+              method = beta_fun,
+              scale_x = TRUE,
+              ties = 'efron',
+              net_mix = 0.5,
+              target_df = NULL,
+              max_iter = 20,
+              epsilon = 1e-9)
+
+
+}
+
+
+#' Oblique random forest control
+#'
+#' @param tree_type (_character_) the type of tree. Valid options are
+#'
+#'  - "classification", i.e., categorical outcomes
+#'  - "regression", i.e., continuous outcomes
+#'  - "survival", i.e., time-to event outcomes
+#'
+#' @param method (_character_ or _function_) how to identify linear
+#'  linear combinations of predictors. If `method` is a character value,
+#'  it must be one of:
+#'
+#'  - 'glm': linear, logistic, and cox regression
+#'  - 'net': same as 'glm' but with penalty terms
+#'  - 'pca': principal component analysis
+#'  - 'random': random draw from uniform distribution
+#'
+#' If `method` is a _function_, it will be used to identify  linear
+#'  combinations of predictor variables. `method` must in this case accept
+#'  three inputs named `x_node`, `y_node` and `w_node`, and should expect
+#'  the following types and dimensions:
+#'
+#'  - `x_node` (_matrix_; `n` rows, `p` columns)
+#'  - `y_node` (_matrix_; `n` rows, `2` columns)
+#'  - `w_node` (_matrix_; `n` rows, `1` column)
+#'
+#' In addition, `method` must return a matrix with p rows and 1 column.
+#'
+#' @param scale_x (_logical_) if `TRUE`, values of predictors will be
+#'   scaled prior to each instance of finding a linear combination of
+#'   predictors, using summary values from the data in the current node
+#'   of the decision tree.
+#'
+#' @param ties (_character_) a character string specifying the method
+#'   for tie handling. Only relevant when modeling survival outcomes
+#'   and using a method that engages with tied outcome times.
+#'   If there are no ties, all the methods are equivalent. Valid options
+#'   are 'breslow' and 'efron'. The Efron approximation is the default
+#'   because it is more accurate when dealing with tied event times and
+#'   has similar computational efficiency compared to the Breslow method.
+#'
+#' @param net_mix (_double_) The elastic net mixing parameter. A value of 1
+#'  gives the lasso penalty, and a value of 0 gives the ridge penalty. If
+#'  multiple values of alpha are given, then a penalized model is fit using
+#'  each alpha value prior to splitting a node.
+#'
+#' @param target_df (_integer_) Preferred number of variables used in each
+#'   linear combination. For example, with `mtry` of 5 and `target_df` of 3,
+#'   we sample 5 predictors and look for the best linear combination using
+#'   3 of them.
+#'
+#' @param max_iter  (_integer_) iteration continues until convergence
+#'   (see `eps` above) or the number of attempted iterations is equal to
+#'   `iter_max`.
+#'
+#' @param epsilon (_double_) When using most modeling based method,
+#'   iteration continues in the algorithm until the relative change in
+#'   some kind of objective is less than `epsilon`, or the absolute
+#'   change is less than `sqrt(epsilon)`.
+#'
+#' @param ... `r roxy_dots()`
+#'
+#' @details
+#'
+#' Adjust `scale_x` _at your own risk_. Setting `scale_x = FALSE` will
+#'  reduce computation time but will also make the `orsf` model dependent
+#'  on the scale of your data, which is why the default value is `TRUE`.
+#'
+#'
+#' @return an object of class `'orsf_control'`, which should be used as
+#'  an input for the `control` argument of [orsf]. Components are:
+#'
+#' - `tree_type`: type of trees to fit
+#' - `lincomb_type`: method for linear combinations
+#' - `lincomb_eps`: epsilon for convergence
+#' - `lincomb_iter_max`: max iterations
+#' - `lincomb_scale`: to scale or not.
+#' - `lincomb_alpha`: mixing parameter
+#' - `lincomb_df_target`: target degrees of freedom
+#' - `lincomb_ties_method`: method for ties in survival time
+#' - `lincomb_R_function`: R function for custom splits
+#'
+#' @examples
+#'
+#' orsf_control_classification()
+#' orsf_control_regression()
+#' orsf_control_survival()
+#'
+orsf_control <- function(tree_type,
+                         method,
+                         scale_x,
+                         ties,
+                         net_mix,
+                         target_df,
+                         max_iter,
+                         epsilon,
+                         ...){
+
+ custom <- is.function(method)
+
+ if(custom){
+  lincomb_R_function <- method
+ } else if (method == 'net') {
+  lincomb_R_function <- penalized_cph
+ } else {
+  lincomb_R_function <- function(x) x
+ }
+
  structure(
-  .Data = list(beta_fun = beta_fun),
-  class = 'orsf_control',
-  type = 'custom'
+  .Data = list(
+   tree_type = tree_type,
+   lincomb_type = if(custom) "custom" else method,
+   lincomb_eps = epsilon,
+   lincomb_iter_max = max_iter,
+   lincomb_scale = scale_x,
+   lincomb_alpha = net_mix,
+   lincomb_df_target = target_df,
+   lincomb_ties_method = ties,
+   lincomb_R_function = lincomb_R_function
+  ),
+  class = c(paste('orsf_control', tree_type, sep = '_'),
+            'orsf_control')
  )
 
+}
+
+#' @rdname orsf_control
+#' @export
+orsf_control_classification <- function(method = 'glm',
+                                        scale_x = TRUE,
+                                        net_mix = 0.5,
+                                        target_df = NULL,
+                                        max_iter = 20,
+                                        epsilon = 1e-9,
+                                        ...){
+
+ check_dots(list(...), orsf_control_classification)
+
+ orsf_control("classification",
+              method = method,
+              scale_x = scale_x,
+              ties = 'efron',
+              net_mix = net_mix,
+              target_df = target_df,
+              max_iter = max_iter,
+              epsilon = epsilon,
+              ...)
+
+}
+
+#' @rdname orsf_control
+#' @export
+orsf_control_regression <- function(method = 'glm',
+                                    scale_x = TRUE,
+                                    net_mix = 0.5,
+                                    target_df = NULL,
+                                    max_iter = 20,
+                                    epsilon = 1e-9,
+                                    ...){
+
+ check_dots(list(...), orsf_control_regression)
+
+ orsf_control("regression",
+              method = method,
+              scale_x = scale_x,
+              ties = 'efron',
+              net_mix = net_mix,
+              target_df = target_df,
+              max_iter = max_iter,
+              epsilon = epsilon,
+              ...)
+
+}
+
+#' @rdname orsf_control
+#' @export
+orsf_control_survival <- function(method = 'glm',
+                                  scale_x = TRUE,
+                                  ties = 'efron',
+                                  net_mix = 0.5,
+                                  target_df = NULL,
+                                  max_iter = 20,
+                                  epsilon = 1e-9,
+                                  ...){
+
+ check_dots(list(...), orsf_control_survival)
+
+ orsf_control("survival",
+              method = method,
+              scale_x = scale_x,
+              ties = ties,
+              net_mix = net_mix,
+              target_df = target_df,
+              max_iter = max_iter,
+              epsilon = epsilon,
+              ...)
 
 }
 
