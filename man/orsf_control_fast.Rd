@@ -25,7 +25,8 @@ an object of class \code{'orsf_control'}, which should be used as
 an input for the \code{control} argument of \link{orsf}.
 }
 \description{
-Accelerated ORSF control
+Fast methods to identify linear combinations of predictors while
+fitting an \link{orsf} model.
 }
 \details{
 code from the  \href{https://github.com/therneau/survival/blob/master/src/coxfit6.c}{survival package}

@@ -21,7 +21,8 @@ an object of class \code{'orsf_control'}, which should be used as
 an input for the \code{control} argument of \link{orsf}.
 }
 \description{
-Penalized Cox regression ORSF control
+Use regularized Cox proportional hazard models to identify linear
+combinations of input variables while fitting an \link{orsf} model.
 }
 \details{
 \code{df_target} has to be less than \code{mtry}, which is a separate argument in
