@@ -30,10 +30,7 @@ reference:
 - title: Control how your ORSF model works
   desc: Choose how to identify linear combinations of predictors and set tuning parameters for your approach
 - contents:
-  - matches("^orsf_control_fast$")
-  - matches("^orsf_control_cph$")
-  - matches("^orsf_control_net$")
-  - matches("^orsf_control_custom$")
+  - matches("^orsf_control")
 - title: Variable importance/selection
   desc: Estimate the importance of individual variables and conduct variable selection using ORSFs
 - contents:

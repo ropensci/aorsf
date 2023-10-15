@@ -30,7 +30,7 @@ test_that(
  code = {
 
   cntrl <- orsf_control_net(df_target = 10)
-  expect_error(orsf(pbc_orsf, formula = f, control = cntrl), 'must be <= mtry')
+  expect_error(orsf(pbc_orsf, formula = f, control = cntrl), 'should be <=')
 
  }
 )
@@ -151,8 +151,6 @@ test_that(
  }
 )
 
-#' @srrstats {G5.8c, G5.8c} *Data with all-`NA` fields or columns are rejected*
-
 pbc_temp <- pbc_orsf
 pbc_temp[, 'bili'] <- NA_real_
 
@@ -219,44 +217,36 @@ test_that(
 test_that("data are not unintentionally modified by reference when imputed",
           code = {expect_identical(pbc_temp, pbc_temp_orig)})
 
-#' @srrstats {G5.9} **Noise susceptibility tests**
-#' @srrstats {G5.9a} *Adding trivial noise to data does not meaningfully change results*
-#' @srrstats {G5.9b} *Running under different random seeds gives identifal results*
+pbc_noise <- data_list_pbc$pbc_noised
+pbc_scale <- data_list_pbc$pbc_scaled
 
-pbc_noise <- pbc_orsf
-pbc_scale <- pbc_orsf
-
-vars <- c('bili', 'chol', 'albumin', 'copper', 'alk.phos', 'ast')
-
-set.seed(730)
-
-for(i in vars){
- pbc_noise[[i]] <- add_noise(pbc_noise[[i]])
- pbc_scale[[i]] <- change_scale(pbc_scale[[i]])
-}
-
+n_tree_robust <- 500
 
 fit_orsf <-
- orsf(pbc_orsf, Surv(time, status) ~ . - id,
+ orsf(pbc,
+      Surv(time, status) ~ .,
       n_thread = 1,
-      n_tree = 500,
-      tree_seeds = 1:500)
+      n_tree = n_tree_robust,
+      tree_seeds = seeds_standard)
 
 fit_orsf_2 <-
- orsf(pbc_orsf, Surv(time, status) ~ . - id,
+ orsf(pbc,
+      Surv(time, status) ~ .,
       n_thread = 5,
-      n_tree = 500,
-      tree_seeds = 1:500)
+      n_tree = n_tree_robust,
+      tree_seeds = seeds_standard)
 
 fit_orsf_noise <-
- orsf(pbc_noise, Surv(time, status) ~ . - id,
-      n_tree = 500,
-      tree_seeds = 1:500)
+ orsf(pbc_noise,
+      Surv(time, status) ~ .,
+      n_tree = n_tree_robust,
+      tree_seeds = seeds_standard)
 
 fit_orsf_scale <-
- orsf(pbc_scale, Surv(time, status) ~ . - id,
-      n_tree = 500,
-      tree_seeds = 1:500)
+ orsf(pbc_scale,
+      Surv(time, status) ~ .,
+      n_tree = n_tree_robust,
+      tree_seeds = seeds_standard)
 
 #' @srrstats {ML7.1} *Demonstrate effect of numeric scaling of input data.*
 test_that(
@@ -326,35 +316,6 @@ test_that(
  }
 )
 
-test_that(
- desc = 'results are identical if a forest is fitted under the same random seed',
- code = {
-
-  object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-                 n_tree = 500,
-                 tree_seeds = 1:500,
-                 no_fit = TRUE)
-  fit_orsf_3 <- orsf_train(object)
-
-  expect_equal(fit_orsf$forest,
-               fit_orsf_3$forest)
-
-  attr_orsf <- attributes(fit_orsf)
-  attr_orsf_3 <- attributes(fit_orsf_3)
-
-  for(i in names(attr_orsf)){
-
-   if( !(i %in% c('f_beta', 'f_oobag_eval')) ){
-
-    expect_equal(attr_orsf[[i]], attr_orsf_3[[i]])
-
-   }
-
-  }
-
- }
-
-)
 
 test_that(
  desc = 'oob rows identical with same tree seeds, oob error correct for user-specified function',

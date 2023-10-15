@@ -4,7 +4,9 @@ f <- Surv(time, status) ~ . - id
 
 
 #' @srrstats {G5.2} *Appropriate error behaviour is explicitly demonstrated through tests.*
-test_that("inputs are vetted", {
+test_that(
+ desc = "inputs are vetted",
+ code = {
 
  #' @srrstats {G5.2b} *Tests demonstrate conditions which trigger error messages.*
 
@@ -45,14 +47,15 @@ test_that("inputs are vetted", {
  expect_s3_class(orsf_control_custom(f_rando), 'orsf_control')
 
 
-})
+}
+)
 
 
 test_that(
  desc = 'custom orsf_control predictions are good',
  code = {
 
-  fit_pca = orsf(pbc_orsf,
+  fit_pca = orsf(pbc,
                  Surv(time, status) ~ .,
                  tree_seeds = seeds_standard,
                  control = orsf_control_custom(beta_fun = f_pca),

@@ -50,12 +50,28 @@ print.orsf_fit <- function(x, ...){
  info_leaf_min_obs    <- get_leaf_min_obs(x)
  info_leaf_min_events <- get_leaf_min_events(x)
  info_vi              <- get_importance(x)
+ control              <- get_control(x)
 
- info_type <- switch(get_orsf_type(x),
-                        'fast'   = "Accelerated",
-                        'cph'    = 'Cox regression',
-                        'net'    = 'Penalized Cox regression',
-                        'custom' = "Custom user function")
+ info_model_type <- switch(control$tree_type,
+                           'survival' = "Cox regression",
+                           'regression' = "Linear regression",
+                           'classification' = "Logistic regression")
+
+ info_lincomb_type <- switch(control$lincomb_type,
+                             'glm'    = NULL,
+                             'net'    = "Penalized ",
+                             'custom' = "Custom user function")
+
+
+ if(control$lincomb_type != 'custom'){
+
+  if(control$lincomb_iter_max == 1){
+   info_lincomb_type <- "Accelerated "
+  }
+
+  info_lincomb_type <- paste0(info_lincomb_type, info_model_type)
+
+ }
 
  info_oobag_type <- info_oobag_stat <- 'none'
 
@@ -69,18 +85,19 @@ print.orsf_fit <- function(x, ...){
    info_oobag_stat <- round_magnitude(last_value(x$eval_oobag$stat_values))
   }
 
-
  }
 
 
- header <- '---------- Oblique random survival forest\n'
+ forest_text <- paste("Oblique random", control$tree_type, "forest")
+
+ header <- paste0('---------- ', forest_text, '\n')
 
  if(!is_trained(x)){
-  header <- 'Untrained Oblique random survival forest\n'
+  header <- paste0('Untrained ', tolower(forest_text), '\n')
  }
 
  cat(header,
-     paste0('     Linear combinations: ', info_type            ),
+     paste0('     Linear combinations: ', info_lincomb_type    ),
      paste0('          N observations: ', info_n_obs           ),
      paste0('                N events: ', info_n_events        ),
      paste0('                 N trees: ', info_n_tree          ),
