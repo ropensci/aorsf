@@ -1,5 +1,7 @@
 # aorsf 0.1.1.9000
 
+* Added `orsf_control` functions for classification, regression, and survival.
+
 * optimization implemented for matrix multiplication during prediction (https://github.com/ropensci/aorsf/pull/20)
 
 # aorsf 0.1.1
