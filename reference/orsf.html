@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">aorsf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.9002</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -448,7 +448,7 @@ such as <code>recipes</code> or <code>mlr3pipelines</code>.</p>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##                  N trees: 500</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##       N predictors total: 17</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##    N predictors per node: 5</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  Average leaves per tree: 25</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  Average leaves per tree: 21</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## Min observations in leaf: 5</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">##       Min events in leaf: 1</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">##           OOB stat value: 0.84</span></span>
@@ -592,20 +592,20 @@ evaluating the out-of-bag survival predictions.</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">sc</span><span class="op">$</span><span class="va">AUC</span><span class="op">$</span><span class="va">score</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">AUC</span><span class="op">)</span><span class="op">]</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##    model times       AUC         se     lower     upper</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:   net  1788 0.9134593 0.02079935 0.8726933 0.9542253</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:   cph  1788 0.9109155 0.02111657 0.8695278 0.9523032</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 3: accel  1788 0.9099638 0.02122647 0.8683607 0.9515669</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 4:   rlt  1788 0.9069752 0.02132529 0.8651783 0.9487720</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 2: accel  1788 0.9112315 0.02098077 0.8701099 0.9523530</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 3:   rlt  1788 0.9076685 0.02078732 0.8669261 0.9484109</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 4:   cph  1788 0.9063871 0.02165434 0.8639453 0.9488288</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 5: rando  1788 0.9023489 0.02218936 0.8588586 0.9458393</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 6:   pca  1788 0.8994220 0.02201713 0.8562692 0.9425748</span></span></code></pre><p></p></div>
 <p>And the indices of prediction accuracy:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">sc</span><span class="op">$</span><span class="va">Brier</span><span class="op">$</span><span class="va">score</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">IPA</span><span class="op">)</span>, <span class="fu">.</span><span class="op">(</span><span class="va">model</span>, <span class="va">times</span>, <span class="va">IPA</span><span class="op">)</span><span class="op">]</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##         model times       IPA</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:        net  1788 0.4916815</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:        cph  1788 0.4833913</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 3:      accel  1788 0.4749974</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 4:        rlt  1788 0.4630984</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 5:        pca  1788 0.4371223</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 6:      rando  1788 0.4258456</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:        net  1788 0.4916038</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:      accel  1788 0.4879683</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 3:        cph  1788 0.4751883</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 4:        rlt  1788 0.4570179</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 5:        pca  1788 0.4370592</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 6:      rando  1788 0.4258344</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 7: Null model  1788 0.0000000</span></span></code></pre><p></p></div>
 <p>From inspection,</p><ul><li><p><code>net</code>, <code>accel</code>, and <code>rlt</code> have high discrimination and index of
 prediction accuracy.</p></li>
@@ -699,29 +699,29 @@ data and predictions.</p>
 <span><span class="fu">glimpse</span><span class="op">(</span><span class="va">results</span><span class="op">)</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Rows: 276</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## Columns: 23</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## $ id          &lt;int&gt; 3, 39, 43, 48, 50, 54, 64, 66, 78, 80, 83, 114, 131, 141, ~</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## $ trt         &lt;fct&gt; d_penicill_main, d_penicill_main, d_penicill_main, placebo~</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## $ age         &lt;dbl&gt; 70.07255, 55.39220, 48.87064, 49.13621, 53.50856, 39.19781~</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## $ sex         &lt;fct&gt; m, f, f, m, f, f, f, m, f, m, f, m, f, f, f, f, m, f, f, f~</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## $ ascites     &lt;fct&gt; 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## $ hepato      &lt;fct&gt; 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1~</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## $ spiders     &lt;fct&gt; 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0~</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## $ edema       &lt;fct&gt; 0.5, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, ~</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">## $ bili        &lt;dbl&gt; 1.4, 0.7, 1.1, 1.9, 1.1, 1.3, 2.1, 1.4, 6.3, 7.2, 1.3, 3.2~</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">## $ chol        &lt;int&gt; 176, 282, 361, 259, 257, 288, 373, 427, 436, 247, 250, 259~</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="do">## $ albumin     &lt;dbl&gt; 3.48, 3.00, 3.64, 3.70, 3.36, 3.40, 3.50, 3.70, 3.02, 3.72~</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="do">## $ copper      &lt;int&gt; 210, 52, 36, 281, 43, 262, 52, 105, 75, 269, 48, 208, 74, ~</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="do">## $ alk.phos    &lt;dbl&gt; 516.0, 9066.8, 5430.2, 10396.8, 1080.0, 5487.2, 1009.0, 19~</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="do">## $ ast         &lt;dbl&gt; 96.10, 72.24, 67.08, 188.34, 106.95, 73.53, 150.35, 182.90~</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="do">## $ trig        &lt;int&gt; 55, 111, 89, 178, 73, 125, 188, 171, 104, 91, 100, 78, 104~</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="do">## $ platelet    &lt;int&gt; 151, 563, 203, 214, 128, 254, 178, 123, 236, 360, 81, 268,~</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="do">## $ protime     &lt;dbl&gt; 12.0, 10.6, 10.6, 11.0, 10.6, 11.0, 11.0, 11.0, 10.6, 11.2~</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="do">## $ stage       &lt;ord&gt; 4, 4, 2, 3, 4, 4, 3, 3, 4, 4, 4, 3, 4, 2, 3, 4, 2, 3, 4, 3~</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="do">## $ time        &lt;int&gt; 1012, 2297, 4556, 4427, 2598, 1434, 1487, 4191, 1690, 890,~</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="do">## $ status      &lt;dbl&gt; 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0~</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="do">## $ pred_aorsf  &lt;dbl&gt; 0.76027848, 0.25291419, 0.06284001, 0.59437152, 0.15286015~</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="do">## $ pred_rfsrc  &lt;dbl&gt; 0.47891074, 0.16833427, 0.05141013, 0.46526027, 0.06438684~</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="do">## $ pred_ranger &lt;dbl&gt; 0.61304990, 0.13930022, 0.03715869, 0.48395613, 0.04959462~</span></span></code></pre><p></p></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## $ id          &lt;int&gt; 20, 47, 55, 57, 63, 65, 83, 121, 141, 181, 197, 201, 202, ~</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## $ trt         &lt;fct&gt; placebo, placebo, d_penicill_main, d_penicill_main, placeb~</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## $ age         &lt;dbl&gt; 59.95346, 47.42779, 65.76318, 53.57153, 46.62834, 40.20260~</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## $ sex         &lt;fct&gt; f, f, m, f, f, f, f, m, f, f, f, f, f, f, m, f, m, f, f, f~</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## $ ascites     &lt;fct&gt; 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## $ hepato      &lt;fct&gt; 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1~</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## $ spiders     &lt;fct&gt; 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1~</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## $ edema       &lt;fct&gt; 0, 0, 0, 0.5, 1, 0, 0.5, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">## $ bili        &lt;dbl&gt; 5.1, 0.5, 1.8, 2.3, 22.5, 1.2, 1.3, 1.3, 0.9, 1.4, 0.6, 0.~</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">## $ chol        &lt;int&gt; 374, 316, 416, 260, 932, 256, 250, 151, 346, 248, 266, 235~</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="do">## $ albumin     &lt;dbl&gt; 3.51, 3.65, 3.94, 3.18, 3.12, 3.60, 3.50, 3.08, 3.77, 3.58~</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="do">## $ copper      &lt;int&gt; 140, 68, 121, 231, 95, 74, 48, 73, 59, 63, 25, 26, 15, 12,~</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="do">## $ alk.phos    &lt;dbl&gt; 1919.0, 1716.0, 10165.0, 11320.2, 5396.0, 724.0, 1138.0, 1~</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="do">## $ ast         &lt;dbl&gt; 122.45, 187.55, 79.98, 105.78, 244.90, 141.05, 71.30, 46.5~</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="do">## $ trig        &lt;int&gt; 135, 71, 219, 94, 133, 108, 100, 49, 56, 106, 102, 67, 89,~</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="do">## $ platelet    &lt;int&gt; 322, 356, 213, 216, 165, 430, 81, 213, 336, 79, 201, 228, ~</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="do">## $ protime     &lt;dbl&gt; 13.0, 9.8, 11.0, 12.4, 11.6, 10.0, 12.9, 13.2, 10.6, 10.3,~</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="do">## $ stage       &lt;ord&gt; 4, 3, 3, 3, 3, 1, 4, 4, 2, 4, 2, 4, 2, 1, 2, 3, 2, 4, 3, 4~</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="do">## $ time        &lt;int&gt; 1356, 2576, 1360, 3282, 859, 3992, 4050, 191, 3050, 2556, ~</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="do">## $ status      &lt;dbl&gt; 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0~</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="do">## $ pred_aorsf  &lt;dbl&gt; 0.74325933, 0.07171843, 0.26549931, 0.65886824, 0.88328061~</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="do">## $ pred_rfsrc  &lt;dbl&gt; 0.60298524, 0.05715514, 0.19512613, 0.57592127, 0.75772791~</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="do">## $ pred_ranger &lt;dbl&gt; 0.61244412, 0.02793571, 0.17943870, 0.64002784, 0.74174298~</span></span></code></pre><p></p></div>
 <p>And finish by aggregating the predictions and computing performance in
 the testing data. Note that I am computing one statistic for all
 predictions instead of computing one statistic for each fold. This
@@ -742,16 +742,16 @@ counts.</p>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Results by model:</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##     model times  AUC lower upper</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:  aorsf  1826 90.9  86.7  95.1</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:  rfsrc  1826 90.0  85.8  94.3</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 3: ranger  1826 90.1  86.0  94.3</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:  aorsf  1826 90.2  85.8  94.6</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:  rfsrc  1826 89.4  84.9  93.9</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 3: ranger  1826 89.8  85.5  94.1</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">## Results of model comparisons:</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="do">##    times  model reference delta.AUC lower upper   p</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:  1826  rfsrc     aorsf      -0.9  -2.2   0.5 0.2</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:  1826 ranger     aorsf      -0.8  -2.1   0.6 0.3</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="do">## 3:  1826 ranger     rfsrc       0.1  -0.8   1.0 0.8</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:  1826  rfsrc     aorsf      -0.8  -2.3   0.6 0.3</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:  1826 ranger     aorsf      -0.4  -1.8   1.0 0.6</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="do">## 3:  1826 ranger     rfsrc       0.4  -0.7   1.6 0.4</span></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="do">## </span><span class="al">NOTE</span><span class="do">: Values are multiplied by 100 and given in %.</span></span>
@@ -765,19 +765,19 @@ counts.</p>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="do">##         model   times Brier lower upper  IPA</span></span>
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="do">## 1: Null model 1826.25  20.5  18.1  22.9  0.0</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:      aorsf 1826.25  10.8   8.5  13.0 47.4</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="do">## 3:      rfsrc 1826.25  11.8   9.6  13.9 42.6</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="do">## 4:     ranger 1826.25  11.7   9.6  13.8 42.7</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:      aorsf 1826.25  11.0   8.7  13.3 46.2</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="do">## 3:      rfsrc 1826.25  12.0   9.8  14.2 41.3</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="do">## 4:     ranger 1826.25  11.8   9.7  14.0 42.3</span></span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="do">## Results of model comparisons:</span></span>
 <span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="do">##      times  model  reference delta.Brier lower upper            p</span></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="do">## 1: 1826.25  aorsf Null model        -9.7 -12.4  -7.0 2.820785e-12</span></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="do">## 2: 1826.25  rfsrc Null model        -8.7 -11.0  -6.4 5.857526e-14</span></span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="do">## 3: 1826.25 ranger Null model        -8.7 -11.1  -6.4 1.380943e-13</span></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="do">## 4: 1826.25  rfsrc      aorsf         1.0   0.2   1.8 1.507974e-02</span></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="do">## 5: 1826.25 ranger      aorsf         1.0   0.3   1.7 8.236836e-03</span></span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="do">## 6: 1826.25 ranger      rfsrc        -0.0  -0.5   0.4 9.336601e-01</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="do">## 1: 1826.25  aorsf Null model        -9.5 -12.1  -6.8 1.504600e-12</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="do">## 2: 1826.25  rfsrc Null model        -8.5 -10.8  -6.1 7.469601e-13</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="do">## 3: 1826.25 ranger Null model        -8.7 -11.0  -6.3 1.022843e-12</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="do">## 4: 1826.25  rfsrc      aorsf         1.0   0.3   1.7 5.805166e-03</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="do">## 5: 1826.25 ranger      aorsf         0.8   0.1   1.5 2.164528e-02</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="do">## 6: 1826.25 ranger      rfsrc        -0.2  -0.7   0.3 4.329685e-01</span></span>
 <span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="do">## </span><span class="al">NOTE</span><span class="do">: Values are multiplied by 100 and given in %.</span></span>
