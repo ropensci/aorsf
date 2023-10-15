@@ -283,6 +283,15 @@
   // re-cast integer inputs from R into enumerations
   // see globals.h for definitions.
   TreeType tree_type = (TreeType) tree_type_R;
+
+  if(tree_type == TREE_CLASSIFICATION ||
+     tree_type == TREE_PROBABILITY ||
+     tree_type == TREE_REGRESSION){
+
+   stop("that tree type is not ready yet");
+
+  }
+
   VariableImportance vi_type = (VariableImportance) vi_type_R;
   SplitRule split_rule = (SplitRule) split_rule_R;
   LinearCombo lincomb_type = (LinearCombo) lincomb_type_R;

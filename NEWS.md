@@ -1,3 +1,7 @@
+# aorsf 0.1.1.9000
+
+* optimization implemented for matrix multiplication during prediction (https://github.com/ropensci/aorsf/pull/20)
+
 # aorsf 0.1.1
 
 * fixed an uninitialized value for `pd_type`

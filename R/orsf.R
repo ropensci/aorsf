@@ -491,7 +491,6 @@ orsf <- function(data,
  net_alpha <- control_net$net_alpha
  net_df_target <- control_net$net_df_target
 
-
  formula_terms <- suppressWarnings(stats::terms(formula, data=data))
 
  if(attr(formula_terms, 'response') == 0)
@@ -499,20 +498,14 @@ orsf <- function(data,
 
  names_y_data <- all.vars(formula[[2]])
 
- if(length(names_y_data) == 1){
-  # this is fine if the response is a Surv object,
-  if(!inherits(data[[names_y_data]], 'Surv')){
-   # otherwise it will be a problem
-   stop("formula must have two variables (time & status) as the response",
-        call. = FALSE)
-  }
+ outcome_type <- infer_outcome_type(names_y_data, data)
 
- }
+ if(outcome_type %in% c('regression', 'classification')) stop("not ready yet")
 
- if(length(names_y_data) > 2){
-  stop("formula must have two variables (time & status) as the response",
-       call. = FALSE)
- }
+ tree_type_R = switch(outcome_type,
+                      'classification' = 1,
+                      'regression'= 2,
+                      'survival' = 3)
 
  types_y_data <- vector(mode = 'character',
                         length = length(names_y_data))
@@ -741,9 +734,7 @@ orsf <- function(data,
   tree_seeds <- sample(x = n_tree*10, size = n_tree, replace = FALSE)
  }
 
-
  vi_max_pvalue = 0.01
- tree_type_R = 3
 
  orsf_out <- orsf_cpp(x = x_sort,
                       y = y_sort,

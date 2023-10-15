@@ -28,10 +28,7 @@ test_that(
                'not_right')
 
   expect_error(orsf(pbc_orsf, Surv(start, time, status) ~ .),
-               'must have two variables')
-
-  expect_error(orsf(pbc_orsf, Surv(time, time) ~ . - id),
-               'must have two variables')
+               'should have at most two variables')
 
   expect_error(orsf(pbc_orsf, Surv(time, id) ~ . -id),
                'detected >1 event type')

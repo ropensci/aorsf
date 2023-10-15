@@ -38,4 +38,16 @@ test_that(
 )
 
 
+test_that(
+ desc = 'inferred outcome type is correct',
+ code = {
 
+  pbc$surv_y <- Surv(pbc_orsf$time, pbc_orsf$status)
+
+  expect_equal(infer_outcome_type(c('time', 'status'), pbc), 'survival')
+  expect_equal(infer_outcome_type('surv_y', pbc), 'survival')
+  expect_equal(infer_outcome_type('age', pbc), 'regression')
+  expect_equal(infer_outcome_type('sex', pbc), 'classification')
+
+ }
+)
