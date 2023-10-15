@@ -1,4 +1,4 @@
-# aorsf 0.1.1.9000
+# aorsf 0.1.2 (unreleased)
 
 * Added `orsf_control` functions for classification, regression, and survival.
 
