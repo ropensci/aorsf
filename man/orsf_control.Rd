@@ -135,7 +135,12 @@ Oblique random forest control
 \details{
 Adjust \code{scale_x} \emph{at your own risk}. Setting \code{scale_x = FALSE} will
 reduce computation time but will also make the \code{orsf} model dependent
-on the scale of your data, which is why the default value is \code{TRUE}. It
-would be a good idea to center and scale your predictors prior to running
-\code{orsf()} if you plan on setting \code{scale_x = FALSE}.
+on the scale of your data, which is why the default value is \code{TRUE}.
+}
+\examples{
+
+orsf_control_classification()
+orsf_control_regression()
+orsf_control_survival()
+
 }

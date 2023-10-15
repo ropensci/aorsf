@@ -126,7 +126,7 @@ fit
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
 ## 
-##      Linear combinations: Accelerated
+##      Linear combinations: Accelerated Cox regression
 ##           N observations: 276
 ##                 N events: 111
 ##                  N trees: 500
