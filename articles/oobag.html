@@ -33,7 +33,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">aorsf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -139,9 +139,9 @@ of the ensemble out-of-bag predictions.</p>
 <span><span class="co"># what is the output from this function?</span></span>
 <span><span class="va">fit</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span>
 <span><span class="co">#&gt;           [,1]</span></span>
-<span><span class="co">#&gt; [1,] 0.8382207</span></span></code></pre></div>
+<span><span class="co">#&gt; [1,] 0.8394708</span></span></code></pre></div>
 <p>The out-of-bag estimate of Harrell’s C-statistic (the default method
-to evaluate out-of-bag predictions) is 0.8382207.</p>
+to evaluate out-of-bag predictions) is 0.8394708.</p>
 </div>
 <div class="section level2">
 <h2 id="monitoring-out-of-bag-error">Monitoring out-of-bag error<a class="anchor" aria-label="anchor" href="#monitoring-out-of-bag-error"></a>
@@ -204,7 +204,7 @@ predictions that are stored in ‘aorsf’ objects, e.g:</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu">oobag_fun_brier</span><span class="op">(</span>y_mat <span class="op">=</span> <span class="va">pbc_orsf</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'time'</span>, <span class="st">'status'</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>                s_vec <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">pred_oobag</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.103012</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.107536</span></span></code></pre></div>
 <p>Second, you can pass your function into <code><a href="../reference/orsf.html">orsf()</a></code>, and it
 will be used in place of Harrell’s C-statistic:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -327,12 +327,12 @@ error here.</p>
 <span>                       importance <span class="op">=</span> <span class="st">'negate'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit_tdep_cstat</span><span class="op">$</span><span class="va">importance</span></span>
-<span><span class="co">#&gt;        bili      copper         sex     protime         age       stage </span></span>
-<span><span class="co">#&gt; 0.124912090 0.043697760 0.033879750 0.025204750 0.020195300 0.019374110 </span></span>
-<span><span class="co">#&gt;     albumin         ast     ascites     spiders       edema      hepato </span></span>
-<span><span class="co">#&gt; 0.018473550 0.012392770 0.011797150 0.007601810 0.006527248 0.006304720 </span></span>
-<span><span class="co">#&gt;        trig        chol         trt    alk.phos    platelet </span></span>
-<span><span class="co">#&gt; 0.004538940 0.004452200 0.002477610 0.001515750 0.000205280</span></span></code></pre></div>
+<span><span class="co">#&gt;         bili       copper          sex          age      albumin      protime </span></span>
+<span><span class="co">#&gt;  0.115506040  0.046402880  0.042725620  0.021403050  0.019413420  0.018589670 </span></span>
+<span><span class="co">#&gt;        stage         chol      ascites          ast      spiders        edema </span></span>
+<span><span class="co">#&gt;  0.017111030  0.012985980  0.012414110  0.007949500  0.007449170  0.006376366 </span></span>
+<span><span class="co">#&gt;     alk.phos          trt         trig       hepato     platelet </span></span>
+<span><span class="co">#&gt;  0.005531240  0.004211400  0.001438450  0.000154540 -0.000896590</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="notes">Notes<a class="anchor" aria-label="anchor" href="#notes"></a>
