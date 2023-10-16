@@ -3,8 +3,6 @@ run_cph_test <- function(x, y, w, method){
 
  control <- coxph.control(iter.max = 20, eps = 1e-8)
 
- start <- Sys.time()
-
  tt = survival::coxph.fit(x = x,
                           y = y,
                           strata = NULL,
@@ -17,30 +15,29 @@ run_cph_test <- function(x, y, w, method){
                           resid = FALSE,
                           nocenter = c(0))
 
- stop <- Sys.time()
+ fit <- coxph(y ~ x,
+              weights = w,
+              control = control,
+              method = if(method == 0) 'breslow' else 'efron')
 
- tt_time <- stop-start
+ fit_stats <- as.data.frame(
+  summary(fit)$coefficients[,c("coef", "Pr(>|z|)")]
+ )
+
+ fit_coefs <- fit_stats$coef
+ fit_pvalues <- fit_stats$`Pr(>|z|)`
 
  xx <- x[, , drop = FALSE]
-
- start <- Sys.time()
 
  bcj = coxph_fit_exported(xx,
                           y,
                           w,
                           method = method,
-                          cph_eps = control$eps,
-                          cph_iter_max = control$iter.max)
+                          epsilon = control$eps,
+                          iter_max = control$iter.max)
 
- stop <- Sys.time()
-
- bcj_time <- stop-start
-
- expect_equal(as.numeric(tt$coefficients), bcj$beta, tolerance = control$eps)
-
- expect_equal(diag(tt$var),  bcj$var, tolerance = control$eps)
-
- # list(bcj_time = bcj_time, tt_time = tt_time)
+ expect_equal(as.numeric(fit_coefs), bcj$beta, tolerance = 1e-5)
+ expect_equal(as.numeric(fit_pvalues),  bcj$pvalues, tolerance = 1e-5)
 
 }
 

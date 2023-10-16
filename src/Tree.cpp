@@ -992,7 +992,7 @@
           // # nocov end
          }
 
-         vec beta_var = beta.unsafe_col(1);
+         vec pvalues = beta.unsafe_col(1);
 
          double pvalue;
 
@@ -1002,7 +1002,7 @@
 
           if(beta_est[i] != 0){
 
-           pvalue = R::pchisq(pow(beta_est[i],2)/beta_var[i], 1, false, false);
+           pvalue = pvalues[i];
 
            if(verbosity > 3){
             // # nocov start
