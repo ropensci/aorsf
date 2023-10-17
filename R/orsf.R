@@ -3,43 +3,6 @@
 #'
 #' Fit an oblique random survival forest
 #'
-#' @srrstats {G1.4} *documented with Roxygen*
-#' @srrstats {G1.1} *aorsf is an improvement of the ORSF algorithm implemented in obliqueRSF, which was an extension of Hemant Ishwaran's random survival forest.*
-#' @srrstats {G1.3} *linear combinations of inputs defined.*
-#' @srrstats {G1.5} *orsf() will be used in publications to benchmark performance of the aorsf package in computation speed and prediction accuracy.*
-#' @srrstats {G1.6} *orsf() should be used to compare performance claims with other packages.*
-#' @srrstats {G2.1} *Inputs have indication of type in parentheticals. This format is used in all exported functions.*
-#' @srrstats {G5.2a} *messages produced here (e.g., with `stop()`, `warning()`, `message()`) are unique and make effort to highlight the specific data elements that cause the error*
-#' @srrstats {G2.0a} *secondary documentation of arg lengths. When an input has length 1, a parenthetical gives the specific type of value it should be and uses a singular description (e.g., an integer). When inputs have length > 1, a vector description is used (e.g., integer vector)*
-#' @srrstats {ML1.0} *Documentation includes a subsection that makes clear conceptual distinction between train and test data*
-#' @srrstats {ML3.3} *Properties and behaviours of aorsf models are explicitly compared with objects produced by other ML software in the "Introduction to aorsf" vignette.*
-#' @srrstats {ML4.0} *orsf() is a unified single-function interface to model training. orsf_train() is able to receive as input an untrained model specified by orsf() when no_fit = TRUE. Models with categorically different specifications are able to be submitted to the same model training function.*
-#' @srrstats {ML5.2, ML5.2a} *The structure and functionality of trained aorsf objects is documented through vignettes. In particular, basic functionality extending from the aorsf class is explicitly described in the "Introduction to aorsf" vignette, and additional functionality is documented in the "Out-of-bag predictions and evaluation" and "Compute partial dependence with ORSF" vignettes. Each vignettes demonstrates functionality clearly with example code.*
-#' @srrstats {ML5.3} *Assessment of model performance is implemented through out-of-bag error, which is finalized after a model is trained*
-#' @srrstats {ML5.4} *The "Out-of-bag predictions and evaluation" vignette shows how to implement built-in or user-specified functions for this functionality.*
-#' @srrstats {ML1.1} *Training data are labelled as "train".*
-#' @srrstats {G2.5} *factors used as predictors can be ordered and un-ordered.*
-#' @srrstats {ML4.1b} *The value of out-of-bag error can be returned for every oobag_eval_every step.*
-#' @srrstats {ML4.2} *The extraction of out-of-bag error is explicitly documented with example code in the "Out-of-bag predictions and evaluation" vignette.*
-#' @srrstats {ML3.5b} *Users can specify the kind of loss function to assess distance between model estimates and desired output. This is discussed in detail in the "Out-of-bag predictions and evaluation" vignette.*
-#' @srrstats {ML5.4a} *Harrell's C-statistic, an internally utilized metric for model performance, is clearly and distinctly documented and cited.*
-#' @srrstats {ML5.4b} *It is possible to submit custom metrics to a model assessment function, and the ability to do so is clearly documented. The "Out-of-bag predictions and evaluation" vignette provides example code.*
-#' @srrstats {ML2.0, ML2.0b} *orsf() enables pre-processing steps to be defined and parametrized without fitting a model when no_fit is TRUE, returning an object with a defined class minimally intended to implement a default `print` method which summarizes the model specifications.*
-#' @srrstats {ML3.0} *Model specification can be implemented prior to actual model fitting or training*
-#' @srrstats {ML3.0a} *As pre-processing, model specification, and training are controlled by the orsf() function, an input parameter (no_fit) enables models to be specified yet not fitted.*
-#' @srrstats {ML3.0c} *when no_fit=TRUE, orsf() will return an object that can be directly trained using orsf_train().*
-#' @srrstats {ML1.6a} *Explain why missing values are not admitted.*
-#' @srrstats {G1.0} *Jaeger et al describes the ORSF algorithm that aorsf is based on. Note: aorsf uses a different approach to create linear combinations of inputs for speed reasons, but orsf_control_net() allows users to make ensembles that are very similar to obliqueRSF::ORSF().*
-#' @srrstats {ML1.6b} *Explicit example showing how missing values may be imputed rather than discarded.*
-#' @srrstats {ML6.0} *Reference section explicitly links to aorsf-bench, which includes training and testing stages, and which clearly indicates a need for distinct training and test data sets.*
-#' @srrstats {ML6.1} *clearly document how aorsf can be embedded within a typical full ML workflow.*
-#' @srrstats {ML6.1a} *Embed aorsf within a full workflow using tidymodels and tidyverse*
-#' @srrstats {ML5.2b} *Documentation includes examples of how to save and re-load trained model objects for their re-use.*
-#' @srrstats {ML2.3} *Values associated with transformations are recorded in the object returned by orsf()*
-#' @srrstats {ML1.3} *Input data are partitioned as training (in-bag) and test (out-of-bag) data within orsf_fit().*
-#' @srrstats {ML4.1} *orsf_fit() retains information on model-internal parameters.*
-#' @srrstats {ML4.1a} *orsf_fit() output includes all model-internal parameters, specifically the linear combination coefficients.*
-#'
 #' @param data a `r roxy_data_allowed()` that contains the
 #'  relevant variables.
 #'

@@ -170,6 +170,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// scale_x_exported
+List scale_x_exported(arma::mat& x, arma::vec& w);
+RcppExport SEXP _aorsf_scale_x_exported(SEXP xSEXP, SEXP wSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type w(wSEXP);
+    rcpp_result_gen = Rcpp::wrap(scale_x_exported(x, w));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cph_scale
 List cph_scale(arma::mat& x, arma::vec& w);
 RcppExport SEXP _aorsf_cph_scale(SEXP xSEXP, SEXP wSEXP) {
@@ -249,6 +261,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_sprout_node_survival_exported", (DL_FUNC) &_aorsf_sprout_node_survival_exported, 2},
     {"_aorsf_find_rows_inbag_exported", (DL_FUNC) &_aorsf_find_rows_inbag_exported, 2},
     {"_aorsf_x_submat_mult_beta_exported", (DL_FUNC) &_aorsf_x_submat_mult_beta_exported, 6},
+    {"_aorsf_scale_x_exported", (DL_FUNC) &_aorsf_scale_x_exported, 2},
     {"_aorsf_cph_scale", (DL_FUNC) &_aorsf_cph_scale, 2},
     {"_aorsf_orsf_cpp", (DL_FUNC) &_aorsf_orsf_cpp, 44},
     {NULL, NULL, 0}

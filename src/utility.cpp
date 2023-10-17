@@ -446,4 +446,56 @@
 
  }
 
+ arma::mat scale_x(arma::mat& x,
+                   arma::vec& w){
+
+  uword n_vars = x.n_cols;
+
+  mat x_transforms(n_vars, 2, fill::zeros);
+
+  vec means  = x_transforms.unsafe_col(0);   // Reference to column 1
+  vec scales = x_transforms.unsafe_col(1);   // Reference to column 2
+
+  double w_sum = sum(w);
+  double m = w.size();
+
+  for(uword i = 0; i < n_vars; i++) {
+
+   means.at(i) = sum(w % x.col(i) ) / w_sum;
+
+   // subtract the mean now so you don't have to do the subtraction
+   // when computing standard deviation.
+   x.col(i) -= means.at(i);
+
+   scales.at(i) = sqrt(
+    sum(w % pow(x.col(i), 2)) / ( (m-1) * w_sum / m )
+   );
+
+   if(scales(i) <= 0) scales.at(i) = 1.0; // constant covariate;
+
+   x.col(i) /= scales.at(i);
+
+  }
+
+  return(x_transforms);
+
+ }
+
+ void unscale_x(arma::mat& x,
+                arma::mat& x_transforms){
+
+  uword n_vars = x.n_cols;
+
+  vec means  = x_transforms.unsafe_col(0);   // Reference to column 1
+  vec scales = x_transforms.unsafe_col(1);   // Reference to column 2
+
+  for(uword i = 0; i < n_vars; i++){
+
+   x.col(i) /= scales.at(i);
+   x.col(i) += means.at(i);
+
+  }
+
+ }
+
  }

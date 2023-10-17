@@ -25,10 +25,15 @@ test_that(
 
   W <- sample(1:3, nrow(X), replace=TRUE)
 
-  cpp = logreg_fit_exported(X, Y, W, do_scale = T, epsilon = 1e-10, iter_max = 20)
+  control <- glm.control()
+
+  cpp = logreg_fit_exported(X, Y, W, do_scale = T,
+                            epsilon = control$epsilon,
+                            iter_max = control$maxit)
 
   R = glm(y ~ .,
           weights = as.integer(W),
+          control = control,
           data = glm_data,
           family = 'binomial')
 

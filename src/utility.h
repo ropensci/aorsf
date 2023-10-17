@@ -91,6 +91,12 @@ aorsf may be modified and distributed under the terms of the MIT license.
                       double epsilon,
                       arma::uword iter_max);
 
+ arma::mat scale_x(arma::mat& x,
+                   arma::vec& w);
+
+ void unscale_x(arma::mat& x,
+                arma::mat& x_transforms);
+
  }
 
 #endif /* UTILITY_H */

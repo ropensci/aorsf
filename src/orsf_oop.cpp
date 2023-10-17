@@ -211,6 +211,20 @@
  }
 
  // [[Rcpp::export]]
+ List scale_x_exported(arma::mat& x,
+                       arma::vec& w){
+
+  mat transforms = scale_x(x, w);
+
+  List result;
+  result.push_back(x, "scaled_x");
+  result.push_back(transforms, "transforms");
+
+  return(result);
+
+ }
+
+ // [[Rcpp::export]]
  List cph_scale(arma::mat& x, arma::vec& w){
 
   // set aside memory for outputs

@@ -45,6 +45,10 @@ x_submat_mult_beta_exported <- function(x, y, w, x_rows, x_cols, beta) {
     .Call(`_aorsf_x_submat_mult_beta_exported`, x, y, w, x_rows, x_cols, beta)
 }
 
+scale_x_exported <- function(x, w) {
+    .Call(`_aorsf_scale_x_exported`, x, w)
+}
+
 cph_scale <- function(x, w) {
     .Call(`_aorsf_cph_scale`, x, w)
 }
