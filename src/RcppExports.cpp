@@ -12,8 +12,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // coxph_fit_exported
-List coxph_fit_exported(arma::mat& x_node, arma::mat& y_node, arma::vec& w_node, int method, double cph_eps, arma::uword cph_iter_max);
-RcppExport SEXP _aorsf_coxph_fit_exported(SEXP x_nodeSEXP, SEXP y_nodeSEXP, SEXP w_nodeSEXP, SEXP methodSEXP, SEXP cph_epsSEXP, SEXP cph_iter_maxSEXP) {
+List coxph_fit_exported(arma::mat& x_node, arma::mat& y_node, arma::vec& w_node, int method, double epsilon, arma::uword iter_max);
+RcppExport SEXP _aorsf_coxph_fit_exported(SEXP x_nodeSEXP, SEXP y_nodeSEXP, SEXP w_nodeSEXP, SEXP methodSEXP, SEXP epsilonSEXP, SEXP iter_maxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -21,9 +21,41 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat& >::type y_node(y_nodeSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type w_node(w_nodeSEXP);
     Rcpp::traits::input_parameter< int >::type method(methodSEXP);
-    Rcpp::traits::input_parameter< double >::type cph_eps(cph_epsSEXP);
-    Rcpp::traits::input_parameter< arma::uword >::type cph_iter_max(cph_iter_maxSEXP);
-    rcpp_result_gen = Rcpp::wrap(coxph_fit_exported(x_node, y_node, w_node, method, cph_eps, cph_iter_max));
+    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type iter_max(iter_maxSEXP);
+    rcpp_result_gen = Rcpp::wrap(coxph_fit_exported(x_node, y_node, w_node, method, epsilon, iter_max));
+    return rcpp_result_gen;
+END_RCPP
+}
+// linreg_fit_exported
+arma::mat linreg_fit_exported(arma::mat& x_node, arma::mat& y_node, arma::vec& w_node, bool do_scale, double epsilon, arma::uword iter_max);
+RcppExport SEXP _aorsf_linreg_fit_exported(SEXP x_nodeSEXP, SEXP y_nodeSEXP, SEXP w_nodeSEXP, SEXP do_scaleSEXP, SEXP epsilonSEXP, SEXP iter_maxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type x_node(x_nodeSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type y_node(y_nodeSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type w_node(w_nodeSEXP);
+    Rcpp::traits::input_parameter< bool >::type do_scale(do_scaleSEXP);
+    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type iter_max(iter_maxSEXP);
+    rcpp_result_gen = Rcpp::wrap(linreg_fit_exported(x_node, y_node, w_node, do_scale, epsilon, iter_max));
+    return rcpp_result_gen;
+END_RCPP
+}
+// logreg_fit_exported
+arma::mat logreg_fit_exported(arma::mat& x_node, arma::mat& y_node, arma::vec& w_node, bool do_scale, double epsilon, arma::uword iter_max);
+RcppExport SEXP _aorsf_logreg_fit_exported(SEXP x_nodeSEXP, SEXP y_nodeSEXP, SEXP w_nodeSEXP, SEXP do_scaleSEXP, SEXP epsilonSEXP, SEXP iter_maxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type x_node(x_nodeSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type y_node(y_nodeSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type w_node(w_nodeSEXP);
+    Rcpp::traits::input_parameter< bool >::type do_scale(do_scaleSEXP);
+    Rcpp::traits::input_parameter< double >::type epsilon(epsilonSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type iter_max(iter_maxSEXP);
+    rcpp_result_gen = Rcpp::wrap(logreg_fit_exported(x_node, y_node, w_node, do_scale, epsilon, iter_max));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -138,6 +170,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// scale_x_exported
+List scale_x_exported(arma::mat& x, arma::vec& w);
+RcppExport SEXP _aorsf_scale_x_exported(SEXP xSEXP, SEXP wSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type w(wSEXP);
+    rcpp_result_gen = Rcpp::wrap(scale_x_exported(x, w));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cph_scale
 List cph_scale(arma::mat& x, arma::vec& w);
 RcppExport SEXP _aorsf_cph_scale(SEXP xSEXP, SEXP wSEXP) {
@@ -207,6 +251,8 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_coxph_fit_exported", (DL_FUNC) &_aorsf_coxph_fit_exported, 6},
+    {"_aorsf_linreg_fit_exported", (DL_FUNC) &_aorsf_linreg_fit_exported, 6},
+    {"_aorsf_logreg_fit_exported", (DL_FUNC) &_aorsf_logreg_fit_exported, 6},
     {"_aorsf_compute_cstat_exported_vec", (DL_FUNC) &_aorsf_compute_cstat_exported_vec, 4},
     {"_aorsf_compute_cstat_exported_uvec", (DL_FUNC) &_aorsf_compute_cstat_exported_uvec, 4},
     {"_aorsf_compute_logrank_exported", (DL_FUNC) &_aorsf_compute_logrank_exported, 3},
@@ -215,6 +261,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_sprout_node_survival_exported", (DL_FUNC) &_aorsf_sprout_node_survival_exported, 2},
     {"_aorsf_find_rows_inbag_exported", (DL_FUNC) &_aorsf_find_rows_inbag_exported, 2},
     {"_aorsf_x_submat_mult_beta_exported", (DL_FUNC) &_aorsf_x_submat_mult_beta_exported, 6},
+    {"_aorsf_scale_x_exported", (DL_FUNC) &_aorsf_scale_x_exported, 2},
     {"_aorsf_cph_scale", (DL_FUNC) &_aorsf_cph_scale, 2},
     {"_aorsf_orsf_cpp", (DL_FUNC) &_aorsf_orsf_cpp, 44},
     {NULL, NULL, 0}

@@ -58,7 +58,7 @@ public:
            double lincomb_alpha,
            arma::uword lincomb_df_target,
            arma::uword lincomb_ties_method,
-           RObject lincomb_R_function,
+           Rcpp::RObject lincomb_R_function,
            // predictions
            PredType pred_type,
            bool pred_mode,
@@ -288,7 +288,7 @@ protected:
  arma::uword lincomb_iter_max;
  arma::uword lincomb_df_target;
  arma::uword lincomb_ties_method;
- RObject     lincomb_R_function;
+ Rcpp::RObject     lincomb_R_function;
 
  bool grow_mode;
 
@@ -311,7 +311,7 @@ protected:
  arma::mat   oobag_eval;
  EvalType    oobag_eval_type;
  arma::uword oobag_eval_every;
- RObject     oobag_R_function;
+ Rcpp::RObject     oobag_R_function;
 
 
  // multi-threading

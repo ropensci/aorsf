@@ -77,6 +77,26 @@ aorsf may be modified and distributed under the terms of the MIT license.
                       arma::uvec& g,
                       bool pred_is_risklike);
 
+ arma::mat linreg_fit(arma::mat& x_node,
+                      arma::mat& y_node,
+                      arma::vec& w_node,
+                      bool do_scale,
+                      double epsilon,
+                      arma::uword iter_max);
+
+ arma::mat logreg_fit(arma::mat& x_node,
+                      arma::mat& y_node,
+                      arma::vec& w_node,
+                      bool do_scale,
+                      double epsilon,
+                      arma::uword iter_max);
+
+ arma::mat scale_x(arma::mat& x,
+                   arma::vec& w);
+
+ void unscale_x(arma::mat& x,
+                arma::mat& x_transforms);
+
  }
 
 #endif /* UTILITY_H */

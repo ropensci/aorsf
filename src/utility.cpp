@@ -353,4 +353,149 @@
 
  }
 
+ arma::mat linreg_fit(arma::mat& x_node,
+                      arma::mat& y_node,
+                      arma::vec& w_node,
+                      bool do_scale,
+                      double epsilon,
+                      arma::uword iter_max){
+
+  // Add an intercept column to the design matrix
+  vec intercept(x_node.n_rows, fill::ones);
+  mat X = join_horiz(intercept, x_node);
+
+  // for later steps we don't care about the intercept term b/c we don't
+  // need it, but in this step including the intercept is important
+  // for computing p-values of other regression coefficients.
+
+  uword resid_df = X.n_rows - X.n_cols;
+
+  vec beta = solve(X.t() * diagmat(w_node) * X, X.t() * (w_node % y_node));
+
+  vec resid  = y_node - X * beta;
+
+  double s2 = as_scalar(trans(resid) * (w_node % resid) / (resid_df));
+
+  mat beta_cov = s2 * inv(X.t() * diagmat(w_node) * X);
+
+  vec se = sqrt(diagvec(beta_cov));
+
+  vec tscores = beta / se;
+
+  // Calculate two-tailed p-values
+  vec pvalues(X.n_cols);
+
+  for (uword i = 0; i < X.n_cols; ++i) {
+
+   double tstat = std::abs(tscores[i]);
+
+   pvalues[i] = 2 * (1 - R::pt(tstat, resid_df, 1, 0));
+
+  }
+
+
+  mat result = join_horiz(beta, pvalues);
+
+  return(result.rows(1, result.n_rows-1));
+
+ }
+
+ arma::mat logreg_fit(arma::mat& x_node,
+                      arma::mat& y_node,
+                      arma::vec& w_node,
+                      bool do_scale,
+                      double epsilon,
+                      arma::uword iter_max){
+
+  // Add an intercept column to the design matrix
+  vec intercept(x_node.n_rows, fill::ones);
+  mat X = join_horiz(intercept, x_node);
+
+  // for later steps we don't care about the intercept term b/c we don't
+  // need it, but in this step including the intercept is important
+  // for computing p-values of other regression coefficients.
+
+  vec beta(X.n_cols, fill::zeros);
+
+  mat hessian;
+
+  for (uword iter = 0; iter < iter_max; ++iter) {
+
+   vec eta = X * beta;
+   vec pi = 1 / (1 + exp(-eta));
+   vec w = w_node % pi % (1 - pi);
+
+   vec gradient = X.t() * ((y_node - pi) % w_node);
+   hessian = -X.t() * diagmat(w) * X;
+
+   beta -= solve(hessian, gradient);
+
+   if (norm(gradient) < epsilon) {
+    break;
+   }
+  }
+
+  // Compute standard errors, z-scores, and p-values
+
+  vec se = sqrt(diagvec(inv(-hessian)));
+  vec zscores = beta / se;
+  vec pvalues = 2 * (1 - normcdf(abs(zscores)));
+  mat result = join_horiz(beta, pvalues);
+
+  return(result.rows(1, result.n_rows-1));
+
+ }
+
+ arma::mat scale_x(arma::mat& x,
+                   arma::vec& w){
+
+  uword n_vars = x.n_cols;
+
+  mat x_transforms(n_vars, 2, fill::zeros);
+
+  vec means  = x_transforms.unsafe_col(0);   // Reference to column 1
+  vec scales = x_transforms.unsafe_col(1);   // Reference to column 2
+
+  double w_sum = sum(w);
+  double m = w.size();
+
+  for(uword i = 0; i < n_vars; i++) {
+
+   means.at(i) = sum(w % x.col(i) ) / w_sum;
+
+   // subtract the mean now so you don't have to do the subtraction
+   // when computing standard deviation.
+   x.col(i) -= means.at(i);
+
+   scales.at(i) = sqrt(
+    sum(w % pow(x.col(i), 2)) / ( (m-1) * w_sum / m )
+   );
+
+   if(scales(i) <= 0) scales.at(i) = 1.0; // constant covariate;
+
+   x.col(i) /= scales.at(i);
+
+  }
+
+  return(x_transforms);
+
+ }
+
+ void unscale_x(arma::mat& x,
+                arma::mat& x_transforms){
+
+  uword n_vars = x.n_cols;
+
+  vec means  = x_transforms.unsafe_col(0);   // Reference to column 1
+  vec scales = x_transforms.unsafe_col(1);   // Reference to column 2
+
+  for(uword i = 0; i < n_vars; i++){
+
+   x.col(i) /= scales.at(i);
+   x.col(i) += means.at(i);
+
+  }
+
+ }
+
  }

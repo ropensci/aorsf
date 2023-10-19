@@ -11,7 +11,6 @@
 #include "globals.h"
 
  using namespace arma;
- using namespace Rcpp;
 
  namespace aorsf {
 

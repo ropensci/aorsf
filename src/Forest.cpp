@@ -5,7 +5,6 @@
 #include "Tree.h"
 
 using namespace arma;
-using namespace Rcpp;
 
 namespace aorsf {
 
@@ -36,7 +35,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
                   double lincomb_alpha,
                   arma::uword lincomb_df_target,
                   arma::uword lincomb_ties_method,
-                  RObject lincomb_R_function,
+                  Rcpp::RObject lincomb_R_function,
                   // predictions
                   PredType pred_type,
                   bool pred_mode,
@@ -101,12 +100,12 @@ void Forest::init(std::unique_ptr<Data> input_data,
  // # nocov start
  if(verbosity > 1){
 
-  Rcout << "------------ input data dimensions ------------" << std::endl;
-  Rcout << "N observations total: " << data->get_n_rows()    << std::endl;
-  Rcout << "N columns total: "      << data->get_n_cols()    << std::endl;
-  Rcout << "-----------------------------------------------";
-  Rcout << std::endl;
-  Rcout << std::endl;
+  Rcpp::Rcout << "------------ input data dimensions ------------" << std::endl;
+  Rcpp::Rcout << "N observations total: " << data->get_n_rows()    << std::endl;
+  Rcpp::Rcout << "N columns total: "      << data->get_n_cols()    << std::endl;
+  Rcpp::Rcout << "-----------------------------------------------";
+  Rcpp::Rcout << std::endl;
+  Rcpp::Rcout << std::endl;
 
  }
  // # nocov end
@@ -262,9 +261,9 @@ void Forest::grow_single_thread(vec* vi_numer_ptr,
  for (uint i = 0; i < n_tree; ++i) {
 
   if(verbosity > 1){
-   Rcout << "------------ Growing tree " << i << " --------------";
-   Rcout << std::endl;
-   Rcout << std::endl;
+   Rcpp::Rcout << "------------ Growing tree " << i << " --------------";
+   Rcpp::Rcout << std::endl;
+   Rcpp::Rcout << std::endl;
   }
 
   trees[i]->grow(vi_numer_ptr, vi_denom_ptr);
@@ -282,15 +281,15 @@ void Forest::grow_single_thread(vec* vi_numer_ptr,
     seconds time_from_start = duration_cast<seconds>(steady_clock::now() - start_time);
     uint remaining_time = (1 / relative_progress - 1) * time_from_start.count();
 
-    Rcout << "Growing trees: ";
-    Rcout << round(100 * relative_progress) << "%. ";
+    Rcpp::Rcout << "Growing trees: ";
+    Rcpp::Rcout << round(100 * relative_progress) << "%. ";
 
     if(progress < max_progress){
-     Rcout << "~ time remaining: ";
-     Rcout << beautifyTime(remaining_time) << ".";
+     Rcpp::Rcout << "~ time remaining: ";
+     Rcpp::Rcout << beautifyTime(remaining_time) << ".";
     }
 
-    Rcout << std::endl;
+    Rcpp::Rcout << std::endl;
 
     last_time = steady_clock::now();
 
@@ -408,15 +407,15 @@ void Forest::compute_oobag_vi_single_thread(vec* vi_numer_ptr) {
     seconds time_from_start = duration_cast<seconds>(steady_clock::now() - start_time);
     uint remaining_time = (1 / relative_progress - 1) * time_from_start.count();
 
-    Rcout << "Computing importance: ";
-    Rcout << round(100 * relative_progress) << "%. ";
+    Rcpp::Rcout << "Computing importance: ";
+    Rcpp::Rcout << round(100 * relative_progress) << "%. ";
 
     if(progress < max_progress){
-     Rcout << "~ time remaining: ";
-     Rcout << beautifyTime(remaining_time) << ".";
+     Rcpp::Rcout << "~ time remaining: ";
+     Rcpp::Rcout << beautifyTime(remaining_time) << ".";
     }
 
-    Rcout << std::endl;
+    Rcpp::Rcout << std::endl;
 
     last_time = steady_clock::now();
 
@@ -660,12 +659,12 @@ void Forest::predict_single_thread(Data* prediction_data,
 
   if(verbosity > 1){
    if(oobag){
-    Rcout << "--- Computing oobag predictions: tree " << i << " ---";
+    Rcpp::Rcout << "--- Computing oobag predictions: tree " << i << " ---";
    } else {
-    Rcout << "------ Computing predictions: tree " << i << " -----";
+    Rcpp::Rcout << "------ Computing predictions: tree " << i << " -----";
    }
-   Rcout << std::endl;
-   Rcout << std::endl;
+   Rcpp::Rcout << std::endl;
+   Rcpp::Rcout << std::endl;
   }
 
   trees[i]->predict_leaf(prediction_data, oobag);
@@ -698,15 +697,15 @@ void Forest::predict_single_thread(Data* prediction_data,
     seconds time_from_start = duration_cast<seconds>(steady_clock::now() - start_time);
     uint remaining_time = (1 / relative_progress - 1) * time_from_start.count();
 
-    Rcout << "Computing predictions: ";
-    Rcout << round(100 * relative_progress) << "%. ";
+    Rcpp::Rcout << "Computing predictions: ";
+    Rcpp::Rcout << round(100 * relative_progress) << "%. ";
 
     if(progress < max_progress){
-     Rcout << "~ time remaining: ";
-     Rcout << beautifyTime(remaining_time) << ".";
+     Rcpp::Rcout << "~ time remaining: ";
+     Rcpp::Rcout << beautifyTime(remaining_time) << ".";
     }
 
-    Rcout << std::endl;
+    Rcpp::Rcout << std::endl;
 
     last_time = steady_clock::now();
 
@@ -842,15 +841,15 @@ void Forest::show_progress(std::string operation, size_t max_progress) {
    seconds time_from_start = duration_cast<seconds>(steady_clock::now() - start_time);
    uint remaining_time = (1 / relative_progress - 1) * time_from_start.count();
 
-   Rcout << operation << ": ";
-   Rcout << round(100 * relative_progress) << "%. ";
+   Rcpp::Rcout << operation << ": ";
+   Rcpp::Rcout << round(100 * relative_progress) << "%. ";
 
    if(progress < max_progress){
-    Rcout << "~ time remaining: ";
-    Rcout << beautifyTime(remaining_time) << ".";
+    Rcpp::Rcout << "~ time remaining: ";
+    Rcpp::Rcout << beautifyTime(remaining_time) << ".";
    }
 
-   Rcout << std::endl;
+   Rcpp::Rcout << std::endl;
 
    last_time = steady_clock::now();
 

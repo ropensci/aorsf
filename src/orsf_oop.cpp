@@ -32,8 +32,8 @@
                          arma::mat& y_node,
                          arma::vec& w_node,
                          int method,
-                         double cph_eps,
-                         arma::uword cph_iter_max){
+                         double epsilon,
+                         arma::uword iter_max){
 
   arma::uvec cols_node=regspace<uvec>(0, x_node.n_cols-1);
 
@@ -42,15 +42,39 @@
                             w_node,
                             true,
                             method,
-                            cph_eps,
-                            cph_iter_max);
+                            epsilon,
+                            iter_max);
 
   List result;
   result.push_back(out.col(0), "beta");
-  result.push_back(out.col(1), "var");
+  result.push_back(out.col(1), "pvalues");
 
   return(result);
 
+ }
+
+ // [[Rcpp::export]]
+ arma::mat linreg_fit_exported(arma::mat& x_node,
+                               arma::mat& y_node,
+                               arma::vec& w_node,
+                               bool do_scale,
+                               double epsilon,
+                               arma::uword iter_max){
+  return(
+   linreg_fit(x_node, y_node, w_node, do_scale, epsilon, iter_max)
+  );
+ }
+
+ // [[Rcpp::export]]
+ arma::mat logreg_fit_exported(arma::mat& x_node,
+                               arma::mat& y_node,
+                               arma::vec& w_node,
+                               bool do_scale,
+                               double epsilon,
+                               arma::uword iter_max){
+  return(
+   logreg_fit(x_node, y_node, w_node, do_scale, epsilon, iter_max)
+  );
  }
 
  // [[Rcpp::export]]
@@ -183,6 +207,20 @@
   vec out = data->x_submat_mult_beta(x_rows, x_cols, beta);
 
   return(out);
+
+ }
+
+ // [[Rcpp::export]]
+ List scale_x_exported(arma::mat& x,
+                       arma::vec& w){
+
+  mat transforms = scale_x(x, w);
+
+  List result;
+  result.push_back(x, "scaled_x");
+  result.push_back(transforms, "transforms");
+
+  return(result);
 
  }
 

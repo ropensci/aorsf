@@ -650,6 +650,8 @@
   // invert vmat
   cholesky_invert(vmat);
 
+  vec pvalues(beta_current.size());
+
   for (i=0; i < n_vars; i++) {
 
    beta_current[i] = beta_new[i];
@@ -662,6 +664,10 @@
     vmat.at(i, i) = 1.0;
    }
 
+   pvalues[i] = R::pchisq(
+    pow(beta_current[i], 2) / vmat.at(i, i), 1, false, false
+   );
+
    if(do_scale){
     // return beta and variance to original scales
     beta_current.at(i) *= scales[i];
@@ -673,7 +679,7 @@
 
   }
 
-  return(join_horiz(beta_current, vmat.diag()));
+  return(join_horiz(beta_current, pvalues));
 
  }
 
