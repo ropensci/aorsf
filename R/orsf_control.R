@@ -305,6 +305,8 @@ orsf_control_custom <- function(beta_fun, ...){
 #'
 #' @param ... `r roxy_dots()`
 #'
+#' @noRd
+#'
 #' @details
 #'
 #' Adjust `scale_x` _at your own risk_. Setting `scale_x = FALSE` will
@@ -325,11 +327,7 @@ orsf_control_custom <- function(beta_fun, ...){
 #' - `lincomb_ties_method`: method for ties in survival time
 #' - `lincomb_R_function`: R function for custom splits
 #'
-#' @examples
 #'
-#' orsf_control_classification()
-#' orsf_control_regression()
-#' orsf_control_survival()
 #'
 orsf_control <- function(tree_type,
                          method,
@@ -369,7 +367,7 @@ orsf_control <- function(tree_type,
 
 }
 
-#' @rdname orsf_control
+
 orsf_control_classification <- function(method = 'glm',
                                         scale_x = TRUE,
                                         net_mix = 0.5,
@@ -392,7 +390,7 @@ orsf_control_classification <- function(method = 'glm',
 
 }
 
-#' @rdname orsf_control
+
 orsf_control_regression <- function(method = 'glm',
                                     scale_x = TRUE,
                                     net_mix = 0.5,
@@ -415,7 +413,7 @@ orsf_control_regression <- function(method = 'glm',
 
 }
 
-#' @rdname orsf_control
+
 orsf_control_survival <- function(method = 'glm',
                                   scale_x = TRUE,
                                   ties = 'efron',
