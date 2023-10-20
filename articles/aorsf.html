@@ -174,11 +174,11 @@ referred to as out-of-bag) accuracy of the ORSF model.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         bili       copper          sex        stage      protime      albumin </span></span>
-<span><span class="co">#&gt; 0.1269333300 0.0471985360 0.0360365677 0.0243587309 0.0241708554 0.0225453236 </span></span>
+<span><span class="co">#&gt; 0.1271135663 0.0469064146 0.0356644630 0.0239031112 0.0237802702 0.0227190882 </span></span>
 <span><span class="co">#&gt;          age         chol      ascites          ast      spiders        edema </span></span>
-<span><span class="co">#&gt; 0.0213716886 0.0153575882 0.0139061009 0.0116817406 0.0075489002 0.0070203635 </span></span>
+<span><span class="co">#&gt; 0.0212466881 0.0151035997 0.0136985439 0.0115776267 0.0075935998 0.0070786441 </span></span>
 <span><span class="co">#&gt;       hepato          trt     alk.phos         trig     platelet </span></span>
-<span><span class="co">#&gt; 0.0049274049 0.0039949547 0.0034672829 0.0030764514 0.0004390764</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.0047059096 0.0040106543 0.0035835948 0.0033393262 0.0002008193</span></span></code></pre></div>
 </li>
 <li>
 <p>You can also compute variable importance using permutation, a
@@ -187,13 +187,13 @@ more classical approach.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          bili        copper       protime       albumin       ascites </span></span>
-<span><span class="co">#&gt;  0.0572634486  0.0230199191  0.0133977370  0.0128399789  0.0126925475 </span></span>
+<span><span class="co">#&gt;  0.0575760930  0.0227429225  0.0130024171  0.0128329728  0.0125209524 </span></span>
 <span><span class="co">#&gt;           age         stage          chol           ast       spiders </span></span>
-<span><span class="co">#&gt;  0.0125845408  0.0114992408  0.0074376943  0.0065136448  0.0059747612 </span></span>
+<span><span class="co">#&gt;  0.0122139394  0.0112836624  0.0073218603  0.0063622329  0.0057492678 </span></span>
 <span><span class="co">#&gt;         edema        hepato           sex      alk.phos          trig </span></span>
-<span><span class="co">#&gt;  0.0050913001  0.0026642521  0.0024517816  0.0011030094  0.0006337896 </span></span>
+<span><span class="co">#&gt;  0.0051158851  0.0025979694  0.0025389585  0.0012859761  0.0007931031 </span></span>
 <span><span class="co">#&gt;           trt      platelet </span></span>
-<span><span class="co">#&gt; -0.0002731314 -0.0008234638</span></span></code></pre></div>
+<span><span class="co">#&gt; -0.0004010543 -0.0008563385</span></span></code></pre></div>
 </li>
 <li>
 <p>A faster alternative to permutation and negation importance is
@@ -202,12 +202,12 @@ obtains a low p-value (p &lt; 0.01) while the forest is grown.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">orsf_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    ascites       bili     copper      edema    albumin        age    protime </span></span>
-<span><span class="co">#&gt; 0.49453823 0.42999054 0.30285438 0.30172086 0.25564632 0.25478301 0.24861878 </span></span>
+<span><span class="co">#&gt;    ascites       bili      edema     copper    albumin        age    protime </span></span>
+<span><span class="co">#&gt; 0.49651047 0.42709313 0.30354480 0.30014500 0.25575816 0.25384974 0.24850000 </span></span>
 <span><span class="co">#&gt;      stage       chol        ast     hepato    spiders        sex       trig </span></span>
-<span><span class="co">#&gt; 0.20975354 0.19204981 0.17066015 0.16363636 0.16357504 0.14437500 0.13601630 </span></span>
+<span><span class="co">#&gt; 0.20914346 0.19153032 0.17189030 0.16325370 0.16284275 0.14321295 0.13550688 </span></span>
 <span><span class="co">#&gt;   alk.phos   platelet        trt </span></span>
-<span><span class="co">#&gt; 0.10744986 0.08044316 0.07594937</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.10722834 0.08011583 0.07639621</span></span></code></pre></div>
 </li>
 </ul>
 </div>
@@ -259,7 +259,7 @@ are still much slower than <code>cph</code> ones:</p>
 <span> <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   4.084   0.000   4.085</span></span>
+<span><span class="co">#&gt;   5.555   0.005   5.560</span></span>
 <span></span>
 <span><span class="co"># and how long it takes to fit 50 cph trees</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
@@ -271,11 +271,11 @@ are still much slower than <code>cph</code> ones:</p>
 <span> <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   0.042   0.000   0.042</span></span>
+<span><span class="co">#&gt;   0.055   0.000   0.055</span></span>
 <span></span>
 <span><span class="va">t1</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">t2</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span></span>
-<span><span class="co">#&gt; elapsed </span></span>
-<span><span class="co">#&gt; 97.2619</span></span></code></pre></div>
+<span><span class="co">#&gt;  elapsed </span></span>
+<span><span class="co">#&gt; 101.0909</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="aorsf-and-other-machine-learning-software">aorsf and other machine learning software<a class="anchor" aria-label="anchor" href="#aorsf-and-other-machine-learning-software"></a>

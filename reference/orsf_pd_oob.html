@@ -244,34 +244,34 @@ specified prediction horizon(s).</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">pd_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_inb</a></span><span class="op">(</span><span class="va">fit</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_train</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##    pred_horizon bili      mean        lwr      medn       upr</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:      1826.25    1 0.2038932 0.02107889 0.1033094 0.7750083</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:      1826.25    2 0.2364764 0.03380476 0.1319014 0.8012311</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 3:      1826.25    3 0.2778027 0.05468892 0.1829088 0.8167536</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 4:      1826.25    4 0.3278112 0.09236600 0.2436412 0.8342811</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 5:      1826.25    5 0.3633709 0.12598059 0.2813051 0.8374174</span></span></code></pre><p></p></div></li>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##    pred_horizon bili     mean      lwr      medn      upr</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:      1826.25    1 101.9466 10.53944  51.65470 387.5041</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:      1826.25    2 118.2382 16.90238  65.95072 400.6156</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 3:      1826.25    3 138.9013 27.34446  91.45440 408.3768</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 4:      1826.25    4 163.9056 46.18300 121.82058 417.1405</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 5:      1826.25    5 181.6854 62.99029 140.65257 418.7087</span></span></code></pre><p></p></div></li>
 <li><p>using out-of-bag predictions for the training data</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">pd_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_train</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##    pred_horizon bili      mean        lwr      medn       upr</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:      1826.25    1 0.2043172 0.02128050 0.1117025 0.7748756</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:      1826.25    2 0.2364369 0.03525888 0.1416681 0.7976469</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 3:      1826.25    3 0.2770184 0.05380047 0.1809783 0.8060741</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 4:      1826.25    4 0.3272627 0.09414283 0.2377063 0.8235845</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 5:      1826.25    5 0.3623476 0.12856484 0.2764106 0.8245021</span></span></code></pre><p></p></div></li>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##    pred_horizon bili     mean       lwr     medn      upr</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:      1826.25    1 37.66151  3.607834 20.75476 137.8659</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:      1826.25    2 43.56664  6.655814 25.94357 143.4564</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 3:      1826.25    3 51.04030 10.102343 33.73989 146.7145</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 4:      1826.25    4 60.28418 17.159042 43.95543 148.7279</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 5:      1826.25    5 66.74464 22.974170 53.00352 149.4068</span></span></code></pre><p></p></div></li>
 <li><p>using predictions for a new set of data</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">pd_test</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_new</a></span><span class="op">(</span><span class="va">fit</span>, </span>
 <span>                       new_data <span class="op">=</span> <span class="va">pbc_orsf_test</span>, </span>
 <span>                       pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_test</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##    pred_horizon bili      mean        lwr      medn       upr</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:      1826.25    1 0.2439104 0.02172942 0.1779830 0.8041872</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:      1826.25    2 0.2756873 0.03962448 0.2154036 0.8222340</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 3:      1826.25    3 0.3182908 0.06352379 0.2685873 0.8375648</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 4:      1826.25    4 0.3688418 0.10419502 0.3253473 0.8540203</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 5:      1826.25    5 0.4043845 0.13842629 0.3598379 0.8567715</span></span></code></pre><p></p></div></li>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##    pred_horizon bili     mean      lwr     medn      upr</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:      1826.25    1 121.9552 10.86471  88.9915 402.0936</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:      1826.25    2 137.8436 19.81224 107.7018 411.1170</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 3:      1826.25    3 159.1454 31.76190 134.2937 418.7824</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 4:      1826.25    4 184.4209 52.09751 162.6736 427.0102</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 5:      1826.25    5 202.1922 69.21315 179.9189 428.3857</span></span></code></pre><p></p></div></li>
 <li><p>in-bag partial dependence indicates relationships that the model has
 learned during training. This is helpful if your goal is to interpret
 the model.</p></li>
