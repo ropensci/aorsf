@@ -22,6 +22,8 @@
 #' @return an object of class `'orsf_control'`, which should be used as
 #'  an input for the `control` argument of [orsf].
 #'
+#' @export
+#'
 #' @family orsf_control
 #'
 #' @details
