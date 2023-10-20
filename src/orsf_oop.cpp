@@ -177,6 +177,8 @@
   result.push_back(tree.get_leaf_pred_chaz(), "chaz");
   result.push_back(tree.get_leaf_summary(),   "mort");
 
+  delete tree.unique_event_times;
+
   return(result);
 
  }

@@ -23,6 +23,8 @@
   TreeSurvival(const TreeSurvival&) = delete;
   TreeSurvival& operator=(const TreeSurvival&) = delete;
 
+  virtual ~TreeSurvival() override = default;
+
   TreeSurvival(double leaf_min_events,
                double split_min_events,
                arma::vec* unique_event_times,

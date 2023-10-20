@@ -22,8 +22,6 @@
 #' @return an object of class `'orsf_control'`, which should be used as
 #'  an input for the `control` argument of [orsf].
 #'
-#' @export
-#'
 #' @family orsf_control
 #'
 #' @details
@@ -370,7 +368,6 @@ orsf_control <- function(tree_type,
 }
 
 #' @rdname orsf_control
-#' @export
 orsf_control_classification <- function(method = 'glm',
                                         scale_x = TRUE,
                                         net_mix = 0.5,
@@ -394,7 +391,6 @@ orsf_control_classification <- function(method = 'glm',
 }
 
 #' @rdname orsf_control
-#' @export
 orsf_control_regression <- function(method = 'glm',
                                     scale_x = TRUE,
                                     net_mix = 0.5,
@@ -418,7 +414,6 @@ orsf_control_regression <- function(method = 'glm',
 }
 
 #' @rdname orsf_control
-#' @export
 orsf_control_survival <- function(method = 'glm',
                                   scale_x = TRUE,
                                   ties = 'efron',

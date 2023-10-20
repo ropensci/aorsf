@@ -478,6 +478,7 @@ void Forest::compute_prediction_accuracy(Data* prediction_data,
 
 }
 
+
 std::vector<std::vector<arma::mat>> Forest::compute_dependence(bool oobag){
 
  std::vector<std::vector<arma::mat>> result;
@@ -510,7 +511,10 @@ std::vector<std::vector<arma::mat>> Forest::compute_dependence(bool oobag){
 
    if(oobag) oobag_denom.fill(0);
 
-   mat preds = predict(oobag);
+   // No. of cols in pred mat depend on the type of forest
+   mat preds;
+   resize_pred_mat(preds);
+   predict_single_thread(data.get(), oobag, preds);
 
    if(pd_type == PD_SUMMARY){
 

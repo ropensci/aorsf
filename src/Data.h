@@ -20,6 +20,11 @@
 
   Data() = default;
 
+  Data(const Data&) = delete;
+  Data& operator=(const Data&) = delete;
+
+  virtual ~Data() = default;
+
   Data(arma::mat& x,
        arma::mat& y,
        arma::vec& w) {
@@ -35,8 +40,6 @@
 
   }
 
-  Data(const Data&) = delete;
-  Data& operator=(const Data&) = delete;
 
   arma::uword get_n_rows() {
    return(n_rows);

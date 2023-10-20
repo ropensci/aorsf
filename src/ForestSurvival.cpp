@@ -73,8 +73,11 @@ void ForestSurvival::load(
   );
  }
 
- // Create thread ranges
- equalSplit(thread_ranges, 0, n_tree - 1, n_thread);
+ if(n_thread > 1){
+  // Create thread ranges
+  equalSplit(thread_ranges, 0, n_tree - 1, n_thread);
+ }
+
 
 }
 

@@ -20,6 +20,7 @@ public:
                 double split_min_events,
                 arma::vec& pred_horizon);
 
+ virtual ~ForestSurvival() override = default;
 
  ForestSurvival(const ForestSurvival&) = delete;
  ForestSurvival& operator=(const ForestSurvival&) = delete;

@@ -417,7 +417,7 @@
 
   vec beta(X.n_cols, fill::zeros);
 
-  mat hessian;
+  mat hessian(X.n_cols, X.n_cols);
 
   for (uword iter = 0; iter < iter_max; ++iter) {
 
@@ -497,5 +497,6 @@
   }
 
  }
+
 
  }

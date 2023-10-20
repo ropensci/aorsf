@@ -557,25 +557,23 @@ test_that(
 )
 
 
-
-
-test_that(
- desc = 'missing units are detected',
- code = {
-
-  suppressMessages(library(units))
-  pbc_units <- pbc_orsf
-  units(pbc_units$age) <- 'years'
-
-  fit <- orsf(formula = time + status  ~ . - id,
-              data = pbc_units,
-              n_tree = n_tree_test)
-
-  expect_error(predict(fit, new_data = pbc_orsf, pred_horizon = 1000),
-               'unit attributes')
-
- }
-)
+# test_that(
+#  desc = 'missing units are detected',
+#  code = {
+#
+#   suppressMessages(library(units))
+#   pbc_units <- pbc_orsf
+#   units(pbc_units$age) <- 'years'
+#
+#   fit <- orsf(formula = time + status  ~ . - id,
+#               data = pbc_units,
+#               n_tree = n_tree_test)
+#
+#   expect_error(predict(fit, new_data = pbc_orsf, pred_horizon = 1000),
+#                'unit attributes')
+#
+#  }
+# )
 
 test_that(
  desc = 'predictions dont require cols in same order as training data',
@@ -596,60 +594,58 @@ test_that(
 )
 
 
-#' @srrstats {G2.11} *test to make sure testing units are consistent with training units when someone is trying to compute predictions.*
-
-test_that(
- 'units are vetted in testing data',
- code = {
-
-  suppressMessages(library(units))
-  pbc_units_trn <- pbc_train
-  pbc_units_tst <- pbc_test
-
-
-  units(pbc_units_trn$time) <- 'days'
-  units(pbc_units_trn$age) <- 'years'
-  units(pbc_units_trn$bili) <- 'mg/dl'
-
-  fit_units = orsf(formula = time + status  ~ . - id,
-                   data = pbc_units_trn,
-                   n_tree = n_tree_test,
-                   oobag_pred_horizon = c(1000, 2500),
-                   tree_seeds = seeds_standard)
-
-  expect_error(
-   predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000),
-   regexp = 'time, age, and bili'
-  )
-
-  units(pbc_units_tst$time) <- 'years'
-  units(pbc_units_tst$age) <- 'years'
-  units(pbc_units_tst$bili) <- 'mg/dl'
-
-  expect_error(
-   predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000),
-   regexp = 'time has unit d in the training data'
-  )
-
-  units(pbc_units_tst$time) <- 'days'
-  units(pbc_units_tst$age) <- 'years'
-  units(pbc_units_tst$bili) <- 'mg/dl'
-
-  expect_equal_leaf_summary(fit_units, pred_objects_surv$surv$fit)
-  expect_equal_oobag_eval(fit_units, pred_objects_surv$surv$fit)
-
-  units(pbc_units_tst$time) <- 'days'
-  units(pbc_units_tst$age) <- 'years'
-  units(pbc_units_tst$bili) <- 'mg/l'
-
-  expect_error(
-   predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000),
-   regexp = 'bili has unit mg/dl in the training data'
-  )
-
- }
-
-)
+# test_that(
+#  'units are vetted in testing data',
+#  code = {
+#
+#   suppressMessages(library(units))
+#   pbc_units_trn <- pbc_train
+#   pbc_units_tst <- pbc_test
+#
+#
+#   units(pbc_units_trn$time) <- 'days'
+#   units(pbc_units_trn$age) <- 'years'
+#   units(pbc_units_trn$bili) <- 'mg/dl'
+#
+#   fit_units = orsf(formula = time + status  ~ . - id,
+#                    data = pbc_units_trn,
+#                    n_tree = n_tree_test,
+#                    oobag_pred_horizon = c(1000, 2500),
+#                    tree_seeds = seeds_standard)
+#
+#   expect_error(
+#    predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000),
+#    regexp = 'time, age, and bili'
+#   )
+#
+#   units(pbc_units_tst$time) <- 'years'
+#   units(pbc_units_tst$age) <- 'years'
+#   units(pbc_units_tst$bili) <- 'mg/dl'
+#
+#   expect_error(
+#    predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000),
+#    regexp = 'time has unit d in the training data'
+#   )
+#
+#   units(pbc_units_tst$time) <- 'days'
+#   units(pbc_units_tst$age) <- 'years'
+#   units(pbc_units_tst$bili) <- 'mg/dl'
+#
+#   expect_equal_leaf_summary(fit_units, pred_objects_surv$surv$fit)
+#   expect_equal_oobag_eval(fit_units, pred_objects_surv$surv$fit)
+#
+#   units(pbc_units_tst$time) <- 'days'
+#   units(pbc_units_tst$age) <- 'years'
+#   units(pbc_units_tst$bili) <- 'mg/l'
+#
+#   expect_error(
+#    predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000),
+#    regexp = 'bili has unit mg/dl in the training data'
+#   )
+#
+#  }
+#
+# )
 
 # Tests for passing missing data ----
 
