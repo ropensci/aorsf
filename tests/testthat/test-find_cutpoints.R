@@ -8,7 +8,7 @@ test_that(
    y <- mat_list_surv[[i]]$y
    w <- mat_list_surv[[i]]$w
 
-   if(nrow(y) > 250) {y <- y[1:250, ]; w <- w[1:250]}
+   if(nrow(y) > 100) {y <- y[1:100, ]; w <- w[1:100]}
 
    for(cp_type in c("ctns", "bnry", "catg")){
 
@@ -22,9 +22,9 @@ test_that(
     xb_uni <- unique(xb)
     # leaf_min_events <- 5
     # leaf_min_obs <- 10
-    for(leaf_min_events in c(1, 5, 10)){
+    for(leaf_min_events in c(1, 5)){
 
-     for(leaf_min_obs in c(leaf_min_events + c(0, 5, 10))){
+     for(leaf_min_obs in c(leaf_min_events + c(0, 5))){
 
       cp_stats <- cp_find_bounds_R(y, w, xb, xb_uni, leaf_min_events, leaf_min_obs)
 

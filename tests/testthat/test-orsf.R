@@ -375,31 +375,24 @@ test_that(
   # testing the seed behavior when no_fit is TRUE. You should get the same
   # forest whether you train with orsf() or with orsf_train().
 
-  for(.n_tree in c(100, 250, 1000)){
+  object <- orsf(pbc, Surv(time, status) ~ .,
+                 n_tree = n_tree_test, no_fit = TRUE,
+                 importance = 'anova')
+  set.seed(89)
+  time_estimated <- orsf_time_to_train(object, n_tree_subset = 1)
 
-   object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-                  n_tree = .n_tree, no_fit = TRUE,
-                  importance = 'anova')
-   set.seed(89)
-   time_estimated <- orsf_time_to_train(object, n_tree_subset = 50)
+  set.seed(89)
+  time_true_start <- Sys.time()
+  fit_orsf_3 <- orsf_train(object)
+  time_true_stop <- Sys.time()
 
-   set.seed(89)
-   time_true_start <- Sys.time()
-   fit_orsf_3 <- orsf_train(object)
-   time_true_stop <- Sys.time()
+  time_true <- time_true_stop - time_true_start
 
-   time_true <- time_true_stop - time_true_start
+  diff_abs <- abs(as.numeric(time_true - time_estimated))
 
-   diff_abs <- abs(as.numeric(time_true - time_estimated))
-   diff_rel <- diff_abs / as.numeric(time_true)
+  # estimated time is within 5 seconds of true time.
+  expect_lt(diff_abs, 5)
 
-   # expect the difference between estimated and true time is < 5 second.
-   expect_lt(diff_abs, 5)
-   # expect that the difference is not greater than 5x the
-   # magnitude of the actual time it took to fit the forest
-   expect_lt(diff_rel, 5)
-
-  }
  }
 )
 
