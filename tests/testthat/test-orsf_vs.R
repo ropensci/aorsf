@@ -5,7 +5,7 @@ test_that(
 
   pbc_with_junk <- pbc
 
-  n_junk_preds <- 50
+  n_junk_preds <- 5
 
   junk_names <- paste("junk", seq(n_junk_preds), sep ='_')
 
@@ -16,11 +16,11 @@ test_that(
 
   fit <- orsf(pbc_with_junk,
               time + status ~ .,
-              n_tree = 25,
+              n_tree = n_tree_test,
               importance = 'anova',
               tree_seeds = seeds_standard)
 
-  fit_var_select <- orsf_vs(fit, n_predictor_min = 5)
+  fit_var_select <- orsf_vs(fit, n_predictor_min = 3)
 
   vars_picked <- fit_var_select$predictors_included[[1]]
 

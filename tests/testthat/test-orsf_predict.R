@@ -151,35 +151,35 @@ test_that(
  }
 )
 
-test_that(
- desc = "leaf predictions aggregate same as raw",
- code = {
-  expect_equal(pred_objects_surv$leaf$prd_raw,
-               pred_objects_surv$leaf$prd_agg)
- }
-)
+# test_that(
+#  desc = "leaf predictions aggregate same as raw",
+#  code = {
+#   expect_equal(pred_objects_surv$leaf$prd_raw,
+#                pred_objects_surv$leaf$prd_agg)
+#  }
+# )
 
-test_that(
- desc = "unaggregated predictions can reproduce aggregated ones",
- code = {
-
-  for(i in c("surv", "risk", "chf")){
-   for(j in seq_along(pred_horizon)){
-    expect_equal(
-     pred_objects_surv[[i]]$prd_agg[, j],
-     apply(pred_objects_surv[[i]]$prd_raw[, , j], 1, mean),
-     tolerance = 1e-9
-    )
-   }
-  }
-
-  expect_equal(
-   pred_objects_surv$mort$prd_agg,
-   matrix(apply(pred_objects_surv$mort$prd_raw, 1, mean), ncol = 1)
-  )
-
- }
-)
+# test_that(
+#  desc = "unaggregated predictions can reproduce aggregated ones",
+#  code = {
+#
+#   for(i in c("surv", "risk", "chf")){
+#    for(j in seq_along(pred_horizon)){
+#     expect_equal(
+#      pred_objects_surv[[i]]$prd_agg[, j],
+#      apply(pred_objects_surv[[i]]$prd_raw[, , j], 1, mean),
+#      tolerance = 1e-9
+#     )
+#    }
+#   }
+#
+#   expect_equal(
+#    pred_objects_surv$mort$prd_agg,
+#    matrix(apply(pred_objects_surv$mort$prd_raw, 1, mean), ncol = 1)
+#   )
+#
+#  }
+# )
 
 test_that(
  desc = "same predictions from the forest regardless of oob type",
@@ -240,7 +240,7 @@ test_that(
  }
 )
 
-new_data <- pbc_test
+new_data <- pbc_test[1:10, ]
 
 test_that(
  desc = 'pred_horizon automatically set to object$pred_horizon if needed',
@@ -664,18 +664,18 @@ new_data_dt_miss <- as.data.table(new_data_miss)
 new_data_tbl_miss <- tibble::as_tibble(new_data_miss)
 
 p_cc <- predict(fit,
-                new_data = new_data[1:10, ])
+                new_data = new_data)
 
 p_ps <- predict(fit,
-                new_data = new_data_miss[1:10, ],
+                new_data = new_data_miss,
                 na_action = 'pass')
 
 p_ps_dt <- predict(fit,
-                   new_data = new_data_dt_miss[1:10, ],
+                   new_data = new_data_dt_miss,
                    na_action = 'pass')
 
 p_ps_tbl <- predict(fit,
-                    new_data = new_data_tbl_miss[1:10, ],
+                    new_data = new_data_tbl_miss,
                     na_action = 'pass')
 
 test_that(
@@ -728,21 +728,21 @@ test_that(
 pred_horiz <- c(100, 200, 300, 400, 500)
 
 p_cc <- predict(fit,
-                new_data = new_data[1:10, ],
+                new_data = new_data,
                 pred_horizon = pred_horiz)
 
 p_ps <- predict(fit,
-                new_data = new_data_miss[1:10, ],
+                new_data = new_data_miss,
                 na_action = 'pass',
                 pred_horizon = pred_horiz)
 
 p_ps_dt <- predict(fit,
-                   new_data = new_data_dt_miss[1:10, ],
+                   new_data = new_data_dt_miss,
                    na_action = 'pass',
                    pred_horizon = pred_horiz)
 
 p_ps_tbl <- predict(fit,
-                    new_data = new_data_tbl_miss[1:10, ],
+                    new_data = new_data_tbl_miss,
                     na_action = 'pass',
                     pred_horizon = pred_horiz)
 

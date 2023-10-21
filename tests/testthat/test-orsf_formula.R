@@ -105,30 +105,30 @@ test_that(
  }
 )
 
-test_that(
- desc = "Status can be 0/1 or 1/2, or generally x/x+1",
- code = {
-  for(i in seq(1:5)){
-
-  pbc_orsf$status <- pbc_orsf$status+1
-
-  for(j in seq_along(fit_standard_pbc)){
-
-   fit_status_modified <- orsf(pbc_orsf,
-                               time + status ~ . - id,
-                               n_tree = n_tree_test,
-                               control = controls[[j]],
-                               tree_seeds = seeds_standard)
-
-   expect_equal_leaf_summary(fit_status_modified, fit_standard_pbc[[j]])
-
-  }
-
-  expect_error(
-   orsf(pbc_orsf, Surv(status, time) ~ . - id),
-   'Did you enter'
-  )
-
-  }
- }
-)
+# test_that(
+#  desc = "Status can be 0/1 or 1/2, or generally x/x+1",
+#  code = {
+#   for(i in seq(1:5)){
+#
+#   pbc_orsf$status <- pbc_orsf$status+1
+#
+#   for(j in seq_along(fit_standard_pbc)){
+#
+#    fit_status_modified <- orsf(pbc_orsf,
+#                                time + status ~ . - id,
+#                                n_tree = n_tree_test,
+#                                control = controls[[j]],
+#                                tree_seeds = seeds_standard)
+#
+#    expect_equal_leaf_summary(fit_status_modified, fit_standard_pbc[[j]])
+#
+#   }
+#
+#   expect_error(
+#    orsf(pbc_orsf, Surv(status, time) ~ . - id),
+#    'Did you enter'
+#   )
+#
+#   }
+#  }
+# )

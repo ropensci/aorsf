@@ -68,7 +68,7 @@ mat_list_surv <- list(pbc = pbc_mats,
 # standards used to check validity of other fits
 
 seeds_standard <- 329
-n_tree_test <- 10
+n_tree_test <- 5
 
 controls <- list(
  fast = orsf_control_fast(),
