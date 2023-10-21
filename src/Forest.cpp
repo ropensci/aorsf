@@ -532,6 +532,8 @@ std::vector<std::vector<arma::mat>> Forest::compute_dependence(bool oobag){
 
     result_k.push_back(preds);
 
+
+
    }
 
   }

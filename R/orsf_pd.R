@@ -526,19 +526,26 @@ orsf_pred_dependence <- function(object,
 
   pd_vals[[i]] <- rbindlist(pd_vals[[i]], idcol = 'id_variable')
 
-  pd_vals[[i]] <- merge(pd_vals[[i]],
-                        as.data.table(pd_bind[[i]]),
+  # this seems awkward but the reason I convert back to data.frame
+  # here is to avoid a potential memory leak from forder & bmerge.
+  # I have no idea why this memory leak may be occurring but it does
+  # not if I apply merge.data.frame instead of merge.data.table
+  pd_vals[[i]] <- merge(as.data.frame(pd_vals[[i]]),
+                        as.data.frame(pd_bind[[i]]),
                         by = 'id_variable')
 
  }
 
-
  out <- rbindlist(pd_vals)
 
- # missings may occur when oobag=TRUE and n_tree is small
- if(type_output == 'ice') out <- collapse::na_omit(out, cols = 'pred')
+ # # missings may occur when oobag=TRUE and n_tree is small
+ # if(type_output == 'ice') {
+ #  out <- collapse::na_omit(out, cols = 'pred')
+ # }
 
- ids <- c('id_variable', if(type_output == 'ice') 'id_row')
+ ids <- c('id_variable')
+
+ if(type_output == 'ice') ids <- c(ids, 'id_row')
 
  mid <- setdiff(names(out), c(ids, 'mean', prob_labels, 'pred'))
 

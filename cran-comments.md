@@ -1,6 +1,8 @@
 ## Version 0.1.1
 
-This version is being submitted to CRAN early due to a memory error that was identified in version 1.0.0. I apologize for the oversight. As `aorsf` would be removed from CRAN if the issue is not fixed before October 28, I would like to request an expedited submission. I have run the current submission's tests and examples with valgrind to ensure the memory error has been fixed. 
+Update, October 21: I have updated the submission to fix memory leaks. Many of the leaks were caused by my omission of a virtual de-constructor for derived classes or by omission of a delete statement for dynamically allocated memory. I apologize for these oversights. After reviewing, you may still see a possible memory leak from `orsf_ice` functions. From what I can tell, this possible leak could either be measurement error or could be attributed to `data.table`. I do not think it's from `aorsf`.
+
+Initial submission: This version is being submitted to CRAN early due to a memory error that was identified in version 1.0.0. I apologize for the oversight. As `aorsf` would be removed from CRAN if the issue is not fixed before October 28, I would like to request an expedited submission. I have run the current submission's tests and examples with valgrind to ensure the memory error has been fixed. 
 
 ## R CMD check results
 
