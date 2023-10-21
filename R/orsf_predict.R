@@ -4,13 +4,6 @@
 #'
 #' Predicted risk, survival, hazard, or mortality from an ORSF model.
 #'
-#' @srrstats {G1.4} *documented with Roxygen*
-#' @srrstats {ML1.1} *using the terms 'train' and 'test'.*
-#' @srrstats {G2.0a} *specified expectations for length of `pred_horizon`. In general, inputs of length > 1 have the term 'vector' in their description, and inputs of length 1 just have the expected type.*
-#' @srrstats {G2.1a} *explicit secondary documentation of expectations on data types of all vector inputs*
- #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
-#' @srrstats {ML1.1} *The term 'new_data' are used instead of data_test. There are two reasons for this. First, I am making an effort to be consistent with tidymodels. Second, there is a possibility that users will use predict() without the intention of testing their model, e.g., for interpretation.*
-#'
 #' @param object (*orsf_fit*) a trained oblique random survival forest
 #'   (see [orsf]).
 #'

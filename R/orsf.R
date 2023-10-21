@@ -163,8 +163,6 @@
 #' @param object an untrained 'aorsf' object, created by setting
 #'   `no_fit = TRUE` in `orsf()`.
 #'
-#' @srrstats {ML5.0} *The result of applying orsf training processes results in a single model object.*
-#'
 #' @return an accelerated oblique RSF object (`aorsf`)
 #'
 #' @details
@@ -328,8 +326,6 @@ orsf <- function(data,
                  verbose_progress = FALSE,
                  ...){
 
- #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
-
  check_dots(list(...), .f = orsf)
 
  if(!is.data.frame(data))
@@ -463,10 +459,6 @@ orsf <- function(data,
   stop(msg, call. = FALSE)
  }
 
- #' @srrstats {G2.7} *aorsf accepts as input numeric and categorical predictor variables, including those with unit class. I do not think it is necessary to incorporate any other type of input, since it is relatively straightforward to convert data into a numeric or categorical format.*
-
- #' @srrstats {G2.11} *I cannot write code for every possible vector class to ensure that the vector data will be safely coerced into a a valid class and the attributes will be stored in the orsf_out object. It is much easier and safer for the user to convert a few columns to numeric or factor than it is for me to attempt writing code that will safely coerce every type of vector. That being said, I do find units columns to be helpful and I've written some code to make them an allowable class in input data.*
-
  types_x_data <- check_var_types(data,
                                  names_x_data,
                                  valid_types = c('numeric',
@@ -474,14 +466,6 @@ orsf <- function(data,
                                                  'units',
                                                  'factor',
                                                  'ordered'))
-
- #' @srrstats {G2.6} *ensure that one-dimensional inputs are appropriately pre-processed. aorsf does not deal with missing data as many other R packages are very good at dealing with it.*
-
- #' @srrstats {G2.13} *check for missing data as part of initial pre-processing prior to passing data to analytic algorithms.*
-
- #' @srrstats {G2.15} *Never pass data with potential missing values to any base routines.*
-
- #' @srrstats {G2.16} *Throw hard errors if undefined values are detected.*
 
  for(i in c(names_y_data, names_x_data)){
 
@@ -844,7 +828,6 @@ orsf <- function(data,
  attr(orsf_out, 'sample_with_replacement') <- sample_with_replacement
  attr(orsf_out, 'sample_fraction')         <- sample_fraction
 
- #' @srrstats {ML5.0a} *orsf output has its own class*
  class(orsf_out) <- "orsf_fit"
 
  if(importance != 'none' && !no_fit){
@@ -916,8 +899,6 @@ orsf_data_prep.recipe <- function(data, ...){
 
 }
 
-#' @srrstats {ML2.0a} *objects returned from orsf() with no_fit = TRUE can be directly submitted to orsf_train to train the model specification.*
-#'
 #' @rdname orsf
 #' @export
 orsf_train <- function(object){
@@ -927,8 +908,6 @@ orsf_train <- function(object){
 
 
 #' Estimate training time
-#'
-#' @srrstats {ML4.5} *include a function to estimate likely time to train a specified model*
 #'
 #' @param object an untrained `aorsf` object
 #'

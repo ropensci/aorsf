@@ -18,7 +18,6 @@
 #'
 #' @return the scaled or unscaled `x_mat`.
 #'
-#' @srrstats {ML2.7} *Provide documentation on how transforms may be reversed.*
 #' @details The data are transformed by first subtracting the mean and then
 #'   multiplying by the scale. An inverse transform can be completed using
 #'   `orsf_unscale_cph` or by dividing each column by the corresponding scale
@@ -27,7 +26,6 @@
 #'   The values of means and scales are stored in an attribute of the output
 #'   returned by `orsf_scale_cph` (see examples)
 #'
-#' @srrstats {ML2.6} *export transforms to namespace so they can be applied in other contexts.*
 #' @export
 #'
 #' @examples

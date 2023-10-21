@@ -67,8 +67,6 @@ orsf_summarize_uni <- function(object,
  # for CRAN check:
  medn <- name <- value <- level <- variable <- NULL
 
- #' @srrstats {G2.8} *As part of initial pre-processing, run checks on inputs to ensure that all other sub-functions receive inputs of a single defined class or type.*
-
  check_arg_is(arg_value = object,
               arg_name = 'object',
               expected_class = 'orsf_fit')
@@ -132,8 +130,6 @@ orsf_summarize_uni <- function(object,
  for(x_name in names(pred_spec)){
 
   if(x_name %in% colnames(x_numeric_key)){
-
-   #' @srrstats {G2.4b} explicit conversion to continuous values
 
    pred_spec[[x_name]] <- unique(
     as.numeric(x_numeric_key[c('25%','50%','75%'), x_name])
@@ -202,8 +198,6 @@ orsf_summarize_uni <- function(object,
 }
 
 #' Print ORSF summary
-#'
-#' @srrstats {G1.4} *documented with Roxygen*
 #'
 #' @param x an object of class 'orsf_summary'
 #'

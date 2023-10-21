@@ -9,9 +9,6 @@
 #'
 #' @inheritParams predict.orsf_fit
 #'
-#' @srrstats {G2.1a} *explicit secondary documentation of expectations on data types of all vector inputs*
-#' @srrstats {G2.0a} *documenting length by indicating these inputs are vectors and that they must have the same length as the other.*
-#'
 #'
 #' @param pred_spec (*named list* or _data.frame_).
 #'

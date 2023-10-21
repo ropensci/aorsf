@@ -18,12 +18,6 @@
 #' - OOB stat type: How was out-of-bag error computed?
 #' - Variable importance: How was variable importance computed?
 #'
-#' @srrstats {ML3.0d} *object returned by orsf() has a defined class with `print` method that summarises the model specification and other relevant parameters. The output also indicates whether the orsf oject was trained or not.*
-#'
-#' @srrstats {ML5.0b} *aorsf objects have a defined `print` method which summarises important aspects of the model object.*
-#'
-#' @srrstats {G1.4} *documented with Roxygen*
-#'
 #' @param x (*orsf_fit*) an oblique random survival forest (ORSF; see [orsf]).
 #'
 #' @param ... `r roxy_dots()`
