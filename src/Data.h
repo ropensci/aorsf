@@ -117,9 +117,13 @@
   // without taking a sub-matrix of X
   arma::vec x_submat_mult_beta(arma::uvec& x_rows,
                                arma::uvec& x_cols,
-                               arma::vec& beta,
-                               arma::vec& pd_x_vals,
+                               arma::vec&  beta,
+                               arma::vec&  pd_x_vals,
                                arma::uvec& pd_x_cols){
+
+   if(pd_x_cols.is_empty()){
+    return(x_submat_mult_beta(x_rows, x_cols, beta));
+   }
 
    arma::vec out(x_rows.size());
    arma::uword j = 0;
