@@ -20,7 +20,7 @@ test_that(
   pd_x_vals <- matrix(1)
   pd_x_cols <- ncol(pbc_mats$x)
 
-  data_cpp_answer_2 <- x_submat_mult_beta_pd_exported(x = pbc_mats$x,
+  data_cpp_pd_answer <- x_submat_mult_beta_pd_exported(x = pbc_mats$x,
                                                       y = pbc_mats$y,
                                                       w = pbc_mats$w,
                                                       x_rows = x_rows - 1,
@@ -29,10 +29,11 @@ test_that(
                                                       pd_x_vals = pd_x_vals,
                                                       pd_x_cols = pd_x_cols)
 
+
   target <- pbc_mats$x[x_rows, x_cols] %*% beta
 
   expect_equal(data_cpp_answer, target)
-  expect_equal(data_cpp_answer_2, target)
+  expect_equal(data_cpp_pd_answer, target)
 
  })
 
@@ -43,7 +44,7 @@ test_that(
   pd_x_vals <- c(0, 0)
   pd_x_cols <- x_cols[1:2] - 1
 
-  data_cpp_answer_2 <- x_submat_mult_beta_pd_exported(x = pbc_mats$x,
+  data_cpp_pd_answer <- x_submat_mult_beta_pd_exported(x = pbc_mats$x,
                                                       y = pbc_mats$y,
                                                       w = pbc_mats$w,
                                                       x_rows = x_rows - 1,
@@ -57,7 +58,7 @@ test_that(
 
   target <- x_pd[x_rows, x_cols] %*% beta
 
-  expect_equal(data_cpp_answer_2, target)
+  expect_equal(data_cpp_pd_answer, target)
 
 
  }
