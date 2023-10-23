@@ -231,6 +231,8 @@ void Forest::grow() {
   thread.join();
  }
 
+ threads.clear();
+
  if (aborted_threads > 0) {
   throw std::runtime_error("User interrupt.");
  }
@@ -241,6 +243,9 @@ void Forest::grow() {
    vi_numer += vi_numer_threads[i];
    vi_denom += vi_denom_threads[i];
   }
+
+  vi_numer_threads.clear();
+  vi_denom_threads.clear();
 
  }
 
@@ -370,6 +375,8 @@ void Forest::compute_oobag_vi() {
   thread.join();
  }
 
+ threads.clear();
+
  if (aborted_threads > 0) {
   throw std::runtime_error("User interrupt.");
  }
@@ -377,6 +384,8 @@ void Forest::compute_oobag_vi() {
  for(uint i = 0; i < n_thread; ++i){
   vi_numer += vi_numer_threads[i];
  }
+
+ vi_numer_threads.clear();
 
 }
 
@@ -598,6 +607,8 @@ mat Forest::predict(bool oobag) {
    thread.join();
   }
 
+  threads.clear();
+
   for(uint i = 0; i < n_thread; ++i){
 
    result += result_threads[i];
@@ -622,6 +633,9 @@ mat Forest::predict(bool oobag) {
    }
 
   }
+
+  result_threads.clear();
+  oobag_denom_threads.clear();
 
  }
 
