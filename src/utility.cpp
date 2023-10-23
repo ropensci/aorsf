@@ -409,20 +409,26 @@
 
   // Add an intercept column to the design matrix
   vec intercept(x_node.n_rows, fill::ones);
-  mat X = join_horiz(intercept, x_node);
+  const mat X = join_horiz(intercept, x_node);
 
   // for later steps we don't care about the intercept term b/c we don't
   // need it, but in this step including the intercept is important
   // for computing p-values of other regression coefficients.
 
   vec beta(X.n_cols, fill::zeros);
-
   mat hessian(X.n_cols, X.n_cols);
 
   for (uword iter = 0; iter < iter_max; ++iter) {
 
    vec eta = X * beta;
-   vec pi = 1 / (1 + exp(-eta));
+
+   // needs to be element-wise b/c valgrind
+   // spots a possible memory leak otherwise
+   for(uword i = 0; i < eta.size(); i++){
+    eta[i] = exp(eta[i]);
+   }
+
+   vec pi = eta / (1 + eta);
    vec w = w_node % pi % (1 - pi);
 
    vec gradient = X.t() * ((y_node - pi) % w_node);
