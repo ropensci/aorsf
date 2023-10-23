@@ -592,3 +592,35 @@ orsf_pred_dependence <- function(object,
 }
 
 
+pd_list_split <- function(x_vals, x_cols){
+
+ x_vals_out <- x_cols_out <- vector(mode = 'list')
+ counter <- 1
+
+ for(i in seq_along(x_vals)){
+
+  x_vals_split <- split(x_vals[[i]], row(x_vals[[i]]))
+
+  for(j in seq_along(x_vals_split)){
+
+   x_vals_out[[counter]] <- matrix(x_vals_split[[j]],
+                                   ncol = ncol(x_vals[[i]]),
+                                   nrow = 1)
+   colnames(x_vals_out[[counter]]) <- colnames(x_vals[[i]])
+
+   x_cols_out[[counter]] <- x_cols[[i]]
+
+   counter <- counter + 1
+
+  }
+
+ }
+
+ list(
+  x_vals = x_vals_out,
+  x_cols = x_cols_out
+ )
+
+}
+
+

@@ -83,7 +83,7 @@ infer_outcome_type <- function(names_y_data, data){
 
 
 infer_orsf_args <- function(x,
-                            y,
+                            y = matrix(1, ncol=2),
                             w = rep(1, nrow(x)),
                             ...,
                             object = NULL){
@@ -114,17 +114,32 @@ infer_orsf_args <- function(x,
   get_mtry(object) %||%
   ceiling(sqrt(ncol(x)))
 
- oobag_pred_type <- get_oobag_pred_type(object) %||% "surv"
- oobag_pred <- oobag_pred_type != 'none'
+ oobag_pred_type <- .dots$pred_type %||%
+  get_oobag_pred_type(object) %||%
+  "surv"
+
+ oobag_pred <- .dots$oobag_pred %||%
+  get_oobag_pred(object) %||%
+  (oobag_pred_type != 'none')
 
 
- pred_horizon <- get_oobag_pred_horizon(object) %||%
+ pred_horizon <- .dots$pred_horizon %||%
+  get_oobag_pred_horizon(object) %||%
   if(tree_type == 'survival') stats::median(y[, 1]) else 1
 
- type_oobag_eval <- get_type_oobag_eval(object) %||%
-  if(oobag_pred) 'cstat' else 'none'
+ oobag_eval_type <- 'none'
 
- vi_type <- .dots$vi_type %||% get_importance(object) %||% "anova"
+ if(oobag_pred){
+
+  oobag_eval_type <- .dots$oobag_eval_type %||%
+   get_oobag_eval_type(object) %||%
+   "cstat"
+
+ }
+
+ vi_type <- .dots$vi_type %||%
+  get_importance(object) %||%
+  "none"
 
  pd_type <- .dots$pd_type %||% 'none'
 
@@ -136,7 +151,9 @@ infer_orsf_args <- function(x,
                        'classification' = 1,
                        'regression'= 2,
                        'survival' = 3),
-  tree_seeds = .dots$tree_seeds %||% get_tree_seeds(object) %||% 329,
+  tree_seeds = .dots$tree_seeds %||%
+   get_tree_seeds(object) %||%
+   329,
   loaded_forest = object$forest %||% list(),
   n_tree = n_tree,
   mtry = mtry,
@@ -198,13 +215,13 @@ infer_orsf_args <- function(x,
                        "mort" = 4,
                        "leaf" = 8),
   pred_mode = .dots$pred_mode %||% FALSE,
-  pred_aggregate = .dots$pred_aggregate %||% oobag_pred_type != 'leaf',
+  pred_aggregate = .dots$pred_aggregate %||% (oobag_pred_type != 'leaf'),
   pred_horizon = pred_horizon,
   oobag = oobag_pred,
   oobag_R_function = .dots$oobag_R_function %||%
    get_f_oobag_eval(object) %||%
    function(x) x,
-  oobag_eval_type_R = switch(type_oobag_eval,
+  oobag_eval_type_R = switch(oobag_eval_type,
                              'none' = 0,
                              'cstat' = 1,
                              'user' = 2),
