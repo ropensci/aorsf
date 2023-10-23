@@ -99,35 +99,7 @@
 </h2>
 <p>Analyses can slow to a crawl when models need hours to run. In this
 article you will find a few tricks to prevent this bottleneck when using
-<code><a href="../reference/orsf.html">orsf()</a></code>. We’ll use the <code>flchain</code> data from
-<code>survival</code> to demonstrate.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"flchain"</span>, package <span class="op">=</span> <span class="st">'survival'</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">flc</span> <span class="op">&lt;-</span> <span class="va">flchain</span></span>
-<span><span class="co"># do this to avoid orsf() throwing an error about time to event = 0</span></span>
-<span><span class="va">flc</span> <span class="op">&lt;-</span> <span class="va">flc</span><span class="op">[</span><span class="va">flc</span><span class="op">$</span><span class="va">futime</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="op">]</span></span>
-<span><span class="co"># modify names </span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">flc</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">flc</span><span class="op">)</span> <span class="op">==</span> <span class="st">'futime'</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">'time'</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">flc</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">flc</span><span class="op">)</span> <span class="op">==</span> <span class="st">'death'</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">'status'</span></span></code></pre></div>
-<p>Our <code>flc</code> data has 7871 rows and 11 columns:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">flc</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   age sex sample.yr kappa lambda flc.grp creatinine mgus time status</span></span>
-<span><span class="co">#&gt; 1  97   F      1997  5.70  4.860      10        1.7    0   85      1</span></span>
-<span><span class="co">#&gt; 2  92   F      2000  0.87  0.683       1        0.9    0 1281      1</span></span>
-<span><span class="co">#&gt; 3  94   F      1997  4.36  3.850      10        1.4    0   69      1</span></span>
-<span><span class="co">#&gt; 4  92   F      1996  2.42  2.220       9        1.0    0  115      1</span></span>
-<span><span class="co">#&gt; 5  93   F      1996  1.32  1.690       6        1.1    0 1039      1</span></span>
-<span><span class="co">#&gt; 6  90   F      1997  2.01  1.860       9        1.0    0 1355      1</span></span>
-<span><span class="co">#&gt;       chapter</span></span>
-<span><span class="co">#&gt; 1 Circulatory</span></span>
-<span><span class="co">#&gt; 2   Neoplasms</span></span>
-<span><span class="co">#&gt; 3 Circulatory</span></span>
-<span><span class="co">#&gt; 4 Circulatory</span></span>
-<span><span class="co">#&gt; 5 Circulatory</span></span>
-<span><span class="co">#&gt; 6      Mental</span></span></code></pre></div>
+<code><a href="../reference/orsf.html">orsf()</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="use-orsf_control_fast">Use <code>orsf_control_fast()</code><a class="anchor" aria-label="anchor" href="#use-orsf_control_fast"></a>
@@ -135,22 +107,26 @@ article you will find a few tricks to prevent this bottleneck when using
 <p>This is the default <code>control</code> value for
 <code><a href="../reference/orsf.html">orsf()</a></code> and its run-time compared to other approaches can be
 striking. For example:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">time_fast</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
-<span> expr <span class="op">=</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">flc</span>, <span class="va">time</span><span class="op">+</span><span class="va">status</span><span class="op">~</span><span class="va">.</span>, na_action <span class="op">=</span> <span class="st">'na_impute_meanmode'</span>,</span>
-<span>             control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_fast.html">orsf_control_fast</a></span><span class="op">(</span><span class="op">)</span>, n_tree <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span> expr <span class="op">=</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
+<span>             formula <span class="op">=</span> <span class="va">time</span><span class="op">+</span><span class="va">status</span><span class="op">~</span><span class="va">.</span> <span class="op">-</span><span class="va">id</span>, </span>
+<span>             control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_fast.html">orsf_control_fast</a></span><span class="op">(</span><span class="op">)</span>, </span>
+<span>             n_tree <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">time_net</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
-<span> expr <span class="op">=</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">flc</span>, <span class="va">time</span><span class="op">+</span><span class="va">status</span><span class="op">~</span><span class="va">.</span>, na_action <span class="op">=</span> <span class="st">'na_impute_meanmode'</span>,</span>
-<span>             control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_net.html">orsf_control_net</a></span><span class="op">(</span><span class="op">)</span>, n_tree <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span> expr <span class="op">=</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
+<span>             formula <span class="op">=</span> <span class="va">time</span><span class="op">+</span><span class="va">status</span><span class="op">~</span><span class="va">.</span> <span class="op">-</span><span class="va">id</span>, </span>
+<span>             control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_net.html">orsf_control_net</a></span><span class="op">(</span><span class="op">)</span>, </span>
+<span>             n_tree <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># control_fast() is much faster</span></span>
 <span><span class="va">time_net</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">time_fast</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span></span>
 <span><span class="co">#&gt;  elapsed </span></span>
-<span><span class="co">#&gt; 37.87115</span></span></code></pre></div>
+<span><span class="co">#&gt; 81.11765</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="use-n_thread">Use <code>n_thread</code><a class="anchor" aria-label="anchor" href="#use-n_thread"></a>
@@ -162,31 +138,30 @@ many threads you want, e.g. you want exactly 5, just say
 available but want to use as many as you can, say
 <code>n_thread = 0</code> and <code>aorsf</code> will figure out the
 number for you.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">time_1_thread</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
-<span> expr <span class="op">=</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">flc</span>, <span class="va">time</span><span class="op">+</span><span class="va">status</span><span class="op">~</span><span class="va">.</span>, na_action <span class="op">=</span> <span class="st">'na_impute_meanmode'</span>,</span>
-<span>             n_thread <span class="op">=</span> <span class="fl">1</span>, n_tree <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
+<span><span class="co"># automatically pick number of threads based on amount available</span></span>
 <span></span>
-<span><span class="va">time_5_thread</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
-<span> expr <span class="op">=</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">flc</span>, <span class="va">time</span><span class="op">+</span><span class="va">status</span><span class="op">~</span><span class="va">.</span>, na_action <span class="op">=</span> <span class="st">'na_impute_meanmode'</span>,</span>
-<span>             n_thread <span class="op">=</span> <span class="fl">5</span>, n_tree <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">time_auto_thread</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
-<span> expr <span class="op">=</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">flc</span>, <span class="va">time</span><span class="op">+</span><span class="va">status</span><span class="op">~</span><span class="va">.</span>, na_action <span class="op">=</span> <span class="st">'na_impute_meanmode'</span>,</span>
-<span>             n_thread <span class="op">=</span> <span class="fl">0</span>, n_tree <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># 5 threads and auto thread are both about 3 times faster than one thread</span></span>
-<span></span>
-<span><span class="va">time_1_thread</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">time_5_thread</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span></span>
-<span><span class="co">#&gt;   elapsed </span></span>
-<span><span class="co">#&gt; 0.4185867</span></span>
-<span><span class="va">time_1_thread</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">time_auto_thread</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span></span>
-<span><span class="co">#&gt;   elapsed </span></span>
-<span><span class="co">#&gt; 0.7993761</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
+<span>     formula <span class="op">=</span> <span class="va">time</span><span class="op">+</span><span class="va">status</span><span class="op">~</span><span class="va">.</span> <span class="op">-</span><span class="va">id</span>, </span>
+<span>     n_tree <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>     n_thread <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ---------- Oblique random survival forest</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;      Linear combinations: Accelerated Cox regression</span></span>
+<span><span class="co">#&gt;           N observations: 276</span></span>
+<span><span class="co">#&gt;                 N events: 111</span></span>
+<span><span class="co">#&gt;                  N trees: 5</span></span>
+<span><span class="co">#&gt;       N predictors total: 17</span></span>
+<span><span class="co">#&gt;    N predictors per node: 5</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 20</span></span>
+<span><span class="co">#&gt; Min observations in leaf: 5</span></span>
+<span><span class="co">#&gt;       Min events in leaf: 1</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.76</span></span>
+<span><span class="co">#&gt;            OOB stat type: Harrell's C-statistic</span></span>
+<span><span class="co">#&gt;      Variable importance: anova</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -----------------------------------------</span></span></code></pre></div>
 <p>Because R is a single threaded language, multi-threading cannot be
 applied when <code><a href="../reference/orsf.html">orsf()</a></code> needs to call R functions from C++,
 which occurs when a customized R function is used to find linear
@@ -210,20 +185,35 @@ default)</p></li>
 sooner</p></li>
 </ul>
 <p>Applying these tips:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">time_lightweight</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
-<span> expr <span class="op">=</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">flc</span>, <span class="va">time</span><span class="op">+</span><span class="va">status</span><span class="op">~</span><span class="va">.</span>, na_action <span class="op">=</span> <span class="st">'na_impute_meanmode'</span>,</span>
-<span>             n_thread <span class="op">=</span> <span class="fl">0</span>, n_tree <span class="op">=</span> <span class="fl">500</span>, n_retry <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>             oobag_pred_type <span class="op">=</span> <span class="st">'none'</span>, importance <span class="op">=</span> <span class="st">'none'</span>,</span>
-<span>             split_min_events <span class="op">=</span> <span class="fl">20</span>, leaf_min_events <span class="op">=</span> <span class="fl">10</span>,</span>
-<span>             split_min_stat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># about two times faster than auto thread with defaults</span></span>
-<span><span class="va">time_auto_thread</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">time_lightweight</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span></span>
-<span><span class="co">#&gt;  elapsed </span></span>
-<span><span class="co">#&gt; 2.368656</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
+<span>     formula <span class="op">=</span> <span class="va">time</span><span class="op">+</span><span class="va">status</span><span class="op">~</span><span class="va">.</span>, </span>
+<span>     na_action <span class="op">=</span> <span class="st">'na_impute_meanmode'</span>,</span>
+<span>     n_thread <span class="op">=</span> <span class="fl">0</span>, </span>
+<span>     n_tree <span class="op">=</span> <span class="fl">5</span>, </span>
+<span>     n_retry <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>     oobag_pred_type <span class="op">=</span> <span class="st">'none'</span>, </span>
+<span>     importance <span class="op">=</span> <span class="st">'none'</span>,</span>
+<span>     split_min_events <span class="op">=</span> <span class="fl">20</span>, </span>
+<span>     leaf_min_events <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>     split_min_stat <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ---------- Oblique random survival forest</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;      Linear combinations: Accelerated Cox regression</span></span>
+<span><span class="co">#&gt;           N observations: 276</span></span>
+<span><span class="co">#&gt;                 N events: 111</span></span>
+<span><span class="co">#&gt;                  N trees: 5</span></span>
+<span><span class="co">#&gt;       N predictors total: 18</span></span>
+<span><span class="co">#&gt;    N predictors per node: 5</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 6.4</span></span>
+<span><span class="co">#&gt; Min observations in leaf: 5</span></span>
+<span><span class="co">#&gt;       Min events in leaf: 10</span></span>
+<span><span class="co">#&gt;           OOB stat value: none</span></span>
+<span><span class="co">#&gt;            OOB stat type: none</span></span>
+<span><span class="co">#&gt;      Variable importance: none</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -----------------------------------------</span></span></code></pre></div>
 <p>While these default values do make <code><a href="../reference/orsf.html">orsf()</a></code> run slower,
 they also usually make its predictions more accurate or make the fit
 easier to interpret.</p>
@@ -234,18 +224,12 @@ easier to interpret.</p>
 <p>Setting <code>verbose_progress = TRUE</code> doesn’t make anything
 run faster, but it can help make it <em>feel</em> like things are
 running less slow.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">verbose_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">flc</span>, <span class="va">time</span><span class="op">+</span><span class="va">status</span><span class="op">~</span><span class="va">.</span>, </span>
-<span>                    na_action <span class="op">=</span> <span class="st">'na_impute_meanmode'</span>,</span>
-<span>                    n_thread <span class="op">=</span> <span class="fl">0</span>, </span>
-<span>                    n_tree <span class="op">=</span> <span class="fl">500</span>, </span>
+<span><span class="va">verbose_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
+<span>                    formula <span class="op">=</span> <span class="va">time</span><span class="op">+</span><span class="va">status</span><span class="op">~</span><span class="va">.</span> <span class="op">-</span><span class="va">id</span>, </span>
+<span>                    n_tree <span class="op">=</span> <span class="fl">5</span>, </span>
 <span>                    verbose_progress <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Growing trees: 18%. ~ time remaining: 9 seconds.</span></span>
-<span><span class="co">#&gt; Growing trees: 36%. ~ time remaining: 6 seconds.</span></span>
-<span><span class="co">#&gt; Growing trees: 55%. ~ time remaining: 4 seconds.</span></span>
-<span><span class="co">#&gt; Growing trees: 74%. ~ time remaining: 2 seconds.</span></span>
-<span><span class="co">#&gt; Growing trees: 93%. ~ time remaining: 0 seconds.</span></span>
 <span><span class="co">#&gt; Growing trees: 100%. </span></span>
 <span><span class="co">#&gt; Computing predictions: 100%.</span></span></code></pre></div>
 </div>
