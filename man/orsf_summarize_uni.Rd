@@ -71,7 +71,7 @@ by setting importance = 'none'.
 }
 \examples{
 
-object <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+object <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 25)
 
 # since anova importance was used to make object, we can
 # safely say importance = 'none' and skip computation of
