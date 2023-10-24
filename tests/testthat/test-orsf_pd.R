@@ -154,12 +154,12 @@ for(i in seq_along(funs)){
 #  pred_horizon = 1000
 # )
 #
-# pd_vals_smry <- orsf_pd_new(
-#  fit,
-#  new_data = pbc_orsf,
-#  pred_spec = list(bili = 1:4),
-#  pred_horizon = 1000
-# )
+pd_vals_smry <- orsf_pd_new(
+ fit,
+ new_data = pbc_orsf,
+ pred_spec = list(bili = 1:4),
+ pred_horizon = 1000
+)
 #
 # test_that(
 #  'ice values summarized are the same as pd values',
