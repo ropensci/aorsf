@@ -76,7 +76,7 @@ args_loop <- args_grid <- list(
  prob_values = c(0.025, 0.50, 0.975),
  prob_labels = c("lwr", "medn", "upr"),
  boundary_checks = TRUE,
- n_thread = 3
+ n_thread = 1
 )
 
 args_loop$expand_grid <- FALSE

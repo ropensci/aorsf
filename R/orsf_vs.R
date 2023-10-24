@@ -24,10 +24,9 @@
 #' object <- orsf(formula = time + status ~ .,
 #'                data = pbc_orsf,
 #'                n_tree = 25,
-#'                importance = 'anova',
-#'                tree_seeds = 1:25)
+#'                importance = 'anova')
 #'
-#' orsf_vs(object)
+#' orsf_vs(object, n_predictor_min = 17)
 
 orsf_vs <- function(object,
                     n_predictor_min = 3,
