@@ -148,28 +148,28 @@ by setting importance = 'none'.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">orsf_summarize_uni</span><span class="op">(</span><span class="va">object</span>, n_variables <span class="op">=</span> <span class="fl">3</span>, importance <span class="op">=</span> <span class="st">'none'</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- ascites (VI Rank: 1) ---------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- ascites (VI Rank: 1) --------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        |--------------- Risk ---------------|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        |-------------- Risk --------------|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Value     Mean   Median    25th %   75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0 2.706271 1.218721 0.3511788 4.535253</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      1 4.964312 4.599436 3.0044048 6.329067</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0 2.733162 1.561814 0.2879752 4.462437</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      1 4.003604 3.165062 1.9730168 5.336681</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- bili (VI Rank: 2) ------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- bili (VI Rank: 2) -----------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        |--------------- Risk ---------------|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Value     Mean    Median    25th %   75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.80 1.922568 0.9404937 0.3011899 2.710146</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    1.4 2.224909 1.2320951 0.5092857 3.128724</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    3.5 3.384163 2.6135993 1.4373016 4.810554</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- copper (VI Rank: 3) ----------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        |--------------- Risk ---------------|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        |-------------- Risk --------------|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Value     Mean   Median    25th %   75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     43 2.453336 1.129450 0.3042431 3.793337</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     74 2.609382 1.303132 0.3898251 4.293258</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    129 3.094766 2.004153 0.7689026 4.738986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.80 2.044211 1.115004 0.2670348 3.268819</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    1.4 2.309736 1.462751 0.4753756 3.488051</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    3.5 3.206735 2.417984 1.1449701 4.795981</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- edema (VI Rank: 3) ----------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        |-------------- Risk --------------|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Value     Mean   Median    25th %   75th %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0 2.674731 1.554080 0.2879752 4.044020</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    0.5 3.262459 2.088120 0.5992579 5.446720</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      1 4.495977 3.827572 2.7007400 5.953247</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Predicted risk at time t = 1788 for top 3 predictors </span>
 <span class="r-in"><span></span></span>
@@ -179,28 +179,29 @@ by setting importance = 'none'.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">orsf_summarize_uni</span><span class="op">(</span><span class="va">object</span>, n_variables <span class="op">=</span> <span class="fl">3</span>, importance <span class="op">=</span> <span class="st">'negate'</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- bili (VI Rank: 1) ------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- bili (VI Rank: 1) -----------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        |--------------- Risk ---------------|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Value     Mean    Median    25th %   75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.80 1.922568 0.9404937 0.3011899 2.710146</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    1.4 2.224909 1.2320951 0.5092857 3.128724</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    3.5 3.384163 2.6135993 1.4373016 4.810554</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- copper (VI Rank: 2) ----------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        |--------------- Risk ---------------|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        |-------------- Risk --------------|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Value     Mean   Median    25th %   75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     43 2.453336 1.129450 0.3042431 3.793337</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     74 2.609382 1.303132 0.3898251 4.293258</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    129 3.094766 2.004153 0.7689026 4.738986</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.80 2.044211 1.115004 0.2670348 3.268819</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    1.4 2.309736 1.462751 0.4753756 3.488051</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    3.5 3.206735 2.417984 1.1449701 4.795981</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- sex (VI Rank: 3) -------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- copper (VI Rank: 2) ---------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        |--------------- Risk ---------------|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        |-------------- Risk --------------|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Value     Mean   Median    25th %   75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      m 3.056630 2.028508 0.6740451 4.948518</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      f 2.710838 1.169844 0.3298265 4.328080</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     43 2.352355 1.366856 0.2562943 3.645539</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     74 2.579315 1.530808 0.3322159 3.861936</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    129 3.009579 1.864840 0.6893165 4.576161</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -- age (VI Rank: 3) ------------------------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        |-------------- Risk --------------|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Value     Mean   Median    25th %   75th %</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     42 2.399061 1.268208 0.2687741 3.508487</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     50 2.732358 1.429379 0.3412839 4.589472</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     57 3.149535 1.942301 0.5152916 5.061200</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Predicted risk at time t = 1788 for top 3 predictors </span>
 <span class="r-in"><span></span></span>
