@@ -58,8 +58,8 @@
 
   void sprout_leaf(uword node_id) override;
 
-  void predict_value(arma::mat* pred_output,
-                     arma::vec* pred_denom,
+  void predict_value(arma::mat& pred_output,
+                     arma::vec& pred_denom,
                      PredType pred_type,
                      bool oobag) override;
 

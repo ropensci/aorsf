@@ -498,8 +498,8 @@
  //
  // }
 
- void TreeSurvival::predict_value(arma::mat* pred_output,
-                                  arma::vec* pred_denom,
+ void TreeSurvival::predict_value(arma::mat& pred_output,
+                                  arma::vec& pred_denom,
                                   PredType pred_type,
                                   bool oobag){
 
@@ -643,9 +643,9 @@
 
    if(pred_type == PRED_RISK) temp_vec = 1 - temp_vec;
 
-   (*pred_output).row(*it) += temp_vec.t();
+   pred_output.row(*it) += temp_vec.t();
    n_preds_made++;
-   if(oobag) (*pred_denom)[*it]++;
+   if(oobag) pred_denom[*it]++;
 
    // Rcout << "npreds: " << n_preds_made << ", ";
    // Rcout << "*it: " << (*it) << std::endl;
@@ -661,9 +661,9 @@
      // check to see if it's the same leaf as the obs before:
      if (leaf_id == pred_leaf[*it]){
       // if it is, add the value to the pred_output, and be done
-      (*pred_output).row(*it) += temp_vec.t();
+      pred_output.row(*it) += temp_vec.t();
       n_preds_made++;
-      if(oobag) (*pred_denom)[*it]++;
+      if(oobag) pred_denom[*it]++;
       break_loop = true;
       break;
      }
@@ -672,9 +672,9 @@
 
     if(leaf_id != pred_leaf[*it]) break;
 
-    (*pred_output).row(*it) += temp_vec.t();
+    pred_output.row(*it) += temp_vec.t();
     n_preds_made++;
-    if(oobag) (*pred_denom)[*it]++;
+    if(oobag) pred_denom[*it]++;
 
     // Rcout << "npreds: " << n_preds_made << ", ";
     // Rcout << "*it (inner loop): " << (*it) << std::endl;

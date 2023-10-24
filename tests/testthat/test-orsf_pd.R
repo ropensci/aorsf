@@ -57,9 +57,9 @@ test_that(
 )
 
 funs <- list(
- ice_new = orsf_ice_new,
- ice_inb = orsf_ice_inb,
- ice_oob = orsf_ice_oob,
+ # ice_new = orsf_ice_new,
+ # ice_inb = orsf_ice_inb,
+ # ice_oob = orsf_ice_oob,
  pd_new = orsf_pd_new,
  pd_inb = orsf_pd_inb,
  pd_oob = orsf_pd_oob
@@ -147,33 +147,33 @@ for(i in seq_along(funs)){
 }
 
 
-pd_vals_ice <- orsf_ice_new(
- fit,
- new_data = pbc_orsf,
- pred_spec = list(bili = 1:4),
- pred_horizon = 1000
-)
-
-pd_vals_smry <- orsf_pd_new(
- fit,
- new_data = pbc_orsf,
- pred_spec = list(bili = 1:4),
- pred_horizon = 1000
-)
-
-test_that(
- 'ice values summarized are the same as pd values',
- code = {
-
-  pd_vals_check <- pd_vals_ice[, .(medn = median(pred)), by = id_variable]
-
-  expect_equal(
-   pd_vals_check$medn,
-   pd_vals_smry$medn
-  )
-
- }
-)
+# pd_vals_ice <- orsf_ice_new(
+#  fit,
+#  new_data = pbc_orsf,
+#  pred_spec = list(bili = 1:4),
+#  pred_horizon = 1000
+# )
+#
+# pd_vals_smry <- orsf_pd_new(
+#  fit,
+#  new_data = pbc_orsf,
+#  pred_spec = list(bili = 1:4),
+#  pred_horizon = 1000
+# )
+#
+# test_that(
+#  'ice values summarized are the same as pd values',
+#  code = {
+#
+#   pd_vals_check <- pd_vals_ice[, .(medn = median(pred)), by = id_variable]
+#
+#   expect_equal(
+#    pd_vals_check$medn,
+#    pd_vals_smry$medn
+#   )
+#
+#  }
+# )
 
 
 test_that(

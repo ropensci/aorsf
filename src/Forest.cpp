@@ -594,8 +594,8 @@ mat Forest::predict(bool oobag) {
 
    threads.emplace_back(&Forest::predict_multi_thread,
                         this, i, data.get(), oobag,
-                        &(result_threads[i]),
-                        &(oobag_denom_threads[i]));
+                        std::ref(result_threads[i]),
+                        std::ref(oobag_denom_threads[i]));
   }
 
   if(verbosity == 1){
@@ -696,11 +696,11 @@ void Forest::predict_single_thread(Data* prediction_data,
   } else if (!pred_aggregate){
 
    vec col_i = result.unsafe_col(i);
-   trees[i]->predict_value(&col_i, &oobag_denom, pred_type, oobag);
+   trees[i]->predict_value(col_i, oobag_denom, pred_type, oobag);
 
   } else {
 
-   trees[i]->predict_value(&result, &oobag_denom, pred_type, oobag);
+   trees[i]->predict_value(result, oobag_denom, pred_type, oobag);
 
   }
 
@@ -749,8 +749,8 @@ void Forest::predict_single_thread(Data* prediction_data,
 void Forest::predict_multi_thread(uint thread_idx,
                                   Data* prediction_data,
                                   bool oobag,
-                                  mat* result_ptr,
-                                  vec* denom_ptr) {
+                                  mat& result_ptr,
+                                  vec& denom_ptr) {
 
  if (thread_ranges.size() > thread_idx + 1) {
 
@@ -760,12 +760,12 @@ void Forest::predict_multi_thread(uint thread_idx,
 
    if(pred_type == PRED_TERMINAL_NODES){
 
-    (*result_ptr).col(i) = conv_to<vec>::from(trees[i]->get_pred_leaf());
+    result_ptr.col(i) = conv_to<vec>::from(trees[i]->get_pred_leaf());
 
    } else if (!pred_aggregate){
 
-    vec col_i = (*result_ptr).unsafe_col(i);
-    trees[i]->predict_value(&col_i, denom_ptr, pred_type, oobag);
+    vec col_i = result_ptr.unsafe_col(i);
+    trees[i]->predict_value(col_i, denom_ptr, pred_type, oobag);
 
    } else {
 
