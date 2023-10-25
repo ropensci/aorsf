@@ -606,14 +606,25 @@ orsf_pred_dependence <- function(object,
    else
     colnames(pd_vals[[i]][[j]]) <- c(paste(1:nrow(x_new)))
 
-   pd_vals[[i]][[j]] <- as.data.table(pd_vals[[i]][[j]],
-                                      keep.rownames = 'pred_horizon')
+   ph <- rownames(pd_vals[[i]][[j]])
 
-   if(type_output == 'ice')
-    pd_vals[[i]][[j]] <- melt(data = pd_vals[[i]][[j]],
-                              id.vars = 'pred_horizon',
-                              variable.name = 'id_row',
-                              value.name = 'pred')
+   pd_vals[[i]][[j]] <- as.data.frame(pd_vals[[i]][[j]])
+
+   rownames(pd_vals[[i]][[j]]) <- NULL
+
+   pd_vals[[i]][[j]][['pred_horizon']] <- ph
+
+   if(type_output == 'ice'){
+
+    pd_vals[[i]][[j]] <- melt_aorsf(
+     data = pd_vals[[i]][[j]],
+     id.vars = 'pred_horizon',
+     variable.name = 'id_row',
+     value.name = 'pred',
+     measure.vars = setdiff(names(pd_vals[[i]][[j]]), 'pred_horizon'))
+
+   }
+
 
   }
 
