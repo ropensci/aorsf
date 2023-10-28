@@ -57,6 +57,9 @@ test_that(
 )
 
 funs <- list(
+ # ice_new = orsf_ice_new,
+ # ice_inb = orsf_ice_inb,
+ # ice_oob = orsf_ice_oob,
  pd_new = orsf_pd_new,
  pd_inb = orsf_pd_inb,
  pd_oob = orsf_pd_oob
