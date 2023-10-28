@@ -95,8 +95,8 @@
   void predict_leaf(Data* prediction_data,
                     bool oobag);
 
-  virtual void predict_value(arma::mat* pred_output,
-                             arma::vec* pred_denom,
+  virtual void predict_value(arma::mat& pred_output,
+                             arma::vec& pred_denom,
                              PredType pred_type,
                              bool oobag) = 0;
 
