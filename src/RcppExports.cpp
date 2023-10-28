@@ -59,9 +59,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// compute_cstat_exported_vec
-double compute_cstat_exported_vec(arma::mat& y, arma::vec& w, arma::vec& p, bool pred_is_risklike);
-RcppExport SEXP _aorsf_compute_cstat_exported_vec(SEXP ySEXP, SEXP wSEXP, SEXP pSEXP, SEXP pred_is_risklikeSEXP) {
+// compute_cstat_surv_exported_vec
+double compute_cstat_surv_exported_vec(arma::mat& y, arma::vec& w, arma::vec& p, bool pred_is_risklike);
+RcppExport SEXP _aorsf_compute_cstat_surv_exported_vec(SEXP ySEXP, SEXP wSEXP, SEXP pSEXP, SEXP pred_is_risklikeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -69,13 +69,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec& >::type w(wSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type p(pSEXP);
     Rcpp::traits::input_parameter< bool >::type pred_is_risklike(pred_is_risklikeSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_cstat_exported_vec(y, w, p, pred_is_risklike));
+    rcpp_result_gen = Rcpp::wrap(compute_cstat_surv_exported_vec(y, w, p, pred_is_risklike));
     return rcpp_result_gen;
 END_RCPP
 }
-// compute_cstat_exported_uvec
-double compute_cstat_exported_uvec(arma::mat& y, arma::vec& w, arma::uvec& g, bool pred_is_risklike);
-RcppExport SEXP _aorsf_compute_cstat_exported_uvec(SEXP ySEXP, SEXP wSEXP, SEXP gSEXP, SEXP pred_is_risklikeSEXP) {
+// compute_cstat_surv_exported_uvec
+double compute_cstat_surv_exported_uvec(arma::mat& y, arma::vec& w, arma::uvec& g, bool pred_is_risklike);
+RcppExport SEXP _aorsf_compute_cstat_surv_exported_uvec(SEXP ySEXP, SEXP wSEXP, SEXP gSEXP, SEXP pred_is_risklikeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -83,7 +83,20 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::vec& >::type w(wSEXP);
     Rcpp::traits::input_parameter< arma::uvec& >::type g(gSEXP);
     Rcpp::traits::input_parameter< bool >::type pred_is_risklike(pred_is_risklikeSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_cstat_exported_uvec(y, w, g, pred_is_risklike));
+    rcpp_result_gen = Rcpp::wrap(compute_cstat_surv_exported_uvec(y, w, g, pred_is_risklike));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_cstat_clsf_exported
+double compute_cstat_clsf_exported(arma::mat& y, arma::vec& w, arma::vec& p);
+RcppExport SEXP _aorsf_compute_cstat_clsf_exported(SEXP ySEXP, SEXP wSEXP, SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type w(wSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_cstat_clsf_exported(y, w, p));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -253,8 +266,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_coxph_fit_exported", (DL_FUNC) &_aorsf_coxph_fit_exported, 6},
     {"_aorsf_linreg_fit_exported", (DL_FUNC) &_aorsf_linreg_fit_exported, 6},
     {"_aorsf_logreg_fit_exported", (DL_FUNC) &_aorsf_logreg_fit_exported, 6},
-    {"_aorsf_compute_cstat_exported_vec", (DL_FUNC) &_aorsf_compute_cstat_exported_vec, 4},
-    {"_aorsf_compute_cstat_exported_uvec", (DL_FUNC) &_aorsf_compute_cstat_exported_uvec, 4},
+    {"_aorsf_compute_cstat_surv_exported_vec", (DL_FUNC) &_aorsf_compute_cstat_surv_exported_vec, 4},
+    {"_aorsf_compute_cstat_surv_exported_uvec", (DL_FUNC) &_aorsf_compute_cstat_surv_exported_uvec, 4},
+    {"_aorsf_compute_cstat_clsf_exported", (DL_FUNC) &_aorsf_compute_cstat_clsf_exported, 3},
     {"_aorsf_compute_logrank_exported", (DL_FUNC) &_aorsf_compute_logrank_exported, 3},
     {"_aorsf_is_col_splittable_exported", (DL_FUNC) &_aorsf_is_col_splittable_exported, 4},
     {"_aorsf_find_cuts_survival_exported", (DL_FUNC) &_aorsf_find_cuts_survival_exported, 6},

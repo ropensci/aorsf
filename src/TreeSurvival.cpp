@@ -331,7 +331,7 @@
   }
 
   case SPLIT_CONCORD: {
-   result = compute_cstat(y_node, w_node, g_node, true);
+   result = compute_cstat_surv(y_node, w_node, g_node, true);
    break;
   }
 
@@ -703,7 +703,7 @@
 
  double TreeSurvival::compute_prediction_accuracy_internal(arma::vec& preds){
 
-  return compute_cstat(y_oobag, w_oobag, preds, true);
+  return compute_cstat_surv(y_oobag, w_oobag, preds, true);
 
  }
 

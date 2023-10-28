@@ -488,6 +488,33 @@ void Forest::compute_prediction_accuracy(Data* prediction_data,
 }
 
 
+void Forest::compute_prediction_accuracy(arma::mat&  y,
+                                         arma::vec&  w,
+                                         arma::mat&  predictions,
+                                         arma::uword row_fill){
+
+ if(oobag_eval_type == EVAL_R_FUNCTION){
+
+  // initialize function from tree object
+  // (Functions can't be stored in C++ classes, but Robjects can)
+  Rcpp::Function f_oobag_eval = Rcpp::as<Rcpp::Function>(oobag_R_function);
+  Rcpp::NumericMatrix y_ = Rcpp::wrap(y);
+  Rcpp::NumericVector w_ = Rcpp::wrap(w);
+
+  for(uword i = 0; i < oobag_eval.n_cols; ++i){
+   vec p = predictions.col(i);
+   Rcpp::NumericVector p_ = Rcpp::wrap(p);
+   Rcpp::NumericVector R_result = f_oobag_eval(y_, w_, p_);
+   oobag_eval(row_fill, i) = R_result[0];
+  }
+  return;
+ }
+
+ compute_prediction_accuracy_internal(y, w, predictions, row_fill);
+
+}
+
+
 std::vector<std::vector<arma::mat>> Forest::compute_dependence(bool oobag){
 
  std::vector<std::vector<arma::mat>> result;

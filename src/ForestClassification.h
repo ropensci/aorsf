@@ -1,5 +1,5 @@
 
-//  Forest.h
+//  ForestClassification.h
 
 #ifndef FORESTCLASSIFICATION_H
 #define FORESTCLASSIFICATION_H
@@ -21,10 +21,19 @@ public:
  ForestClassification(const ForestClassification&) = delete;
  ForestClassification& operator=(const ForestClassification&) = delete;
 
+ void resize_pred_mat_internal(arma::mat& p) override;
+
+ void compute_prediction_accuracy_internal(
+   arma::mat& y,
+   arma::vec& w,
+   arma::mat& predictions,
+   arma::uword row_fill
+ ) override;
+
 };
 
 }
 
 
 
-#endif /* Forest_H */
+#endif /* ForestClassification_H */

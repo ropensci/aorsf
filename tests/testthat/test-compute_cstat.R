@@ -33,11 +33,11 @@ test_that(
    survival_uvec     <- 1-oobag_c_survival(y_mat, w_1s, s_uvec)
    survival_uvec_wtd <- 1-oobag_c_survival(y_mat, w_rs, s_uvec)
 
-   aorsf_vec <- compute_cstat_exported_vec(y_mat, w_1s, s_vec, TRUE)
-   aorsf_vec_wtd <- compute_cstat_exported_vec(y_mat, w_rs, s_vec, TRUE)
+   aorsf_vec <- compute_cstat_surv_exported_vec(y_mat, w_1s, s_vec, TRUE)
+   aorsf_vec_wtd <- compute_cstat_surv_exported_vec(y_mat, w_rs, s_vec, TRUE)
 
-   aorsf_uvec <- compute_cstat_exported_uvec(y_mat, w_1s, s_uvec, TRUE)
-   aorsf_uvec_wtd <- compute_cstat_exported_uvec(y_mat, w_rs, s_uvec, TRUE)
+   aorsf_uvec <- compute_cstat_surv_exported_uvec(y_mat, w_1s, s_uvec, TRUE)
+   aorsf_uvec_wtd <- compute_cstat_surv_exported_uvec(y_mat, w_rs, s_uvec, TRUE)
 
    diffs_vec[i] <- abs(survival_vec - aorsf_vec)
    diffs_uvec[i] <- abs(survival_uvec - aorsf_uvec)
@@ -61,10 +61,10 @@ test_that(
 # # does a lot more, e.g. variance estimation
 # microbenchmark::microbenchmark(
 #  survival = oobag_c_survival(y_mat, w_rs, s_vec),
-#  aorsf = compute_cstat_exported_vec(y_mat, w_rs, s_vec, F)
+#  aorsf = compute_cstat_surv_exported_vec(y_mat, w_rs, s_vec, F)
 # )
 #
 # microbenchmark::microbenchmark(
 #  survival = oobag_c_survival(y_mat, w_rs, s_uvec),
-#  aorsf = compute_cstat_exported_uvec(y_mat, w_rs, s_uvec, F)
+#  aorsf = compute_cstat_surv_exported_uvec(y_mat, w_rs, s_uvec, F)
 # )

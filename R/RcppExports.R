@@ -13,12 +13,16 @@ logreg_fit_exported <- function(x_node, y_node, w_node, do_scale, epsilon, iter_
     .Call(`_aorsf_logreg_fit_exported`, x_node, y_node, w_node, do_scale, epsilon, iter_max)
 }
 
-compute_cstat_exported_vec <- function(y, w, p, pred_is_risklike) {
-    .Call(`_aorsf_compute_cstat_exported_vec`, y, w, p, pred_is_risklike)
+compute_cstat_surv_exported_vec <- function(y, w, p, pred_is_risklike) {
+    .Call(`_aorsf_compute_cstat_surv_exported_vec`, y, w, p, pred_is_risklike)
 }
 
-compute_cstat_exported_uvec <- function(y, w, g, pred_is_risklike) {
-    .Call(`_aorsf_compute_cstat_exported_uvec`, y, w, g, pred_is_risklike)
+compute_cstat_surv_exported_uvec <- function(y, w, g, pred_is_risklike) {
+    .Call(`_aorsf_compute_cstat_surv_exported_uvec`, y, w, g, pred_is_risklike)
+}
+
+compute_cstat_clsf_exported <- function(y, w, p) {
+    .Call(`_aorsf_compute_cstat_clsf_exported`, y, w, p)
 }
 
 compute_logrank_exported <- function(y, w, g) {

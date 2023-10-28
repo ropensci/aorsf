@@ -18,6 +18,7 @@
 #include "Tree.h"
 #include "Forest.h"
 #include "ForestSurvival.h"
+#include "ForestClassification.h"
 #include "Coxph.h"
 #include "utility.h"
 
@@ -78,20 +79,27 @@
  }
 
  // [[Rcpp::export]]
- double compute_cstat_exported_vec(
+ double compute_cstat_surv_exported_vec(
    arma::mat& y,
    arma::vec& w,
    arma::vec& p,
    bool pred_is_risklike
- ){ return compute_cstat(y, w, p, pred_is_risklike); }
+ ){ return compute_cstat_surv(y, w, p, pred_is_risklike); }
 
  // [[Rcpp::export]]
- double compute_cstat_exported_uvec(
+ double compute_cstat_surv_exported_uvec(
    arma::mat& y,
    arma::vec& w,
    arma::uvec& g,
    bool pred_is_risklike
- ){ return compute_cstat(y, w, g, pred_is_risklike); }
+ ){ return compute_cstat_surv(y, w, g, pred_is_risklike); }
+
+ // [[Rcpp::export]]
+ double compute_cstat_clsf_exported(
+   arma::mat& y,
+   arma::vec& w,
+   arma::vec& p
+ ){ return compute_cstat_clsf(y, w, p); }
 
  // [[Rcpp::export]]
  double compute_logrank_exported(
@@ -324,9 +332,7 @@
   // see globals.h for definitions.
   TreeType tree_type = (TreeType) tree_type_R;
 
-  if(tree_type == TREE_CLASSIFICATION ||
-     tree_type == TREE_PROBABILITY ||
-     tree_type == TREE_REGRESSION){
+  if(tree_type == TREE_REGRESSION){
 
    stop("that tree type is not ready yet");
 
@@ -358,15 +364,24 @@
    }
   }
 
-  if(tree_type == TREE_SURVIVAL){
+  switch(tree_type){
+
+  case TREE_SURVIVAL:
 
    forest = std::make_unique<ForestSurvival>(leaf_min_events,
                                              split_min_events,
                                              pred_horizon);
+   break;
 
-  } else {
+  // case TREE_CLASSIFICATION:
+  //
+  //  forest = std::make_unique<ForestClassification>();
+  //  break;
 
-   Rcpp::stop("only survival trees are currently implemented");
+  default:
+
+   Rcpp::stop("only survival and classification trees are currently implemented");
+   break;
 
   }
 

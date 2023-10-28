@@ -233,10 +233,10 @@
 
  }
 
- double compute_cstat(arma::mat& y,
-                      arma::vec& w,
-                      arma::vec& p,
-                      bool pred_is_risklike){
+ double compute_cstat_surv(arma::mat& y,
+                           arma::vec& w,
+                           arma::vec& p,
+                           bool pred_is_risklike){
 
   vec y_time   = y.unsafe_col(0);
   vec y_status = y.unsafe_col(1);
@@ -283,10 +283,10 @@
  }
 
 
- double compute_cstat(arma::mat& y,
-                      arma::vec& w,
-                      arma::uvec& g,
-                      bool pred_is_risklike){
+ double compute_cstat_surv(arma::mat& y,
+                           arma::vec& w,
+                           arma::uvec& g,
+                           bool pred_is_risklike){
 
   // note: g must have only values of 0 and 1 to use this.
   // note: this is a little different in its approach than
@@ -352,6 +352,53 @@
   return(1 - (concordant / total));
 
  }
+
+ double compute_cstat_clsf(mat& y, vec& w, vec& p){
+
+  uvec p_sort_index = sort_index(p);
+  vec p_freqs(w.size());
+  vec w_freqs(w.size());
+
+  double p_current = p[p_sort_index[0]];
+  uword freq_counter = 0;
+
+  for(uword i = 0; i < w.size(); ++i){
+
+   double p_new = p[p_sort_index[i]];
+
+   if(p_new != p_current){
+    p_freqs[freq_counter] = p_current;
+    p_current = p_new;
+    freq_counter++;
+   }
+
+   w_freqs[freq_counter] += w[p_sort_index[i]];
+
+  }
+
+  p_freqs[freq_counter] = p_current;
+  freq_counter++;
+
+  w_freqs.resize(freq_counter);
+  p_freqs.resize(freq_counter);
+
+  vec r = cumsum(w_freqs) - 0.5 * (w_freqs - 1);
+
+  vec w_rank;
+
+  interp1(p_freqs, r, p, w_rank);
+
+  vec w_y = w % y;
+
+  double n = sum(w_freqs);
+  double n1 = sum(w_y);
+  double mean_rank = dot(w_rank, w_y) / n1;
+  double cstat = (mean_rank - (n1 + 1) * 0.5) / (n - n1);
+
+  return(cstat);
+
+ }
+
 
  arma::mat linreg_fit(arma::mat& x_node,
                       arma::mat& y_node,
