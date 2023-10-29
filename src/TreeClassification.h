@@ -25,6 +25,30 @@
 
   virtual ~TreeClassification() override = default;
 
+  TreeClassification(arma::uword n_class);
+
+  TreeClassification(arma::uword n_obs,
+                     arma::uvec& rows_oobag,
+                     std::vector<double>& cutpoint,
+                     std::vector<arma::uword>& child_left,
+                     std::vector<arma::vec>& coef_values,
+                     std::vector<arma::uvec>& coef_indices,
+                     std::vector<arma::vec>& leaf_pred_prob,
+                     std::vector<double>& leaf_summary);
+
+  void resize_leaves(arma::uword new_size) override;
+
+  double compute_split_score() override;
+
+  void sprout_leaf_internal(arma::uword node_id) override;
+
+
+  arma::uword n_class;
+
+  // prob holds the predicted prob for each class
+  std::vector<arma::vec> leaf_pred_prob;
+  // summary (see Tree.h) holds class vote
+
  };
 
  } // namespace aorsf

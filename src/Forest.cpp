@@ -88,9 +88,9 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->verbosity = verbosity;
 
  if(vi_type != VI_NONE){
-  vi_numer.zeros(data->get_n_cols());
+  vi_numer.zeros(data->get_n_cols_x());
   if(vi_type == VI_ANOVA){
-   vi_denom.zeros(data->get_n_cols());
+   vi_denom.zeros(data->get_n_cols_x());
   }
  }
 
@@ -102,7 +102,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
 
   Rcpp::Rcout << "------------ input data dimensions ------------" << std::endl;
   Rcpp::Rcout << "N observations total: " << data->get_n_rows()    << std::endl;
-  Rcpp::Rcout << "N columns total: "      << data->get_n_cols()    << std::endl;
+  Rcpp::Rcout << "N columns total: "      << data->get_n_cols_x()    << std::endl;
   Rcpp::Rcout << "-----------------------------------------------";
   Rcpp::Rcout << std::endl;
   Rcpp::Rcout << std::endl;
@@ -214,8 +214,8 @@ void Forest::grow() {
  // begin multi-thread grow
  for (uint i = 0; i < n_thread; ++i) {
 
-  vi_numer_threads[i].zeros(data->n_cols);
-  if(vi_type == VI_ANOVA) vi_denom_threads[i].zeros(data->n_cols);
+  vi_numer_threads[i].zeros(data->n_cols_x);
+  if(vi_type == VI_ANOVA) vi_denom_threads[i].zeros(data->n_cols_x);
 
   threads.emplace_back(&Forest::grow_multi_thread, this, i,
                        &(vi_numer_threads[i]),
@@ -361,7 +361,7 @@ void Forest::compute_oobag_vi() {
 
  for (uint i = 0; i < n_thread; ++i) {
 
-  vi_numer_threads[i].zeros(data->n_cols);
+  vi_numer_threads[i].zeros(data->n_cols_x);
 
   threads.emplace_back(&Forest::compute_oobag_vi_multi_thread,
                        this, i, &(vi_numer_threads[i]));

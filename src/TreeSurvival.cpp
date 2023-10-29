@@ -282,8 +282,7 @@
   i = 0;
   uvec output_middle(k-j);
 
-  for(it = it_min+1;
-      it < it_max; ++it){
+  for(it = it_min+1; it < it_max; ++it){
    if(lincomb[*it] != lincomb[*(it+1)]){
     output_middle[i] = it - lincomb_sort.begin();
     i++;
@@ -335,23 +334,17 @@
    break;
   }
 
+  default:
+   Rcpp::stop("invalid split rule");
+   break;
+
   }
 
   return(result);
 
  }
 
- void TreeSurvival::sprout_leaf(uword node_id){
-
-  if(verbosity > 2){
-   // # nocov start
-   Rcout << "-- sprouting node " << node_id << " into a leaf";
-   Rcout << " (N = " << sum(w_node) << ")";
-   Rcout << std::endl;
-   Rcout << std::endl;
-   // # nocov end
-  }
-
+ void TreeSurvival::sprout_leaf_internal(uword node_id){
 
   // reserve as much size as could be needed (probably more)
   mat leaf_data(y_node.n_rows, 3);

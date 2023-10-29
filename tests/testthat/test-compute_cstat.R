@@ -1,6 +1,6 @@
 
 test_that(
- desc = 'C-statistic is close to survival::concordance',
+ desc = 'C-statistic (survival) is close to survival::concordance',
  code = {
 
   y_mat <- as.matrix(pbc_orsf[, c('time', 'status')])
@@ -57,14 +57,29 @@ test_that(
  }
 )
 
-# # aorsf about 3 times faster, probably b/c survival::concordance
-# # does a lot more, e.g. variance estimation
-# microbenchmark::microbenchmark(
-#  survival = oobag_c_survival(y_mat, w_rs, s_vec),
-#  aorsf = compute_cstat_surv_exported_vec(y_mat, w_rs, s_vec, F)
-# )
-#
-# microbenchmark::microbenchmark(
-#  survival = oobag_c_survival(y_mat, w_rs, s_uvec),
-#  aorsf = compute_cstat_surv_exported_uvec(y_mat, w_rs, s_uvec, F)
-# )
+test_that(
+ desc = 'C-statistic (classification) is close to Hmisc::somers2',
+ code = {
+
+  n <- 1000
+
+  p <- list(
+   catg = round(rnorm(n), 1),
+   ctns = rnorm(n),
+   bnry = rbinom(n, size = 1, prob = 1/2)
+  )
+
+  y <- matrix(rbinom(n, size = 1, prob = 1/2), ncol = 1)
+  w <- sample(1:5, n, replace = TRUE)
+
+  for(i in seq_along(p)){
+
+   target <- Hmisc::somers2(p[[i]], y = y, weights = w)['C']
+   answer <- compute_cstat_clsf_exported(y, w, p[[i]])
+
+   expect_equal(as.numeric(target), answer, tolerance = 1e-7)
+
+  }
+
+ }
+)

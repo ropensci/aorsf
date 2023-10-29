@@ -121,7 +121,7 @@
   random_number_generator.seed(seed);
 
   this->data = data;
-  this->n_cols_total = data->n_cols;
+  this->n_cols_total = data->n_cols_x;
   this->n_rows_total = data->n_rows;
   this->seed = seed;
   this->mtry = mtry;
@@ -298,19 +298,14 @@
 
  }
 
- // not currently used but will be in the future
- // # nocov start
  bool Tree::is_col_splittable(uword j){
 
-  uvec::iterator i;
-
-  // initialize as 0 but do not make comparisons until x_first_value
-  // is formally defined at the first instance of status == 1
+  // initialize as 0, do not compare until x_first_value is defn.
   double x_first_value=0;
 
   bool x_first_undef = true;
 
-  for (i = rows_node.begin(); i != rows_node.end(); ++i) {
+  for (uvec::iterator i = rows_node.begin(); i != rows_node.end(); ++i) {
 
    if(x_first_undef){
 
@@ -339,7 +334,7 @@
   return(false);
 
  }
- // # nocov end
+
 
  bool Tree::is_node_splittable(uword node_id){
 
@@ -377,7 +372,6 @@
  // # nocov end
 
  // not currently used but will be in the future
- // # nocov start
  void Tree::find_all_cuts(){
 
   // assume no valid cutpoints at first
@@ -396,7 +390,7 @@
 
    // If we want to make the current value of lincomb a cut-point, we need
    // to make sure the next value of lincomb isn't equal to this current value.
-   // Otherwise, we will have the same value of lincomb in both groups!
+   // Otherwise, we will have the same value of lincomb in both groups.
 
    if(lincomb[*it] != lincomb[*(it+1)]){
 
@@ -498,8 +492,7 @@
   i = 0;
   uvec output_middle(k-j);
 
-  for(it = it_min+1;
-      it < it_max; ++it){
+  for(it = it_min+1; it < it_max; ++it){
    if(lincomb[*it] != lincomb[*(it+1)]){
     output_middle[i] = it - lincomb_sort.begin();
     i++;
@@ -514,7 +507,6 @@
   cuts_all = join_vert(output_left, output_middle, output_right);
 
  }
- // # nocov end
 
  double Tree::find_best_cut(){
 
@@ -622,8 +614,6 @@
 
  }
 
- // not currently used but will be in the future
- // # nocov start
  void Tree::sprout_leaf(uword node_id){
 
   if(verbosity > 2){
@@ -633,10 +623,9 @@
    Rcout << std::endl;
   }
 
-  leaf_summary[node_id] = mean(y_node.col(0));
+  sprout_leaf_internal(node_id);
 
  }
- // # nocov end
 
  // not currently used but will be in the future
  // # nocov start
@@ -654,8 +643,6 @@
  }
  // # nocov end
 
- // not currently used but will be in the future
- // # nocov start
  double Tree::compute_max_leaves(){
 
   // find maximum number of leaves for this tree
@@ -672,7 +659,6 @@
   return(max_leaves);
 
  }
- // # nocov end
 
  void Tree::compute_oobag_vi(arma::vec* vi_numer,
                              VariableImportance vi_type) {
@@ -707,7 +693,7 @@
   random_number_generator.seed(seed);
 
   // Randomly permute for all independent variables
-  for (uword pred_col = 0; pred_col < data->get_n_cols(); ++pred_col) {
+  for (uword pred_col = 0; pred_col < data->get_n_cols_x(); ++pred_col) {
 
    // Check whether the i-th variable is used in the tree:
    bool pred_is_used = false;

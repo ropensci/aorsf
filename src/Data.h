@@ -34,9 +34,10 @@
    this->w = w;
 
    this->n_rows = x.n_rows;
-   this->n_cols = x.n_cols;
+   this->n_cols_x = x.n_cols;
+   this->n_cols_y = y.n_cols;
    this->has_weights = !w.empty();
-   this->saved_values.resize(n_cols);
+   this->saved_values.resize(n_cols_x);
 
   }
 
@@ -45,8 +46,8 @@
    return(n_rows);
   }
 
-  arma::uword get_n_cols() {
-   return(n_cols);
+  arma::uword get_n_cols_x() {
+   return(n_cols_x);
   }
 
   arma::mat& get_x(){
@@ -138,7 +139,8 @@
 
   // member variables
 
-  arma::uword n_cols;
+  arma::uword n_cols_x;
+  arma::uword n_cols_y;
   arma::uword n_rows;
   arma::vec w;
 

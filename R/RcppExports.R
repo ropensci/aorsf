@@ -29,6 +29,18 @@ compute_logrank_exported <- function(y, w, g) {
     .Call(`_aorsf_compute_logrank_exported`, y, w, g)
 }
 
+compute_gini_exported <- function(y, w, g) {
+    .Call(`_aorsf_compute_gini_exported`, y, w, g)
+}
+
+compute_pred_prob_exported <- function(y, w) {
+    .Call(`_aorsf_compute_pred_prob_exported`, y, w)
+}
+
+expand_y_clsf_exported <- function(y, n_class) {
+    .Call(`_aorsf_expand_y_clsf_exported`, y, n_class)
+}
+
 is_col_splittable_exported <- function(x, y, r, j) {
     .Call(`_aorsf_is_col_splittable_exported`, x, y, r, j)
 }

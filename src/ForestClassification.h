@@ -16,6 +16,8 @@ public:
 
  ForestClassification();
 
+ ForestClassification(arma::uword n_class);
+
  virtual ~ForestClassification() override = default;
 
  ForestClassification(const ForestClassification&) = delete;
@@ -29,6 +31,11 @@ public:
    arma::mat& predictions,
    arma::uword row_fill
  ) override;
+
+ // growInternal() in ranger
+ void plant() override;
+
+ uword n_class;
 
 };
 

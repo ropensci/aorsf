@@ -353,7 +353,7 @@
 
  }
 
- double compute_cstat_clsf(mat& y, vec& w, vec& p){
+ double compute_cstat_clsf(vec& y, vec& w, vec& p){
 
   uvec p_sort_index = sort_index(p);
   vec p_freqs(w.size());
@@ -399,6 +399,112 @@
 
  }
 
+ double compute_cstat_clsf(vec& y, vec& w, uvec& g){
+
+  double true_pos=0, true_neg=0, false_pos=0, false_neg=0;
+
+  for(uword i = 0; i < g.size(); ++i){
+
+   if(g[i] == 0 && y[i] == 0){
+
+    true_neg += w[i];
+
+   } else if(g[i] == 1 && y[i] == 1){
+
+    true_pos += w[i];
+
+   } else if(g[i] == 1) {
+
+    false_pos += w[i];
+
+   } else {
+
+    false_neg += w[i];
+
+   }
+
+  }
+
+  double sens = true_pos / (true_pos + false_pos);
+  double spec = true_neg / (true_neg + false_neg);
+
+  return(0.5 * (sens + spec));
+
+ }
+
+ double compute_gini(mat& y, vec& w, uvec& g){
+
+  vec y_probs_0(y.n_cols);
+  vec y_probs_1(y.n_cols);
+
+  double n_0 = 0;
+  double n_1 = 0;
+
+  for(uword i = 0; i < y.n_rows; ++i){
+
+   if(g[i] == 1){
+
+    n_1 += w[i];
+    y_probs_1 += (y.row(i) * w[i]);
+
+   } else {
+
+    n_0 += w[i];
+    y_probs_0 += (y.row(i) * w[i]);
+
+   }
+
+  }
+
+  y_probs_1 /= n_1;
+  y_probs_0 /= n_0;
+
+  y_probs_1 = join_vert(vec {1 - sum(y_probs_1)}, y_probs_1);
+  y_probs_0 = join_vert(vec {1 - sum(y_probs_0)}, y_probs_0);
+
+  double gini_1 = 1 - sum(y_probs_1 % y_probs_1);
+  double gini_0 = 1 - sum(y_probs_0 % y_probs_0);
+
+  double n_tot = n_1 + n_0;
+
+  return(gini_1 * (n_1/n_tot) + gini_0 * (n_0/n_tot));
+
+ }
+
+ vec compute_pred_prob(mat& y, vec& w){
+
+  double n_wtd = 0;
+  vec pred_prob(y.n_cols, fill::zeros);
+
+  for(uword i = 0; i < y.n_rows; ++i){
+   n_wtd += w[i];
+   for(uword j = 0; j < y.n_cols; ++j){
+    pred_prob[j] += (y.at(i, j) * w[i]);
+   }
+  }
+
+  pred_prob /= n_wtd;
+  vec pred_0 = vec {1 - sum(pred_prob)};
+  pred_prob = join_vert(pred_0, pred_prob);
+  return(pred_prob);
+
+ }
+
+ mat expand_y_clsf(vec& y, uword n_class){
+
+  mat out(y.n_rows, n_class - 1, fill::zeros);
+
+  for(uword i = 0; i < y.n_rows; ++i){
+
+   double yval = y[i];
+
+   if(yval > 0){ out.at(i, yval-1) = 1; }
+
+  }
+
+  return(out);
+
+ }
 
  arma::mat linreg_fit(arma::mat& x_node,
                       arma::mat& y_node,

@@ -96,7 +96,7 @@
 
  // [[Rcpp::export]]
  double compute_cstat_clsf_exported(
-   arma::mat& y,
+   arma::vec& y,
    arma::vec& w,
    arma::vec& p
  ){ return compute_cstat_clsf(y, w, p); }
@@ -107,6 +107,25 @@
    arma::vec& w,
    arma::uvec& g
  ){ return compute_logrank(y, w, g); }
+
+ // [[Rcpp::export]]
+ double compute_gini_exported(
+   arma::mat& y,
+   arma::vec& w,
+   arma::uvec& g
+ ){ return compute_gini(y, w, g); }
+
+ // [[Rcpp::export]]
+ arma::vec compute_pred_prob_exported(
+   arma::mat& y,
+   arma::vec& w
+ ){ return compute_pred_prob(y, w); }
+
+ // [[Rcpp::export]]
+ arma::mat expand_y_clsf_exported(
+   arma::vec& y,
+   arma::uword n_class
+ ){ return expand_y_clsf(y, n_class); }
 
  // [[Rcpp::export]]
  bool is_col_splittable_exported(arma::mat& x,
@@ -235,7 +254,8 @@
  }
 
  // [[Rcpp::export]]
- List cph_scale(arma::mat& x, arma::vec& w){
+ List cph_scale(arma::mat& x,
+                arma::vec& w){
 
   // set aside memory for outputs
   // first column holds the mean values

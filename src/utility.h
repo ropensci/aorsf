@@ -77,9 +77,23 @@ aorsf may be modified and distributed under the terms of the MIT license.
                            arma::uvec& g,
                            bool pred_is_risklike);
 
- double compute_cstat_clsf(arma::mat& y,
+ double compute_cstat_clsf(arma::vec& y,
                            arma::vec& w,
                            arma::vec& p);
+
+ double compute_cstat_clsf(arma::vec& y,
+                           arma::vec& w,
+                           arma::uvec& g);
+
+ double compute_gini(arma::mat& y,
+                     arma::vec& w,
+                     arma::uvec& g);
+
+ arma::vec compute_pred_prob(arma::mat& y,
+                             arma::vec& w);
+
+ arma::mat expand_y_clsf(arma::vec& y,
+                         arma::uword n_class);
 
  arma::mat linreg_fit(arma::mat& x_node,
                       arma::mat& y_node,

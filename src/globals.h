@@ -30,7 +30,8 @@
  // Split mode
  enum SplitRule {
   SPLIT_LOGRANK = 1,
-  SPLIT_CONCORD = 2
+  SPLIT_CONCORD = 2,
+  SPLIT_GINI = 3
  };
 
  enum EvalType {

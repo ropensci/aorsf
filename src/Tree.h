@@ -85,7 +85,9 @@
 
   double find_best_cut();
 
-  virtual void sprout_leaf(arma::uword node_id);
+  void sprout_leaf(arma::uword node_id);
+
+  virtual void sprout_leaf_internal(arma::uword node_id) = 0;
 
   virtual double compute_max_leaves();
 
