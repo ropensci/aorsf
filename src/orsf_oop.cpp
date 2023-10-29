@@ -499,3 +499,19 @@
    return(result);
 
  }
+ 
+ 
+ // [[Rcpp::export]]
+ double compute_var_reduction(arma::vec& y_node, 
+                              arma::vec& w_node, 
+                              arma::uvec& g_node){
+   arma::vec w_left = w_node % (1 - g_node);
+   arma::vec w_right = w_node % g_node;
+   double root_mean = sum(y_node % w_node)/sum(w_node);
+   double left_mean = sum(y_node % w_left)/sum(w_left);
+   double right_mean = sum(y_node % w_right)/sum(w_right);
+   
+   return (sum(w_node % pow(y_node - root_mean, 2)) - sum(w_left % pow(y_node - left_mean, 2)) -
+           sum(w_right % pow(y_node - right_mean, 2)))/sum(w_node);
+ }
+ 
