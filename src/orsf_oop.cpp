@@ -339,6 +339,16 @@
                bool                     run_forest,
                int                      verbosity){
 
+  // re-cast integer inputs from R into enumerations
+  // see globals.h for definitions.
+  VariableImportance vi_type = (VariableImportance) vi_type_R;
+  SplitRule split_rule = (SplitRule) split_rule_R;
+  LinearCombo lincomb_type = (LinearCombo) lincomb_type_R;
+  PredType pred_type = (PredType) pred_type_R;
+  EvalType oobag_eval_type = (EvalType) oobag_eval_type_R;
+  PartialDepType pd_type = (PartialDepType) pd_type_R;
+  TreeType tree_type = (TreeType) tree_type_R;
+
   List result;
 
   std::unique_ptr<Forest> forest { };
@@ -348,9 +358,6 @@
 
   uword n_obs = data->get_n_rows();
 
-  // re-cast integer inputs from R into enumerations
-  // see globals.h for definitions.
-  TreeType tree_type = (TreeType) tree_type_R;
 
   if(tree_type == TREE_REGRESSION){
 
@@ -358,12 +365,6 @@
 
   }
 
-  VariableImportance vi_type = (VariableImportance) vi_type_R;
-  SplitRule split_rule = (SplitRule) split_rule_R;
-  LinearCombo lincomb_type = (LinearCombo) lincomb_type_R;
-  PredType pred_type = (PredType) pred_type_R;
-  EvalType oobag_eval_type = (EvalType) oobag_eval_type_R;
-  PartialDepType pd_type = (PartialDepType) pd_type_R;
 
   if(n_thread == 0){
    n_thread = std::thread::hardware_concurrency();

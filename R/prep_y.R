@@ -127,6 +127,16 @@ prep_y_surv <- function(data, cols, run_checks = TRUE){
 
 }
 
+prep_y_clsf <- function(data, cols, run_checks = TRUE){
+
+ y <- select_cols(data, cols)
+
+ if(is.factor(y)) y <- as.numeric(y) - 1
+
+ as_matrix(y)
+
+}
+
 
 prep_y_from_orsf <- function(object){
 
