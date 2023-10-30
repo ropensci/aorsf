@@ -240,6 +240,25 @@
  }
 
  // [[Rcpp::export]]
+ arma::vec x_submat_mult_beta_pd_exported(arma::mat& x,
+                                          arma::mat& y,
+                                          arma::vec& w,
+                                          arma::uvec& x_rows,
+                                          arma::uvec& x_cols,
+                                          arma::vec& beta,
+                                          arma::vec& pd_x_vals,
+                                          arma::uvec& pd_x_cols){
+
+  std::unique_ptr<Data> data = std::make_unique<Data>(x, y, w);
+
+  vec out = data->x_submat_mult_beta(x_rows, x_cols, beta,
+                                     pd_x_vals, pd_x_cols);
+
+  return(out);
+
+ }
+
+ // [[Rcpp::export]]
  List scale_x_exported(arma::mat& x,
                        arma::vec& w){
 
