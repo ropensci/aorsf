@@ -170,6 +170,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// x_submat_mult_beta_pd_exported
+arma::vec x_submat_mult_beta_pd_exported(arma::mat& x, arma::mat& y, arma::vec& w, arma::uvec& x_rows, arma::uvec& x_cols, arma::vec& beta, arma::vec& pd_x_vals, arma::uvec& pd_x_cols);
+RcppExport SEXP _aorsf_x_submat_mult_beta_pd_exported(SEXP xSEXP, SEXP ySEXP, SEXP wSEXP, SEXP x_rowsSEXP, SEXP x_colsSEXP, SEXP betaSEXP, SEXP pd_x_valsSEXP, SEXP pd_x_colsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type w(wSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type x_rows(x_rowsSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type x_cols(x_colsSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type pd_x_vals(pd_x_valsSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type pd_x_cols(pd_x_colsSEXP);
+    rcpp_result_gen = Rcpp::wrap(x_submat_mult_beta_pd_exported(x, y, w, x_rows, x_cols, beta, pd_x_vals, pd_x_cols));
+    return rcpp_result_gen;
+END_RCPP
+}
 // scale_x_exported
 List scale_x_exported(arma::mat& x, arma::vec& w);
 RcppExport SEXP _aorsf_scale_x_exported(SEXP xSEXP, SEXP wSEXP) {
@@ -261,6 +279,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_sprout_node_survival_exported", (DL_FUNC) &_aorsf_sprout_node_survival_exported, 2},
     {"_aorsf_find_rows_inbag_exported", (DL_FUNC) &_aorsf_find_rows_inbag_exported, 2},
     {"_aorsf_x_submat_mult_beta_exported", (DL_FUNC) &_aorsf_x_submat_mult_beta_exported, 6},
+    {"_aorsf_x_submat_mult_beta_pd_exported", (DL_FUNC) &_aorsf_x_submat_mult_beta_pd_exported, 8},
     {"_aorsf_scale_x_exported", (DL_FUNC) &_aorsf_scale_x_exported, 2},
     {"_aorsf_cph_scale", (DL_FUNC) &_aorsf_cph_scale, 2},
     {"_aorsf_orsf_cpp", (DL_FUNC) &_aorsf_orsf_cpp, 44},

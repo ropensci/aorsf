@@ -113,6 +113,45 @@
 
   }
 
+  // multiply X matrix by lincomb coefficients
+  // without taking a sub-matrix of X
+  arma::vec x_submat_mult_beta(arma::uvec& x_rows,
+                               arma::uvec& x_cols,
+                               arma::vec&  beta,
+                               arma::vec&  pd_x_vals,
+                               arma::uvec& pd_x_cols){
+
+   if(pd_x_cols.is_empty()){
+    return(x_submat_mult_beta(x_rows, x_cols, beta));
+   }
+
+   arma::vec out(x_rows.size());
+   arma::uword j = 0;
+
+   for(auto col : x_cols){
+
+    arma::uword i = 0;
+    arma::uvec pd_col = find(pd_x_cols == col);
+
+    if(pd_col.is_empty()){
+     for(auto row : x_rows){
+      out[i] += x.at(row, col) * beta[j];
+      i++;
+     }
+    } else {
+     for(i = 0; i < out.size(); i++){
+      out[i] += pd_x_vals[pd_col[0]] * beta[j];
+     }
+    }
+
+    j++;
+
+   }
+
+   return(out);
+
+  }
+
   void permute_col(arma::uword j, std::mt19937_64& rng){
 
    arma::vec x_j = x.unsafe_col(j);
