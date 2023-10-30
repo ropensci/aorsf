@@ -302,7 +302,7 @@
 
   uword safer_mtry = mtry;
 
-  if(lincomb_type == LC_NEWTON_RAPHSON){
+  if(lincomb_type == LC_GLM){
 
    // Need 3:1 ratio of unweighted events:predictors
    uword n_events_total = sum(y_node.col(1));
@@ -491,27 +491,15 @@
  //
  // }
 
- void TreeSurvival::predict_value(arma::mat& pred_output,
-                                  arma::vec& pred_denom,
-                                  PredType pred_type,
-                                  bool oobag){
-
-  uvec pred_leaf_sort = sort_index(pred_leaf, "ascend");
+ arma::uword TreeSurvival::predict_value_internal(
+   arma::uvec& pred_leaf_sort,
+   arma::mat& pred_output,
+   arma::vec& pred_denom,
+   PredType pred_type,
+   bool oobag
+ ){
 
   uvec::iterator it = pred_leaf_sort.begin();
-
-  if(verbosity > 2){
-   // # nocov start
-   uvec tmp_uvec = find(pred_leaf < max_nodes);
-
-   if(tmp_uvec.size() == 0){
-    Rcout << pred_leaf<< std::endl;
-    Rcout << "max_nodes: " << max_nodes << std::endl;
-   }
-
-   Rcout << "   -- N preds expected: " << tmp_uvec.size() << std::endl;
-   // # nocov end
-  }
 
   uword leaf_id = pred_leaf[*it];
 
@@ -683,14 +671,7 @@
 
   }
 
-  if(verbosity > 2){
-   // # nocov start
-   Rcout << "   -- N preds made: " << n_preds_made;
-   Rcout << std::endl;
-   Rcout << std::endl;
-   // # nocov end
-  }
-
+  return(n_preds_made);
 
  }
 

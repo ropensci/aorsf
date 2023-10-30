@@ -48,7 +48,7 @@
 
  // Linear combination method
  enum LinearCombo {
-  LC_NEWTON_RAPHSON = 1,
+  LC_GLM = 1,
   LC_RANDOM_COEFS = 2,
   LC_GLMNET = 3,
   LC_R_FUNCTION = 4
@@ -87,7 +87,7 @@
  const arma::uword DEFAULT_SPLIT_MAX_CUTS = 5;
  const arma::uword DEFAULT_MAX_RETRY = 3;
 
- const LinearCombo DEFAULT_LINCOMB = LC_NEWTON_RAPHSON;
+ const LinearCombo DEFAULT_LINCOMB = LC_GLM;
  const double      DEFAULT_LINCOMB_EPS = 1e-9;
  const arma::uword DEFAULT_LINCOMB_ITER_MAX = 20;
  const bool        DEFAULT_LINCOMB_SCALE = true;

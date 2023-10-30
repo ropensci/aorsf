@@ -866,7 +866,7 @@
 
      switch (lincomb_type) {
 
-     case LC_NEWTON_RAPHSON: {
+     case LC_GLM: {
 
       beta = coxph_fit(x_node, y_node, w_node,
                        lincomb_scale, lincomb_ties_method,
@@ -966,7 +966,7 @@
 
        if(cut_point < R_PosInf){
 
-        if(vi_type == VI_ANOVA && lincomb_type == LC_NEWTON_RAPHSON){
+        if(vi_type == VI_ANOVA && lincomb_type == LC_GLM){
 
          // only do ANOVA variable importance when
          //  1. a split of the node is guaranteed
@@ -1152,6 +1152,42 @@
   }
 
   if(oobag){ pred_leaf.elem(rows_inbag).fill(max_nodes); }
+
+ }
+
+ void Tree::predict_value(arma::mat& pred_output,
+                          arma::vec& pred_denom,
+                          PredType   pred_type,
+                          bool       oobag){
+
+  if(verbosity > 2){
+   // # nocov start
+   uvec tmp_uvec = find(pred_leaf < max_nodes);
+
+   if(tmp_uvec.size() == 0){
+    Rcout << pred_leaf                  << std::endl;
+    Rcout << "max_nodes: " << max_nodes << std::endl;
+   }
+
+   Rcout << "   -- N preds expected: " << tmp_uvec.size() << std::endl;
+   // # nocov end
+  }
+
+  uvec pred_leaf_sort = sort_index(pred_leaf, "ascend");
+
+  uword n_preds_made = predict_value_internal(pred_leaf_sort,
+                                              pred_output,
+                                              pred_denom,
+                                              pred_type,
+                                              oobag);
+
+  if(verbosity > 2){
+   // # nocov start
+   Rcout << "   -- N preds made: " << n_preds_made;
+   Rcout << std::endl;
+   Rcout << std::endl;
+   // # nocov end
+  }
 
  }
 

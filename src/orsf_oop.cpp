@@ -393,10 +393,10 @@
                                              pred_horizon);
    break;
 
-  // case TREE_CLASSIFICATION:
-  //
-  //  forest = std::make_unique<ForestClassification>();
-  //  break;
+  case TREE_CLASSIFICATION:
+
+   forest = std::make_unique<ForestClassification>(data->n_cols_y + 1);
+   break;
 
   default:
 
@@ -470,6 +470,17 @@
                leaf_pred_prob, leaf_pred_chaz, leaf_summary,
                pd_type, pd_x_vals, pd_x_cols, pd_probs);
 
+    } else if (tree_type == TREE_CLASSIFICATION){
+
+     std::vector<std::vector<vec>> leaf_pred_prob = loaded_forest["leaf_pred_prob"];
+
+     auto& temp = dynamic_cast<ForestClassification&>(*forest);
+
+     temp.load(n_tree, n_obs, rows_oobag, cutpoint, child_left,
+               coef_values, coef_indices, leaf_pred_prob, leaf_summary,
+               pd_type, pd_x_vals, pd_x_cols, pd_probs);
+
+
     }
 
    }
@@ -507,6 +518,9 @@
      forest_out.push_back(temp.get_leaf_pred_indx(), "leaf_pred_indx");
      forest_out.push_back(temp.get_leaf_pred_prob(), "leaf_pred_prob");
      forest_out.push_back(temp.get_leaf_pred_chaz(), "leaf_pred_chaz");
+    } else if (tree_type == TREE_CLASSIFICATION){
+     auto& temp = dynamic_cast<ForestClassification&>(*forest);
+     forest_out.push_back(temp.get_leaf_pred_prob(), "leaf_pred_prob");
     }
 
     result.push_back(forest_out, "forest");

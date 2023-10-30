@@ -1,5 +1,4 @@
 
-
 #' strict checks for inputs
 #'
 #' @param arg_value the object that is to be checked
@@ -610,6 +609,9 @@ check_orsf_inputs <- function(data = NULL,
                               importance = NULL,
                               tree_seeds = NULL,
                               attach_data = NULL,
+                              no_fit = NULL,
+                              na_action = NULL,
+                              oobag_fun = NULL,
                               verbose_progress = NULL){
 
  if(!is.null(data)){
@@ -666,7 +668,6 @@ check_orsf_inputs <- function(data = NULL,
 
  }
 
-
  if(!is.null(formula)){
 
   check_arg_is(arg_value = formula,
@@ -677,8 +678,6 @@ check_orsf_inputs <- function(data = NULL,
    stop("formula must be two sided, i.e. left side ~ right side",
         call. = FALSE)
   }
-
-  # browser()
 
   formula_deparsed <- as.character(formula)[[3]]
 
@@ -902,7 +901,7 @@ check_orsf_inputs <- function(data = NULL,
 
   check_arg_is_valid(arg_value = split_rule,
                      arg_name = 'split_rule',
-                     valid_options = c("logrank", "cstat"))
+                     valid_options = c("logrank", "cstat", "gini"))
 
  }
 
@@ -959,7 +958,6 @@ check_orsf_inputs <- function(data = NULL,
 
  }
 
-
  if(!is.null(oobag_pred_type)){
 
   check_arg_type(arg_value = oobag_pred_type,
@@ -987,10 +985,6 @@ check_orsf_inputs <- function(data = NULL,
                  arg_name = 'oobag_pred_horizon',
                  expected_type = 'numeric')
 
-  # check_arg_length(arg_value = oobag_pred_horizon,
-  #                  arg_name = 'oobag_pred_horizon',
-  #                  expected_length = 1)
-
   for(i in seq_along(oobag_pred_horizon)){
 
    check_arg_gteq(arg_value = oobag_pred_horizon[i],
@@ -1000,7 +994,6 @@ check_orsf_inputs <- function(data = NULL,
   }
 
  }
-
 
  if(!is.null(oobag_eval_every)){
 
@@ -1075,6 +1068,38 @@ check_orsf_inputs <- function(data = NULL,
 
  }
 
+ if(!is.null(no_fit)){
+
+  check_arg_type(arg_value = no_fit,
+                 arg_name = 'no_fit',
+                 expected_type = 'logical')
+
+  check_arg_length(arg_value = no_fit,
+                   arg_name = 'no_fit',
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(na_action)){
+
+  check_arg_type(arg_value = na_action,
+                 arg_name = 'na_action',
+                 expected_type = 'character')
+
+  check_arg_length(arg_value = na_action,
+                   arg_name = 'na_action',
+                   expected_length = 1)
+
+  check_arg_is_valid(arg_value = na_action,
+                     arg_name = 'na_action',
+                     valid_options = c("fail", "omit", "impute_meanmode"))
+
+ }
+
+ if(!is.null(oobag_fun)){
+  check_oobag_fun(oobag_fun)
+ }
+
  if(!is.null(verbose_progress)){
 
   check_arg_type(arg_value = verbose_progress,
@@ -1084,6 +1109,35 @@ check_orsf_inputs <- function(data = NULL,
   check_arg_length(arg_value = verbose_progress,
                    arg_name = 'verbose_progress',
                    expected_length = 1)
+
+ }
+
+ # checks that depend on 2 or more inputs
+
+ if(!is.null(oobag_pred_type) && !is.null(sample_fraction)){
+  if(oobag_pred_type != "none" && sample_fraction == 1){
+   stop(
+    "cannot compute out-of-bag predictions if no samples are out-of-bag.",
+    " Try setting sample_fraction < 1 or oobag_pred_type = 'none'.",
+    call. = FALSE
+   )
+  }
+ }
+
+ if(!is.null(split_min_stat) && !is.null(split_rule)){
+  if(split_rule == "cstat" && split_min_stat >= 1){
+   stop("If split_rule is 'cstat', split_min_stat must be < 1",
+        call. = FALSE)
+  }
+ }
+
+ if(!is.null(oobag_fun) && !is.null(oobag_pred_type)){
+
+  if(oobag_pred_type == 'leaf'){
+   stop("a user-supplied oobag function cannot be",
+        " applied when oobag_pred_type = 'leaf'",
+        call. = FALSE)
+  }
 
  }
 

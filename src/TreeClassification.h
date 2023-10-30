@@ -42,6 +42,20 @@
 
   void sprout_leaf_internal(arma::uword node_id) override;
 
+  arma::uword predict_value_internal(arma::uvec& pred_leaf_sort,
+                                     arma::mat& pred_output,
+                                     arma::vec& pred_denom,
+                                     PredType pred_type,
+                                     bool oobag) override;
+
+  arma::uword find_safe_mtry() override;
+
+  double compute_prediction_accuracy_internal(arma::vec& preds) override;
+
+
+  std::vector<arma::vec>& get_leaf_pred_prob(){
+   return(leaf_pred_prob);
+  }
 
   arma::uword n_class;
 

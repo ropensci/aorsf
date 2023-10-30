@@ -58,10 +58,11 @@
 
   void sprout_leaf_internal(uword node_id) override;
 
-  void predict_value(arma::mat& pred_output,
-                     arma::vec& pred_denom,
-                     PredType pred_type,
-                     bool oobag) override;
+  arma::uword predict_value_internal(arma::uvec& pred_leaf_sort,
+                                     arma::mat& pred_output,
+                                     arma::vec& pred_denom,
+                                     PredType pred_type,
+                                     bool oobag) override;
 
   std::vector<arma::vec>& get_leaf_pred_indx(){
    return(leaf_pred_indx);

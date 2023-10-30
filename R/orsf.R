@@ -355,25 +355,12 @@ orsf <- function(data,
   importance = importance,
   tree_seeds = tree_seeds,
   attach_data = attach_data,
+  no_fit = no_fit,
+  na_action = na_action,
   verbose_progress = verbose_progress
  )
 
- #TODO: more polish
- if(split_rule == "cstat" && split_min_stat >= 1){
-  stop("If split_rule is 'cstat', split_min_stat must be < 1",
-       call. = FALSE)
- }
-
  oobag_pred <- oobag_pred_type != 'none'
-
- if(sample_fraction == 1 && oobag_pred){
-  stop(
-   "cannot compute out-of-bag predictions if no samples are out-of-bag.",
-   " Try setting sample_fraction < 1 or oobag_pred_type = 'none'.",
-   call. = FALSE
-  )
- }
-
 
  if(is.null(oobag_fun)){
 
@@ -382,21 +369,13 @@ orsf <- function(data,
 
  } else {
 
-  check_oobag_fun(oobag_fun)
   f_oobag_eval <- oobag_fun
   type_oobag_eval <- 'user'
-
-  if(oobag_pred_type == 'leaf'){
-   warning("a user-supplied oobag function cannot be",
-           "applied when oobag_pred_type = 'leaf'",
-           call. = FALSE)
-  }
 
  }
 
  # can't evaluate the oobag predictions if they aren't aggregated
  if(oobag_pred_type == 'leaf') type_oobag_eval <- 'none'
-
 
  formula_terms <- suppressWarnings(stats::terms(formula, data=data))
 
@@ -407,7 +386,7 @@ orsf <- function(data,
 
  outcome_type <- infer_outcome_type(names_y_data, data)
 
- if(outcome_type %in% c('regression', 'classification')) stop("not ready yet")
+ if(outcome_type %in% c('regression')) stop("not ready yet")
 
  if(control$tree_type == 'unknown'){
 
@@ -478,12 +457,6 @@ orsf <- function(data,
    stop("column ", i, " has no observed values",
         call. = FALSE)
   }
-
-  # nan values trigger is.na(), so this probably isnt needed.
-  # if(any(is.nan(data[[i]]))){
-  #  stop("Please remove NaN values from ", i, ".",
-  #       call. = FALSE)
-  # }
 
  }
 
@@ -572,14 +545,14 @@ orsf <- function(data,
 
  }
 
- y <- prep_y(data, names_y_data)
+ y <- prep_y_surv(data, names_y_data)
  x <- prep_x(data, fi, names_x_data, means, standard_deviations)
 
  if(is.null(mtry)) mtry <- ceiling(sqrt(ncol(x)))
 
  n_events <- collapse::fsum(y[, 2])
 
- # some additional checks that are dependent on the outcome variable
+ # some additional checks that are dependent on the data
 
  check_arg_lteq(
   arg_value = mtry,
@@ -602,7 +575,6 @@ orsf <- function(data,
   )
 
  }
-
 
  check_arg_lteq(
   arg_value = leaf_min_events,

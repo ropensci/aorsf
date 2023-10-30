@@ -14,7 +14,7 @@
 #'
 #' @noRd
 #'
-prep_y <- function(data, cols, run_checks = TRUE){
+prep_y_surv <- function(data, cols, run_checks = TRUE){
 
  y <- select_cols(data, cols)
 
@@ -130,8 +130,8 @@ prep_y <- function(data, cols, run_checks = TRUE){
 
 prep_y_from_orsf <- function(object){
 
- prep_y(object$data,
-        get_names_y(object),
-        run_checks = FALSE)
+ prep_y_surv(object$data,
+             get_names_y(object),
+             run_checks = FALSE)
 
 }
