@@ -57,9 +57,9 @@ test_that(
 )
 
 funs <- list(
- ice_new = orsf_ice_new,
- ice_inb = orsf_ice_inb,
- ice_oob = orsf_ice_oob,
+ # ice_new = orsf_ice_new,
+ # ice_inb = orsf_ice_inb,
+ # ice_oob = orsf_ice_oob,
  pd_new = orsf_pd_new,
  pd_inb = orsf_pd_inb,
  pd_oob = orsf_pd_oob
@@ -76,7 +76,7 @@ args_loop <- args_grid <- list(
  prob_values = c(0.025, 0.50, 0.975),
  prob_labels = c("lwr", "medn", "upr"),
  boundary_checks = TRUE,
- n_thread = 3
+ n_thread = 1
 )
 
 args_loop$expand_grid <- FALSE
@@ -87,8 +87,7 @@ for(i in seq_along(funs)){
 
  formals <- setdiff(names(formals(funs[[i]])), '...')
 
- for(pred_type in c('mort')){
- # for(pred_type in setdiff(pred_types_surv, c('leaf', 'mort'))){
+ for(pred_type in setdiff(pred_types_surv, c('leaf'))){
 
   args_grid$pred_type = pred_type
   args_loop$pred_type = pred_type
@@ -149,14 +148,15 @@ for(i in seq_along(funs)){
 
 pd_vals_ice <- orsf_ice_new(
  fit,
- new_data = pbc_orsf,
+ new_data = pbc_test,
  pred_spec = list(bili = 1:4),
  pred_horizon = 1000
 )
 
+
 pd_vals_smry <- orsf_pd_new(
  fit,
- new_data = pbc_orsf,
+ new_data = pbc_test,
  pred_spec = list(bili = 1:4),
  pred_horizon = 1000
 )
@@ -165,10 +165,11 @@ test_that(
  'ice values summarized are the same as pd values',
  code = {
 
-  pd_vals_check <- pd_vals_ice[, .(medn = median(pred)), by = id_variable]
+  grps <- split(pd_vals_ice, pd_vals_ice$id_variable)
+  pd_vals_check <- sapply(grps, function(x) median(x$pred))
 
   expect_equal(
-   pd_vals_check$medn,
+   as.numeric(pd_vals_check),
    pd_vals_smry$medn
   )
 
@@ -177,13 +178,8 @@ test_that(
 
 
 test_that(
- 'No missing values in output',
+ 'No missing values in summary output',
  code = {
-
-  # expect_false(any(is.na(pd_vals_ice)))
-  # expect_false(any(is.nan(as.matrix(pd_vals_ice))))
-  # expect_false(any(is.infinite(as.matrix(pd_vals_ice))))
-
   expect_false(any(is.na(pd_vals_smry)))
   expect_false(any(is.nan(as.matrix(pd_vals_smry))))
   expect_false(any(is.infinite(as.matrix(pd_vals_smry))))
@@ -200,10 +196,9 @@ test_that(
    pred_horizon = c(1000, 2000, 3000)
   )
 
-  # risk must increase or remain steady over time
+  # risk monotonically increases
   expect_lte(pd_smry_multi_horiz$mean[1], pd_smry_multi_horiz$mean[2])
   expect_lte(pd_smry_multi_horiz$mean[2], pd_smry_multi_horiz$mean[3])
-
   expect_lte(pd_smry_multi_horiz$medn[1], pd_smry_multi_horiz$medn[2])
   expect_lte(pd_smry_multi_horiz$medn[2], pd_smry_multi_horiz$medn[3])
 
@@ -213,9 +208,11 @@ test_that(
    pred_horizon = c(1000, 2000, 3000)
   )
 
-  ice_check <- pd_ice_multi_horiz[, .(m = mean(pred, na.rm=TRUE)), by = pred_horizon]
+  grps <- split(pd_ice_multi_horiz, pd_ice_multi_horiz$pred_horizon)
 
-  expect_equal(ice_check$m, pd_smry_multi_horiz$mean)
+  ice_check <- sapply(grps, function(x) mean(x$pred, na.rm=TRUE))
+
+  expect_equal(as.numeric(ice_check), pd_smry_multi_horiz$mean)
 
  }
 

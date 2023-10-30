@@ -228,8 +228,8 @@ protected:
  void predict_multi_thread(uint thread_idx,
                            Data* prediction_data,
                            bool oobag,
-                           mat* result_ptr,
-                           vec* denom_ptr);
+                           mat& result_ptr,
+                           vec& denom_ptr);
 
  void compute_oobag_vi();
 

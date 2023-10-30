@@ -43,6 +43,7 @@ pbc_orsf_test <- pbc_orsf[-index_train, ]
 
 fit <- orsf(data = pbc_orsf_train, 
             formula = Surv(time, status) ~ . - id,
+            n_tree = 50,
             oobag_pred_horizon = pred_horizon)
 
 fit
@@ -92,7 +93,7 @@ You can compute PD three ways with `aorsf`:
 
 - new data PD shows how the model predicts outcomes for observations it has not seen. This is helpful if you want to test your model's reliability or fairness.
 
-Let's re-fit our ORSF to all available data before proceeding to the next sections.
+Let's re-fit our ORSF model to all available data before proceeding to the next sections.
 
 ```{r}
 
@@ -100,6 +101,7 @@ set.seed(329730)
 
 fit <- orsf(pbc_orsf, 
             Surv(time, status) ~ . -id,
+            n_tree = 50,
             oobag_pred_horizon = pred_horizon)
 
 ```
@@ -171,7 +173,7 @@ Now would it be tedious if you wanted to do this for all the variables? You bet.
 
 ```{r}
 
-pd_smry <- orsf_summarize_uni(fit)
+pd_smry <- orsf_summarize_uni(fit, n_variables = 4)
 
 pd_smry
 

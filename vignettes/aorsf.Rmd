@@ -40,6 +40,7 @@ library(aorsf)
 set.seed(329)
 
 orsf_fit <- orsf(data = pbc_orsf, 
+                 n_tree = 5,
                  formula = Surv(time, status) ~ . - id)
 
 orsf_fit
@@ -54,7 +55,8 @@ library(dplyr)
 
 orsf_fit <- pbc_orsf |> 
  select(-id) |> 
- orsf(formula = Surv(time, status) ~ .)
+ orsf(formula = Surv(time, status) ~ .,
+      n_tree = 5)
 
 ```
 
@@ -107,43 +109,16 @@ For more on ICE, see the [vignette](https://docs.ropensci.org/aorsf/articles/pd.
 
 The original ORSF (i.e., `obliqueRSF`) used `glmnet` to find linear combinations of inputs. `aorsf` allows users to implement this approach using the `orsf_control_net()` function: 
 
-```{r}
+```{r, eval=FALSE}
 
 orsf_net <- orsf(data = pbc_orsf, 
                  formula = Surv(time, status) ~ . - id, 
-                 control = orsf_control_net(),
-                 n_tree = 50)
+                 control = orsf_control_net())
 
 ```
 
-`net` forests fit a lot faster than the original ORSF function in `obliqueRSF`. However, `net` forests are still much slower than `cph` ones:
+`net` forests fit a lot faster than the original ORSF function in `obliqueRSF`. However, `net` forests are still much slower than `cph` ones.
 
-```{r}
-
-# tracking how long it takes to fit 50 glmnet trees
-print(
- t1 <- system.time(
-  orsf(data = pbc_orsf, 
-       formula = Surv(time, status) ~ . - id, 
-       control = orsf_control_net(),
-       n_tree = 50)
- )
-)
-
-# and how long it takes to fit 50 cph trees
-print(
- t2 <- system.time(
-  orsf(data = pbc_orsf, 
-       formula = Surv(time, status) ~ . - id, 
-       control = orsf_control_cph(),
-       n_tree = 50)
- )
-)
-
-t1['elapsed'] / t2['elapsed']
-
-
-```
 
 ## aorsf and other machine learning software
 
