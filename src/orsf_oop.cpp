@@ -502,16 +502,48 @@
  
  
  // [[Rcpp::export]]
- double compute_var_reduction(arma::vec& y_node, 
-                              arma::vec& w_node, 
-                              arma::uvec& g_node){
-   arma::vec w_left = w_node % (1 - g_node);
-   arma::vec w_right = w_node % g_node;
-   double root_mean = sum(y_node % w_node)/sum(w_node);
-   double left_mean = sum(y_node % w_left)/sum(w_left);
-   double right_mean = sum(y_node % w_right)/sum(w_right);
+ double compute_var_reduction(arma::vec& y_node,
+                                arma::vec& w_node,
+                                arma::uvec& g_node){
    
-   return (sum(w_node % pow(y_node - root_mean, 2)) - sum(w_left % pow(y_node - left_mean, 2)) -
-           sum(w_right % pow(y_node - right_mean, 2)))/sum(w_node);
+   double root_mean = 0, left_mean = 0, right_mean = 0;
+   double root_w_sum = 0, left_w_sum = 0, right_w_sum = 0;
+   
+   for(arma::uword i = 0; i < y_node.n_rows; ++i){
+     
+     double w_i = w_node[i];
+     double y_i = y_node[i] * w_i;
+     
+     root_w_sum     += w_i;
+     root_mean += y_i;
+     
+     if(g_node[i] == 1){
+       right_w_sum += w_i;
+       right_mean  += y_i;
+     } else {
+       left_w_sum += w_i;
+       left_mean  += y_i;
+     }
+     
+   }
+   
+   root_mean /= root_w_sum;
+   left_mean /= left_w_sum;
+   right_mean /= right_w_sum;
+   
+   double ans = 0;
+   
+   for(arma::uword i = 0; i < y_node.n_rows; ++i){
+     
+     double w_i = w_node[i];
+     double y_i = y_node[i];
+     double g_i = g_node[i];
+     double obs_mean = g_i*right_mean + (1 - g_i)*left_mean;
+     
+     ans += w_i * pow(y_i - root_mean, 2) - w_i * pow(y_i - obs_mean, 2);
+     
+   }
+   ans /= root_w_sum;
+   return(ans);
  }
  
