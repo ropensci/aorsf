@@ -218,6 +218,8 @@
 
   void find_rows_inbag(arma::uword n_obs);
 
+  virtual arma::mat glm_fit();
+
  protected:
 
   void resize_oobag_data();

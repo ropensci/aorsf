@@ -52,6 +52,7 @@
 
   double compute_prediction_accuracy_internal(arma::vec& preds) override;
 
+  arma::mat glm_fit() override;
 
   std::vector<arma::vec>& get_leaf_pred_prob(){
    return(leaf_pred_prob);

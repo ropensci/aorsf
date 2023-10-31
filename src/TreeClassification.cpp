@@ -51,7 +51,16 @@
   switch (split_rule) {
 
   case SPLIT_GINI: {
-   result = compute_gini(y_node, w_node, g_node);
+
+   for(uword i = 0; i < y_node.n_cols; i++){
+   vec y_i = y_node.unsafe_col(i);
+   result += compute_gini(y_i, w_node, g_node);
+  }
+   result /= y_node.n_cols;
+   // gini index: lower is better, so
+   // transform to make consistent with other stats
+   result = (result-1) * -1;
+
    break;
   }
 
@@ -62,6 +71,7 @@
     result += compute_cstat_clsf(y_i, w_node, g_node);
    }
    result /= y_node.n_cols;
+
    break;
   }
 
@@ -127,6 +137,23 @@
 
  }
 
+ arma::mat TreeClassification::glm_fit(){
+
+  std::uniform_int_distribution<uword> udist_ycol(0, y_node.n_cols - 1);
+  uword j = udist_ycol(random_number_generator);
+  vec y_col = y_node.unsafe_col(j);
+
+  mat out = logreg_fit(x_node,
+                       y_col,
+                       w_node,
+                       lincomb_scale,
+                       lincomb_eps,
+                       lincomb_iter_max);
+
+  return(out);
+
+ }
+
  double TreeClassification::compute_prediction_accuracy_internal(
    arma::vec& preds
  ){
@@ -152,15 +179,14 @@
    // Need 3:1 ratio of unweighted events:predictors
 
    double n = y_node.n_rows;
-
-   vec y_sums = sum(y_node, 0);
+   vec y_sums = sum(y_node, 0).t();
    vec y_0 = { n - sum(y_sums) };
-
    y_sums = join_vert(y_0, y_sums);
 
-   double n_events_min = min(y_sums);
 
-   while(n_events_min / safer_mtry < 3){
+   double n_events_max = max(y_sums);
+
+   while(n_events_max / safer_mtry < 3){
     --safer_mtry;
     if(safer_mtry == 0) break;
    }

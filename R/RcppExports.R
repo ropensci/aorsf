@@ -37,8 +37,8 @@ compute_pred_prob_exported <- function(y, w) {
     .Call(`_aorsf_compute_pred_prob_exported`, y, w)
 }
 
-expand_y_clsf_exported <- function(y, n_class) {
-    .Call(`_aorsf_expand_y_clsf_exported`, y, n_class)
+expand_y_clsf <- function(y, n_class) {
+    .Call(`_aorsf_expand_y_clsf`, y, n_class)
 }
 
 is_col_splittable_exported <- function(x, y, r, j) {

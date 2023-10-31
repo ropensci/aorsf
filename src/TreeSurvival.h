@@ -88,6 +88,8 @@
 
   double compute_prediction_accuracy_internal(arma::vec& preds) override;
 
+  arma::mat glm_fit() override;
+
   // indx holds the times
   std::vector<arma::vec> leaf_pred_indx;
   // prob holds the predicted survival

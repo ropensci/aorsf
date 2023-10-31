@@ -1,6 +1,6 @@
 
 y <- as.numeric(penguins_orsf$species)-1
-y_expand <- expand_y_clsf_exported(y, n_class = 3)
+y_expand <- expand_y_clsf(y, n_class = 3)
 
 test_that(
  desc = "unweighted probabilities are correct",

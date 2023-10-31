@@ -681,6 +681,15 @@
 
  }
 
+ arma::mat TreeSurvival::glm_fit(){
+
+  mat out = coxph_fit(x_node, y_node, w_node,
+                      lincomb_scale, lincomb_ties_method,
+                      lincomb_eps, lincomb_iter_max);
+
+  return(out);
+
+ }
 
  } // namespace aorsf
 

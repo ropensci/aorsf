@@ -4,7 +4,7 @@ test_that(
  desc = "y expands to n_class - 1 column matrix (ref coded)",
  code = {
 
-  y_expand <- expand_y_clsf_exported(y, n_class = 3)
+  y_expand <- expand_y_clsf(y, n_class = 3)
   zeros <- which(y == 0)
   ones <- which(y == 1)
   twos <- which(y == 2)

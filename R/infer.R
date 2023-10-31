@@ -52,13 +52,13 @@ infer_pred_horizon <- function(object, pred_type, pred_horizon){
 #'
 #' @examples
 #'
-#' infer_outcome_type('bili', pbc_orsf)
-#' infer_outcome_type('sex', pbc_orsf)
-#' infer_outcome_type(c('time', 'status'), pbc_orsf)
-#' infer_outcome_type(Surv(pbc_orsf$time, pbc_orsf$status), pbc_orsf)
+#' infer_tree_type('bili', pbc_orsf)
+#' infer_tree_type('sex', pbc_orsf)
+#' infer_tree_type(c('time', 'status'), pbc_orsf)
+#' infer_tree_type(Surv(pbc_orsf$time, pbc_orsf$status), pbc_orsf)
 #'
 #' @noRd
-infer_outcome_type <- function(names_y_data, data){
+infer_tree_type <- function(names_y_data, data){
 
  if(length(names_y_data) > 2){
   stop("formula should have at most two variables as the response",

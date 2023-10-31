@@ -138,15 +138,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// expand_y_clsf_exported
-arma::mat expand_y_clsf_exported(arma::vec& y, arma::uword n_class);
-RcppExport SEXP _aorsf_expand_y_clsf_exported(SEXP ySEXP, SEXP n_classSEXP) {
+// expand_y_clsf
+arma::mat expand_y_clsf(arma::vec& y, arma::uword n_class);
+RcppExport SEXP _aorsf_expand_y_clsf(SEXP ySEXP, SEXP n_classSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
     Rcpp::traits::input_parameter< arma::uword >::type n_class(n_classSEXP);
-    rcpp_result_gen = Rcpp::wrap(expand_y_clsf_exported(y, n_class));
+    rcpp_result_gen = Rcpp::wrap(expand_y_clsf(y, n_class));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -327,7 +327,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_compute_logrank_exported", (DL_FUNC) &_aorsf_compute_logrank_exported, 3},
     {"_aorsf_compute_gini_exported", (DL_FUNC) &_aorsf_compute_gini_exported, 3},
     {"_aorsf_compute_pred_prob_exported", (DL_FUNC) &_aorsf_compute_pred_prob_exported, 2},
-    {"_aorsf_expand_y_clsf_exported", (DL_FUNC) &_aorsf_expand_y_clsf_exported, 2},
+    {"_aorsf_expand_y_clsf", (DL_FUNC) &_aorsf_expand_y_clsf, 2},
     {"_aorsf_is_col_splittable_exported", (DL_FUNC) &_aorsf_is_col_splittable_exported, 4},
     {"_aorsf_find_cuts_survival_exported", (DL_FUNC) &_aorsf_find_cuts_survival_exported, 6},
     {"_aorsf_sprout_node_survival_exported", (DL_FUNC) &_aorsf_sprout_node_survival_exported, 2},

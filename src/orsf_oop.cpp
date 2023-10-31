@@ -122,10 +122,22 @@
  ){ return compute_pred_prob(y, w); }
 
  // [[Rcpp::export]]
- arma::mat expand_y_clsf_exported(
-   arma::vec& y,
-   arma::uword n_class
- ){ return expand_y_clsf(y, n_class); }
+ arma::mat expand_y_clsf(arma::vec& y,
+                         arma::uword n_class){
+
+  arma::mat out(y.n_rows, n_class - 1, arma::fill::zeros);
+
+  for(arma::uword i = 0; i < y.n_rows; ++i){
+
+   double yval = y[i];
+
+   if(yval > 0){ out.at(i, yval-1) = 1; }
+
+  }
+
+  return(out);
+
+ }
 
  // [[Rcpp::export]]
  bool is_col_splittable_exported(arma::mat& x,

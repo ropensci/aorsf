@@ -92,9 +92,6 @@ aorsf may be modified and distributed under the terms of the MIT license.
  arma::vec compute_pred_prob(arma::mat& y,
                              arma::vec& w);
 
- arma::mat expand_y_clsf(arma::vec& y,
-                         arma::uword n_class);
-
  arma::mat linreg_fit(arma::mat& x_node,
                       arma::mat& y_node,
                       arma::vec& w_node,

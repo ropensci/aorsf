@@ -490,22 +490,6 @@
 
  }
 
- mat expand_y_clsf(vec& y, uword n_class){
-
-  mat out(y.n_rows, n_class - 1, fill::zeros);
-
-  for(uword i = 0; i < y.n_rows; ++i){
-
-   double yval = y[i];
-
-   if(yval > 0){ out.at(i, yval-1) = 1; }
-
-  }
-
-  return(out);
-
- }
-
  arma::mat linreg_fit(arma::mat& x_node,
                       arma::mat& y_node,
                       arma::vec& w_node,

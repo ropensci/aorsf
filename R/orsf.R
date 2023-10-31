@@ -312,7 +312,8 @@ orsf <- function(data,
                  split_min_obs = 10,
                  split_min_stat = switch(split_rule,
                                          "logrank" = 3.841459,
-                                         "cstat" = 0.50),
+                                         "cstat" = 0.50,
+                                         "gini" = 0),
                  oobag_pred_type = 'surv',
                  oobag_pred_horizon = NULL,
                  oobag_eval_every = n_tree,
@@ -357,7 +358,8 @@ orsf <- function(data,
   attach_data = attach_data,
   no_fit = no_fit,
   na_action = na_action,
-  verbose_progress = verbose_progress
+  # TODO: put this back when you don't need big verbose
+  verbose_progress = NULL
  )
 
  oobag_pred <- oobag_pred_type != 'none'
@@ -384,17 +386,17 @@ orsf <- function(data,
 
  names_y_data <- all.vars(formula[[2]])
 
- outcome_type <- infer_outcome_type(names_y_data, data)
+ tree_type <- infer_tree_type(names_y_data, data)
 
- if(outcome_type %in% c('regression')) stop("not ready yet")
+ if(tree_type %in% c('regression')) stop("not ready yet")
 
  if(control$tree_type == 'unknown'){
 
-  if(outcome_type == 'unknown'){
+  if(tree_type == 'unknown'){
    stop("could not determine outcome type", call. = FALSE)
   }
 
-  control$tree_type <- outcome_type
+  control$tree_type <- tree_type
 
  }
 
@@ -409,11 +411,6 @@ orsf <- function(data,
   }
 
  }
-
- tree_type_R = switch(outcome_type,
-                      'classification' = 1,
-                      'regression'= 2,
-                      'survival' = 3)
 
  types_y_data <- vector(mode = 'character',
                         length = length(names_y_data))
@@ -545,12 +542,18 @@ orsf <- function(data,
 
  }
 
- y <- prep_y_surv(data, names_y_data)
+
+ y <- switch(
+  tree_type,
+  'survival' = prep_y_surv(data, names_y_data),
+  'classification' = prep_y_clsf(data, names_y_data)
+ )
+
  x <- prep_x(data, fi, names_x_data, means, standard_deviations)
 
- if(is.null(mtry)) mtry <- ceiling(sqrt(ncol(x)))
+ if(is.null(weights)) weights <- rep(1, nrow(x))
 
- n_events <- collapse::fsum(y[, 2])
+ if(is.null(mtry)) mtry <- ceiling(sqrt(ncol(x)))
 
  # some additional checks that are dependent on the data
 
@@ -559,6 +562,12 @@ orsf <- function(data,
   arg_name = 'mtry',
   bound = ncol(x),
   append_to_msg = "(number of columns in the one-hot encoded x-matrix)"
+ )
+
+ check_arg_length(
+  arg_value = weights,
+  arg_name = 'weights',
+  expected_length = nrow(x)
  )
 
  if(is.null(control$lincomb_df_target)){
@@ -577,66 +586,82 @@ orsf <- function(data,
  }
 
  check_arg_lteq(
-  arg_value = leaf_min_events,
-  arg_name = 'leaf_min_events',
-  bound = round(n_events / 2),
-  append_to_msg = "(number of events divided by 2)"
- )
-
- check_arg_lteq(
   arg_value = leaf_min_obs,
   arg_name = 'leaf_min_obs',
   bound = round(nrow(x) / 2),
   append_to_msg = "(number of observations divided by 2)"
  )
 
- check_arg_lt(arg_value = split_min_events,
-              arg_name = "split_min_events",
-              bound = n_events,
-              append_to_msg = "(number of events)")
+ check_arg_lt(
+  arg_value = split_min_obs,
+  arg_name = "split_min_obs",
+  bound = nrow(x),
+  append_to_msg = "(number of observations)"
+ )
 
- check_arg_lt(arg_value = split_min_obs,
-              arg_name = "split_min_obs",
-              bound = nrow(x),
-              append_to_msg = "(number of observations)")
+ if(tree_type == 'survival'){
 
- if(!is.null(oobag_pred_horizon)){
+  n_events <- collapse::fsum(y[, 2])
 
-  if(any(oobag_pred_horizon <= 0))
+  check_arg_lteq(
+   arg_value = leaf_min_events,
+   arg_name = 'leaf_min_events',
+   bound = round(n_events / 2),
+   append_to_msg = "(number of events divided by 2)"
+  )
 
-   stop("Out of bag prediction horizon (oobag_pred_horizon) must be > 0",
-        call. = FALSE)
+  check_arg_lt(
+   arg_value = split_min_events,
+   arg_name = "split_min_events",
+   bound = n_events,
+   append_to_msg = "(number of events)"
+  )
+
+  if(is.null(oobag_pred_horizon)) {
+   # use training data to provide sensible default
+   oobag_pred_horizon <- stats::median(y[, 1])
+  }
+
+  sorted <-
+   collapse::radixorder(y[, 1],  # order for risk sets
+                        -y[, 2]) # order for oob C-statistic.
 
  } else {
 
-  # use training data to provide sensible default
-  oobag_pred_horizon <- stats::median(y[, 1])
+  # just a placeholder solution. Should use R's OO to streamline setup
+  n_events <- sum(y[,1])
+  sorted <- seq(nrow(x))
+  oobag_pred_horizon <- 1/2
 
  }
-
- sorted <-
-  collapse::radixorder(y[, 1],  # order for risk sets
-                       -y[, 2]) # order for oob C-statistic.
-
- if(is.null(weights)) weights <- rep(1, nrow(x))
 
  x_sort <- x[sorted, , drop = FALSE]
  y_sort <- y[sorted, , drop = FALSE]
  w_sort <- weights[sorted]
 
  if(length(tree_seeds) == 1 && n_tree > 1){
+
   set.seed(tree_seeds)
   tree_seeds <- sample(x = n_tree*10, size = n_tree, replace = FALSE)
+
  } else if(is.null(tree_seeds)){
+
   tree_seeds <- sample(x = n_tree*10, size = n_tree, replace = FALSE)
+
  }
 
  vi_max_pvalue = 0.01
 
+ # browser()
+ if(split_rule == 'gini') split_min_stat <- -1
+
  orsf_out <- orsf_cpp(x = x_sort,
                       y = y_sort,
                       w = w_sort,
-                      tree_type_R = tree_type_R,
+                      tree_type_R = switch(tree_type,
+                                           'classification' = 1,
+                                           'regression'= 2,
+                                           'survival' = 3),
                       tree_seeds = as.integer(tree_seeds),
                       loaded_forest = list(),
                       n_tree = n_tree,
@@ -653,7 +678,8 @@ orsf <- function(data,
                       leaf_min_obs = leaf_min_obs,
                       split_rule_R = switch(split_rule,
                                             "logrank" = 1,
-                                            "cstat" = 2),
+                                            "cstat" = 2,
+                                            "gini" = 3),
                       split_min_events = split_min_events,
                       split_min_obs = split_min_obs,
                       split_min_stat = split_min_stat,
@@ -699,7 +725,7 @@ orsf <- function(data,
                       run_forest = !no_fit,
                       verbosity = as.integer(verbose_progress))
 
- # if someone says no_fit and also says don't attach the data,
+ # TODO: if someone says no_fit and also don't attach the data,
  # give them a warning but also do the right thing for them.
  orsf_out$data <- if(attach_data) data else NULL
 
@@ -795,7 +821,7 @@ orsf <- function(data,
  attr(orsf_out, 'vi_max_pvalue')       <- vi_max_pvalue
  attr(orsf_out, 'split_rule')          <- split_rule
  attr(orsf_out, 'n_thread')            <- n_thread
- attr(orsf_out, 'tree_type')           <- tree_type_R
+ attr(orsf_out, 'tree_type')           <- tree_type
  attr(orsf_out, 'tree_seeds')          <- tree_seeds
  attr(orsf_out, 'sample_with_replacement') <- sample_with_replacement
  attr(orsf_out, 'sample_fraction')         <- sample_fraction

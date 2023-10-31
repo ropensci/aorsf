@@ -233,6 +233,7 @@
    return;
   }
 
+
   // Set all to not selected
   std::vector<bool> temp;
   temp.resize(n_cols_total, false);
@@ -749,6 +750,16 @@
   }
  }
 
+
+ // # nocov start
+ // placeholder
+ arma::mat Tree::glm_fit(){
+  Rcpp::stop("default glm fit function called");
+  mat out;
+  return(out);
+ }
+ // # nocov end
+
  void Tree::grow(arma::vec* vi_numer,
                  arma::uvec* vi_denom){
 
@@ -868,9 +879,7 @@
 
      case LC_GLM: {
 
-      beta = coxph_fit(x_node, y_node, w_node,
-                       lincomb_scale, lincomb_ties_method,
-                       lincomb_eps, lincomb_iter_max);
+      beta = glm_fit();
 
       break;
 
