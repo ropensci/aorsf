@@ -423,11 +423,27 @@
    forest = std::make_unique<ForestSurvival>(leaf_min_events,
                                              split_min_events,
                                              pred_horizon);
+
+   if(verbosity > 3){
+    Rcout << "initializing survival forest" << std::endl;
+    Rcout << "  -- leaf_min_events: " << leaf_min_events << std::endl;
+    Rcout << "  -- split_min_events: " << split_min_events << std::endl;
+    Rcout << "  -- pred_horizon: " << pred_horizon << std::endl;
+    Rcout << std::endl << std::endl;
+   }
+
    break;
 
   case TREE_CLASSIFICATION:
 
    forest = std::make_unique<ForestClassification>(data->n_cols_y + 1);
+
+   if(verbosity > 3){
+    Rcout << "initializing classification forest" << std::endl;
+    Rcout << "  -- n_class: " << data->n_cols_y + 1 << std::endl;
+    Rcout << std::endl << std::endl;
+   }
+
    break;
 
   default:

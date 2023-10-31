@@ -7,6 +7,47 @@
  else x
 }
 
+
+#' helper for guessing pred_type
+infer_pred_type <- function(x, tree_type){
+
+ if(tree_type == 'survival'){
+
+  return(
+   switch(x,
+          "none" = 0,
+          "risk" = 1,
+          "surv" = 2,
+          "chf"  = 3,
+          "mort" = 4,
+          "prob" = 1,
+          "class" = stop("invalid pred type", call. = FALSE),
+          "leaf" = 8)
+
+  )
+
+ }
+
+ if(tree_type == 'classification'){
+
+  return(
+   switch(x,
+          "none"  = 0,
+          "risk"  = 6,
+          "surv"  = 6,
+          "chf"   = stop("invalid pred type", call. = FALSE),
+          "mort"  = stop("invalid pred type", call. = FALSE),
+          "prob"  = 6,
+          "class" = 7,
+          "leaf"  = 8)
+
+  )
+
+ }
+
+}
+
+
 #' helper for guessing pred_horizon input
 #'
 #' @param object 'orsf_fit' object

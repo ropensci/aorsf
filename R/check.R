@@ -975,6 +975,8 @@ check_orsf_inputs <- function(data = NULL,
                                        "risk",
                                        "chf",
                                        "mort",
+                                       "prob",
+                                       "class",
                                        "leaf"))
 
  }

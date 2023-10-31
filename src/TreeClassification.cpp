@@ -107,9 +107,8 @@
 
    for(auto& it : pred_leaf_sort){
 
-    if(it == max_nodes) break;
-
     uword leaf_id = pred_leaf[it];
+    if(leaf_id == max_nodes) break;
     pred_output.row(it) = leaf_pred_prob[leaf_id].t();
 
     n_preds_made++;
@@ -121,9 +120,8 @@
 
    for(auto& it : pred_leaf_sort){
 
-    if(it == max_nodes) break;
-
     uword leaf_id = pred_leaf[it];
+    if(leaf_id == max_nodes) break;
     pred_output.row(it) = leaf_summary[leaf_id];
 
     n_preds_made++;

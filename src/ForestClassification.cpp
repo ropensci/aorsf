@@ -21,7 +21,12 @@ ForestClassification::ForestClassification(arma::uword n_class){
 
 void ForestClassification::resize_pred_mat_internal(arma::mat& p){
 
- p.zeros(data->n_rows, data->n_cols_y);
+ p.zeros(data->n_rows, this->n_class);
+
+ if(verbosity > 3){
+  Rcout << "   -- pred mat size: " << p.n_rows << " rows by ";
+  Rcout << p.n_cols << " columns." << std::endl << std::endl;
+ }
 
 }
 
@@ -85,8 +90,11 @@ void ForestClassification::compute_prediction_accuracy_internal(
 
  double cstat_sum = 0;
 
+ vec y_0 = 1 - sum(y, 1);
+ mat y_augment = join_horiz(y_0, y);
+
  for(uword i = 0; i < predictions.n_cols; i++){
-  vec y_i = y.unsafe_col(i);
+  vec y_i = y_augment.unsafe_col(i);
   vec p_i = predictions.unsafe_col(i);
   cstat_sum += compute_cstat_clsf(y_i, w, p_i);
  }

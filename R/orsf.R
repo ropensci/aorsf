@@ -653,7 +653,6 @@ orsf <- function(data,
  vi_max_pvalue = 0.01
 
  # browser()
- if(split_rule == 'gini') split_min_stat <- -1
 
  orsf_out <- orsf_cpp(x = x_sort,
                       y = y_sort,
@@ -699,13 +698,7 @@ orsf <- function(data,
                       lincomb_ties_method = switch(tolower(control$lincomb_ties_method),
                                                    'breslow' = 0,
                                                    'efron'   = 1),
-                      pred_type_R = switch(oobag_pred_type,
-                                           "none" = 0,
-                                           "risk" = 1,
-                                           "surv" = 2,
-                                           "chf"  = 3,
-                                           "mort" = 4,
-                                           "leaf" = 8),
+                      pred_type_R = infer_pred_type(oobag_pred_type, tree_type),
                       pred_mode = FALSE,
                       pred_aggregate = oobag_pred_type != 'leaf',
                       pred_horizon = oobag_pred_horizon,
