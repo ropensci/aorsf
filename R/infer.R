@@ -7,8 +7,13 @@
  else x
 }
 
+`%O%` <- function(x, y){
+ if(is_empty(x))
+  y
+ else x
+}
 
-#' helper for guessing pred_type
+#' helper for inferring pred_type
 infer_pred_type <- function(x, tree_type){
 
  if(tree_type == 'survival'){
@@ -47,8 +52,7 @@ infer_pred_type <- function(x, tree_type){
 
 }
 
-
-#' helper for guessing pred_horizon input
+#' helper for inferring pred_horizon input
 #'
 #' @param object 'orsf_fit' object
 #' @param pred_horizon NULL or a user's specified pred_horizon
@@ -84,7 +88,7 @@ infer_pred_horizon <- function(object, pred_type, pred_horizon){
 }
 
 
-#' helper for guessing outcome type
+#' helper for inferring outcome type
 #'
 #' @param names_y_data character vector of outcome names
 #' @param data dataset containing outcomes
@@ -254,6 +258,8 @@ infer_orsf_args <- function(x,
                        "surv" = 2,
                        "chf"  = 3,
                        "mort" = 4,
+                       "prob" = 6,
+                       "class" = 7,
                        "leaf" = 8),
   pred_mode = .dots$pred_mode %||% FALSE,
   pred_aggregate = .dots$pred_aggregate %||% (oobag_pred_type != 'leaf'),

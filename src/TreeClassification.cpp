@@ -109,7 +109,7 @@
 
     uword leaf_id = pred_leaf[it];
     if(leaf_id == max_nodes) break;
-    pred_output.row(it) = leaf_pred_prob[leaf_id].t();
+    pred_output.row(it) += leaf_pred_prob[leaf_id].t();
 
     n_preds_made++;
     if(oobag) pred_denom[it]++;
@@ -137,9 +137,17 @@
 
  arma::mat TreeClassification::glm_fit(){
 
-  std::uniform_int_distribution<uword> udist_ycol(0, y_node.n_cols - 1);
-  uword j = udist_ycol(random_number_generator);
-  vec y_col = y_node.unsafe_col(j);
+  vec y_col;
+
+  if(splittable_y_cols.size() > 1){
+   std::uniform_int_distribution<uword> udist_ycol(0, splittable_y_cols.size() - 1);
+   uword j = udist_ycol(random_number_generator);
+   uword k = splittable_y_cols[j];
+   y_col   = y_node.unsafe_col(k);
+  } else {
+   y_col   = y_node.unsafe_col(0);
+  }
+
 
   mat out = logreg_fit(x_node,
                        y_col,
@@ -174,19 +182,37 @@
 
   if(lincomb_type == LC_GLM){
 
-   // Need 3:1 ratio of unweighted events:predictors
+   // conditions to split a column:
+   //   >= 3 events per predictor
+   //   >= 3 non-events per predictor
 
    double n = y_node.n_rows;
-   vec y_sums = sum(y_node, 0).t();
-   vec y_0 = { n - sum(y_sums) };
-   y_sums = join_vert(y_0, y_sums);
+   vec y_sum_cases = sum(y_node, 0).t();
+   vec y_sum_ctrls = n - y_sum_cases;
 
+   splittable_y_cols.zeros(y_node.n_cols);
+   uword counter = 0;
 
-   double n_events_max = max(y_sums);
+   for(uword i = 0; i < y_node.n_cols; ++i){
 
-   while(n_events_max / safer_mtry < 3){
-    --safer_mtry;
-    if(safer_mtry == 0) break;
+    if(y_sum_cases[i] >= 3 && y_sum_ctrls[i] >= 3){
+     splittable_y_cols[counter] = i;
+     counter++;
+    }
+
+   }
+
+   splittable_y_cols.resize(counter);
+
+   if(counter == 0){ return counter; }
+
+   for (auto& i : splittable_y_cols){
+
+    while (y_sum_cases[i] / safer_mtry < 3 ||
+           y_sum_ctrls[i] / safer_mtry < 3){
+     --safer_mtry;
+    }
+
    }
 
   }

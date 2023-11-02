@@ -301,7 +301,7 @@ orsf_vi_oobag_ <- function(object,
 
  orsf_out <- orsf_cpp(x = x[sorted, , drop = FALSE],
                       y = y[sorted, , drop = FALSE],
-                      w = get_weights_user(object),
+                      w = get_weights(object),
                       tree_type_R = switch(get_tree_type(object),
                                            'classification' = 1,
                                            'regression'= 2,

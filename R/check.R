@@ -453,6 +453,41 @@ check_var_types <- function(data, .names, valid_types){
 
 }
 
+
+check_var_values <- function(data, .names){
+
+ for(i in .names){
+
+  if(any(is.infinite(data[[i]]))){
+   stop("Please remove infinite values from ", i, ".",
+        call. = FALSE)
+  }
+
+  if(any(collapse::allNA(data[[i]]))){
+   stop("column ", i, " has no observed values",
+        call. = FALSE)
+  }
+
+ }
+
+}
+
+check_var_names <- function(data, .names){
+
+ names_not_found <- setdiff(c(.names), names(data))
+
+ if(!is_empty(names_not_found)){
+  msg <- paste0(
+   "variables in formula were not found in data: ",
+   paste_collapse(names_not_found, last = ' and ')
+  )
+  stop(msg, call. = FALSE)
+ }
+
+ return(.names)
+
+}
+
 #' Check inputs for orsf_control_cph()
 #'
 #' @inheritParams orsf_control_cph
@@ -607,12 +642,18 @@ check_orsf_inputs <- function(data = NULL,
                               oobag_pred_horizon = NULL,
                               oobag_eval_every = NULL,
                               importance = NULL,
+                              group_factors = NULL,
                               tree_seeds = NULL,
                               attach_data = NULL,
                               no_fit = NULL,
                               na_action = NULL,
                               oobag_fun = NULL,
-                              verbose_progress = NULL){
+                              verbose_progress = NULL,
+                              n_obs = NULL,
+                              n_obs_cc = NULL){
+
+ # default in case unspecified b/c other tests depend on na_action
+ if(is.null(na_action)) na_action = 'fail'
 
  if(!is.null(data)){
 
@@ -652,8 +693,7 @@ check_orsf_inputs <- function(data = NULL,
 
   }
 
-  ns_names <- grepl(pattern = '[^a-zA-Z0-9\\.\\_]+',
-                    x = names(data))
+  ns_names <- grepl(pattern = '[^a-zA-Z0-9\\.\\_]+', x = names(data))
 
   if(any(ns_names)){
 
@@ -701,6 +741,18 @@ check_orsf_inputs <- function(data = NULL,
                arg_name = 'control',
                expected_class = 'orsf_control')
 
+  if(control$lincomb_type == 'net'){
+
+   if (!requireNamespace("glmnet", quietly = TRUE)) {
+    stop(
+     "Package \"glmnet\" must be installed to use",
+     " orsf_control_net() with orsf().",
+     call. = FALSE
+    )
+   }
+
+  }
+
  }
 
  if(!is.null(weights)){
@@ -713,15 +765,14 @@ check_orsf_inputs <- function(data = NULL,
                  arg_name = 'weights',
                  bound = 0)
 
-  if(length(weights) != nrow(data)){
-
-   stop('weights should have length <', nrow(data),
-        "> (the number of observations in data)",
-        "but instead has length <", length(weights), ">",
-        call. = FALSE)
-
-  }
-
+  check_arg_length(
+   arg_value = weights,
+   arg_name = 'weights',
+   expected_length = switch(na_action,
+                            'impute_meanmode' = n_obs,
+                            'omit' = n_obs_cc,
+                            'fail' = n_obs)
+  )
 
  }
 
@@ -940,6 +991,14 @@ check_orsf_inputs <- function(data = NULL,
                    arg_name = 'split_min_obs',
                    expected_length = 1)
 
+  check_arg_lt(arg_value = split_min_obs,
+               arg_name = "split_min_obs",
+               bound = switch(na_action,
+                              'impute_meanmode' = n_obs,
+                              'omit' = n_obs_cc,
+                              'fail' = n_obs),
+               append_to_msg = "(number of observations)")
+
  }
 
  if(!is.null(split_min_stat)){
@@ -1037,6 +1096,18 @@ check_orsf_inputs <- function(data = NULL,
                                        "negate",
                                        "permute"))
 
+
+ }
+
+ if(!is.null(group_factors)){
+
+  check_arg_type(arg_value = group_factors,
+                 arg_name = 'group_factors',
+                 expected_type = 'logical')
+
+  check_arg_length(arg_value = group_factors,
+                   arg_name = 'group_factors',
+                   expected_length = 1)
 
  }
 
@@ -1326,7 +1397,11 @@ check_pd_inputs <- function(object,
                pred_horizon = pred_horizon,
                pred_type = pred_type,
                na_action = na_action,
-               valid_pred_types = c("risk", "surv", "chf", "mort"))
+               valid_pred_types = c("risk",
+                                    "surv",
+                                    "chf",
+                                    "mort",
+                                    "prob"))
 
 }
 
@@ -1600,7 +1675,13 @@ check_predict <- function(object,
                           pred_type = NULL,
                           na_action = NULL,
                           boundary_checks = TRUE,
-                          valid_pred_types = c("risk", "surv", "chf", "mort", "leaf")){
+                          valid_pred_types = c("risk",
+                                               "surv",
+                                               "chf",
+                                               "mort",
+                                               "prob",
+                                               "class",
+                                               "leaf")){
 
  if(!is.null(new_data)){
 
@@ -1894,3 +1975,4 @@ check_complete_cases <- function(cc, na_action, n_total){
  }
 
 }
+

@@ -60,6 +60,8 @@
 
   arma::uword n_class;
 
+  arma::uvec splittable_y_cols;
+
   // prob holds the predicted prob for each class
   std::vector<arma::vec> leaf_pred_prob;
   // summary (see Tree.h) holds class vote

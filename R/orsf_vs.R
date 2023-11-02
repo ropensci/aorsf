@@ -39,7 +39,7 @@ orsf_vs <- function(object,
        call. = FALSE)
  }
 
- forest_weights <- get_weights_user(object)
+ forest_weights <- get_weights(object)
 
  if(is_empty(forest_weights))
   forest_weights <- NULL

@@ -198,8 +198,12 @@ predict.orsf_fit <- function(object,
 
  if(pred_type == "leaf" || !pred_aggregate) return(out)
 
- # output in the same order as pred_horizon
- out[, order(pred_horizon_order), drop = FALSE]
+ if(get_tree_type(object) == 'survival'){
+  # output in the same order as pred_horizon
+  out <- out[, order(pred_horizon_order), drop = FALSE]
+ }
+
+ out
 
 }
 

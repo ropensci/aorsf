@@ -358,8 +358,9 @@ orsf <- function(data,
   attach_data = attach_data,
   no_fit = no_fit,
   na_action = na_action,
-  # TODO: put this back when you don't need big verbose
-  verbose_progress = NULL
+  verbose_progress = verbose_progress,
+  n_obs = nrow(data),
+  n_obs_cc = nrow(collapse::na_omit(data))
  )
 
  oobag_pred <- oobag_pred_type != 'none'
@@ -466,6 +467,8 @@ orsf <- function(data,
  unit_x_names <- names_x_data[types_x_data == 'units']
 
  ui_x <- unit_info(data = data, .names = unit_x_names)
+
+ # prep stage
 
  names_x_numeric <- grep(pattern = "^integer$|^numeric$|^units$",
                          x = types_x_data)
@@ -1014,7 +1017,7 @@ orsf_train_ <- function(object,
   sorted <- collapse::radixorder(y[, 1], -y[, 2])
  }
 
- weights <- get_weights_user(object)
+ weights <- get_weights(object)
 
  x_sort <- x[sorted, ]
  y_sort <- y[sorted, ]
