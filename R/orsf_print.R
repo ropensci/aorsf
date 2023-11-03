@@ -37,7 +37,6 @@ print.orsf_fit <- function(x, ...){
  control            <- get_control(x)
  info_tree_type     <- get_tree_type(x)
  info_n_obs         <- get_n_obs(x)
- info_n_obs_cc      <- get_n_obs_cc(x) %||% info_n_obs
  info_n_events      <- get_n_events(x) %||% "TBD"
  info_n_tree        <- get_n_tree(x)
  info_n_leaves_mean <- round_magnitude(get_n_leaves_mean(x)) %O% "TBD"
@@ -47,10 +46,6 @@ print.orsf_fit <- function(x, ...){
  info_leaf_min_obs  <- get_leaf_min_obs(x)
  info_vi            <- get_importance(x)
  info_leaf_min_events <- get_leaf_min_events(x)
-
- if(info_n_obs < info_n_obs_cc){
-  info_n_obs <- paste0(info_n_obs, " (", info_n_obs_cc, "complete cases)")
- }
 
  info_model_type <- switch(info_tree_type,
                            'survival' = "Cox regression",

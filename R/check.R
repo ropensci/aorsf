@@ -642,18 +642,14 @@ check_orsf_inputs <- function(data = NULL,
                               oobag_pred_horizon = NULL,
                               oobag_eval_every = NULL,
                               importance = NULL,
+                              importance_max_pvalue = NULL,
                               group_factors = NULL,
                               tree_seeds = NULL,
                               attach_data = NULL,
                               no_fit = NULL,
                               na_action = NULL,
                               oobag_fun = NULL,
-                              verbose_progress = NULL,
-                              n_obs = NULL,
-                              n_obs_cc = NULL){
-
- # default in case unspecified b/c other tests depend on na_action
- if(is.null(na_action)) na_action = 'fail'
+                              verbose_progress = NULL){
 
  if(!is.null(data)){
 
@@ -764,15 +760,6 @@ check_orsf_inputs <- function(data = NULL,
   check_arg_gteq(arg_value = weights,
                  arg_name = 'weights',
                  bound = 0)
-
-  check_arg_length(
-   arg_value = weights,
-   arg_name = 'weights',
-   expected_length = switch(na_action,
-                            'impute_meanmode' = n_obs,
-                            'omit' = n_obs_cc,
-                            'fail' = n_obs)
-  )
 
  }
 
@@ -991,14 +978,6 @@ check_orsf_inputs <- function(data = NULL,
                    arg_name = 'split_min_obs',
                    expected_length = 1)
 
-  check_arg_lt(arg_value = split_min_obs,
-               arg_name = "split_min_obs",
-               bound = switch(na_action,
-                              'impute_meanmode' = n_obs,
-                              'omit' = n_obs_cc,
-                              'fail' = n_obs),
-               append_to_msg = "(number of observations)")
-
  }
 
  if(!is.null(split_min_stat)){
@@ -1096,6 +1075,26 @@ check_orsf_inputs <- function(data = NULL,
                                        "negate",
                                        "permute"))
 
+
+ }
+
+ if(!is.null(importance_max_pvalue)){
+
+  check_arg_type(arg_value = importance_max_pvalue,
+                 arg_name = 'importance_max_pvalue',
+                 expected_type = 'numeric')
+
+  check_arg_gt(arg_value = importance_max_pvalue,
+               arg_name = 'importance_max_pvalue',
+               bound = 0)
+
+  check_arg_lt(arg_value = importance_max_pvalue,
+               arg_name = 'importance_max_pvalue',
+               bound = 1)
+
+  check_arg_length(arg_value = importance_max_pvalue,
+                   arg_name = 'importance_max_pvalue',
+                   expected_length = 1)
 
  }
 

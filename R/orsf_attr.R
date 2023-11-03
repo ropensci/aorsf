@@ -5,56 +5,76 @@
 #'
 #' these functions are convenient wrappers around attr().
 #'
-#' @param object an object to get attributes from
-#'
-#' @return varies depending on which get_ function is used.
+#' @param object an `orsf_fit`
 #'
 #' @noRd
 get_control            <- function(object) attr(object, 'control')
 get_mtry               <- function(object) attr(object, 'mtry')
-get_n_obs              <- function(object) attr(object, 'n_obs')
-get_n_obs_cc           <- function(object) attr(object, 'n_obs_cc')
-get_n_tree             <- function(object) attr(object, 'n_tree')
-get_names_y            <- function(object) attr(object, 'names_y')
+
+
+# x attributes
+get_rows_x_cc          <- function(object) attr(object, 'rows_x_cc')
 get_types_x            <- function(object) attr(object, 'types_x')
-get_n_events           <- function(object) attr(object, 'n_events')
-get_max_time           <- function(object) attr(object, 'max_time')
-get_unit_info          <- function(object) attr(object, 'unit_info')
 get_fctr_info          <- function(object) attr(object, 'fctr_info')
-get_n_leaves_mean      <- function(object) attr(object, 'n_leaves_mean')
-get_n_split            <- function(object) attr(object, 'n_split')
-get_leaf_min_events    <- function(object) attr(object, 'leaf_min_events')
-get_leaf_min_obs       <- function(object) attr(object, 'leaf_min_obs')
-get_split_min_events   <- function(object) attr(object, 'split_min_events')
-get_split_min_obs      <- function(object) attr(object, 'split_min_obs')
-get_split_min_stat     <- function(object) attr(object, 'split_min_stat')
 get_na_action          <- function(object) attr(object, 'na_action')
 get_numeric_bounds     <- function(object) attr(object, 'numeric_bounds')
 get_means              <- function(object) attr(object, 'means')
 get_modes              <- function(object) attr(object, 'modes')
 get_standard_deviations<- function(object) attr(object, 'standard_deviations')
+
+# y attributes
+get_names_y            <- function(object) attr(object, 'names_y')
+get_max_time           <- function(object) attr(object, 'max_time')
+
+# shared x & y attributes
+get_unit_info          <- function(object) attr(object, 'unit_info')
+get_sorted             <- function(object) attr(object, 'sorted')
+
+# counts
+get_n_obs              <- function(object) attr(object, 'n_obs')
+get_n_tree             <- function(object) attr(object, 'n_tree')
+get_n_events           <- function(object) attr(object, 'n_events')
 get_n_retry            <- function(object) attr(object, 'n_retry')
-# TODO: only one of the oobag_eval or oobag_fun should exist
+get_n_thread           <- function(object) attr(object, 'n_thread')
+get_n_split            <- function(object) attr(object, 'n_split')
+get_n_leaves_mean      <- function(object) attr(object, 'n_leaves_mean')
+
+# tree node attributes
+get_leaf_min_events    <- function(object) attr(object, 'leaf_min_events')
+get_leaf_min_obs       <- function(object) attr(object, 'leaf_min_obs')
+get_split_min_events   <- function(object) attr(object, 'split_min_events')
+get_split_min_obs      <- function(object) attr(object, 'split_min_obs')
+get_split_min_stat     <- function(object) attr(object, 'split_min_stat')
+get_split_rule         <- function(object) attr(object, 'split_rule')
+
+
+# oobag attributes
+# TODO: global change f_oobag_eval to oobag_eval_fun
 get_f_oobag_eval       <- function(object) attr(object, 'f_oobag_eval')
-get_oobag_fun          <- function(object) attr(object, 'oobag_fun')
 get_oobag_pred         <- function(object) attr(object, 'oobag_pred')
 get_oobag_pred_type    <- function(object) attr(object, 'oobag_pred_type')
 get_oobag_pred_horizon <- function(object) attr(object, 'oobag_pred_horizon')
 get_oobag_eval_every   <- function(object) attr(object, 'oobag_eval_every')
-get_importance         <- function(object) attr(object, 'importance')
-get_importance_values  <- function(object) attr(object, 'importance_values')
-get_group_factors      <- function(object) attr(object, 'group_factors')
 get_oobag_eval_type    <- function(object) attr(object, 'type_oobag_eval')
-get_tree_seeds         <- function(object) attr(object, 'tree_seeds')
-get_weights            <- function(object) attr(object, 'weights_user')
-get_event_times        <- function(object) attr(object, 'event_times')
-get_verbose_progress   <- function(object) attr(object, 'verbose_progress')
-get_vi_max_pvalue      <- function(object) attr(object, 'vi_max_pvalue')
-get_split_rule         <- function(object) attr(object, 'split_rule')
-get_n_thread           <- function(object) attr(object, 'n_thread')
+
+# importance attributes
+get_importance            <- function(object) attr(object, 'importance')
+get_importance_values     <- function(object) attr(object, 'importance_values')
+get_importance_max_pvalue <- function(object) attr(object, 'importance_max_pvalue')
+# TODO: global change group_factors to importance_aggregate
+get_group_factors      <- function(object) attr(object, 'group_factors')
+
+# tree attributes
 get_tree_type          <- function(object) attr(object, 'tree_type')
+get_tree_seeds         <- function(object) attr(object, 'tree_seeds')
+
+# sampler attributes
 get_sample_with_replacement <- function(object) attr(object, 'sample_with_replacement')
 get_sample_fraction         <- function(object) attr(object, 'sample_fraction')
+
+# misc input attributes
+get_weights            <- function(object) attr(object, 'weights_user')
+get_verbose_progress   <- function(object) attr(object, 'verbose_progress')
 
 
 #' ORSF status

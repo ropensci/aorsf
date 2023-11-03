@@ -128,6 +128,12 @@
 #'
 #' For details on these methods, see [orsf_vi].
 #'
+#' @param importance_max_pvalue (_double_) Only relevant if `importance`
+#'   is `"anova"`. The maximum p-value that will register as a positive
+#'   case when counting the number of times a variable was found to be
+#'   'significant' during tree growth. Default is 0.01, as recommended
+#'   by Menze et al.
+#'
 #' @param group_factors (_logical_) Only relevant if variable importance is
 #'   being estimated. `r roxy_group_factors()`
 #'
@@ -284,6 +290,8 @@
 #'
 #' `r roxy_cite_ishwaran_2008()`
 #'
+#' `r roxy_cite_menze_2011()`
+#'
 #' `r roxy_cite_jaeger_2019()`
 #'
 #' `r roxy_cite_jaeger_2023()`
@@ -319,6 +327,7 @@ orsf <- function(data,
                  oobag_eval_every = n_tree,
                  oobag_fun = NULL,
                  importance = 'anova',
+                 importance_max_pvalue = 0.01,
                  group_factors = TRUE,
                  tree_seeds = NULL,
                  attach_data = TRUE,
@@ -332,513 +341,80 @@ orsf <- function(data,
  if(!is.data.frame(data))
   data <- orsf_data_prep(data)
 
- check_orsf_inputs(
-  data = data,
-  formula = formula,
-  control = control,
-  weights = weights,
-  n_tree = n_tree,
-  n_split = n_split,
-  n_retry = n_retry,
-  n_thread = n_thread,
-  mtry = mtry,
-  sample_with_replacement = sample_with_replacement,
-  sample_fraction = sample_fraction,
-  leaf_min_events = leaf_min_events,
-  leaf_min_obs = leaf_min_obs,
-  split_rule = split_rule,
-  split_min_events = split_min_events,
-  split_min_obs = split_min_obs,
-  split_min_stat = split_min_stat,
-  oobag_pred_type = oobag_pred_type,
-  oobag_pred_horizon = oobag_pred_horizon,
-  oobag_eval_every = oobag_eval_every,
-  importance = importance,
-  tree_seeds = tree_seeds,
-  attach_data = attach_data,
-  no_fit = no_fit,
-  na_action = na_action,
-  verbose_progress = verbose_progress,
-  n_obs = nrow(data),
-  n_obs_cc = nrow(collapse::na_omit(data))
- )
+ object <- orsf_new(data = data,
+                    formula = formula,
+                    control = control,
+                    weights = weights,
+                    n_tree = n_tree,
+                    n_split = n_split,
+                    n_retry = n_retry,
+                    n_thread = n_thread,
+                    mtry = mtry,
+                    sample_with_replacement = sample_with_replacement,
+                    sample_fraction = sample_fraction,
+                    leaf_min_events = leaf_min_events,
+                    leaf_min_obs = leaf_min_obs,
+                    split_rule = split_rule,
+                    split_min_events = split_min_events,
+                    split_min_obs = split_min_obs,
+                    split_min_stat = split_min_stat,
+                    oobag_pred_type = oobag_pred_type,
+                    oobag_pred_horizon = oobag_pred_horizon,
+                    oobag_eval_every = oobag_eval_every,
+                    importance = importance,
+                    importance_max_pvalue = importance_max_pvalue,
+                    group_factors = group_factors,
+                    tree_seeds = tree_seeds,
+                    attach_data = attach_data,
+                    no_fit = no_fit,
+                    na_action = na_action,
+                    verbose_progress = verbose_progress)
 
- oobag_pred <- oobag_pred_type != 'none'
+ data_summaries <- orsf_data_summarize(object)
 
- if(is.null(oobag_fun)){
+ # threading new attributes back to S3 object
+ for(i in seq_along(data_summaries)){
+  attr(object, names(data_summaries)[i]) <- data_summaries[[i]]
+ }
 
-  f_oobag_eval <- function(x) x
-  type_oobag_eval <- if(oobag_pred) 'cstat' else 'none'
+ data_matrices <- orsf_prep_xyw(object)
 
- } else {
+ attr(object, 'names_x_ref') <- colnames(data_matrices$x)
 
-  f_oobag_eval <- oobag_fun
-  type_oobag_eval <- 'user'
+ if(get_tree_type(object) == 'survival'){
+
+  sorted <- get_sorted(object)
+  data_matrices$x <- data_matrices$x[sorted, , drop = FALSE]
+  data_matrices$y <- data_matrices$y[sorted, , drop = FALSE]
+  data_matrices$w <- data_matrices$w[sorted]
 
  }
 
- # can't evaluate the oobag predictions if they aren't aggregated
- if(oobag_pred_type == 'leaf') type_oobag_eval <- 'none'
+ cpp_args <- infer_orsf_args(x = data_matrices$x,
+                             y = data_matrices$y,
+                             w = data_matrices$w,
+                             object = object)
 
- formula_terms <- suppressWarnings(stats::terms(formula, data=data))
+ orsf_out <- do.call(orsf_cpp, args = cpp_args)
 
- if(attr(formula_terms, 'response') == 0)
-  stop("formula must have a response", call. = FALSE)
+ # prevent the cpp output from overwriting stat type
+ orsf_out$eval_oobag$stat_type <- object$eval_oobag$stat_type
 
- names_y_data <- all.vars(formula[[2]])
+ # thread outputs back to original object
+ for(i in names(orsf_out)) object[[i]] <- orsf_out[[i]]
 
- tree_type <- infer_tree_type(names_y_data, data)
+ # save the raw importance values for orsf_vi
+ attr(object, 'importance_values') <- object$importance
+ attr(object, 'n_leaves_mean') <- compute_mean_leaves(object$forest)
 
- if(tree_type %in% c('regression')) stop("not ready yet")
+ browser()
+ clean_outputs <- orsf_clean_fit(object)
 
- if(control$tree_type == 'unknown'){
 
-  if(tree_type == 'unknown'){
-   stop("could not determine outcome type", call. = FALSE)
-  }
+ # Can drop it now
+ if(!attach_data) object$data <- NULL
 
-  control$tree_type <- tree_type
-
- }
-
- if(control$lincomb_type == 'net'){
-
-  if (!requireNamespace("glmnet", quietly = TRUE)) {
-   stop(
-    "Package \"glmnet\" must be installed to use",
-    " orsf_control_net() with orsf().",
-    call. = FALSE
-   )
-  }
-
- }
-
- types_y_data <- vector(mode = 'character',
-                        length = length(names_y_data))
-
- for(i in seq_along(types_y_data)){
-  types_y_data[i] <- class(data[[ names_y_data[i] ]])[1]
- }
-
- unit_y_names <- names_y_data[types_y_data == 'units']
-
- ui_y <- unit_info(data = data, .names = unit_y_names)
-
- names_x_data <- attr(formula_terms, 'term.labels')
-
- names_not_found <- setdiff(c(names_y_data, names_x_data), names(data))
-
- if(!is_empty(names_not_found)){
-  msg <- paste0(
-   "variables in formula were not found in data: ",
-   paste_collapse(names_not_found, last = ' and ')
-  )
-  stop(msg, call. = FALSE)
- }
-
- types_x_data <- check_var_types(data,
-                                 names_x_data,
-                                 valid_types = c('numeric',
-                                                 'integer',
-                                                 'units',
-                                                 'factor',
-                                                 'ordered'))
-
- for(i in c(names_y_data, names_x_data)){
-
-  if(any(is.infinite(data[[i]]))){
-   stop("Please remove infinite values from ", i, ".",
-        call. = FALSE)
-  }
-
-  if(any(collapse::allNA(data[[i]]))){
-   stop("column ", i, " has no observed values",
-        call. = FALSE)
-  }
-
- }
-
- fctr_check(data, names_x_data)
-
- fctr_id_check(data, names_x_data)
-
- fi <- fctr_info(data, names_x_data)
-
- unit_x_names <- names_x_data[types_x_data == 'units']
-
- ui_x <- unit_info(data = data, .names = unit_x_names)
-
- # prep stage
-
- names_x_numeric <- grep(pattern = "^integer$|^numeric$|^units$",
-                         x = types_x_data)
-
- means <- standard_deviations<- modes <- numeric_bounds <- NULL
-
- numeric_cols <- names_x_data[names_x_numeric]
- nominal_cols <- fi$cols
-
- if(!is_empty(nominal_cols)){
-
-  modes <- vapply(
-   select_cols(data, nominal_cols),
-   collapse::fmode,
-   FUN.VALUE = integer(1),
-   w = weights
-  )
-
- }
-
- if(!is_empty(numeric_cols)){
-
-  numeric_data <- select_cols(data, numeric_cols)
-
-  numeric_bounds <- matrix(
-   data = c(
-    collapse::fnth(numeric_data, 0.1),
-    collapse::fnth(numeric_data, 0.25),
-    collapse::fnth(numeric_data, 0.5),
-    collapse::fnth(numeric_data, 0.75),
-    collapse::fnth(numeric_data, 0.9)
-   ),
-   nrow =5,
-   byrow = TRUE,
-   dimnames = list(c('10%', '25%', '50%', '75%', '90%'),
-                   names(numeric_data))
-  )
-
-  means <- collapse::fmean(numeric_data, w = weights)
-
-  standard_deviations <- collapse::fsd(numeric_data, w = weights)
-
- }
-
- if(any(is.na(select_cols(data, names_y_data))))
-  stop("Please remove missing values from the outcome variable(s)",
-       call. = FALSE)
-
- if(any(is.na(select_cols(data, names_x_data)))){
-
-  switch(
-   na_action,
-
-   'fail' = {
-    stop("Please remove missing values from data, or impute them.",
-         call. = FALSE)
-   },
-
-   'omit' = {
-    data <- collapse::na_omit(data, cols = names_x_data)
-    # cc <- stats::complete.cases(data[, names_x_data])
-    # data <- data[cc, ]
-   },
-
-   'impute_meanmode' = {
-
-    data <- data_impute(data,
-                        cols = names_x_data,
-                        values = c(as.list(means),
-                                   as.list(modes)))
-   }
-
-  )
-
- }
-
-
- y <- switch(
-  tree_type,
-  'survival' = prep_y_surv(data, names_y_data),
-  'classification' = prep_y_clsf(data, names_y_data)
- )
-
- x <- prep_x(data, fi, names_x_data, means, standard_deviations)
-
- if(is.null(weights)) weights <- rep(1, nrow(x))
-
- if(is.null(mtry)) mtry <- ceiling(sqrt(ncol(x)))
-
- # some additional checks that are dependent on the data
-
- check_arg_lteq(
-  arg_value = mtry,
-  arg_name = 'mtry',
-  bound = ncol(x),
-  append_to_msg = "(number of columns in the one-hot encoded x-matrix)"
- )
-
- check_arg_length(
-  arg_value = weights,
-  arg_name = 'weights',
-  expected_length = nrow(x)
- )
-
- if(is.null(control$lincomb_df_target)){
-
-  control$lincomb_df_target <- mtry
-
- } else {
-
-  check_arg_lteq(
-   arg_value = control$lincomb_df_target,
-   arg_name = 'df_target',
-   bound = mtry,
-   append_to_msg = "(number of randomly selected predictors)"
-  )
-
- }
-
- check_arg_lteq(
-  arg_value = leaf_min_obs,
-  arg_name = 'leaf_min_obs',
-  bound = round(nrow(x) / 2),
-  append_to_msg = "(number of observations divided by 2)"
- )
-
- check_arg_lt(
-  arg_value = split_min_obs,
-  arg_name = "split_min_obs",
-  bound = nrow(x),
-  append_to_msg = "(number of observations)"
- )
-
- if(tree_type == 'survival'){
-
-  n_events <- collapse::fsum(y[, 2])
-
-  check_arg_lteq(
-   arg_value = leaf_min_events,
-   arg_name = 'leaf_min_events',
-   bound = round(n_events / 2),
-   append_to_msg = "(number of events divided by 2)"
-  )
-
-  check_arg_lt(
-   arg_value = split_min_events,
-   arg_name = "split_min_events",
-   bound = n_events,
-   append_to_msg = "(number of events)"
-  )
-
-  if(is.null(oobag_pred_horizon)) {
-   # use training data to provide sensible default
-   oobag_pred_horizon <- stats::median(y[, 1])
-  }
-
-  sorted <-
-   collapse::radixorder(y[, 1],  # order for risk sets
-                        -y[, 2]) # order for oob C-statistic.
-
- } else {
-
-  # just a placeholder solution. Should use R's OO to streamline setup
-  n_events <- sum(y[,1])
-  sorted <- seq(nrow(x))
-  oobag_pred_horizon <- 1/2
-
- }
-
- x_sort <- x[sorted, , drop = FALSE]
- y_sort <- y[sorted, , drop = FALSE]
- w_sort <- weights[sorted]
-
- if(length(tree_seeds) == 1 && n_tree > 1){
-
-  set.seed(tree_seeds)
-  tree_seeds <- sample(x = n_tree*10, size = n_tree, replace = FALSE)
-
- } else if(is.null(tree_seeds)){
-
-  tree_seeds <- sample(x = n_tree*10, size = n_tree, replace = FALSE)
-
- }
-
- vi_max_pvalue = 0.01
-
- # browser()
-
- orsf_out <- orsf_cpp(x = x_sort,
-                      y = y_sort,
-                      w = w_sort,
-                      tree_type_R = switch(tree_type,
-                                           'classification' = 1,
-                                           'regression'= 2,
-                                           'survival' = 3),
-                      tree_seeds = as.integer(tree_seeds),
-                      loaded_forest = list(),
-                      n_tree = n_tree,
-                      mtry = mtry,
-                      sample_with_replacement = sample_with_replacement,
-                      sample_fraction = sample_fraction,
-                      vi_type_R = switch(importance,
-                                         "none" = 0,
-                                         "negate" = 1,
-                                         "permute" = 2,
-                                         "anova" = 3),
-                      vi_max_pvalue = vi_max_pvalue,
-                      leaf_min_events = leaf_min_events,
-                      leaf_min_obs = leaf_min_obs,
-                      split_rule_R = switch(split_rule,
-                                            "logrank" = 1,
-                                            "cstat" = 2,
-                                            "gini" = 3),
-                      split_min_events = split_min_events,
-                      split_min_obs = split_min_obs,
-                      split_min_stat = split_min_stat,
-                      split_max_cuts = n_split,
-                      split_max_retry = n_retry,
-                      lincomb_R_function = control$lincomb_R_function,
-                      lincomb_type_R = switch(control$lincomb_type,
-                                              'glm' = 1,
-                                              'random' = 2,
-                                              'net' = 3,
-                                              'custom' = 4),
-                      lincomb_eps = control$lincomb_eps,
-                      lincomb_iter_max = control$lincomb_iter_max,
-                      lincomb_scale = control$lincomb_scale,
-                      lincomb_alpha = control$lincomb_alpha,
-                      lincomb_df_target = control$lincomb_df_target,
-                      lincomb_ties_method = switch(tolower(control$lincomb_ties_method),
-                                                   'breslow' = 0,
-                                                   'efron'   = 1),
-                      pred_type_R = infer_pred_type(oobag_pred_type, tree_type),
-                      pred_mode = FALSE,
-                      pred_aggregate = oobag_pred_type != 'leaf',
-                      pred_horizon = oobag_pred_horizon,
-                      oobag = oobag_pred,
-                      oobag_R_function = f_oobag_eval,
-                      oobag_eval_type_R = switch(type_oobag_eval,
-                                                 'none' = 0,
-                                                 'cstat' = 1,
-                                                 'user' = 2),
-                      oobag_eval_every = oobag_eval_every,
-                      pd_type_R = 0,
-                      pd_x_vals = list(matrix(0, ncol=1, nrow=1)),
-                      pd_x_cols = list(matrix(1L, ncol=1, nrow=1)),
-                      pd_probs = c(0),
-                      n_thread = n_thread,
-                      write_forest = TRUE,
-                      run_forest = !no_fit,
-                      verbosity = as.integer(verbose_progress))
-
- # TODO: if someone says no_fit and also don't attach the data,
- # give them a warning but also do the right thing for them.
- orsf_out$data <- if(attach_data) data else NULL
-
- if(importance != 'none' && !no_fit){
-  rownames(orsf_out$importance) <- colnames(x)
-  orsf_out$importance <-
-   rev(orsf_out$importance[order(orsf_out$importance), , drop=TRUE])
- }
-
- if(oobag_pred){
-
-  # makes labels for oobag evaluation type
-  orsf_out$eval_oobag$stat_type <-
-   switch(EXPR = as.character(orsf_out$eval_oobag$stat_type),
-          "0" = "None",
-          "1" = "Harrell's C-statistic",
-          "2" = "User-specified function")
-
-  if(!no_fit){
-
-  # put the oob predictions into the same order as the training data.
-  unsorted <- collapse::radixorder(sorted)
-
-  if(oobag_pred_type == 'leaf'){
-   all_rows <- seq(nrow(data))
-   for(i in seq(n_tree)){
-    rows_inbag <- setdiff(all_rows, orsf_out$forest$rows_oobag[[i]]+1)
-    orsf_out$pred_oobag[rows_inbag, i] <- NA
-   }
-  }
-
-  orsf_out$pred_oobag <- orsf_out$pred_oobag[unsorted, , drop = FALSE]
-  orsf_out$pred_oobag[is.nan(orsf_out$pred_oobag)] <- NA_real_
-
-  # mortality predictions should always be 1 column
-  # b/c they do not depend on the prediction horizon
-  if(oobag_pred_type == 'mort'){
-   orsf_out$pred_oobag <-
-    orsf_out$pred_oobag[, 1L, drop = FALSE]
-
-   orsf_out$eval_oobag$stat_values <-
-    orsf_out$eval_oobag$stat_values[, 1, drop = FALSE]
-  }
-
-  }
-
- }
-
- orsf_out$pred_horizon <- oobag_pred_horizon
-
- n_leaves_mean <- compute_mean_leaves(orsf_out$forest)
-
- attr(orsf_out, 'control')             <- control
- attr(orsf_out, 'mtry')                <- mtry
- attr(orsf_out, 'n_obs')               <- nrow(y_sort)
- attr(orsf_out, 'n_tree')              <- n_tree
- attr(orsf_out, 'names_y')             <- names_y_data
- attr(orsf_out, "names_x")             <- names_x_data
- attr(orsf_out, "names_x_ref")         <- colnames(x)
- attr(orsf_out, "types_x")             <- types_x_data
- attr(orsf_out, 'n_events')            <- n_events
- attr(orsf_out, 'max_time')            <- y_sort[nrow(y_sort), 1]
- attr(orsf_out, 'event_times')         <- unique(y_sort[ y_sort[,2]==1, 1])
- attr(orsf_out, "unit_info")           <- c(ui_y, ui_x)
- attr(orsf_out, "fctr_info")           <- fi
- attr(orsf_out, 'n_leaves_mean')       <- n_leaves_mean
- attr(orsf_out, 'n_split')             <- n_split
- attr(orsf_out, 'leaf_min_events')     <- leaf_min_events
- attr(orsf_out, 'leaf_min_obs')        <- leaf_min_obs
- attr(orsf_out, 'split_min_events')    <- split_min_events
- attr(orsf_out, 'split_min_obs')       <- split_min_obs
- attr(orsf_out, 'split_min_stat')      <- split_min_stat
- attr(orsf_out, 'na_action')           <- na_action
- attr(orsf_out, 'control')             <- control
- attr(orsf_out, 'numeric_bounds')      <- numeric_bounds
- attr(orsf_out, 'means')               <- means
- attr(orsf_out, 'modes')               <- modes
- attr(orsf_out, 'standard_deviations') <- standard_deviations
- attr(orsf_out, 'trained')             <- !no_fit
- attr(orsf_out, 'n_retry')             <- n_retry
- attr(orsf_out, 'f_oobag_eval')        <- f_oobag_eval
- attr(orsf_out, 'type_oobag_eval')     <- type_oobag_eval
- attr(orsf_out, 'oobag_pred')          <- oobag_pred
- attr(orsf_out, 'oobag_fun')           <- oobag_fun
- attr(orsf_out, 'oobag_pred_type')     <- oobag_pred_type
- attr(orsf_out, 'oobag_eval_every')    <- oobag_eval_every
- attr(orsf_out, 'oobag_pred_horizon')  <- oobag_pred_horizon
- attr(orsf_out, 'importance')          <- importance
- attr(orsf_out, 'importance_values')   <- orsf_out$importance
- attr(orsf_out, 'group_factors')       <- group_factors
- attr(orsf_out, 'weights_user')        <- weights
- attr(orsf_out, 'verbose_progress')    <- verbose_progress
- attr(orsf_out, 'vi_max_pvalue')       <- vi_max_pvalue
- attr(orsf_out, 'split_rule')          <- split_rule
- attr(orsf_out, 'n_thread')            <- n_thread
- attr(orsf_out, 'tree_type')           <- tree_type
- attr(orsf_out, 'tree_seeds')          <- tree_seeds
- attr(orsf_out, 'sample_with_replacement') <- sample_with_replacement
- attr(orsf_out, 'sample_fraction')         <- sample_fraction
-
- class(orsf_out) <- "orsf_fit"
-
- if(importance != 'none' && !no_fit){
-
-  # temporarily attach data
-  if(!attach_data) orsf_out$data <- data
-
-  orsf_out$importance <- orsf_vi(orsf_out,
-                                 importance = importance,
-                                 group_factors = group_factors)
-
-  # Can drop it now
-  if(!attach_data) orsf_out$data <- NULL
-
- }
-
- orsf_out
+ object
 
 }
 
@@ -1042,7 +618,7 @@ orsf_train_ <- function(object,
                                          "negate" = 1,
                                          "permute" = 2,
                                          "anova" = 3),
-                      vi_max_pvalue = get_vi_max_pvalue(object),
+                      vi_max_pvalue = get_importance_max_pvalue(object),
                       oobag_R_function = get_f_oobag_eval(object),
                       leaf_min_events = get_leaf_min_events(object),
                       leaf_min_obs = get_leaf_min_obs(object),

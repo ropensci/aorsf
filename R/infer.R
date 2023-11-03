@@ -129,11 +129,14 @@ infer_tree_type <- function(names_y_data, data){
 
 infer_orsf_args <- function(x,
                             y = matrix(1, ncol=2),
-                            w = rep(1, nrow(x)),
                             ...,
                             object = NULL){
 
  .dots <- list(...)
+
+ w <- .dots$weights %||%
+  get_weights(object) %||%
+  rep(1, nrow(x))
 
  control <- .dots$control %||%
   get_control(object) %||%
@@ -170,7 +173,7 @@ infer_orsf_args <- function(x,
 
  pred_horizon <- .dots$pred_horizon %||%
   get_oobag_pred_horizon(object) %||%
-  if(tree_type == 'survival') stats::median(y[, 1]) else 1
+  1
 
  oobag_eval_type <- 'none'
 
@@ -214,7 +217,7 @@ infer_orsf_args <- function(x,
                      "permute" = 2,
                      "anova" = 3),
   vi_max_pvalue = .dots$vi_max_pvalue %||%
-   get_vi_max_pvalue(object) %||%
+   get_importance_max_pvalue(object) %||%
    0.01,
   leaf_min_events = .dots$leaf_min_events %||%
    get_leaf_min_events(object) %||%
@@ -282,9 +285,9 @@ infer_orsf_args <- function(x,
   n_thread  = .dots$n_thread %||% get_n_thread(object) %||% 1,
   write_forest = .dots$write_forest %||% TRUE,
   run_forest   = .dots$run_forest %||% TRUE,
-  verbosity    = .dots$verbosity %||%
-   get_verbose_progress(object) %||%
-   FALSE
+  verbosity    = as.integer(.dots$verbosity %||%
+                             get_verbose_progress(object) %||%
+                             FALSE)
  )
 
 }
