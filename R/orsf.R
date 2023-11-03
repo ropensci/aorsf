@@ -338,10 +338,7 @@ orsf <- function(data,
 
  check_dots(list(...), .f = orsf)
 
- if(!is.data.frame(data))
-  data <- orsf_data_prep(data)
-
- object <- orsf_new(data = data,
+ object <- orsf_new(data = orsf_data_prep(data),
                     formula = formula,
                     control = control,
                     weights = weights,
@@ -369,6 +366,26 @@ orsf <- function(data,
                     no_fit = no_fit,
                     na_action = na_action,
                     verbose_progress = verbose_progress)
+
+ if(no_fit) return(object)
+
+ orsf_train(object)
+
+}
+
+#' @rdname orsf
+#' @export
+orsf_train <- function(object){
+
+ if(is_trained(object)){
+  stop("object has already been trained", call. = FALSE)
+ }
+
+ if(is.null(object$data)){
+  stop("object must have training data attached.",
+       " Set attach_data = TRUE in orsf()",
+       call. = FALSE)
+ }
 
  data_summaries <- orsf_data_summarize(object)
 
@@ -407,16 +424,18 @@ orsf <- function(data,
  attr(object, 'importance_values') <- object$importance
  attr(object, 'n_leaves_mean') <- compute_mean_leaves(object$forest)
 
- browser()
  clean_outputs <- orsf_clean_fit(object)
+
+ attr(object, 'trained') <- TRUE
 
 
  # Can drop it now
- if(!attach_data) object$data <- NULL
+ if(!attr(object, 'attach_data')) object$data <- NULL
 
  object
 
 }
+
 
 
 orsf_data_prep <- function(data, ...){
@@ -469,10 +488,480 @@ orsf_data_prep.recipe <- function(data, ...){
 
 }
 
-#' @rdname orsf
-#' @export
-orsf_train <- function(object){
- orsf_train_(object)
+orsf_data_prep.data.frame <- function(data, ...){
+ data
+}
+
+orsf_new <- function(...){
+
+ # input checks ----
+
+ inputs <- list(...)
+
+ # this makes code below a little less tedious
+ data <- inputs$data
+
+ do.call(check_orsf_inputs, args = inputs)
+
+ # untrained at initialization
+ inputs$trained <- FALSE
+
+ # Y attributes ----
+
+ names_y_data <- check_var_names(data, all.vars(inputs$formula[[2]]))
+
+ if(any(is.na(select_cols(data, names_y_data))))
+  stop("Please remove missing values from the outcome variable(s)",
+       call. = FALSE)
+
+ vt = c('numeric', 'integer', 'units', 'factor')
+
+ types_y_data <- check_var_types(data, names_y_data, valid_types = vt)
+
+ unit_y_names <- names_y_data[types_y_data == 'units']
+
+ ui_y <- unit_info(data = data, .names = unit_y_names)
+
+ # X attributes ----
+
+ # info about formula variables
+ formula_terms <- suppressWarnings(
+  stats::terms(x = inputs$formula, data = data)
+ )
+
+ if(attr(formula_terms, 'response') == 0)
+  stop("formula should have a response", call. = FALSE)
+
+ # store x names and types from training data
+ names_x_data <- check_var_names(data, attr(formula_terms, 'term.labels'))
+
+ inputs$rows_x_cc <- stats::complete.cases(select_cols(data, names_x_data))
+
+ vt <- c('numeric', 'integer', 'units', 'factor', 'ordered')
+
+ types_x_data <- check_var_types(data, names_x_data, valid_types = vt)
+
+ # store the factor information
+ fi <- fctr_info(data, names_x_data)
+
+ # store the number of columns in X matrix
+ # X matrix isn't created yet but we can infer the number of cols in X
+ # by using factor info and the length of numeric columns.
+
+ n_col_x_nominal <- sum(
+  vapply(fi$lvls, function(x) length(x) - 1L, integer(1))
+ )
+
+ n_col_x_numeric <- sum(
+  grepl(pattern = "^integer$|^numeric$|^units$", x = types_x_data)
+ )
+
+ inputs$n_col_x <- n_col_x_nominal + n_col_x_numeric
+
+ unit_x_names <- names_x_data[types_x_data == 'units']
+
+ ui_x <- unit_info(data = data, .names = unit_x_names)
+
+ # X & Y attributes ----
+ names_all <- c(names_x_data, names_y_data)
+
+ # check for infinite or all missing predictors
+ check_var_values(data, names_all)
+
+ # check factors in x data
+ fctr_check(data, names_all)
+ fctr_id_check(data, names_all)
+
+ # store attributes ----
+ inputs$types_x_data <- types_x_data
+ inputs$names_x_data <- names_x_data
+ inputs$types_y_data <- types_y_data
+ inputs$names_y_data <- names_y_data
+ inputs$fctr_info <- fi
+ inputs$unit_info <- c(ui_y, ui_x)
+
+ if(is.null(inputs$mtry)){
+  inputs$mtry <-  ceiling(sqrt(inputs$n_col_x))
+ }
+
+ inputs$n_obs <- ifelse(test = inputs$na_action == 'omit',
+                        yes  = length(inputs$rows_x_cc),
+                        no   = nrow(data))
+
+ # delayed checks ----
+
+ check_arg_lteq(
+  arg_value = inputs$mtry,
+  arg_name = 'mtry',
+  bound = inputs$n_col_x,
+  append_to_msg = "(number of columns in the one-hot encoded x-matrix)"
+ )
+
+ if(is.null(inputs$control$lincomb_df_target)){
+
+  inputs$control$lincomb_df_target <- inputs$mtry
+
+ } else {
+
+  check_arg_lteq(
+   arg_value = inputs$control$lincomb_df_target,
+   arg_name = 'df_target',
+   bound = inputs$mtry,
+   append_to_msg = "(number of randomly selected predictors)"
+  )
+
+ }
+
+
+ # set weights as 1 if user did not supply them.
+ # length of weights depends on how missing are handled.
+ if(is.null(inputs$weights)){
+
+  inputs$weights <- rep(1, inputs$n_obs)
+
+ } else {
+
+  check_arg_length(
+   arg_value = inputs$weights,
+   arg_name  = 'weights',
+   expected_length = inputs$n_obs
+  )
+
+ }
+
+ check_arg_lteq(arg_value = inputs$leaf_min_obs,
+                arg_name = "leaf_min_obs",
+                bound = round(inputs$n_obs / 2),
+                append_to_msg = "(number of observations divided by 2)")
+
+ check_arg_lt(arg_value = inputs$split_min_obs,
+              arg_name = "split_min_obs",
+              bound = inputs$n_obs,
+              append_to_msg = "(number of observations)")
+
+ # tree attributes ----
+
+ inputs$tree_type = infer_tree_type(names_y_data, data)
+
+ if(is.null(inputs$tree_seeds)){
+
+  inputs$tree_seeds <- sample(1e6, size = 1)
+
+ }
+
+ if(length(inputs$tree_seeds) == 1){
+
+  if(inputs$n_tree > 1) set.seed(inputs$tree_seeds)
+
+  inputs$tree_seeds <- sample(inputs$n_tree*10, size = inputs$n_tree)
+
+ }
+
+ # out-of-bag attributes ----
+
+ inputs$oobag_pred <- inputs$oobag_pred_type != "none"
+
+ if(is.null(inputs$oobag_fun)){
+
+  inputs$f_oobag_eval <- function(x) x
+  inputs$type_oobag_eval <- 'none'
+
+  if(inputs$oobag_pred){
+
+   inputs$type_oobag_eval <- switch(inputs$tree_type,
+                                    'survival' = 'cstat',
+                                    'classification' = 'cstat',
+                                    'regression' = 'rsq')
+  }
+
+ } else {
+
+  inputs$type_oobag_eval <- 'user'
+  names(inputs)[names(inputs) == 'oobag_fun'] <- 'f_oobag_eval'
+
+ }
+
+ # can't evaluate the oobag predictions if they aren't aggregated
+ if(inputs$oobag_pred_type == 'leaf'){
+  inputs$type_oobag_eval <- 'none'
+ }
+
+ # transfer data to its own list after checking
+ fields <- list(data = inputs$data)
+ fields$forest = list()
+ fields$importance = double(length = 0)
+ fields$pred_oobag = matrix(ncol = 0, nrow = 0)
+ fields$eval_oobag = list(
+  stat_values = matrix(ncol = 0, nrow = 0),
+  stat_type = switch(inputs$type_oobag_eval,
+                     'none' = "None",
+                     'cstat' = "C statistic",
+                     'user' = "User-specified function")
+ )
+
+ # initialize new orsf_fit ----
+
+ out <- structure(.Data = fields)
+
+ # replace data with names in attribute list
+ inputs[[1]] <- names(out)
+ names(inputs)[1] <- "names"
+ # attach all inputs as attributes
+ attributes(out) <- inputs
+ # indicate S3 class
+ class(out) <- c(paste("orsf_fit", inputs$tree_type, sep = "_"),
+                 "orsf_fit")
+
+ # add tree-specific attributes ----
+
+ internal_attributes <- orsf_new_internals(out)
+
+ for(i in names(internal_attributes)){
+  attr(out, i) <- internal_attributes[[i]]
+ }
+
+ out
+
+}
+
+orsf_new_internals <- function(object){
+ UseMethod("orsf_new_internals", object)
+}
+
+orsf_new_internals.orsf_fit_survival <- function(object){
+
+ y <- select_cols(object$data, get_names_y(object))
+
+ if(get_na_action(object) == 'na_omit'){
+  y <- y[get_rows_x_cc(object), ]
+ }
+
+ n_events <- collapse::fsum(y[, 2])
+
+ check_arg_lteq(
+  arg_value = get_leaf_min_events(object),
+  arg_name = 'leaf_min_events',
+  bound = round(n_events / 2),
+  append_to_msg = "(number of events divided by 2)"
+ )
+
+ check_arg_lt(
+  arg_value = get_split_min_events(object),
+  arg_name = "split_min_events",
+  bound = n_events,
+  append_to_msg = "(number of events)"
+ )
+
+ # if pred_horizon is unspecified, provide sensible default
+ ph <- get_oobag_pred_horizon(object) %||% collapse::fmedian(y[, 1])
+
+ # order observations by event time and event status
+ sorted <- collapse::radixorder(y[, 1], -y[, 2])
+
+ max_time <- y[last_value(sorted), 1]
+
+ list(
+  oobag_pred_horizon = ph,
+  sorted = sorted,
+  max_time = max_time,
+  n_events = n_events
+ )
+
+}
+orsf_new_internals.orsf_fit_classification <- function(object){
+ NULL
+}
+orsf_new_internals.orsf_fit_regression <- function(object){
+ NULL
+}
+
+orsf_data_summarize <- function(object){
+
+ names_x_data <- get_names_x(object)
+ names_y_data <- get_names_y(object)
+ weights      <- get_weights(object)
+ data         <- object$data
+
+ names_x_numeric <- grep(pattern = "^integer$|^numeric$|^units$",
+                         x = get_types_x(object))
+
+ means <- standard_deviations <- modes <- numeric_bounds <- NULL
+
+ numeric_cols <- names_x_data[names_x_numeric]
+ nominal_cols <- get_fctr_info(object)$cols
+
+ if(!is_empty(nominal_cols)){
+
+  modes <- vapply(
+   select_cols(object$data, nominal_cols),
+   collapse::fmode,
+   FUN.VALUE = integer(1),
+   w = weights
+  )
+
+ }
+
+ if(!is_empty(numeric_cols)){
+
+  numeric_data <- select_cols(data, numeric_cols)
+
+  numeric_bounds <- matrix(
+   data = c(
+    collapse::fnth(numeric_data, 0.1, w = weights),
+    collapse::fnth(numeric_data, 0.25, w = weights),
+    collapse::fnth(numeric_data, 0.5, w = weights),
+    collapse::fnth(numeric_data, 0.75, w = weights),
+    collapse::fnth(numeric_data, 0.9, w = weights)
+   ),
+   nrow = 5,
+   byrow = TRUE,
+   dimnames = list(c('10%', '25%', '50%', '75%', '90%'),
+                   names(numeric_data))
+  )
+
+  means <- collapse::fmean(numeric_data, w = weights)
+
+  standard_deviations <- collapse::fsd(numeric_data, w = weights)
+
+ }
+
+ list(means = means,
+      modes = modes,
+      standard_deviations = standard_deviations,
+      numeric_bounds = numeric_bounds)
+
+}
+
+orsf_prep_xyw <- function(object){
+
+ data <- object$data
+ names_x_data <- get_names_x(object)
+ names_y_data <- get_names_y(object)
+
+ if(any(is.na(select_cols(data, names_x_data)))){
+
+  switch(
+   get_na_action(object),
+
+   'fail' = {
+    stop("Please remove missing values from data, or impute them.",
+         call. = FALSE)
+   },
+
+   'omit' = {
+    data <- data[get_rows_x_cc(object), ]
+   },
+
+   'impute_meanmode' = {
+
+    data <- data_impute(data,
+                        cols = names_x_data,
+                        values = c(as.list(get_means(object)),
+                                   as.list(get_modes(object))))
+   }
+
+  )
+
+ }
+
+ # dont use generic here because data may have been modified
+ y <- switch(
+  get_tree_type(object),
+  'survival' = prep_y_surv(data, names_y_data),
+  'classification' = prep_y_clsf(data, names_y_data)
+ )
+
+ x <- prep_x(data,
+             get_fctr_info(object),
+             names_x_data,
+             get_means(object),
+             get_standard_deviations(object))
+
+ list(x = x, y = y, w = get_weights(object))
+
+}
+
+orsf_clean_fit <- function(object){
+
+ importance_clean <- object$importance
+ pred_oobag_clean <- object$pred_oobag
+ eval_oobag_clean <- object$eval_oobag
+
+ if(get_importance(object) != "none"){
+
+  rownames(importance_clean) <- get_names_x(object, ref_code_names = TRUE)
+
+  importance_clean <-
+   rev(importance_clean[order(importance_clean), , drop=TRUE])
+
+ }
+
+ if(get_oobag_pred(object)){
+
+  if(get_oobag_pred_type(object) == 'leaf'){
+
+   all_rows <- seq(get_n_obs(object))
+
+   for(i in seq(get_n_tree(object))){
+
+    rows_inbag <- setdiff(all_rows, object$forest$rows_oobag[[i]]+1)
+    pred_oobag_clean[rows_inbag, i] <- NA
+
+   }
+
+  }
+
+  pred_oobag_clean[is.nan(pred_oobag_clean)] <- NA_real_
+
+ }
+
+ out <- list(importance = importance_clean,
+             pred_oobag = pred_oobag_clean,
+             eval_oobag = eval_oobag_clean)
+
+ internals <- orsf_clean_fit_internal(object, out)
+
+ for(i in names(internals)) out[[i]] <- internals[[i]]
+
+ out
+
+}
+
+orsf_clean_fit_internal <- function(object, output){
+ UseMethod("orsf_clean_fit_internal", object)
+}
+
+orsf_clean_fit_internal.orsf_fit_survival <- function(object, output){
+
+ internals <- list(pred_horizon = get_oobag_pred_horizon(object))
+
+ if(get_oobag_pred(object)){
+
+  # put the oob predictions into the same order as the training data.
+  unsorted <- collapse::radixorder(get_sorted(object))
+  output$pred_oobag <- output$pred_oobag[unsorted, , drop = FALSE]
+
+  # mortality predictions should always be 1 column
+  # b/c they do not depend on the prediction horizon
+  if(get_oobag_pred_type(object) == 'mort'){
+
+   output$eval_oobag$stat_values <-
+    output$eval_oobag$stat_values[, 1L, drop = FALSE]
+
+   output$pred_oobag <- output$pred_oobag[, 1L, drop = FALSE]
+
+  }
+
+ }
+
+ c(output, internals)
+
+}
+orsf_clean_fit_internal.orsf_fit_classification <- function(object, output){
+ NULL
+}
+orsf_clean_fit_internal.orsf_fit_regression <- function(object, output){
+ NULL
 }
 
 
@@ -515,28 +1004,18 @@ orsf_train <- function(object){
 
 orsf_time_to_train <- function(object, n_tree_subset = 50){
 
- time_preproc_start <- Sys.time()
+ n_tree_orig <- get_n_tree(object)
 
- y  <- prep_y_from_orsf(object)
- x  <- prep_x_from_orsf(object)
+ # does this make a copy of the entire object?
+ attr(object, 'n_tree') <- n_tree_subset
 
- sorted <- order(y[, 1],  # order this way for risk sets
-                 -y[, 2]) # order this way for oob C-statistic.
+ time_train_start <- Sys.time()
 
- time_preproc_stop <- Sys.time()
-
- output <- orsf_train_(object,
-                       n_tree = n_tree_subset,
-                       x = x,
-                       y = y,
-                       sorted = sorted)
+ trained <- orsf_train(object)
 
  time_train_stop <- Sys.time()
 
- mult_by <- get_n_tree(object) / n_tree_subset
-
- difftime(time_preproc_stop, time_preproc_start) +
-  difftime(time_train_stop, time_preproc_stop) * mult_by
+ difftime(time_train_stop, time_train_start) * n_tree_orig / n_tree_subset
 
 }
 
@@ -561,168 +1040,168 @@ orsf_time_to_train <- function(object, n_tree_subset = 50){
 #'
 #' @noRd
 #'
-orsf_train_ <- function(object,
-                        n_tree = NULL,
-                        x = NULL,
-                        y = NULL,
-                        sorted  = NULL){
-
- if(is_trained(object)){
-  stop("object has already been trained", call. = FALSE)
- }
-
- if(is.null(object$data)){
-  stop("object must have training data attached.",
-       " Set attach_data = TRUE in orsf()",
-       call. = FALSE)
- }
-
- if(is.null(y)){
-  y <- prep_y_from_orsf(object)
- }
-
- if(is.null(x)){
-  x <- prep_x_from_orsf(object)
- }
-
- if(is.null(n_tree)){
-  n_tree <- get_n_tree(object)
- }
-
- if(is.null(sorted)){
-  sorted <- collapse::radixorder(y[, 1], -y[, 2])
- }
-
- weights <- get_weights(object)
-
- x_sort <- x[sorted, ]
- y_sort <- y[sorted, ]
- w_sort <- weights[sorted]
-
- oobag_eval_every <- min(n_tree, get_oobag_eval_every(object))
-
- control <- get_control(object)
-
- orsf_out <- orsf_cpp(x = x_sort,
-                      y = y_sort,
-                      w = w_sort,
-                      tree_type_R = 3,
-                      tree_seeds = get_tree_seeds(object),
-                      loaded_forest = list(),
-                      n_tree = n_tree,
-                      mtry = get_mtry(object),
-                      sample_with_replacement = get_sample_with_replacement(object),
-                      sample_fraction = get_sample_fraction(object),
-                      vi_type_R = switch(get_importance(object),
-                                         "none" = 0,
-                                         "negate" = 1,
-                                         "permute" = 2,
-                                         "anova" = 3),
-                      vi_max_pvalue = get_importance_max_pvalue(object),
-                      oobag_R_function = get_f_oobag_eval(object),
-                      leaf_min_events = get_leaf_min_events(object),
-                      leaf_min_obs = get_leaf_min_obs(object),
-                      split_rule_R = switch(get_split_rule(object),
-                                            "logrank" = 1,
-                                            "cstat" = 2),
-                      split_min_events = get_split_min_events(object),
-                      split_min_obs = get_split_min_obs(object),
-                      split_min_stat = get_split_min_stat(object),
-                      split_max_cuts = get_n_split(object),
-                      split_max_retry = get_n_retry(object),
-
-                      lincomb_R_function = control$lincomb_R_function,
-                      lincomb_type_R = switch(control$lincomb_type,
-                                              'glm' = 1,
-                                              'random' = 2,
-                                              'net' = 3,
-                                              'custom' = 4),
-                      lincomb_eps = control$lincomb_eps,
-                      lincomb_iter_max = control$lincomb_iter_max,
-                      lincomb_scale = control$lincomb_scale,
-                      lincomb_alpha = control$lincomb_alpha,
-                      lincomb_df_target = control$lincomb_df_target,
-                      lincomb_ties_method = switch(tolower(control$lincomb_ties_method),
-                                                   'breslow' = 0,
-                                                   'efron'   = 1),
-                      pred_type_R = switch(get_oobag_pred_type(object),
-                                           "none" = 0,
-                                           "risk" = 1,
-                                           "surv" = 2,
-                                           "chf"  = 3,
-                                           "mort" = 4),
-                      pred_mode = FALSE,
-                      pred_aggregate = get_oobag_pred_type(object) != 'leaf',
-                      pred_horizon = get_oobag_pred_horizon(object),
-                      oobag = get_oobag_pred(object),
-                      oobag_eval_type_R = switch(get_oobag_eval_type(object),
-                                                 'none' = 0,
-                                                 'cstat' = 1,
-                                                 'user' = 2),
-                      oobag_eval_every = oobag_eval_every,
-                      pd_type_R = 0,
-                      pd_x_vals = list(matrix(0, ncol=1, nrow=1)),
-                      pd_x_cols = list(matrix(1L, ncol=1, nrow=1)),
-                      pd_probs = c(0),
-                      n_thread = get_n_thread(object),
-                      write_forest = TRUE,
-                      run_forest = TRUE,
-                      verbosity = get_verbose_progress(object))
-
-
- object$pred_oobag   <- orsf_out$pred_oobag
- object$eval_oobag   <- orsf_out$eval_oobag
- object$forest       <- orsf_out$forest
- object$importance   <- orsf_out$importance
- object$pred_horizon <- get_oobag_pred_horizon(object)
-
- if(get_importance(object) != 'none'){
-
-  rownames(object$importance) <- colnames(x)
-
-  object$importance <-
-   rev(object$importance[order(object$importance), , drop=TRUE])
-
-  attr(object, 'importance_values') <- object$importance
-
-  object$importance <- orsf_vi(object,
-                               importance = get_importance(object),
-                               group_factors = get_group_factors(object))
-
-
- }
-
- if(get_oobag_pred(object)){
-
-  # clear labels for oobag evaluation type
-  object$eval_oobag$stat_type <-
-   switch(EXPR = as.character(object$eval_oobag$stat_type),
-          "0" = "None",
-          "1" = "Harrell's C-statistic",
-          "2" = "User-specified function")
-
-  # put the oob predictions into the same order as the training data.
-  unsorted <- collapse::radixorder(sorted)
-  object$pred_oobag <- object$pred_oobag[unsorted, , drop = FALSE]
-
-  # mortality predictions should always be 1 column
-  # b/c they do not depend on the prediction horizon
-  if(get_oobag_pred_type(object) == 'mort'){
-   object$pred_oobag <-
-    object$pred_oobag[, 1L, drop = FALSE]
-
-   object$eval_oobag$stat_values <-
-    object$eval_oobag$stat_values[, 1, drop = FALSE]
-  }
-
- }
-
- attr(object, "n_leaves_mean") <- compute_mean_leaves(orsf_out$forest)
-
- attr(object, 'trained') <- TRUE
-
- object
-
-}
+# orsf_train_ <- function(object,
+#                         n_tree = NULL,
+#                         x = NULL,
+#                         y = NULL,
+#                         sorted  = NULL){
+#
+#  if(is_trained(object)){
+#   stop("object has already been trained", call. = FALSE)
+#  }
+#
+#  if(is.null(object$data)){
+#   stop("object must have training data attached.",
+#        " Set attach_data = TRUE in orsf()",
+#        call. = FALSE)
+#  }
+#
+#  if(is.null(y)){
+#   y <- prep_y_from_orsf(object)
+#  }
+#
+#  if(is.null(x)){
+#   x <- prep_x_from_orsf(object)
+#  }
+#
+#  if(is.null(n_tree)){
+#   n_tree <- get_n_tree(object)
+#  }
+#
+#  if(is.null(sorted)){
+#   sorted <- collapse::radixorder(y[, 1], -y[, 2])
+#  }
+#
+#  weights <- get_weights(object)
+#
+#  x_sort <- x[sorted, ]
+#  y_sort <- y[sorted, ]
+#  w_sort <- weights[sorted]
+#
+#  oobag_eval_every <- min(n_tree, get_oobag_eval_every(object))
+#
+#  control <- get_control(object)
+#
+#  orsf_out <- orsf_cpp(x = x_sort,
+#                       y = y_sort,
+#                       w = w_sort,
+#                       tree_type_R = 3,
+#                       tree_seeds = get_tree_seeds(object),
+#                       loaded_forest = list(),
+#                       n_tree = n_tree,
+#                       mtry = get_mtry(object),
+#                       sample_with_replacement = get_sample_with_replacement(object),
+#                       sample_fraction = get_sample_fraction(object),
+#                       vi_type_R = switch(get_importance(object),
+#                                          "none" = 0,
+#                                          "negate" = 1,
+#                                          "permute" = 2,
+#                                          "anova" = 3),
+#                       vi_max_pvalue = get_importance_max_pvalue(object),
+#                       oobag_R_function = get_f_oobag_eval(object),
+#                       leaf_min_events = get_leaf_min_events(object),
+#                       leaf_min_obs = get_leaf_min_obs(object),
+#                       split_rule_R = switch(get_split_rule(object),
+#                                             "logrank" = 1,
+#                                             "cstat" = 2),
+#                       split_min_events = get_split_min_events(object),
+#                       split_min_obs = get_split_min_obs(object),
+#                       split_min_stat = get_split_min_stat(object),
+#                       split_max_cuts = get_n_split(object),
+#                       split_max_retry = get_n_retry(object),
+#
+#                       lincomb_R_function = control$lincomb_R_function,
+#                       lincomb_type_R = switch(control$lincomb_type,
+#                                               'glm' = 1,
+#                                               'random' = 2,
+#                                               'net' = 3,
+#                                               'custom' = 4),
+#                       lincomb_eps = control$lincomb_eps,
+#                       lincomb_iter_max = control$lincomb_iter_max,
+#                       lincomb_scale = control$lincomb_scale,
+#                       lincomb_alpha = control$lincomb_alpha,
+#                       lincomb_df_target = control$lincomb_df_target,
+#                       lincomb_ties_method = switch(tolower(control$lincomb_ties_method),
+#                                                    'breslow' = 0,
+#                                                    'efron'   = 1),
+#                       pred_type_R = switch(get_oobag_pred_type(object),
+#                                            "none" = 0,
+#                                            "risk" = 1,
+#                                            "surv" = 2,
+#                                            "chf"  = 3,
+#                                            "mort" = 4),
+#                       pred_mode = FALSE,
+#                       pred_aggregate = get_oobag_pred_type(object) != 'leaf',
+#                       pred_horizon = get_oobag_pred_horizon(object),
+#                       oobag = get_oobag_pred(object),
+#                       oobag_eval_type_R = switch(get_oobag_eval_type(object),
+#                                                  'none' = 0,
+#                                                  'cstat' = 1,
+#                                                  'user' = 2),
+#                       oobag_eval_every = oobag_eval_every,
+#                       pd_type_R = 0,
+#                       pd_x_vals = list(matrix(0, ncol=1, nrow=1)),
+#                       pd_x_cols = list(matrix(1L, ncol=1, nrow=1)),
+#                       pd_probs = c(0),
+#                       n_thread = get_n_thread(object),
+#                       write_forest = TRUE,
+#                       run_forest = TRUE,
+#                       verbosity = get_verbose_progress(object))
+#
+#
+#  object$pred_oobag   <- orsf_out$pred_oobag
+#  object$eval_oobag   <- orsf_out$eval_oobag
+#  object$forest       <- orsf_out$forest
+#  object$importance   <- orsf_out$importance
+#  object$pred_horizon <- get_oobag_pred_horizon(object)
+#
+#  if(get_importance(object) != 'none'){
+#
+#   rownames(object$importance) <- colnames(x)
+#
+#   object$importance <-
+#    rev(object$importance[order(object$importance), , drop=TRUE])
+#
+#   attr(object, 'importance_values') <- object$importance
+#
+#   object$importance <- orsf_vi(object,
+#                                importance = get_importance(object),
+#                                group_factors = get_group_factors(object))
+#
+#
+#  }
+#
+#  if(get_oobag_pred(object)){
+#
+#   # clear labels for oobag evaluation type
+#   object$eval_oobag$stat_type <-
+#    switch(EXPR = as.character(object$eval_oobag$stat_type),
+#           "0" = "None",
+#           "1" = "Harrell's C-statistic",
+#           "2" = "User-specified function")
+#
+#   # put the oob predictions into the same order as the training data.
+#   unsorted <- collapse::radixorder(sorted)
+#   object$pred_oobag <- object$pred_oobag[unsorted, , drop = FALSE]
+#
+#   # mortality predictions should always be 1 column
+#   # b/c they do not depend on the prediction horizon
+#   if(get_oobag_pred_type(object) == 'mort'){
+#    object$pred_oobag <-
+#     object$pred_oobag[, 1L, drop = FALSE]
+#
+#    object$eval_oobag$stat_values <-
+#     object$eval_oobag$stat_values[, 1, drop = FALSE]
+#   }
+#
+#  }
+#
+#  attr(object, "n_leaves_mean") <- compute_mean_leaves(orsf_out$forest)
+#
+#  attr(object, 'trained') <- TRUE
+#
+#  object
+#
+# }
 
 
