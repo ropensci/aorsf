@@ -338,34 +338,50 @@ orsf <- function(data,
 
  check_dots(list(...), .f = orsf)
 
- object <- orsf_new(data = orsf_data_prep(data),
-                    formula = formula,
-                    control = control,
-                    weights = weights,
-                    n_tree = n_tree,
-                    n_split = n_split,
-                    n_retry = n_retry,
-                    n_thread = n_thread,
-                    mtry = mtry,
-                    sample_with_replacement = sample_with_replacement,
-                    sample_fraction = sample_fraction,
-                    leaf_min_events = leaf_min_events,
-                    leaf_min_obs = leaf_min_obs,
-                    split_rule = split_rule,
-                    split_min_events = split_min_events,
-                    split_min_obs = split_min_obs,
-                    split_min_stat = split_min_stat,
-                    oobag_pred_type = oobag_pred_type,
-                    oobag_pred_horizon = oobag_pred_horizon,
-                    oobag_eval_every = oobag_eval_every,
-                    importance = importance,
-                    importance_max_pvalue = importance_max_pvalue,
-                    group_factors = group_factors,
-                    tree_seeds = tree_seeds,
-                    attach_data = attach_data,
-                    no_fit = no_fit,
-                    na_action = na_action,
-                    verbose_progress = verbose_progress)
+ check_arg_type(arg_value = attach_data,
+                arg_name = 'attach_data',
+                expected_type = 'logical')
+
+ check_arg_length(arg_value = attach_data,
+                  arg_name = 'attach_data',
+                  expected_length = 1)
+
+ check_arg_type(arg_value = no_fit,
+                arg_name = 'no_fit',
+                expected_type = 'logical')
+
+ check_arg_length(arg_value = no_fit,
+                  arg_name = 'no_fit',
+                  expected_length = 1)
+
+ object <- ForestSurvival$new(data = orsf_data_prep(data),
+                              formula = formula,
+                              control = control,
+                              weights = weights,
+                              n_tree = n_tree,
+                              n_split = n_split,
+                              n_retry = n_retry,
+                              n_thread = n_thread,
+                              mtry = mtry,
+                              sample_with_replacement = sample_with_replacement,
+                              sample_fraction = sample_fraction,
+                              leaf_min_events = leaf_min_events,
+                              leaf_min_obs = leaf_min_obs,
+                              split_rule = split_rule,
+                              split_min_events = split_min_events,
+                              split_min_obs = split_min_obs,
+                              split_min_stat = split_min_stat,
+                              oobag_pred_type = oobag_pred_type,
+                              oobag_pred_horizon = oobag_pred_horizon,
+                              oobag_eval_every = oobag_eval_every,
+                              importance_type = importance,
+                              importance_max_pvalue = importance_max_pvalue,
+                              importance_group_factors = group_factors,
+                              tree_seeds = tree_seeds,
+                              na_action = na_action,
+                              verbose_progress = verbose_progress)
+
+ browser()
 
  if(no_fit) return(object)
 
