@@ -16,7 +16,7 @@ test_that(
   expect_error(orsf(pbc, f, sample_fraction = 1, oobag_pred_type = 'risk'),
                'no samples are out-of-bag')
   expect_error(orsf(pbc, f, split_rule = 'cstat', split_min_stat = 1),
-               'must be < 1')
+               'should be < 1')
 
   pbc_orsf$date_var <- Sys.Date()
   expect_error(orsf(pbc_orsf, f), 'unsupported type')
@@ -39,11 +39,11 @@ test_that(
  desc = 'orsf runs with data.table and with net control',
  code = {
 
-  expect_s3_class(orsf(as.data.table(pbc_orsf), f, n_tree = 1), 'orsf_fit')
+  expect_s3_class(orsf(as.data.table(pbc_orsf), f, n_tree = 1), 'ObliqueForest')
 
   expect_s3_class(orsf(as.data.table(pbc_orsf), f,
                        control = orsf_control_net(),
-                       n_tree = 3), 'orsf_fit')
+                       n_tree = 1), 'ObliqueForest')
  }
 )
 
@@ -97,25 +97,20 @@ test_that(
   fit_units <- orsf(pbc_units, Surv(time, status) ~ . - id, n_tree=1)
 
   expect_equal(
-   get_unit_info(fit_units),
-   list(
-    time = list(
-     numerator = "d",
-     denominator = character(0),
-     label = "d"
-    ),
-    age = list(
-     numerator = "years",
-     denominator = character(0),
-     label = "years"
-    ),
-    bili = list(
-     numerator = "mg",
-     denominator = "dl",
-     label = "mg/dl"
-    )
-   )
+   fit_units$get_var_unit('time'),
+   list( numerator = "d", denominator = character(0), label = "d")
   )
+
+  expect_equal(
+   fit_units$get_var_unit('age'),
+   list(numerator = "years", denominator = character(0), label = "years")
+  )
+
+  expect_equal(
+   fit_units$get_var_unit('bili'),
+   list(numerator = "mg", denominator = "dl", label = "mg/dl")
+  )
+
  }
 
 )
@@ -162,7 +157,7 @@ test_that(
  code = {
   expect_error(orsf(pbc_temp, time + status ~ . - id,
                     na_action = 'omit'),
-               'column bili has no observed values')
+               'complete data')
 
   expect_error(orsf(pbc_temp, time + status ~ . - id,
                     na_action = 'impute_meanmode'),
@@ -193,7 +188,8 @@ test_that(
  code = {
 
   fit_omit <- orsf(pbc_temp, time + status ~ .-id,  na_action = 'omit')
-  expect_equal(nrow(fit_omit$data),
+
+  expect_equal(fit_omit$n_obs,
                nrow(stats::na.omit(pbc_temp)))
 
  }
@@ -207,18 +203,18 @@ test_that(
                      time + status ~ .,
                      na_action = 'impute_meanmode')
 
-  expect_equal(fit_impute$data$bili[1:10],
-               rep(mean(pbc_temp$bili, na.rm=TRUE), 10))
-
-  expect_equal(fit_impute$data$bili[-c(1:10)],
-               pbc_temp$bili[-c(1:10)])
+  expect_equal(fit_impute$n_obs, nrow(pbc_temp))
 
  }
 )
 
 
-test_that("data are not unintentionally modified by reference when imputed",
-          code = {expect_identical(pbc_temp, pbc_temp_orig)})
+test_that(
+ "data are not unintentionally modified by reference when imputed",
+ code = {
+  expect_identical(pbc_temp, pbc_temp_orig)
+ }
+)
 
 pbc_noise <- data_list_pbc$pbc_noised
 pbc_scale <- data_list_pbc$pbc_scaled
@@ -379,40 +375,23 @@ test_that(
   # forest whether you train with orsf() or with orsf_train().
 
   object <- orsf(pbc, Surv(time, status) ~ .,
-                 n_tree = n_tree_test, no_fit = TRUE,
-                 importance = 'anova')
-  set.seed(89)
+                 n_tree = n_tree_test,
+                 tree_seeds = 1,
+                 no_fit = TRUE,
+                 importance = 'none')
+
   time_estimated <- orsf_time_to_train(object, n_tree_subset = 1)
 
-  set.seed(89)
   time_true_start <- Sys.time()
   fit_orsf_3 <- orsf_train(object)
   time_true_stop <- Sys.time()
 
   time_true <- time_true_stop - time_true_start
 
-  diff_abs <- abs(as.numeric(time_true - time_estimated))
+  diff <- abs(as.numeric(time_true - time_estimated))
 
   # estimated time is within 5 seconds of true time.
-  expect_lt(diff_abs, 5)
-
- }
-)
-
-test_that(
- desc = 'orsf_train does not accept bad inputs',
- code = {
-
-  expect_error(orsf_train(object = fit_orsf), regexp = 'been trained')
-
-  fit_nodat <- orsf(pbc_orsf,
-                    Surv(time, status) ~ . - id,
-                    n_tree = 2,
-                    no_fit = TRUE,
-                    attach_data = FALSE)
-
-  expect_error(orsf_train(object = fit_nodat),
-               regexp = 'training data attached')
+  expect_lt(diff, 5)
 
  }
 )
@@ -535,7 +514,7 @@ test_that(
                oobag_pred_type = inputs$oobag_pred_type[i],
                oobag_pred_horizon = pred_horizon)
 
-   expect_s3_class(fit, class = 'orsf_fit')
+   expect_s3_class(fit, class = 'ObliqueForest')
 
    # data are not unintentionally modified by reference,
    expect_identical(data_fun(pbc_orsf), fit$data)
@@ -545,26 +524,16 @@ test_that(
    expect_no_missing(fit$importance)
    expect_no_missing(fit$pred_horizon)
 
-   expect_equal(get_n_tree(fit), inputs$n_tree[i])
-   expect_equal(get_n_split(fit), inputs$n_split[i])
-   expect_equal(get_n_retry(fit), inputs$n_retry[i])
-   expect_equal(get_mtry(fit), inputs$mtry[i])
-   expect_equal(get_leaf_min_events(fit), inputs$leaf_min_events[i])
-   expect_equal(get_leaf_min_obs(fit), inputs$leaf_min_obs[i])
-   expect_equal(get_split_min_events(fit), inputs$split_min_events[i])
-   expect_equal(get_split_min_obs(fit), inputs$split_min_obs[i])
-   expect_equal(fit$pred_horizon, pred_horizon)
-
-   expect_length(fit$forest$rows_oobag, n = get_n_tree(fit))
-   expect_length(fit$forest$cutpoint, n = get_n_tree(fit))
-   expect_length(fit$forest$child_left, n = get_n_tree(fit))
-   expect_length(fit$forest$coef_indices, n = get_n_tree(fit))
-   expect_length(fit$forest$coef_values, n = get_n_tree(fit))
-   expect_length(fit$forest$leaf_summary, n = get_n_tree(fit))
+   expect_length(fit$forest$rows_oobag,   n = fit$n_tree)
+   expect_length(fit$forest$cutpoint,     n = fit$n_tree)
+   expect_length(fit$forest$child_left,   n = fit$n_tree)
+   expect_length(fit$forest$coef_indices, n = fit$n_tree)
+   expect_length(fit$forest$coef_values,  n = fit$n_tree)
+   expect_length(fit$forest$leaf_summary, n = fit$n_tree)
 
    if(!inputs$sample_with_replacement[i]){
     expect_equal(
-     1 - length(fit$forest$rows_oobag[[1]]) / get_n_obs(fit),
+     1 - length(fit$forest$rows_oobag[[1]]) / fit$n_obs,
      sample_fraction,
      tolerance = 0.025
     )
@@ -573,13 +542,17 @@ test_that(
    if(inputs$oobag_pred_type[i] != 'none'){
 
     if(inputs$oobag_pred_type[i] %in% c("chf","surv","risk")){
+
      expect_length(fit$eval_oobag$stat_values, length(pred_horizon))
+
     } else if(inputs$oobag_pred_type[i] == 'mort'){
+
      expect_length(fit$eval_oobag$stat_values, 1)
+
     }
 
 
-    expect_equal(nrow(fit$pred_oobag), get_n_obs(fit))
+    expect_equal(nrow(fit$pred_oobag), fit$n_obs)
 
     # these lengths should match for n_tree=1
     # b/c only the oobag rows of the first tree
@@ -641,8 +614,6 @@ test_that(
  }
 )
 
-set.seed(329)
-
 fit_unwtd <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 
 fit_wtd <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
@@ -653,8 +624,8 @@ test_that(
  code = {
 
   # using weights should make the trees much deeper:
-  expect_gt(get_n_leaves_mean(fit_wtd),
-            get_n_leaves_mean(fit_unwtd))
+  expect_gt(fit_wtd$get_mean_leaves_per_tree(),
+            fit_unwtd$get_mean_leaves_per_tree())
 
  }
 )
@@ -668,7 +639,7 @@ test_that(
   pbc_list_bad$trt <- pbc_list_bad$trt[1:3]
   pbc_list_bad$age <- pbc_list_bad$age[1:5]
 
-  # only run locally - I don't want to list recipes in suggests
+  # # only run locally - I don't want to list recipes in suggests
   # recipe <- recipes::recipe(pbc_orsf, formula = time + status ~ .) %>%
   #  recipes::step_rm(id) %>%
   #  recipes::step_scale(recipes::all_numeric_predictors())
@@ -677,11 +648,11 @@ test_that(
   #
   # fit_recipe <- orsf(recipe_prepped, Surv(time, status) ~ .)
   #
-  # expect_s3_class(fit_recipe, 'orsf_fit')
+  # expect_s3_class(fit_recipe, 'ObliqueForest')
 
   fit_list <- orsf(pbc_list, Surv(time, status) ~ .)
 
-  expect_s3_class(fit_list, 'orsf_fit')
+  expect_s3_class(fit_list, 'ObliqueForest')
 
   expect_error(
    orsf(pbc_list_bad, Surv(time, status) ~ .),

@@ -78,22 +78,20 @@
 #'
 #' @includeRmd Rmd/orsf_predict_examples.Rmd
 #'
-predict.orsf_fit <- function(object,
-                             new_data,
-                             pred_horizon = NULL,
-                             pred_type = 'risk',
-                             na_action = 'fail',
-                             boundary_checks = TRUE,
-                             n_thread = 1,
-                             verbose_progress = FALSE,
-                             pred_aggregate = TRUE,
-                             ...){
+predict.ObliqueForest <- function(object,
+                                  new_data,
+                                  pred_horizon = NULL,
+                                  pred_type = 'risk',
+                                  na_action = 'fail',
+                                  boundary_checks = TRUE,
+                                  n_thread = 1,
+                                  verbose_progress = FALSE,
+                                  pred_aggregate = TRUE,
+                                  ...){
 
  # catch any arguments that didn't match and got relegated to ...
  # these arguments are mistaken input names since ... isn't used.
- check_dots(list(...), .f = predict.orsf_fit)
-
- names_x_data <- intersect(get_names_x(object), names(new_data))
+ check_dots(list(...), .f = predict.ObliqueForest)
 
  if(pred_type %in% c('leaf', 'mort') && !is.null(pred_horizon)){
 
@@ -111,97 +109,14 @@ predict.orsf_fit <- function(object,
 
  pred_horizon <- infer_pred_horizon(object, pred_type, pred_horizon)
 
- check_predict(object = object,
-               new_data = new_data,
-               pred_horizon = pred_horizon,
-               pred_type = pred_type,
-               na_action = na_action,
-               boundary_checks = boundary_checks)
-
- if(length(pred_horizon) > 1 && !pred_aggregate){
-
-  results <- lapply(
-   X = pred_horizon,
-   FUN = function(t){
-    predict.orsf_fit(object = object,
-                     new_data = new_data,
-                     pred_horizon = t,
-                     pred_type = pred_type,
-                     na_action = na_action,
-                     boundary_checks = boundary_checks,
-                     n_thread = n_thread,
-                     verbose_progress = verbose_progress,
-                     pred_aggregate = pred_aggregate)
-   }
-  )
-
-  return(simplify2array(results))
-
- }
-
- pred_horizon_order <- order(pred_horizon)
- pred_horizon_ordered <- pred_horizon[pred_horizon_order]
-
- cc <- which(
-  stats::complete.cases(select_cols(new_data, names_x_data))
- )
-
- check_complete_cases(cc, na_action, nrow(new_data))
-
- if(na_action == 'impute_meanmode'){
-
-  new_data <- data_impute(new_data,
-                          cols = get_names_x(object),
-                          values = c(as.list(get_means(object)),
-                                     as.list(get_modes(object))))
-
-  cc <- collapse::seq_row(new_data)
-
- }
-
- if(is.null(pred_horizon) && !(pred_type %in% c('mort', 'leaf'))){
-  stop("pred_horizon must be specified for ",
-       pred_type, " predictions.", call. = FALSE)
- }
-
- x_new <- prep_x_from_orsf(object, data = new_data[cc, ])
-
- # control <- get_control(object)
-
- args <- infer_orsf_args(x = x_new,
-                         vi_type = 'none',
-                         object = object,
-                         pred_type = pred_type,
-                         pred_aggregate = pred_aggregate,
-                         pred_horizon = pred_horizon_ordered,
-                         oobag_pred = FALSE,
-                         pred_mode = TRUE,
-                         write_forest = FALSE,
-                         run_forest = TRUE)
-
- orsf_out <- do.call(orsf_cpp, args = args)
-
- out_values <- orsf_out$pred_new
-
- if(na_action == "pass"){
-
-  out <- matrix(nrow = nrow(new_data),
-                ncol = ncol(out_values))
-
-  out[cc, ] <- out_values
-
- } else {
-
-  out <- out_values
-
- }
-
- if(pred_type == "leaf" || !pred_aggregate) return(out)
-
- if(get_tree_type(object) == 'survival'){
-  # output in the same order as pred_horizon
-  out <- out[, order(pred_horizon_order), drop = FALSE]
- }
+ out <- object$predict(new_data = new_data,
+                       pred_horizon = pred_horizon,
+                       pred_type = pred_type,
+                       na_action = na_action,
+                       boundary_checks = boundary_checks,
+                       n_thread = n_thread,
+                       verbose_progress = verbose_progress,
+                       pred_aggregate = pred_aggregate)
 
  out
 

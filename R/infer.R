@@ -1,12 +1,14 @@
 
 #' null operator (copied from rlang)
-
+#' @noRd
 `%||%` <-  function (x, y) {
  if (is.null(x))
   y
  else x
 }
 
+#' empty operator
+#' @noRd
 `%O%` <- function(x, y){
  if(is_empty(x))
   y
@@ -14,6 +16,7 @@
 }
 
 #' helper for inferring pred_type
+#' @noRd
 infer_pred_type <- function(x, tree_type){
 
  if(tree_type == 'survival'){
@@ -66,9 +69,9 @@ infer_pred_type <- function(x, tree_type){
 
 infer_pred_horizon <- function(object, pred_type, pred_horizon){
 
- check_arg_is(object, 'object', 'orsf_fit')
+ check_arg_is(object, 'object', 'ObliqueForest')
 
- if(pred_type %in% c("mort", "leaf")){
+ if(pred_type %in% c("mort", "leaf") || object$tree_type != 'survival'){
   # value of pred_horizon does not matter for these types of prediction
   pred_horizon <- 1
  }
@@ -126,7 +129,7 @@ infer_tree_type <- function(names_y_data, data){
 
 }
 
-
+#' @noRd
 infer_orsf_args <- function(x,
                             y = matrix(1, ncol=2),
                             ...,

@@ -1,7 +1,7 @@
 
 #' Variable selection
 #'
-#' @inheritParams predict.orsf_fit
+#' @inheritParams predict.ObliqueForest
 #' @param n_predictor_min (*integer*) the minimum number of predictors allowed
 #' @param verbose_progress (*logical*) not implemented yet. Should progress be printed to the console?
 #'

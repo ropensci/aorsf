@@ -19,7 +19,7 @@ test_that(
 
     expect_true(is_empty(fit_untrained$eval_oobag$stat_values))
 
-    expect_equal( attr(fit_untrained, 'trained'), FALSE )
+    expect_false(fit_untrained$trained)
 
     fit_trained <- orsf_train(fit_untrained)
 

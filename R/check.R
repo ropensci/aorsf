@@ -1239,7 +1239,7 @@ check_pd_inputs <- function(object,
 
  check_arg_is(arg_value = object,
               arg_name = 'object',
-              expected_class = 'orsf_fit')
+              expected_class = 'ObliqueForest')
 
  if(!is.null(boundary_checks)){
 
@@ -1512,8 +1512,8 @@ check_new_data_types <- function(new_data,
                  "; type <", ref_types[bad_types], "> in ",
                  label_ref, collapse = '\n')
 
-  msg <- paste("some variables in ", label_new,
-               " have different type in ",
+  msg <- paste("some variables in", label_new,
+               "have different type in",
                label_ref, ":\n", meat)
 
   stop(msg, call. = FALSE)
@@ -1720,12 +1720,6 @@ check_predict <- function(object,
     stop("Please remove infinite values from ", i, ".",
          call. = FALSE)
    }
-
-   # NaN values trigger is.na(), so this probably isn't needed.
-   # if(any(is.nan(new_data[[i]]))){
-   #  stop("Please remove NaN values from ", i, ".",
-   #       call. = FALSE)
-   # }
 
   }
 

@@ -77,7 +77,7 @@ last_value <- function(x){
 #' is_aorsf("A")
 
 is_aorsf <- function(object){
- inherits(object, 'orsf_fit')
+ inherits(object, 'ObliqueForest')
 }
 
 

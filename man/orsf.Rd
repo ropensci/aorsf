@@ -22,12 +22,13 @@ orsf(
   split_rule = "logrank",
   split_min_events = 5,
   split_min_obs = 10,
-  split_min_stat = switch(split_rule, logrank = 3.841459, cstat = 0.5),
+  split_min_stat = switch(split_rule, logrank = 3.841459, cstat = 0.5, gini = 0),
   oobag_pred_type = "surv",
   oobag_pred_horizon = NULL,
   oobag_eval_every = n_tree,
   oobag_fun = NULL,
   importance = "anova",
+  importance_max_pvalue = 0.01,
   group_factors = TRUE,
   tree_seeds = NULL,
   attach_data = TRUE,
@@ -37,7 +38,7 @@ orsf(
   ...
 )
 
-orsf_train(object)
+orsf_train(object, attach_data = TRUE)
 }
 \arguments{
 \item{data}{a \link{data.frame}, \link[tibble:tibble-package]{tibble}, or \link[data.table:data.table]{data.table} that contains the
@@ -168,6 +169,12 @@ For more details, see the out-of-bag \href{https://docs.ropensci.org/aorsf/artic
 }
 
 For details on these methods, see \link{orsf_vi}.}
+
+\item{importance_max_pvalue}{(\emph{double}) Only relevant if \code{importance}
+is \code{"anova"}. The maximum p-value that will register as a positive
+case when counting the number of times a variable was found to be
+'significant' during tree growth. Default is 0.01, as recommended
+by Menze et al.}
 
 \item{group_factors}{(\emph{logical}) Only relevant if variable importance is
 being estimated. if \code{TRUE}, the importance of factor variables will be reported overall by aggregating the importance of individual levels of the factor. If \code{FALSE}, the importance of individual factor levels will be returned.}
@@ -916,6 +923,8 @@ Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. Evaluating the Yield of Medi
 Breiman L. Random forests. \emph{Machine learning} 2001 Oct; 45(1):5-32. DOI: 10.1023/A:1010933404324
 
 Ishwaran H, Kogalur UB, Blackstone EH, Lauer MS. Random survival forests. \emph{Annals of applied statistics} 2008 Sep; 2(3):841-60. DOI: 10.1214/08-AOAS169
+
+Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. \emph{Joint European Conference on Machine Learning and Knowledge Discovery in Databases} 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29
 
 Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA, Howard G, Simon N. Oblique random survival forests. \emph{Annals of applied statistics} 2019 Sep; 13(3):1847-83. DOI: 10.1214/19-AOAS1261
 

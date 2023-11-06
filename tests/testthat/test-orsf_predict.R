@@ -151,35 +151,35 @@ test_that(
  }
 )
 
-# test_that(
-#  desc = "leaf predictions aggregate same as raw",
-#  code = {
-#   expect_equal(pred_objects_surv$leaf$prd_raw,
-#                pred_objects_surv$leaf$prd_agg)
-#  }
-# )
+test_that(
+ desc = "leaf predictions aggregate same as raw",
+ code = {
+  expect_equal(pred_objects_surv$leaf$prd_raw,
+               pred_objects_surv$leaf$prd_agg)
+ }
+)
 
-# test_that(
-#  desc = "unaggregated predictions can reproduce aggregated ones",
-#  code = {
-#
-#   for(i in c("surv", "risk", "chf")){
-#    for(j in seq_along(pred_horizon)){
-#     expect_equal(
-#      pred_objects_surv[[i]]$prd_agg[, j],
-#      apply(pred_objects_surv[[i]]$prd_raw[, , j], 1, mean),
-#      tolerance = 1e-9
-#     )
-#    }
-#   }
-#
-#   expect_equal(
-#    pred_objects_surv$mort$prd_agg,
-#    matrix(apply(pred_objects_surv$mort$prd_raw, 1, mean), ncol = 1)
-#   )
-#
-#  }
-# )
+test_that(
+ desc = "unaggregated predictions can reproduce aggregated ones",
+ code = {
+
+  for(i in c("surv", "risk", "chf")){
+   for(j in seq_along(pred_horizon)){
+    expect_equal(
+     pred_objects_surv[[i]]$prd_agg[, j],
+     apply(pred_objects_surv[[i]]$prd_raw[, , j], 1, mean),
+     tolerance = 1e-9
+    )
+   }
+  }
+
+  expect_equal(
+   pred_objects_surv$mort$prd_agg,
+   matrix(apply(pred_objects_surv$mort$prd_raw, 1, mean), ncol = 1)
+  )
+
+ }
+)
 
 test_that(
  desc = "same predictions from the forest regardless of oob type",
@@ -524,7 +524,7 @@ test_that(
            pred_horizon = 100000,
            boundary_checks = F),
    predict(fit, pbc_test,
-           pred_horizon = get_max_time(fit))
+           pred_horizon = max(pbc_train$time))
   )
  }
 )
@@ -557,23 +557,26 @@ test_that(
 )
 
 
-# test_that(
-#  desc = 'missing units are detected',
-#  code = {
-#
-#   suppressMessages(library(units))
-#   pbc_units <- pbc_orsf
-#   units(pbc_units$age) <- 'years'
-#
-#   fit <- orsf(formula = time + status  ~ . - id,
-#               data = pbc_units,
-#               n_tree = n_tree_test)
-#
-#   expect_error(predict(fit, new_data = pbc_orsf, pred_horizon = 1000),
-#                'unit attributes')
-#
-#  }
-# )
+test_that(
+ desc = 'inconsistent units are detected',
+ code = {
+
+  suppressMessages(library(units))
+  pbc_units <- pbc_orsf
+  units(pbc_units$age) <- 'years'
+
+  pbc_test_units <- pbc_test
+  units(pbc_test_units$age) <- 'days'
+
+  fit <- orsf(formula = time + status  ~ . - id,
+              data = pbc_units,
+              n_tree = n_tree_test)
+
+  expect_error(predict(fit, new_data = pbc_test_units, pred_horizon = 1000),
+               'has unit')
+
+ }
+)
 
 test_that(
  desc = 'predictions dont require cols in same order as training data',
@@ -787,11 +790,11 @@ new_data_all_miss <- new_data_miss
 new_data_all_miss$age <- NA_real_
 
 test_that(
- desc = "can't give orsf nothing but missing data",
+ desc = "no blank columns allowed",
  code = {
   expect_error(
    predict(fit, new_data = new_data_all_miss, na_action = 'pass'),
-   regexp = 'complete data'
+   regexp = 'age has no observed values'
   )
  }
 )

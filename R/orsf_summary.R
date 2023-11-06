@@ -69,7 +69,7 @@ orsf_summarize_uni <- function(object,
 
  check_arg_is(arg_value = object,
               arg_name = 'object',
-              expected_class = 'orsf_fit')
+              expected_class = 'ObliqueForest')
 
  if(!is.null(n_variables)){
 

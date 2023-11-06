@@ -7,7 +7,7 @@ test_that(
    infer_pred_horizon(fit_standard_pbc$fast,
                       pred_type = 'risk',
                       pred_horizon = NULL),
-   get_oobag_pred_horizon(fit_standard_pbc$fast)
+   fit_standard_pbc$fast$pred_horizon
   )
 
   expect_equal(
@@ -26,13 +26,16 @@ test_that(
 
   fit_renegade <- fit_standard_pbc$fast
 
+  ph <- fit_standard_pbc$fast$pred_horizon
+
   fit_renegade$pred_horizon <- NULL
-  attr(fit_renegade, 'oobag_pred_horizon') <- NULL
 
   expect_error(infer_pred_horizon(fit_renegade,
                                   pred_type = 'risk',
                                   pred_horizon = NULL),
                regexp = 'could not be found')
+
+  fit_standard_pbc$fast$pred_horizon <- ph
 
  }
 )

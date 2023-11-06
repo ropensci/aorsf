@@ -219,8 +219,8 @@ test_that(
 
 )
 
-# These tests are kept commented out and run locally
-# I dont want to suggest pdp package in DESCRIPTION just for testing
+# # These tests are kept commented out and run locally
+# # I dont want to suggest pdp package in DESCRIPTION just for testing
 # library(pdp)
 #
 # pred_aorsf <- function(object, newdata) {  # see ?predict.orsf_fit
@@ -280,7 +280,7 @@ test_that(
 #   expect_equal(pd_bcj$pred, pd_refsort$yhat)
 #  }
 # )
-
+#
 # bili_seq <- seq(1, 5, length.out=20)
 #
 # microbenchmark::microbenchmark(

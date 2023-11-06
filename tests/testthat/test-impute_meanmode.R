@@ -13,16 +13,44 @@ pbc_miss <- as.data.table(survival::pbc) %>%
  ftransformv(vars = c(ascites, hepato, spiders, edema), FUN = factor)
 
 fit_miss <- orsf(pbc_miss,
+                 tree_seeds = seeds_standard,
+                 n_tree = n_tree_test,
                  time + status ~ . - id,
                  na_action = 'impute_meanmode')
 
-expect_equal(
- sum(complete.cases(fit_miss$data)),
- nrow(pbc_miss)
+impute_values <- c(fit_miss$get_means(),
+                   fit_miss$get_modes())
+
+pbc_imputed <- data_impute(data = pbc_miss,
+                           cols = names(pbc_miss),
+                           values = impute_values)
+
+fit_imputed <- orsf(pbc_imputed,
+                    tree_seeds = seeds_standard,
+                    n_tree = n_tree_test,
+                    time + status ~ . - id)
+
+test_that(
+ desc = 'imputation does not modify user-facing data',
+ code = {
+  expect_equal(
+   sum(complete.cases(fit_miss$data)),
+   sum(complete.cases(pbc_miss))
+  )
+ }
 )
 
-impute_values <- c(as.list(get_means(fit_miss)),
-                   as.list(get_modes(fit_miss)))
+# Note: eval_oobag is not the same,
+# maybe because fit_imputed x is scaled using imputed values?
+
+test_that(
+ desc = 'fit with impute is identical to fit on imputed',
+ code = {
+  expect_equal_leaf_summary(fit_miss, fit_imputed)
+  expect_equal(fit_miss$n_obs, fit_imputed$n_obs)
+ }
+)
+
 
 test_that(
  desc = "imputation does not coerce columns to new types",
@@ -36,13 +64,14 @@ test_that(
  }
 )
 
+
 test_that(
  desc = "integer cols imputed by coercing imputed value to integer",
  code = {
   chol_na <- whichNA(pbc_miss$chol)
   expect_equal(
-   fit_miss$data$chol[chol_na],
-   rep(as.integer(impute_values$chol), length(chol_na))
+   pbc_imputed$chol[chol_na],
+   rep(as.integer(impute_values['chol']), length(chol_na))
   )
  }
 )
@@ -52,7 +81,7 @@ test_that(
  code = {
   trt_na <- whichNA(pbc_miss$trt)
   expect_true(
-   all(fit_miss$data$trt[trt_na] == levels(pbc_miss$trt)[impute_values$trt])
+   all(pbc_imputed$trt[trt_na] == levels(pbc_miss$trt)[impute_values['trt']])
   )
  }
 )
@@ -62,7 +91,7 @@ test_that(
  code = {
   alk_na <- whichNA(pbc_miss$alk.phos)
   expect_true(
-   all(fit_miss$data$alk.phos[alk_na] == impute_values$alk.phos)
+   all(pbc_imputed$alk.phos[alk_na] == impute_values["alk.phos"])
   )
  }
 )

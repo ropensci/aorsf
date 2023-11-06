@@ -86,7 +86,7 @@ get_verbose_progress   <- function(object) attr(object, 'verbose_progress')
 #' @return logical; `TRUE` if trained, `FALSE` otherwise.
 #'
 #' @noRd
-is_trained <- function(object) attr(object, 'trained')
+is_trained <- function(object) return(object$trained)
 
 
 #' Determine whether object has oobag estimates
@@ -107,7 +107,7 @@ contains_oobag <- function(object) {!is_empty(object$eval_oobag$stat_values)}
 #'
 #' @noRd
 #'
-contains_vi <- function(object) get_importance(object) != 'none'
+contains_vi <- function(object) {!is_empty(object$importance)}
 
 
 #' Retrieve x-matrix names

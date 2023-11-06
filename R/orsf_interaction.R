@@ -7,7 +7,7 @@
 #'
 #' @srrstats {G1.4} *documented with Roxygen*
 #'
-#' @inheritParams predict.orsf_fit
+#' @inheritParams predict.ObliqueForest
 #'
 #' @param min_pairwise_obs (_integer_) minimum number of observations
 #'   where both variables were included in a linear combination together.
