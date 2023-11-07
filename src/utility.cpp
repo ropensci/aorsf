@@ -382,6 +382,9 @@
   w_freqs.resize(freq_counter);
   p_freqs.resize(freq_counter);
 
+  // rare case of a constant vector of predictions
+  if(freq_counter == 1) return(0.5);
+
   vec r = cumsum(w_freqs) - 0.5 * (w_freqs - 1);
 
   vec w_rank;
@@ -544,6 +547,10 @@
                       double epsilon,
                       arma::uword iter_max){
 
+  mat x_transforms;
+
+  if(do_scale) x_transforms = scale_x(x_node, w_node);
+
   // Add an intercept column to the design matrix
   vec intercept(x_node.n_rows, fill::ones);
   const mat X = join_horiz(intercept, x_node);
@@ -571,17 +578,33 @@
    vec gradient = X.t() * ((y_node - pi) % w_node);
    hessian = -X.t() * diagmat(w) * X;
 
-   beta -= solve(hessian, gradient);
+   vec update;
+
+   bool invertible = solve(update, hessian, gradient, solve_opts::no_approx);
+
+   if(!invertible) break;
+
+   beta -= update;
 
    if (norm(gradient) < epsilon) {
     break;
    }
   }
 
+  double beta_trace = arma::accu(arma::abs(beta));
+
+  if(beta_trace < std::numeric_limits<double>::epsilon()){
+   mat result(beta.size(), 2, fill::zeros);
+   return(result);
+  }
+
+  vec beta_var = diagvec(inv(-hessian));
+
+  if(do_scale) unscale_outputs(x_node, beta, beta_var, x_transforms);
+
   // Compute standard errors, z-scores, and p-values
 
-  vec se = sqrt(diagvec(inv(-hessian)));
-  vec zscores = beta / se;
+  vec zscores = beta / sqrt(beta_var);
   vec pvalues = 2 * (1 - normcdf(abs(zscores)));
   mat result = join_horiz(beta, pvalues);
 
@@ -624,18 +647,26 @@
 
  }
 
- void unscale_x(arma::mat& x,
-                arma::mat& x_transforms){
+ void unscale_outputs(arma::mat& x,
+                      arma::vec& beta,
+                      arma::vec& beta_var,
+                      arma::mat& x_transforms){
 
   uword n_vars = x.n_cols;
 
-  vec means  = x_transforms.unsafe_col(0);   // Reference to column 1
-  vec scales = x_transforms.unsafe_col(1);   // Reference to column 2
+  vec means  = x_transforms.unsafe_col(0);
+  vec scales = x_transforms.unsafe_col(1);
 
   for(uword i = 0; i < n_vars; i++){
 
-   x.col(i) /= scales.at(i);
-   x.col(i) += means.at(i);
+   // return x to its original values
+   x.col(i)    *= scales[i];
+   x.col(i)    += means[i];
+
+   // make estimates match the original scale of x
+   beta[i]     *= scales[i];
+   beta_var[i] *= scales[i] * scales[i];
+
 
   }
 

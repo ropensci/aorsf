@@ -85,7 +85,6 @@ Applying these tips:
 
 orsf(pbc_orsf, 
      formula = time+status~., 
-     na_action = 'na_impute_meanmode',
      n_thread = 0, 
      n_tree = 5, 
      n_retry = 0,

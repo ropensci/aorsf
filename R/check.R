@@ -1764,7 +1764,7 @@ check_predict <- function(object,
                  arg_name = 'pred_horizon',
                  bound = 0)
 
-  if(any(pred_horizon > get_max_time(object))){
+  if(any(pred_horizon > object$get_max_time())){
 
    if(boundary_checks == TRUE){
     stop("prediction horizon should ",

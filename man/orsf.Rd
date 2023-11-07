@@ -360,17 +360,17 @@ printing \code{fit} provides quick descriptive summaries:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
 ## 
-##      Linear combinations: Accelerated
+##      Linear combinations: Accelerated Cox regression
 ##           N observations: 276
 ##                 N events: 111
 ##                  N trees: 500
 ##       N predictors total: 17
 ##    N predictors per node: 5
-##  Average leaves per tree: 21
+##  Average leaves per tree: 20.98
 ## Min observations in leaf: 5
 ##       Min events in leaf: 1
 ##           OOB stat value: 0.84
-##            OOB stat type: Harrell's C-statistic
+##            OOB stat type: Harrell's C-index
 ##      Variable importance: anova
 ## 
 ## -----------------------------------------
@@ -427,7 +427,7 @@ fit_net <- orsf(pbc_orsf,
 
 \subsection{Linear combinations with your own function}{
 
-Let’s make two customized functions to identify linear combinations of
+Let’s make three customized functions to identify linear combinations of
 predictors.
 \itemize{
 \item The first uses random coefficients
@@ -528,8 +528,8 @@ The AUC values, from highest to lowest:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##    model times       AUC         se     lower     upper
 ## 1:   net  1788 0.9134593 0.02079935 0.8726933 0.9542253
-## 2: accel  1788 0.9112315 0.02098077 0.8701099 0.9523530
-## 3:   rlt  1788 0.9076685 0.02078732 0.8669261 0.9484109
+## 2:   rlt  1788 0.9129537 0.01979016 0.8741657 0.9517417
+## 3: accel  1788 0.9112315 0.02098077 0.8701099 0.9523530
 ## 4:   cph  1788 0.9063871 0.02165434 0.8639453 0.9488288
 ## 5: rando  1788 0.9023489 0.02218936 0.8588586 0.9458393
 ## 6:   pca  1788 0.8994220 0.02201713 0.8562692 0.9425748
@@ -544,7 +544,7 @@ And the indices of prediction accuracy:
 ## 1:        net  1788 0.4916038
 ## 2:      accel  1788 0.4879683
 ## 3:        cph  1788 0.4751883
-## 4:        rlt  1788 0.4570179
+## 4:        rlt  1788 0.4640282
 ## 5:        pca  1788 0.4370592
 ## 6:      rando  1788 0.4258344
 ## 7: Null model  1788 0.0000000
@@ -658,29 +658,29 @@ glimpse(results)
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## Rows: 276
 ## Columns: 23
-## $ id          <int> 20, 47, 55, 57, 63, 65, 83, 121, 141, 181, 197, 201, 202, ~
-## $ trt         <fct> placebo, placebo, d_penicill_main, d_penicill_main, placeb~
-## $ age         <dbl> 59.95346, 47.42779, 65.76318, 53.57153, 46.62834, 40.20260~
-## $ sex         <fct> f, f, m, f, f, f, f, m, f, f, f, f, f, f, m, f, m, f, f, f~
-## $ ascites     <fct> 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~
-## $ hepato      <fct> 1, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1~
-## $ spiders     <fct> 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1~
-## $ edema       <fct> 0, 0, 0, 0.5, 1, 0, 0.5, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ~
-## $ bili        <dbl> 5.1, 0.5, 1.8, 2.3, 22.5, 1.2, 1.3, 1.3, 0.9, 1.4, 0.6, 0.~
-## $ chol        <int> 374, 316, 416, 260, 932, 256, 250, 151, 346, 248, 266, 235~
-## $ albumin     <dbl> 3.51, 3.65, 3.94, 3.18, 3.12, 3.60, 3.50, 3.08, 3.77, 3.58~
-## $ copper      <int> 140, 68, 121, 231, 95, 74, 48, 73, 59, 63, 25, 26, 15, 12,~
-## $ alk.phos    <dbl> 1919.0, 1716.0, 10165.0, 11320.2, 5396.0, 724.0, 1138.0, 1~
-## $ ast         <dbl> 122.45, 187.55, 79.98, 105.78, 244.90, 141.05, 71.30, 46.5~
-## $ trig        <int> 135, 71, 219, 94, 133, 108, 100, 49, 56, 106, 102, 67, 89,~
-## $ platelet    <int> 322, 356, 213, 216, 165, 430, 81, 213, 336, 79, 201, 228, ~
-## $ protime     <dbl> 13.0, 9.8, 11.0, 12.4, 11.6, 10.0, 12.9, 13.2, 10.6, 10.3,~
-## $ stage       <ord> 4, 3, 3, 3, 3, 1, 4, 4, 2, 4, 2, 4, 2, 1, 2, 3, 2, 4, 3, 4~
-## $ time        <int> 1356, 2576, 1360, 3282, 859, 3992, 4050, 191, 3050, 2556, ~
-## $ status      <dbl> 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0~
-## $ pred_aorsf  <dbl> 0.74325933, 0.07171843, 0.26549931, 0.65886824, 0.88328061~
-## $ pred_rfsrc  <dbl> 0.60298524, 0.05715514, 0.19512613, 0.57592127, 0.75772791~
-## $ pred_ranger <dbl> 0.61244412, 0.02793571, 0.17943870, 0.64002784, 0.74174298~
+## $ id          <int> 1, 8, 15, 17, 23, 35, 56, 68, 92, 94, 97, 109, 116, 130, 1~
+## $ trt         <fct> d_penicill_main, placebo, d_penicill_main, placebo, placeb~
+## $ age         <dbl> 58.76523, 53.05681, 64.64613, 52.18344, 55.96715, 48.61875~
+## $ sex         <fct> f, f, f, f, f, f, f, f, f, f, m, f, f, f, f, f, f, f, f, f~
+## $ ascites     <fct> 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~
+## $ hepato      <fct> 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0~
+## $ spiders     <fct> 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0~
+## $ edema       <fct> 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0, 0.5, 0, 0, 0, 0.5, 0~
+## $ bili        <dbl> 14.5, 0.3, 0.8, 2.7, 17.4, 1.2, 1.1, 0.7, 1.4, 3.2, 2.0, 0~
+## $ chol        <int> 261, 280, 231, 274, 395, 314, 498, 174, 206, 201, 420, 120~
+## $ albumin     <dbl> 2.60, 4.00, 3.87, 3.15, 2.94, 3.20, 3.80, 4.09, 3.13, 3.11~
+## $ copper      <int> 156, 52, 173, 159, 558, 201, 88, 58, 36, 178, 62, 53, 74, ~
+## $ alk.phos    <dbl> 1718.0, 4651.2, 9009.8, 1533.0, 6064.8, 12258.8, 13862.4, ~
+## $ ast         <dbl> 137.95, 28.38, 127.71, 117.80, 227.04, 72.24, 95.46, 71.30~
+## $ trig        <int> 172, 189, 96, 128, 191, 151, 319, 46, 70, 69, 91, 52, 382,~
+## $ platelet    <int> 190, 373, 295, 224, 214, 431, 365, 203, 145, 188, 344, 271~
+## $ protime     <dbl> 12.2, 11.0, 11.0, 10.5, 11.7, 10.6, 10.6, 10.6, 12.2, 11.8~
+## $ stage       <ord> 4, 3, 3, 4, 4, 3, 2, 3, 4, 4, 3, 3, 3, 3, 2, 2, 3, 2, 3, 2~
+## $ time        <int> 400, 2466, 3584, 769, 264, 2847, 1847, 4039, 388, 750, 611~
+## $ status      <dbl> 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0~
+## $ pred_aorsf  <dbl> 0.95858574, 0.05070837, 0.22924369, 0.47048899, 0.94442624~
+## $ pred_rfsrc  <dbl> 0.85474291, 0.05480510, 0.31751746, 0.45156052, 0.85784657~
+## $ pred_ranger <dbl> 0.77897322, 0.04599438, 0.30267242, 0.43467381, 0.77914735~
 }\if{html}{\out{</div>}}
 
 And finish by aggregating the predictions and computing performance in
@@ -706,16 +706,16 @@ counts.
 ## Results by model:
 ## 
 ##     model times  AUC lower upper
-## 1:  aorsf  1826 90.2  85.8  94.6
-## 2:  rfsrc  1826 89.4  84.9  93.9
-## 3: ranger  1826 89.8  85.5  94.1
+## 1:  aorsf  1826 90.7  86.4  95.0
+## 2:  rfsrc  1826 89.9  85.6  94.2
+## 3: ranger  1826 89.7  85.5  94.0
 ## 
 ## Results of model comparisons:
 ## 
 ##    times  model reference delta.AUC lower upper   p
-## 1:  1826  rfsrc     aorsf      -0.8  -2.3   0.6 0.3
-## 2:  1826 ranger     aorsf      -0.4  -1.8   1.0 0.6
-## 3:  1826 ranger     rfsrc       0.4  -0.7   1.6 0.4
+## 1:  1826  rfsrc     aorsf      -0.8  -2.2   0.5 0.2
+## 2:  1826 ranger     aorsf      -1.0  -2.5   0.5 0.2
+## 3:  1826 ranger     rfsrc      -0.1  -1.3   1.0 0.8
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.
@@ -729,19 +729,19 @@ counts.
 ## 
 ##         model   times Brier lower upper  IPA
 ## 1: Null model 1826.25  20.5  18.1  22.9  0.0
-## 2:      aorsf 1826.25  11.0   8.7  13.3 46.2
-## 3:      rfsrc 1826.25  12.0   9.8  14.2 41.3
-## 4:     ranger 1826.25  11.8   9.7  14.0 42.3
+## 2:      aorsf 1826.25  10.8   8.6  13.0 47.3
+## 3:      rfsrc 1826.25  11.8   9.7  13.9 42.5
+## 4:     ranger 1826.25  11.9   9.8  14.0 41.9
 ## 
 ## Results of model comparisons:
 ## 
 ##      times  model  reference delta.Brier lower upper            p
-## 1: 1826.25  aorsf Null model        -9.5 -12.1  -6.8 1.504600e-12
-## 2: 1826.25  rfsrc Null model        -8.5 -10.8  -6.1 7.469601e-13
-## 3: 1826.25 ranger Null model        -8.7 -11.0  -6.3 1.022843e-12
-## 4: 1826.25  rfsrc      aorsf         1.0   0.3   1.7 5.805166e-03
-## 5: 1826.25 ranger      aorsf         0.8   0.1   1.5 2.164528e-02
-## 6: 1826.25 ranger      rfsrc        -0.2  -0.7   0.3 4.329685e-01
+## 1: 1826.25  aorsf Null model        -9.7 -12.3  -7.1 2.179169e-13
+## 2: 1826.25  rfsrc Null model        -8.7 -11.0  -6.4 3.915661e-14
+## 3: 1826.25 ranger Null model        -8.6 -10.9  -6.2 8.869452e-13
+## 4: 1826.25  rfsrc      aorsf         1.0   0.3   1.7 5.383491e-03
+## 5: 1826.25 ranger      aorsf         1.1   0.5   1.7 7.890574e-04
+## 6: 1826.25 ranger      rfsrc         0.1  -0.4   0.6 6.310608e-01
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.
@@ -894,8 +894,7 @@ Let’s look at the overall results:
  summarize(
   across(
    .cols = c(surv.graf, surv.cindex, time_train),
-   .fns = mean, 
-   na.rm = TRUE
+   .fns = ~mean(.x, na.rm = TRUE)
   )
  )
 }\if{html}{\out{</div>}}
@@ -903,9 +902,9 @@ Let’s look at the overall results:
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 3 x 4
 ##   learner_id  surv.graf surv.cindex time_train
 ##   <chr>           <dbl>       <dbl>      <dbl>
-## 1 surv.aorsf      0.152       0.733      1.41 
-## 2 surv.ranger     0.166       0.712      1.95 
-## 3 surv.rfsrc      0.155       0.723      0.745
+## 1 surv.aorsf      0.150       0.734      0.383
+## 2 surv.ranger     0.164       0.716      2.04 
+## 3 surv.rfsrc      0.155       0.724      0.757
 }\if{html}{\out{</div>}}
 
 From inspection,

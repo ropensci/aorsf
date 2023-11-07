@@ -229,6 +229,7 @@
   uword mtry_safe = find_safe_mtry();
 
   if(mtry_safe == 0){
+   // empty cols_node indicates not to proceed with grow()
    cols_node.resize(0);
    return;
   }
@@ -574,7 +575,6 @@
  }
 
  uword Tree::find_safe_mtry(){
-  // only relevant for survival trees at the moment
   return(this->mtry);
  }
 
@@ -672,13 +672,13 @@
   // using oobag = false for predict b/c data_oobag is already subsetted
   predict_leaf(data_oobag.get(), false);
 
-  vec pred_values(data_oobag->n_rows);
+  uword n_col_vi = get_n_col_vi();
 
-  for(uword i = 0; i < pred_values.size(); ++i){
-   pred_values[i] = leaf_summary[pred_leaf[i]];
-  }
+  mat pred_values(data_oobag->n_rows, n_col_vi);
 
-  // Compute normal prediction accuracy for each tree. Predictions already computed..
+  fill_pred_values_vi(pred_values);
+
+  // Compute normal prediction accuracy.
   double accuracy_normal = compute_prediction_accuracy(pred_values);
 
   if(verbosity > 1){
@@ -720,9 +720,7 @@
 
     predict_leaf(data_oobag.get(), false);
 
-    for(uword i = 0; i < pred_values.size(); ++i){
-     pred_values[i] = leaf_summary[pred_leaf[i]];
-    }
+    fill_pred_values_vi(pred_values);
 
     double accuracy_permuted = compute_prediction_accuracy(pred_values);
 
@@ -1060,6 +1058,10 @@
 
     }
 
+    // there is no potential split if cols_node was returned
+    // as empty from sample_cols, so don't waste time on retries
+    if(cols_node.is_empty()) n_retry = split_max_retry;
+
     if(n_retry >= split_max_retry){
      sprout_leaf(*node);
      break;
@@ -1200,13 +1202,15 @@
 
  }
 
- double Tree::compute_prediction_accuracy(arma::vec& preds){
+ double Tree::compute_prediction_accuracy(arma::mat& preds){
 
   if (oobag_eval_type == EVAL_R_FUNCTION){
 
+   vec preds_vec = preds.unsafe_col(0);
+
    NumericMatrix y_wrap = wrap(y_oobag);
    NumericVector w_wrap = wrap(w_oobag);
-   NumericVector p_wrap = wrap(preds);
+   NumericVector p_wrap = wrap(preds_vec);
 
    // initialize function from tree object
    // (Functions can't be stored in C++ classes, but RObjects can)

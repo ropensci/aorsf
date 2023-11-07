@@ -58,6 +58,10 @@
 
   void sprout_leaf_internal(uword node_id) override;
 
+  uword get_n_col_vi() override;
+
+  void fill_pred_values_vi(arma::mat& pred_values) override;
+
   arma::uword predict_value_internal(arma::uvec& pred_leaf_sort,
                                      arma::mat& pred_output,
                                      arma::vec& pred_denom,
@@ -86,7 +90,7 @@
 
   arma::uword find_safe_mtry() override;
 
-  double compute_prediction_accuracy_internal(arma::vec& preds) override;
+  double compute_prediction_accuracy_internal(arma::mat& preds) override;
 
   arma::mat glm_fit() override;
 

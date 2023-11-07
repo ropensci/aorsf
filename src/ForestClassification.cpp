@@ -109,7 +109,7 @@ void ForestClassification::plant() {
  trees.reserve(n_tree);
 
  for (arma::uword i = 0; i < n_tree; ++i) {
-  trees.push_back(std::make_unique<TreeClassification>());
+  trees.push_back(std::make_unique<TreeClassification>(this->n_class));
  }
 
 }

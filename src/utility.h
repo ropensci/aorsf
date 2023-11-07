@@ -109,8 +109,10 @@ aorsf may be modified and distributed under the terms of the MIT license.
  arma::mat scale_x(arma::mat& x,
                    arma::vec& w);
 
- void unscale_x(arma::mat& x,
-                arma::mat& x_transforms);
+ void unscale_outputs(arma::mat& x,
+                      arma::vec& beta,
+                      arma::vec& beta_var,
+                      arma::mat& x_transforms);
 
  }
 

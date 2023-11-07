@@ -675,9 +675,11 @@
 
  }
 
- double TreeSurvival::compute_prediction_accuracy_internal(arma::vec& preds){
+ double TreeSurvival::compute_prediction_accuracy_internal(arma::mat& preds){
 
-  return compute_cstat_surv(y_oobag, w_oobag, preds, true);
+  vec preds_vec = preds.unsafe_col(0);
+
+  return compute_cstat_surv(y_oobag, w_oobag, preds_vec, true);
 
  }
 
@@ -688,6 +690,18 @@
                       lincomb_eps, lincomb_iter_max);
 
   return(out);
+
+ }
+
+ uword TreeSurvival::get_n_col_vi(){
+  return(1);
+ }
+
+ void TreeSurvival::fill_pred_values_vi(mat& pred_values){
+
+  for(uword i = 0; i < pred_values.n_rows; ++i){
+   pred_values.at(i, 0) = leaf_summary[pred_leaf[i]];
+  }
 
  }
 

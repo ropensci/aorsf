@@ -86,7 +86,7 @@ orsf_summarize_uni <- function(object,
 
   check_arg_lteq(arg_value = n_variables,
                  arg_name = 'n_variables',
-                 bound = length(get_names_x(object, ref_code_names = FALSE)),
+                 bound = length(object$get_names_x()),
                  append_to_msg = "(total number of predictors)")
 
 
@@ -108,7 +108,7 @@ orsf_summarize_uni <- function(object,
 
  check_orsf_inputs(importance = importance)
 
- if(importance == 'none') importance <- get_importance(object)
+ if(importance == 'none') importance <- object$importance_type
 
  vi <- switch(
   importance,
@@ -119,11 +119,11 @@ orsf_summarize_uni <- function(object,
 
  if(is.null(n_variables)) n_variables <- length(vi)
 
- x_numeric_key <- get_numeric_bounds(object)
+ x_numeric_key <- object$get_bounds()
 
- fctr_info <- get_fctr_info(object)
+ fctr_info <- object$get_fctr_info()
 
- n_obs <- get_n_obs(object)
+ n_obs <- object$n_obs
 
  pred_spec <- list_init(names(vi)[seq(n_variables)])
 

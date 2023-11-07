@@ -161,14 +161,17 @@
  }
 
  double TreeClassification::compute_prediction_accuracy_internal(
-   arma::vec& preds
+   arma::mat& preds
  ){
 
   double cstat_sum = 0;
 
-  for(uword i = 0; i < preds.n_cols; i++){
+  // note: preds includes a column for the non-case, but y does not.
+  // That is why the preds column is ahead by 1 here.
+
+  for(uword i = 0; i < y_oobag.n_cols; i++){
    vec y_i = y_oobag.unsafe_col(i);
-   vec p_i = preds.unsafe_col(i);
+   vec p_i = preds.unsafe_col(i+1);
    cstat_sum += compute_cstat_clsf(y_i, w_oobag, p_i);
   }
 
@@ -190,6 +193,15 @@
    vec y_sum_cases = sum(y_node, 0).t();
    vec y_sum_ctrls = n - y_sum_cases;
 
+   if(verbosity > 3){
+
+    for(uword i = 0; i < y_sum_cases.size(); ++i){
+     Rcout << "   -- For column " << i << ": ";
+     Rcout << y_sum_cases[i] << " cases, ";
+     Rcout << y_sum_ctrls[i] << " controls (unweighted)" << std::endl;
+    }
+   }
+
    splittable_y_cols.zeros(y_node.n_cols);
    uword counter = 0;
 
@@ -204,7 +216,20 @@
 
    splittable_y_cols.resize(counter);
 
-   if(counter == 0){ return counter; }
+   if(counter == 0){
+
+    if(verbosity > 3){
+     Rcout << "   -- No y columns are splittable" << std::endl << std::endl;
+    }
+
+    return counter;
+   }
+
+   if(verbosity > 3){
+    for(auto &i : splittable_y_cols){
+     Rcout << "   -- Y column " << i << " is splittable" << std::endl;
+    }
+   }
 
    for (auto& i : splittable_y_cols){
 
@@ -220,6 +245,18 @@
   uword out = safer_mtry;
 
   return(out);
+
+ }
+
+ uword TreeClassification::get_n_col_vi(){
+  return(n_class);
+ }
+
+ void TreeClassification::fill_pred_values_vi(mat& pred_values){
+
+  for(uword i = 0; i < pred_values.n_rows; ++i){
+   pred_values.row(i) = leaf_pred_prob[pred_leaf[i]].t();
+  }
 
  }
 

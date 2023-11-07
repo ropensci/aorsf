@@ -38,5 +38,5 @@ object <- orsf(formula = time + status ~ .,
                n_tree = 25,
                importance = 'anova')
 
-orsf_vs(object, n_predictor_min = 17)
+orsf_vs(object, n_predictor_min = 15)
 }

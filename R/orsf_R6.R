@@ -1,4 +1,7 @@
 
+# TODO:
+# - write virtual function to get prediction type when calculating importance
+# - defaults for split rule split min stat and oobag pred type in init_internal
 # ObliqueForest class ----
 
 ObliqueForest <- R6::R6Class(
@@ -111,7 +114,7 @@ ObliqueForest <- R6::R6Class(
    self$split_min_events         <- split_min_events
    self$split_min_obs            <- split_min_obs
    self$split_min_stat           <- split_min_stat
-   self$pred_type          <- pred_type
+   self$pred_type                <- pred_type
    self$pred_horizon             <- oobag_pred_horizon
    self$oobag_eval_every         <- oobag_eval_every
    self$oobag_eval_function      <- oobag_fun
@@ -318,7 +321,7 @@ ObliqueForest <- R6::R6Class(
 
   predict_internal = function(){
 
-   NULL
+   stop("this method should only be called from derived classes")
 
   },
 
@@ -342,6 +345,8 @@ ObliqueForest <- R6::R6Class(
    private$prep_x()
    private$prep_y()
    private$prep_w()
+
+   browser()
 
    private$sort_inputs()
 
@@ -693,6 +698,79 @@ ObliqueForest <- R6::R6Class(
 
   },
 
+  select_variables = function(n_predictor_min, verbose_progress){
+
+   public_state <- list(verbose_progress = self$verbose_progress,
+                        forest           = self$forest,
+                        control          = self$control)
+
+   n_predictors <- length(private$data_names$x_original)
+
+   oob_data <- data.table(
+    n_predictors = seq(n_predictors),
+    stat_value = rep(NA_real_, n_predictors),
+    predictors_included = vector(mode = 'list', length = n_predictors),
+    predictor_dropped = rep(NA_character_, n_predictors)
+   )
+
+
+   # if the forest was not trained prior to variable selection
+   if(!self$trained){
+    private$compute_means()
+    private$compute_stdev()
+    private$compute_modes()
+    private$compute_bounds()
+   }
+
+   private$prep_x()
+   private$prep_y()
+   private$prep_w()
+
+   # for survival, inputs should be sorted by time
+   private$sort_inputs()
+
+   # allow re-training.
+   self$forest <- list()
+
+   cpp_args <- private$prep_cpp_args(pred_type = 'mort',
+                                     oobag_pred = TRUE,
+                                     importance_group_factors = TRUE,
+                                     write_forest = FALSE)
+
+   mtry_safe <- self$mtry
+
+
+   while(n_predictors >= n_predictor_min){
+
+    if(mtry_safe >= n_predictors){
+     mtry_safe <- max(mtry_safe - 1, 1)
+    }
+
+    if(self$control$lincomb_df_target > mtry_safe){
+     self$control$lincomb_df_target <- mtry_safe
+    }
+
+    cpp_args$mtry <- mtry_safe
+    cpp_output <- do.call(orsf_cpp, args = cpp_args)
+
+    worst_index <- which.min(cpp_output$importance)
+    worst_predictor <- colnames(cpp_args$x)[worst_index]
+
+    oob_data[n_predictors,
+             `:=`(n_predictors = n_predictors,
+                  stat_value = cpp_output$eval_oobag$stat_values[1,1],
+                  predictors_included = colnames(cpp_args$x),
+                  predictor_dropped = worst_predictor)]
+
+    cpp_args$x <- cpp_args$x[, -worst_index]
+    n_predictors <- n_predictors - 1
+
+   }
+
+   collapse::na_omit(oob_data)
+
+  },
+
   # getters
 
   get_names_x = function(ref_coded = FALSE){
@@ -742,7 +820,6 @@ ObliqueForest <- R6::R6Class(
   get_bounds = function(){
    return(private$data_bounds)
   }
-
 
  ),
 
@@ -805,7 +882,7 @@ ObliqueForest <- R6::R6Class(
 
   },
   init_internal = function(){
-   NULL
+   stop("this method should only be called from derived classes")
   },
   init_data = function(){
 
@@ -872,8 +949,10 @@ ObliqueForest <- R6::R6Class(
    }
 
    if(length(self$tree_seeds) == 1){
-    if(self$n_tree > 1) set.seed(self$tree_seeds)
-    self$tree_seeds <- sample(self$n_tree*10, size = self$n_tree)
+    if(self$n_tree > 1){
+     set.seed(self$tree_seeds)
+     self$tree_seeds <- sample(self$n_tree*10, size = self$n_tree)
+    }
    }
   },
   init_numeric_names = function(){
@@ -912,7 +991,11 @@ ObliqueForest <- R6::R6Class(
   },
   init_oobag_pred_mode = function(){
 
-   self$oobag_pred_mode <- self$pred_type != "none"
+   if(is.null(self$pred_type)){
+    self$oobag_pred_mode <- TRUE
+   } else {
+    self$oobag_pred_mode <- self$pred_type != "none"
+   }
 
    if(!self$oobag_pred_mode) self$oobag_eval_type <- "none"
 
@@ -1373,18 +1456,26 @@ ObliqueForest <- R6::R6Class(
   },
   check_split_rule = function(){
 
-   check_arg_type(arg_value = self$split_rule,
-                  arg_name = 'split_rule',
-                  expected_type = 'character')
+   # okay to pass a NULL value on startup
+   if(!is.null(self$split_rule)){
 
-   check_arg_length(arg_value = self$split_rule,
-                    arg_name = 'split_rule',
-                    expected_length = 1)
+    check_arg_type(arg_value = self$split_rule,
+                   arg_name = 'split_rule',
+                   expected_type = 'character')
+
+    check_arg_length(arg_value = self$split_rule,
+                     arg_name = 'split_rule',
+                     expected_length = 1)
+
+    private$check_split_rule_internal()
+
+   }
+
 
   },
   check_split_rule_internal = function(){
 
-   NULL
+   stop("this method should be defined in a derived class.")
 
   },
   check_split_min_obs = function(){
@@ -1412,45 +1503,56 @@ ObliqueForest <- R6::R6Class(
   },
   check_split_min_stat = function(){
 
-   check_arg_type(arg_value = self$split_min_stat,
+   # okay to pass a NULL value on startup
+   if(!is.null(self$split_min_stat)){
+
+    check_arg_type(arg_value = self$split_min_stat,
+                   arg_name = 'split_min_stat',
+                   expected_type = 'numeric')
+
+    check_arg_gteq(arg_value = self$split_min_stat,
+                   arg_name = 'split_min_stat',
+                   bound = 0)
+
+    if(self$split_rule %in% c('cstat', 'gini')){
+
+     check_arg_lt(arg_value = self$split_min_stat,
                   arg_name = 'split_min_stat',
-                  expected_type = 'numeric')
+                  bound = 1,
+                  append_to_msg = paste0("(split stat <",
+                                         self$split_rule,
+                                         "> is always < 1)"))
 
-   check_arg_gteq(arg_value = self$split_min_stat,
-                  arg_name = 'split_min_stat',
-                  bound = 0)
+    }
 
-   if(self$split_rule %in% c('cstat', 'gini')){
-
-    check_arg_lt(arg_value = self$split_min_stat,
-                 arg_name = 'split_min_stat',
-                 bound = 1,
-                 append_to_msg = paste0("(split stat <",
-                                        self$split_rule,
-                                        "> is always < 1)"))
-
+    check_arg_length(arg_value = self$split_min_stat,
+                     arg_name = 'split_min_stat',
+                     expected_length = 1)
    }
-
-   check_arg_length(arg_value = self$split_min_stat,
-                    arg_name = 'split_min_stat',
-                    expected_length = 1)
 
   },
   check_pred_type = function(oobag, pred_type = NULL){
 
    input <- pred_type %||% self$pred_type
 
-   arg_name <- if(oobag) 'oobag_pred_type' else "pred_type"
+   # okay to pass a NULL value on startup
+   if(!is.null(input)){
 
-   check_arg_type(arg_value = input,
-                  arg_name = arg_name,
-                  expected_type = 'character')
+    arg_name <- if(oobag) 'oobag_pred_type' else "pred_type"
 
-   check_arg_length(arg_value = input,
-                    arg_name = arg_name,
-                    expected_length = 1)
+    check_arg_type(arg_value = input,
+                   arg_name = arg_name,
+                   expected_type = 'character')
 
-   private$check_pred_type_internal(oobag, pred_type)
+    check_arg_length(arg_value = input,
+                     arg_name = arg_name,
+                     expected_length = 1)
+
+    private$check_pred_type_internal(oobag, pred_type)
+
+   }
+
+
 
   },
   check_pred_type_internal = function(oobag, pred_type = NULL){
@@ -2140,6 +2242,10 @@ ObliqueForestSurvival <- R6::R6Class(
  cloneable = FALSE,
  public = list(
 
+  get_max_time = function(){
+   return(private$max_time)
+  },
+
   leaf_min_events = NULL,
   split_min_events = NULL,
   pred_horizon = NULL
@@ -2272,6 +2378,11 @@ ObliqueForestSurvival <- R6::R6Class(
 
    self$tree_type <- "survival"
 
+   self$split_rule <- self$split_rule %||% 'logrank'
+   self$pred_type <- self$pred_type %||% 'surv'
+   self$split_min_stat <- self$split_min_stat %||%
+    switch(self$split_rule, 'logrank' = 3.841459, 'cstat' = 0.50)
+
    y <- select_cols(self$data, private$data_names$y)
 
    if(inherits(y[[1]], 'Surv')){
@@ -2320,7 +2431,6 @@ ObliqueForestSurvival <- R6::R6Class(
     private$check_pred_horizon(boundary_checks = TRUE)
    }
 
-   private$check_split_rule_internal()
    # private$check_pred_type_internal(oobag = TRUE)
    private$check_leaf_min_events()
    private$check_split_min_events()
@@ -2508,7 +2618,11 @@ ObliqueForestClassification <- R6::R6Class(
  "ObliqueForestClassification",
  inherit = ObliqueForest,
  cloneable = FALSE,
- public = list(),
+ public = list(
+
+  n_class = NULL
+
+ ),
  private = list(
 
   check_split_rule_internal = function(){
@@ -2532,18 +2646,63 @@ ObliqueForestClassification <- R6::R6Class(
 
   init_internal = function(){
 
-   self$tree_type <- "Classification"
-   check_split_rule_internal()
-   # check_pred_type_internal(oobag = TRUE)
+   self$tree_type <- "classification"
+
+   self$split_rule <- self$split_rule %||% 'gini'
+   self$pred_type <- self$pred_type %||% 'prob'
+   self$split_min_stat <- self$split_min_stat %||%
+    switch(self$split_rule, 'gini' = 0, 'cstat' = 0.50)
 
    # use default if eval type was not specified by user
    if(self$oobag_pred_mode && is.null(self$oobag_eval_type)){
     self$oobag_eval_type <- "AUC-ROC"
    }
 
+   y <- self$data[[private$data_names$y]]
+
+   if(is.factor(y)){
+    self$n_class <- length(levels(y))
+   } else {
+    self$n_class <- length(unique(y))
+   }
+
+  },
+
+  prep_y_internal = function(){
+
+   # y is always 1 column for classification (right?)
+   y <- private$y[[1]]
+
+   if(!is.factor(y)) y <- as.factor(y)
+
+   n_class <- length(levels(y))
+
+   y <- as.numeric(y) - 1
+
+   private$y <- expand_y_clsf(as_matrix(y), n_class)
+
+  },
+
+  predict_internal = function(){
+
+   # resize y to have the right number of columns
+   private$y <- matrix(0, ncol = self$n_class-1)
+
+   cpp_args = private$prep_cpp_args(x = private$x,
+                                    y = private$y,
+                                    w = private$w,
+                                    importance_type = 'none',
+                                    pred_type = self$pred_type,
+                                    pred_aggregate = self$pred_aggregate,
+                                    oobag_pred = FALSE,
+                                    pred_mode = TRUE,
+                                    write_forest = FALSE,
+                                    run_forest = TRUE)
+
+   # no further cleaning needed
+   do.call(orsf_cpp, args = cpp_args)$pred_new
+
   }
-
-
 
  )
 )

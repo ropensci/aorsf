@@ -50,9 +50,13 @@
 
   arma::uword find_safe_mtry() override;
 
-  double compute_prediction_accuracy_internal(arma::vec& preds) override;
+  double compute_prediction_accuracy_internal(arma::mat& preds) override;
 
   arma::mat glm_fit() override;
+
+  uword get_n_col_vi() override;
+
+  void fill_pred_values_vi(arma::mat& pred_values) override;
 
   std::vector<arma::vec>& get_leaf_pred_prob(){
    return(leaf_pred_prob);

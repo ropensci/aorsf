@@ -86,7 +86,7 @@ fit_net <- orsf(pbc_orsf,
 
 ### Linear combinations with your own function 
 
-Let's make two customized functions to identify linear combinations of predictors. 
+Let's make three customized functions to identify linear combinations of predictors. 
 
 - The first uses random coefficients
 
@@ -469,8 +469,7 @@ bm_scores %>%
  summarize(
   across(
    .cols = c(surv.graf, surv.cindex, time_train),
-   .fns = mean, 
-   na.rm = TRUE
+   .fns = ~mean(.x, na.rm = TRUE)
   )
  )
 
@@ -484,9 +483,9 @@ tbl_data <-
  structure(
   list(
    learner_id = c("surv.aorsf", "surv.ranger", "surv.rfsrc"),
-   surv.graf = c(0.151771237677512, 0.166032273495838, 0.155174775571719),
-   surv.cindex = c(0.733123595064337, 0.71210747198625, 0.723016206784682),
-   time_train = c(1.41181818181788, 1.95254545454584, 0.744727272727191)
+   surv.graf = c(0.150484184019999, 0.164170239607235, 0.154920952989591),
+   surv.cindex = c(0.734037935733795, 0.716040564907922, 0.724149275709082),
+   time_train = c(0.382962962962959, 2.04055555555556, 0.757407407407405)
   ),
   row.names = c(NA, -3L),
   class = c("tbl_df", "tbl", "data.frame")
