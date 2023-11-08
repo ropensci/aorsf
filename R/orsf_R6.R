@@ -152,7 +152,7 @@ ObliqueForest <- R6::R6Class(
 
    }
 
-   oobag_stat <- "TBD"
+   oobag_stat <- "none"
    oobag_type <- self$oobag_eval_type
 
    if(!is_empty(self$eval_oobag$stat_values)){
@@ -345,8 +345,6 @@ ObliqueForest <- R6::R6Class(
    private$prep_x()
    private$prep_y()
    private$prep_w()
-
-   browser()
 
    private$sort_inputs()
 
@@ -1269,13 +1267,15 @@ ObliqueForest <- R6::R6Class(
    }
 
   },
-  check_control = function(){
+  check_control = function(control = NULL){
 
-   check_arg_is(arg_value = self$control,
+   input <- control %||% self$control
+
+   check_arg_is(arg_value = input,
                 arg_name = 'control',
                 expected_class = 'orsf_control')
 
-   if(self$control$lincomb_type == 'net'){
+   if(input$lincomb_type == 'net'){
 
     if (!requireNamespace("glmnet", quietly = TRUE)) {
      stop(
@@ -1501,29 +1501,40 @@ ObliqueForest <- R6::R6Class(
                 append_to_msg = "(number of observations)")
 
   },
-  check_split_min_stat = function(){
+  check_split_min_stat = function(split_min_stat = NULL,
+                                  split_rule = NULL){
+
+   input <- split_min_stat %||% self$split_min_stat
+
+   split_rule <- split_rule %||% self$split_rule
 
    # okay to pass a NULL value on startup
-   if(!is.null(self$split_min_stat)){
+   if(!is.null(input)){
 
-    check_arg_type(arg_value = self$split_min_stat,
+    check_arg_type(arg_value = input,
                    arg_name = 'split_min_stat',
                    expected_type = 'numeric')
 
-    check_arg_gteq(arg_value = self$split_min_stat,
+    check_arg_gteq(arg_value = input,
                    arg_name = 'split_min_stat',
                    bound = 0)
 
-    if(self$split_rule %in% c('cstat', 'gini')){
+    if(!is.null(split_rule)){
 
-     check_arg_lt(arg_value = self$split_min_stat,
-                  arg_name = 'split_min_stat',
-                  bound = 1,
-                  append_to_msg = paste0("(split stat <",
-                                         self$split_rule,
-                                         "> is always < 1)"))
+     if(split_rule %in% c('cstat', 'gini')){
+
+      append <- paste0("(split stat <", self$split_rule, "> is always < 1)")
+
+      check_arg_lt(arg_value = input,
+                   arg_name = 'split_min_stat',
+                   bound = 1,
+                   append_to_msg = append)
+
+     }
 
     }
+
+
 
     check_arg_length(arg_value = self$split_min_stat,
                      arg_name = 'split_min_stat',
