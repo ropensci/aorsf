@@ -1,5 +1,5 @@
-
-
+#
+#
 # # handle 'units' variables
 # suppressMessages(library(units))
 #
@@ -47,7 +47,7 @@
 #  expect_error(unit_info(pbc_units_badclass, 'bili'), 'symbolic_units')
 #
 # })
-
-
-
-
+#
+#
+#
+#

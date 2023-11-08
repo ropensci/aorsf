@@ -30,8 +30,8 @@ A tibble with 333 rows and 8 variables:
 penguins_orsf
 }
 \description{
-These data are copied and lightly modified from the
-\link[palmerpenguins:penguins]{palmerpenguins::penguins} data. The only modification is removal of rows
+These data are copied and lightly modified from the \code{palmerpenguins}
+\code{penguins} data. The only modification is removal of rows
 with missing data. The data include measurements for penguin species,
 island in Palmer Archipelago, size (flipper length, body mass, bill
 dimensions), and sex.

@@ -557,26 +557,27 @@ test_that(
 )
 
 
-test_that(
- desc = 'inconsistent units are detected',
- code = {
-
-  suppressMessages(library(units))
-  pbc_units <- pbc_orsf
-  units(pbc_units$age) <- 'years'
-
-  pbc_test_units <- pbc_test
-  units(pbc_test_units$age) <- 'days'
-
-  fit <- orsf(formula = time + status  ~ . - id,
-              data = pbc_units,
-              n_tree = n_tree_test)
-
-  expect_error(predict(fit, new_data = pbc_test_units, pred_horizon = 1000),
-               'has unit')
-
- }
-)
+# Just run locally. Possible memory leaks from units.
+# test_that(
+#  desc = 'inconsistent units are detected',
+#  code = {
+#
+#   suppressMessages(library(units))
+#   pbc_units <- pbc_orsf
+#   units(pbc_units$age) <- 'years'
+#
+#   pbc_test_units <- pbc_test
+#   units(pbc_test_units$age) <- 'days'
+#
+#   fit <- orsf(formula = time + status  ~ . - id,
+#               data = pbc_units,
+#               n_tree = n_tree_test)
+#
+#   expect_error(predict(fit, new_data = pbc_test_units, pred_horizon = 1000),
+#                'has unit')
+#
+#  }
+# )
 
 test_that(
  desc = 'predictions dont require cols in same order as training data',

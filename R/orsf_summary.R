@@ -61,11 +61,11 @@ orsf_summarize_uni <- function(object,
                                importance = 'negate',
                                ...){
 
+ # bindings for CRAN check
+ value <- NULL
+ level <- NULL
 
  check_dots(list(...), .f = orsf_summarize_uni)
-
- # for CRAN check:
- medn <- name <- value <- level <- variable <- NULL
 
  check_arg_is(arg_value = object,
               arg_name = 'object',
@@ -102,8 +102,8 @@ orsf_summarize_uni <- function(object,
 
  if(is.null(pred_horizon)) pred_horizon <- object$pred_horizon
 
- if(importance == 'none' && get_importance(object) == 'none')
-  stop("importance cannot be 'none' if object does not have variable ",
+ if(importance == 'none' && is_empty(object$importance))
+  stop("importance cannot be 'none' if object does not have variable",
        " importance values.", call. = FALSE)
 
  check_orsf_inputs(importance = importance)
@@ -118,6 +118,7 @@ orsf_summarize_uni <- function(object,
  )
 
  if(is.null(n_variables)) n_variables <- length(vi)
+
 
  x_numeric_key <- object$get_bounds()
 

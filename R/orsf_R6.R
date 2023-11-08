@@ -946,11 +946,9 @@ ObliqueForest <- R6::R6Class(
     self$tree_seeds <- sample(1e6, size = 1)
    }
 
-   if(length(self$tree_seeds) == 1){
-    if(self$n_tree > 1){
+   if(length(self$tree_seeds) == 1 && self$n_tree > 1){
      set.seed(self$tree_seeds)
      self$tree_seeds <- sample(self$n_tree*10, size = self$n_tree)
-    }
    }
   },
   init_numeric_names = function(){
@@ -1073,7 +1071,7 @@ ObliqueForest <- R6::R6Class(
   },
 
   # checkers
-  check_data = function(new = FALSE, data = NULL){
+  check_data = function(data = NULL, new = FALSE){
 
    input <- data %||% self$data
 
@@ -1187,14 +1185,14 @@ ObliqueForest <- R6::R6Class(
 
 
   },
-  check_var_missing = function(new = FALSE,
-                               data = NULL,
+  check_var_missing = function(data = NULL,
+                               new = FALSE,
                                na_action = NULL){
 
    input <- data %||% self$data
-   action <- na_action %||% self$na_action
+   na_action <- na_action %||% self$na_action
 
-   if(action == 'fail'){
+   if(na_action == 'fail'){
 
     if(any(is.na(select_cols(input, private$data_names$x_original)))){
      data_label <- if(new) "new data" else "training data"
@@ -1204,7 +1202,7 @@ ObliqueForest <- R6::R6Class(
 
    }
 
-   if(action == 'omit'){
+   if(na_action == 'omit'){
 
     if(length(private$data_rows_complete) == 0){
 
@@ -1241,18 +1239,20 @@ ObliqueForest <- R6::R6Class(
    }
 
   },
-  check_formula = function(){
+  check_formula = function(formula = NULL){
 
-   check_arg_is(arg_value = self$formula,
+   input <- formula %||% self$formula
+
+   check_arg_is(arg_value = input,
                 arg_name = 'formula',
                 expected_class = 'formula')
 
-   if(length(self$formula) != 3){
+   if(length(input) != 3){
     stop("formula must be two sided, i.e. left side ~ right side",
          call. = FALSE)
    }
 
-   formula_deparsed <- as.character(self$formula)[[3]]
+   formula_deparsed <- as.character(input)[[3]]
 
    for( symbol in c("*", "^", ":", "(", ")", "["," ]", "|", "%") ){
 
@@ -1288,73 +1288,81 @@ ObliqueForest <- R6::R6Class(
    }
 
   },
-  check_weights = function(){
+  check_weights = function(weights = NULL){
 
-   check_arg_type(arg_value = self$weights,
+   input <- weights %||% self$weights
+
+   check_arg_type(arg_value = input,
                   arg_name = 'weights',
                   expected_type = 'numeric')
 
-   check_arg_gteq(arg_value = self$weights,
+   check_arg_gteq(arg_value = input,
                   arg_name = 'weights',
                   bound = 0)
 
    check_arg_length(
-    arg_value = self$weights,
+    arg_value = input,
     arg_name  = 'weights',
     expected_length = self$n_obs
    )
 
   },
-  check_n_tree = function(){
+  check_n_tree = function(n_tree = NULL){
 
-   check_arg_type(arg_value = self$n_tree,
+   input <- n_tree %||% self$n_tree
+
+   check_arg_type(arg_value = input,
                   arg_name = 'n_tree',
                   expected_type = 'numeric')
 
-   check_arg_is_integer(arg_value = self$n_tree,
+   check_arg_is_integer(arg_value = input,
                         arg_name = 'n_tree')
 
-   check_arg_gteq(arg_value = self$n_tree,
+   check_arg_gteq(arg_value = input,
                   arg_name = 'n_tree',
                   bound = 1)
 
-   check_arg_length(arg_value = self$n_tree,
+   check_arg_length(arg_value = input,
                     arg_name = 'n_tree',
                     expected_length = 1)
 
   },
-  check_n_split = function(){
+  check_n_split = function(n_split = NULL){
 
-   check_arg_type(arg_value = self$n_split,
+   input <- n_split %||% self$n_split
+
+   check_arg_type(arg_value = input,
                   arg_name = 'n_split',
                   expected_type = 'numeric')
 
-   check_arg_is_integer(arg_value = self$n_split,
+   check_arg_is_integer(arg_value = input,
                         arg_name = 'n_split')
 
-   check_arg_gteq(arg_value = self$n_split,
+   check_arg_gteq(arg_value = input,
                   arg_name = 'n_split',
                   bound = 1)
 
-   check_arg_length(arg_value = self$n_split,
+   check_arg_length(arg_value = input,
                     arg_name = 'n_split',
                     expected_length = 1)
 
   },
-  check_n_retry = function(){
+  check_n_retry = function(n_retry = NULL){
 
-   check_arg_type(arg_value = self$n_retry,
+   input <- n_retry %||% self$n_retry
+
+   check_arg_type(arg_value = input,
                   arg_name = 'n_retry',
                   expected_type = 'numeric')
 
-   check_arg_is_integer(arg_value = self$n_retry,
+   check_arg_is_integer(arg_value = input,
                         arg_name = 'n_retry')
 
-   check_arg_gteq(arg_value = self$n_retry,
+   check_arg_gteq(arg_value = input,
                   arg_name = 'n_retry',
                   bound = 0)
 
-   check_arg_length(arg_value = self$n_retry,
+   check_arg_length(arg_value = input,
                     arg_name = 'n_retry',
                     expected_length = 1)
 
@@ -1379,91 +1387,108 @@ ObliqueForest <- R6::R6Class(
                     expected_length = 1)
 
   },
-  check_mtry = function(){
+  check_mtry = function(mtry = NULL){
 
-   if(!is.null(self$mtry)){
+   input <- mtry %||% self$mtry
 
-    check_arg_type(arg_value = self$mtry,
+   # okay for this to be unspecified at startup
+   if(!is.null(input)){
+
+    check_arg_type(arg_value = input,
                    arg_name = 'mtry',
                    expected_type = 'numeric')
 
-    check_arg_is_integer(arg_value = self$mtry,
+    check_arg_is_integer(arg_value = input,
                          arg_name = 'mtry')
 
-    check_arg_gteq(arg_value = self$mtry,
+    check_arg_gteq(arg_value = input,
                    arg_name = 'mtry',
                    bound = 1)
 
-    check_arg_length(arg_value = self$mtry,
+    check_arg_length(arg_value = input,
                      arg_name = 'mtry',
                      expected_length = 1)
 
    }
 
   },
-  check_sample_with_replacement = function(){
+  check_sample_with_replacement = function(sample_with_replacement = NULL){
 
-   check_arg_type(arg_value = self$sample_with_replacement,
+   input <- sample_with_replacement %||% self$sample_with_replacement
+
+   check_arg_type(arg_value = input,
                   arg_name = 'sample_with_replacement',
                   expected_type = 'logical')
 
-   check_arg_length(arg_value = self$sample_with_replacement,
+   check_arg_length(arg_value = input,
                     arg_name = 'sample_with_replacement',
                     expected_length = 1)
 
   },
-  check_sample_fraction = function(){
+  check_sample_fraction = function(sample_fraction = NULL){
 
-   check_arg_type(arg_value = self$sample_fraction,
+   input <- sample_fraction %||% self$sample_fraction
+
+   check_arg_type(arg_value = input,
                   arg_name = 'sample_fraction',
                   expected_type = 'numeric')
 
-   check_arg_gt(arg_value = self$sample_fraction,
+   check_arg_gt(arg_value = input,
                 arg_name = 'sample_fraction',
                 bound = 0)
 
-   check_arg_lteq(arg_value = self$sample_fraction,
+   check_arg_lteq(arg_value = input,
                   arg_name = 'sample_fraction',
                   bound = 1)
 
-   check_arg_length(arg_value = self$sample_fraction,
+   check_arg_length(arg_value = input,
                     arg_name = 'sample_fraction',
                     expected_length = 1)
 
   },
-  check_leaf_min_obs = function(){
+  check_leaf_min_obs = function(leaf_min_obs = NULL,
+                                n_obs = NULL){
 
-   check_arg_type(arg_value = self$leaf_min_obs,
+   input <- leaf_min_obs %||% self$leaf_min_obs
+   n_obs <- n_obs %||% self$n_obs
+
+   # users should never get this error but it may help me debug
+   if(is.null(n_obs))
+    stop("cannot check leaf_min_obs when n_obs is unspecified")
+
+   check_arg_type(arg_value = input,
                   arg_name = 'leaf_min_obs',
                   expected_type = 'numeric')
 
-   check_arg_is_integer(arg_value = self$leaf_min_obs,
+   check_arg_is_integer(arg_value = input,
                         arg_name = 'leaf_min_obs')
 
-   check_arg_gteq(arg_value = self$leaf_min_obs,
+   check_arg_gteq(arg_value = input,
                   arg_name = 'leaf_min_obs',
                   bound = 1)
 
-   check_arg_length(arg_value = self$leaf_min_obs,
+   check_arg_length(arg_value = input,
                     arg_name = 'leaf_min_obs',
                     expected_length = 1)
 
-   check_arg_lteq(arg_value = self$leaf_min_obs,
+   check_arg_lteq(arg_value = input,
                   arg_name = "leaf_min_obs",
-                  bound = round(self$n_obs / 2),
+                  bound = round(n_obs / 2),
                   append_to_msg = "(number of observations divided by 2)")
 
   },
-  check_split_rule = function(){
+  check_split_rule = function(split_rule = NULL){
+
+   input <- split_rule %||% self$split_rule
 
    # okay to pass a NULL value on startup
-   if(!is.null(self$split_rule)){
+   if(!is.null(input)){
 
-    check_arg_type(arg_value = self$split_rule,
+    check_arg_type(arg_value = input,
                    arg_name = 'split_rule',
                    expected_type = 'character')
 
-    check_arg_length(arg_value = self$split_rule,
+    check_arg_length(arg_value = input,
                      arg_name = 'split_rule',
                      expected_length = 1)
 
@@ -1478,26 +1503,34 @@ ObliqueForest <- R6::R6Class(
    stop("this method should be defined in a derived class.")
 
   },
-  check_split_min_obs = function(){
+  check_split_min_obs = function(split_min_obs = NULL,
+                                 n_obs = NULL){
 
-   check_arg_type(arg_value = self$split_min_obs,
+   input <- split_min_obs %||% self$split_min_obs
+   n_obs <- n_obs %||% self$n_obs
+
+   # users should never get this error but it may help me debug
+   if(is.null(n_obs))
+    stop("cannot check split_min_obs when n_obs is unspecified")
+
+   check_arg_type(arg_value = input,
                   arg_name = 'split_min_obs',
                   expected_type = 'numeric')
 
-   check_arg_is_integer(arg_value = self$split_min_obs,
+   check_arg_is_integer(arg_value = input,
                         arg_name = 'split_min_obs')
 
-   check_arg_gteq(arg_value = self$split_min_obs,
+   check_arg_gteq(arg_value = input,
                   arg_name = 'split_min_obs',
                   bound = 1)
 
-   check_arg_length(arg_value = self$split_min_obs,
+   check_arg_length(arg_value = input,
                     arg_name = 'split_min_obs',
                     expected_length = 1)
 
-   check_arg_lt(arg_value = self$split_min_obs,
+   check_arg_lt(arg_value = input,
                 arg_name = "split_min_obs",
-                bound = self$n_obs,
+                bound = n_obs,
                 append_to_msg = "(number of observations)")
 
   },
@@ -1519,6 +1552,11 @@ ObliqueForest <- R6::R6Class(
                    arg_name = 'split_min_stat',
                    bound = 0)
 
+    check_arg_length(arg_value = input,
+                     arg_name = 'split_min_stat',
+                     expected_length = 1)
+
+    # also okay for split_rule to be NULL on startup
     if(!is.null(split_rule)){
 
      if(split_rule %in% c('cstat', 'gini')){
@@ -1534,15 +1572,12 @@ ObliqueForest <- R6::R6Class(
 
     }
 
-
-
-    check_arg_length(arg_value = self$split_min_stat,
-                     arg_name = 'split_min_stat',
-                     expected_length = 1)
    }
 
   },
-  check_pred_type = function(oobag, pred_type = NULL){
+
+  # must specify oobag when you call this to make sure it isn't forgotten
+  check_pred_type = function(pred_type = NULL, oobag){
 
    input <- pred_type %||% self$pred_type
 
@@ -1566,8 +1601,11 @@ ObliqueForest <- R6::R6Class(
 
 
   },
+
   check_pred_type_internal = function(oobag, pred_type = NULL){
-   NULL
+
+   stop("this method should be defined in a derived class.")
+
   },
   check_pred_aggregate = function(pred_aggregate = NULL){
 
@@ -1582,39 +1620,48 @@ ObliqueForest <- R6::R6Class(
                     expected_length = 1)
 
   },
-  check_oobag_eval_every = function(){
+  check_oobag_eval_every = function(oobag_eval_every = NULL,
+                                    n_tree = NULL){
 
-   check_arg_type(arg_value = self$oobag_eval_every,
+   input <- oobag_eval_every %||% self$oobag_eval_every
+
+   n_tree <- n_tree %||% self$n_tree
+
+   check_arg_type(arg_value = input,
                   arg_name = 'oobag_eval_every',
                   expected_type = 'numeric')
 
-   check_arg_is_integer(arg_value = self$oobag_eval_every,
+   check_arg_is_integer(arg_value = input,
                         arg_name = 'oobag_eval_every')
 
-   check_arg_gteq(arg_value = self$oobag_eval_every,
+   check_arg_gteq(arg_value = input,
                   arg_name = 'oobag_eval_every',
                   bound = 1)
 
-   check_arg_lteq(arg_value = self$oobag_eval_every,
-                  arg_name = 'oobag_eval_every',
-                  bound = self$n_tree)
-
-   check_arg_length(arg_value = self$oobag_eval_every,
+   check_arg_length(arg_value = input,
                     arg_name = 'oobag_eval_every',
                     expected_length = 1)
 
-  },
-  check_importance_type = function(){
+   check_arg_lteq(arg_value = self$oobag_eval_every,
+                  arg_name = 'oobag_eval_every',
+                  bound = n_tree)
 
-   check_arg_type(arg_value = self$importance_type,
+
+  },
+
+  check_importance_type = function(importance_type = NULL){
+
+   input <- importance_type <- self$importance_type
+
+   check_arg_type(arg_value = input,
                   arg_name = 'importance',
                   expected_type = 'character')
 
-   check_arg_length(arg_value = self$importance_type,
+   check_arg_length(arg_value = input,
                     arg_name = 'importance',
                     expected_length = 1)
 
-   check_arg_is_valid(arg_value = self$importance_type,
+   check_arg_is_valid(arg_value = input,
                       arg_name = 'importance',
                       valid_options = c("none",
                                         "anova",
@@ -1622,60 +1669,75 @@ ObliqueForest <- R6::R6Class(
                                         "permute"))
 
   },
-  check_importance_max_pvalue = function(){
+  check_importance_max_pvalue = function(importance_max_pvalue = NULL){
 
-   check_arg_type(arg_value = self$importance_max_pvalue,
+   input <- importance_max_pvalue %||% self$importance_max_pvalue
+
+   check_arg_type(arg_value = input,
                   arg_name = 'importance_max_pvalue',
                   expected_type = 'numeric')
 
-   check_arg_gt(arg_value = self$importance_max_pvalue,
+   check_arg_gt(arg_value = input,
                 arg_name = 'importance_max_pvalue',
                 bound = 0)
 
-   check_arg_lt(arg_value = self$importance_max_pvalue,
+   check_arg_lt(arg_value = input,
                 arg_name = 'importance_max_pvalue',
                 bound = 1)
 
-   check_arg_length(arg_value = self$importance_max_pvalue,
+   check_arg_length(arg_value = input,
                     arg_name = 'importance_max_pvalue',
                     expected_length = 1)
 
 
   },
-  check_importance_group_factors = function(){
 
-   check_arg_type(arg_value = self$importance_group_factors,
+  check_importance_group_factors = function(importance_group_factors = NULL){
+
+   input <- importance_group_factors %||% self$importance_group_factors
+
+   check_arg_type(arg_value = input,
                   arg_name = 'group_factors',
                   expected_type = 'logical')
 
-   check_arg_length(arg_value = self$importance_group_factors,
+   check_arg_length(arg_value = input,
                     arg_name = 'group_factors',
                     expected_length = 1)
 
   },
-  check_tree_seeds = function(){
+  check_tree_seeds = function(tree_seeds = NULL,
+                              n_tree = NULL){
 
-   if(!is.null(self$tree_seeds)){
-    check_arg_type(arg_value = self$tree_seeds,
+   input <- tree_seeds %||% self$tree_seeds
+   n_tree <- n_tree %||% self$n_tree
+
+   # okay for this to be unspecified at start-up
+   if(!is.null(input)){
+
+    check_arg_type(arg_value = input,
                    arg_name = 'tree_seed',
                    expected_type = 'numeric')
 
-    check_arg_is_integer(arg_value = self$tree_seeds,
+    check_arg_is_integer(arg_value = input,
                          arg_name = 'tree_seeds')
 
-    if(length(self$tree_seeds) > 1 &&
-       length(self$tree_seeds) != self$n_tree){
+    if(!is.null(n_tree)){
 
-     stop('tree_seeds should have length = 1 or length = ",
+     if(length(input) > 1 && length(input) != n_tree){
+
+      stop('tree_seeds should have length = 1 or length = ",
           "n_tree <', self$n_tree,
-          "> (the number of trees) but instead has length <",
-          length(self$tree_seeds), ">", call. = FALSE)
+           "> (the number of trees) but instead has length <",
+           length(input), ">", call. = FALSE)
+
+     }
 
     }
+
    }
 
   },
-  check_na_action = function(new = FALSE, na_action = NULL){
+  check_na_action = function(na_action = NULL, new = FALSE){
 
    input <- na_action %||% self$na_action
 
@@ -1696,11 +1758,13 @@ ObliqueForest <- R6::R6Class(
                       valid_options = valid_options)
 
   },
-  check_oobag_eval_function = function(){
+  check_oobag_eval_function = function(oobag_eval_function = NULL){
 
-   if(!is.null(self$oobag_eval_function)){
+   input <- oobag_eval_function %||% self$oobag_eval_function
 
-    oobag_fun_args <- names(formals(self$oobag_eval_function))
+   if(!is.null(input)){
+
+    oobag_fun_args <- names(formals(input))
 
     if(length(oobag_fun_args) != 3) stop(
      "oobag_fun should have 3 input arguments but instead has ",
@@ -1733,9 +1797,7 @@ ObliqueForest <- R6::R6Class(
     .w_vec <- rep(1, times = 100)
     .s_vec <- seq(0.9, 0.1, length.out = 100)
 
-    test_output <- try(self$oobag_eval_function(y_mat = .y_mat,
-                                                w_vec = .w_vec,
-                                                s_vec = .s_vec),
+    test_output <- try(input(y_mat = .y_mat, w_vec = .w_vec, s_vec = .s_vec),
                        silent = FALSE)
 
     if(is_error(test_output)){
@@ -2442,7 +2504,6 @@ ObliqueForestSurvival <- R6::R6Class(
     private$check_pred_horizon(boundary_checks = TRUE)
    }
 
-   # private$check_pred_type_internal(oobag = TRUE)
    private$check_leaf_min_events()
    private$check_split_min_events()
 

@@ -167,7 +167,7 @@ void ForestSurvival::compute_prediction_accuracy_internal(
  if(pred_type == PRED_SURVIVAL) pred_is_risklike = false;
 
  for(arma::uword i = 0; i < oobag_eval.n_cols; ++i){
-  vec p = predictions.unsafe_col(i);
+  vec p = predictions.col(i);
   oobag_eval(row_fill, i) = compute_cstat_surv(y, w, p, pred_is_risklike);
  }
 

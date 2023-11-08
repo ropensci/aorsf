@@ -316,6 +316,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compute_var_reduction
+double compute_var_reduction(arma::vec& y_node, arma::vec& w_node, arma::uvec& g_node);
+RcppExport SEXP _aorsf_compute_var_reduction(SEXP y_nodeSEXP, SEXP w_nodeSEXP, SEXP g_nodeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec& >::type y_node(y_nodeSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type w_node(w_nodeSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type g_node(g_nodeSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_var_reduction(y_node, w_node, g_node));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_coxph_fit_exported", (DL_FUNC) &_aorsf_coxph_fit_exported, 6},
@@ -337,6 +350,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_scale_x_exported", (DL_FUNC) &_aorsf_scale_x_exported, 2},
     {"_aorsf_cph_scale", (DL_FUNC) &_aorsf_cph_scale, 2},
     {"_aorsf_orsf_cpp", (DL_FUNC) &_aorsf_orsf_cpp, 44},
+    {"_aorsf_compute_var_reduction", (DL_FUNC) &_aorsf_compute_var_reduction, 3},
     {NULL, NULL, 0}
 };
 

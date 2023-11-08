@@ -79,41 +79,42 @@ test_that(
 )
 
 
-test_that(
- 'orsf tracks meta data for units class variables',
- code = {
-
-  # units may have memory leaks
-  skip_on_cran()
-
-  suppressMessages(library(units))
-  pbc_units <- pbc_orsf
-
-
-  units(pbc_units$time) <- 'days'
-  units(pbc_units$age) <- 'years'
-  units(pbc_units$bili) <- 'mg/dl'
-
-  fit_units <- orsf(pbc_units, Surv(time, status) ~ . - id, n_tree=1)
-
-  expect_equal(
-   fit_units$get_var_unit('time'),
-   list( numerator = "d", denominator = character(0), label = "d")
-  )
-
-  expect_equal(
-   fit_units$get_var_unit('age'),
-   list(numerator = "years", denominator = character(0), label = "years")
-  )
-
-  expect_equal(
-   fit_units$get_var_unit('bili'),
-   list(numerator = "mg", denominator = "dl", label = "mg/dl")
-  )
-
- }
-
-)
+# just run locally. units seems to have memory leaks.
+# test_that(
+#  'orsf tracks meta data for units class variables',
+#  code = {
+#
+#   # units may have memory leaks
+#   skip_on_cran()
+#
+#   suppressMessages(library(units))
+#   pbc_units <- pbc_orsf
+#
+#
+#   units(pbc_units$time) <- 'days'
+#   units(pbc_units$age) <- 'years'
+#   units(pbc_units$bili) <- 'mg/dl'
+#
+#   fit_units <- orsf(pbc_units, Surv(time, status) ~ . - id, n_tree=1)
+#
+#   expect_equal(
+#    fit_units$get_var_unit('time'),
+#    list( numerator = "d", denominator = character(0), label = "d")
+#   )
+#
+#   expect_equal(
+#    fit_units$get_var_unit('age'),
+#    list(numerator = "years", denominator = character(0), label = "years")
+#   )
+#
+#   expect_equal(
+#    fit_units$get_var_unit('bili'),
+#    list(numerator = "mg", denominator = "dl", label = "mg/dl")
+#   )
+#
+#  }
+#
+# )
 
 
 test_that(
@@ -453,6 +454,9 @@ test_that(
 test_that(
  desc = 'orsf() runs as intended for valid inputs',
  code = {
+
+  # just takes forever.
+  skip_on_cran()
 
   inputs <- expand.grid(
    data_format = c('plain', 'tibble', 'data.table'),
