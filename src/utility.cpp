@@ -233,10 +233,10 @@
 
  }
 
- double compute_cstat(arma::mat& y,
-                      arma::vec& w,
-                      arma::vec& p,
-                      bool pred_is_risklike){
+ double compute_cstat_surv(arma::mat& y,
+                           arma::vec& w,
+                           arma::vec& p,
+                           bool pred_is_risklike){
 
   vec y_time   = y.unsafe_col(0);
   vec y_status = y.unsafe_col(1);
@@ -283,10 +283,10 @@
  }
 
 
- double compute_cstat(arma::mat& y,
-                      arma::vec& w,
-                      arma::uvec& g,
-                      bool pred_is_risklike){
+ double compute_cstat_surv(arma::mat& y,
+                           arma::vec& w,
+                           arma::uvec& g,
+                           bool pred_is_risklike){
 
   // note: g must have only values of 0 and 1 to use this.
   // note: this is a little different in its approach than
@@ -353,6 +353,146 @@
 
  }
 
+ double compute_cstat_clsf(vec& y, vec& w, vec& p){
+
+  uvec p_sort_index = sort_index(p);
+  vec p_freqs(w.size());
+  vec w_freqs(w.size());
+
+  double p_current = p[p_sort_index[0]];
+  uword freq_counter = 0;
+
+  for(uword i = 0; i < w.size(); ++i){
+
+   double p_new = p[p_sort_index[i]];
+
+   if(p_new != p_current){
+    p_freqs[freq_counter] = p_current;
+    p_current = p_new;
+    freq_counter++;
+   }
+
+   w_freqs[freq_counter] += w[p_sort_index[i]];
+
+  }
+
+  p_freqs[freq_counter] = p_current;
+  freq_counter++;
+
+  w_freqs.resize(freq_counter);
+  p_freqs.resize(freq_counter);
+
+  // rare case of a constant vector of predictions
+  if(freq_counter == 1) return(0.5);
+
+  vec r = cumsum(w_freqs) - 0.5 * (w_freqs - 1);
+
+  vec w_rank;
+
+  interp1(p_freqs, r, p, w_rank);
+
+  vec w_y = w % y;
+
+  double n = sum(w_freqs);
+  double n1 = sum(w_y);
+  double mean_rank = dot(w_rank, w_y) / n1;
+  double cstat = (mean_rank - (n1 + 1) * 0.5) / (n - n1);
+
+  return(cstat);
+
+ }
+
+ double compute_cstat_clsf(vec& y, vec& w, uvec& g){
+
+  double true_pos=0, true_neg=0, false_pos=0, false_neg=0;
+
+  for(uword i = 0; i < g.size(); ++i){
+
+   if(g[i] == 0 && y[i] == 0){
+
+    true_neg += w[i];
+
+   } else if(g[i] == 1 && y[i] == 1){
+
+    true_pos += w[i];
+
+   } else if(g[i] == 1) {
+
+    false_pos += w[i];
+
+   } else {
+
+    false_neg += w[i];
+
+   }
+
+  }
+
+  double sens = true_pos / (true_pos + false_pos);
+  double spec = true_neg / (true_neg + false_neg);
+
+  return(0.5 * (sens + spec));
+
+ }
+
+ double compute_gini(mat& y, vec& w, uvec& g){
+
+  vec y_probs_0(y.n_cols);
+  vec y_probs_1(y.n_cols);
+
+  double n_0 = 0;
+  double n_1 = 0;
+
+  for(uword i = 0; i < y.n_rows; ++i){
+
+   if(g[i] == 1){
+
+    n_1 += w[i];
+    y_probs_1 += (y.row(i) * w[i]);
+
+   } else {
+
+    n_0 += w[i];
+    y_probs_0 += (y.row(i) * w[i]);
+
+   }
+
+  }
+
+  y_probs_1 /= n_1;
+  y_probs_0 /= n_0;
+
+  y_probs_1 = join_vert(vec {1 - sum(y_probs_1)}, y_probs_1);
+  y_probs_0 = join_vert(vec {1 - sum(y_probs_0)}, y_probs_0);
+
+  double gini_1 = 1 - sum(y_probs_1 % y_probs_1);
+  double gini_0 = 1 - sum(y_probs_0 % y_probs_0);
+
+  double n_tot = n_1 + n_0;
+
+  return(gini_1 * (n_1/n_tot) + gini_0 * (n_0/n_tot));
+
+ }
+
+ vec compute_pred_prob(mat& y, vec& w){
+
+  double n_wtd = 0;
+  vec pred_prob(y.n_cols, fill::zeros);
+
+  for(uword i = 0; i < y.n_rows; ++i){
+   n_wtd += w[i];
+   for(uword j = 0; j < y.n_cols; ++j){
+    pred_prob[j] += (y.at(i, j) * w[i]);
+   }
+  }
+
+  pred_prob /= n_wtd;
+  vec pred_0 = vec {1 - sum(pred_prob)};
+  pred_prob = join_vert(pred_0, pred_prob);
+  return(pred_prob);
+
+ }
+
  arma::mat linreg_fit(arma::mat& x_node,
                       arma::mat& y_node,
                       arma::vec& w_node,
@@ -407,38 +547,64 @@
                       double epsilon,
                       arma::uword iter_max){
 
+  mat x_transforms;
+
+  if(do_scale) x_transforms = scale_x(x_node, w_node);
+
   // Add an intercept column to the design matrix
   vec intercept(x_node.n_rows, fill::ones);
-  mat X = join_horiz(intercept, x_node);
+  const mat X = join_horiz(intercept, x_node);
 
   // for later steps we don't care about the intercept term b/c we don't
   // need it, but in this step including the intercept is important
   // for computing p-values of other regression coefficients.
 
   vec beta(X.n_cols, fill::zeros);
-
   mat hessian(X.n_cols, X.n_cols);
 
   for (uword iter = 0; iter < iter_max; ++iter) {
 
    vec eta = X * beta;
-   vec pi = 1 / (1 + exp(-eta));
+
+   // needs to be element-wise b/c valgrind
+   // spots a possible memory leak otherwise
+   for(uword i = 0; i < eta.size(); i++){
+    eta[i] = exp(eta[i]);
+   }
+
+   vec pi = eta / (1 + eta);
    vec w = w_node % pi % (1 - pi);
 
    vec gradient = X.t() * ((y_node - pi) % w_node);
    hessian = -X.t() * diagmat(w) * X;
 
-   beta -= solve(hessian, gradient);
+   vec update;
+
+   bool invertible = solve(update, hessian, gradient, solve_opts::no_approx);
+
+   if(!invertible) break;
+
+   beta -= update;
 
    if (norm(gradient) < epsilon) {
     break;
    }
   }
 
+  double beta_trace = arma::accu(arma::abs(beta));
+
+  if(beta_trace < std::numeric_limits<double>::epsilon()){
+   mat result(beta.size(), 2, fill::zeros);
+   return(result);
+  }
+
+  vec beta_var = diagvec(inv(-hessian));
+
+  if(do_scale) unscale_outputs(x_node, beta, beta_var, x_transforms);
+
   // Compute standard errors, z-scores, and p-values
 
-  vec se = sqrt(diagvec(inv(-hessian)));
-  vec zscores = beta / se;
+  vec zscores = beta / sqrt(beta_var);
   vec pvalues = 2 * (1 - normcdf(abs(zscores)));
   mat result = join_horiz(beta, pvalues);
 
@@ -481,19 +647,41 @@
 
  }
 
- void unscale_x(arma::mat& x,
-                arma::mat& x_transforms){
+ void unscale_outputs(arma::mat& x,
+                      arma::vec& beta,
+                      arma::vec& beta_var,
+                      arma::mat& x_transforms){
 
   uword n_vars = x.n_cols;
 
-  vec means  = x_transforms.unsafe_col(0);   // Reference to column 1
-  vec scales = x_transforms.unsafe_col(1);   // Reference to column 2
+  vec means  = x_transforms.unsafe_col(0);
+  vec scales = x_transforms.unsafe_col(1);
 
   for(uword i = 0; i < n_vars; i++){
 
-   x.col(i) /= scales.at(i);
-   x.col(i) += means.at(i);
+   // return x to its original values
+   x.col(i)    *= scales[i];
+   x.col(i)    += means[i];
 
+   // make estimates match the original scale of x
+   beta[i]     *= scales[i];
+   beta_var[i] *= scales[i] * scales[i];
+
+
+  }
+
+ }
+
+ void predict_class(arma::mat& pred){
+
+  // modify column 0
+  for(uword i = 0; i < pred.n_rows; ++i){
+   pred.at(i, 0) = pred.row(i).index_max();
+  }
+
+  // drop the other colums
+  while(pred.n_cols > 1){
+   pred.shed_col(1);
   }
 
  }

@@ -50,10 +50,7 @@ no_miss_list <- function(l){
 
 }
 
-fi <- get_fctr_info(object)
-
-#' @srrstats {G5.2} *Appropriate error behaviour is explicitly demonstrated through tests.*
-#' @srrstats {G5.2b} *Tests demonstrate conditions which trigger error messages.*
+fi <- object$get_fctr_info()
 
 test_that("output is normal", {
 
@@ -113,12 +110,8 @@ test_that(
  desc = 'higher pred horizon is not allowed for summary',
  code = {
 
-  fit_bad_oob_horizon <- orsf(pbc,
-                              time + status ~ .,
-                              n_tree = 1,
-                              oobag_pred_horizon = 7000)
-
-  expect_error(orsf_summarize_uni(fit_bad_oob_horizon),
+  expect_error(orsf_summarize_uni(fit_standard_pbc$fast,
+                                  pred_horizon = 7000),
                regexp = 'prediction horizon')
 
  }

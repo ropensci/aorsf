@@ -48,7 +48,7 @@ public:
  // growInternal() in ranger
  void plant() override;
 
- void compute_prediction_accuracy(
+ void compute_prediction_accuracy_internal(
    arma::mat& y,
    arma::vec& w,
    arma::mat& predictions,

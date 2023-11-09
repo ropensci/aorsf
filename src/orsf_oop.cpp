@@ -18,6 +18,7 @@
 #include "Tree.h"
 #include "Forest.h"
 #include "ForestSurvival.h"
+#include "ForestClassification.h"
 #include "Coxph.h"
 #include "utility.h"
 
@@ -78,20 +79,27 @@
  }
 
  // [[Rcpp::export]]
- double compute_cstat_exported_vec(
+ double compute_cstat_surv_exported_vec(
    arma::mat& y,
    arma::vec& w,
    arma::vec& p,
    bool pred_is_risklike
- ){ return compute_cstat(y, w, p, pred_is_risklike); }
+ ){ return compute_cstat_surv(y, w, p, pred_is_risklike); }
 
  // [[Rcpp::export]]
- double compute_cstat_exported_uvec(
+ double compute_cstat_surv_exported_uvec(
    arma::mat& y,
    arma::vec& w,
    arma::uvec& g,
    bool pred_is_risklike
- ){ return compute_cstat(y, w, g, pred_is_risklike); }
+ ){ return compute_cstat_surv(y, w, g, pred_is_risklike); }
+
+ // [[Rcpp::export]]
+ double compute_cstat_clsf_exported(
+   arma::vec& y,
+   arma::vec& w,
+   arma::vec& p
+ ){ return compute_cstat_clsf(y, w, p); }
 
  // [[Rcpp::export]]
  double compute_logrank_exported(
@@ -99,6 +107,37 @@
    arma::vec& w,
    arma::uvec& g
  ){ return compute_logrank(y, w, g); }
+
+ // [[Rcpp::export]]
+ double compute_gini_exported(
+   arma::mat& y,
+   arma::vec& w,
+   arma::uvec& g
+ ){ return compute_gini(y, w, g); }
+
+ // [[Rcpp::export]]
+ arma::vec compute_pred_prob_exported(
+   arma::mat& y,
+   arma::vec& w
+ ){ return compute_pred_prob(y, w); }
+
+ // [[Rcpp::export]]
+ arma::mat expand_y_clsf(arma::vec& y,
+                         arma::uword n_class){
+
+  arma::mat out(y.n_rows, n_class - 1, arma::fill::zeros);
+
+  for(arma::uword i = 0; i < y.n_rows; ++i){
+
+   double yval = y[i];
+
+   if(yval > 0){ out.at(i, yval-1) = 1; }
+
+  }
+
+  return(out);
+
+ }
 
  // [[Rcpp::export]]
  bool is_col_splittable_exported(arma::mat& x,
@@ -246,7 +285,8 @@
  }
 
  // [[Rcpp::export]]
- List cph_scale(arma::mat& x, arma::vec& w){
+ List cph_scale(arma::mat& x,
+                arma::vec& w){
 
   // set aside memory for outputs
   // first column holds the mean values
@@ -330,6 +370,16 @@
                bool                     run_forest,
                int                      verbosity){
 
+  // re-cast integer inputs from R into enumerations
+  // see globals.h for definitions.
+  VariableImportance vi_type = (VariableImportance) vi_type_R;
+  SplitRule split_rule = (SplitRule) split_rule_R;
+  LinearCombo lincomb_type = (LinearCombo) lincomb_type_R;
+  PredType pred_type = (PredType) pred_type_R;
+  EvalType oobag_eval_type = (EvalType) oobag_eval_type_R;
+  PartialDepType pd_type = (PartialDepType) pd_type_R;
+  TreeType tree_type = (TreeType) tree_type_R;
+
   List result;
 
   std::unique_ptr<Forest> forest { };
@@ -339,24 +389,13 @@
 
   uword n_obs = data->get_n_rows();
 
-  // re-cast integer inputs from R into enumerations
-  // see globals.h for definitions.
-  TreeType tree_type = (TreeType) tree_type_R;
 
-  if(tree_type == TREE_CLASSIFICATION ||
-     tree_type == TREE_PROBABILITY ||
-     tree_type == TREE_REGRESSION){
+  if(tree_type == TREE_REGRESSION){
 
    stop("that tree type is not ready yet");
 
   }
 
-  VariableImportance vi_type = (VariableImportance) vi_type_R;
-  SplitRule split_rule = (SplitRule) split_rule_R;
-  LinearCombo lincomb_type = (LinearCombo) lincomb_type_R;
-  PredType pred_type = (PredType) pred_type_R;
-  EvalType oobag_eval_type = (EvalType) oobag_eval_type_R;
-  PartialDepType pd_type = (PartialDepType) pd_type_R;
 
   if(n_thread == 0){
    n_thread = std::thread::hardware_concurrency();
@@ -377,15 +416,40 @@
    }
   }
 
-  if(tree_type == TREE_SURVIVAL){
+  switch(tree_type){
+
+  case TREE_SURVIVAL:
 
    forest = std::make_unique<ForestSurvival>(leaf_min_events,
                                              split_min_events,
                                              pred_horizon);
 
-  } else {
+   if(verbosity > 3){
+    Rcout << "initializing survival forest" << std::endl;
+    Rcout << "  -- leaf_min_events: " << leaf_min_events << std::endl;
+    Rcout << "  -- split_min_events: " << split_min_events << std::endl;
+    Rcout << "  -- pred_horizon: " << pred_horizon << std::endl;
+    Rcout << std::endl << std::endl;
+   }
 
-   Rcpp::stop("only survival trees are currently implemented");
+   break;
+
+  case TREE_CLASSIFICATION:
+
+   forest = std::make_unique<ForestClassification>(data->n_cols_y + 1);
+
+   if(verbosity > 3){
+    Rcout << "initializing classification forest" << std::endl;
+    Rcout << "  -- n_class: " << data->n_cols_y + 1 << std::endl;
+    Rcout << std::endl << std::endl;
+   }
+
+   break;
+
+  default:
+
+   Rcpp::stop("only survival and classification trees are currently implemented");
+   break;
 
   }
 
@@ -454,6 +518,17 @@
                leaf_pred_prob, leaf_pred_chaz, leaf_summary,
                pd_type, pd_x_vals, pd_x_cols, pd_probs);
 
+    } else if (tree_type == TREE_CLASSIFICATION){
+
+     std::vector<std::vector<vec>> leaf_pred_prob = loaded_forest["leaf_pred_prob"];
+
+     auto& temp = dynamic_cast<ForestClassification&>(*forest);
+
+     temp.load(n_tree, n_obs, rows_oobag, cutpoint, child_left,
+               coef_values, coef_indices, leaf_pred_prob, leaf_summary,
+               pd_type, pd_x_vals, pd_x_cols, pd_probs);
+
+
     }
 
    }
@@ -491,6 +566,9 @@
      forest_out.push_back(temp.get_leaf_pred_indx(), "leaf_pred_indx");
      forest_out.push_back(temp.get_leaf_pred_prob(), "leaf_pred_prob");
      forest_out.push_back(temp.get_leaf_pred_chaz(), "leaf_pred_chaz");
+    } else if (tree_type == TREE_CLASSIFICATION){
+     auto& temp = dynamic_cast<ForestClassification&>(*forest);
+     forest_out.push_back(temp.get_leaf_pred_prob(), "leaf_pred_prob");
     }
 
     result.push_back(forest_out, "forest");

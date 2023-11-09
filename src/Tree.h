@@ -85,7 +85,9 @@
 
   double find_best_cut();
 
-  virtual void sprout_leaf(arma::uword node_id);
+  void sprout_leaf(arma::uword node_id);
+
+  virtual void sprout_leaf_internal(arma::uword node_id) = 0;
 
   virtual double compute_max_leaves();
 
@@ -95,10 +97,16 @@
   void predict_leaf(Data* prediction_data,
                     bool oobag);
 
-  virtual void predict_value(arma::mat& pred_output,
-                             arma::vec& pred_denom,
-                             PredType pred_type,
-                             bool oobag) = 0;
+  void predict_value(arma::mat& pred_output,
+                     arma::vec& pred_denom,
+                     PredType pred_type,
+                     bool oobag);
+
+  virtual arma::uword predict_value_internal(arma::uvec& pred_leaf_sort,
+                                             arma::mat& pred_output,
+                                             arma::vec& pred_denom,
+                                             PredType pred_type,
+                                             bool oobag) = 0;
 
   void negate_coef(arma::uword pred_col);
 
@@ -209,6 +217,12 @@
   }
 
   void find_rows_inbag(arma::uword n_obs);
+
+  virtual arma::mat glm_fit();
+
+  virtual uword get_n_col_vi()=0;
+
+  virtual void fill_pred_values_vi(arma::mat& pred_values)=0;
 
  protected:
 
@@ -340,9 +354,9 @@
   std::vector<double> leaf_summary;
 
 
-  virtual double compute_prediction_accuracy(arma::vec& preds);
+  virtual double compute_prediction_accuracy(arma::mat& preds);
 
-  virtual double compute_prediction_accuracy_internal(arma::vec& preds) = 0;
+  virtual double compute_prediction_accuracy_internal(arma::mat& preds) = 0;
 
  };
 

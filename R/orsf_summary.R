@@ -57,143 +57,20 @@
 orsf_summarize_uni <- function(object,
                                n_variables = NULL,
                                pred_horizon = NULL,
-                               pred_type = 'risk',
-                               importance = 'negate',
+                               pred_type = NULL,
+                               importance = NULL,
                                ...){
-
 
  check_dots(list(...), .f = orsf_summarize_uni)
 
- # for CRAN check:
- medn <- name <- value <- level <- variable <- NULL
-
  check_arg_is(arg_value = object,
               arg_name = 'object',
-              expected_class = 'orsf_fit')
+              expected_class = 'ObliqueForest')
 
- if(!is.null(n_variables)){
-
-  check_arg_type(arg_value = n_variables,
-                 arg_name = 'n_variables',
-                 expected_type = 'numeric')
-
-  check_arg_is_integer(arg_value = n_variables,
-                       arg_name = 'n_variables')
-
-  check_arg_gteq(arg_value = n_variables,
-                 arg_name = 'n_variables',
-                 bound = 1)
-
-  check_arg_lteq(arg_value = n_variables,
-                 arg_name = 'n_variables',
-                 bound = length(get_names_x(object, ref_code_names = FALSE)),
-                 append_to_msg = "(total number of predictors)")
-
-
-  check_arg_length(arg_value = n_variables,
-                   arg_name = 'n_variables',
-                   expected_length = 1)
-
- }
-
- check_predict(object = object,
-               pred_horizon = pred_horizon,
-               pred_type = pred_type)
-
- if(is.null(pred_horizon)) pred_horizon <- object$pred_horizon
-
- if(importance == 'none' && get_importance(object) == 'none')
-  stop("importance cannot be 'none' if object does not have variable ",
-       " importance values.", call. = FALSE)
-
- check_orsf_inputs(importance = importance)
-
- if(importance == 'none') importance <- get_importance(object)
-
- vi <- switch(
-  importance,
-  'anova' = orsf_vi_anova(object, group_factors = TRUE),
-  'negate' = orsf_vi_negate(object, group_factors = TRUE),
-  'permute' = orsf_vi_permute(object, group_factors = TRUE)
- )
-
- if(is.null(n_variables)) n_variables <- length(vi)
-
- x_numeric_key <- get_numeric_bounds(object)
-
- fctr_info <- get_fctr_info(object)
-
- n_obs <- get_n_obs(object)
-
- pred_spec <- list_init(names(vi)[seq(n_variables)])
-
- for(x_name in names(pred_spec)){
-
-  if(x_name %in% colnames(x_numeric_key)){
-
-   pred_spec[[x_name]] <- unique(
-    as.numeric(x_numeric_key[c('25%','50%','75%'), x_name])
-   )
-
-  } else if (x_name %in% fctr_info$cols) {
-
-   pred_spec[[x_name]] <- fctr_info$lvls[[x_name]]
-
-  }
-
- }
-
- pd_output <- orsf_pd_oob(object = object,
-                          pred_spec = pred_spec,
-                          expand_grid = FALSE,
-                          pred_type = pred_type,
-                          prob_values = c(0.25, 0.50, 0.75),
-                          pred_horizon = pred_horizon)
-
- fctrs_unordered <- c()
-
- # did the orsf have factor variables?
- if(!is_empty(fctr_info$cols)){
-  fctrs_unordered <- fctr_info$cols[!fctr_info$ordr]
- }
-
- # some cart-wheels here for backward compatibility.
- f <- as.factor(pd_output$variable)
-
- name_rep <- rle(as.integer(f))
-
- pd_output$importance <- rep(vi[levels(f)[name_rep$values]],
-                             times = name_rep$lengths)
-
- # pd_output$value <- ifelse(test = is.na(value),
- #                           yes = as.character(level),
- #                           no = round_magnitude(value))
-
- pd_output[, value := fifelse(test = is.na(value),
-                              yes = as.character(level),
-                              no = round_magnitude(value))]
-
- # if a := is used inside a function with no DT[] before the end of the
- # function, then the next time DT or print(DT) is typed at the prompt,
- # nothing will be printed. A repeated DT or print(DT) will print.
- # To avoid this: include a DT[] after the last := in your function.
- pd_output[]
-
- setcolorder(pd_output, c('variable',
-                          'importance',
-                          'value',
-                          'mean',
-                          'medn',
-                          'lwr',
-                          'upr'))
-
- structure(
-  .Data = list(dt = pd_output,
-               pred_type = pred_type,
-               pred_horizon = pred_horizon),
-  class = 'orsf_summary_uni'
- )
-
+ object$summarize_uni(n_variables     = n_variables,
+                      pred_horizon    = pred_horizon,
+                      pred_type       = pred_type,
+                      importance_type = importance)
 
 }
 

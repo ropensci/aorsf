@@ -42,9 +42,9 @@
                std::vector<double>& leaf_summary,
                arma::vec* pred_horizon);
 
-  double compute_max_leaves() override;
-
   void resize_leaves(arma::uword new_size) override;
+
+  double compute_max_leaves() override;
 
   bool is_col_splittable(arma::uword j) override;
 
@@ -56,12 +56,17 @@
 
   double compute_mortality(arma::mat& leaf_data);
 
-  void sprout_leaf(uword node_id) override;
+  void sprout_leaf_internal(uword node_id) override;
 
-  void predict_value(arma::mat& pred_output,
-                     arma::vec& pred_denom,
-                     PredType pred_type,
-                     bool oobag) override;
+  uword get_n_col_vi() override;
+
+  void fill_pred_values_vi(arma::mat& pred_values) override;
+
+  arma::uword predict_value_internal(arma::uvec& pred_leaf_sort,
+                                     arma::mat& pred_output,
+                                     arma::vec& pred_denom,
+                                     PredType pred_type,
+                                     bool oobag) override;
 
   std::vector<arma::vec>& get_leaf_pred_indx(){
    return(leaf_pred_indx);
@@ -85,11 +90,17 @@
 
   arma::uword find_safe_mtry() override;
 
-  double compute_prediction_accuracy_internal(arma::vec& preds) override;
+  double compute_prediction_accuracy_internal(arma::mat& preds) override;
 
+  arma::mat glm_fit() override;
+
+  // indx holds the times
   std::vector<arma::vec> leaf_pred_indx;
+  // prob holds the predicted survival
   std::vector<arma::vec> leaf_pred_prob;
+  // chaz holds the cumulative hazard
   std::vector<arma::vec> leaf_pred_chaz;
+  // summary (see Tree.h) holds total mortality
 
   // pointer to event times in forest
   arma::vec* unique_event_times;

@@ -272,7 +272,7 @@ prep_test_matrices <- function(data, outcomes = c("time", "status")){
  cc <- stats::complete.cases(data[, names_x_data])
  data <- data[cc, ]
 
- y <- prep_y(data, names_y_data)
+ y <- prep_y_surv(data, names_y_data)
  x <- prep_x(data, fi, names_x_data, means, standard_deviations)
  w <- sample(1:3, nrow(y), replace = TRUE)
 

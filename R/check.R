@@ -1,5 +1,4 @@
 
-
 #' strict checks for inputs
 #'
 #' @param arg_value the object that is to be checked
@@ -454,6 +453,41 @@ check_var_types <- function(data, .names, valid_types){
 
 }
 
+
+check_var_values <- function(data, .names){
+
+ for(i in .names){
+
+  if(any(is.infinite(data[[i]]))){
+   stop("Please remove infinite values from ", i, ".",
+        call. = FALSE)
+  }
+
+  if(any(collapse::allNA(data[[i]]))){
+   stop("column ", i, " has no observed values",
+        call. = FALSE)
+  }
+
+ }
+
+}
+
+check_var_names <- function(data, .names){
+
+ names_not_found <- setdiff(c(.names), names(data))
+
+ if(!is_empty(names_not_found)){
+  msg <- paste0(
+   "variables in formula were not found in data: ",
+   paste_collapse(names_not_found, last = ' and ')
+  )
+  stop(msg, call. = FALSE)
+ }
+
+ return(.names)
+
+}
+
 #' Check inputs for orsf_control_cph()
 #'
 #' @inheritParams orsf_control_cph
@@ -608,8 +642,13 @@ check_orsf_inputs <- function(data = NULL,
                               oobag_pred_horizon = NULL,
                               oobag_eval_every = NULL,
                               importance = NULL,
+                              importance_max_pvalue = NULL,
+                              group_factors = NULL,
                               tree_seeds = NULL,
                               attach_data = NULL,
+                              no_fit = NULL,
+                              na_action = NULL,
+                              oobag_fun = NULL,
                               verbose_progress = NULL){
 
  if(!is.null(data)){
@@ -650,8 +689,7 @@ check_orsf_inputs <- function(data = NULL,
 
   }
 
-  ns_names <- grepl(pattern = '[^a-zA-Z0-9\\.\\_]+',
-                    x = names(data))
+  ns_names <- grepl(pattern = '[^a-zA-Z0-9\\.\\_]+', x = names(data))
 
   if(any(ns_names)){
 
@@ -666,7 +704,6 @@ check_orsf_inputs <- function(data = NULL,
 
  }
 
-
  if(!is.null(formula)){
 
   check_arg_is(arg_value = formula,
@@ -677,8 +714,6 @@ check_orsf_inputs <- function(data = NULL,
    stop("formula must be two sided, i.e. left side ~ right side",
         call. = FALSE)
   }
-
-  # browser()
 
   formula_deparsed <- as.character(formula)[[3]]
 
@@ -702,6 +737,18 @@ check_orsf_inputs <- function(data = NULL,
                arg_name = 'control',
                expected_class = 'orsf_control')
 
+  if(control$lincomb_type == 'net'){
+
+   if (!requireNamespace("glmnet", quietly = TRUE)) {
+    stop(
+     "Package \"glmnet\" must be installed to use",
+     " orsf_control_net() with orsf().",
+     call. = FALSE
+    )
+   }
+
+  }
+
  }
 
  if(!is.null(weights)){
@@ -713,16 +760,6 @@ check_orsf_inputs <- function(data = NULL,
   check_arg_gteq(arg_value = weights,
                  arg_name = 'weights',
                  bound = 0)
-
-  if(length(weights) != nrow(data)){
-
-   stop('weights should have length <', nrow(data),
-        "> (the number of observations in data)",
-        "but instead has length <", length(weights), ">",
-        call. = FALSE)
-
-  }
-
 
  }
 
@@ -902,7 +939,7 @@ check_orsf_inputs <- function(data = NULL,
 
   check_arg_is_valid(arg_value = split_rule,
                      arg_name = 'split_rule',
-                     valid_options = c("logrank", "cstat"))
+                     valid_options = c("logrank", "cstat", "gini"))
 
  }
 
@@ -959,7 +996,6 @@ check_orsf_inputs <- function(data = NULL,
 
  }
 
-
  if(!is.null(oobag_pred_type)){
 
   check_arg_type(arg_value = oobag_pred_type,
@@ -977,6 +1013,8 @@ check_orsf_inputs <- function(data = NULL,
                                        "risk",
                                        "chf",
                                        "mort",
+                                       "prob",
+                                       "class",
                                        "leaf"))
 
  }
@@ -987,10 +1025,6 @@ check_orsf_inputs <- function(data = NULL,
                  arg_name = 'oobag_pred_horizon',
                  expected_type = 'numeric')
 
-  # check_arg_length(arg_value = oobag_pred_horizon,
-  #                  arg_name = 'oobag_pred_horizon',
-  #                  expected_length = 1)
-
   for(i in seq_along(oobag_pred_horizon)){
 
    check_arg_gteq(arg_value = oobag_pred_horizon[i],
@@ -1000,7 +1034,6 @@ check_orsf_inputs <- function(data = NULL,
   }
 
  }
-
 
  if(!is.null(oobag_eval_every)){
 
@@ -1045,6 +1078,38 @@ check_orsf_inputs <- function(data = NULL,
 
  }
 
+ if(!is.null(importance_max_pvalue)){
+
+  check_arg_type(arg_value = importance_max_pvalue,
+                 arg_name = 'importance_max_pvalue',
+                 expected_type = 'numeric')
+
+  check_arg_gt(arg_value = importance_max_pvalue,
+               arg_name = 'importance_max_pvalue',
+               bound = 0)
+
+  check_arg_lt(arg_value = importance_max_pvalue,
+               arg_name = 'importance_max_pvalue',
+               bound = 1)
+
+  check_arg_length(arg_value = importance_max_pvalue,
+                   arg_name = 'importance_max_pvalue',
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(group_factors)){
+
+  check_arg_type(arg_value = group_factors,
+                 arg_name = 'group_factors',
+                 expected_type = 'logical')
+
+  check_arg_length(arg_value = group_factors,
+                   arg_name = 'group_factors',
+                   expected_length = 1)
+
+ }
+
  if(!is.null(tree_seeds)){
 
   check_arg_type(arg_value = tree_seeds,
@@ -1075,6 +1140,38 @@ check_orsf_inputs <- function(data = NULL,
 
  }
 
+ if(!is.null(no_fit)){
+
+  check_arg_type(arg_value = no_fit,
+                 arg_name = 'no_fit',
+                 expected_type = 'logical')
+
+  check_arg_length(arg_value = no_fit,
+                   arg_name = 'no_fit',
+                   expected_length = 1)
+
+ }
+
+ if(!is.null(na_action)){
+
+  check_arg_type(arg_value = na_action,
+                 arg_name = 'na_action',
+                 expected_type = 'character')
+
+  check_arg_length(arg_value = na_action,
+                   arg_name = 'na_action',
+                   expected_length = 1)
+
+  check_arg_is_valid(arg_value = na_action,
+                     arg_name = 'na_action',
+                     valid_options = c("fail", "omit", "impute_meanmode"))
+
+ }
+
+ if(!is.null(oobag_fun)){
+  check_oobag_fun(oobag_fun)
+ }
+
  if(!is.null(verbose_progress)){
 
   check_arg_type(arg_value = verbose_progress,
@@ -1084,6 +1181,35 @@ check_orsf_inputs <- function(data = NULL,
   check_arg_length(arg_value = verbose_progress,
                    arg_name = 'verbose_progress',
                    expected_length = 1)
+
+ }
+
+ # checks that depend on 2 or more inputs
+
+ if(!is.null(oobag_pred_type) && !is.null(sample_fraction)){
+  if(oobag_pred_type != "none" && sample_fraction == 1){
+   stop(
+    "cannot compute out-of-bag predictions if no samples are out-of-bag.",
+    " Try setting sample_fraction < 1 or oobag_pred_type = 'none'.",
+    call. = FALSE
+   )
+  }
+ }
+
+ if(!is.null(split_min_stat) && !is.null(split_rule)){
+  if(split_rule == "cstat" && split_min_stat >= 1){
+   stop("If split_rule is 'cstat', split_min_stat must be < 1",
+        call. = FALSE)
+  }
+ }
+
+ if(!is.null(oobag_fun) && !is.null(oobag_pred_type)){
+
+  if(oobag_pred_type == 'leaf'){
+   stop("a user-supplied oobag function cannot be",
+        " applied when oobag_pred_type = 'leaf'",
+        call. = FALSE)
+  }
 
  }
 
@@ -1113,7 +1239,7 @@ check_pd_inputs <- function(object,
 
  check_arg_is(arg_value = object,
               arg_name = 'object',
-              expected_class = 'orsf_fit')
+              expected_class = 'ObliqueForest')
 
  if(!is.null(boundary_checks)){
 
@@ -1270,7 +1396,11 @@ check_pd_inputs <- function(object,
                pred_horizon = pred_horizon,
                pred_type = pred_type,
                na_action = na_action,
-               valid_pred_types = c("risk", "surv", "chf", "mort"))
+               valid_pred_types = c("risk",
+                                    "surv",
+                                    "chf",
+                                    "mort",
+                                    "prob"))
 
 }
 
@@ -1382,8 +1512,8 @@ check_new_data_types <- function(new_data,
                  "; type <", ref_types[bad_types], "> in ",
                  label_ref, collapse = '\n')
 
-  msg <- paste("some variables in ", label_new,
-               " have different type in ",
+  msg <- paste("some variables in", label_new,
+               "have different type in",
                label_ref, ":\n", meat)
 
   stop(msg, call. = FALSE)
@@ -1544,7 +1674,13 @@ check_predict <- function(object,
                           pred_type = NULL,
                           na_action = NULL,
                           boundary_checks = TRUE,
-                          valid_pred_types = c("risk", "surv", "chf", "mort", "leaf")){
+                          valid_pred_types = c("risk",
+                                               "surv",
+                                               "chf",
+                                               "mort",
+                                               "prob",
+                                               "class",
+                                               "leaf")){
 
  if(!is.null(new_data)){
 
@@ -1584,12 +1720,6 @@ check_predict <- function(object,
     stop("Please remove infinite values from ", i, ".",
          call. = FALSE)
    }
-
-   # NaN values trigger is.na(), so this probably isn't needed.
-   # if(any(is.nan(new_data[[i]]))){
-   #  stop("Please remove NaN values from ", i, ".",
-   #       call. = FALSE)
-   # }
 
   }
 
@@ -1634,7 +1764,7 @@ check_predict <- function(object,
                  arg_name = 'pred_horizon',
                  bound = 0)
 
-  if(any(pred_horizon > get_max_time(object))){
+  if(any(pred_horizon > object$get_max_time())){
 
    if(boundary_checks == TRUE){
     stop("prediction horizon should ",
@@ -1838,3 +1968,4 @@ check_complete_cases <- function(cc, na_action, n_total){
  }
 
 }
+

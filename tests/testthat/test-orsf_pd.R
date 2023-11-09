@@ -57,9 +57,6 @@ test_that(
 )
 
 funs <- list(
- # ice_new = orsf_ice_new,
- # ice_inb = orsf_ice_inb,
- # ice_oob = orsf_ice_oob,
  pd_new = orsf_pd_new,
  pd_inb = orsf_pd_inb,
  pd_oob = orsf_pd_oob
@@ -219,8 +216,8 @@ test_that(
 
 )
 
-# These tests are kept commented out and run locally
-# I dont want to suggest pdp package in DESCRIPTION just for testing
+# # These tests are kept commented out and run locally
+# # I dont want to suggest pdp package in DESCRIPTION just for testing
 # library(pdp)
 #
 # pred_aorsf <- function(object, newdata) {  # see ?predict.orsf_fit
@@ -280,7 +277,7 @@ test_that(
 #   expect_equal(pd_bcj$pred, pd_refsort$yhat)
 #  }
 # )
-
+#
 # bili_seq <- seq(1, 5, length.out=20)
 #
 # microbenchmark::microbenchmark(

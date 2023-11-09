@@ -5,7 +5,7 @@
 #' Estimate the importance of individual variables using oblique random
 #'   survival forests.
 #'
-#' @inheritParams predict.orsf_fit
+#' @inheritParams predict.ObliqueForest
 #'
 #' @param group_factors (_logical_) `r roxy_group_factors()`
 #'
@@ -97,7 +97,7 @@ orsf_vi <- function(object,
 
  check_orsf_inputs(importance = importance)
 
- type_vi <- get_importance(object)
+ type_vi <- object$importance_type
 
  if(type_vi == 'none' && is.null(importance))
   stop("object has no variable importance values to extract and the type ",
@@ -182,12 +182,12 @@ orsf_vi_ <- function(object,
                      n_thread,
                      verbose_progress){
 
- if(!is_aorsf(object)) stop("object must inherit from 'orsf_fit' class.",
+ if(!is_aorsf(object)) stop("object must inherit from 'ObliqueForest' class.",
                             call. = FALSE)
 
- if(get_importance(object) != 'anova' && type_vi == 'anova')
+ if(object$importance_type != 'anova' && type_vi == 'anova')
   stop("ANOVA importance can only be computed while an orsf object",
-       " is being fitted. To get ANOVA importance values, re-grow your",
+       " is being fitted. To get ANOVA importance values, train your",
        " orsf object with importance = 'anova'",
        call. = FALSE)
 
@@ -200,7 +200,7 @@ orsf_vi_ <- function(object,
 
  out <- switch(
   type_vi,
-  'anova' = as.matrix(get_importance_values(object)),
+  'anova' = object$get_importance_raw(),
   'negate' = orsf_vi_oobag_(object, type_vi, oobag_fun,
                             n_thread, verbose_progress),
   'permute' = orsf_vi_oobag_(object, type_vi, oobag_fun,
@@ -212,7 +212,7 @@ orsf_vi_ <- function(object,
 
  if(group_factors) {
 
-  fi <- get_fctr_info(object)
+  fi <- object$get_fctr_info()
 
   if(!is_empty(fi$cols)){
 
@@ -233,7 +233,16 @@ orsf_vi_ <- function(object,
 
    }
 
-   if(!is_empty(fi$cols[!fi$ordr])) out <- unique(out)
+   if(!is_empty(fi$cols[!fi$ordr])) {
+    # take extra care in case there are duplicate vi values.
+    out <- data.frame(variable = rownames(out), value = out)
+    out <- unique(out)
+    out$variable <- NULL
+    out <- as.matrix(out)
+    colnames(out) <- NULL
+   }
+
+
 
   }
 
@@ -257,108 +266,17 @@ orsf_vi_oobag_ <- function(object,
                            n_thread,
                            verbose_progress){
 
- # can remove this b/c prediction accuracy is now computed at tree level
- # if(!contains_oobag(object)){
- #  stop("cannot compute ",
- #       switch(type_vi, 'negate' = 'negation', 'permute' = 'permutation'),
- #       " importance if the orsf_fit object does not have out-of-bag error",
- #       " (see oobag_pred in ?orsf).",
- #       call. = FALSE)
- # }
+ if(contains_vi(object) && is.null(oobag_fun) &&
+    object$importance_type == type_vi){
 
- if(contains_vi(object) &&
-    is.null(oobag_fun) &&
-    get_importance(object) == type_vi){
-
-  out <- matrix(get_importance_values(object), ncol = 1)
-
-  rownames(out) <- names(get_importance_values(object))
+  out <- object$get_importance_raw()
 
   return(out)
 
  }
 
- if(is.null(oobag_fun)){
+ object$compute_vi(type_vi, oobag_fun, n_thread, verbose_progress)
 
-  f_oobag_eval <- function(x) x
-  type_oobag_eval <- 'cstat'
-
- } else {
-
-  check_oobag_fun(oobag_fun)
-  f_oobag_eval <- oobag_fun
-  type_oobag_eval <- 'user'
-
- }
-
- y <- prep_y_from_orsf(object)
- x <- prep_x_from_orsf(object)
-
- # Put data in the same order that it was in when object was fit
- sorted <- order(y[, 1], -y[, 2])
-
- control <- get_control(object)
-
- orsf_out <- orsf_cpp(x = x[sorted, , drop = FALSE],
-                      y = y[sorted, , drop = FALSE],
-                      w = get_weights_user(object),
-                      tree_type_R = get_tree_type(object),
-                      tree_seeds = get_tree_seeds(object),
-                      loaded_forest = object$forest,
-                      n_tree = get_n_tree(object),
-                      mtry = get_mtry(object),
-                      sample_with_replacement = get_sample_with_replacement(object),
-                      sample_fraction = get_sample_fraction(object),
-                      vi_type_R = switch(type_vi,
-                                         'negate' = 1,
-                                         'permute' = 2),
-                      vi_max_pvalue = get_vi_max_pvalue(object),
-                      oobag_R_function = f_oobag_eval,
-                      leaf_min_events = get_leaf_min_events(object),
-                      leaf_min_obs = get_leaf_min_obs(object),
-                      split_rule_R = switch(get_split_rule(object),
-                                            "logrank" = 1,
-                                            "cstat" = 2),
-                      split_min_events = get_split_min_events(object),
-                      split_min_obs = get_split_min_obs(object),
-                      split_min_stat = get_split_min_stat(object),
-                      split_max_cuts = get_n_split(object),
-                      split_max_retry = get_n_retry(object),
-                      lincomb_R_function = control$lincomb_R_function,
-                      lincomb_type_R = switch(control$lincomb_type,
-                                              'glm' = 1,
-                                              'random' = 2,
-                                              'net' = 3,
-                                              'custom' = 4),
-                      lincomb_eps = control$lincomb_eps,
-                      lincomb_iter_max = control$lincomb_iter_max,
-                      lincomb_scale = control$lincomb_scale,
-                      lincomb_alpha = control$lincomb_alpha,
-                      lincomb_df_target = control$lincomb_df_target,
-                      lincomb_ties_method = switch(tolower(control$lincomb_ties_method),
-                                                   'breslow' = 0,
-                                                   'efron'   = 1),
-                      pred_type_R = 4,
-                      pred_mode = FALSE,
-                      pred_aggregate = TRUE,
-                      pred_horizon = get_oobag_pred_horizon(object),
-                      oobag = FALSE,
-                      oobag_eval_type_R = switch(type_oobag_eval,
-                                                 'cstat' = 1,
-                                                 'user' = 2),
-                      oobag_eval_every = get_n_tree(object),
-                      pd_type_R = 0,
-                      pd_x_vals = list(matrix(0, ncol=1, nrow=1)),
-                      pd_x_cols = list(matrix(1L, ncol=1, nrow=1)),
-                      pd_probs = c(0),
-                      n_thread = n_thread,
-                      write_forest = FALSE,
-                      run_forest = TRUE,
-                      verbosity = get_verbose_progress(object))
-
- out <- orsf_out$importance
- rownames(out) <- colnames(x)
- out
 
 }
 

@@ -74,16 +74,21 @@ public:
            uint n_thread,
            int verbosity);
 
- // Grow or predict
- // void run(bool verbose, bool oobag);
-
- virtual void compute_prediction_accuracy(
+ // this function funnels inputs to the function below
+ void compute_prediction_accuracy(
    Data*       prediction_data,
    arma::mat&  prediction_values,
    arma::uword row_fill
  );
 
- virtual void compute_prediction_accuracy(
+ void compute_prediction_accuracy(
+   arma::mat& y,
+   arma::vec& w,
+   arma::mat& predictions,
+   arma::uword row_fill
+ );
+
+ virtual void compute_prediction_accuracy_internal(
    arma::mat& y,
    arma::vec& w,
    arma::mat& predictions,

@@ -67,11 +67,11 @@ fit_rando
 ##                  N trees: 500
 ##       N predictors total: 17
 ##    N predictors per node: 5
-##  Average leaves per tree: 20
+##  Average leaves per tree: 19.76
 ## Min observations in leaf: 5
 ##       Min events in leaf: 1
-##           OOB stat value: 0.83
-##            OOB stat type: Harrell's C-statistic
+##           OOB stat value: 0.84
+##            OOB stat type: Harrell's C-index
 ##      Variable importance: anova
 ## 
 ## -----------------------------------------
@@ -135,15 +135,15 @@ The PCA ORSF does quite well! (higher IPA is better)
 ## 
 ##         model times  Brier  lower  upper    IPA
 ## 1: Null model  1788 20.479 18.090 22.868  0.000
-## 2:      rando  1788 11.748  9.702 13.793 42.636
-## 3:        pca  1788 12.884 10.906 14.862 37.088
+## 2:      rando  1788 11.808  9.729 13.888 42.339
+## 3:        pca  1788 12.861 10.833 14.889 37.199
 ## 
 ## Results of model comparisons:
 ## 
 ##    times model  reference delta.Brier   lower  upper            p
-## 1:  1788 rando Null model      -8.731 -10.932 -6.531 7.346799e-15
-## 2:  1788   pca Null model      -7.595  -9.243 -5.947 1.666843e-19
-## 3:  1788   pca      rando       1.136   0.265  2.008 1.061347e-02
+## 1:  1788 rando Null model      -8.671 -10.813 -6.528 2.142609e-15
+## 2:  1788   pca Null model      -7.618  -9.379 -5.857 2.300807e-17
+## 3:  1788   pca      rando       1.053   0.241  1.865 1.106784e-02
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.

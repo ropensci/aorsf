@@ -282,8 +282,7 @@
   i = 0;
   uvec output_middle(k-j);
 
-  for(it = it_min+1;
-      it < it_max; ++it){
+  for(it = it_min+1; it < it_max; ++it){
    if(lincomb[*it] != lincomb[*(it+1)]){
     output_middle[i] = it - lincomb_sort.begin();
     i++;
@@ -303,7 +302,7 @@
 
   uword safer_mtry = mtry;
 
-  if(lincomb_type == LC_NEWTON_RAPHSON){
+  if(lincomb_type == LC_GLM){
 
    // Need 3:1 ratio of unweighted events:predictors
    uword n_events_total = sum(y_node.col(1));
@@ -331,9 +330,13 @@
   }
 
   case SPLIT_CONCORD: {
-   result = compute_cstat(y_node, w_node, g_node, true);
+   result = compute_cstat_surv(y_node, w_node, g_node, true);
    break;
   }
+
+  default:
+   Rcpp::stop("invalid split rule");
+   break;
 
   }
 
@@ -341,17 +344,7 @@
 
  }
 
- void TreeSurvival::sprout_leaf(uword node_id){
-
-  if(verbosity > 2){
-   // # nocov start
-   Rcout << "-- sprouting node " << node_id << " into a leaf";
-   Rcout << " (N = " << sum(w_node) << ")";
-   Rcout << std::endl;
-   Rcout << std::endl;
-   // # nocov end
-  }
-
+ void TreeSurvival::sprout_leaf_internal(uword node_id){
 
   // reserve as much size as could be needed (probably more)
   mat leaf_data(y_node.n_rows, 3);
@@ -498,27 +491,15 @@
  //
  // }
 
- void TreeSurvival::predict_value(arma::mat& pred_output,
-                                  arma::vec& pred_denom,
-                                  PredType pred_type,
-                                  bool oobag){
-
-  uvec pred_leaf_sort = sort_index(pred_leaf, "ascend");
+ arma::uword TreeSurvival::predict_value_internal(
+   arma::uvec& pred_leaf_sort,
+   arma::mat& pred_output,
+   arma::vec& pred_denom,
+   PredType pred_type,
+   bool oobag
+ ){
 
   uvec::iterator it = pred_leaf_sort.begin();
-
-  if(verbosity > 2){
-   // # nocov start
-   uvec tmp_uvec = find(pred_leaf < max_nodes);
-
-   if(tmp_uvec.size() == 0){
-    Rcout << pred_leaf<< std::endl;
-    Rcout << "max_nodes: " << max_nodes << std::endl;
-   }
-
-   Rcout << "   -- N preds expected: " << tmp_uvec.size() << std::endl;
-   // # nocov end
-  }
 
   uword leaf_id = pred_leaf[*it];
 
@@ -690,23 +671,39 @@
 
   }
 
-  if(verbosity > 2){
-   // # nocov start
-   Rcout << "   -- N preds made: " << n_preds_made;
-   Rcout << std::endl;
-   Rcout << std::endl;
-   // # nocov end
+  return(n_preds_made);
+
+ }
+
+ double TreeSurvival::compute_prediction_accuracy_internal(arma::mat& preds){
+
+  vec preds_vec = preds.unsafe_col(0);
+
+  return compute_cstat_surv(y_oobag, w_oobag, preds_vec, true);
+
+ }
+
+ arma::mat TreeSurvival::glm_fit(){
+
+  mat out = coxph_fit(x_node, y_node, w_node,
+                      lincomb_scale, lincomb_ties_method,
+                      lincomb_eps, lincomb_iter_max);
+
+  return(out);
+
+ }
+
+ uword TreeSurvival::get_n_col_vi(){
+  return(1);
+ }
+
+ void TreeSurvival::fill_pred_values_vi(mat& pred_values){
+
+  for(uword i = 0; i < pred_values.n_rows; ++i){
+   pred_values.at(i, 0) = leaf_summary[pred_leaf[i]];
   }
 
-
  }
-
- double TreeSurvival::compute_prediction_accuracy_internal(arma::vec& preds){
-
-  return compute_cstat(y_oobag, w_oobag, preds, true);
-
- }
-
 
  } // namespace aorsf
 

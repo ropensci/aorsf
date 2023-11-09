@@ -1,13 +1,61 @@
 
 #' null operator (copied from rlang)
-
+#' @noRd
 `%||%` <-  function (x, y) {
  if (is.null(x))
   y
  else x
 }
 
-#' helper for guessing pred_horizon input
+#' empty operator
+#' @noRd
+`%O%` <- function(x, y){
+ if(is_empty(x))
+  y
+ else x
+}
+
+#' helper for inferring pred_type
+#' @noRd
+infer_pred_type <- function(x, tree_type){
+
+ if(tree_type == 'survival'){
+
+  return(
+   switch(x,
+          "none" = 0,
+          "risk" = 1,
+          "surv" = 2,
+          "chf"  = 3,
+          "mort" = 4,
+          "prob" = 1,
+          "class" = stop("invalid pred type", call. = FALSE),
+          "leaf" = 8)
+
+  )
+
+ }
+
+ if(tree_type == 'classification'){
+
+  return(
+   switch(x,
+          "none"  = 0,
+          "risk"  = 6,
+          "surv"  = 6,
+          "chf"   = stop("invalid pred type", call. = FALSE),
+          "mort"  = stop("invalid pred type", call. = FALSE),
+          "prob"  = 6,
+          "class" = 7,
+          "leaf"  = 8)
+
+  )
+
+ }
+
+}
+
+#' helper for inferring pred_horizon input
 #'
 #' @param object 'orsf_fit' object
 #' @param pred_horizon NULL or a user's specified pred_horizon
@@ -21,9 +69,9 @@
 
 infer_pred_horizon <- function(object, pred_type, pred_horizon){
 
- check_arg_is(object, 'object', 'orsf_fit')
+ check_arg_is(object, 'object', 'ObliqueForest')
 
- if(pred_type %in% c("mort", "leaf")){
+ if(pred_type %in% c("mort", "leaf") || object$tree_type != 'survival'){
   # value of pred_horizon does not matter for these types of prediction
   pred_horizon <- 1
  }
@@ -43,7 +91,7 @@ infer_pred_horizon <- function(object, pred_type, pred_horizon){
 }
 
 
-#' helper for guessing outcome type
+#' helper for inferring outcome type
 #'
 #' @param names_y_data character vector of outcome names
 #' @param data dataset containing outcomes
@@ -52,13 +100,13 @@ infer_pred_horizon <- function(object, pred_type, pred_horizon){
 #'
 #' @examples
 #'
-#' infer_outcome_type('bili', pbc_orsf)
-#' infer_outcome_type('sex', pbc_orsf)
-#' infer_outcome_type(c('time', 'status'), pbc_orsf)
-#' infer_outcome_type(Surv(pbc_orsf$time, pbc_orsf$status), pbc_orsf)
+#' infer_tree_type('bili', pbc_orsf)
+#' infer_tree_type('sex', pbc_orsf)
+#' infer_tree_type(c('time', 'status'), pbc_orsf)
+#' infer_tree_type(Surv(pbc_orsf$time, pbc_orsf$status), pbc_orsf)
 #'
 #' @noRd
-infer_outcome_type <- function(names_y_data, data){
+infer_tree_type <- function(names_y_data, data){
 
  if(length(names_y_data) > 2){
   stop("formula should have at most two variables as the response",
@@ -81,14 +129,17 @@ infer_outcome_type <- function(names_y_data, data){
 
 }
 
-
+#' @noRd
 infer_orsf_args <- function(x,
                             y = matrix(1, ncol=2),
-                            w = rep(1, nrow(x)),
                             ...,
                             object = NULL){
 
  .dots <- list(...)
+
+ w <- .dots$weights %||%
+  get_weights(object) %||%
+  rep(1, nrow(x))
 
  control <- .dots$control %||%
   get_control(object) %||%
@@ -125,7 +176,7 @@ infer_orsf_args <- function(x,
 
  pred_horizon <- .dots$pred_horizon %||%
   get_oobag_pred_horizon(object) %||%
-  if(tree_type == 'survival') stats::median(y[, 1]) else 1
+  1
 
  oobag_eval_type <- 'none'
 
@@ -169,7 +220,7 @@ infer_orsf_args <- function(x,
                      "permute" = 2,
                      "anova" = 3),
   vi_max_pvalue = .dots$vi_max_pvalue %||%
-   get_vi_max_pvalue(object) %||%
+   get_importance_max_pvalue(object) %||%
    0.01,
   leaf_min_events = .dots$leaf_min_events %||%
    get_leaf_min_events(object) %||%
@@ -213,6 +264,8 @@ infer_orsf_args <- function(x,
                        "surv" = 2,
                        "chf"  = 3,
                        "mort" = 4,
+                       "prob" = 6,
+                       "class" = 7,
                        "leaf" = 8),
   pred_mode = .dots$pred_mode %||% FALSE,
   pred_aggregate = .dots$pred_aggregate %||% (oobag_pred_type != 'leaf'),
@@ -235,9 +288,9 @@ infer_orsf_args <- function(x,
   n_thread  = .dots$n_thread %||% get_n_thread(object) %||% 1,
   write_forest = .dots$write_forest %||% TRUE,
   run_forest   = .dots$run_forest %||% TRUE,
-  verbosity    = .dots$verbosity %||%
-   get_verbose_progress(object) %||%
-   FALSE
+  verbosity    = as.integer(.dots$verbosity %||%
+                             get_verbose_progress(object) %||%
+                             FALSE)
  )
 
 }

@@ -88,9 +88,9 @@ void Forest::init(std::unique_ptr<Data> input_data,
  this->verbosity = verbosity;
 
  if(vi_type != VI_NONE){
-  vi_numer.zeros(data->get_n_cols());
+  vi_numer.zeros(data->get_n_cols_x());
   if(vi_type == VI_ANOVA){
-   vi_denom.zeros(data->get_n_cols());
+   vi_denom.zeros(data->get_n_cols_x());
   }
  }
 
@@ -102,7 +102,7 @@ void Forest::init(std::unique_ptr<Data> input_data,
 
   Rcpp::Rcout << "------------ input data dimensions ------------" << std::endl;
   Rcpp::Rcout << "N observations total: " << data->get_n_rows()    << std::endl;
-  Rcpp::Rcout << "N columns total: "      << data->get_n_cols()    << std::endl;
+  Rcpp::Rcout << "N columns total: "      << data->get_n_cols_x()    << std::endl;
   Rcpp::Rcout << "-----------------------------------------------";
   Rcpp::Rcout << std::endl;
   Rcpp::Rcout << std::endl;
@@ -214,8 +214,8 @@ void Forest::grow() {
  // begin multi-thread grow
  for (uint i = 0; i < n_thread; ++i) {
 
-  vi_numer_threads[i].zeros(data->n_cols);
-  if(vi_type == VI_ANOVA) vi_denom_threads[i].zeros(data->n_cols);
+  vi_numer_threads[i].zeros(data->n_cols_x);
+  if(vi_type == VI_ANOVA) vi_denom_threads[i].zeros(data->n_cols_x);
 
   threads.emplace_back(&Forest::grow_multi_thread, this, i,
                        &(vi_numer_threads[i]),
@@ -361,7 +361,7 @@ void Forest::compute_oobag_vi() {
 
  for (uint i = 0; i < n_thread; ++i) {
 
-  vi_numer_threads[i].zeros(data->n_cols);
+  vi_numer_threads[i].zeros(data->n_cols_x);
 
   threads.emplace_back(&Forest::compute_oobag_vi_multi_thread,
                        this, i, &(vi_numer_threads[i]));
@@ -488,6 +488,33 @@ void Forest::compute_prediction_accuracy(Data* prediction_data,
 }
 
 
+void Forest::compute_prediction_accuracy(arma::mat&  y,
+                                         arma::vec&  w,
+                                         arma::mat&  predictions,
+                                         arma::uword row_fill){
+
+ if(oobag_eval_type == EVAL_R_FUNCTION){
+
+  // initialize function from tree object
+  // (Functions can't be stored in C++ classes, but Robjects can)
+  Rcpp::Function f_oobag_eval = Rcpp::as<Rcpp::Function>(oobag_R_function);
+  Rcpp::NumericMatrix y_ = Rcpp::wrap(y);
+  Rcpp::NumericVector w_ = Rcpp::wrap(w);
+
+  for(uword i = 0; i < oobag_eval.n_cols; ++i){
+   vec p = predictions.col(i);
+   Rcpp::NumericVector p_ = Rcpp::wrap(p);
+   Rcpp::NumericVector R_result = f_oobag_eval(y_, w_, p_);
+   oobag_eval(row_fill, i) = R_result[0];
+  }
+  return;
+ }
+
+ compute_prediction_accuracy_internal(y, w, predictions, row_fill);
+
+}
+
+
 std::vector<std::vector<arma::mat>> Forest::compute_dependence(bool oobag){
 
  std::vector<std::vector<arma::mat>> result;
@@ -576,7 +603,7 @@ mat Forest::predict(bool oobag) {
  aborted_threads = 0;
 
  if(n_thread == 1){
-  // ensure safe usage of R functions
+
   predict_single_thread(data.get(), oobag, result);
 
  } else {
@@ -650,13 +677,17 @@ mat Forest::predict(bool oobag) {
   }
 
   // it's okay if we divide by 0 here. It makes the result NaN but
-  // that will be fixed when the results are post-processed in R/orsf.R
+  // that will be fixed when the results are cleaned in R
   result.each_col() /= oobag_denom;
 
  } else {
 
   result /= n_tree;
 
+ }
+
+ if(pred_type == PRED_CLASS){
+  predict_class(result);
  }
 
  return(result);

@@ -132,11 +132,11 @@ fit
 ##                  N trees: 500
 ##       N predictors total: 17
 ##    N predictors per node: 5
-##  Average leaves per tree: 21
+##  Average leaves per tree: 21.026
 ## Min observations in leaf: 5
 ##       Min events in leaf: 1
 ##           OOB stat value: 0.84
-##            OOB stat type: Harrell's C-statistic
+##            OOB stat type: Harrell's C-index
 ##      Variable importance: anova
 ## 
 ## -----------------------------------------
@@ -152,17 +152,17 @@ ice_oob
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row pred_horizon bili      pred
-##    1:           1      1         1788    1 167.86459
-##    2:           1      2         1788    1  21.77000
-##    3:           1      3         1788    1 118.36972
-##    4:           1      4         1788    1  63.11360
-##    5:           1      5         1788    1  20.65211
+##    1:           1      1         1788    1 0.8735558
+##    2:           1      2         1788    1 0.8260273
+##    3:           1      3         1788    1 0.6095483
+##    4:           1      4         1788    1 0.7125248
+##    5:           1      5         1788    1 0.5602638
 ##   ---                                               
-## 6896:          25    272         1788   10  61.93365
-## 6897:          25    273         1788   10  78.19472
-## 6898:          25    274         1788   10  89.93071
-## 6899:          25    275         1788   10  56.40274
-## 6900:          25    276         1788   10  99.28738
+## 6896:          25    272         1788   10 0.6923029
+## 6897:          25    273         1788   10 0.5057890
+## 6898:          25    274         1788   10 0.3592502
+## 6899:          25    275         1788   10 0.6128702
+## 6900:          25    276         1788   10 0.3520821
 }\if{html}{\out{</div>}}
 
 Much more detailed examples are given in the

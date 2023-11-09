@@ -14,7 +14,7 @@
 #'
 #' @noRd
 #'
-prep_y <- function(data, cols, run_checks = TRUE){
+prep_y_surv <- function(data, cols, run_checks = TRUE){
 
  y <- select_cols(data, cols)
 
@@ -127,11 +127,37 @@ prep_y <- function(data, cols, run_checks = TRUE){
 
 }
 
+prep_y_clsf <- function(data, cols, run_checks = TRUE){
+
+ y <- data[[cols]]
+
+ if(is.factor(y)){
+  n_class <- length(levels(y))
+  y <- as.numeric(y) - 1
+ } else {
+  n_class <- length(unique(y))
+ }
+
+ expand_y_clsf(as_matrix(y), n_class)
+
+}
+
 
 prep_y_from_orsf <- function(object){
 
- prep_y(object$data,
-        get_names_y(object),
-        run_checks = FALSE)
+ switch(
+
+  get_tree_type(object),
+
+  'survival' = prep_y_surv(object$data,
+                           get_names_y(object),
+                           run_checks = FALSE),
+
+  'classification' = prep_y_clsf(object$data,
+                                 get_names_y(object),
+                                 run_checks = FALSE)
+
+ )
+
 
 }

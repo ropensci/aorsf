@@ -1,4 +1,6 @@
 
+pred_horizon <- c(1000, 2500)
+
 test_preds_surv <- function(pred_type){
 
  n_train <- nrow(pbc_train)
@@ -129,8 +131,6 @@ test_preds_surv <- function(pred_type){
 
 }
 
-pred_horizon <- c(1000, 2500)
-
 pred_objects_surv <- lapply(pred_types_surv, test_preds_surv)
 
 test_that(
@@ -151,35 +151,35 @@ test_that(
  }
 )
 
-# test_that(
-#  desc = "leaf predictions aggregate same as raw",
-#  code = {
-#   expect_equal(pred_objects_surv$leaf$prd_raw,
-#                pred_objects_surv$leaf$prd_agg)
-#  }
-# )
+test_that(
+ desc = "leaf predictions aggregate same as raw",
+ code = {
+  expect_equal(pred_objects_surv$leaf$prd_raw,
+               pred_objects_surv$leaf$prd_agg)
+ }
+)
 
-# test_that(
-#  desc = "unaggregated predictions can reproduce aggregated ones",
-#  code = {
-#
-#   for(i in c("surv", "risk", "chf")){
-#    for(j in seq_along(pred_horizon)){
-#     expect_equal(
-#      pred_objects_surv[[i]]$prd_agg[, j],
-#      apply(pred_objects_surv[[i]]$prd_raw[, , j], 1, mean),
-#      tolerance = 1e-9
-#     )
-#    }
-#   }
-#
-#   expect_equal(
-#    pred_objects_surv$mort$prd_agg,
-#    matrix(apply(pred_objects_surv$mort$prd_raw, 1, mean), ncol = 1)
-#   )
-#
-#  }
-# )
+test_that(
+ desc = "unaggregated predictions can reproduce aggregated ones",
+ code = {
+
+  for(i in c("surv", "risk", "chf")){
+   for(j in seq_along(pred_horizon)){
+    expect_equal(
+     pred_objects_surv[[i]]$prd_agg[, j],
+     apply(pred_objects_surv[[i]]$prd_raw[, , j], 1, mean),
+     tolerance = 1e-9
+    )
+   }
+  }
+
+  expect_equal(
+   pred_objects_surv$mort$prd_agg,
+   matrix(apply(pred_objects_surv$mort$prd_raw, 1, mean), ncol = 1)
+  )
+
+ }
+)
 
 test_that(
  desc = "same predictions from the forest regardless of oob type",
@@ -524,7 +524,7 @@ test_that(
            pred_horizon = 100000,
            boundary_checks = F),
    predict(fit, pbc_test,
-           pred_horizon = get_max_time(fit))
+           pred_horizon = max(pbc_train$time))
   )
  }
 )
@@ -557,23 +557,6 @@ test_that(
 )
 
 
-# test_that(
-#  desc = 'missing units are detected',
-#  code = {
-#
-#   suppressMessages(library(units))
-#   pbc_units <- pbc_orsf
-#   units(pbc_units$age) <- 'years'
-#
-#   fit <- orsf(formula = time + status  ~ . - id,
-#               data = pbc_units,
-#               n_tree = n_tree_test)
-#
-#   expect_error(predict(fit, new_data = pbc_orsf, pred_horizon = 1000),
-#                'unit attributes')
-#
-#  }
-# )
 
 test_that(
  desc = 'predictions dont require cols in same order as training data',
@@ -593,59 +576,6 @@ test_that(
  }
 )
 
-
-# test_that(
-#  'units are vetted in testing data',
-#  code = {
-#
-#   suppressMessages(library(units))
-#   pbc_units_trn <- pbc_train
-#   pbc_units_tst <- pbc_test
-#
-#
-#   units(pbc_units_trn$time) <- 'days'
-#   units(pbc_units_trn$age) <- 'years'
-#   units(pbc_units_trn$bili) <- 'mg/dl'
-#
-#   fit_units = orsf(formula = time + status  ~ . - id,
-#                    data = pbc_units_trn,
-#                    n_tree = n_tree_test,
-#                    oobag_pred_horizon = c(1000, 2500),
-#                    tree_seeds = seeds_standard)
-#
-#   expect_error(
-#    predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000),
-#    regexp = 'time, age, and bili'
-#   )
-#
-#   units(pbc_units_tst$time) <- 'years'
-#   units(pbc_units_tst$age) <- 'years'
-#   units(pbc_units_tst$bili) <- 'mg/dl'
-#
-#   expect_error(
-#    predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000),
-#    regexp = 'time has unit d in the training data'
-#   )
-#
-#   units(pbc_units_tst$time) <- 'days'
-#   units(pbc_units_tst$age) <- 'years'
-#   units(pbc_units_tst$bili) <- 'mg/dl'
-#
-#   expect_equal_leaf_summary(fit_units, pred_objects_surv$surv$fit)
-#   expect_equal_oobag_eval(fit_units, pred_objects_surv$surv$fit)
-#
-#   units(pbc_units_tst$time) <- 'days'
-#   units(pbc_units_tst$age) <- 'years'
-#   units(pbc_units_tst$bili) <- 'mg/l'
-#
-#   expect_error(
-#    predict(fit_units, new_data = pbc_units_tst, pred_horizon = 1000),
-#    regexp = 'bili has unit mg/dl in the training data'
-#   )
-#
-#  }
-#
-# )
 
 # Tests for passing missing data ----
 
@@ -787,11 +717,11 @@ new_data_all_miss <- new_data_miss
 new_data_all_miss$age <- NA_real_
 
 test_that(
- desc = "can't give orsf nothing but missing data",
+ desc = "no blank columns allowed",
  code = {
   expect_error(
    predict(fit, new_data = new_data_all_miss, na_action = 'pass'),
-   regexp = 'complete data'
+   regexp = 'age has no observed values'
   )
  }
 )
