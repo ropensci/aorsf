@@ -85,10 +85,13 @@
     <loc>https://bcjaeger.github.io/aorsf/reference/pbc_orsf.html</loc>
   </url>
   <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/predict.orsf_fit.html</loc>
+    <loc>https://bcjaeger.github.io/aorsf/reference/penguins_orsf.html</loc>
   </url>
   <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/print.orsf_fit.html</loc>
+    <loc>https://bcjaeger.github.io/aorsf/reference/predict.ObliqueForest.html</loc>
+  </url>
+  <url>
+    <loc>https://bcjaeger.github.io/aorsf/reference/print.ObliqueForest.html</loc>
   </url>
   <url>
     <loc>https://bcjaeger.github.io/aorsf/reference/print.orsf_summary_uni.html</loc>

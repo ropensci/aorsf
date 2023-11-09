@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">aorsf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.9003</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,7 +70,7 @@
 <ul><li><p>Re-worked internal C++ routines following the design of <code>ranger</code>.</p></li>
 <li><p>Re-worked how progress is printed to console when <code>verbose_progress</code> is <code>TRUE</code>, following the design of <code>ranger</code>. Messages now indicate the action being taken, the % complete, and the approximate time until finishing the action.</p></li>
 <li><p>Improved variable importance, following the design of <code>ranger</code>. Importance is now computed tree-by-tree instead of by aggregate. Additionally, mortality is the type of prediction used for importance with survival trees, since mortality does not depend on <code>pred_horizon</code>.</p></li>
-<li><p>Allowed multi-threading to be performed in <code><a href="../reference/orsf.html">orsf()</a></code>, <code><a href="../reference/predict.orsf_fit.html">predict.orsf_fit()</a></code>, and functions in the <code><a href="../reference/orsf_vi.html">orsf_vi()</a></code> and <code>orsf_pd()</code> family.</p></li>
+<li><p>Allowed multi-threading to be performed in <code><a href="../reference/orsf.html">orsf()</a></code>, <code>predict.orsf_fit()</code>, and functions in the <code><a href="../reference/orsf_vi.html">orsf_vi()</a></code> and <code>orsf_pd()</code> family.</p></li>
 <li><p>Allowed sampling without replacement and sampling a specific fraction of observations in <code><a href="../reference/orsf.html">orsf()</a></code></p></li>
 <li><p>Included Harrell’s C-statistic as an option for assessing goodness of splits while growing trees.</p></li>
 <li><p>Fixed an issue where an uninformative error message would occur when <code>pred_horizon</code> was &gt; max(time) for <code>orsf_summarize_uni</code>. Thanks to <a href="https://github.com/JyHao1" class="external-link">@JyHao1</a> and <a href="https://github.com/DustinMLong" class="external-link">@DustinMLong</a> for finding this!</p></li>
@@ -116,7 +116,7 @@
 <h2 class="pkg-version" data-toc-text="0.0.1" id="aorsf-001">aorsf 0.0.1<a class="anchor" aria-label="anchor" href="#aorsf-001"></a></h2><p class="text-muted">CRAN release: 2022-08-23</p>
 <ul><li><p>Added <code><a href="../reference/orsf_control_custom.html">orsf_control_custom()</a></code>, which allows users to submit custom functions for identifying linear combinations of inputs while growing oblique decision trees.</p></li>
 <li><p>Added <code>weights</code> input to <code>orsf</code>, allowing users to over or under fit <code>orsf</code> to specific data in their training set.</p></li>
-<li><p>Added <code>chf</code> and <code>mort</code> options to <code><a href="../reference/predict.orsf_fit.html">predict.orsf_fit()</a></code>. Mortality predictions are not fully implemented yet - they are not supported in partial dependence or out-of-bag error estimates. These features will be added in a future update.</p></li>
+<li><p>Added <code>chf</code> and <code>mort</code> options to <code>predict.orsf_fit()</code>. Mortality predictions are not fully implemented yet - they are not supported in partial dependence or out-of-bag error estimates. These features will be added in a future update.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.0.9000" id="aorsf-0009000">aorsf 0.0.0.9000<a class="anchor" aria-label="anchor" href="#aorsf-0009000"></a></h2>

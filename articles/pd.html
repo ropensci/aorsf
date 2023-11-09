@@ -35,7 +35,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">aorsf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.9003</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -133,11 +133,11 @@ at 5 years.</p>
 <span><span class="co">#&gt;                  N trees: 50</span></span>
 <span><span class="co">#&gt;       N predictors total: 17</span></span>
 <span><span class="co">#&gt;    N predictors per node: 5</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 10</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 10.26</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;       Min events in leaf: 1</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.83</span></span>
-<span><span class="co">#&gt;            OOB stat type: Harrell's C-statistic</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.82</span></span>
+<span><span class="co">#&gt;            OOB stat type: Harrell's C-index</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -----------------------------------------</span></span></code></pre></div>
@@ -154,12 +154,12 @@ at 5 years.</p>
 <span><span class="va">pd_inb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_inb</a></span><span class="op">(</span><span class="va">fit</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_inb</span></span>
-<span><span class="co">#&gt;    pred_horizon bili     mean       lwr      medn      upr</span></span>
-<span><span class="co">#&gt; 1:      1826.25    1 10.02514 0.8227983  4.753116 36.40821</span></span>
-<span><span class="co">#&gt; 2:      1826.25    2 11.59997 1.2609598  6.608618 38.37972</span></span>
-<span><span class="co">#&gt; 3:      1826.25    3 12.79246 1.7384780  8.079175 38.87203</span></span>
-<span><span class="co">#&gt; 4:      1826.25    4 15.03307 3.2626374 11.251491 40.10664</span></span>
-<span><span class="co">#&gt; 5:      1826.25    5 17.46307 4.9531695 13.633837 40.10664</span></span></code></pre></div>
+<span><span class="co">#&gt;    pred_horizon bili mean lwr medn upr</span></span>
+<span><span class="co">#&gt; 1:            1    1    1   1    1   1</span></span>
+<span><span class="co">#&gt; 2:            1    2    1   1    1   1</span></span>
+<span><span class="co">#&gt; 3:            1    3    1   1    1   1</span></span>
+<span><span class="co">#&gt; 4:            1    4    1   1    1   1</span></span>
+<span><span class="co">#&gt; 5:            1    5    1   1    1   1</span></span></code></pre></div>
 </li>
 <li>
 <p>using out-of-bag predictions for the training data</p>
@@ -168,12 +168,12 @@ at 5 years.</p>
 <span><span class="va">pd_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_oob</span></span>
-<span><span class="co">#&gt;    pred_horizon bili     mean       lwr     medn      upr</span></span>
-<span><span class="co">#&gt; 1:      1826.25    1 3.792108 0.2472439 1.845746 14.11478</span></span>
-<span><span class="co">#&gt; 2:      1826.25    2 4.389761 0.3133034 2.424706 14.68578</span></span>
-<span><span class="co">#&gt; 3:      1826.25    3 4.775235 0.3750731 3.255524 15.17302</span></span>
-<span><span class="co">#&gt; 4:      1826.25    4 5.558622 0.5339516 4.307103 14.71714</span></span>
-<span><span class="co">#&gt; 5:      1826.25    5 6.468055 0.8161084 5.516198 14.75637</span></span></code></pre></div>
+<span><span class="co">#&gt;    pred_horizon bili mean lwr medn upr</span></span>
+<span><span class="co">#&gt; 1:            1    1    1   1    1   1</span></span>
+<span><span class="co">#&gt; 2:            1    2    1   1    1   1</span></span>
+<span><span class="co">#&gt; 3:            1    3    1   1    1   1</span></span>
+<span><span class="co">#&gt; 4:            1    4    1   1    1   1</span></span>
+<span><span class="co">#&gt; 5:            1    5    1   1    1   1</span></span></code></pre></div>
 </li>
 <li>
 <p>using predictions for a new set of data</p>
@@ -184,12 +184,12 @@ at 5 years.</p>
 <span>                       pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_test</span></span>
-<span><span class="co">#&gt;    pred_horizon bili     mean       lwr      medn      upr</span></span>
-<span><span class="co">#&gt; 1:      1826.25    1 11.73988 0.9810562  9.251979 36.20777</span></span>
-<span><span class="co">#&gt; 2:      1826.25    2 13.40580 1.8606699 10.873684 37.80798</span></span>
-<span><span class="co">#&gt; 3:      1826.25    3 14.49390 2.1568985 12.211008 37.69097</span></span>
-<span><span class="co">#&gt; 4:      1826.25    4 16.73218 3.5539777 14.925476 39.12680</span></span>
-<span><span class="co">#&gt; 5:      1826.25    5 19.15779 5.5406233 18.278356 39.38151</span></span></code></pre></div>
+<span><span class="co">#&gt;    pred_horizon bili mean lwr medn upr</span></span>
+<span><span class="co">#&gt; 1:            1    1    1   1    1   1</span></span>
+<span><span class="co">#&gt; 2:            1    2    1   1    1   1</span></span>
+<span><span class="co">#&gt; 3:            1    3    1   1    1   1</span></span>
+<span><span class="co">#&gt; 4:            1    4    1   1    1   1</span></span>
+<span><span class="co">#&gt; 5:            1    5    1   1    1   1</span></span></code></pre></div>
 </li>
 <li><p>in-bag PD indicates relationships that the model has learned
 during training. This is helpful if your goal is to interpret the
@@ -223,9 +223,9 @@ to the next sections.</p>
 <span><span class="va">pd_sex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"m"</span>, <span class="st">"f"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_sex</span></span>
-<span><span class="co">#&gt;    pred_horizon sex    mean       lwr     medn      upr</span></span>
-<span><span class="co">#&gt; 1:      1826.25   m 6.29290 0.4033978 3.986998 19.10653</span></span>
-<span><span class="co">#&gt; 2:      1826.25   f 5.44416 0.1802063 2.814957 19.03153</span></span></code></pre></div>
+<span><span class="co">#&gt;    pred_horizon sex mean lwr medn upr</span></span>
+<span><span class="co">#&gt; 1:            1   m    1   1    1   1</span></span>
+<span><span class="co">#&gt; 2:            1   f    1   1    1   1</span></span></code></pre></div>
 <p>The output shows that the expected predicted mortality risk for men
 is substantially higher than women at 5 years after baseline.</p>
 </div>
@@ -277,14 +277,14 @@ list the variable values in <code>pred_spec</code> and specify
 <span>             expand_grid <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_two_vars</span></span>
-<span><span class="co">#&gt;    pred_horizon variable value level     mean       lwr     medn      upr</span></span>
-<span><span class="co">#&gt; 1:      1826.25      sex    NA     m 6.292900 0.4033978 3.986998 19.10653</span></span>
-<span><span class="co">#&gt; 2:      1826.25      sex    NA     f 5.444160 0.1802063 2.814957 19.03153</span></span>
-<span><span class="co">#&gt; 3:      1826.25     bili     1  &lt;NA&gt; 4.359883 0.2257684 2.308552 17.29040</span></span>
-<span><span class="co">#&gt; 4:      1826.25     bili     2  &lt;NA&gt; 5.200413 0.5245088 3.424744 17.45611</span></span>
-<span><span class="co">#&gt; 5:      1826.25     bili     3  &lt;NA&gt; 6.127497 0.8580735 4.339932 18.31171</span></span>
-<span><span class="co">#&gt; 6:      1826.25     bili     4  &lt;NA&gt; 6.871207 1.0296464 5.127630 18.50757</span></span>
-<span><span class="co">#&gt; 7:      1826.25     bili     5  &lt;NA&gt; 7.360080 1.2300746 5.747125 18.89534</span></span></code></pre></div>
+<span><span class="co">#&gt;    pred_horizon variable value level mean lwr medn upr</span></span>
+<span><span class="co">#&gt; 1:            1      sex    NA     m    1   1    1   1</span></span>
+<span><span class="co">#&gt; 2:            1      sex    NA     f    1   1    1   1</span></span>
+<span><span class="co">#&gt; 3:            1     bili     1  &lt;NA&gt;    1   1    1   1</span></span>
+<span><span class="co">#&gt; 4:            1     bili     2  &lt;NA&gt;    1   1    1   1</span></span>
+<span><span class="co">#&gt; 5:            1     bili     3  &lt;NA&gt;    1   1    1   1</span></span>
+<span><span class="co">#&gt; 6:            1     bili     4  &lt;NA&gt;    1   1    1   1</span></span>
+<span><span class="co">#&gt; 7:            1     bili     5  &lt;NA&gt;    1   1    1   1</span></span></code></pre></div>
 <p>Now would it be tedious if you wanted to do this for all the
 variables? You bet. That’s why we made a function for that. As a bonus,
 the printed output is sorted from most to least important variables.</p>
@@ -294,57 +294,57 @@ the printed output is sorted from most to least important variables.</p>
 <span></span>
 <span><span class="va">pd_smry</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- bili (VI Rank: 1) ------------------------</span></span>
+<span><span class="co">#&gt; -- ascites (VI Rank: 1) -----------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |--------------- Risk ---------------|</span></span>
-<span><span class="co">#&gt;  Value     Mean   Median    25th %   75th %</span></span>
-<span><span class="co">#&gt;   0.80 4.236197 2.168587 0.6458411 6.234387</span></span>
-<span><span class="co">#&gt;    1.4 4.603832 2.711596 1.0236230 6.768534</span></span>
-<span><span class="co">#&gt;    3.5 6.523916 4.757020 2.5476213 9.679370</span></span>
+<span><span class="co">#&gt;        |-------------- Survival --------------|</span></span>
+<span><span class="co">#&gt;  Value      Mean    Median    25th %    75th %</span></span>
+<span><span class="co">#&gt;      0 0.6878584 0.7919233 0.4658610 0.9418035</span></span>
+<span><span class="co">#&gt;      1 0.5092195 0.5649270 0.3192462 0.7125641</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- copper (VI Rank: 2) ----------------------</span></span>
+<span><span class="co">#&gt; -- bili (VI Rank: 2) --------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |--------------- Risk ---------------|</span></span>
-<span><span class="co">#&gt;  Value     Mean   Median    25th %   75th %</span></span>
-<span><span class="co">#&gt;     43 4.697666 2.669292 0.6831912 7.202599</span></span>
-<span><span class="co">#&gt;     74 5.100042 2.957567 0.9884819 7.873239</span></span>
-<span><span class="co">#&gt;    129 6.023357 3.846540 1.6164401 9.282151</span></span>
+<span><span class="co">#&gt;        |-------------- Survival --------------|</span></span>
+<span><span class="co">#&gt;  Value      Mean    Median    25th %    75th %</span></span>
+<span><span class="co">#&gt;   0.80 0.7642339 0.8345956 0.6216471 0.9532060</span></span>
+<span><span class="co">#&gt;    1.4 0.7339863 0.8101328 0.5956287 0.9342372</span></span>
+<span><span class="co">#&gt;    3.5 0.6259875 0.6960887 0.4393873 0.8457703</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- sex (VI Rank: 3) -------------------------</span></span>
+<span><span class="co">#&gt; -- edema (VI Rank: 3) -------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |--------------- Risk ---------------|</span></span>
-<span><span class="co">#&gt;  Value    Mean   Median    25th %    75th %</span></span>
-<span><span class="co">#&gt;      m 6.29290 3.986998 1.8467877 10.142692</span></span>
-<span><span class="co">#&gt;      f 5.44416 2.814957 0.7648519  8.810819</span></span>
+<span><span class="co">#&gt;        |-------------- Survival --------------|</span></span>
+<span><span class="co">#&gt;  Value      Mean    Median    25th %    75th %</span></span>
+<span><span class="co">#&gt;      0 0.6926803 0.7973098 0.4668857 0.9418035</span></span>
+<span><span class="co">#&gt;    0.5 0.5961934 0.6279031 0.3839974 0.8130658</span></span>
+<span><span class="co">#&gt;      1 0.5977960 0.6438422 0.3876607 0.8167319</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- protime (VI Rank: 4) ---------------------</span></span>
+<span><span class="co">#&gt; -- copper (VI Rank: 4) ------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |--------------- Risk ---------------|</span></span>
-<span><span class="co">#&gt;  Value     Mean   Median    25th %   75th %</span></span>
-<span><span class="co">#&gt;     10 5.134684 2.613487 0.6798579 9.241789</span></span>
-<span><span class="co">#&gt;     11 5.407007 2.799801 0.8376906 9.800226</span></span>
-<span><span class="co">#&gt;     11 5.858603 3.477247 1.1804356 9.845282</span></span>
+<span><span class="co">#&gt;        |-------------- Survival --------------|</span></span>
+<span><span class="co">#&gt;  Value      Mean    Median    25th %    75th %</span></span>
+<span><span class="co">#&gt;     43 0.7396720 0.8333776 0.5802621 0.9519991</span></span>
+<span><span class="co">#&gt;     74 0.7170708 0.8286188 0.5166310 0.9420855</span></span>
+<span><span class="co">#&gt;    129 0.6567708 0.7409069 0.4453135 0.8936874</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;  Predicted risk at time t = 1826.25 for top 4 predictors</span></span></code></pre></div>
+<span><span class="co">#&gt;  Predicted survival at time t = 1826.25 for top 4 predictors</span></span></code></pre></div>
 <p>It’s easy enough to turn this ‘summary’ object into a
 <code>data.table</code> for downstream plotting and tables.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">pd_smry</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    variable importance Value     Mean   Median    25th %   75th % pred_horizon</span></span>
-<span><span class="co">#&gt; 1:     bili 0.09474627  0.80 4.236197 2.168587 0.6458411 6.234387      1826.25</span></span>
-<span><span class="co">#&gt; 2:     bili 0.09474627   1.4 4.603832 2.711596 1.0236230 6.768534      1826.25</span></span>
-<span><span class="co">#&gt; 3:     bili 0.09474627   3.5 6.523916 4.757020 2.5476213 9.679370      1826.25</span></span>
-<span><span class="co">#&gt; 4:   copper 0.06612383    43 4.697666 2.669292 0.6831912 7.202599      1826.25</span></span>
-<span><span class="co">#&gt; 5:   copper 0.06612383    74 5.100042 2.957567 0.9884819 7.873239      1826.25</span></span>
-<span><span class="co">#&gt; 6:   copper 0.06612383   129 6.023357 3.846540 1.6164401 9.282151      1826.25</span></span>
-<span><span class="co">#&gt;    level</span></span>
-<span><span class="co">#&gt; 1:  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 2:  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 3:  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 4:  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 5:  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 6:  &lt;NA&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt;    variable importance Value      Mean    Median    25th %    75th %</span></span>
+<span><span class="co">#&gt; 1:  ascites  0.5225225     0 0.6878584 0.7919233 0.4658610 0.9418035</span></span>
+<span><span class="co">#&gt; 2:  ascites  0.5225225     1 0.5092195 0.5649270 0.3192462 0.7125641</span></span>
+<span><span class="co">#&gt; 3:     bili  0.3796296  0.80 0.7642339 0.8345956 0.6216471 0.9532060</span></span>
+<span><span class="co">#&gt; 4:     bili  0.3796296   1.4 0.7339863 0.8101328 0.5956287 0.9342372</span></span>
+<span><span class="co">#&gt; 5:     bili  0.3796296   3.5 0.6259875 0.6960887 0.4393873 0.8457703</span></span>
+<span><span class="co">#&gt; 6:    edema  0.3010249     0 0.6926803 0.7973098 0.4668857 0.9418035</span></span>
+<span><span class="co">#&gt;    pred_horizon level</span></span>
+<span><span class="co">#&gt; 1:      1826.25     0</span></span>
+<span><span class="co">#&gt; 2:      1826.25     1</span></span>
+<span><span class="co">#&gt; 3:      1826.25  &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 4:      1826.25  &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 5:      1826.25  &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 6:      1826.25     0</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="multiple-variables-jointly">Multiple variables, jointly<a class="anchor" aria-label="anchor" href="#multiple-variables-jointly"></a>
@@ -432,18 +432,18 @@ to generate ICE curves that go beyond the 90th percentile of
 <span><span class="va">ice_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_oob</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">pred_spec</span>, boundary_checks <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ice_oob</span></span>
-<span><span class="co">#&gt;       id_variable id_row pred_horizon bili       pred</span></span>
-<span><span class="co">#&gt;    1:           1      1      1826.25    1 17.3376984</span></span>
-<span><span class="co">#&gt;    2:           1      2      1826.25    1  0.7379986</span></span>
-<span><span class="co">#&gt;    3:           1      3      1826.25    1 10.2794619</span></span>
-<span><span class="co">#&gt;    4:           1      4      1826.25    1  7.2465749</span></span>
-<span><span class="co">#&gt;    5:           1      5      1826.25    1  2.0451616</span></span>
-<span><span class="co">#&gt;   ---                                                </span></span>
-<span><span class="co">#&gt; 6896:          25    272      1826.25   10  8.5205402</span></span>
-<span><span class="co">#&gt; 6897:          25    273      1826.25   10  8.1791078</span></span>
-<span><span class="co">#&gt; 6898:          25    274      1826.25   10  9.4349817</span></span>
-<span><span class="co">#&gt; 6899:          25    275      1826.25   10  8.6487243</span></span>
-<span><span class="co">#&gt; 6900:          25    276      1826.25   10  9.0425595</span></span></code></pre></div>
+<span><span class="co">#&gt;       id_variable id_row pred_horizon bili pred</span></span>
+<span><span class="co">#&gt;    1:           1      1            1    1    1</span></span>
+<span><span class="co">#&gt;    2:           1      2            1    1    1</span></span>
+<span><span class="co">#&gt;    3:           1      3            1    1    1</span></span>
+<span><span class="co">#&gt;    4:           1      4            1    1    1</span></span>
+<span><span class="co">#&gt;    5:           1      5            1    1    1</span></span>
+<span><span class="co">#&gt;   ---                                          </span></span>
+<span><span class="co">#&gt; 6896:          25    272            1   10    1</span></span>
+<span><span class="co">#&gt; 6897:          25    273            1   10    1</span></span>
+<span><span class="co">#&gt; 6898:          25    274            1   10    1</span></span>
+<span><span class="co">#&gt; 6899:          25    275            1   10    1</span></span>
+<span><span class="co">#&gt; 6900:          25    276            1   10    1</span></span></code></pre></div>
 <ul>
 <li><p><code>id_variable</code> is an identifier for the current value
 of the variable(s) that are in the data. It is redundant if you only
@@ -477,7 +477,10 @@ each observation’s conditional expectation values. So,</p>
 <span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.15</span><span class="op">)</span> <span class="op">+</span> </span>
 <span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">'Change in predicted risk'</span><span class="op">)</span> <span class="op">+</span></span>
 <span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>se <span class="op">=</span> <span class="cn">FALSE</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>group <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; `geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = "cs")'</span></span></code></pre></div>
+<span><span class="co">#&gt; `geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = "cs")'</span></span>
+<span><span class="co">#&gt; Warning: Computation failed in `stat_smooth()`</span></span>
+<span><span class="co">#&gt; Caused by error in `gam.reparam()`:</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> NA/NaN/Inf in foreign function call (arg 3)</span></span></code></pre></div>
 <p><img src="pd_files/figure-html/-orsf_ice-1.png" width="672"></p>
 <p>From inspection of the figure,</p>
 <ul>

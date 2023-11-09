@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">aorsf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.9003</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,24 +95,24 @@
 <span class="r-in"><span><span class="va">smry</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">object</span>, n_variables <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">smry</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    variable importance value     mean     medn       lwr       upr pred_horizon</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:     bili 0.12289221  0.80 41.60223 21.62305  9.201522  62.14182         1788</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:     bili 0.12289221   1.4 45.86575 25.68847 12.124969  68.62735         1788</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:     bili 0.12289221   3.5 66.05879 50.18865 27.803242  98.63563         1788</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:   copper 0.05358551    43 47.35102 25.29818  9.303576  76.97331         1788</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:   copper 0.05358551    74 50.90359 28.54062 11.565296  81.54855         1788</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:   copper 0.05358551   129 60.86360 41.52681 18.461583  94.50953         1788</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7:      sex 0.03294323     m 62.55487 41.70537 20.608100 101.69292         1788</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8:      sex 0.03294323     f 54.05601 30.13191  9.362243  92.10526         1788</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    level</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7:     m</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8:     f</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    variable importance value      mean      medn       lwr       upr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:  ascites  0.4961240     0 0.6907622 0.7880559 0.4803798 0.9324000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:  ascites  0.4961240     1 0.5210128 0.5726435 0.3262975 0.7125969</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:     bili  0.4180366  0.80 0.7599054 0.8524370 0.6272966 0.9371468</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:     bili  0.4180366   1.4 0.7373852 0.8286363 0.5920757 0.9196724</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:     bili  0.4180366   3.5 0.6285755 0.6894448 0.4601137 0.8231029</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:   copper  0.3028101    43 0.7319694 0.8253478 0.5670948 0.9382540</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7:   copper  0.3028101    74 0.7098043 0.8070462 0.5304950 0.9239903</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8:   copper  0.3028101   129 0.6537144 0.7274585 0.4660733 0.8767711</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    pred_horizon level</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:         1788     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:         1788     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8:         1788  &lt;NA&gt;</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
