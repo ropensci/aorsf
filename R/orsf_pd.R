@@ -80,7 +80,7 @@
 orsf_pd_oob <- function(object,
                         pred_spec,
                         pred_horizon = NULL,
-                        pred_type = 'risk',
+                        pred_type = NULL,
                         expand_grid = TRUE,
                         prob_values = c(0.025, 0.50, 0.975),
                         prob_labels = c('lwr', 'medn', 'upr'),
@@ -110,7 +110,7 @@ orsf_pd_oob <- function(object,
 orsf_pd_inb <- function(object,
                         pred_spec,
                         pred_horizon = NULL,
-                        pred_type = 'risk',
+                        pred_type = NULL,
                         expand_grid = TRUE,
                         prob_values = c(0.025, 0.50, 0.975),
                         prob_labels = c('lwr', 'medn', 'upr'),
@@ -146,7 +146,7 @@ orsf_pd_new <- function(object,
                         pred_spec,
                         new_data,
                         pred_horizon = NULL,
-                        pred_type = 'risk',
+                        pred_type = NULL,
                         na_action = 'fail',
                         expand_grid = TRUE,
                         prob_values = c(0.025, 0.50, 0.975),
@@ -194,7 +194,7 @@ orsf_pd_new <- function(object,
 orsf_ice_oob <- function(object,
                          pred_spec,
                          pred_horizon = NULL,
-                         pred_type = 'risk',
+                         pred_type = NULL,
                          expand_grid = TRUE,
                          boundary_checks = TRUE,
                          n_thread = 1,
@@ -220,7 +220,7 @@ orsf_ice_oob <- function(object,
 orsf_ice_inb <- function(object,
                          pred_spec,
                          pred_horizon = NULL,
-                         pred_type = 'risk',
+                         pred_type = NULL,
                          expand_grid = TRUE,
                          boundary_checks = TRUE,
                          n_thread = 1,
@@ -252,7 +252,7 @@ orsf_ice_new <- function(object,
                          pred_spec,
                          new_data,
                          pred_horizon = NULL,
-                         pred_type = 'risk',
+                         pred_type = NULL,
                          na_action = 'fail',
                          expand_grid = TRUE,
                          boundary_checks = TRUE,
@@ -308,81 +308,10 @@ orsf_pred_dependence <- function(object,
 
  check_arg_is(object, arg_name = 'object', expected_class = 'ObliqueForest')
 
- pred_horizon <- infer_pred_horizon(object, pred_type, pred_horizon)
-
- if(is.null(prob_values)) prob_values <- c(0.025, 0.50, 0.975)
- if(is.null(prob_labels)) prob_labels <- c('lwr', 'medn', 'upr')
-
  if(oobag && is.null(object$data))
   stop("no data were found in object. ",
        "did you use attach_data = FALSE when ",
        "running orsf()?", call. = FALSE)
-
- if(is.null(pred_horizon) && pred_type %in% c('risk', 'surv', 'chf')){
-  stop("pred_horizon must be specified for ",
-       pred_type, " predictions.", call. = FALSE)
- }
-
- check_arg_type(arg_value = boundary_checks,
-                arg_name = 'boundary_checks',
-                expected_type = 'logical')
-
- check_arg_length(arg_value = boundary_checks,
-                  arg_name = 'boundary_checks',
-                  expected_length = 1)
-
- check_arg_type(arg_value = expand_grid,
-                arg_name = 'expand_grid',
-                expected_type = 'logical')
-
- check_arg_length(arg_value = expand_grid,
-                  arg_name = 'expand_grid',
-                  expected_length = 1)
-
- check_arg_type(arg_value = prob_values,
-                arg_name = 'prob_values',
-                expected_type = 'numeric')
-
- check_arg_gteq(arg_value = prob_values,
-                arg_name = 'prob_values',
-                bound = 0)
-
- check_arg_lteq(arg_value = prob_values,
-                arg_name = 'prob_values',
-                bound = 1)
-
- check_arg_type(arg_value = prob_labels,
-                arg_name = 'prob_labels',
-                expected_type = 'character')
-
- if(length(prob_values) != length(prob_labels)){
-  stop("prob_values and prob_labels must have the same length.",
-       call. = FALSE)
- }
-
- check_arg_type(arg_value = oobag,
-                arg_name = 'oobag',
-                expected_type = 'logical')
-
- check_arg_length(arg_value = oobag,
-                  arg_name = 'oobag',
-                  expected_length = 1)
-
- check_arg_type(arg_value = pred_type,
-                arg_name = "pred_type",
-                expected_type = 'character')
-
- check_arg_length(arg_value = pred_type,
-                  arg_name = "pred_type",
-                  expected_length = 1)
-
- check_arg_is_valid(arg_value = pred_type,
-                    arg_name = "pred_type",
-                    valid_options = c("risk",
-                                      "surv",
-                                      "chf",
-                                      "mort",
-                                      "prob"))
 
  object$compute_dependence(pd_data = pd_data,
                            pred_spec = pred_spec,

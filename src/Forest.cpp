@@ -502,7 +502,7 @@ void Forest::compute_prediction_accuracy(arma::mat&  y,
   Rcpp::NumericVector w_ = Rcpp::wrap(w);
 
   for(uword i = 0; i < oobag_eval.n_cols; ++i){
-   vec p = predictions.col(i);
+   vec p = predictions.unsafe_col(i);
    Rcpp::NumericVector p_ = Rcpp::wrap(p);
    Rcpp::NumericVector R_result = f_oobag_eval(y_, w_, p_);
    oobag_eval(row_fill, i) = R_result[0];

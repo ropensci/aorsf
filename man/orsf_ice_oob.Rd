@@ -10,7 +10,7 @@ orsf_ice_oob(
   object,
   pred_spec,
   pred_horizon = NULL,
-  pred_type = "risk",
+  pred_type = NULL,
   expand_grid = TRUE,
   boundary_checks = TRUE,
   n_thread = 1,
@@ -21,7 +21,7 @@ orsf_ice_inb(
   object,
   pred_spec,
   pred_horizon = NULL,
-  pred_type = "risk",
+  pred_type = NULL,
   expand_grid = TRUE,
   boundary_checks = TRUE,
   n_thread = 1,
@@ -33,7 +33,7 @@ orsf_ice_new(
   pred_spec,
   new_data,
   pred_horizon = NULL,
-  pred_type = "risk",
+  pred_type = NULL,
   na_action = "fail",
   expand_grid = TRUE,
   boundary_checks = TRUE,
@@ -151,18 +151,18 @@ ice_oob <- orsf_ice_oob(fit, pred_spec, boundary_checks = FALSE)
 ice_oob
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row pred_horizon bili      pred
-##    1:           1      1         1788    1 0.8735558
-##    2:           1      2         1788    1 0.8260273
-##    3:           1      3         1788    1 0.6095483
-##    4:           1      4         1788    1 0.7125248
-##    5:           1      5         1788    1 0.5602638
-##   ---                                               
-## 6896:          25    272         1788   10 0.6923029
-## 6897:          25    273         1788   10 0.5057890
-## 6898:          25    274         1788   10 0.3592502
-## 6899:          25    275         1788   10 0.6128702
-## 6900:          25    276         1788   10 0.3520821
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row pred_horizon bili pred
+##    1:           1      1            1    1    1
+##    2:           1      2            1    1    1
+##    3:           1      3            1    1    1
+##    4:           1      4            1    1    1
+##    5:           1      5            1    1    1
+##   ---                                          
+## 6896:          25    272            1   10    1
+## 6897:          25    273            1   10    1
+## 6898:          25    274            1   10    1
+## 6899:          25    275            1   10    1
+## 6900:          25    276            1   10    1
 }\if{html}{\out{</div>}}
 
 Much more detailed examples are given in the

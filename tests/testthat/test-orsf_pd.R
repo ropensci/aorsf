@@ -135,10 +135,7 @@ for(i in seq_along(funs)){
    }
   )
 
-
-
  }
-
 
 }
 
@@ -189,6 +186,7 @@ test_that(
 
   pd_smry_multi_horiz <- orsf_pd_oob(
    fit,
+   pred_type = 'risk',
    pred_spec = list(bili = 1),
    pred_horizon = c(1000, 2000, 3000)
   )
@@ -201,6 +199,7 @@ test_that(
 
   pd_ice_multi_horiz <- orsf_ice_oob(
    fit,
+   pred_type = 'risk',
    pred_spec = list(bili = 1),
    pred_horizon = c(1000, 2000, 3000)
   )

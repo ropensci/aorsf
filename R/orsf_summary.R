@@ -106,6 +106,7 @@ print.orsf_summary_uni <- function(x, n_variables = NULL, ...){
   'surv' = 'Survival',
   'chf'  = 'Cumulative hazard',
   'mort' = 'Mortality',
+  'prob' = "Probability"
  )
 
  msg_btm <- paste("Predicted", tolower(pred_label),
