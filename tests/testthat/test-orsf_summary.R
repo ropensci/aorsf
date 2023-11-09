@@ -52,9 +52,6 @@ no_miss_list <- function(l){
 
 fi <- object$get_fctr_info()
 
-#' @srrstats {G5.2} *Appropriate error behaviour is explicitly demonstrated through tests.*
-#' @srrstats {G5.2b} *Tests demonstrate conditions which trigger error messages.*
-
 test_that("output is normal", {
 
 

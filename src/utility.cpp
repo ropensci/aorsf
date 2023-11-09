@@ -672,5 +672,19 @@
 
  }
 
+ void predict_class(arma::mat& pred){
+
+  // modify column 0
+  for(uword i = 0; i < pred.n_rows; ++i){
+   pred.at(i, 0) = pred.row(i).index_max();
+  }
+
+  // drop the other colums
+  while(pred.n_cols > 1){
+   pred.shed_col(1);
+  }
+
+ }
+
 
  }

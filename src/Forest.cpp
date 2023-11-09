@@ -603,7 +603,7 @@ mat Forest::predict(bool oobag) {
  aborted_threads = 0;
 
  if(n_thread == 1){
-  // ensure safe usage of R functions
+
   predict_single_thread(data.get(), oobag, result);
 
  } else {
@@ -677,13 +677,17 @@ mat Forest::predict(bool oobag) {
   }
 
   // it's okay if we divide by 0 here. It makes the result NaN but
-  // that will be fixed when the results are post-processed in R/orsf.R
+  // that will be fixed when the results are cleaned in R
   result.each_col() /= oobag_denom;
 
  } else {
 
   result /= n_tree;
 
+ }
+
+ if(pred_type == PRED_CLASS){
+  predict_class(result);
  }
 
  return(result);

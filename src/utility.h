@@ -114,6 +114,8 @@ aorsf may be modified and distributed under the terms of the MIT license.
                       arma::vec& beta_var,
                       arma::mat& x_transforms);
 
+ void predict_class(arma::mat& pred);
+
  }
 
 #endif /* UTILITY_H */

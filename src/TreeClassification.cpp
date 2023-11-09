@@ -122,7 +122,10 @@
 
     uword leaf_id = pred_leaf[it];
     if(leaf_id == max_nodes) break;
-    pred_output.row(it) = leaf_summary[leaf_id];
+
+    pred_output.at(it, leaf_summary[leaf_id])++;
+
+    // pred_output.row(it) = leaf_summary[leaf_id];
 
     n_preds_made++;
     if(oobag) pred_denom[it]++;
