@@ -41,15 +41,15 @@
 #'
 #' object <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 25)
 #'
-#' # since anova importance was used to make object, we can
-#' # safely say importance = 'none' and skip computation of
-#' # variable importance while running orsf_summarize_uni
+#' # since anova importance was used to make object, it is also
+#' # used for ranking variables in the summary, unless we specify
+#' # a different type of importance
 #'
-#' orsf_summarize_uni(object, n_variables = 3, importance = 'none')
+#' orsf_summarize_uni(object, n_variables = 3)
 #'
-#' # however, if we want to summarize object according to variables
-#' # ranked by negation importance, we can compute negation importance
-#' # within orsf_summarize_uni() as follows:
+#' # if we want to summarize object according to variables
+#' # ranked by negation importance, we can compute negation
+#' # importance within orsf_summarize_uni() as follows:
 #'
 #' orsf_summarize_uni(object, n_variables = 3, importance = 'negate')
 #'

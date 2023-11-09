@@ -8,8 +8,8 @@ orsf_summarize_uni(
   object,
   n_variables = NULL,
   pred_horizon = NULL,
-  pred_type = "risk",
-  importance = "negate",
+  pred_type = NULL,
+  importance = NULL,
   ...
 )
 }
