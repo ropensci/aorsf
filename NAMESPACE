@@ -2,7 +2,7 @@
 
 S3method(as.data.table,orsf_summary_uni)
 S3method(predict,ObliqueForest)
-S3method(print,orsf_fit)
+S3method(print,ObliqueForest)
 S3method(print,orsf_summary_uni)
 export(orsf)
 export(orsf_control_cph)

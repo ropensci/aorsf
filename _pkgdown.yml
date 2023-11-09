@@ -23,8 +23,8 @@ reference:
   desc: Fit, inspect, summarize, and apply ORSF models
 - contents:
   - matches("^orsf$")
-  - matches("^print\\.orsf_fit$")
-  - matches("^predict\\.orsf_fit$")
+  - matches("^print\\.ObliqueForest$")
+  - matches("^predict\\.ObliqueForest$")
   - matches("^orsf_summarize")
   - matches("^print\\.orsf_summary")
 - title: Control how your ORSF model works
@@ -45,6 +45,7 @@ reference:
   desc: Datasets used in examples and vignettes.
 - contents:
   - matches("^pbc_orsf$")
+  - matches("^penguins_orsf$")
 - title: Miscellaneous
   desc: Functions that don't fit neatly into a category above, but are still helpful.
 - contents:
