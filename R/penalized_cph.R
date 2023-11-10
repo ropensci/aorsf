@@ -22,6 +22,19 @@
 #'  alpha = 1/2,
 #'  df_target = 2
 #' )
+#'
+#' penalized_logreg(
+#'  x_node = as.matrix(penguins_orsf[, c('bill_length_mm',
+#'                                       'bill_depth_mm',
+#'                                       'flipper_length_mm',
+#'                                       'body_mass_g')]),
+#'  y_node = as.matrix(as.numeric(penguins_orsf$species == 'Adelie')),
+#'  w_node = rep(1, nrow(penguins_orsf)),
+#'  alpha = 1/2,
+#'  df_target = 2
+#' )
+
+
 
 penalized_cph <- function(x_node,
                           y_node,
@@ -31,13 +44,47 @@ penalized_cph <- function(x_node,
 
  colnames(y_node) <- c('time', 'status')
 
+ penalized_fitter(x_node = x_node,
+                  y_node = y_node,
+                  w_node = w_node,
+                  alpha = alpha,
+                  df_target = df_target,
+                  family = "cox")
+
+}
+
+penalized_logreg <- function(x_node,
+                             y_node,
+                             w_node,
+                             alpha,
+                             df_target){
+
+ y_node <- as.factor(y_node)
+ w_node <- as.numeric(w_node)
+
+ penalized_fitter(x_node = x_node,
+                  y_node = y_node,
+                  w_node = w_node,
+                  alpha = alpha,
+                  df_target = df_target,
+                  family = "binomial")
+
+}
+
+penalized_fitter <- function(x_node,
+                             y_node,
+                             w_node,
+                             alpha,
+                             df_target,
+                             family){
+
  suppressWarnings(
   fit <- try(
    glmnet::glmnet(x = x_node,
                   y = y_node,
                   weights = w_node,
                   alpha = alpha,
-                  family = "cox"),
+                  family = family),
    silent = TRUE
   )
  )

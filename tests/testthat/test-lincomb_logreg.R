@@ -73,3 +73,14 @@ test_that(
  }
 )
 
+
+# benchmark
+
+# microbenchmark::microbenchmark(
+#  cpp = logreg_fit_exported(X, Y, W, do_scale = FALSE,
+#                            epsilon = control$epsilon,
+#                            iter_max = control$maxit),
+#  fglm = fastglm::fastglmPure(X, Y, family = binomial(), weights = W),
+#  nmr = RcppNumerical::fastLR(cbind(1, X), Y)
+# )
+

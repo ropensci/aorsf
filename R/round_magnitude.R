@@ -19,7 +19,7 @@ round_magnitude <- function(x){
  # take absolute value to round based on magnitude
  x_abs <- abs(x)
 
- breaks <- c(0, 1, 10, Inf)
+ breaks <- c(0, 10, 100, Inf)
  decimals <- c(2, 1, 0)
 
  # x_cuts create boundary categories for rounding

@@ -47,6 +47,7 @@ orsf(data = pbc_orsf,
 linear combination control functions
 \code{\link{orsf_control_cph}()},
 \code{\link{orsf_control_custom}()},
-\code{\link{orsf_control_net}()}
+\code{\link{orsf_control_net}()},
+\code{\link{orsf_control}()}
 }
 \concept{orsf_control}

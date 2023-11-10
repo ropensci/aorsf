@@ -29,21 +29,24 @@ test_that(
  desc = 'target_df too high is caught',
  code = {
 
-  cntrl <- orsf_control_net(df_target = 10)
+  cntrl <- orsf_control_survival(method = 'net', target_df = 10)
   expect_error(orsf(pbc_orsf, formula = f, control = cntrl), 'should be <=')
 
  }
 )
 
 test_that(
- desc = 'orsf runs with data.table and with net control',
+ desc = 'orsf runs the same with data.table vs. data.frame',
  code = {
 
-  expect_s3_class(orsf(as.data.table(pbc_orsf), f, n_tree = 1), 'ObliqueForest')
+  fit_dt <- orsf(as.data.table(pbc),
+                 formula = time + status ~ .,
+                 n_tree = n_tree_test,
+                 control = controls$fast,
+                 tree_seed = seeds_standard)
 
-  expect_s3_class(orsf(as.data.table(pbc_orsf), f,
-                       control = orsf_control_net(),
-                       n_tree = 1), 'ObliqueForest')
+  expect_equal_leaf_summary(fit_dt, fit_standard_pbc$fast)
+
  }
 )
 
@@ -52,7 +55,7 @@ test_that(
  desc = "blank and non-standard names trigger an error",
  code = {
 
-  pbc_temp <- pbc_orsf
+  pbc_temp <- pbc
   pbc_temp$x1 <- rnorm(nrow(pbc_temp))
   pbc_temp$x2 <- rnorm(nrow(pbc_temp))
 
@@ -64,7 +67,7 @@ test_that(
   )
 
 
-  pbc_temp <- pbc_orsf
+  pbc_temp <- pbc
   pbc_temp$x1 <- rnorm(nrow(pbc_temp))
   pbc_temp$x2 <- rnorm(nrow(pbc_temp))
 
@@ -77,44 +80,6 @@ test_that(
 
  }
 )
-
-
-# just run locally. units seems to have memory leaks.
-# test_that(
-#  'orsf tracks meta data for units class variables',
-#  code = {
-#
-#   # units may have memory leaks
-#   skip_on_cran()
-#
-#   suppressMessages(library(units))
-#   pbc_units <- pbc_orsf
-#
-#
-#   units(pbc_units$time) <- 'days'
-#   units(pbc_units$age) <- 'years'
-#   units(pbc_units$bili) <- 'mg/dl'
-#
-#   fit_units <- orsf(pbc_units, Surv(time, status) ~ . - id, n_tree=1)
-#
-#   expect_equal(
-#    fit_units$get_var_unit('time'),
-#    list( numerator = "d", denominator = character(0), label = "d")
-#   )
-#
-#   expect_equal(
-#    fit_units$get_var_unit('age'),
-#    list(numerator = "years", denominator = character(0), label = "years")
-#   )
-#
-#   expect_equal(
-#    fit_units$get_var_unit('bili'),
-#    list(numerator = "mg", denominator = "dl", label = "mg/dl")
-#   )
-#
-#  }
-#
-# )
 
 
 test_that(
@@ -491,9 +456,9 @@ test_that(
                           '3' = c(1000, 2000, 3000))
 
    control <- switch(inputs$orsf_control[i],
-                     'cph' = orsf_control_cph(),
-                     'net' = orsf_control_net(),
-                     'custom' = orsf_control_custom(beta_fun = f_pca))
+                     'cph' = orsf_control_survival(method = 'glm'),
+                     'net' = orsf_control_survival(method = 'net'),
+                     'custom' = orsf_control_survival(method = f_pca))
 
    if(inputs$sample_with_replacement[i]){
     sample_fraction <- 0.632

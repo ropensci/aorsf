@@ -25,6 +25,8 @@ Use regularized Cox proportional hazard models to identify linear
 combinations of input variables while fitting an \link{orsf} model.
 }
 \details{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
+
 \code{df_target} has to be less than \code{mtry}, which is a separate argument in
 \link{orsf} that indicates the number of variables chosen at random prior to
 finding a linear combination of those variables.
@@ -47,6 +49,7 @@ Simon N, Friedman J, Hastie T, Tibshirani R. Regularization paths for Cox's prop
 linear combination control functions
 \code{\link{orsf_control_cph}()},
 \code{\link{orsf_control_custom}()},
-\code{\link{orsf_control_fast}()}
+\code{\link{orsf_control_fast}()},
+\code{\link{orsf_control}()}
 }
 \concept{orsf_control}

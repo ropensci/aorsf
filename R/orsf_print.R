@@ -35,7 +35,6 @@
 print.ObliqueForest <- function(x, ...){
 
  x$print()
- invisible(x)
 
 }
 

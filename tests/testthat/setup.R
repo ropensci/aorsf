@@ -57,6 +57,32 @@ data_list_pbc <- list(pbc_standard = pbc,
                       pbc_scaled = pbc_scale,
                       pbc_noised = pbc_noise)
 
+# penguins ----
+
+penguins <- penguins_orsf
+
+penguins_scale <- penguins_noise <- penguins
+
+
+vars <- c("bill_length_mm",
+          "bill_depth_mm",
+          "flipper_length_mm",
+          "body_mass_g")
+
+for(i in vars){
+ penguins_noise[[i]] <- add_noise(penguins_noise[[i]])
+ penguins_scale[[i]] <- change_scale(penguins_scale[[i]])
+}
+
+# make sorted x and y matrices for testing internal cpp functions
+penguins_mats <- prep_test_matrices(penguins, outcomes = c("species"))
+
+# data lists ----
+
+data_list_penguins <- list(penguins_standard = penguins,
+                           penguins_scaled = penguins_scale,
+                           penguins_noised = penguins_noise)
+
 # matric lists ----
 
 mat_list_surv <- list(pbc = pbc_mats,
@@ -72,9 +98,8 @@ n_tree_test <- 5
 
 controls <- list(
  fast = orsf_control_fast(),
- cph = orsf_control_cph(),
- net = orsf_control_net(),
- custom = orsf_control_custom(beta_fun = f_pca)
+ net = orsf_control_survival(method = 'net'),
+ custom = orsf_control_survival(method = f_pca)
 )
 
 fit_standard_pbc <- lapply(

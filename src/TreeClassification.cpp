@@ -186,7 +186,8 @@
 
   double safer_mtry = mtry;
 
-  if(lincomb_type == LC_GLM){
+  if(lincomb_type == LC_GLM ||
+     lincomb_type == LC_GLMNET){
 
    // conditions to split a column:
    //   >= 3 events per predictor
@@ -234,14 +235,22 @@
     }
    }
 
-   for (auto& i : splittable_y_cols){
+   // glmnet can handle higher dimension x,
+   // but regular glm cannot.
+   if(lincomb_type == LC_GLM){
 
-    while (y_sum_cases[i] / safer_mtry < 3 ||
-           y_sum_ctrls[i] / safer_mtry < 3){
-     --safer_mtry;
+    for (auto& i : splittable_y_cols){
+
+     while (y_sum_cases[i] / safer_mtry < 3 ||
+            y_sum_ctrls[i] / safer_mtry < 3){
+      --safer_mtry;
+     }
+
     }
 
    }
+
+
 
   }
 

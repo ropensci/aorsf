@@ -37,6 +37,8 @@ to create linear combinations of predictor variables
 while fitting an \link{orsf} model.
 }
 \details{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
+
 code from the  \href{https://github.com/therneau/survival/blob/master/src/coxfit6.c}{survival package}
 was modified to make this routine.
 
@@ -59,6 +61,7 @@ Springer, New York, NY. DOI: 10.1007/978-1-4757-3294-8_3
 linear combination control functions
 \code{\link{orsf_control_custom}()},
 \code{\link{orsf_control_fast}()},
-\code{\link{orsf_control_net}()}
+\code{\link{orsf_control_net}()},
+\code{\link{orsf_control}()}
 }
 \concept{orsf_control}

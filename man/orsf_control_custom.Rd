@@ -28,7 +28,7 @@ an object of class \code{'orsf_control'}, which should be used as
 an input for the \code{control} argument of \link{orsf}.
 }
 \description{
-Custom ORSF control
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
 }
 \section{Examples}{
 Two customized functions to identify linear combinations of predictors
@@ -55,8 +55,17 @@ fit_rando <- orsf(pbc_orsf,
                   Surv(time, status) ~ . - id,
                   control = orsf_control_custom(beta_fun = f_rando),
                   n_tree = 500)
+}\if{html}{\out{</div>}}
 
-fit_rando
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## Warning: `orsf_control_custom()` was deprecated in aorsf 0.1.2.
+## i Please use the appropriate survival, classification, or regression control
+##   function instead. E.g., `orsf_control_survival(method = your_function)`
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+## generated.
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_rando
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
@@ -157,6 +166,7 @@ The PCA ORSF does quite well! (higher IPA is better)
 linear combination control functions
 \code{\link{orsf_control_cph}()},
 \code{\link{orsf_control_fast}()},
-\code{\link{orsf_control_net}()}
+\code{\link{orsf_control_net}()},
+\code{\link{orsf_control}()}
 }
 \concept{orsf_control}

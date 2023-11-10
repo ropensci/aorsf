@@ -407,7 +407,8 @@ ObliqueForest <- R6::R6Class(
 
    private$check_pred_horizon(pred_horizon, boundary_checks, pred_type)
 
-   if(is.null(pred_horizon)) pred_horizon <- 1
+   pred_horizon <- pred_horizon %||% self$pred_horizon %||% 1
+
    pred_horizon_order <- order(pred_horizon)
    pred_horizon_ordered <- pred_horizon[pred_horizon_order]
 
@@ -435,11 +436,11 @@ ObliqueForest <- R6::R6Class(
    private$prep_x()
    # y and w do not need to be prepped for prediction,
    # but they need to match orsf_cpp()'s expectations
-   private$y <- matrix(0, nrow = nrow(private$x), ncol = 1)
+   private$prep_y(placeholder = TRUE)
    private$w <- rep(1, nrow(private$x))
 
 
-   if(oobag){ private$sort_inputs() }
+   if(oobag){ private$sort_inputs(sort_y = FALSE) }
 
    # the values in pred_spec need to be centered & scaled to match x_new,
    # which is also centered and scaled
@@ -660,6 +661,8 @@ ObliqueForest <- R6::R6Class(
 
    if(self$tree_type == 'classification'){
     setnames(out, old = 'pred_horizon', new = 'class')
+    out[, class := factor(class, levels = self$class_levels)]
+    setkey(out, class)
    }
 
    if(self$tree_type == 'survival' && pred_type != 'mort')
@@ -878,13 +881,14 @@ ObliqueForest <- R6::R6Class(
    # To avoid this: include a DT[] after the last := in your function.
    pd_output[]
 
-   setcolorder(pd_output, c('variable',
-                            'importance',
-                            'value',
-                            'mean',
-                            'medn',
-                            'lwr',
-                            'upr'))
+   new_order <- c('variable', 'importance', 'value',
+                  'mean', 'medn', 'lwr', 'upr')
+
+   if(self$tree_type == 'classification'){
+    new_order <- insert_vals(new_order, 2, 'class')
+   }
+
+   setcolorder(pd_output, new_order)
 
    structure(
     .Data = list(dt = pd_output,
@@ -2316,14 +2320,14 @@ ObliqueForest <- R6::R6Class(
 
   },
 
-  prep_y = function(){
+  prep_y = function(placeholder = FALSE){
 
    private$y <- select_cols(self$data, private$data_names$y)
 
-   if(self$na_action == 'omit')
+   if(self$na_action == 'omit' && !placeholder)
     private$y <- private$y[private$data_rows_complete, ]
 
-   private$prep_y_internal()
+   private$prep_y_internal(placeholder)
 
   },
 
@@ -2686,11 +2690,16 @@ ObliqueForestSurvival <- R6::R6Class(
 
   },
 
-  sort_inputs = function(){
+  sort_inputs = function(sort_x = TRUE,
+                         sort_y = TRUE,
+                         sort_w = TRUE){
 
-   private$x <- private$x[private$data_row_sort, , drop = FALSE]
-   private$y <- private$y[private$data_row_sort, , drop = FALSE]
-   private$w <- private$w[private$data_row_sort]
+   if(sort_x)
+    private$x <- private$x[private$data_row_sort, , drop = FALSE]
+   if(sort_y)
+    private$y <- private$y[private$data_row_sort, , drop = FALSE]
+   if(sort_w)
+    private$w <- private$w[private$data_row_sort]
 
   },
 
@@ -2698,6 +2707,10 @@ ObliqueForestSurvival <- R6::R6Class(
 
    self$tree_type <- "survival"
 
+   if(!is.function(self$control$lincomb_R_function) &&
+      self$control$lincomb_type == 'net'){
+    self$control$lincomb_R_function <- penalized_cph
+   }
 
    self$split_rule <- self$split_rule %||% 'logrank'
    self$pred_type <- self$pred_type %||% 'surv'
@@ -2761,7 +2774,13 @@ ObliqueForestSurvival <- R6::R6Class(
    }
 
   },
-  prep_y_internal = function(){
+  prep_y_internal = function(placeholder = FALSE){
+
+
+   if(placeholder){
+    private$y <- matrix(0, ncol = 2, nrow = 1)
+    return()
+   }
 
    y <- private$y
    cols <- names(y)
@@ -2979,6 +2998,11 @@ ObliqueForestClassification <- R6::R6Class(
 
    self$tree_type <- "classification"
 
+   if(!is.function(self$control$lincomb_R_function) &&
+      self$control$lincomb_type == 'net'){
+    self$control$lincomb_R_function <- penalized_logreg
+   }
+
    self$split_rule <- self$split_rule %||% 'gini'
    self$pred_type <- self$pred_type %||% 'prob'
    self$split_min_stat <- self$split_min_stat %||%
@@ -3003,7 +3027,12 @@ ObliqueForestClassification <- R6::R6Class(
 
   },
 
-  prep_y_internal = function(){
+  prep_y_internal = function(placeholder = FALSE){
+
+   if(placeholder){
+    private$y <- matrix(0, ncol = self$n_class-1, nrow = 1)
+    return()
+   }
 
    # y is always 1 column for classification (right?)
    y <- private$y[[1]]

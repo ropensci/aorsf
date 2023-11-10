@@ -10,9 +10,9 @@ test_that(
 
  #' @srrstats {G5.2b} *Tests demonstrate conditions which trigger error messages.*
 
- expect_error(orsf_control_cph(method = 'oh no'), "breslow or efron")
+ expect_error(orsf_control_survival(ties = 'oh no'), "breslow or efron")
 
- expect_error(orsf_control_net(alpha = 32), 'should be <= 1')
+ expect_error(orsf_control_survival(net_mix = 32), 'should be <= 1')
 
  f_bad_1 <- function(a_node, y_node, w_node){ 1 }
  f_bad_2 <- function(x_node, a_node, w_node){ 1 }
@@ -33,18 +33,18 @@ test_that(
 
  f_bad_8 <- function(x_node, y_node, w_node) {runif(n = ncol(x_node))}
 
- expect_error(orsf_control_custom(f_bad_1), 'x_node')
- expect_error(orsf_control_custom(f_bad_2), 'y_node')
- expect_error(orsf_control_custom(f_bad_3), 'w_node')
- expect_error(orsf_control_custom(f_bad_4), 'should have 3')
- expect_error(orsf_control_custom(f_bad_5), 'encountered an error')
- expect_error(orsf_control_custom(f_bad_6), 'with 1 column')
- expect_error(orsf_control_custom(f_bad_7), 'with 1 row for each')
- expect_error(orsf_control_custom(f_bad_8), 'matrix output')
+ expect_error(orsf_control_survival(method = f_bad_1), 'x_node')
+ expect_error(orsf_control_survival(method = f_bad_2), 'y_node')
+ expect_error(orsf_control_survival(method = f_bad_3), 'w_node')
+ expect_error(orsf_control_survival(method = f_bad_4), 'should have 3')
+ expect_error(orsf_control_survival(method = f_bad_5), 'encountered an error')
+ expect_error(orsf_control_survival(method = f_bad_6), 'with 1 column')
+ expect_error(orsf_control_survival(method = f_bad_7), 'with 1 row for each')
+ expect_error(orsf_control_survival(method = f_bad_8), 'matrix output')
 
  f_rando <- function(x_node, y_node, w_node) { matrix(runif(ncol(x_node)), ncol=1) }
 
- expect_s3_class(orsf_control_custom(f_rando), 'orsf_control')
+ expect_s3_class(orsf_control_survival(method = f_rando), 'orsf_control')
 
 
 }
@@ -58,7 +58,7 @@ test_that(
   fit_pca = orsf(pbc,
                  Surv(time, status) ~ .,
                  tree_seeds = seeds_standard,
-                 control = orsf_control_custom(beta_fun = f_pca),
+                 control = orsf_control_survival(method = f_pca),
                  n_tree = n_tree_test)
 
   expect_gt(fit_pca$eval_oobag$stat_values, .65)

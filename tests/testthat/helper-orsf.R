@@ -272,11 +272,17 @@ prep_test_matrices <- function(data, outcomes = c("time", "status")){
  cc <- stats::complete.cases(data[, names_x_data])
  data <- data[cc, ]
 
- y <- prep_y_surv(data, names_y_data)
+ if(length(outcomes) > 1){
+  y <- prep_y_surv(data, names_y_data)
+  sorted <- collapse::radixorder(y[, 1],  -y[, 2])
+ } else {
+  y <- prep_y_clsf(data, names_y_data)
+  sorted <- collapse::seq_row(data)
+ }
+
  x <- prep_x(data, fi, names_x_data, means, standard_deviations)
  w <- sample(1:3, nrow(y), replace = TRUE)
 
- sorted <- collapse::radixorder(y[, 1],  -y[, 2])
 
  return(
   list(

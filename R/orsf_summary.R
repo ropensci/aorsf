@@ -109,10 +109,15 @@ print.orsf_summary_uni <- function(x, n_variables = NULL, ...){
   'prob' = "Probability"
  )
 
- msg_btm <- paste("Predicted", tolower(pred_label),
-                  "at time t =", x$pred_horizon,
-                  "for top", n_variables,
-                  "predictors")
+ extra_surv_text <- ""
+
+ if(!is.null(x$pred_horizon))
+    extra_surv_text <- paste0("at time t = ", x$pred_horizon, " ")
+
+ msg_btm <- paste0(
+  "Predicted ", tolower(pred_label), " ", extra_surv_text,
+  "for top ", n_variables, " predictors"
+ )
 
  .sd_orig <- c("value",
                "mean",

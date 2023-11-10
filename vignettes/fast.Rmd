@@ -39,7 +39,7 @@ time_fast <- system.time(
 time_net <- system.time(
  expr = orsf(pbc_orsf, 
              formula = time+status~. -id, 
-             control = orsf_control_net(), 
+             control = orsf_control_survival(method = 'net'), 
              n_tree = 5)
 )
 
