@@ -96,14 +96,16 @@ mat_list_surv <- list(pbc = pbc_mats,
 seeds_standard <- 329
 n_tree_test <- 5
 
-controls <- list(
- fast = orsf_control_fast(),
+controls_surv <- list(
+ fast = orsf_control_survival(method = 'glm',
+                              scale_x = FALSE,
+                              max_iter = 1),
  net = orsf_control_survival(method = 'net'),
  custom = orsf_control_survival(method = f_pca)
 )
 
 fit_standard_pbc <- lapply(
- controls,
+ controls_surv,
  function(cntrl){
   orsf(pbc,
        formula = time + status ~ .,

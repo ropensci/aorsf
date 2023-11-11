@@ -22,9 +22,9 @@ library(aorsf)
 
 Analyses can slow to a crawl when models need hours to run. In this article you will find a few tricks to prevent this bottleneck when using `orsf()`.
 
-## Use `orsf_control_fast()`
+## Don't specify a `control`
 
-This is the default `control` value for `orsf()` and its run-time compared to other approaches can be striking. For example:
+The default `control` for `orsf()` is `NULL` because, if unspecified, `orsf()` will pick the fastest possible `control` for you depending on the type of forest being grown. The default `control` run-time compared to other approaches can be striking. For example:
 
 
 ```{r}
@@ -32,7 +32,6 @@ This is the default `control` value for `orsf()` and its run-time compared to ot
 time_fast <- system.time(
  expr = orsf(pbc_orsf, 
              formula = time+status~. -id, 
-             control = orsf_control_fast(), 
              n_tree = 5)
 )
 

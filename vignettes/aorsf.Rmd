@@ -21,39 +21,43 @@ knitr::opts_chunk$set(
 
 This article covers core features of the `aorsf` package.
 
-## Background: ORSF
+## Background
 
-The oblique random survival forest (ORSF) is an extension of the axis-based RSF algorithm.
+The oblique random forest (RF) is an extension of the axis-based RF. Instead of using a single variable to split data and grow new branches, trees in the oblique RF use a weighted combination of multiple variables.  
 
-- See [orsf](https://docs.ropensci.org/aorsf/reference/orsf.html) for more details on ORSFs.
+## Oblique RFs for survival, classification, and regression
 
-- see the [JCGS](https://doi.org/10.1080/10618600.2023.2231048) paper for more details on algorithms used specifically by `aorsf`.
+The purpose of `aorsf` ('a' is short for accelerated) is to provide a unifying framework to fit oblique RFs that can scale adequately to large data sets. The fastest algorithms available in the package are used by default because they often have equivalent prediction accuracy to more computational approaches.
 
-## Accelerated ORSF
-
-The purpose of `aorsf` ('a' is short for accelerated) is to provide routines to fit ORSFs that will scale adequately to large data sets. The fastest algorithm available in the package is the accelerated ORSF model, which is the default method used by `orsf()`:
+Everything in `aorsf` begins with the `orsf()` function. Here we begin with an oblique RF for survival using the `pbc_orsf` data, an oblique RF for classification using the `penguins_orsf` data, and FILL IN FOR REGRESSION. Note that `n_tree` is 5 for convenience in these examples, but should be >= 500 in practice.
 
 ```{r}
 
 library(aorsf)
 
-set.seed(329)
-
-orsf_fit <- orsf(data = pbc_orsf, 
+# An oblique survival RF
+pbc_fit <- orsf(data = pbc_orsf, 
                  n_tree = 5,
                  formula = Surv(time, status) ~ . - id)
 
-orsf_fit
+pbc_fit
+
+# An oblique classification RF
+penguin_fit <- orsf(data = penguins_orsf,
+                    n_tree = 5, 
+                    formula = species ~ .)
+
+penguin_fit
 
 ```
-
 
 you may notice that the first input of `aorsf` is `data`. This is a design choice that makes it easier to use `orsf` with pipes (i.e., `%>%` or `|>`). For instance,
 
 ```{r, eval=FALSE}
+
 library(dplyr)
 
-orsf_fit <- pbc_orsf |> 
+pbc_fit <- pbc_orsf |> 
  select(-id) |> 
  orsf(formula = Surv(time, status) ~ .,
       n_tree = 5)
@@ -72,7 +76,7 @@ orsf_fit <- pbc_orsf |>
 
     ```{r}
 
-    orsf_vi_negate(orsf_fit)
+    orsf_vi_negate(pbc_fit)
 
     ```
 
@@ -80,7 +84,7 @@ orsf_fit <- pbc_orsf |>
 
     ```{r}
   
-    orsf_vi_permute(orsf_fit)
+    orsf_vi_permute(pbc_fit)
   
     ```
 
@@ -88,7 +92,7 @@ orsf_fit <- pbc_orsf |>
 
     ```{r}
     
-    orsf_vi_anova(orsf_fit)
+    orsf_vi_anova(pbc_fit)
     
     ```
 
@@ -107,13 +111,13 @@ For more on ICE, see the [vignette](https://docs.ropensci.org/aorsf/articles/pd.
 
 ## What about the original ORSF?
 
-The original ORSF (i.e., `obliqueRSF`) used `glmnet` to find linear combinations of inputs. `aorsf` allows users to implement this approach using the `orsf_control_net()` function: 
+The original ORSF (i.e., `obliqueRSF`) used `glmnet` to find linear combinations of inputs. `aorsf` allows users to implement this approach using the `orsf_control_survival(method = 'net')` function: 
 
 ```{r, eval=FALSE}
 
 orsf_net <- orsf(data = pbc_orsf, 
                  formula = Surv(time, status) ~ . - id, 
-                 control = orsf_control_net())
+                 control = orsf_control_survival(method = 'net'))
 
 ```
 
@@ -125,3 +129,11 @@ orsf_net <- orsf(data = pbc_orsf,
 The unique feature of `aorsf` is its fast algorithms to fit ORSF ensembles. `RLT` and `obliqueRSF` both fit oblique random survival forests, but `aorsf` does so faster. `ranger` and `randomForestSRC` fit survival forests, but neither package supports oblique splitting. `obliqueRF` fits oblique random forests for classification and regression, but not survival. `PPforest` fits oblique random forests for classification but not survival. 
 
 Note: The default prediction behavior for `aorsf` models is to produce predicted risk at a specific prediction horizon, which is not the default for `ranger`  or `randomForestSRC`. I think this will change in the future, as computing time independent predictions with `aorsf` could be helpful.
+
+## Learning more
+
+`aorsf` began as a dedicated package for oblique random survival forests, and so most papers published so far have focused on survival analysis and risk prediction. However, the routines for regression and classification oblique RFs in `aorsf` have high overlap with the survival ones.
+
+- See [orsf](https://docs.ropensci.org/aorsf/reference/orsf.html) for more details on oblique random survival forests.
+
+- see the [JCGS](https://doi.org/10.1080/10618600.2023.2231048) paper for more details on algorithms used specifically by `aorsf`.

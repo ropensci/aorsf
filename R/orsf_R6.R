@@ -186,7 +186,10 @@ ObliqueForest <- R6::R6Class(
        paste0('   N predictors per node: ', self$mtry                     ),
        paste0(' Average leaves per tree: ', private$mean_leaves           ),
        paste0('Min observations in leaf: ', self$leaf_min_obs             ),
-       paste0('      Min events in leaf: ', self$leaf_min_events          ),
+
+       if(self$tree_type == 'survival')
+        paste0('      Min events in leaf: ', self$leaf_min_events         ),
+
        paste0('          OOB stat value: ', oobag_stat                    ),
        paste0('           OOB stat type: ', oobag_type                    ),
        paste0('     Variable importance: ', self$importance_type          ),
@@ -987,11 +990,16 @@ ObliqueForest <- R6::R6Class(
    private$check_data()
    private$check_formula()
 
+   if(is.null(self$control)){
+    private$init_control()
+   } else {
+    private$check_control()
+   }
+
    private$init_data()
    private$init_mtry()
    private$init_weights()
 
-   private$check_control()
    private$check_n_tree()
    private$check_n_split()
    private$check_n_retry()
@@ -2703,6 +2711,14 @@ ObliqueForestSurvival <- R6::R6Class(
 
   },
 
+  init_control = function(){
+
+   self$control <- orsf_control_survival(method = 'glm',
+                                         scale_x = FALSE,
+                                         max_iter = 1)
+
+  },
+
   init_internal = function(){
 
    self$tree_type <- "survival"
@@ -2991,6 +3007,14 @@ ObliqueForestClassification <- R6::R6Class(
 
    # nothing to check
    NULL
+
+  },
+
+  init_control = function(){
+
+   self$control <- orsf_control_classification(method = 'glm',
+                                               scale_x = FALSE,
+                                               max_iter = 1)
 
   },
 

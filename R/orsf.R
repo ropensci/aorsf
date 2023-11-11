@@ -304,7 +304,7 @@
 
 orsf <- function(data,
                  formula,
-                 control = orsf_control_fast(),
+                 control = NULL,
                  weights = NULL,
                  n_tree = 500,
                  n_split = 5,
@@ -380,7 +380,12 @@ orsf <- function(data,
 
  if(length(formula) < 3) stop("formula must be two sided", call. = FALSE)
 
- tree_type <- infer_tree_type(all.vars(formula[[2]]), args$data)
+ if(is.null(control)){
+  tree_type <- infer_tree_type(all.vars(formula[[2]]), args$data)
+ } else {
+  tree_type <- control$tree_type
+ }
+
 
  object <- switch(
   tree_type,

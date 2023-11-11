@@ -8,12 +8,12 @@ test_that(
                                      'pbc_status_12',
                                      'pbc_scaled')])){
 
-   for(j in seq_along(controls)){
+   for(j in seq_along(controls_surv)){
 
     fit_untrained <- orsf(data_list_pbc[[i]],
                           formula = time + status ~ . - id,
                           n_tree = n_tree_test,
-                          control = controls[[j]],
+                          control = controls_surv[[j]],
                           tree_seed = seeds_standard,
                           no_fit = TRUE)
 

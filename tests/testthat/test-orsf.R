@@ -42,7 +42,7 @@ test_that(
   fit_dt <- orsf(as.data.table(pbc),
                  formula = time + status ~ .,
                  n_tree = n_tree_test,
-                 control = controls$fast,
+                 control = controls_surv$fast,
                  tree_seed = seeds_standard)
 
   expect_equal_leaf_summary(fit_dt, fit_standard_pbc$fast)

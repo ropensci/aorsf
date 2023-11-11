@@ -15,7 +15,7 @@ f_rando <- function(x_node, y_node, w_node){
 
 ```
 
-We can plug `f_rando` into `orsf_control_custom()`, and then pass the result into `orsf()`:
+We can plug `f_rando` into `orsf_control_survival()`, and then pass the result into `orsf()`:
 
 ```{r}
 
@@ -23,7 +23,7 @@ library(aorsf)
 
 fit_rando <- orsf(pbc_orsf,
                   Surv(time, status) ~ . - id,
-                  control = orsf_control_custom(beta_fun = f_rando),
+                  control = orsf_control_survival(method = f_rando),
                   n_tree = 500)
 
 fit_rando

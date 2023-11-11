@@ -15,13 +15,13 @@ f_pca <- function(x_node, y_node, w_node) {
 
 ```
 
-Then plug the function into `orsf_control_custom()` and pass the result into `orsf()`:
+Then plug the function into `orsf_control_survival()` and pass the result into `orsf()`:
 
 ```{r}
 
 fit_pca <- orsf(pbc_orsf,
                 Surv(time, status) ~ . - id,
-                control = orsf_control_custom(beta_fun = f_pca),
+                control = orsf_control_survival(method = f_pca),
                 n_tree = 500)
 
 ```

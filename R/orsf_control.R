@@ -46,6 +46,12 @@ orsf_control_fast <- function(method = 'efron',
                               do_scale = TRUE,
                               ...){
 
+ lifecycle::deprecate_warn(
+  when = "0.1.2",
+  "orsf_control_fast()",
+  details = "Please use the appropriate survival, classification, or regression control function instead. E.g., `orsf_control_survival(method = 'fast')`"
+ )
+
  check_dots(list(...), orsf_control_fast)
 
  method <- tolower(method)
@@ -122,8 +128,8 @@ orsf_control_cph <- function(method = 'efron',
 
  lifecycle::deprecate_warn(
   when = "0.1.2",
-  "orsf_control_custom()",
-  details = "Please use the appropriate survival, classification, or regression control function instead. E.g., `orsf_control_survival(method = your_function)`"
+  "orsf_control_cph()",
+  details = "Please use the appropriate survival, classification, or regression control function instead. E.g., `orsf_control_survival(method = 'glm')`"
  )
 
  method <- tolower(method)
@@ -197,8 +203,8 @@ orsf_control_net <- function(alpha = 1/2,
 
  lifecycle::deprecate_warn(
   when = "0.1.2",
-  "orsf_control_custom()",
-  details = "Please use the appropriate survival, classification, or regression control function instead. E.g., `orsf_control_survival(method = your_function)`"
+  "orsf_control_net()",
+  details = "Please use the appropriate survival, classification, or regression control function instead. E.g., `orsf_control_survival(method = 'net')`"
  )
 
  check_dots(list(...), orsf_control_net)
@@ -249,7 +255,7 @@ orsf_control_custom <- function(beta_fun, ...){
  lifecycle::deprecate_warn(
   when = "0.1.2",
   "orsf_control_custom()",
-  details = "Please use the appropriate survival, classification, or regression control function instead. E.g., `orsf_control_survival(method = your_function)`"
+  details = "Please use the appropriate survival, classification, or regression control function instead. E.g., `orsf_control_survival(method = your_function)`, noting that your_function is a function object and not a character value"
  )
 
  check_dots(list(...), .f = orsf_control_custom)
@@ -374,7 +380,7 @@ orsf_control <- function(tree_type,
 
   check_arg_is_valid(arg_value = method,
                      arg_name = 'method',
-                     valid_options = c("glm", "net"))
+                     valid_options = c("glm", "net", "fast"))
 
   check_arg_length(arg_value = method,
                    arg_name = 'method',

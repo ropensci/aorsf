@@ -59,7 +59,7 @@ test_that(
 
    fit_long <- orsf(pbc_orsf,
                     formula = f_long,
-                    control = controls[[i]],
+                    control = controls_surv[[i]],
                     n_tree = n_tree_test,
                     tree_seeds = seeds_standard)
 
@@ -83,13 +83,13 @@ test_that(
 
   pbc_surv_data <- cbind(pbc_orsf, surv_object = pbc_surv)
 
-  for(i in seq_along(controls)){
+  for(i in seq_along(controls_surv)){
 
    fit_surv <- orsf(
     pbc_surv_data,
     formula = surv_object ~ . - id - time - status,
     n_tree = n_tree_test,
-    control = controls[[i]],
+    control = controls_surv[[i]],
     tree_seed = seeds_standard
    )
 
@@ -118,7 +118,7 @@ test_that(
 #    fit_status_modified <- orsf(pbc_orsf,
 #                                time + status ~ . - id,
 #                                n_tree = n_tree_test,
-#                                control = controls[[j]],
+#                                control = controls_surv[[j]],
 #                                tree_seeds = seeds_standard)
 #
 #    expect_equal_leaf_summary(fit_status_modified, fit_standard_pbc[[j]])
