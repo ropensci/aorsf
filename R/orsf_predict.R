@@ -81,7 +81,7 @@
 predict.ObliqueForest <- function(object,
                                   new_data,
                                   pred_horizon = NULL,
-                                  pred_type = 'risk',
+                                  pred_type = NULL,
                                   na_action = 'fail',
                                   boundary_checks = TRUE,
                                   n_thread = 1,
@@ -92,22 +92,6 @@ predict.ObliqueForest <- function(object,
  # catch any arguments that didn't match and got relegated to ...
  # these arguments are mistaken input names since ... isn't used.
  check_dots(list(...), .f = predict.ObliqueForest)
-
- if(pred_type %in% c('leaf', 'mort') && !is.null(pred_horizon)){
-
-  extra_text <- if(length(pred_horizon)>1){
-   " Predictions at each value of pred_horizon will be identical."
-  } else {
-   ""
-  }
-
-  warning("pred_horizon does not impact predictions",
-          " when pred_type is '", pred_type, "'.",
-          extra_text, call. = FALSE)
-
- }
-
- pred_horizon <- infer_pred_horizon(object, pred_type, pred_horizon)
 
  out <- object$predict(new_data = new_data,
                        pred_horizon = pred_horizon,
@@ -121,142 +105,4 @@ predict.ObliqueForest <- function(object,
  out
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-# old code in case the infer function fails me:
-# args_tmp <- list(x = x_new,
-#                  y = matrix(1, ncol=2),
-#                  w = rep(1, nrow(x_new)),
-#                  tree_type_R = get_tree_type(object),
-#                  tree_seeds = get_tree_seeds(object),
-#                  loaded_forest = object$forest,
-#                  n_tree = get_n_tree(object),
-#                  mtry = get_mtry(object),
-#                  sample_with_replacement = get_sample_with_replacement(object),
-#                  sample_fraction = get_sample_fraction(object),
-#                  vi_type_R = 0,
-#                  vi_max_pvalue = get_importance_max_pvalue(object),
-#                  oobag_R_function = get_f_oobag_eval(object),
-#                  leaf_min_events = get_leaf_min_events(object),
-#                  leaf_min_obs = get_leaf_min_obs(object),
-#                  split_rule_R = switch(get_split_rule(object),
-#                                        "logrank" = 1,
-#                                        "cstat" = 2),
-#                  split_min_events = get_split_min_events(object),
-#                  split_min_obs = get_split_min_obs(object),
-#                  split_min_stat = get_split_min_stat(object),
-#                  split_max_cuts = get_n_split(object),
-#                  split_max_retry = get_n_retry(object),
-#                  lincomb_R_function = control$lincomb_R_function,
-#                  lincomb_type_R = switch(control$lincomb_type,
-#                                          'glm' = 1,
-#                                          'random' = 2,
-#                                          'net' = 3,
-#                                          'custom' = 4),
-#                  lincomb_eps = control$lincomb_eps,
-#                  lincomb_iter_max = control$lincomb_iter_max,
-#                  lincomb_scale = control$lincomb_scale,
-#                  lincomb_alpha = control$lincomb_alpha,
-#                  lincomb_df_target = control$lincomb_df_target,
-#                  lincomb_ties_method = switch(tolower(control$lincomb_ties_method),
-#                                               'breslow' = 0,
-#                                               'efron'   = 1),
-#                  pred_type_R = switch(pred_type,
-#                                       "risk" = 1,
-#                                       "surv" = 2,
-#                                       "chf"  = 3,
-#                                       "mort" = 4,
-#                                       "leaf" = 8),
-#                  pred_mode = TRUE,
-#                  pred_aggregate = pred_aggregate,
-#                  pred_horizon = pred_horizon_ordered,
-#                  oobag = FALSE,
-#                  oobag_eval_type_R = 0,
-#                  oobag_eval_every = get_n_tree(object),
-#                  pd_type_R = 0,
-#                  pd_x_vals = list(matrix(0, ncol=1, nrow=1)),
-#                  pd_x_cols = list(matrix(1L, ncol=1, nrow=1)),
-#                  pd_probs = c(0),
-#                  n_thread = n_thread,
-#                  write_forest = FALSE,
-#                  run_forest = TRUE,
-#                  verbosity = as.integer(verbose_progress))
-#
-# checkout <- c()
-#
-# for(i in names(args)){
-#  print(i)
-#  if(!is.list(args[[i]]) && !is.function(args[[i]])){
-#   if(!all(args[[i]] == args_tmp[[i]]))
-#    checkout <- c(checkout, i)
-#  }
-# }
-# browser()
-# orsf_out <- orsf_cpp(x = x_new,
-#                      y = matrix(1, ncol=2),
-#                      w = rep(1, nrow(x_new)),
-#                      tree_type_R = get_tree_type(object),
-#                      tree_seeds = get_tree_seeds(object),
-#                      loaded_forest = object$forest,
-#                      n_tree = get_n_tree(object),
-#                      mtry = get_mtry(object),
-#                      sample_with_replacement = get_sample_with_replacement(object),
-#                      sample_fraction = get_sample_fraction(object),
-#                      vi_type_R = 0,
-#                      vi_max_pvalue = get_importance_max_pvalue(object),
-#                      oobag_R_function = get_f_oobag_eval(object),
-#                      leaf_min_events = get_leaf_min_events(object),
-#                      leaf_min_obs = get_leaf_min_obs(object),
-#                      split_rule_R = switch(get_split_rule(object),
-#                                            "logrank" = 1,
-#                                            "cstat" = 2),
-#                      split_min_events = get_split_min_events(object),
-#                      split_min_obs = get_split_min_obs(object),
-#                      split_min_stat = get_split_min_stat(object),
-#                      split_max_cuts = get_n_split(object),
-#                      split_max_retry = get_n_retry(object),
-#                      lincomb_R_function = control$lincomb_R_function,
-#                      lincomb_type_R = switch(control$lincomb_type,
-#                                              'glm' = 1,
-#                                              'random' = 2,
-#                                              'net' = 3,
-#                                              'custom' = 4),
-#                      lincomb_eps = control$lincomb_eps,
-#                      lincomb_iter_max = control$lincomb_iter_max,
-#                      lincomb_scale = control$lincomb_scale,
-#                      lincomb_alpha = control$lincomb_alpha,
-#                      lincomb_df_target = control$lincomb_df_target,
-#                      lincomb_ties_method = switch(tolower(control$lincomb_ties_method),
-#                                                   'breslow' = 0,
-#                                                   'efron'   = 1),
-#                      pred_type_R = switch(pred_type,
-#                                           "risk" = 1,
-#                                           "surv" = 2,
-#                                           "chf"  = 3,
-#                                           "mort" = 4,
-#                                           "leaf" = 8),
-#                      pred_mode = TRUE,
-#                      pred_aggregate = pred_aggregate,
-#                      pred_horizon = pred_horizon_ordered,
-#                      oobag = FALSE,
-#                      oobag_eval_type_R = 0,
-#                      oobag_eval_every = get_n_tree(object),
-#                      pd_type_R = 0,
-#                      pd_x_vals = list(matrix(0, ncol=1, nrow=1)),
-#                      pd_x_cols = list(matrix(1L, ncol=1, nrow=1)),
-#                      pd_probs = c(0),
-#                      n_thread = n_thread,
-#                      write_forest = FALSE,
-#                      run_forest = TRUE,
-#                      verbosity = as.integer(verbose_progress))
 

@@ -31,13 +31,16 @@
  enum SplitRule {
   SPLIT_LOGRANK = 1,
   SPLIT_CONCORD = 2,
-  SPLIT_GINI = 3
+  SPLIT_GINI = 3,
+  SPLIT_VARIANCE = 4
  };
 
  enum EvalType {
   EVAL_NONE = 0,
   EVAL_CONCORD = 1,
-  EVAL_R_FUNCTION = 2
+  EVAL_R_FUNCTION = 2,
+  EVAL_MSE = 3,
+  EVAL_RSQ = 4,
  };
 
  enum PartialDepType {

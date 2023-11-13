@@ -4,8 +4,8 @@
  aorsf may be modified and distributed under the terms of the MIT license.
 #----------------------------------------------------------------------------*/
 
-#ifndef TREECLASSIFICATION_H_
-#define TREECLASSIFICATION_H_
+#ifndef TREEREGRESSION_H_
+#define TREEREGRESSION_H_
 
 
 #include "Data.h"
@@ -14,20 +14,18 @@
 
  namespace aorsf {
 
- class TreeClassification: public Tree {
+ class TreeRegression: public Tree {
 
  public:
 
-  TreeClassification();
+  TreeRegression();
 
-  TreeClassification(const TreeClassification&) = delete;
-  TreeClassification& operator=(const TreeClassification&) = delete;
+  TreeRegression(const TreeRegression&) = delete;
+  TreeRegression& operator=(const TreeRegression&) = delete;
 
-  virtual ~TreeClassification() override = default;
+  virtual ~TreeRegression() override = default;
 
-  TreeClassification(arma::uword n_class);
-
-  TreeClassification(arma::uword n_obs,
+  TreeRegression(arma::uword n_obs,
                      arma::uvec& rows_oobag,
                      std::vector<double>& cutpoint,
                      std::vector<arma::uword>& child_left,
@@ -67,7 +65,6 @@
   arma::uword n_class;
 
   arma::uvec splittable_y_cols;
-  arma::uword y_col_split;
 
   // prob holds the predicted prob for each class
   std::vector<arma::vec> leaf_pred_prob;
@@ -77,4 +74,4 @@
 
  } // namespace aorsf
 
-#endif /* TREEClassification_H_ */
+#endif /* TREERegression_H_ */

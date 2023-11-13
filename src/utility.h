@@ -85,12 +85,27 @@ aorsf may be modified and distributed under the terms of the MIT license.
                            arma::vec& w,
                            arma::uvec& g);
 
+ double compute_mse(arma::vec& y,
+                    arma::vec& w,
+                    arma::vec& p);
+
+ double compute_rsq(arma::vec& y,
+                    arma::vec& w,
+                    arma::vec& p);
+
  double compute_gini(arma::mat& y,
                      arma::vec& w,
                      arma::uvec& g);
 
+ double compute_var_reduction(arma::vec& y,
+                              arma::vec& w,
+                              arma::uvec& g);
+
  arma::vec compute_pred_prob(arma::mat& y,
                              arma::vec& w);
+
+ double compute_pred_mean(arma::mat& y,
+                          arma::vec& w);
 
  arma::mat linreg_fit(arma::mat& x_node,
                       arma::mat& y_node,

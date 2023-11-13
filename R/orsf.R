@@ -371,6 +371,7 @@ orsf <- function(data,
               pred_type = oobag_pred_type,
               oobag_pred_horizon = oobag_pred_horizon,
               oobag_eval_every = oobag_eval_every,
+              oobag_fun = oobag_fun,
               importance_type = importance,
               importance_max_pvalue = importance_max_pvalue,
               importance_group_factors = group_factors,
@@ -391,7 +392,7 @@ orsf <- function(data,
   tree_type,
   'survival' = do.call(ObliqueForestSurvival$new, args = args),
   'classification' = do.call(ObliqueForestClassification$new, args = args),
-  'regression' = stop("not ready yet")
+  'regression' = do.call(ObliqueForestRegression$new, args = args)
  )
 
  if(no_fit) return(object)

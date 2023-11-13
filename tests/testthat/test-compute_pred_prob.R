@@ -8,7 +8,6 @@ test_that(
   w <- sample(1:5, length(y), replace = TRUE)
   y_probs_wtd <- compute_pred_prob_exported(y_expand, w)
   target_probs_wtd <- apply(y_expand, 2, weighted.mean, w)
-  target_probs_wtd <- c(1-sum(target_probs_wtd), target_probs_wtd)
   expect_equal(y_probs_wtd, matrix(target_probs_wtd, ncol = 1))
  }
 )

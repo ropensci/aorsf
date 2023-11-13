@@ -756,6 +756,18 @@
   mat out;
   return(out);
  }
+
+ arma::mat Tree::glmnet_fit(){
+  Rcpp::stop("default glmnet fit function called");
+  mat out;
+  return(out);
+ }
+
+ arma::mat Tree::user_fit(){
+  Rcpp::stop("default user fit function called");
+  mat out;
+  return(out);
+ }
  // # nocov end
 
  void Tree::grow(arma::vec* vi_numer,
@@ -876,11 +888,8 @@
      switch (lincomb_type) {
 
      case LC_GLM: {
-
       beta = glm_fit();
-
       break;
-
      }
 
      case LC_RANDOM_COEFS: {
@@ -898,41 +907,13 @@
      }
 
      case LC_GLMNET: {
-
-      NumericMatrix xx = wrap(x_node);
-      NumericMatrix yy = wrap(y_node);
-      NumericVector ww = wrap(w_node);
-
-      // initialize function from tree object
-      // (Functions can't be stored in C++ classes, but RObjects can)
-      Function f_beta = as<Function>(lincomb_R_function);
-
-      NumericMatrix beta_R = f_beta(xx, yy, ww,
-                                    lincomb_alpha,
-                                    lincomb_df_target);
-
-      beta = mat(beta_R.begin(), beta_R.nrow(), beta_R.ncol(), false);
-
+      beta = glmnet_fit();
       break;
-
      }
 
      case LC_R_FUNCTION: {
-
-      NumericMatrix xx = wrap(x_node);
-      NumericMatrix yy = wrap(y_node);
-      NumericVector ww = wrap(w_node);
-
-      // initialize function from tree object
-      // (Functions can't be stored in C++ classes, but RObjects can)
-      Function f_beta = as<Function>(lincomb_R_function);
-
-      NumericMatrix beta_R = f_beta(xx, yy, ww);
-
-      beta = mat(beta_R.begin(), beta_R.nrow(), beta_R.ncol(), false);
-
+      beta = user_fit();
       break;
-
      }
 
      } // end switch lincomb_type

@@ -138,15 +138,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// expand_y_clsf
-arma::mat expand_y_clsf(arma::vec& y, arma::uword n_class);
-RcppExport SEXP _aorsf_expand_y_clsf(SEXP ySEXP, SEXP n_classSEXP) {
+// compute_var_reduction_exported
+double compute_var_reduction_exported(arma::vec& y_node, arma::vec& w_node, arma::uvec& g_node);
+RcppExport SEXP _aorsf_compute_var_reduction_exported(SEXP y_nodeSEXP, SEXP w_nodeSEXP, SEXP g_nodeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< arma::uword >::type n_class(n_classSEXP);
-    rcpp_result_gen = Rcpp::wrap(expand_y_clsf(y, n_class));
+    Rcpp::traits::input_parameter< arma::vec& >::type y_node(y_nodeSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type w_node(w_nodeSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type g_node(g_nodeSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_var_reduction_exported(y_node, w_node, g_node));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -262,6 +263,31 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// expand_y_clsf
+arma::mat expand_y_clsf(arma::vec& y, arma::uword n_class);
+RcppExport SEXP _aorsf_expand_y_clsf(SEXP ySEXP, SEXP n_classSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type n_class(n_classSEXP);
+    rcpp_result_gen = Rcpp::wrap(expand_y_clsf(y, n_class));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_mse_exported
+double compute_mse_exported(arma::vec& y, arma::vec& w, arma::vec& p);
+RcppExport SEXP _aorsf_compute_mse_exported(SEXP ySEXP, SEXP wSEXP, SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type w(wSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_mse_exported(y, w, p));
+    return rcpp_result_gen;
+END_RCPP
+}
 // orsf_cpp
 List orsf_cpp(arma::mat& x, arma::mat& y, arma::vec& w, arma::uword tree_type_R, Rcpp::IntegerVector& tree_seeds, Rcpp::List& loaded_forest, Rcpp::RObject lincomb_R_function, Rcpp::RObject oobag_R_function, arma::uword n_tree, arma::uword mtry, bool sample_with_replacement, double sample_fraction, arma::uword vi_type_R, double vi_max_pvalue, double leaf_min_events, double leaf_min_obs, arma::uword split_rule_R, double split_min_events, double split_min_obs, double split_min_stat, arma::uword split_max_cuts, arma::uword split_max_retry, arma::uword lincomb_type_R, double lincomb_eps, arma::uword lincomb_iter_max, bool lincomb_scale, double lincomb_alpha, arma::uword lincomb_df_target, arma::uword lincomb_ties_method, bool pred_mode, arma::uword pred_type_R, arma::vec pred_horizon, bool pred_aggregate, bool oobag, arma::uword oobag_eval_type_R, arma::uword oobag_eval_every, int pd_type_R, std::vector<arma::mat>& pd_x_vals, std::vector<arma::uvec>& pd_x_cols, arma::vec& pd_probs, unsigned int n_thread, bool write_forest, bool run_forest, int verbosity);
 RcppExport SEXP _aorsf_orsf_cpp(SEXP xSEXP, SEXP ySEXP, SEXP wSEXP, SEXP tree_type_RSEXP, SEXP tree_seedsSEXP, SEXP loaded_forestSEXP, SEXP lincomb_R_functionSEXP, SEXP oobag_R_functionSEXP, SEXP n_treeSEXP, SEXP mtrySEXP, SEXP sample_with_replacementSEXP, SEXP sample_fractionSEXP, SEXP vi_type_RSEXP, SEXP vi_max_pvalueSEXP, SEXP leaf_min_eventsSEXP, SEXP leaf_min_obsSEXP, SEXP split_rule_RSEXP, SEXP split_min_eventsSEXP, SEXP split_min_obsSEXP, SEXP split_min_statSEXP, SEXP split_max_cutsSEXP, SEXP split_max_retrySEXP, SEXP lincomb_type_RSEXP, SEXP lincomb_epsSEXP, SEXP lincomb_iter_maxSEXP, SEXP lincomb_scaleSEXP, SEXP lincomb_alphaSEXP, SEXP lincomb_df_targetSEXP, SEXP lincomb_ties_methodSEXP, SEXP pred_modeSEXP, SEXP pred_type_RSEXP, SEXP pred_horizonSEXP, SEXP pred_aggregateSEXP, SEXP oobagSEXP, SEXP oobag_eval_type_RSEXP, SEXP oobag_eval_everySEXP, SEXP pd_type_RSEXP, SEXP pd_x_valsSEXP, SEXP pd_x_colsSEXP, SEXP pd_probsSEXP, SEXP n_threadSEXP, SEXP write_forestSEXP, SEXP run_forestSEXP, SEXP verbositySEXP) {
@@ -316,19 +342,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// compute_var_reduction
-double compute_var_reduction(arma::vec& y_node, arma::vec& w_node, arma::uvec& g_node);
-RcppExport SEXP _aorsf_compute_var_reduction(SEXP y_nodeSEXP, SEXP w_nodeSEXP, SEXP g_nodeSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec& >::type y_node(y_nodeSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type w_node(w_nodeSEXP);
-    Rcpp::traits::input_parameter< arma::uvec& >::type g_node(g_nodeSEXP);
-    rcpp_result_gen = Rcpp::wrap(compute_var_reduction(y_node, w_node, g_node));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_coxph_fit_exported", (DL_FUNC) &_aorsf_coxph_fit_exported, 6},
@@ -340,7 +353,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_compute_logrank_exported", (DL_FUNC) &_aorsf_compute_logrank_exported, 3},
     {"_aorsf_compute_gini_exported", (DL_FUNC) &_aorsf_compute_gini_exported, 3},
     {"_aorsf_compute_pred_prob_exported", (DL_FUNC) &_aorsf_compute_pred_prob_exported, 2},
-    {"_aorsf_expand_y_clsf", (DL_FUNC) &_aorsf_expand_y_clsf, 2},
+    {"_aorsf_compute_var_reduction_exported", (DL_FUNC) &_aorsf_compute_var_reduction_exported, 3},
     {"_aorsf_is_col_splittable_exported", (DL_FUNC) &_aorsf_is_col_splittable_exported, 4},
     {"_aorsf_find_cuts_survival_exported", (DL_FUNC) &_aorsf_find_cuts_survival_exported, 6},
     {"_aorsf_sprout_node_survival_exported", (DL_FUNC) &_aorsf_sprout_node_survival_exported, 2},
@@ -349,8 +362,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_aorsf_x_submat_mult_beta_pd_exported", (DL_FUNC) &_aorsf_x_submat_mult_beta_pd_exported, 8},
     {"_aorsf_scale_x_exported", (DL_FUNC) &_aorsf_scale_x_exported, 2},
     {"_aorsf_cph_scale", (DL_FUNC) &_aorsf_cph_scale, 2},
+    {"_aorsf_expand_y_clsf", (DL_FUNC) &_aorsf_expand_y_clsf, 2},
+    {"_aorsf_compute_mse_exported", (DL_FUNC) &_aorsf_compute_mse_exported, 3},
     {"_aorsf_orsf_cpp", (DL_FUNC) &_aorsf_orsf_cpp, 44},
-    {"_aorsf_compute_var_reduction", (DL_FUNC) &_aorsf_compute_var_reduction, 3},
     {NULL, NULL, 0}
 };
 

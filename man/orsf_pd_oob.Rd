@@ -133,6 +133,85 @@ See examples for more details
 \details{
 Partial dependence has a number of \href{https://christophm.github.io/interpretable-ml-book/pdp.html#disadvantages-5}{known limitations and assumptions} that users should be aware of (see Hooker, 2021). In particular, partial dependence is less intuitive when >2 predictors are examined jointly, and it is assumed that the feature(s) for which the partial dependence is computed are not correlated with other features (this is likely not true in many cases). Accumulated local effect plots can be used (see \href{https://christophm.github.io/interpretable-ml-book/ale.html}{here}) in the case where feature independence is not a valid assumption.
 }
+\section{Examples}{
+Begin by fitting an ORSF ensemble:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(aorsf)
+
+set.seed(329730)
+
+index_train <- sample(nrow(pbc_orsf), 150) 
+
+pbc_orsf_train <- pbc_orsf[index_train, ]
+pbc_orsf_test <- pbc_orsf[-index_train, ]
+
+fit <- orsf(data = pbc_orsf_train, 
+            formula = Surv(time, status) ~ . - id,
+            oobag_pred_horizon = 365.25 * 5)
+}\if{html}{\out{</div>}}
+\subsection{Three ways to compute PD and ICE}{
+
+You can compute partial dependence and ICE three ways with \code{aorsf}:
+\itemize{
+\item using in-bag predictions for the training data
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_train <- orsf_pd_inb(fit, pred_spec = list(bili = 1:5))
+
+pd_train
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean       lwr      medn       upr
+## 1:      1826.25    1 0.7932390 0.2177461 0.9060625 0.9816153
+## 2:      1826.25    2 0.7642403 0.1988035 0.8717127 0.9710504
+## 3:      1826.25    3 0.7240284 0.1770122 0.8303501 0.9480047
+## 4:      1826.25    4 0.6744615 0.1615326 0.7599508 0.9088882
+## 5:      1826.25    5 0.6313355 0.1553589 0.7152580 0.8658139
+}\if{html}{\out{</div>}}
+\item using out-of-bag predictions for the training data
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_train <- orsf_pd_oob(fit, pred_spec = list(bili = 1:5))
+
+pd_train
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean       lwr      medn       upr
+## 1:      1826.25    1 0.7840481 0.2727537 0.8694252 0.9809905
+## 2:      1826.25    2 0.7549406 0.2525478 0.8333524 0.9693362
+## 3:      1826.25    3 0.7158234 0.2364582 0.7890158 0.9461864
+## 4:      1826.25    4 0.6656823 0.2260407 0.7158336 0.9151153
+## 5:      1826.25    5 0.6225353 0.2071656 0.6734005 0.8681677
+}\if{html}{\out{</div>}}
+\item using predictions for a new set of data
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_test <- orsf_pd_new(fit, 
+                       new_data = pbc_orsf_test, 
+                       pred_spec = list(bili = 1:5))
+
+pd_test
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean       lwr      medn       upr
+## 1:      1826.25    1 0.7524101 0.1868769 0.8121185 0.9803382
+## 2:      1826.25    2 0.7234050 0.1759562 0.7754099 0.9653244
+## 3:      1826.25    3 0.6816975 0.1581292 0.7224945 0.9403449
+## 4:      1826.25    4 0.6339907 0.1467816 0.6598026 0.9000773
+## 5:      1826.25    5 0.5911775 0.1387876 0.6186801 0.8504577
+}\if{html}{\out{</div>}}
+\item in-bag partial dependence indicates relationships that the model has
+learned during training. This is helpful if your goal is to interpret
+the model.
+\item out-of-bag partial dependence indicates relationships that the model
+has learned during training but using the out-of-bag data simulates
+application of the model to new data. if you want to test your model’s
+reliability or fairness in new data but you don’t have access to a
+large testing set.
+\item new data partial dependence shows how the model predicts outcomes for
+observations it has not seen. This is helpful if you want to test your
+model’s reliability or fairness.
+}
+}
+}
+
 \references{
 Giles Hooker, Lucas Mentch, Siyu Zhou. Unrestricted Permutation forces Extrapolation: Variable Importance Requires at least One More Model, or There Is No Free Variable Importance. \emph{arXiv e-prints} 2021 Oct; arXiv-1905. URL: https://doi.org/10.48550/arXiv.1905.03151
 }

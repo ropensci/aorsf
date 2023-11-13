@@ -50,13 +50,6 @@ for(i in vars){
 # make sorted x and y matrices for testing internal cpp functions
 pbc_mats <- prep_test_matrices(pbc, outcomes = c("time", "status"))
 
-# data lists ----
-
-data_list_pbc <- list(pbc_standard = pbc,
-                      pbc_status_12 = pbc_status_12,
-                      pbc_scaled = pbc_scale,
-                      pbc_noised = pbc_noise)
-
 # penguins ----
 
 penguins <- penguins_orsf
@@ -64,10 +57,8 @@ penguins <- penguins_orsf
 penguins_scale <- penguins_noise <- penguins
 
 
-vars <- c("bill_length_mm",
-          "bill_depth_mm",
-          "flipper_length_mm",
-          "body_mass_g")
+vars <- c("bill_length_mm", "bill_depth_mm",
+          "flipper_length_mm", "body_mass_g")
 
 for(i in vars){
  penguins_noise[[i]] <- add_noise(penguins_noise[[i]])
@@ -77,13 +68,40 @@ for(i in vars){
 # make sorted x and y matrices for testing internal cpp functions
 penguins_mats <- prep_test_matrices(penguins, outcomes = c("species"))
 
+# mtcars ----
+
+mtcars_scale <- mtcars_noise <- mtcars
+
+vars <- c("drat", "wt", "qsec", "disp")
+
+for(i in vars){
+ mtcars_noise[[i]] <- add_noise(mtcars_noise[[i]])
+ mtcars_scale[[i]] <- change_scale(mtcars_scale[[i]])
+}
+
+# make sorted x and y matrices for testing internal cpp functions
+mtcars_mats <- prep_test_matrices(mtcars, outcomes = c("mpg"))
+
 # data lists ----
+
+data_list_pbc <- list(pbc_standard = pbc,
+                      pbc_status_12 = pbc_status_12,
+                      pbc_scaled = pbc_scale,
+                      pbc_noised = pbc_noise)
 
 data_list_penguins <- list(penguins_standard = penguins,
                            penguins_scaled = penguins_scale,
                            penguins_noised = penguins_noise)
 
-# matric lists ----
+data_list_mtcars <- list(mtcars_standard = mtcars,
+                         mtcars_scaled = mtcars_scale,
+                         mtcars_noised = mtcars_noise)
+
+
+
+
+
+# matrix lists ----
 
 mat_list_surv <- list(pbc = pbc_mats,
                       flc = flc_mats,
@@ -97,9 +115,7 @@ seeds_standard <- 329
 n_tree_test <- 5
 
 controls_surv <- list(
- fast = orsf_control_survival(method = 'glm',
-                              scale_x = FALSE,
-                              max_iter = 1),
+ fast = orsf_control_survival(method = 'glm', scale_x = FALSE, max_iter = 1),
  net = orsf_control_survival(method = 'net'),
  custom = orsf_control_survival(method = f_pca)
 )
@@ -115,6 +131,40 @@ fit_standard_pbc <- lapply(
  }
 )
 
+controls_clsf <- list(
+ fast = orsf_control_classification(method = 'glm', scale_x = FALSE, max_iter = 1),
+ net = orsf_control_classification(method = 'net'),
+ custom = orsf_control_classification(method = f_pca)
+)
+
+fit_standard_penguins <- lapply(
+ controls_clsf,
+ function(cntrl){
+  orsf(penguins,
+       formula = species ~ .,
+       n_tree = n_tree_test,
+       control = cntrl,
+       tree_seed = seeds_standard)
+ }
+)
+
+controls_regr <- list(
+ fast = orsf_control_regression(method = 'glm', scale_x = FALSE, max_iter = 1),
+ net = orsf_control_regression(method = 'net'),
+ custom = orsf_control_regression(method = f_pca)
+)
+
+fit_standard_mtcars <- lapply(
+ controls_regr,
+ function(cntrl){
+  orsf(mtcars,
+       formula = mpg ~ .,
+       n_tree = n_tree_test,
+       control = cntrl,
+       tree_seed = seeds_standard)
+ }
+)
+
 # training and testing data ----
 
 pred_types_surv <- c(risk = 'risk',
@@ -123,9 +173,22 @@ pred_types_surv <- c(risk = 'risk',
                      mort = 'mort',
                      leaf = 'leaf')
 
-pbc_train_rows <- sample(nrow(pbc_orsf), size = 170)
+pred_types_clsf <- c(prob = 'prob',
+                     class = 'class',
+                     leaf = 'leaf')
 
+pred_types_regr <- c(mean = 'mean',
+                     leaf = 'leaf')
+
+pbc_train_rows <- sample(nrow(pbc_orsf), size = 170)
 pbc_train <- pbc[pbc_train_rows, ]
 pbc_test <- pbc[-pbc_train_rows, ]
 
+penguins_train_rows <- sample(nrow(penguins_orsf), size = 180)
+penguins_train <- penguins[penguins_train_rows, ]
+penguins_test <- penguins[-penguins_train_rows, ]
+
+mtcars_train_rows <- sample(nrow(mtcars), size = 16)
+mtcars_train <- mtcars[mtcars_train_rows, ]
+mtcars_test <- mtcars[-mtcars_train_rows, ]
 

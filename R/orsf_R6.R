@@ -181,6 +181,9 @@ ObliqueForest <- R6::R6Class(
        if(self$tree_type == 'survival')
         paste0('                N events: ', private$n_events             ),
 
+       if(self$tree_type == 'classification')
+        paste0('               N classes: ', self$n_class             ),
+
        paste0('                 N trees: ', self$n_tree                   ),
        paste0('      N predictors total: ', n_predictors                  ),
        paste0('   N predictors per node: ', self$mtry                     ),
@@ -272,17 +275,16 @@ ObliqueForest <- R6::R6Class(
    private$check_na_action(new = TRUE, na_action = na_action)
    private$check_var_missing(new = TRUE, data = new_data, na_action)
    private$check_units(data = new_data)
-   private$check_pred_type(oobag = FALSE, pred_type = pred_type)
+   private$check_boundary_checks(boundary_checks)
    private$check_n_thread(n_thread)
    private$check_verbose_progress(verbose_progress)
    private$check_pred_aggregate(pred_aggregate)
 
-   if(self$tree_type == 'survival')
-    private$check_pred_horizon(pred_horizon, boundary_checks)
-
+   # check and/or set self$pred_horizon and self$pred_type
+   # with defaults depending on tree type
+   private$init_pred(pred_horizon, pred_type, boundary_checks)
+   # set the rest
    self$data             <- new_data
-   self$pred_horizon     <- pred_horizon
-   self$pred_type        <- pred_type
    self$na_action        <- na_action
    self$n_thread         <- n_thread
    self$verbose_progress <- verbose_progress
@@ -1971,30 +1973,7 @@ ObliqueForest <- R6::R6Class(
      call. = FALSE
     )
 
-    test_time <- seq(from = 1, to = 5, length.out = 100)
-    test_status <- rep(c(0,1), each = 50)
-
-    .y_mat <- cbind(time = test_time, status = test_status)
-    .w_vec <- rep(1, times = 100)
-    .s_vec <- seq(0.9, 0.1, length.out = 100)
-
-    test_output <- try(input(y_mat = .y_mat, w_vec = .w_vec, s_vec = .s_vec),
-                       silent = FALSE)
-
-    if(is_error(test_output)){
-
-     stop("oobag_fun encountered an error when it was tested. ",
-          "Please make sure your oobag_fun works for this case:\n\n",
-          "test_time <- seq(from = 1, to = 5, length.out = 100)\n",
-          "test_status <- rep(c(0,1), each = 50)\n\n",
-          "y_mat <- cbind(time = test_time, status = test_status)\n",
-          "w_vec <- rep(1, times = 100)\n",
-          "s_vec <- seq(0.9, 0.1, length.out = 100)\n\n",
-          "test_output <- oobag_fun(y_mat = y_mat, w_vec = w_vec, s_vec = s_vec)\n\n",
-          "test_output should be a numeric value of length 1",
-          call. = FALSE)
-
-    }
+    test_output <- private$check_oobag_eval_function_internal(input)
 
     if(!is.numeric(test_output)) stop(
      "oobag_fun should return a numeric output but instead returns ",
@@ -2375,7 +2354,8 @@ ObliqueForest <- R6::R6Class(
     split_rule_R = switch(self$split_rule,
                           "logrank" = 1,
                           "cstat" = 2,
-                          "gini" = 3),
+                          "gini" = 3,
+                          "variance" = 4),
     split_min_events = .dots$split_min_events %||% self$split_min_events %||% 1,
     split_min_obs = .dots$split_min_obs %||% self$split_min_obs,
     split_min_stat = .dots$split_min_stat %||% self$split_min_stat,
@@ -2401,6 +2381,7 @@ ObliqueForest <- R6::R6Class(
                          "surv" = 2,
                          "chf"  = 3,
                          "mort" = 4,
+                         "mean" = 5,
                          "prob" = 6,
                          "class" = 7,
                          "leaf" = 8),
@@ -2414,7 +2395,9 @@ ObliqueForest <- R6::R6Class(
      "none" = 0,
      "harrell's c-index" = 1,
      "auc-roc" = 1,
-     "user-specified function" = 2
+     "user-specified function" = 2,
+     "mse" = 3,
+     "rsq" = 4
     ),
     oobag_eval_every = .dots$oobag_eval_every %||% self$oobag_eval_every,
     # switch(pd_type, "none" = 0L, "smry" = 1L, "ice" = 2L)
@@ -2698,6 +2681,39 @@ ObliqueForestSurvival <- R6::R6Class(
 
   },
 
+  check_oobag_eval_function_internal = function(oobag_fun){
+
+   test_time <- seq(from = 1, to = 5, length.out = 100)
+   test_status <- rep(c(0,1), each = 50)
+
+   .y_mat <- cbind(time = test_time, status = test_status)
+   .w_vec <- rep(1, times = 100)
+   .s_vec <- seq(0.9, 0.1, length.out = 100)
+
+   test_output <- try(oobag_fun(y_mat = .y_mat,
+                                w_vec = .w_vec,
+                                s_vec = .s_vec),
+                      silent = FALSE)
+
+   if(is_error(test_output)){
+
+    stop("oobag_fun encountered an error when it was tested. ",
+         "Please make sure your oobag_fun works for this case:\n\n",
+         "test_time <- seq(from = 1, to = 5, length.out = 100)\n",
+         "test_status <- rep(c(0,1), each = 50)\n\n",
+         "y_mat <- cbind(time = test_time, status = test_status)\n",
+         "w_vec <- rep(1, times = 100)\n",
+         "s_vec <- seq(0.9, 0.1, length.out = 100)\n\n",
+         "test_output <- oobag_fun(y_mat = y_mat, w_vec = w_vec, s_vec = s_vec)\n\n",
+         "test_output should be a numeric value of length 1",
+         call. = FALSE)
+
+   }
+
+   test_output
+
+  },
+
   sort_inputs = function(sort_x = TRUE,
                          sort_y = TRUE,
                          sort_w = TRUE){
@@ -2790,6 +2806,50 @@ ObliqueForestSurvival <- R6::R6Class(
    }
 
   },
+
+  init_pred = function(pred_horizon = NULL, pred_type = NULL,
+                       boundary_checks = TRUE){
+
+   pred_type_supplied <- !is.null(pred_type)
+   pred_horizon_supplied <- !is.null(pred_horizon)
+
+   if(pred_type_supplied){
+    private$check_pred_type(oobag = FALSE, pred_type = pred_type)
+   } else {
+    pred_type <- self$pred_type %||% "risk"
+   }
+
+   if(pred_horizon_supplied){
+    private$check_pred_horizon(pred_horizon, boundary_checks, pred_type)
+   } else {
+    pred_horizon <- self$pred_horizon
+    if(is.null(pred_horizon)){
+     stop("pred_horizon was not specified and could not be found in object.",
+          call. = FALSE)
+    }
+   }
+
+   if(pred_type_supplied &&
+      pred_horizon_supplied &&
+      pred_type %in% c('leaf', 'mort')){
+
+    extra_text <- if(length(pred_horizon)>1){
+     " Predictions at each value of pred_horizon will be identical."
+    } else {
+     ""
+    }
+
+    warning("pred_horizon does not impact predictions",
+            " when pred_type is '", pred_type, "'.",
+            extra_text, call. = FALSE)
+
+   }
+
+   self$pred_horizon <- pred_horizon
+   self$pred_type <- pred_type
+
+  },
+
   prep_y_internal = function(placeholder = FALSE){
 
 
@@ -2894,6 +2954,7 @@ ObliqueForestSurvival <- R6::R6Class(
    private$y <- as_matrix(y)
 
   },
+
   clean_pred_oobag_internal = function(){
 
 
@@ -2915,7 +2976,12 @@ ObliqueForestSurvival <- R6::R6Class(
   },
   clean_pred_new_internal = function(preds){
 
-    # output in the same order as user's pred_horizon vector
+   # don't let multiple pred horizon values through for mort
+   if(self$pred_type == 'mort'){
+    return(preds[, 1, drop = FALSE])
+   }
+
+   # output in the same order as user's pred_horizon vector
    preds <- preds[, order(private$pred_horizon_order), drop = FALSE]
 
    preds
@@ -2952,6 +3018,10 @@ ObliqueForestSurvival <- R6::R6Class(
      results[[i]] <- private$clean_pred_new(results[[i]])
 
     }
+
+    # all components are the same if pred type is mort
+    # (user also gets a warning if they ask for this)
+    if(self$pred_type %in% c('mort', 'leaf')) return(results[[1]])
 
     return(simplify2array(results))
 
@@ -3010,6 +3080,37 @@ ObliqueForestClassification <- R6::R6Class(
 
   },
 
+  check_oobag_eval_function_internal = function(oobag_fun){
+
+   test_y <- rep(c(0,1), each = 50)
+
+   .y_mat <- matrix(test_y, ncol = 1)
+   .w_vec <- rep(1, times = 100)
+   .s_vec <- seq(0.9, 0.1, length.out = 100)
+
+   test_output <- try(oobag_fun(y_mat = .y_mat,
+                                w_vec = .w_vec,
+                                s_vec = .s_vec),
+                      silent = FALSE)
+
+   if(is_error(test_output)){
+
+    stop("oobag_fun encountered an error when it was tested. ",
+         "Please make sure your oobag_fun works for this case:\n\n",
+         "test_y <- rep(c(0,1), each = 50)\n",
+         "y_mat <- matrix(test_y, ncol = 1)\n",
+         "w_vec <- rep(1, times = 100)\n",
+         "s_vec <- seq(0.9, 0.1, length.out = 100)\n\n",
+         "test_output <- oobag_fun(y_mat = y_mat, w_vec = w_vec, s_vec = s_vec)\n\n",
+         "test_output should be a numeric value of length 1",
+         call. = FALSE)
+
+   }
+
+   test_output
+
+  },
+
   init_control = function(){
 
    self$control <- orsf_control_classification(method = 'glm',
@@ -3051,19 +3152,46 @@ ObliqueForestClassification <- R6::R6Class(
 
   },
 
+  init_pred = function(pred_horizon = NULL, pred_type = NULL,
+                       boundary_checks = TRUE){
+
+   if(!is.null(pred_horizon)){
+    warning("pred_horizon does not impact predictions",
+            " for classification forests", call. = FALSE)
+   }
+
+   if(!is.null(pred_type)){
+    private$check_pred_type(oobag = FALSE, pred_type = pred_type)
+   } else {
+    pred_type <- self$pred_type %||% "prob"
+   }
+
+   self$pred_type <- pred_type
+
+  },
+
   prep_y_internal = function(placeholder = FALSE){
 
    if(placeholder){
-    private$y <- matrix(0, ncol = self$n_class-1, nrow = 1)
+    private$y <- matrix(0, ncol = self$n_class, nrow = 1)
     return()
    }
 
    # y is always 1 column for classification (right?)
    y <- private$y[[1]]
 
-   if(!is.factor(y)) y <- as.factor(y)
+   input_was_numeric <- !is.factor(y)
+
+   if(input_was_numeric) y <- as.factor(y)
 
    n_class <- length(levels(y))
+
+   if(n_class > 5 && input_was_numeric){
+    stop("The outcome is numeric and has > 5 unique values.",
+         " Did you mean to use orsf_control_regression()? If not,",
+         " please convert ", private$data_names$y, " to a factor and re-run",
+         call. = FALSE)
+   }
 
    y <- as.numeric(y) - 1
 
@@ -3074,7 +3202,176 @@ ObliqueForestClassification <- R6::R6Class(
   predict_internal = function(){
 
    # resize y to have the right number of columns
-   private$y <- matrix(0, ncol = self$n_class-1)
+   private$y <- matrix(0, ncol = self$n_class)
+
+   cpp_args = private$prep_cpp_args(x = private$x,
+                                    y = private$y,
+                                    w = private$w,
+                                    importance_type = 'none',
+                                    pred_type = self$pred_type,
+                                    pred_aggregate = self$pred_aggregate,
+                                    oobag_pred = FALSE,
+                                    pred_mode = TRUE,
+                                    write_forest = FALSE,
+                                    run_forest = TRUE)
+
+   # no further cleaning needed
+   do.call(orsf_cpp, args = cpp_args)$pred_new
+
+  }
+
+ )
+)
+
+
+# ObliqueForestRegression class ----
+
+ObliqueForestRegression <- R6::R6Class(
+ "ObliqueForestRegression",
+ inherit = ObliqueForest,
+ cloneable = FALSE,
+ public = list(
+
+  n_class = NULL,
+
+  class_levels = NULL
+
+ ),
+ private = list(
+
+  check_split_rule_internal = function(){
+
+   check_arg_is_valid(arg_value = self$split_rule,
+                      arg_name = 'split_rule',
+                      valid_options = c("variance"))
+
+  },
+
+  check_pred_type_internal = function(oobag, pred_type = NULL){
+
+   input <- pred_type %||% self$pred_type
+
+   arg_name <- if(oobag) 'oobag_pred_type' else 'pred_type'
+
+   check_arg_is_valid(arg_value = input,
+                      arg_name = arg_name,
+                      valid_options = c("none", "mean", "leaf"))
+
+  },
+
+  check_pred_horizon = function(pred_horizon = NULL,
+                                boundary_checks = TRUE,
+                                pred_type = NULL){
+
+   # nothing to check
+   NULL
+
+  },
+
+  check_oobag_eval_function_internal = function(oobag_fun){
+
+
+   test_y <- seq(0, 1, length.out = 100)
+
+   .y_mat <- matrix(test_y, ncol = 1)
+   .w_vec <- rep(1, times = 100)
+   .s_vec <- seq(0.9, 0.1, length.out = 100)
+
+   test_output <- try(oobag_fun(y_mat = .y_mat,
+                                w_vec = .w_vec,
+                                s_vec = .s_vec),
+                      silent = FALSE)
+
+   if(is_error(test_output)){
+
+    stop("oobag_fun encountered an error when it was tested. ",
+         "Please make sure your oobag_fun works for this case:\n\n",
+         "test_y <- seq(0, 1, length.out = 100)\n",
+         "y_mat <- matrix(test_y, ncol = 1)\n",
+         "w_vec <- rep(1, times = 100)\n",
+         "s_vec <- seq(0.9, 0.1, length.out = 100)\n\n",
+         "test_output <- oobag_fun(y_mat = y_mat, w_vec = w_vec, s_vec = s_vec)\n\n",
+         "test_output should be a numeric value of length 1",
+         call. = FALSE)
+
+   }
+
+   test_output
+
+  },
+
+  init_control = function(){
+
+   self$control <- orsf_control_regression(method = 'glm',
+                                               scale_x = FALSE,
+                                               max_iter = 1)
+
+  },
+
+  init_internal = function(){
+
+   self$tree_type <- "regression"
+
+   if(is.factor(self$data[[private$data_names$y]])){
+    stop("Cannot fit regression trees to outcome ",
+         private$data_names$y, " because it is a factor.",
+         " Did you mean to use orsf_control_classification()?",
+         call. = FALSE)
+   }
+
+   if(!is.function(self$control$lincomb_R_function) &&
+      self$control$lincomb_type == 'net'){
+    self$control$lincomb_R_function <- penalized_linreg
+   }
+
+   self$split_rule <- self$split_rule %||% 'variance'
+   self$pred_type <- self$pred_type %||% 'mean'
+   self$split_min_stat <- self$split_min_stat %||%
+    switch(self$split_rule, 'variance' = 0)
+
+   # use default if eval type was not specified by user
+   if(self$oobag_pred_mode && is.null(self$oobag_eval_type)){
+    self$oobag_eval_type <- "RSQ"
+   }
+
+  },
+
+  init_pred = function(pred_horizon = NULL, pred_type = NULL,
+                       boundary_checks = TRUE){
+
+   if(!is.null(pred_horizon)){
+    warning("pred_horizon does not impact predictions",
+            " for regression forests", call. = FALSE)
+   }
+
+   if(!is.null(pred_type)){
+    private$check_pred_type(oobag = FALSE, pred_type = pred_type)
+   } else {
+    pred_type <- self$pred_type %||% "mean"
+   }
+
+   self$pred_type <- pred_type
+
+  },
+
+  prep_y_internal = function(placeholder = FALSE){
+
+   if(placeholder){
+    private$y <- matrix(0, ncol = 1, nrow = 1)
+    return()
+   }
+
+   # y is always 1 column for regression (for now)
+   y <- private$y[[1]]
+
+   private$y <- as_matrix(y)
+
+  },
+
+  predict_internal = function(){
+
+   # resize y to have the right number of columns
+   private$y <- matrix(0, ncol = 1)
 
    cpp_args = private$prep_cpp_args(x = private$x,
                                     y = private$y,

@@ -219,6 +219,8 @@
   void find_rows_inbag(arma::uword n_obs);
 
   virtual arma::mat glm_fit();
+  virtual arma::mat glmnet_fit();
+  virtual arma::mat user_fit();
 
   virtual uword get_n_col_vi()=0;
 

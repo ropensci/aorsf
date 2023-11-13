@@ -9,13 +9,20 @@ test_that(
   ones <- which(y == 1)
   twos <- which(y == 2)
 
-  expect_true(all(y_expand[zeros, ] == 0))
+  # zeros should be 1 in column 1, 0 o.w.
+  expect_true(all(y_expand[zeros, 1] == 1))
+  expect_true(all(y_expand[zeros, 2] == 0))
+  expect_true(all(y_expand[zeros, 3] == 0))
+
   # ones should be 1 in column 1, 0 o.w.
-  expect_true(all(y_expand[ones, 1] == 1))
-  expect_true(all(y_expand[ones, 2] == 0))
+  expect_true(all(y_expand[ones, 1] == 0))
+  expect_true(all(y_expand[ones, 2] == 1))
+  expect_true(all(y_expand[ones, 3] == 0))
+
   # twos should be 1 in column 2, 0 o.w.
   expect_true(all(y_expand[twos, 1] == 0))
-  expect_true(all(y_expand[twos, 2] == 1))
+  expect_true(all(y_expand[twos, 2] == 0))
+  expect_true(all(y_expand[twos, 3] == 1))
 
  }
 )

@@ -693,6 +693,44 @@
 
  }
 
+ arma::mat TreeSurvival::glmnet_fit(){
+
+  NumericMatrix xx = wrap(x_node);
+  NumericMatrix yy = wrap(y_node);
+  NumericVector ww = wrap(w_node);
+
+  // initialize function from tree object
+  // (Functions can't be stored in C++ classes, but RObjects can)
+  Function f_beta = as<Function>(lincomb_R_function);
+
+  NumericMatrix beta_R = f_beta(xx, yy, ww,
+                                lincomb_alpha,
+                                lincomb_df_target);
+
+  mat beta = mat(beta_R.begin(), beta_R.nrow(), beta_R.ncol(), false);
+
+  return(beta);
+
+ }
+
+ arma::mat TreeSurvival::user_fit(){
+
+  NumericMatrix xx = wrap(x_node);
+  NumericMatrix yy = wrap(y_node);
+  NumericVector ww = wrap(w_node);
+
+  // initialize function from tree object
+  // (Functions can't be stored in C++ classes, but RObjects can)
+  Function f_beta = as<Function>(lincomb_R_function);
+
+  NumericMatrix beta_R = f_beta(xx, yy, ww);
+
+  mat beta = mat(beta_R.begin(), beta_R.nrow(), beta_R.ncol(), false);
+
+  return(beta);
+
+ }
+
  uword TreeSurvival::get_n_col_vi(){
   return(1);
  }

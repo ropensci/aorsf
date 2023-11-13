@@ -474,22 +474,125 @@
 
  }
 
+ double compute_var_reduction(arma::vec& y,
+                              arma::vec& w,
+                              arma::uvec& g){
+
+  double root_mean = 0, left_mean = 0, right_mean = 0;
+  double root_w_sum = 0, left_w_sum = 0, right_w_sum = 0;
+
+  for(arma::uword i = 0; i < y.n_rows; ++i){
+
+   double w_i = w[i];
+   double y_i = y[i] * w_i;
+
+   root_w_sum += w_i;
+   root_mean  += y_i;
+
+   if(g[i] == 1){
+    right_w_sum += w_i;
+    right_mean  += y_i;
+   } else {
+    left_w_sum += w_i;
+    left_mean  += y_i;
+   }
+
+  }
+
+  root_mean /= root_w_sum;
+  left_mean /= left_w_sum;
+  right_mean /= right_w_sum;
+
+  double ans = 0;
+
+  for(arma::uword i = 0; i < y.n_rows; ++i){
+
+   double w_i = w[i];
+   double y_i = y[i];
+   double g_i = g[i];
+   double obs_mean = g_i*right_mean + (1 - g_i)*left_mean;
+
+   ans += w_i * pow(y_i - root_mean, 2) - w_i * pow(y_i - obs_mean, 2);
+
+  }
+  ans /= root_w_sum;
+  return(ans);
+ }
+
+ double compute_mse(arma::vec& y,
+                    arma::vec& w,
+                    arma::vec& p){
+
+  double numer = 0;
+  double denom = 0;
+
+  for(uword i = 0; i < p.size(); ++i){
+
+   numer += (y[i] - p[i]) * (y[i] - p[i]) * w[i];
+   denom += w[i];
+
+  }
+
+  return(numer/denom);
+
+ }
+
+ double compute_rsq(arma::vec& y,
+                    arma::vec& w,
+                    arma::vec& p){
+
+  double truth_mean = compute_pred_mean(y, w);
+
+  double SS_residuals = 0, SS_total = 0;
+
+  for(uword i = 0; i < p.size(); ++i){
+
+   SS_residuals += (y[i] - p[i]) * (y[i] - p[i]) * w[i];
+   SS_total += (y[i] - truth_mean) * (y[i] - truth_mean) * w[i];
+
+  }
+
+  return(1 - (SS_residuals/SS_total));
+
+ }
+
  vec compute_pred_prob(mat& y, vec& w){
 
   double n_wtd = 0;
+
   vec pred_prob(y.n_cols, fill::zeros);
 
   for(uword i = 0; i < y.n_rows; ++i){
    n_wtd += w[i];
+
    for(uword j = 0; j < y.n_cols; ++j){
     pred_prob[j] += (y.at(i, j) * w[i]);
    }
+
   }
 
   pred_prob /= n_wtd;
-  vec pred_0 = vec {1 - sum(pred_prob)};
-  pred_prob = join_vert(pred_0, pred_prob);
+
+  // vec pred_0 = vec {1 - sum(pred_prob)};
+  // pred_prob = join_vert(pred_0, pred_prob);
+
   return(pred_prob);
+
+ }
+
+ double compute_pred_mean(mat& y, vec& w){
+
+  double numer = 0;
+  double denom = 0;
+
+  for(uword i = 0; i < y.size(); ++i){
+
+   numer += (y.at(i, 0) * w[i]);
+   denom += w[i];
+
+  }
+
+  return(numer / denom);
 
  }
 
@@ -499,6 +602,10 @@
                       bool do_scale,
                       double epsilon,
                       arma::uword iter_max){
+
+  mat x_transforms;
+
+  if(do_scale) x_transforms = scale_x(x_node, w_node);
 
   // Add an intercept column to the design matrix
   vec intercept(x_node.n_rows, fill::ones);
@@ -510,17 +617,38 @@
 
   uword resid_df = X.n_rows - X.n_cols;
 
-  vec beta = solve(X.t() * diagmat(w_node) * X, X.t() * (w_node % y_node));
+  vec beta;
+
+  bool nonsingular = solve(beta,
+                           X.t() * diagmat(w_node) * X,
+                           X.t() * (w_node % y_node),
+                           solve_opts::no_approx);
+
+  if(!nonsingular){
+   mat result(beta.size(), 2, fill::zeros);
+   return(result);
+  }
 
   vec resid  = y_node - X * beta;
 
   double s2 = as_scalar(trans(resid) * (w_node % resid) / (resid_df));
 
-  mat beta_cov = s2 * inv(X.t() * diagmat(w_node) * X);
+  mat xtx_inverse;
 
-  vec se = sqrt(diagvec(beta_cov));
+  bool invertible = inv(xtx_inverse, X.t() * diagmat(w_node) * X);
 
-  vec tscores = beta / se;
+  if(!invertible) {
+   mat result(beta.size(), 2, fill::zeros);
+   return(result);
+  }
+
+  mat beta_cov = s2 * xtx_inverse;
+
+  vec beta_var = diagvec(beta_cov);
+
+  if(do_scale) unscale_outputs(x_node, beta, beta_var, x_transforms);
+
+  vec tscores = beta / sqrt(beta_var);
 
   // Calculate two-tailed p-values
   vec pvalues(X.n_cols);
@@ -532,7 +660,6 @@
    pvalues[i] = 2 * (1 - R::pt(tstat, resid_df, 1, 0));
 
   }
-
 
   mat result = join_horiz(beta, pvalues);
 

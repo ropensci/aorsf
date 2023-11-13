@@ -52,11 +52,9 @@
 
   case SPLIT_GINI: {
 
-   for(uword i = 0; i < y_node.n_cols; i++){
-   vec y_i = y_node.unsafe_col(i);
-   result += compute_gini(y_i, w_node, g_node);
-  }
-   result /= y_node.n_cols;
+   vec y_i = y_node.unsafe_col(y_col_split);
+   result = compute_gini(y_i, w_node, g_node);
+
    // gini index: lower is better, so
    // transform to make consistent with other stats
    result = (result-1) * -1;
@@ -66,13 +64,10 @@
 
   case SPLIT_CONCORD: {
 
-   for(uword i = 0; i < y_node.n_cols; i++){
-    vec y_i = y_node.unsafe_col(i);
-    result += compute_cstat_clsf(y_i, w_node, g_node);
-   }
-   result /= y_node.n_cols;
-
+   vec y_i = y_node.unsafe_col(y_col_split);
+   result = compute_cstat_clsf(y_i, w_node, g_node);
    break;
+
   }
 
   default:
@@ -140,17 +135,7 @@
 
  arma::mat TreeClassification::glm_fit(){
 
-  vec y_col;
-
-  if(splittable_y_cols.size() > 1){
-   std::uniform_int_distribution<uword> udist_ycol(0, splittable_y_cols.size() - 1);
-   uword j = udist_ycol(random_number_generator);
-   uword k = splittable_y_cols[j];
-   y_col   = y_node.unsafe_col(k);
-  } else {
-   y_col   = y_node.unsafe_col(0);
-  }
-
+  vec y_col = y_node.unsafe_col(y_col_split);
 
   mat out = logreg_fit(x_node,
                        y_col,
@@ -163,18 +148,57 @@
 
  }
 
+ arma::mat TreeClassification::glmnet_fit(){
+
+  arma::vec y_col = y_node.unsafe_col(y_col_split);
+
+  NumericMatrix xx = wrap(x_node);
+  NumericMatrix yy = wrap(y_col);
+  NumericVector ww = wrap(w_node);
+
+  // initialize function from tree object
+  // (Functions can't be stored in C++ classes, but RObjects can)
+  Function f_beta = as<Function>(lincomb_R_function);
+
+  NumericMatrix beta_R = f_beta(xx, yy, ww,
+                                lincomb_alpha,
+                                lincomb_df_target);
+
+  mat beta = mat(beta_R.begin(), beta_R.nrow(), beta_R.ncol(), false);
+
+  return(beta);
+
+ }
+
+ arma::mat TreeClassification::user_fit(){
+
+  vec y_col = y_node.unsafe_col(y_col_split);
+
+  NumericMatrix xx = wrap(x_node);
+  NumericMatrix yy = wrap(y_col);
+  NumericVector ww = wrap(w_node);
+
+  // initialize function from tree object
+  // (Functions can't be stored in C++ classes, but RObjects can)
+  Function f_beta = as<Function>(lincomb_R_function);
+
+  NumericMatrix beta_R = f_beta(xx, yy, ww);
+
+  mat beta = mat(beta_R.begin(), beta_R.nrow(), beta_R.ncol(), false);
+
+  return(beta);
+
+ }
+
  double TreeClassification::compute_prediction_accuracy_internal(
    arma::mat& preds
  ){
 
   double cstat_sum = 0;
 
-  // note: preds includes a column for the non-case, but y does not.
-  // That is why the preds column is ahead by 1 here.
-
   for(uword i = 0; i < y_oobag.n_cols; i++){
    vec y_i = y_oobag.unsafe_col(i);
-   vec p_i = preds.unsafe_col(i+1);
+   vec p_i = preds.unsafe_col(i);
    cstat_sum += compute_cstat_clsf(y_i, w_oobag, p_i);
   }
 
@@ -186,71 +210,84 @@
 
   double safer_mtry = mtry;
 
-  if(lincomb_type == LC_GLM ||
-     lincomb_type == LC_GLMNET){
+  // conditions to split a column:
+  //   >= 3 events per predictor
+  //   >= 3 non-events per predictor
 
-   // conditions to split a column:
-   //   >= 3 events per predictor
-   //   >= 3 non-events per predictor
+  double n = y_node.n_rows;
+  vec y_sum_cases = sum(y_node, 0).t();
+  vec y_sum_ctrls = n - y_sum_cases;
 
-   double n = y_node.n_rows;
-   vec y_sum_cases = sum(y_node, 0).t();
-   vec y_sum_ctrls = n - y_sum_cases;
+  if(verbosity > 3){
+
+   for(uword i = 0; i < y_sum_cases.size(); ++i){
+    Rcout << "   -- For column " << i << ": ";
+    Rcout << y_sum_cases[i] << " cases, ";
+    Rcout << y_sum_ctrls[i] << " controls (unweighted)" << std::endl;
+   }
+  }
+
+  splittable_y_cols.zeros(y_node.n_cols);
+
+  uword counter = 0;
+
+  for(uword i = 0; i < y_node.n_cols; ++i){
+
+   if(y_sum_cases[i] >= 3 && y_sum_ctrls[i] >= 3){
+    splittable_y_cols[counter] = i;
+    counter++;
+   }
+
+  }
+
+  splittable_y_cols.resize(counter);
+
+  if(counter == 0){
 
    if(verbosity > 3){
-
-    for(uword i = 0; i < y_sum_cases.size(); ++i){
-     Rcout << "   -- For column " << i << ": ";
-     Rcout << y_sum_cases[i] << " cases, ";
-     Rcout << y_sum_ctrls[i] << " controls (unweighted)" << std::endl;
-    }
+    Rcout << "   -- No y columns are splittable" << std::endl << std::endl;
    }
 
-   splittable_y_cols.zeros(y_node.n_cols);
-   uword counter = 0;
+   return counter;
 
-   for(uword i = 0; i < y_node.n_cols; ++i){
+  }
 
-    if(y_sum_cases[i] >= 3 && y_sum_ctrls[i] >= 3){
-     splittable_y_cols[counter] = i;
-     counter++;
-    }
+  if(verbosity > 3){
+   for(auto &i : splittable_y_cols){
+    Rcout << "   -- Y column " << i << " is splittable" << std::endl;
+   }
+  }
 
+  uword best_count = 0;
+
+  for(auto& ycol : splittable_y_cols){
+
+   uword min_count;
+
+   if(y_sum_cases[ycol] <= y_sum_ctrls[ycol]){
+    min_count = y_sum_cases[ycol];
+   } else {
+    min_count = y_sum_ctrls[ycol];
    }
 
-   splittable_y_cols.resize(counter);
-
-   if(counter == 0){
-
-    if(verbosity > 3){
-     Rcout << "   -- No y columns are splittable" << std::endl << std::endl;
-    }
-
-    return counter;
+   if(min_count > best_count){
+    y_col_split = ycol;
+    best_count = min_count;
    }
 
-   if(verbosity > 3){
-    for(auto &i : splittable_y_cols){
-     Rcout << "   -- Y column " << i << " is splittable" << std::endl;
-    }
+  }
+
+  if(verbosity > 3){
+   Rcout << "   -- Most splittable Y column: " << y_col_split << std::endl;
+  }
+
+  // glmnet can handle higher dimension x,
+  // but other methods probably cannot.
+  if(lincomb_type != LC_GLM){
+
+   while (best_count / safer_mtry < 3){
+    --safer_mtry;
    }
-
-   // glmnet can handle higher dimension x,
-   // but regular glm cannot.
-   if(lincomb_type == LC_GLM){
-
-    for (auto& i : splittable_y_cols){
-
-     while (y_sum_cases[i] / safer_mtry < 3 ||
-            y_sum_ctrls[i] / safer_mtry < 3){
-      --safer_mtry;
-     }
-
-    }
-
-   }
-
-
 
   }
 

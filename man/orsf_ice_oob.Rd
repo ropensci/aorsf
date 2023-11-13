@@ -112,3 +112,60 @@ You can compute individual conditional expectations three ways using a random fo
 
 See examples for more details
 }
+\section{Examples}{
+Begin by fitting an ORSF ensemble
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(aorsf)
+
+set.seed(329)
+
+fit <- orsf(data = pbc_orsf, formula = Surv(time, status) ~ . - id)
+
+fit
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
+## 
+##      Linear combinations: Accelerated Cox regression
+##           N observations: 276
+##                 N events: 111
+##                  N trees: 500
+##       N predictors total: 17
+##    N predictors per node: 5
+##  Average leaves per tree: 21.026
+## Min observations in leaf: 5
+##       Min events in leaf: 1
+##           OOB stat value: 0.84
+##            OOB stat type: Harrell's C-index
+##      Variable importance: anova
+## 
+## -----------------------------------------
+}\if{html}{\out{</div>}}
+
+Use the ensemble to compute ICE values using out-of-bag predictions:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pred_spec <- list(bili = seq(1, 10, length.out = 25))
+
+ice_oob <- orsf_ice_oob(fit, pred_spec, boundary_checks = FALSE)
+
+ice_oob
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row pred_horizon bili      pred
+##    1:           1      1         1788    1 0.1264442
+##    2:           1      2         1788    1 0.1739727
+##    3:           1      3         1788    1 0.3904517
+##    4:           1      4         1788    1 0.2874752
+##    5:           1      5         1788    1 0.4398522
+##   ---                                               
+## 6896:          25    272         1788   10 0.3076971
+## 6897:          25    273         1788   10 0.4942110
+## 6898:          25    274         1788   10 0.6407498
+## 6899:          25    275         1788   10 0.3871298
+## 6900:          25    276         1788   10 0.6479179
+}\if{html}{\out{</div>}}
+
+Much more detailed examples are given in the
+\href{https://docs.ropensci.org/aorsf/articles/pd.html#individual-conditional-expectations-ice}{vignette}
+}
+

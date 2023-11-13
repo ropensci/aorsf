@@ -46,26 +46,17 @@ are shown here.
 \}
 }\if{html}{\out{</div>}}
 
-We can plug \code{f_rando} into \code{orsf_control_custom()}, and then pass the
+We can plug \code{f_rando} into \code{orsf_control_survival()}, and then pass the
 result into \code{orsf()}:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(aorsf)
 
 fit_rando <- orsf(pbc_orsf,
                   Surv(time, status) ~ . - id,
-                  control = orsf_control_custom(beta_fun = f_rando),
+                  control = orsf_control_survival(method = f_rando),
                   n_tree = 500)
-}\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## Warning: `orsf_control_custom()` was deprecated in aorsf 0.1.2.
-## i Please use the appropriate survival, classification, or regression control
-##   function instead. E.g., `orsf_control_survival(method = your_function)`
-## This warning is displayed once every 8 hours.
-## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-## generated.
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_rando
+fit_rando
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
@@ -101,12 +92,12 @@ Follow the same steps as above, starting with the custom function:
 \}
 }\if{html}{\out{</div>}}
 
-Then plug the function into \code{orsf_control_custom()} and pass the result
-into \code{orsf()}:
+Then plug the function into \code{orsf_control_survival()} and pass the
+result into \code{orsf()}:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_pca <- orsf(pbc_orsf,
                 Surv(time, status) ~ . - id,
-                control = orsf_control_custom(beta_fun = f_pca),
+                control = orsf_control_survival(method = f_pca),
                 n_tree = 500)
 }\if{html}{\out{</div>}}
 }

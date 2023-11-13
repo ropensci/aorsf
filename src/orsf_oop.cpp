@@ -19,6 +19,7 @@
 #include "Forest.h"
 #include "ForestSurvival.h"
 #include "ForestClassification.h"
+#include "ForestRegression.h"
 #include "Coxph.h"
 #include "utility.h"
 
@@ -122,22 +123,14 @@
  ){ return compute_pred_prob(y, w); }
 
  // [[Rcpp::export]]
- arma::mat expand_y_clsf(arma::vec& y,
-                         arma::uword n_class){
+ double compute_var_reduction_exported(arma::vec& y_node,
+                                       arma::vec& w_node,
+                                       arma::uvec& g_node){
 
-  arma::mat out(y.n_rows, n_class - 1, arma::fill::zeros);
-
-  for(arma::uword i = 0; i < y.n_rows; ++i){
-
-   double yval = y[i];
-
-   if(yval > 0){ out.at(i, yval-1) = 1; }
-
-  }
-
-  return(out);
+  return(compute_var_reduction(y_node, w_node, g_node));
 
  }
+
 
  // [[Rcpp::export]]
  bool is_col_splittable_exported(arma::mat& x,
@@ -325,6 +318,30 @@
  }
 
  // [[Rcpp::export]]
+ arma::mat expand_y_clsf(arma::vec& y,
+                         arma::uword n_class){
+
+  arma::mat out(y.n_rows, n_class, arma::fill::zeros);
+
+  for(arma::uword i = 0; i < y.n_rows; ++i){
+   out.at(i, y[i]) = 1;
+  }
+
+  return(out);
+
+ }
+
+// [[Rcpp::export]]
+double compute_mse_exported(arma::vec& y,
+                            arma::vec& w,
+                            arma::vec& p){
+
+ return(compute_mse(y, w, p));
+
+}
+
+
+ // [[Rcpp::export]]
  List orsf_cpp(arma::mat&               x,
                arma::mat&               y,
                arma::vec&               w,
@@ -389,14 +406,6 @@
 
   uword n_obs = data->get_n_rows();
 
-
-  if(tree_type == TREE_REGRESSION){
-
-   stop("that tree type is not ready yet");
-
-  }
-
-
   if(n_thread == 0){
    n_thread = std::thread::hardware_concurrency();
   }
@@ -436,11 +445,22 @@
 
   case TREE_CLASSIFICATION:
 
-   forest = std::make_unique<ForestClassification>(data->n_cols_y + 1);
+   forest = std::make_unique<ForestClassification>(data->n_cols_y);
 
    if(verbosity > 3){
     Rcout << "initializing classification forest" << std::endl;
-    Rcout << "  -- n_class: " << data->n_cols_y + 1 << std::endl;
+    Rcout << "  -- n_class: " << data->n_cols_y << std::endl;
+    Rcout << std::endl << std::endl;
+   }
+
+   break;
+
+  case TREE_REGRESSION:
+
+   forest = std::make_unique<ForestRegression>();
+
+   if(verbosity > 3){
+    Rcout << "initializing regression forest" << std::endl;
     Rcout << std::endl << std::endl;
    }
 
@@ -448,12 +468,12 @@
 
   default:
 
-   Rcpp::stop("only survival and classification trees are currently implemented");
+   Rcpp::stop("unrecognized tree type");
    break;
 
   }
 
-  // does the forest need to be grown or is it already grown?
+  // does the forest need to be grown?
   bool grow_mode = loaded_forest.size() == 0;
 
   forest->init(std::move(data),
@@ -529,6 +549,17 @@
                pd_type, pd_x_vals, pd_x_cols, pd_probs);
 
 
+    } else if (tree_type == TREE_REGRESSION){
+
+     std::vector<std::vector<vec>> leaf_pred_prob = loaded_forest["leaf_pred_prob"];
+
+     auto& temp = dynamic_cast<ForestRegression&>(*forest);
+
+     temp.load(n_tree, n_obs, rows_oobag, cutpoint, child_left,
+               coef_values, coef_indices, leaf_pred_prob, leaf_summary,
+               pd_type, pd_x_vals, pd_x_cols, pd_probs);
+
+
     }
 
    }
@@ -562,13 +593,22 @@
     forest_out.push_back(forest->get_leaf_summary(), "leaf_summary");
 
     if(tree_type == TREE_SURVIVAL){
+
      auto& temp = dynamic_cast<ForestSurvival&>(*forest);
      forest_out.push_back(temp.get_leaf_pred_indx(), "leaf_pred_indx");
      forest_out.push_back(temp.get_leaf_pred_prob(), "leaf_pred_prob");
      forest_out.push_back(temp.get_leaf_pred_chaz(), "leaf_pred_chaz");
+
     } else if (tree_type == TREE_CLASSIFICATION){
+
      auto& temp = dynamic_cast<ForestClassification&>(*forest);
      forest_out.push_back(temp.get_leaf_pred_prob(), "leaf_pred_prob");
+
+    } else if (tree_type == TREE_REGRESSION){
+
+     auto& temp = dynamic_cast<ForestRegression&>(*forest);
+     forest_out.push_back(temp.get_leaf_pred_prob(), "leaf_pred_prob");
+
     }
 
     result.push_back(forest_out, "forest");
@@ -596,51 +636,4 @@
    return(result);
 
  }
- 
- 
- // [[Rcpp::export]]
- double compute_var_reduction(arma::vec& y_node,
-                                arma::vec& w_node,
-                                arma::uvec& g_node){
-   
-   double root_mean = 0, left_mean = 0, right_mean = 0;
-   double root_w_sum = 0, left_w_sum = 0, right_w_sum = 0;
-   
-   for(arma::uword i = 0; i < y_node.n_rows; ++i){
-     
-     double w_i = w_node[i];
-     double y_i = y_node[i] * w_i;
-     
-     root_w_sum     += w_i;
-     root_mean += y_i;
-     
-     if(g_node[i] == 1){
-       right_w_sum += w_i;
-       right_mean  += y_i;
-     } else {
-       left_w_sum += w_i;
-       left_mean  += y_i;
-     }
-     
-   }
-   
-   root_mean /= root_w_sum;
-   left_mean /= left_w_sum;
-   right_mean /= right_w_sum;
-   
-   double ans = 0;
-   
-   for(arma::uword i = 0; i < y_node.n_rows; ++i){
-     
-     double w_i = w_node[i];
-     double y_i = y_node[i];
-     double g_i = g_node[i];
-     double obs_mean = g_i*right_mean + (1 - g_i)*left_mean;
-     
-     ans += w_i * pow(y_i - root_mean, 2) - w_i * pow(y_i - obs_mean, 2);
-     
-   }
-   ans /= root_w_sum;
-   return(ans);
- }
- 
+

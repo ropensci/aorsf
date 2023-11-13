@@ -1,10 +1,10 @@
 
-
-f <- time + status ~ .
-
 test_that(
  desc = 'non-formula inputs are vetted',
  code = {
+
+  # correct formula
+  f <- time + status ~ .
 
   expect_error(orsf(pbc, f, n_tree = 0), "should be >= 1")
   expect_error(orsf(pbc, f, n_split = "3"), "should have type")
@@ -13,6 +13,7 @@ test_that(
   expect_error(orsf(pbc, f, leaf_min_obs = 5000), 'should be <=')
   expect_error(orsf(pbc, f, attachData = TRUE), 'attach_data?')
   expect_error(orsf(pbc, f, Control = 0), 'control?')
+  expect_error(orsf(pbc, f, tree_seeds = c(1,2,3)), 'number of trees')
   expect_error(orsf(pbc, f, sample_fraction = 1, oobag_pred_type = 'risk'),
                'no samples are out-of-bag')
   expect_error(orsf(pbc, f, split_rule = 'cstat', split_min_stat = 1),
@@ -26,11 +27,45 @@ test_that(
 )
 
 test_that(
+ desc = 'outcome type can be guessed',
+ code = {
+
+
+  fit_regr <- orsf(mtcars, mpg ~ ., no_fit = TRUE)
+  fit_clsf <- orsf(penguins, species ~ ., no_fit = TRUE)
+  fit_surv <- orsf(pbc, time + status ~ ., no_fit = TRUE)
+
+  expect_s3_class(fit_regr, "ObliqueForestRegression")
+  expect_s3_class(fit_clsf, "ObliqueForestClassification")
+  expect_s3_class(fit_surv, "ObliqueForestSurvival")
+
+ }
+)
+
+test_that(
+ desc = 'potential user-errors with outcome types are caught',
+ code = {
+
+  expect_error(
+   orsf(penguins, species ~., control = orsf_control_regression()),
+   "it is a factor"
+  )
+
+  expect_error(
+   orsf(mtcars, mpg ~., control = orsf_control_classification()),
+   "please convert mpg to a factor"
+  )
+
+ }
+)
+
+
+test_that(
  desc = 'target_df too high is caught',
  code = {
 
   cntrl <- orsf_control_survival(method = 'net', target_df = 10)
-  expect_error(orsf(pbc_orsf, formula = f, control = cntrl), 'should be <=')
+  expect_error(orsf(pbc, time + status ~ ., control = cntrl), 'should be <=')
 
  }
 )
@@ -47,9 +82,61 @@ test_that(
 
   expect_equal_leaf_summary(fit_dt, fit_standard_pbc$fast)
 
+  fit_dt <- orsf(as.data.table(penguins),
+                 formula = species ~ .,
+                 n_tree = n_tree_test,
+                 control = controls_clsf$fast,
+                 tree_seed = seeds_standard)
+
+  expect_equal_leaf_summary(fit_dt, fit_standard_penguins$fast)
+
+  fit_dt <- orsf(as.data.table(mtcars),
+                 formula = mpg ~ .,
+                 n_tree = n_tree_test,
+                 control = controls_regr$fast,
+                 tree_seed = seeds_standard)
+
+  expect_equal_leaf_summary(fit_dt, fit_standard_mtcars$fast)
+
  }
 )
 
+test_that(
+ desc = "orsf runs with lists and recipes",
+ code = {
+
+  pbc_list <- as.list(pbc_orsf)
+  pbc_list_bad <- pbc_list
+  pbc_list_bad$trt <- pbc_list_bad$trt[1:3]
+  pbc_list_bad$age <- pbc_list_bad$age[1:5]
+
+  skip_on_cran() # I don't want to list recipes in suggests
+
+  recipe <- recipes::recipe(pbc_orsf, formula = time + status ~ .) %>%
+   recipes::step_rm(id)
+
+  recipe_prepped <- recipes::prep(recipe)
+
+  fit_recipe <- orsf(recipe_prepped, Surv(time, status) ~ .,
+                     n_tree = n_tree_test,
+                     tree_seeds = seeds_standard)
+
+  expect_equal_leaf_summary(fit_recipe, fit_standard_pbc$fast)
+
+  fit_list <- orsf(pbc_list,
+                   Surv(time, status) ~ . - id,
+                   n_tree = n_tree_test,
+                   tree_seeds = seeds_standard)
+
+  expect_equal_leaf_summary(fit_list, fit_standard_pbc$fast)
+
+  expect_error(
+   orsf(pbc_list_bad, Surv(time, status) ~ .),
+   regexp = 'unable to cast data'
+  )
+
+ }
+)
 
 test_that(
  desc = "blank and non-standard names trigger an error",
@@ -81,15 +168,70 @@ test_that(
  }
 )
 
+test_that(
+ desc = 'if oobag time is unspecified, pred horizon = median(time)',
+ code = {
+
+  fit_1 <- orsf(data = pbc_orsf,
+                formula = time + status ~ . - id,
+                n_tree = 1)
+
+  fit_2 <- orsf(data = pbc_orsf,
+                formula = time + status ~ . - id,
+                n_tree = 1,
+                oobag_pred_type = 'none')
+
+  expect_equal(fit_1$pred_horizon, median(pbc_orsf$time))
+  expect_equal(fit_1$pred_horizon, fit_2$pred_horizon)
+
+ }
+)
+
+
+test_that(
+ desc = 'list columns are not allowed',
+ code = {
+
+  pbc_temp <- pbc_orsf
+  pbc_temp$list_col <- list(list(a=1))
+
+  expect_error(
+   orsf(pbc_temp, time + status ~ . - id),
+   regexp = '<list_col>'
+  )
+ }
+)
+
 
 test_that(
  desc = "algorithm grows more accurate with higher number of iterations",
  code = {
 
+  eval_every <- max(round(n_tree_test/5), 1)
+
   fit <- orsf(pbc,
               formula = Surv(time, status) ~ .,
-              n_tree = 50,
-              oobag_eval_every = 5)
+              n_tree = n_tree_test,
+              tree_seeds = seeds_standard,
+              oobag_eval_every = eval_every)
+
+  expect_lt(fit$eval_oobag$stat_values[1],
+            last_value(fit$eval_oobag$stat_values))
+
+  fit <- orsf(penguins,
+              formula = species ~ .,
+              n_tree = n_tree_test,
+              tree_seeds = seeds_standard,
+              oobag_eval_every = eval_every)
+
+  expect_lt(fit$eval_oobag$stat_values[1],
+            last_value(fit$eval_oobag$stat_values))
+
+  fit <- orsf(mtcars,
+              formula = mpg ~ .,
+              n_tree = n_tree_test*3, # just needs a bit extra
+              tree_seeds = seeds_standard,
+              oobag_eval_every = eval_every)
 
   expect_lt(fit$eval_oobag$stat_values[1],
             last_value(fit$eval_oobag$stat_values))
@@ -99,7 +241,7 @@ test_that(
 
 
 test_that(
- desc = 'Boundary case: empty training data throw an error',
+ desc = 'Empty training data throw an error',
  code = {
 
   expect_error(
@@ -115,12 +257,13 @@ test_that(
  }
 )
 
-pbc_temp <- pbc_orsf
-pbc_temp[, 'bili'] <- NA_real_
-
 test_that(
  desc = "Data with all-`NA` fields or columns are rejected",
  code = {
+
+  pbc_temp <- pbc
+  pbc_temp[, 'bili'] <- NA_real_
+
   expect_error(orsf(pbc_temp, time + status ~ . - id,
                     na_action = 'omit'),
                'complete data')
@@ -132,31 +275,29 @@ test_that(
  }
 )
 
-pbc_temp$bili[1:10] <- 12
-
 test_that(
  desc = "data with missing values are rejected when na_action is fail",
  code = {
 
+  pbc_temp <- pbc
+  pbc_temp[1, 'bili'] <- NA_real_
+
   expect_error(orsf(pbc_temp, time + status ~ . - id),
                'missing values')
 
-
  }
 )
-
-pbc_temp <- copy(pbc_orsf)
-pbc_temp[1:10, 'bili'] <- NA_real_
-pbc_temp_orig <- copy(pbc_temp)
 
 test_that(
  desc = 'missing data are dropped when na_action is omit',
  code = {
 
+  pbc_temp <- pbc
+  pbc_temp[1, 'bili'] <- NA_real_
+
   fit_omit <- orsf(pbc_temp, time + status ~ .-id,  na_action = 'omit')
 
-  expect_equal(fit_omit$n_obs,
-               nrow(stats::na.omit(pbc_temp)))
+  expect_equal(fit_omit$n_obs, nrow(stats::na.omit(pbc_temp)))
 
  }
 )
@@ -165,169 +306,128 @@ test_that(
  desc = 'missing data are imputed when na_action is impute_meanmode',
  code = {
 
-  fit_impute <- orsf(pbc_temp,
-                     time + status ~ .,
+  mtcars_temp <- mtcars
+  mtcars_temp$disp[1] <- NA
+
+  fit_impute <- orsf(mtcars_temp, mpg ~ .,
                      na_action = 'impute_meanmode')
 
-  expect_equal(fit_impute$n_obs, nrow(pbc_temp))
+  expect_equal(fit_impute$n_obs, nrow(mtcars_temp))
+
+  # users data are not modified by imputation
+  expect_true(is.na(mtcars_temp$disp[1]))
+  expect_identical(mtcars_temp, fit_impute$data)
 
  }
 )
 
 
 test_that(
- "data are not unintentionally modified by reference when imputed",
- code = {
-  expect_identical(pbc_temp, pbc_temp_orig)
- }
-)
-
-pbc_noise <- data_list_pbc$pbc_noised
-pbc_scale <- data_list_pbc$pbc_scaled
-
-n_tree_robust <- 500
-
-fit_orsf <-
- orsf(pbc,
-      Surv(time, status) ~ .,
-      n_thread = 1,
-      n_tree = n_tree_robust,
-      tree_seeds = seeds_standard)
-
-fit_orsf_2 <-
- orsf(pbc,
-      Surv(time, status) ~ .,
-      n_thread = 5,
-      n_tree = n_tree_robust,
-      tree_seeds = seeds_standard)
-
-fit_orsf_noise <-
- orsf(pbc_noise,
-      Surv(time, status) ~ .,
-      n_tree = n_tree_robust,
-      tree_seeds = seeds_standard)
-
-fit_orsf_scale <-
- orsf(pbc_scale,
-      Surv(time, status) ~ .,
-      n_tree = n_tree_robust,
-      tree_seeds = seeds_standard)
-
-#' @srrstats {ML7.1} *Demonstrate effect of numeric scaling of input data.*
-test_that(
- desc = 'outputs are robust to multi-threading, scaling, and noising',
+ desc = 'robust to threading, outcome formats, scaling, and noising',
  code = {
 
-  expect_lt(
-   abs(
-    fit_orsf$eval_oobag$stat_values -
-     fit_orsf_scale$eval_oobag$stat_values
-   ),
-   0.01
-  )
+  fits_surv <- lapply(data_list_pbc[-1],  function(data){
+   orsf(data,
+        formula = time + status ~ .,
+        n_thread = 2,
+        n_tree = n_tree_test,
+        tree_seeds = seeds_standard)
+  })
 
-  expect_lt(
-   abs(
-    fit_orsf$eval_oobag$stat_values -
-     fit_orsf_2$eval_oobag$stat_values
-   ),
-   0.01
-  )
+  expect_equal_leaf_summary(fits_surv$pbc_status_12,
+                            fit_standard_pbc$fast)
 
-  expect_lt(
-   abs(
-    fit_orsf$eval_oobag$stat_values -
-     fit_orsf_noise$eval_oobag$stat_values
-   ),
-   0.01
-  )
+  expect_equal_oobag_eval(fits_surv$pbc_scaled, fit_standard_pbc$fast)
+  expect_equal_oobag_eval(fits_surv$pbc_noised, fit_standard_pbc$fast)
 
+  fits_clsf <- lapply(data_list_penguins[-1],  function(data){
+   orsf(data,
+        formula = species ~ .,
+        n_thread = 2,
+        n_tree = n_tree_test,
+        tree_seeds = seeds_standard)
+  })
 
-  expect_lt(
-   max(abs(fit_orsf$pred_oobag - fit_orsf_scale$pred_oobag)),
-   0.1
-  )
+  expect_equal_oobag_eval(fits_clsf$penguins_scaled, fit_standard_penguins$fast)
+  expect_equal_oobag_eval(fits_clsf$penguins_noised, fit_standard_penguins$fast)
 
-  expect_lt(
-   max(abs(fit_orsf$pred_oobag - fit_orsf_2$pred_oobag)),
-   0.1
-  )
+  fits_regr <- lapply(data_list_mtcars[-1],  function(data){
+   orsf(data,
+        formula = mpg ~ .,
+        n_thread = 2,
+        n_tree = n_tree_test,
+        tree_seeds = seeds_standard)
+  })
 
-  expect_lt(
-   max(abs(fit_orsf$pred_oobag - fit_orsf_noise$pred_oobag)),
-   0.1
-  )
-
-  expect_lt(
-   mean(abs(fit_orsf$importance - fit_orsf_noise$importance)),
-   0.1
-  )
-
-  expect_equal(fit_orsf$forest,
-               fit_orsf_2$forest)
-
-  expect_equal(fit_orsf$importance,
-               fit_orsf_2$importance)
-
-  expect_equal(fit_orsf$forest$rows_oobag,
-               fit_orsf_noise$forest$rows_oobag)
-
-  expect_equal(fit_orsf$forest$rows_oobag,
-               fit_orsf_scale$forest$rows_oobag)
-
-  expect_equal(fit_orsf$forest$leaf_summary,
-               fit_orsf_scale$forest$leaf_summary)
+  expect_equal_oobag_eval(fits_regr$mtcars_scaled, fit_standard_mtcars$fast)
+  expect_equal_oobag_eval(fits_regr$mtcars_noised, fit_standard_mtcars$fast)
 
  }
 )
 
 
 test_that(
- desc = 'oob rows identical with same tree seeds, oob error correct for user-specified function',
+ desc = 'oob error correct for user-specified function',
  code = {
 
-  tree_seeds = sample.int(n = 50000, size = 100)
-  bad_tree_seeds <- c(1,2,3)
+  fit <- orsf(data = pbc,
+              formula = time + status ~ . -id,
+              n_tree = n_tree_test,
+              oobag_fun = oobag_c_survival,
+              tree_seeds = seeds_standard)
 
-  expect_error(
-   orsf(data = pbc_orsf,
-        formula = time+status~.-id,
-        n_tree = 100,
-        mtry = 2,
-        tree_seeds = bad_tree_seeds),
-   regexp = 'the number of trees'
-  )
+  expect_equal_oobag_eval(fit, fit_standard_pbc$fast)
 
-  fit_1 <- orsf(data = pbc_orsf,
-                formula = time+status~.-id,
-                n_tree = 100,
-                mtry = 2,
-                tree_seeds = tree_seeds)
-
-  fit_2 <- orsf(data = pbc_orsf,
-                formula = time+status~.-id,
-                n_tree = 100,
-                mtry = 6,
-                tree_seeds = tree_seeds)
-
-  expect_equal(fit_1$forest$rows_oobag,
-               fit_2$forest$rows_oobag)
-
-  fit_3 <- orsf(data = pbc_orsf,
-                formula = time+status~.-id,
-                n_tree = 100,
-                mtry = 6,
-                oobag_fun = oobag_c_survival,
-                tree_seeds = tree_seeds)
-
+  # can also reproduce it from the oobag predictions
   expect_equal(
    oobag_c_survival(
     y_mat = as.matrix(pbc_orsf[,c("time", "status")]),
     w_vec = rep(1, nrow(pbc_orsf)),
-    s_vec = fit_3$pred_oobag
+    s_vec = fit$pred_oobag
    ),
-   as.numeric(fit_3$eval_oobag$stat_values)
+   as.numeric(fit$eval_oobag$stat_values)
   )
+
+  skip_on_cran() # don't want to suggest yardstick or Hmisc
+
+  oobag_rsq_eval <- function(y_mat, w_vec, s_vec){
+
+   yardstick::rsq_trad_vec(truth = as.numeric(y_mat),
+                           estimate = as.numeric(s_vec),
+                           case_weights = as.numeric(w_vec))
+  }
+
+  fit <- orsf(data = mtcars,
+              formula = mpg ~ .,
+              n_tree = n_tree_test,
+              oobag_fun = oobag_rsq_eval,
+              tree_seeds = seeds_standard)
+
+  expect_equal(
+   fit$eval_oobag$stat_values[1,1],
+   yardstick::rsq_trad_vec(truth = as.numeric(mtcars$mpg),
+                           estimate = as.numeric(fit$pred_oobag),
+                           case_weights = rep(1, nrow(mtcars)))
+  )
+
+  oobag_cstat_clsf <- function(y_mat, w_vec, s_vec){
+
+   y_vec = as.numeric(y_mat)
+   cstat <- Hmisc::somers2(x = s_vec,
+                           y = y_vec,
+                           weights = w_vec)['C']
+   cstat
+
+  }
+
+  fit <- orsf(data = penguins,
+              formula = species ~ .,
+              n_tree = n_tree_test,
+              oobag_fun = oobag_cstat_clsf,
+              tree_seeds = seeds_standard)
+
+  expect_equal_oobag_eval(fit, fit_standard_penguins$fast)
+
 
  }
 )
@@ -363,68 +463,35 @@ test_that(
 )
 
 test_that(
- desc = "results are similar after adding trivial noise",
+ desc = 'orsf_fit objects can be saved and loaded with saveRDS and readRDS',
  code = {
 
-  expect_true(
-   abs(fit_orsf$eval_oobag$stat_values - fit_orsf_noise$eval_oobag$stat_values) < 0.01
-  )
+  skip_on_cran()
 
-  expect_true(
-   mean(abs(fit_orsf$pred_oobag-fit_orsf_noise$pred_oobag)) < 0.1
-  )
+  fil <- tempfile("fit_orsf", fileext = ".rds")
+
+  ## save a single object to file
+  saveRDS(fit_standard_pbc$fast, fil)
+  ## restore it under a different name
+  fit <- readRDS(fil)
+
+  p1 <- predict(fit_standard_pbc$fast, new_data = pbc_test)
+  p2 <- predict(fit, new_data = pbc_test)
+
+  expect_equal(p1, p2)
 
  }
-
 )
 
-# test_that(
-#  desc = 'orsf_fit objects can be saved and loaded with saveRDS and readRDS',
-#  code = {
-#
-#   fil <- tempfile("fit_orsf", fileext = ".rds")
-#
-#   ## save a single object to file
-#   saveRDS(fit_orsf, fil)
-#   ## restore it under a different name
-#   fit_orsf_read_in <- readRDS(fil)
-#
-#   # NULL these attributes because they are functions
-#   # the env of functions in fit_orsf_read_in will not be identical to the env
-#   # of functions in fit_orsf. Everything else should be identical.
-#
-#   attr(fit_orsf, 'f_beta') <- NULL
-#   attr(fit_orsf_read_in, 'f_beta') <- NULL
-#
-#   attr(fit_orsf, 'f_oobag_eval') <- NULL
-#   attr(fit_orsf_read_in, 'f_oobag_eval') <- NULL
-#
-#   expect_equal(fit_orsf, fit_orsf_read_in)
-#
-#   p1=predict(fit_orsf,
-#              new_data = fit_orsf$data,
-#              pred_horizon = 1000)
-#
-#   p2=predict(fit_orsf_read_in,
-#              new_data = fit_orsf_read_in$data,
-#              pred_horizon = 1000)
-#
-#   expect_equal(p1, p2)
-#
-#  }
-# )
-
-
-
 test_that(
- desc = 'orsf() runs as intended for valid inputs',
+ desc = 'oblique survival forests run as intended for valid inputs',
  code = {
 
   # just takes forever.
   skip_on_cran()
 
   inputs <- expand.grid(
-   data_format = c('plain', 'tibble', 'data.table'),
+   data_format = c('plain'),
    n_tree = 1,
    n_split = 1,
    n_retry = 0,
@@ -435,7 +502,7 @@ test_that(
    split_rule = c("logrank", "cstat"),
    split_min_events = 5,
    split_min_obs = 15,
-   oobag_pred_type = c('none', 'risk', 'surv', 'chf', 'mort'),
+   oobag_pred_type = c('none', 'risk', 'mort'),
    oobag_pred_horizon = c(1,2,3),
    orsf_control = c('cph', 'net', 'custom'),
    stringsAsFactors = FALSE
@@ -483,7 +550,7 @@ test_that(
                oobag_pred_type = inputs$oobag_pred_type[i],
                oobag_pred_horizon = pred_horizon)
 
-   expect_s3_class(fit, class = 'ObliqueForest')
+   expect_s3_class(fit, class = 'ObliqueForestSurvival')
 
    # data are not unintentionally modified by reference,
    expect_identical(data_fun(pbc_orsf), fit$data)
@@ -551,46 +618,243 @@ test_that(
 )
 
 test_that(
- desc = 'if oobag time is unspecified, pred horizon = median(time)',
+ desc = 'oblique classification forests run as intended for valid inputs',
  code = {
 
-  fit_1 <- orsf(data = pbc_orsf,
-                formula = time + status ~ . - id,
-                n_tree = 1)
+  # just takes forever.
+  skip_on_cran()
 
-  fit_2 <- orsf(data = pbc_orsf,
-                formula = time + status ~ . - id,
-                n_tree = 1,
-                oobag_pred_type = 'none')
+  inputs <- expand.grid(
+   data_format = c('plain'),
+   n_tree = 1,
+   n_split = 1,
+   n_retry = 0,
+   mtry = 3,
+   sample_with_replacement = c(TRUE, FALSE),
+   leaf_min_obs = 10,
+   split_rule = c("gini", "cstat"),
+   split_min_obs = 15,
+   oobag_pred_type = c('none', 'prob'),
+   orsf_control = c('glm', 'net', 'custom'),
+   stringsAsFactors = FALSE
+  )
 
-  expect_equal(fit_1$pred_horizon, fit_2$pred_horizon)
+  for(i in seq(nrow(inputs))){
+
+   data_fun <- switch(
+    as.character(inputs$data_format[i]),
+    'plain' = function(x) x,
+    'tibble' = tibble::as_tibble,
+    'data.table' = as.data.table
+   )
+
+   control <- switch(inputs$orsf_control[i],
+                     'glm' = orsf_control_classification(method = 'glm'),
+                     'net' = orsf_control_classification(method = 'net'),
+                     'custom' = orsf_control_classification(method = f_pca))
+
+   if(inputs$sample_with_replacement[i]){
+    sample_fraction <- 0.632
+   } else {
+    sample_fraction <- runif(n = 1, min = .25, max = .75)
+   }
+
+   fit <- orsf(data = data_fun(penguins_orsf),
+               formula = species ~ .,
+               control = control,
+               sample_with_replacement = inputs$sample_with_replacement[i],
+               sample_fraction = sample_fraction,
+               n_tree = inputs$n_tree[i],
+               n_split = inputs$n_split[i],
+               n_retry = inputs$n_retry[i],
+               mtry = inputs$mtry[i],
+               leaf_min_events = inputs$leaf_min_events[i],
+               leaf_min_obs = inputs$leaf_min_obs[i],
+               split_rule = inputs$split_rule[i],
+               split_min_events = inputs$split_min_events[i],
+               split_min_obs = inputs$split_min_obs[i],
+               oobag_pred_type = inputs$oobag_pred_type[i])
+
+   expect_s3_class(fit, class = 'ObliqueForestClassification')
+
+   # data are not unintentionally modified by reference,
+   expect_identical(data_fun(penguins_orsf), fit$data)
+
+
+   expect_no_missing(fit$forest)
+   expect_no_missing(fit$importance)
+
+   expect_length(fit$forest$rows_oobag,   n = fit$n_tree)
+   expect_length(fit$forest$cutpoint,     n = fit$n_tree)
+   expect_length(fit$forest$child_left,   n = fit$n_tree)
+   expect_length(fit$forest$coef_indices, n = fit$n_tree)
+   expect_length(fit$forest$coef_values,  n = fit$n_tree)
+   expect_length(fit$forest$leaf_summary, n = fit$n_tree)
+
+   if(!inputs$sample_with_replacement[i]){
+    expect_equal(
+     1 - length(fit$forest$rows_oobag[[1]]) / fit$n_obs,
+     sample_fraction,
+     tolerance = 0.025
+    )
+   }
+
+   if(inputs$oobag_pred_type[i] != 'none'){
+
+    expect_length(fit$eval_oobag$stat_values, 1)
+
+    expect_equal(nrow(fit$pred_oobag), fit$n_obs)
+
+    # these lengths should match for n_tree=1
+    # b/c only the oobag rows of the first tree
+    # will get a prediction value. Note that the
+    # vectors themselves aren't equal b/c rows_oobag
+    # corresponds to the sorted version of the data.
+    expect_equal(
+     length(which(complete.cases(fit$pred_oobag))),
+     length(fit$forest$rows_oobag[[1]])
+    )
+
+    oobag_preds <- na.omit(fit$pred_oobag)
+
+    expect_true(all(apply(oobag_preds, 1, sum) == 1))
+    expect_true(all(oobag_preds >= 0))
+    expect_true(all(oobag_preds <= 1))
+
+   } else {
+
+    expect_equal(dim(fit$eval_oobag$stat_values), c(0, 0))
+
+   }
+
+  }
 
  }
 )
-
-pbc_temp <- pbc_orsf
-pbc_temp$list_col <- list(list(a=1))
-
-#' @srrstats {G2.12} *pre-processing identifies list columns and throws informative error*
 
 test_that(
- desc = 'list columns are not allowed',
+ desc = 'oblique regression forests run as intended for valid inputs',
  code = {
-  expect_error(
-   orsf(pbc_temp, time + status ~ . - id),
-   regexp = '<list_col>'
+
+  # just takes forever.
+  skip_on_cran()
+
+  inputs <- expand.grid(
+   data_format = c('plain'),
+   n_tree = 1,
+   n_split = 1,
+   n_retry = 0,
+   mtry = 3,
+   sample_with_replacement = c(TRUE, FALSE),
+   leaf_min_obs = 3,
+   split_rule = c("variance"),
+   split_min_obs = 6,
+   oobag_pred_type = c('none', 'mean'),
+   orsf_control = c('glm', 'net', 'custom'),
+   stringsAsFactors = FALSE
   )
+
+  for(i in seq(nrow(inputs))){
+
+   data_fun <- switch(
+    as.character(inputs$data_format[i]),
+    'plain' = function(x) x,
+    'tibble' = tibble::as_tibble,
+    'data.table' = as.data.table
+   )
+
+   control <- switch(inputs$orsf_control[i],
+                     'glm' = orsf_control_regression(method = 'glm'),
+                     'net' = orsf_control_regression(method = 'net'),
+                     'custom' = orsf_control_regression(method = f_pca))
+
+   if(inputs$sample_with_replacement[i]){
+    sample_fraction <- 0.632
+   } else {
+    sample_fraction <- runif(n = 1, min = .25, max = .75)
+   }
+
+   fit <- orsf(data = data_fun(mtcars),
+               formula = mpg ~ .,
+               control = control,
+               sample_with_replacement = inputs$sample_with_replacement[i],
+               sample_fraction = sample_fraction,
+               n_tree = inputs$n_tree[i],
+               n_split = inputs$n_split[i],
+               n_retry = inputs$n_retry[i],
+               mtry = inputs$mtry[i],
+               leaf_min_events = inputs$leaf_min_events[i],
+               leaf_min_obs = inputs$leaf_min_obs[i],
+               split_rule = inputs$split_rule[i],
+               split_min_events = inputs$split_min_events[i],
+               split_min_obs = inputs$split_min_obs[i],
+               oobag_pred_type = inputs$oobag_pred_type[i])
+
+   expect_s3_class(fit, class = 'ObliqueForestRegression')
+
+   # data are not unintentionally modified by reference,
+   expect_identical(data_fun(mtcars), fit$data)
+
+
+   expect_no_missing(fit$forest)
+   expect_no_missing(fit$importance)
+
+   expect_length(fit$forest$rows_oobag,   n = fit$n_tree)
+   expect_length(fit$forest$cutpoint,     n = fit$n_tree)
+   expect_length(fit$forest$child_left,   n = fit$n_tree)
+   expect_length(fit$forest$coef_indices, n = fit$n_tree)
+   expect_length(fit$forest$coef_values,  n = fit$n_tree)
+   expect_length(fit$forest$leaf_summary, n = fit$n_tree)
+
+   if(!inputs$sample_with_replacement[i]){
+    expect_equal(
+     1 - length(fit$forest$rows_oobag[[1]]) / fit$n_obs,
+     sample_fraction,
+     # bigger tolerance b/c sample size is small
+     tolerance = 0.075
+    )
+   }
+
+   if(inputs$oobag_pred_type[i] != 'none'){
+
+    expect_length(fit$eval_oobag$stat_values, 1)
+
+    expect_equal(nrow(fit$pred_oobag), fit$n_obs)
+
+    # these lengths should match for n_tree=1
+    # b/c only the oobag rows of the first tree
+    # will get a prediction value. Note that the
+    # vectors themselves aren't equal b/c rows_oobag
+    # corresponds to the sorted version of the data.
+    expect_equal(
+     length(which(complete.cases(fit$pred_oobag))),
+     length(fit$forest$rows_oobag[[1]])
+    )
+
+
+   } else {
+
+    expect_equal(dim(fit$eval_oobag$stat_values), c(0, 0))
+
+   }
+
+  }
+
  }
 )
-
-fit_unwtd <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
-
-fit_wtd <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-                weights = rep(2, nrow(pbc_orsf)))
 
 test_that(
  desc = 'weights work as intended',
  code = {
+
+  fit_unwtd <- orsf(pbc_orsf,
+                    Surv(time, status) ~ . - id,
+                    n_tree = n_tree_test)
+
+  fit_wtd <- orsf(pbc_orsf,
+                  Surv(time, status) ~ . - id,
+                  weights = rep(2, nrow(pbc_orsf)),
+                  n_tree = n_tree_test)
 
   # using weights should make the trees much deeper:
   expect_gt(fit_wtd$get_mean_leaves_per_tree(),
@@ -599,79 +863,11 @@ test_that(
  }
 )
 
-test_that(
- desc = "lists can be plugged into orsf",
- code = {
-
-  pbc_list <- as.list(pbc_orsf)
-  pbc_list_bad <- pbc_list
-  pbc_list_bad$trt <- pbc_list_bad$trt[1:3]
-  pbc_list_bad$age <- pbc_list_bad$age[1:5]
-
-  # # only run locally - I don't want to list recipes in suggests
-  # recipe <- recipes::recipe(pbc_orsf, formula = time + status ~ .) %>%
-  #  recipes::step_rm(id) %>%
-  #  recipes::step_scale(recipes::all_numeric_predictors())
-  #
-  # recipe_prepped <- recipes::prep(recipe)
-  #
-  # fit_recipe <- orsf(recipe_prepped, Surv(time, status) ~ .)
-  #
-  # expect_s3_class(fit_recipe, 'ObliqueForest')
-
-  fit_list <- orsf(pbc_list, Surv(time, status) ~ .)
-
-  expect_s3_class(fit_list, 'ObliqueForest')
-
-  expect_error(
-   orsf(pbc_list_bad, Surv(time, status) ~ .),
-   regexp = 'unable to cast data'
-  )
-
- }
-)
-
-test_that(
- desc = 'oobag error works w/oobag_eval_every & custom oobag fun works',
- code = {
-
-  fit_custom_oobag <- orsf(pbc,
-                           formula = Surv(time, status) ~ .,
-                           n_tree = n_tree_test,
-                           oobag_eval_every = 1,
-                           oobag_fun = oobag_c_survival,
-                           tree_seeds = seeds_standard)
-
-  expect_equal_leaf_summary(fit_custom_oobag, fit_standard_pbc$fast)
-
-  expect_equal(
-   get_last_oob_stat_value(fit_standard_pbc$fast),
-   get_last_oob_stat_value(fit_custom_oobag)
-  )
-
- }
-)
 
 
 
 
-# Similar to obliqueRSF?
-# suppressPackageStartupMessages({
-#  library(obliqueRSF)
-# })
-#
-# set.seed(50)
-#
-# fit_aorsf <- orsf(pbc_orsf,
-#                   formula = Surv(time, status) ~ . - id,
-#                   n_tree = 100)
-# fit_obliqueRSF <- ORSF(pbc_orsf, ntree = 100, verbose = FALSE)
-#
-#
-# risk_aorsf <- predict(fit_aorsf, new_data = pbc_orsf, pred_horizon = 3500)
-# risk_obliqueRSF <- 1-predict(fit_obliqueRSF, newdata = pbc_orsf, times = 3500)
-#
-# cor(risk_obliqueRSF, risk_aorsf)
-# plot(risk_obliqueRSF, risk_aorsf)
+
+
 
 

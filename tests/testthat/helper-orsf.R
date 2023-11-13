@@ -27,6 +27,67 @@ change_scale <- function(x, mult_by = 1/2){
  x * mult_by
 }
 
+# R version written using matrixStats
+
+weighted_variance <- function (x, w = NULL, idxs = NULL,
+                               na.rm = FALSE, center = NULL,
+                               ...) {
+ n <- length(x)
+ if (is.null(w)) {
+  w <- rep(1, times = n)
+ }
+ else if (length(w) != n) {
+  stop(sprintf("The number of elements in arguments '%s' and '%s' does not match: %.0f != %.0f",
+               "w", "x", length(w), n))
+ }
+ else if (!is.null(idxs)) {
+  w <- w[idxs]
+ }
+ if (!is.null(idxs)) {
+  x <- x[idxs]
+  n <- length(x)
+ }
+ na_value <- NA
+ storage.mode(na_value) <- storage.mode(x)
+ tmp <- (is.na(w) | w > 0)
+ if (!all(tmp)) {
+  x <- .subset(x, tmp)
+  w <- .subset(w, tmp)
+  n <- length(x)
+ }
+ tmp <- NULL
+ if (na.rm) {
+  keep <- which(!is.na(x))
+  x <- .subset(x, keep)
+  w <- .subset(w, keep)
+  n <- length(x)
+  keep <- NULL
+ }
+
+ tmp <- is.infinite(w)
+ if (any(tmp)) {
+  keep <- tmp
+  x <- .subset(x, keep)
+  n <- length(x)
+  w <- rep(1, times = n)
+  keep <- NULL
+ }
+ tmp <- NULL
+ if (n <= 1L)
+  return(na_value)
+ wsum <- sum(w)
+ if (is.null(center)) {
+  center <- sum(w * x)/wsum
+ }
+ x <- x - center
+ x <- x^2
+ lambda <- 1/(wsum - 1)
+ sigma2 <- lambda * sum(w * x)
+ x <- w <- NULL
+
+ sigma2
+}
+
 #' Find cut-point boundaries (R version)
 #'
 #'  Used to test the cpp version for finding cutpoints
@@ -182,7 +243,10 @@ f_pca <- function(x_node, y_node, w_node) {
  pca <- stats::prcomp(x_node, rank. = 2)
 
  # use a random principal component to split the node
- pca$rotation[, 2, drop = FALSE]
+
+ col <- sample(ncol(pca$rotation), 1)
+
+ pca$rotation[, col, drop = FALSE]
 
 }
 
@@ -194,10 +258,10 @@ expect_equal_leaf_summary <- function(x, y){
               tolerance = 1e-9)
 }
 
-expect_equal_oobag_eval <- function(x, y){
+expect_equal_oobag_eval <- function(x, y, tolerance = 1e-9){
  expect_equal(x$eval_oobag$stat_values,
               y$eval_oobag$stat_values,
-              tolerance = 1e-9)
+              tolerance = tolerance)
 }
 
 expect_no_missing <- function(x){
@@ -275,8 +339,11 @@ prep_test_matrices <- function(data, outcomes = c("time", "status")){
  if(length(outcomes) > 1){
   y <- prep_y_surv(data, names_y_data)
   sorted <- collapse::radixorder(y[, 1],  -y[, 2])
- } else {
+ } else if(is.factor(data[[names_y_data]])) {
   y <- prep_y_clsf(data, names_y_data)
+  sorted <- collapse::seq_row(data)
+ } else {
+  y <- matrix(data[[names_y_data]], ncol = 1)
   sorted <- collapse::seq_row(data)
  }
 
@@ -286,8 +353,8 @@ prep_test_matrices <- function(data, outcomes = c("time", "status")){
 
  return(
   list(
-   x = x[sorted, ],
-   y = y[sorted, ],
+   x = x[sorted, , drop=FALSE],
+   y = y[sorted, , drop=FALSE],
    w = w[sorted]
   )
  )

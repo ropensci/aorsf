@@ -23,7 +23,7 @@ This article covers core features of the `aorsf` package.
 
 ## Background
 
-The oblique random forest (RF) is an extension of the axis-based RF. Instead of using a single variable to split data and grow new branches, trees in the oblique RF use a weighted combination of multiple variables.  
+The oblique random forest (RF) is an extension of the traditional (axis-based) RF. Instead of using a single variable to split data and grow new branches, trees in the oblique RF use a weighted combination of multiple variables.  
 
 ## Oblique RFs for survival, classification, and regression
 
@@ -49,6 +49,14 @@ penguin_fit <- orsf(data = penguins_orsf,
 
 penguin_fit
 
+# An oblique regression RF
+
+cars_fit <- orsf(data = mtcars, 
+                 n_tree = 5, 
+                 formula = mpg ~ .)
+
+cars_fit
+
 ```
 
 you may notice that the first input of `aorsf` is `data`. This is a design choice that makes it easier to use `orsf` with pipes (i.e., `%>%` or `|>`). For instance,
@@ -70,9 +78,9 @@ pbc_fit <- pbc_orsf |>
 
 ### Variable importance
 
-`aorsf` provides multiple ways to compute variable importance. 
+There are multiple methods to compute variable importance. 
 
-- To compute negation importance, ORSF multiplies each coefficient of that variable by -1 and then re-computes the out-of-sample (sometimes referred to as out-of-bag) accuracy of the ORSF model. 
+- To compute *negation* importance, ORSF multiplies each coefficient of that variable by -1 and then re-computes the out-of-sample (sometimes referred to as out-of-bag) accuracy of the ORSF model. 
 
     ```{r}
 
@@ -80,7 +88,7 @@ pbc_fit <- pbc_orsf |>
 
     ```
 
-- You can also compute variable importance using permutation, a more classical approach.
+- You can also compute variable importance using *permutation*, a more classical approach that noises up a predictor and then assigned the resulting degradation in prediction accuracy to be the importance of that predictor.
 
     ```{r}
   

@@ -8,7 +8,7 @@
 orsf(
   data,
   formula,
-  control = orsf_control_fast(),
+  control = NULL,
   weights = NULL,
   n_tree = 500,
   n_split = 5,

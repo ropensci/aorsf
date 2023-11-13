@@ -59,7 +59,8 @@ penalized_logreg <- function(x_node,
                              alpha,
                              df_target){
 
- y_node <- as.factor(y_node)
+ col <- sample(ncol(y_node), 1)
+ y_node <- as.factor(y_node[, col])
  w_node <- as.numeric(w_node)
 
  penalized_fitter(x_node = x_node,
@@ -68,6 +69,23 @@ penalized_logreg <- function(x_node,
                   alpha = alpha,
                   df_target = df_target,
                   family = "binomial")
+
+}
+
+penalized_linreg <- function(x_node,
+                             y_node,
+                             w_node,
+                             alpha,
+                             df_target){
+
+ w_node <- as.numeric(w_node)
+
+ penalized_fitter(x_node = x_node,
+                  y_node = y_node,
+                  w_node = w_node,
+                  alpha = alpha,
+                  df_target = df_target,
+                  family = "gaussian")
 
 }
 

@@ -93,6 +93,8 @@
   double compute_prediction_accuracy_internal(arma::mat& preds) override;
 
   arma::mat glm_fit() override;
+  arma::mat glmnet_fit() override;
+  arma::mat user_fit() override;
 
   // indx holds the times
   std::vector<arma::vec> leaf_pred_indx;
