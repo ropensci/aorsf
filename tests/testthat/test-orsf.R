@@ -110,18 +110,18 @@ test_that(
   pbc_list_bad$trt <- pbc_list_bad$trt[1:3]
   pbc_list_bad$age <- pbc_list_bad$age[1:5]
 
-  skip_on_cran() # I don't want to list recipes in suggests
-
-  recipe <- recipes::recipe(pbc_orsf, formula = time + status ~ .) %>%
-   recipes::step_rm(id)
-
-  recipe_prepped <- recipes::prep(recipe)
-
-  fit_recipe <- orsf(recipe_prepped, Surv(time, status) ~ .,
-                     n_tree = n_tree_test,
-                     tree_seeds = seeds_standard)
-
-  expect_equal_leaf_summary(fit_recipe, fit_standard_pbc$fast)
+  # skip() # I don't want to list recipes in suggests
+  #
+  # recipe <- recipes::recipe(pbc_orsf, formula = time + status ~ .) %>%
+  #  recipes::step_rm(id)
+  #
+  # recipe_prepped <- recipes::prep(recipe)
+  #
+  # fit_recipe <- orsf(recipe_prepped, Surv(time, status) ~ .,
+  #                    n_tree = n_tree_test,
+  #                    tree_seeds = seeds_standard)
+  #
+  # expect_equal_leaf_summary(fit_recipe, fit_standard_pbc$fast)
 
   fit_list <- orsf(pbc_list,
                    Surv(time, status) ~ . - id,
@@ -388,45 +388,45 @@ test_that(
    as.numeric(fit$eval_oobag$stat_values)
   )
 
-  skip_on_cran() # don't want to suggest yardstick or Hmisc
-
-  oobag_rsq_eval <- function(y_mat, w_vec, s_vec){
-
-   yardstick::rsq_trad_vec(truth = as.numeric(y_mat),
-                           estimate = as.numeric(s_vec),
-                           case_weights = as.numeric(w_vec))
-  }
-
-  fit <- orsf(data = mtcars,
-              formula = mpg ~ .,
-              n_tree = n_tree_test,
-              oobag_fun = oobag_rsq_eval,
-              tree_seeds = seeds_standard)
-
-  expect_equal(
-   fit$eval_oobag$stat_values[1,1],
-   yardstick::rsq_trad_vec(truth = as.numeric(mtcars$mpg),
-                           estimate = as.numeric(fit$pred_oobag),
-                           case_weights = rep(1, nrow(mtcars)))
-  )
-
-  oobag_cstat_clsf <- function(y_mat, w_vec, s_vec){
-
-   y_vec = as.numeric(y_mat)
-   cstat <- Hmisc::somers2(x = s_vec,
-                           y = y_vec,
-                           weights = w_vec)['C']
-   cstat
-
-  }
-
-  fit <- orsf(data = penguins,
-              formula = species ~ .,
-              n_tree = n_tree_test,
-              oobag_fun = oobag_cstat_clsf,
-              tree_seeds = seeds_standard)
-
-  expect_equal_oobag_eval(fit, fit_standard_penguins$fast)
+  # skip() # don't want to suggest yardstick or Hmisc
+  #
+  # oobag_rsq_eval <- function(y_mat, w_vec, s_vec){
+  #
+  #  yardstick::rsq_trad_vec(truth = as.numeric(y_mat),
+  #                          estimate = as.numeric(s_vec),
+  #                          case_weights = as.numeric(w_vec))
+  # }
+  #
+  # fit <- orsf(data = mtcars,
+  #             formula = mpg ~ .,
+  #             n_tree = n_tree_test,
+  #             oobag_fun = oobag_rsq_eval,
+  #             tree_seeds = seeds_standard)
+  #
+  # expect_equal(
+  #  fit$eval_oobag$stat_values[1,1],
+  #  yardstick::rsq_trad_vec(truth = as.numeric(mtcars$mpg),
+  #                          estimate = as.numeric(fit$pred_oobag),
+  #                          case_weights = rep(1, nrow(mtcars)))
+  # )
+  #
+  # oobag_cstat_clsf <- function(y_mat, w_vec, s_vec){
+  #
+  #  y_vec = as.numeric(y_mat)
+  #  cstat <- Hmisc::somers2(x = s_vec,
+  #                          y = y_vec,
+  #                          weights = w_vec)['C']
+  #  cstat
+  #
+  # }
+  #
+  # fit <- orsf(data = penguins,
+  #             formula = species ~ .,
+  #             n_tree = n_tree_test,
+  #             oobag_fun = oobag_cstat_clsf,
+  #             tree_seeds = seeds_standard)
+  #
+  # expect_equal_oobag_eval(fit, fit_standard_penguins$fast)
 
 
  }

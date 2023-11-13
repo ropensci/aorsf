@@ -389,7 +389,7 @@ iteration of Newton Raphson scoring on the Cox partial likelihood
 function to find linear combinations of predictors.
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_accel <- orsf(pbc_orsf, 
-                  control = orsf_control_fast(),
+                  control = orsf_control_survival(),
                   formula = Surv(time, status) ~ . - id,
                   tree_seeds = 329)
 }\if{html}{\out{</div>}}
@@ -401,8 +401,12 @@ function to find linear combinations of predictors.
 survival tree, using the regression coefficients to create linear
 combinations of predictors:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_cph <- orsf(pbc_orsf, 
-                control = orsf_control_cph(),
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{control_cph <- orsf_control_survival(method = 'glm', 
+                                     scale_x = TRUE, 
+                                     max_iter = 20)
+
+fit_cph <- orsf(pbc_orsf, 
+                control = control_cph,
                 formula = Surv(time, status) ~ . - id,
                 tree_seeds = 329)
 }\if{html}{\out{</div>}}
@@ -418,8 +422,11 @@ than the other options.
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{# select 3 predictors out of 5 to be used in
 # each linear combination of predictors.
+
+control_net <- orsf_control_survival(method = 'net', target_df = 3)
+
 fit_net <- orsf(pbc_orsf, 
-                control = orsf_control_net(df_target = 3),
+                control = control_net,
                 formula = Surv(time, status) ~ . - id,
                 tree_seeds = 329)
 }\if{html}{\out{</div>}}
@@ -489,16 +496,16 @@ the result into \code{orsf()}:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_rando <- orsf(pbc_orsf,
                   Surv(time, status) ~ . - id,
-                  control = orsf_control_custom(beta_fun = f_rando),
+                  control = orsf_control_survival(method = f_rando),
                   tree_seeds = 329)
 
 fit_pca <- orsf(pbc_orsf,
                 Surv(time, status) ~ . - id,
-                control = orsf_control_custom(beta_fun = f_pca),
+                control = orsf_control_survival(method = f_pca),
                 tree_seeds = 329)
 
 fit_rlt <- orsf(pbc_orsf, time + status ~ . - id, 
-                control = orsf_control_custom(beta_fun = f_aorsf),
+                control = orsf_control_survival(method = f_aorsf),
                 tree_seeds = 329)
 }\if{html}{\out{</div>}}
 
@@ -571,6 +578,7 @@ if that happens!
 Start with a recipe to pre-process data
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{imputer <- recipe(pbc_orsf, formula = time + status ~ .) \%>\% 
+ step_rm(id) \%>\% 
  step_impute_mean(all_numeric_predictors()) \%>\%
  step_impute_mode(all_nominal_predictors()) 
 }\if{html}{\out{</div>}}
@@ -629,7 +637,9 @@ aorsf_wf <- function(train, test, pred_horizon)\{
  
  train \%>\% 
   orsf(Surv(time, status) ~ .,) \%>\% 
-  predict(new_data = test, pred_horizon = pred_horizon) \%>\% 
+  predict(new_data = test, 
+          pred_type = 'risk',
+          pred_horizon = pred_horizon) \%>\% 
   as.numeric()
  
 \}

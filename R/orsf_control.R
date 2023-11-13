@@ -36,11 +36,6 @@
 #'  on the scale of your data, which is why the default value is `TRUE`.
 #'
 #'
-#' @examples
-#'
-#' orsf(data = pbc_orsf,
-#'      formula = Surv(time, status) ~ . - id,
-#'      control = orsf_control_fast())
 #'
 orsf_control_fast <- function(method = 'efron',
                               do_scale = TRUE,
@@ -115,11 +110,6 @@ orsf_control_fast <- function(method = 'efron',
 #'   Data: Extending the Cox Model. Statistics for Biology and Health.
 #'   Springer, New York, NY. DOI: 10.1007/978-1-4757-3294-8_3
 #'
-#' @examples
-#'
-#' orsf(data = pbc_orsf,
-#'      formula = Surv(time, status) ~ . - id,
-#'      control = orsf_control_cph())
 #'
 orsf_control_cph <- function(method = 'efron',
                              eps = 1e-9,
@@ -186,16 +176,6 @@ orsf_control_cph <- function(method = 'efron',
 #'
 #' `r roxy_cite_simon_2011()`
 #'
-#' @examples
-#'
-#' # orsf_control_net() is considerably slower than orsf_control_cph(),
-#' # The example uses n_tree = 25 so that my examples run faster,
-#' # but you should use at least 500 trees in applied settings.
-#'
-#' orsf(data = pbc_orsf,
-#'      formula = Surv(time, status) ~ . - id,
-#'      n_tree = 25,
-#'      control = orsf_control_net())
 
 orsf_control_net <- function(alpha = 1/2,
                              df_target = NULL,

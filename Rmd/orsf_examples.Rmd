@@ -50,7 +50,7 @@ The accelerated ORSF ensemble is the default because it has a nice balance of co
 ```{r}
 
 fit_accel <- orsf(pbc_orsf, 
-                  control = orsf_control_fast(),
+                  control = orsf_control_survival(),
                   formula = Surv(time, status) ~ . - id,
                   tree_seeds = 329)
 
@@ -62,8 +62,12 @@ fit_accel <- orsf(pbc_orsf,
 
 ```{r}
 
+control_cph <- orsf_control_survival(method = 'glm', 
+                                     scale_x = TRUE, 
+                                     max_iter = 20)
+
 fit_cph <- orsf(pbc_orsf, 
-                control = orsf_control_cph(),
+                control = control_cph,
                 formula = Surv(time, status) ~ . - id,
                 tree_seeds = 329)
 
@@ -77,8 +81,11 @@ fit_cph <- orsf(pbc_orsf,
 
 # select 3 predictors out of 5 to be used in
 # each linear combination of predictors.
+
+control_net <- orsf_control_survival(method = 'net', target_df = 3)
+
 fit_net <- orsf(pbc_orsf, 
-                control = orsf_control_net(df_target = 3),
+                control = control_net,
                 formula = Surv(time, status) ~ . - id,
                 tree_seeds = 329)
 
@@ -157,16 +164,16 @@ We can plug these functions into `orsf_control_custom()`, and then pass the resu
 
 fit_rando <- orsf(pbc_orsf,
                   Surv(time, status) ~ . - id,
-                  control = orsf_control_custom(beta_fun = f_rando),
+                  control = orsf_control_survival(method = f_rando),
                   tree_seeds = 329)
 
 fit_pca <- orsf(pbc_orsf,
                 Surv(time, status) ~ . - id,
-                control = orsf_control_custom(beta_fun = f_pca),
+                control = orsf_control_survival(method = f_pca),
                 tree_seeds = 329)
 
 fit_rlt <- orsf(pbc_orsf, time + status ~ . - id, 
-                control = orsf_control_custom(beta_fun = f_aorsf),
+                control = orsf_control_survival(method = f_aorsf),
                 tree_seeds = 329)
 
 ```
@@ -221,6 +228,7 @@ Start with a recipe to pre-process data
 ```{r}
 
 imputer <- recipe(pbc_orsf, formula = time + status ~ .) %>% 
+ step_rm(id) %>% 
  step_impute_mean(all_numeric_predictors()) %>%
  step_impute_mode(all_nominal_predictors()) 
 
@@ -268,7 +276,9 @@ aorsf_wf <- function(train, test, pred_horizon){
  
  train %>% 
   orsf(Surv(time, status) ~ .,) %>% 
-  predict(new_data = test, pred_horizon = pred_horizon) %>% 
+  predict(new_data = test, 
+          pred_type = 'risk',
+          pred_horizon = pred_horizon) %>% 
   as.numeric()
  
 }

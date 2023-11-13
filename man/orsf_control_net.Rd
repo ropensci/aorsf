@@ -31,17 +31,6 @@ combinations of input variables while fitting an \link{orsf} model.
 \link{orsf} that indicates the number of variables chosen at random prior to
 finding a linear combination of those variables.
 }
-\examples{
-
-# orsf_control_net() is considerably slower than orsf_control_cph(),
-# The example uses n_tree = 25 so that my examples run faster,
-# but you should use at least 500 trees in applied settings.
-
-orsf(data = pbc_orsf,
-     formula = Surv(time, status) ~ . - id,
-     n_tree = 25,
-     control = orsf_control_net())
-}
 \references{
 Simon N, Friedman J, Hastie T, Tibshirani R. Regularization paths for Cox's proportional hazards model via coordinate descent. \emph{Journal of statistical software} 2011 Mar; 39(5):1. DOI: 10.18637/jss.v039.i05
 }

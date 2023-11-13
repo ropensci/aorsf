@@ -45,13 +45,6 @@ was modified to make this routine.
 For more details on the Cox proportional hazards model, see
 \link[survival:coxph]{coxph} and/or Therneau and Grambsch (2000).
 }
-\examples{
-
-orsf(data = pbc_orsf,
-     formula = Surv(time, status) ~ . - id,
-     control = orsf_control_cph())
-
-}
 \references{
 Therneau T.M., Grambsch P.M. (2000) The Cox Model. In: Modeling Survival
 Data: Extending the Cox Model. Statistics for Biology and Health.
