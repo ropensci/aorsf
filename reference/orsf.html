@@ -65,7 +65,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orsf</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
 <span>  <span class="va">formula</span>,</span>
-<span>  control <span class="op">=</span> <span class="fu"><a href="orsf_control_fast.html">orsf_control_fast</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  control <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  weights <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n_tree <span class="op">=</span> <span class="fl">500</span>,</span>
 <span>  n_split <span class="op">=</span> <span class="fl">5</span>,</span>
@@ -480,7 +480,7 @@ balance of computational speed and prediction accuracy. It runs a single
 iteration of Newton Raphson scoring on the Cox partial likelihood
 function to find linear combinations of predictors.</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_accel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
-<span>                  control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_fast.html">orsf_control_fast</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>                  control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control.html">orsf_control_survival</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>                  formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
 <span>                  tree_seeds <span class="op">=</span> <span class="fl">329</span><span class="op">)</span></span></code></pre><p></p></div>
 </div>
@@ -492,8 +492,12 @@ function to find linear combinations of predictors.</p>
 <p><code>orsf_control_cph</code> runs Cox regression in each non-terminal node of each
 survival tree, using the regression coefficients to create linear
 combinations of predictors:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_cph</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
-<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_cph.html">orsf_control_cph</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">control_cph</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_control.html">orsf_control_survival</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">'glm'</span>, </span>
+<span>                                     scale_x <span class="op">=</span> <span class="cn">TRUE</span>, </span>
+<span>                                     max_iter <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit_cph</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
+<span>                control <span class="op">=</span> <span class="va">control_cph</span>,</span>
 <span>                formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
 <span>                tree_seeds <span class="op">=</span> <span class="fl">329</span><span class="op">)</span></span></code></pre><p></p></div>
 </div>
@@ -509,8 +513,11 @@ want to do feature selection within the node, but it is a lot slower
 than the other options.</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="co"># select 3 predictors out of 5 to be used in</span></span>
 <span><span class="co"># each linear combination of predictors.</span></span>
+<span></span>
+<span><span class="va">control_net</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_control.html">orsf_control_survival</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">'net'</span>, target_df <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">fit_net</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
-<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_net.html">orsf_control_net</a></span><span class="op">(</span>df_target <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
+<span>                control <span class="op">=</span> <span class="va">control_net</span>,</span>
 <span>                formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
 <span>                tree_seeds <span class="op">=</span> <span class="fl">329</span><span class="op">)</span></span></code></pre><p></p></div>
 </div>
@@ -570,16 +577,16 @@ predictors.</p><ul><li><p>The first uses random coefficients</p>
 the result into <code>orsf()</code>:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_rando</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>,</span>
 <span>                  <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
-<span>                  control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_custom.html">orsf_control_custom</a></span><span class="op">(</span>beta_fun <span class="op">=</span> <span class="va">f_rando</span><span class="op">)</span>,</span>
+<span>                  control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control.html">orsf_control_survival</a></span><span class="op">(</span>method <span class="op">=</span> <span class="va">f_rando</span><span class="op">)</span>,</span>
 <span>                  tree_seeds <span class="op">=</span> <span class="fl">329</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit_pca</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>,</span>
 <span>                <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
-<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_custom.html">orsf_control_custom</a></span><span class="op">(</span>beta_fun <span class="op">=</span> <span class="va">f_pca</span><span class="op">)</span>,</span>
+<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control.html">orsf_control_survival</a></span><span class="op">(</span>method <span class="op">=</span> <span class="va">f_pca</span><span class="op">)</span>,</span>
 <span>                tree_seeds <span class="op">=</span> <span class="fl">329</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit_rlt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, <span class="va">time</span> <span class="op">+</span> <span class="va">status</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>, </span>
-<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control_custom.html">orsf_control_custom</a></span><span class="op">(</span>beta_fun <span class="op">=</span> <span class="va">f_aorsf</span><span class="op">)</span>,</span>
+<span>                control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control.html">orsf_control_survival</a></span><span class="op">(</span>method <span class="op">=</span> <span class="va">f_aorsf</span><span class="op">)</span>,</span>
 <span>                tree_seeds <span class="op">=</span> <span class="fl">329</span><span class="op">)</span></span></code></pre><p></p></div>
 <p>So which fit seems to work best in this example? Let’s find out by
 evaluating the out-of-bag survival predictions.</p>
@@ -637,6 +644,7 @@ if that happens!</p><div class="section">
 
 <p>Start with a recipe to pre-process data</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">imputer</span> <span class="op">&lt;-</span> <span class="fu">recipe</span><span class="op">(</span><span class="va">pbc_orsf</span>, formula <span class="op">=</span> <span class="va">time</span> <span class="op">+</span> <span class="va">status</span> <span class="op">~</span> <span class="va">.</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span> <span class="fu">step_rm</span><span class="op">(</span><span class="va">id</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
 <span> <span class="fu">step_impute_mean</span><span class="op">(</span><span class="fu">all_numeric_predictors</span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span> <span class="fu">step_impute_mode</span><span class="op">(</span><span class="fu">all_nominal_predictors</span><span class="op">(</span><span class="op">)</span><span class="op">)</span> </span></code></pre><p></p></div>
 <p>Next create a 10-fold cross validation object and pre-process the data:</p>
@@ -687,7 +695,9 @@ if that happens!</p><div class="section">
 <span> </span>
 <span> <span class="va">train</span> <span class="op">%&gt;%</span> </span>
 <span>  <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span>,<span class="op">)</span> <span class="op">%&gt;%</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span>new_data <span class="op">=</span> <span class="va">test</span>, pred_horizon <span class="op">=</span> <span class="va">pred_horizon</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span>new_data <span class="op">=</span> <span class="va">test</span>, </span>
+<span>          pred_type <span class="op">=</span> <span class="st">'risk'</span>,</span>
+<span>          pred_horizon <span class="op">=</span> <span class="va">pred_horizon</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="op">)</span></span>
 <span> </span>
 <span><span class="op">}</span></span></code></pre><p></p></div>

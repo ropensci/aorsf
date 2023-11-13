@@ -109,34 +109,10 @@ on the scale of your data, which is why the default value is <code>TRUE</code>.<
     <div class="dont-index"><p>linear combination control functions
 <code><a href="orsf_control_cph.html">orsf_control_cph</a>()</code>,
 <code><a href="orsf_control_custom.html">orsf_control_custom</a>()</code>,
-<code><a href="orsf_control_net.html">orsf_control_net</a>()</code></p></div>
+<code><a href="orsf_control_net.html">orsf_control_net</a>()</code>,
+<code><a href="orsf_control.html">orsf_control</a>()</code></p></div>
     </div>
 
-    <div class="section level2">
-    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf</span>,</span></span>
-<span class="r-in"><span>     formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span></span>
-<span class="r-in"><span>     control <span class="op">=</span> <span class="fu">orsf_control_fast</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ---------- Oblique random survival forest</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      Linear combinations: Accelerated Cox regression</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           N observations: 276</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 N events: 111</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                  N trees: 500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       N predictors total: 17</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    N predictors per node: 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Average leaves per tree: 20.83</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Min observations in leaf: 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Min events in leaf: 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           OOB stat value: 0.84</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            OOB stat type: Harrell's C-index</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      Variable importance: anova</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -----------------------------------------</span>
-<span class="r-in"><span></span></span>
-</code></pre></div>
-    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 
