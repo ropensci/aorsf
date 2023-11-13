@@ -207,11 +207,13 @@ test_that(
  desc = "algorithm grows more accurate with higher number of iterations",
  code = {
 
-  eval_every <- max(round(n_tree_test/5), 1)
+  n_tree <- n_tree_test * 5
+  eval_every <- max(round(n_tree/5), 1)
 
   fit <- orsf(pbc,
               formula = Surv(time, status) ~ .,
-              n_tree = n_tree_test,
+              n_tree = n_tree,
+              leaf_min_obs = 50,
               tree_seeds = seeds_standard,
               oobag_eval_every = eval_every)
 
@@ -220,7 +222,8 @@ test_that(
 
   fit <- orsf(penguins,
               formula = species ~ .,
-              n_tree = n_tree_test,
+              n_tree = n_tree,
+              leaf_min_obs = 50,
               tree_seeds = seeds_standard,
               oobag_eval_every = eval_every)
 
@@ -229,7 +232,8 @@ test_that(
 
   fit <- orsf(mtcars,
               formula = mpg ~ .,
-              n_tree = n_tree_test*3, # just needs a bit extra
+              leaf_min_obs = 10,
+              n_tree = n_tree, # just needs a bit extra
               tree_seeds = seeds_standard,
               oobag_eval_every = eval_every)
 
