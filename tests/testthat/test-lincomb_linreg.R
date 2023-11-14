@@ -47,3 +47,36 @@ test_that(
 
  }
 )
+
+test_that(
+ desc = 'constant columns dont break linreg',
+ code = {
+
+  nrows <- 100
+  ncols <- 2
+
+  X <- matrix(data = rnorm(nrows*ncols), nrow = nrows, ncol = ncols)
+
+  # X <- cbind(1, X)
+
+  colnames(X) <- c(
+   # "intercept",
+   paste0("x", seq(ncols))
+  )
+
+  Y <- matrix(rnorm(nrows), ncol = 1)
+
+  W <- rep(1, nrow(X))
+
+  X[,1] <- 1
+
+  zeros <- matrix(0, ncol = 2, nrow = ncols)
+
+  results <- linreg_fit_exported(x_node = X, y_node = Y, w_node = W,
+                                 do_scale = T, epsilon = 1e-9, iter_max = 20)
+
+  expect_equal(zeros, results)
+
+
+ }
+)

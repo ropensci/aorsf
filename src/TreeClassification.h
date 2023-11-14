@@ -65,6 +65,7 @@
   }
 
   arma::uword n_class;
+  bool binary;
 
   arma::uvec splittable_y_cols;
   arma::uword y_col_split;

@@ -274,6 +274,7 @@ ObliqueForest <- R6::R6Class(
    private$check_data(new = TRUE, data = new_data)
    private$check_na_action(new = TRUE, na_action = na_action)
    private$check_var_missing(new = TRUE, data = new_data, na_action)
+   private$check_var_values(new = TRUE, data = new_data)
    private$check_units(data = new_data)
    private$check_boundary_checks(boundary_checks)
    private$check_n_thread(n_thread)
@@ -751,19 +752,23 @@ ObliqueForest <- R6::R6Class(
    # allow re-training.
    self$forest <- list()
 
-   cpp_args <- private$prep_cpp_args(pred_type = 'mort',
+   pred_type <- switch(self$tree_type,
+                       'survival' = 'mort',
+                       'classification' = 'prob',
+                       'regression' = 'mean')
+
+   cpp_args <- private$prep_cpp_args(pred_type = pred_type,
                                      oobag_pred = TRUE,
                                      importance_group_factors = TRUE,
                                      write_forest = FALSE)
 
-   mtry_safe <- self$mtry
-
-
    while(n_predictors >= n_predictor_min){
 
-    if(mtry_safe >= n_predictors){
-     mtry_safe <- max(mtry_safe - 1, 1)
+    if(verbose_progress){
+     cat("Current number of predictors:", n_predictors, "\r")
     }
+
+    mtry_safe <- ceiling(sqrt(n_predictors))
 
     if(self$control$lincomb_df_target > mtry_safe){
      self$control$lincomb_df_target <- mtry_safe
@@ -1076,6 +1081,7 @@ ObliqueForest <- R6::R6Class(
                         no   = nrow(self$data))
 
    private$check_var_missing()
+   private$check_var_values()
 
    unit_names <- c(names_y_data[types_y_data == 'units'],
                    names_x_data[types_x_data == 'units'])
@@ -1374,6 +1380,12 @@ ObliqueForest <- R6::R6Class(
 
    }
 
+  },
+
+  check_var_values = function(data = NULL, new = FALSE){
+
+   input <- data %||% self$data
+
    for(i in private$data_names$x_original){
 
     if(collapse::allNA(input[[i]])){
@@ -1386,9 +1398,17 @@ ObliqueForest <- R6::R6Class(
           call. = FALSE)
     }
 
+    if(!new){
+     if(collapse::fnunique(collapse::na_omit(input[[i]])) == 1L){
+      stop("column ", i, " is constant.",
+           call. = FALSE)
+     }
+    }
+
    }
 
   },
+
   check_formula = function(formula = NULL){
 
    input <- formula %||% self$formula

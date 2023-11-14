@@ -625,7 +625,7 @@
                            solve_opts::no_approx);
 
   if(!nonsingular){
-   mat result(beta.size(), 2, fill::zeros);
+   mat result(x_node.n_cols, 2, fill::zeros);
    return(result);
   }
 
@@ -638,7 +638,7 @@
   bool invertible = inv(xtx_inverse, X.t() * diagmat(w_node) * X);
 
   if(!invertible) {
-   mat result(beta.size(), 2, fill::zeros);
+   mat result(x_node.n_cols, 2, fill::zeros);
    return(result);
   }
 
@@ -721,7 +721,7 @@
   double beta_trace = arma::accu(arma::abs(beta));
 
   if(beta_trace < std::numeric_limits<double>::epsilon()){
-   mat result(beta.size(), 2, fill::zeros);
+   mat result(x_node.n_cols, 2, fill::zeros);
    return(result);
   }
 

@@ -19,6 +19,7 @@
 
  TreeClassification::TreeClassification(arma::uword n_class){
   this->n_class = n_class;
+  this->binary = n_class == 2;
  }
 
  TreeClassification::TreeClassification(arma::uword n_obs,
@@ -196,7 +197,9 @@
 
   double cstat_sum = 0;
 
-  for(uword i = 0; i < y_oobag.n_cols; i++){
+  uword start = 0; if(binary) start = 1;
+
+  for(uword i = start; i < y_oobag.n_cols; i++){
    vec y_i = y_oobag.unsafe_col(i);
    vec p_i = preds.unsafe_col(i);
    cstat_sum += compute_cstat_clsf(y_i, w_oobag, p_i);
