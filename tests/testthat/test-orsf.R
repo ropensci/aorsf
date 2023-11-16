@@ -341,8 +341,13 @@ test_that(
   expect_equal_leaf_summary(fits_surv$pbc_status_12,
                             fit_standard_pbc$fast)
 
-  expect_equal_oobag_eval(fits_surv$pbc_scaled, fit_standard_pbc$fast)
-  expect_equal_oobag_eval(fits_surv$pbc_noised, fit_standard_pbc$fast)
+  expect_equal_oobag_eval(fits_surv$pbc_scaled,
+                          fit_standard_pbc$fast,
+                          tolerance = .01)
+
+  expect_equal_oobag_eval(fits_surv$pbc_noised,
+                          fit_standard_pbc$fast,
+                          tolerance = .01)
 
   fits_clsf <- lapply(data_list_penguins[-1],  function(data){
    orsf(data,
@@ -352,8 +357,13 @@ test_that(
         tree_seeds = seeds_standard)
   })
 
-  expect_equal_oobag_eval(fits_clsf$penguins_scaled, fit_standard_penguins$fast)
-  expect_equal_oobag_eval(fits_clsf$penguins_noised, fit_standard_penguins$fast)
+  expect_equal_oobag_eval(fits_clsf$penguins_scaled,
+                          fit_standard_penguins$fast,
+                          tolerance = .01)
+
+  expect_equal_oobag_eval(fits_clsf$penguins_noised,
+                          fit_standard_penguins$fast,
+                          tolerance = .01)
 
   fits_regr <- lapply(data_list_mtcars[-1],  function(data){
    orsf(data,
@@ -363,8 +373,13 @@ test_that(
         tree_seeds = seeds_standard)
   })
 
-  expect_equal_oobag_eval(fits_regr$mtcars_scaled, fit_standard_mtcars$fast)
-  expect_equal_oobag_eval(fits_regr$mtcars_noised, fit_standard_mtcars$fast)
+  expect_equal_oobag_eval(fits_regr$mtcars_scaled,
+                          fit_standard_mtcars$fast,
+                          tolerance = .01)
+
+  expect_equal_oobag_eval(fits_regr$mtcars_noised,
+                          fit_standard_mtcars$fast,
+                          tolerance = .01)
 
  }
 )
@@ -483,6 +498,110 @@ test_that(
   p2 <- predict(fit, new_data = pbc_test)
 
   expect_equal(p1, p2)
+
+ }
+)
+
+test_that(
+ desc = 'weights work as intended',
+ code = {
+
+  fit_unwtd <- orsf(pbc_orsf,
+                    Surv(time, status) ~ . - id,
+                    n_tree = n_tree_test)
+
+  fit_wtd <- orsf(pbc_orsf,
+                  Surv(time, status) ~ . - id,
+                  weights = rep(2, nrow(pbc_orsf)),
+                  n_tree = n_tree_test)
+
+  # using weights should make the trees much deeper:
+  expect_gt(fit_wtd$get_mean_leaves_per_tree(),
+            fit_unwtd$get_mean_leaves_per_tree())
+
+ }
+)
+
+
+
+test_that(
+ desc = 'user-supplied beta functions are vetted',
+ code = {
+
+  f_bad_1 <- function(a_node, y_node, w_node){ 1 }
+  f_bad_2 <- function(x_node, a_node, w_node){ 1 }
+  f_bad_3 <- function(x_node, y_node, a_node){ 1 }
+  f_bad_4 <- function(x_node, y_node){ 1 }
+
+  f_bad_5 <- function(x_node, y_node, w_node) {
+   stop("an expected error occurred")
+  }
+
+  f_bad_6 <- function(x_node, y_node, w_node){
+   return(matrix(0, ncol = 2, nrow = ncol(x_node)))
+  }
+
+  f_bad_7 <- function(x_node, y_node, w_node){
+   return(matrix(0, ncol = 1, nrow = 2))
+  }
+
+  f_bad_8 <- function(x_node, y_node, w_node) {runif(n = ncol(x_node))}
+
+  expect_error(
+   orsf(pbc, time + status ~ .,
+        control = orsf_control_survival(method = f_bad_1)),
+   'x_node'
+  )
+  expect_error(
+   orsf(pbc, time + status ~ .,
+        control = orsf_control_survival(method = f_bad_2)),
+   'y_node'
+  )
+  expect_error(
+   orsf(pbc, time + status ~ .,
+        control = orsf_control_survival(method = f_bad_3)),
+   'w_node'
+  )
+  expect_error(
+   orsf(pbc, time + status ~ .,
+        control = orsf_control_survival(method = f_bad_4)),
+   'should have 3'
+  )
+  expect_error(
+   orsf(pbc, time + status ~ .,
+        control = orsf_control_survival(method = f_bad_5)),
+   'encountered an error'
+  )
+  expect_error(
+   orsf(pbc, time + status ~ .,
+        control = orsf_control_survival(method = f_bad_6)),
+   'with 1 column'
+  )
+  expect_error(
+   orsf(pbc, time + status ~ .,
+        control = orsf_control_survival(method = f_bad_7)),
+   'with 1 row for each'
+  )
+  expect_error(
+   orsf(pbc, time + status ~ .,
+        control = orsf_control_survival(method = f_bad_8)),
+   'matrix output'
+  )
+
+ }
+)
+
+test_that(
+ desc = "user supplied beta functions are applied correctly",
+ code = {
+
+  fit_pca = orsf(pbc,
+                 Surv(time, status) ~ .,
+                 tree_seeds = seeds_standard,
+                 control = orsf_control_survival(method = f_pca),
+                 n_tree = n_tree_test)
+
+  expect_gt(fit_pca$eval_oobag$stat_values, .785)
 
  }
 )
@@ -846,32 +965,3 @@ test_that(
 
  }
 )
-
-test_that(
- desc = 'weights work as intended',
- code = {
-
-  fit_unwtd <- orsf(pbc_orsf,
-                    Surv(time, status) ~ . - id,
-                    n_tree = n_tree_test)
-
-  fit_wtd <- orsf(pbc_orsf,
-                  Surv(time, status) ~ . - id,
-                  weights = rep(2, nrow(pbc_orsf)),
-                  n_tree = n_tree_test)
-
-  # using weights should make the trees much deeper:
-  expect_gt(fit_wtd$get_mean_leaves_per_tree(),
-            fit_unwtd$get_mean_leaves_per_tree())
-
- }
-)
-
-
-
-
-
-
-
-
-

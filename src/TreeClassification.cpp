@@ -209,13 +209,70 @@
 
  }
 
- arma::uword TreeClassification::find_safe_mtry(){
+ uword TreeClassification::find_safe_mtry(){
 
-  double safer_mtry = mtry;
+  if(binary){ return find_safe_mtry_binary(); }
+
+  return find_safe_mtry_multiclass();
+
+
+ }
+
+ uword TreeClassification::find_safe_mtry_binary(){
 
   // conditions to split a column:
   //   >= 3 events per predictor
   //   >= 3 non-events per predictor
+
+  double safer_mtry = mtry;
+  double y_sum_ctrls = sum(y_node.col(0));
+  double y_sum_cases = sum(y_node.col(1));
+
+  if(verbosity > 3){
+   Rcout << "   -- Y sums (unweighted): ";
+   Rcout << y_sum_cases << " cases, ";
+   Rcout << y_sum_ctrls << " controls" << std::endl;
+  }
+
+  splittable_y_cols.zeros(1);
+
+  if(y_sum_cases >= 3 && y_sum_ctrls >= 3){
+
+   splittable_y_cols[0] = 1;
+   y_col_split = 1;
+
+   double min_count = y_sum_cases;
+   if(y_sum_cases > y_sum_ctrls) min_count = y_sum_ctrls;
+
+   if(lincomb_type != LC_GLMNET){
+
+    while (min_count / safer_mtry < 3){
+     --safer_mtry;
+    }
+
+   }
+
+   uword out = safer_mtry;
+
+   return(out);
+
+  }
+
+  if(verbosity > 3){
+   Rcout << "   -- No y columns are splittable";
+   Rcout << std::endl << std::endl;
+  }
+
+  return 0;
+
+ }
+ uword TreeClassification::find_safe_mtry_multiclass(){
+
+  // conditions to split a column:
+  //   >= 3 events per predictor
+  //   >= 3 non-events per predictor
+
+  double safer_mtry = mtry;
 
   double n = y_node.n_rows;
   vec y_sum_cases = sum(y_node, 0).t();
@@ -286,7 +343,7 @@
 
   // glmnet can handle higher dimension x,
   // but other methods probably cannot.
-  if(lincomb_type != LC_GLM){
+  if(lincomb_type != LC_GLMNET){
 
    while (best_count / safer_mtry < 3){
     --safer_mtry;

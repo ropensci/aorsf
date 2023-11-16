@@ -366,11 +366,9 @@ orsf_control <- function(tree_type,
                    arg_name = 'method',
                    expected_length = 1)
 
- } else {
-
-  check_beta_fun(method)
-
  }
+
+ # checking of custom functions is done when orsf object is initialized
 
  check_arg_type(arg_value = scale_x,
                 arg_name = 'scale_x',

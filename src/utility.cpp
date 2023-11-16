@@ -725,7 +725,16 @@
    return(result);
   }
 
-  vec beta_var = diagvec(inv(-hessian));
+  mat inv_hess;
+
+  bool invertible = inv(inv_hess, -hessian);
+
+  if(!invertible){
+   mat result(x_node.n_cols, 2, fill::zeros);
+   return(result);
+  }
+
+  vec beta_var = inv_hess.diag();
 
   if(do_scale) unscale_outputs(x_node, beta, beta_var, x_transforms);
 

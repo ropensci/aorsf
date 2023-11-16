@@ -49,6 +49,8 @@
                                      bool oobag) override;
 
   arma::uword find_safe_mtry() override;
+  arma::uword find_safe_mtry_binary();
+  arma::uword find_safe_mtry_multiclass();
 
   double compute_prediction_accuracy_internal(arma::mat& preds) override;
 
