@@ -12,10 +12,12 @@ pbc_miss <- as.data.table(survival::pbc) %>%
                               'placebo'))] %>%
  ftransformv(vars = c(ascites, hepato, spiders, edema), FUN = factor)
 
+pbc_miss$id <- NULL
+
 fit_miss <- orsf(pbc_miss,
                  tree_seeds = seeds_standard,
                  n_tree = n_tree_test,
-                 time + status ~ . - id,
+                 formula = time + status ~ .,
                  na_action = 'impute_meanmode')
 
 impute_values <- c(fit_miss$get_means(),
@@ -25,10 +27,53 @@ pbc_imputed <- data_impute(data = pbc_miss,
                            cols = names(pbc_miss),
                            values = impute_values)
 
+
+
+test_that(
+ desc = 'imputation does not modify column types',
+ code = {
+  for(i in seq(ncol(pbc_imputed))){
+   expect_equal(typeof(pbc_imputed[[i]]), typeof(pbc_miss[[i]]))
+  }
+ }
+)
+
+
 fit_imputed <- orsf(pbc_imputed,
                     tree_seeds = seeds_standard,
                     n_tree = n_tree_test,
-                    time + status ~ . - id)
+                    formula = time + status ~ .)
+
+test_that(
+ desc = "imputed integers are floor(mean)",
+ code = {
+  expect_equal(
+   pbc_imputed$chol[is.na(pbc_miss$chol)][1],
+   floor(mean(pbc_miss$chol, na.rm = TRUE))
+  )
+ }
+)
+
+test_that(
+ desc = "imputed doubles are mean",
+ code = {
+  expect_equal(
+   pbc_imputed$alk.phos[is.na(pbc_miss$alk.phos)][1],
+   mean(pbc_miss$alk.phos, na.rm = TRUE)
+  )
+ }
+)
+
+test_that(
+ desc = "imputed modes",
+ code = {
+  expect_equal(
+   as.integer(pbc_imputed$stage[is.na(pbc_miss$stage)][1]),
+   as.integer(impute_values['stage'])
+  )
+ }
+)
+
 
 test_that(
  desc = 'imputation does not modify user-facing data',

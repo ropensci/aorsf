@@ -68,18 +68,44 @@
 
  }
 
+ bool TreeRegression::is_node_splittable_internal(){
+
+  // if y_node has < 3 unique values, you are done!
+
+  double y_reference = y_node.at(0, 0);
+  uword n_unique = 1;
+
+  for(uword i = 0; i < y_node.n_rows; ++i){
+
+   if(y_node.at(i, 0) != y_reference){
+    n_unique++;
+    y_reference = y_node.at(i, 0);
+   }
+
+   if(n_unique == 3) break;
+
+  }
+
+  double n_obs = sum(w_node);
+
+  return(n_obs >= 2*leaf_min_obs &&
+         n_obs >= split_min_obs &&
+         n_unique >= 3);
+
+ }
+
  void TreeRegression::sprout_leaf_internal(uword node_id){
 
   double pred_mean = compute_pred_mean(y_node, w_node);
 
   leaf_summary[node_id] = pred_mean;
 
-  vec quant_probs = {0.25, 0.50, 0.75};
+  // vec quant_probs = {0.25, 0.50, 0.75};
 
-  // TODO: make weighted version
-  vec quant_vals = quantile(y_node, quant_probs);
+  // // TODO: make weighted version
+  // vec quant_vals = quantile(y_node, quant_probs);
 
-  leaf_pred_prob[node_id] = quant_vals;
+  // leaf_pred_prob[node_id] = quant_vals;
 
  }
 

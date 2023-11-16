@@ -56,6 +56,8 @@
 
   uword get_n_col_vi() override;
 
+  bool is_node_splittable_internal() override;
+
   void fill_pred_values_vi(arma::mat& pred_values) override;
 
   std::vector<arma::vec>& get_leaf_pred_prob(){

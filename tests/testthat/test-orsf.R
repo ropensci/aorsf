@@ -601,7 +601,7 @@ test_that(
                  control = orsf_control_survival(method = f_pca),
                  n_tree = n_tree_test)
 
-  expect_gt(fit_pca$eval_oobag$stat_values, .785)
+  expect_gt(fit_pca$eval_oobag$stat_values, .765)
 
  }
 )

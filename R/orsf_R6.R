@@ -3465,12 +3465,10 @@ ObliqueForestRegression <- R6::R6Class(
 
     stop("user-supplied function encountered an error when it was tested. ",
          "Please make sure the function works for this case:\n\n",
-         ".x_node <- matrix(seq(-1, 1, length.out = 300), ncol = 3)\n\n",
-         "test_time <- seq(from = 1, to = 5, length.out = 100)\n",
-         "test_status <- rep(c(0,1), each = 50)\n",
-         ".y_node <- cbind(time = test_time, status = test_status)\n\n",
-         ".w_node <- matrix(rep(c(1,2,3,4), each = 25), ncol = 1)\n\n",
-         "test_output <- beta_fun(.x_node, .y_node, .w_node)\n\n",
+         ".x_node <- matrix(rnorm(300), ncol = 3)\n",
+         ".y_node <- matrix(rnorm(100), ncol = 1)\n",
+         ".w_node <- matrix(rep(c(1,2,3,4), each = 25), ncol = 1)\n",
+         "test_output <- your_function(.x_node, .y_node, .w_node)\n\n",
          "test_output should be a numeric matrix with 1 column and",
          " with nrow(test_output) = ncol(.x_node)",
          call. = FALSE)

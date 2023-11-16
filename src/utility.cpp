@@ -629,6 +629,13 @@
    return(result);
   }
 
+  double beta_trace = arma::accu(arma::abs(beta));
+
+  if(beta_trace < std::numeric_limits<double>::epsilon()){
+   mat result(x_node.n_cols, 2, fill::zeros);
+   return(result);
+  }
+
   vec resid  = y_node - X * beta;
 
   double s2 = as_scalar(trans(resid) * (w_node % resid) / (resid_df));
