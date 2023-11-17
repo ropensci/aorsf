@@ -117,10 +117,13 @@ survival forests.</p>
 <dt>oobag_fun</dt>
 <dd><p>(<em>function</em>) to be used for evaluating out-of-bag prediction accuracy after negating coefficients
 (if importance = 'negate') or permuting the values of a predictor
-(if importance = 'permute')</p><ul><li><p>When <code>oobag_fun = NULL</code> (the default), Harrell's C-statistic (1982) is used to evaluate accuracy.</p></li>
-<li><p>if you use your own <code>oobag_fun</code> note the following:</p><ul><li><p><code>oobag_fun</code> should have two inputs: <code>y_mat</code> and <code>s_vec</code></p></li>
-<li><p><code>y_mat</code> is a two column matrix with first column named 'time', second named 'status'</p></li>
-<li><p><code>s_vec</code> is a numeric vector containing predicted survival probabilities.</p></li>
+(if importance = 'permute')</p><ul><li><p>When <code>oobag_fun = NULL</code> (the default), the evaluation statistic is selected based on tree type</p></li>
+<li><p>survival: Harrell's C-statistic (1982)</p></li>
+<li><p>classification: Area underneath the ROC curve (AUC-ROC)</p></li>
+<li><p>regression: Traditional prediction R-squared</p></li>
+<li><p>if you use your own <code>oobag_fun</code> note the following:</p><ul><li><p><code>oobag_fun</code> should have three inputs: <code>y_mat</code>, <code>w_vec</code>, and <code>s_vec</code></p></li>
+<li><p>For survival trees, <code>y_mat</code> should be a two column matrix with first column named 'time' and second named 'status'. For classification trees, <code>y_mat</code> should be a matrix with number of columns = number of distinct classes in the outcome. For regression, <code>y_mat</code> should be a matrix with one column.</p></li>
+<li><p><code>s_vec</code> is a numeric vector containing predictions</p></li>
 <li><p><code>oobag_fun</code> should return a numeric output of length 1</p></li>
 <li><p>the same <code>oobag_fun</code> should have been used when you created <code>object</code>
 so that the initial value of out-of-bag prediction accuracy is

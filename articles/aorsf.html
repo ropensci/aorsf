@@ -136,10 +136,10 @@ be &gt;= 500 in practice.</p>
 <span><span class="co">#&gt;                  N trees: 5</span></span>
 <span><span class="co">#&gt;       N predictors total: 17</span></span>
 <span><span class="co">#&gt;    N predictors per node: 5</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 19.4</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 19.8</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;       Min events in leaf: 1</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.77</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.76</span></span>
 <span><span class="co">#&gt;            OOB stat type: Harrell's C-index</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -159,9 +159,9 @@ be &gt;= 500 in practice.</p>
 <span><span class="co">#&gt;                  N trees: 5</span></span>
 <span><span class="co">#&gt;       N predictors total: 7</span></span>
 <span><span class="co">#&gt;    N predictors per node: 3</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 6.4</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 6</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.98</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.99</span></span>
 <span><span class="co">#&gt;            OOB stat type: AUC-ROC</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -183,7 +183,7 @@ be &gt;= 500 in practice.</p>
 <span><span class="co">#&gt;    N predictors per node: 4</span></span>
 <span><span class="co">#&gt;  Average leaves per tree: 4.8</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.74</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.75</span></span>
 <span><span class="co">#&gt;            OOB stat type: RSQ</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -220,12 +220,14 @@ model.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">pbc_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;         bili       copper        stage          age      protime          sex </span></span>
-<span><span class="co">#&gt;  0.114050616  0.058879090  0.046094524  0.038011836  0.028853966  0.020874091 </span></span>
-<span><span class="co">#&gt;          trt     platelet        edema      albumin      ascites     alk.phos </span></span>
-<span><span class="co">#&gt;  0.017129950  0.013471420  0.012868400  0.012394794  0.010231183  0.009874770 </span></span>
-<span><span class="co">#&gt;      spiders         trig          ast         chol       hepato </span></span>
-<span><span class="co">#&gt;  0.005304760  0.005121708  0.003857380  0.001530643 -0.006896236</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili        copper           age       protime       spiders </span></span>
+<span><span class="co">#&gt;  0.1168221744  0.0640918012  0.0318717527  0.0295703184  0.0199482278 </span></span>
+<span><span class="co">#&gt;       ascites         stage          trig           ast        hepato </span></span>
+<span><span class="co">#&gt;  0.0145030496  0.0138362817  0.0093934850  0.0081600305  0.0081045745 </span></span>
+<span><span class="co">#&gt;         edema       albumin           trt          chol      platelet </span></span>
+<span><span class="co">#&gt;  0.0074171879  0.0070565813  0.0049965458  0.0043845830  0.0007886543 </span></span>
+<span><span class="co">#&gt;           sex      alk.phos </span></span>
+<span><span class="co">#&gt; -0.0023614972 -0.0040932561</span></span></code></pre></div>
 </li>
 <li>
 <p>You can also compute variable importance using
@@ -235,12 +237,14 @@ accuracy to be the importance of that predictor.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">pbc_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;         bili        stage       copper          age      albumin         chol </span></span>
-<span><span class="co">#&gt;  0.081386482  0.027461497  0.026676054  0.024209679  0.018792662  0.012066683 </span></span>
-<span><span class="co">#&gt;     alk.phos          ast         trig      spiders      ascites     platelet </span></span>
-<span><span class="co">#&gt;  0.009972421  0.009671777  0.006336094  0.004536710  0.004102601  0.003379097 </span></span>
-<span><span class="co">#&gt;          trt          sex        edema      protime       hepato </span></span>
-<span><span class="co">#&gt;  0.001788329  0.000976518 -0.000169104 -0.002325850 -0.007547886</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili        copper           age       ascites       albumin </span></span>
+<span><span class="co">#&gt;  0.0681612536  0.0264039589  0.0154990015  0.0145135549  0.0128863883 </span></span>
+<span><span class="co">#&gt;           ast       spiders         stage         edema       protime </span></span>
+<span><span class="co">#&gt;  0.0112889819  0.0042083643  0.0036260906  0.0031464934  0.0029252926 </span></span>
+<span><span class="co">#&gt;           trt      platelet           sex        hepato          chol </span></span>
+<span><span class="co">#&gt; -0.0002451595 -0.0002523982 -0.0005419264 -0.0010103185 -0.0012341940 </span></span>
+<span><span class="co">#&gt;      alk.phos          trig </span></span>
+<span><span class="co">#&gt; -0.0033725370 -0.0039837212</span></span></code></pre></div>
 </li>
 <li>
 <p>A faster alternative to permutation and negation importance is
@@ -249,12 +253,12 @@ obtains a low p-value (p &lt; 0.01) while the forest is grown.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">pbc_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    ascites       bili     copper        ast    albumin      stage      edema </span></span>
-<span><span class="co">#&gt; 0.44444444 0.40000000 0.33333333 0.26666667 0.26666667 0.25000000 0.24047619 </span></span>
-<span><span class="co">#&gt;        age       chol        sex    spiders    protime   alk.phos   platelet </span></span>
-<span><span class="co">#&gt; 0.19047619 0.18750000 0.18181818 0.16666667 0.15789474 0.13043478 0.12500000 </span></span>
-<span><span class="co">#&gt;     hepato       trig        trt </span></span>
-<span><span class="co">#&gt; 0.12500000 0.06666667 0.04761905</span></span></code></pre></div>
+<span><span class="co">#&gt;    ascites     copper    albumin       bili      edema        age     hepato </span></span>
+<span><span class="co">#&gt; 0.50000000 0.41176471 0.35294118 0.35294118 0.29417989 0.26315789 0.23529412 </span></span>
+<span><span class="co">#&gt;    spiders    protime       chol      stage   alk.phos        ast   platelet </span></span>
+<span><span class="co">#&gt; 0.21428571 0.21052632 0.16666667 0.13333333 0.06250000 0.05263158 0.04545455 </span></span>
+<span><span class="co">#&gt;       trig        sex        trt </span></span>
+<span><span class="co">#&gt; 0.04545455 0.00000000 0.00000000</span></span></code></pre></div>
 </li>
 </ul>
 </div>

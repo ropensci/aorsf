@@ -106,34 +106,45 @@ relevant variables.</p></dd>
 
 
 <dt>formula</dt>
-<dd><p>(<em>formula</em>) The response on the left hand side should
-include a time variable, followed by a status variable, and may be
-written inside a call to <a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a> (see examples).
-The terms on the right are names of predictor variables.</p></dd>
+<dd><p>(<em>formula</em>) Two sided formula with a single outcome.
+The terms on the right are names of predictor variables, and the
+symbol '.' may be used to indicate all variables in the data
+except the response. The symbol '-' may also be used to indicate
+removal of a predictor. Details on the response vary depending
+on forest type:</p><ul><li><p><em>Survival</em>: The response should include a time variable,
+followed by a status variable, and may be written inside a
+call to <a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a> (see examples).</p></li>
+<li><p><em>Classification</em>: The response should be a single variable,
+and that variable should have type <code>factor</code> in <code>data</code>.</p></li>
+<li><p><em>Regression</em>: The response should be a single variable, and
+that variable should have typee <code>double</code> or <code>integer</code> with at
+least 10 unique numeric values in <code>data</code>.</p></li>
+</ul></dd>
 
 
 <dt>control</dt>
 <dd><p>(<em>orsf_control</em>) An object returned from one of the
-<code>orsf_control</code> functions:</p><ul><li><p><a href="orsf_control_fast.html">orsf_control_fast</a> (the default) uses a single iteration of Newton
-Raphson scoring to identify a linear combination of predictors.</p></li>
-<li><p><a href="orsf_control_cph.html">orsf_control_cph</a> uses Newton Raphson scoring until a convergence
-criteria is met.</p></li>
-<li><p><a href="orsf_control_net.html">orsf_control_net</a> uses <code>glmnet</code> to identify linear combinations of
-predictors, similar to Jaeger (2019).</p></li>
-<li><p><a href="orsf_control_custom.html">orsf_control_custom</a> allows the user to apply their own function
-to create linear combinations of predictors.</p></li>
-</ul></dd>
+<code>orsf_control</code> functions: <a href="orsf_control.html">orsf_control_survival</a>,
+<a href="orsf_control.html">orsf_control_classification</a>, and <a href="orsf_control.html">orsf_control_regression</a>. If
+<code>NULL</code> (the default) will use an accelerated control, which is the
+fastest available option. For survival and classification, this is
+Cox and Logistic regression with 1 iteration, and for regression
+it is ordinary least squares.</p></dd>
 
 
 <dt>weights</dt>
 <dd><p>(<em>numeric vector</em>) Optional. If given, this input should
-have length equal to <code>nrow(data)</code>. Values in <code>weights</code> are treated like
-replication weights, i.e., a value of 2 is the same thing as having 2
-observations in <code>data</code>, each containing a copy of the corresponding
-person's data.</p>
+have length equal to <code>nrow(data)</code> for complete or imputed data and should
+have length equal to <code>nrow(na.omit(data))</code> if <code>na_action</code> is <code>"omit"</code>.
+Values in <code>weights</code> are treated like replication weights, i.e., a value
+of 2 is the same thing as having 2 observations in <code>data</code>, each
+containing a copy of the corresponding person's data.</p>
 <p><em>Use</em> <code>weights</code> <em>cautiously</em>, as <code>orsf</code> will count the number of
 observations and events prior to growing a node for a tree, so higher
-values in <code>weights</code> will lead to deeper trees.</p></dd>
+values in <code>weights</code> will lead to deeper trees. If you use this
+input, it is highly recommended you scale the weights so that
+<code>sum(weights) == nrow(data)</code>, as this will help make tree depth
+consistent with the default <code>weights = rep(1, nrow(data))</code></p></dd>
 
 
 <dt>n_tree</dt>
@@ -147,7 +158,7 @@ a node in decision trees. Default is <code>n_split = 5</code>.</p></dd>
 
 
 <dt>n_retry</dt>
-<dd><p>(<em>integer</em>) when a node can be split, but the current
+<dd><p>(<em>integer</em>) when a node is splittable, but the current
 linear combination of inputs is unable to provide a valid split, <code>orsf</code>
 will try again with a new linear combination based on a different set
 of randomly selected predictors, up to <code>n_retry</code> times. Default is
@@ -192,14 +203,18 @@ leaf node. Default is <code>leaf_min_obs = 5</code>.</p></dd>
 
 <dt>split_rule</dt>
 <dd><p>(<em>character</em>) how to assess the quality of a potential
-splitting rule for a node. Valid options are</p><ul><li><p>'logrank' : a log-rank test statistic.</p></li>
+splitting rule for a node. Valid options for survival are:</p><ul><li><p>'logrank' : a log-rank test statistic (default).</p></li>
 <li><p>'cstat'   : Harrell's concordance statistic.</p></li>
+</ul><p>For classification, valid options are:</p><ul><li><p>'gini'  : gini impurity (default)</p></li>
+<li><p>'cstat' : area underneath the ROC curve (AUC-ROC)</p></li>
+</ul><p>For regression, valid options are:</p><ul><li><p>'variance' : variance reduction (default)</p></li>
 </ul></dd>
 
 
 <dt>split_min_events</dt>
 <dd><p>(<em>integer</em>) minimum number of events required
-in a node to consider splitting it. Default is <code>split_min_events = 5</code></p></dd>
+in a node to consider splitting it. Default is <code>split_min_events = 5</code>.
+This input is only relevant for survival trees.</p></dd>
 
 
 <dt>split_min_obs</dt>
@@ -209,28 +224,46 @@ in a node to consider splitting it. Default is <code>split_min_obs = 10</code>.<
 
 <dt>split_min_stat</dt>
 <dd><p>(double) minimum test statistic required to split
-a node. Default is 3.841459 if <code>split_rule = 'logrank'</code> and 0.50 if
-<code>split_rule = 'cstat'</code>. If no splits are found with a statistic
-exceeding <code>split_min_stat</code>, the given node either becomes a leaf or
-a retry occurs (up to <code>n_retry</code> retries).</p></dd>
+a node. If no splits are found with a statistic exceeding <code>split_min_stat</code>,
+the given node either becomes a leaf or a retry occurs (up to <code>n_retry</code>
+retries). Defaults are</p><ul><li><p>3.84 if <code>split_rule = 'logrank'</code></p></li>
+<li><p>0.50 if <code>split_rule = 'cstat'</code> (see first note below)</p></li>
+<li><p>0.00 if <code>split_rule = 'gini'</code> (see second note below)</p></li>
+<li><p>0.00 if <code>split_rule = 'variance'</code></p></li>
+</ul><p><strong>Note 1</strong> For C-statistic splitting, if C is &lt; 0.50, we consider the statistic
+value to be 1 - C to allow for good 'anti-predictive' splits. So,
+if a C-statistic is initially computed as 0.1, it will be considered
+as 1 - 0.10 = 0.90.</p>
+<p><strong>Note 2</strong> For Gini impurity, a value of 0 and 1 usually indicate the best and
+worst possible scores, respectively. To make things simple and to avoid
+introducing a <code>split_max_stat</code> input, we flip the values of Gini
+impurity so that 1 and 0 indicate the best and worst possible scores,
+respectively.</p></dd>
 
 
 <dt>oobag_pred_type</dt>
 <dd><p>(<em>character</em>) The type of out-of-bag predictions
-to compute while fitting the ensemble. Valid options are</p><ul><li><p>'none' : don't compute out-of-bag predictions</p></li>
-<li><p>'risk' : probability of event occurring at or before <code>oobag_pred_horizon</code>.</p></li>
+to compute while fitting the ensemble. Valid options for any tree type:</p><ul><li><p>'none' : don't compute out-of-bag predictions</p></li>
+<li><p>'leaf' : the ID of the predicted leaf is returned for each tree</p></li>
+</ul><p>Valid options for survival:</p><ul><li><p>'risk' : probability of event occurring at or before
+<code>oobag_pred_horizon</code> (default).</p></li>
 <li><p>'surv' : 1 - risk.</p></li>
 <li><p>'chf'  : cumulative hazard function at <code>oobag_pred_horizon</code>.</p></li>
 <li><p>'mort' : mortality, i.e., the number of events expected if all
 observations in the training data were identical to a
 given observation.</p></li>
+</ul><p>Valid options for classification:</p><ul><li><p>'prob'  : probability of each class (default)</p></li>
+<li><p>'class' : class (i.e., which.max(prob))</p></li>
+</ul><p>Valid options for regression:</p><ul><li><p>'mean' : mean value (default)</p></li>
 </ul></dd>
 
 
 <dt>oobag_pred_horizon</dt>
 <dd><p>(<em>numeric</em>) A numeric value indicating what time
 should be used for out-of-bag predictions. Default is the median
-of the observed times, i.e., <code>oobag_pred_horizon = median(time)</code>.</p></dd>
+of the observed times, i.e., <code>oobag_pred_horizon = median(time)</code>.
+This input is only relevant for survival trees that have prediction
+type of 'risk', 'surv', or 'chf'.</p></dd>
 
 
 <dt>oobag_eval_every</dt>
@@ -243,9 +276,12 @@ is <code>oobag_eval_every = n_tree</code>.</p></dd>
 
 <dt>oobag_fun</dt>
 <dd><p>(<em>function</em>) to be used for evaluating out-of-bag prediction accuracy every <code>oobag_eval_every</code>
-trees. When <code>oobag_fun = NULL</code> (the default), Harrell's C-statistic (1982) is used to evaluate accuracy. if you use your own <code>oobag_fun</code> note the following:</p><ul><li><p><code>oobag_fun</code> should have two inputs: <code>y_mat</code> and <code>s_vec</code></p></li>
-<li><p><code>y_mat</code> is a two column matrix with first column named 'time', second named 'status'</p></li>
-<li><p><code>s_vec</code> is a numeric vector containing predicted survival probabilities.</p></li>
+trees. When <code>oobag_fun = NULL</code> (the default), the evaluation statistic is selected based on tree type</p><ul><li><p>survival: Harrell's C-statistic (1982)</p></li>
+<li><p>classification: Area underneath the ROC curve (AUC-ROC)</p></li>
+<li><p>regression: Traditional prediction R-squared</p></li>
+</ul><p>if you use your own <code>oobag_fun</code> note the following:</p><ul><li><p><code>oobag_fun</code> should have three inputs: <code>y_mat</code>, <code>w_vec</code>, and <code>s_vec</code></p></li>
+<li><p>For survival trees, <code>y_mat</code> should be a two column matrix with first column named 'time' and second named 'status'. For classification trees, <code>y_mat</code> should be a matrix with number of columns = number of distinct classes in the outcome. For regression, <code>y_mat</code> should be a matrix with one column.</p></li>
+<li><p><code>s_vec</code> is a numeric vector containing predictions</p></li>
 <li><p><code>oobag_fun</code> should return a numeric output of length 1</p></li>
 </ul><p>For more details, see the out-of-bag <a href="https://docs.ropensci.org/aorsf/articles/oobag.html#user-supplied-out-of-bag-evaluation-functions" class="external-link">vignette</a>.</p></dd>
 
@@ -277,12 +313,12 @@ will be set using the values in <code>tree_seeds[i]</code>  before growing tree 
 Two forests grown with the same number of trees and the same seeds will
 have the exact same out-of-bag samples, making out-of-bag error
 estimates of the forests more comparable. If <code>NULL</code> (the default),
-no seeds are set during the training process.</p></dd>
+seeds are picked at random.</p></dd>
 
 
 <dt>attach_data</dt>
 <dd><p>(<em>logical</em>) if <code>TRUE</code>, a copy of the training
-data will be attached to the output. This is helpful if you
+data will be attached to the output. This is required if you
 plan on using functions like <a href="orsf_pd_oob.html">orsf_pd_oob</a> or <a href="orsf_summarize_uni.html">orsf_summarize_uni</a>
 to interpret the forest using its training data. Default is <code>TRUE</code>.</p></dd>
 
@@ -296,9 +332,7 @@ directly submitted to <code>orsf_train()</code> so long as <code>attach_data</co
 <dt>na_action</dt>
 <dd><p>(<em>character</em>) what should happen when <code>data</code> contains missing values (i.e., <code>NA</code> values). Valid options are:</p><ul><li><p>'fail' : an error is thrown if <code>data</code> contains <code>NA</code> values</p></li>
 <li><p>'omit' : rows in <code>data</code> with incomplete data will be dropped</p></li>
-<li><p>'impute_meanmode' : missing values for continuous and categorical variables in <code>data</code> will be imputed using the mean and mode, respectively. Note that is this
-option is selected and <code>attach_data</code> is <code>TRUE</code>, the data attached
-to the output will be the imputed version of <code>data</code>.</p></li>
+<li><p>'impute_meanmode' : missing values for continuous and categorical variables in <code>data</code> will be imputed using the mean and mode, respectively.</p></li>
 </ul></dd>
 
 
