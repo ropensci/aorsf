@@ -61,6 +61,8 @@ and for regression, we use the `mtcars` data:
 
 ```{r}
 
+data("mtcars")
+
 # An oblique regression RF
 cars_fit <- orsf(data = mtcars, 
                  n_tree = 5, 
