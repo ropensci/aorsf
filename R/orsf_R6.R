@@ -97,6 +97,24 @@ ObliqueForest <- R6::R6Class(
                         na_action,
                         verbose_progress) {
 
+   # if these arguments were specified in the initial
+   # call or in updates, then they should be checked.
+   # Note the arguments in this list are NULL in orsf()
+   # by default, which means their defaults are dynamic.
+   # other arguments with non-dynamic defaults should
+   # always be checked if a user wants to use update().
+
+   private$user_specified <- list(
+    control            = !is.null(control),
+    weights            = !is.null(weights),
+    mtry               = !is.null(mtry),
+    split_rule         = !is.null(split_rule),
+    split_min_stat     = !is.null(split_min_stat),
+    pred_type          = !is.null(pred_type),
+    pred_horizon       = !is.null(oobag_pred_horizon),
+    tree_seeds         = !is.null(tree_seeds)
+   )
+
    self$data     <- data
    self$formula  <- formula
    self$control  <- control
@@ -129,7 +147,6 @@ ObliqueForest <- R6::R6Class(
 
   },
 
-  # initialization
   update = function(data = NULL,
                     formula = NULL,
                     control = NULL,
@@ -1061,6 +1078,7 @@ ObliqueForest <- R6::R6Class(
 
  private = list( # private ----
 
+  user_specified = NULL,
   data_rows_complete = NULL,
   data_types = NULL,
   data_names = NULL,
@@ -1304,7 +1322,9 @@ ObliqueForest <- R6::R6Class(
 
    if(is.null(self$oobag_eval_function)){
 
-    self$oobag_eval_function <- function(x) x
+    self$oobag_eval_function <- function(y_mat, w_vec, s_vec){
+     return(1)
+    }
 
    } else {
 

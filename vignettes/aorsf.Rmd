@@ -57,18 +57,16 @@ penguin_fit
 
 ```
 
-and for regression, we use the `mtcars` data:
+and for regression, we again use the penguins data but switch the outcome:
 
 ```{r}
 
-data("mtcars")
-
 # An oblique regression RF
-cars_fit <- orsf(data = mtcars, 
+bill_fit <- orsf(data = penguins_orsf, 
                  n_tree = 5, 
-                 formula = mpg ~ .)
+                 formula = bill_length_mm ~ .)
 
-cars_fit
+bill_fit
 
 ```
 
