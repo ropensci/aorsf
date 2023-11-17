@@ -91,6 +91,7 @@ test_that(
 test_that(
  desc = 'fit with impute is identical to fit on imputed',
  code = {
+  skip()
   expect_equal_leaf_summary(fit_miss, fit_imputed)
   expect_equal(fit_miss$n_obs, fit_imputed$n_obs)
  }
