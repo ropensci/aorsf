@@ -60,11 +60,13 @@ roxy_oobag_fun_header <- function(){
 }
 
 roxy_oobag_fun_default <- function(
-  stat_label = "Harrell's C-statistic (1982)"
+  stat_label = c("- survival: Harrell's C-statistic (1982)",
+                 "- classification: Area underneath the ROC curve (AUC-ROC)",
+                 "- regression: Traditional prediction R-squared")
 ){
-  paste("When `oobag_fun = NULL` (the default),",
-        stat_label,
-        "is used to evaluate accuracy.")
+  paste("When `oobag_fun = NULL` (the default), the evaluation",
+        "statistic is selected based on tree type\n\n",
+        paste(stat_label, collapse = '\n'))
  }
 
 roxy_oobag_fun_user <- function(){
@@ -72,15 +74,23 @@ roxy_oobag_fun_user <- function(){
 }
 
 roxy_oobag_fun_inputs <- function(){
- "`oobag_fun` should have two inputs: `y_mat` and `s_vec`"
+ "`oobag_fun` should have three inputs: `y_mat`, `w_vec`, and `s_vec`"
 }
 
 roxy_oobag_fun_ymat <- function(){
-  "`y_mat` is a two column matrix with first column named 'time', second named 'status'"
+  paste("For survival trees, `y_mat` should be a two column matrix with",
+  "first column named 'time' and second named 'status'. For classification",
+  "trees, `y_mat` should be a matrix with number of columns = number of",
+  "distinct classes in the outcome. For regression, `y_mat` should be a",
+  "matrix with one column.")
 }
 
 roxy_oobag_fun_svec <- function(){
- "`s_vec` is a numeric vector containing predicted survival probabilities."
+ "`s_vec` is a numeric vector containing predictions"
+ # paste("`s_vec` is a numeric vector containing predictions. For survival,",
+ #       "the number of columns should match the length of `oobag_pred_horison`.",
+ #       "For classification, the number of columns should match the number of",
+ #       "classes. For regression, the number of columns should be 1." )
 }
 
 

@@ -44,33 +44,44 @@ orsf_train(object, attach_data = TRUE)
 \item{data}{a \link{data.frame}, \link[tibble:tibble-package]{tibble}, or \link[data.table:data.table]{data.table} that contains the
 relevant variables.}
 
-\item{formula}{(\emph{formula}) The response on the left hand side should
-include a time variable, followed by a status variable, and may be
-written inside a call to \link[survival:Surv]{Surv} (see examples).
-The terms on the right are names of predictor variables.}
-
-\item{control}{(\emph{orsf_control}) An object returned from one of the
-\code{orsf_control} functions:
+\item{formula}{(\emph{formula}) Two sided formula with a single outcome.
+The terms on the right are names of predictor variables, and the
+symbol '.' may be used to indicate all variables in the data
+except the response. The symbol '-' may also be used to indicate
+removal of a predictor. Details on the response vary depending
+on forest type:
 \itemize{
-\item \link{orsf_control_fast} (the default) uses a single iteration of Newton
-Raphson scoring to identify a linear combination of predictors.
-\item \link{orsf_control_cph} uses Newton Raphson scoring until a convergence
-criteria is met.
-\item \link{orsf_control_net} uses \code{glmnet} to identify linear combinations of
-predictors, similar to Jaeger (2019).
-\item \link{orsf_control_custom} allows the user to apply their own function
-to create linear combinations of predictors.
+\item \emph{Survival}: The response should include a time variable,
+followed by a status variable, and may be written inside a
+call to \link[survival:Surv]{Surv} (see examples).
+\item \emph{Classification}: The response should be a single variable,
+and that variable should have type \code{factor} in \code{data}.
+\item \emph{Regression}: The response should be a single variable, and
+that variable should have typee \code{double} or \code{integer} with at
+least 10 unique numeric values in \code{data}.
 }}
 
+\item{control}{(\emph{orsf_control}) An object returned from one of the
+\code{orsf_control} functions: \link{orsf_control_survival},
+\link{orsf_control_classification}, and \link{orsf_control_regression}. If
+\code{NULL} (the default) will use an accelerated control, which is the
+fastest available option. For survival and classification, this is
+Cox and Logistic regression with 1 iteration, and for regression
+it is ordinary least squares.}
+
 \item{weights}{(\emph{numeric vector}) Optional. If given, this input should
-have length equal to \code{nrow(data)}. Values in \code{weights} are treated like
-replication weights, i.e., a value of 2 is the same thing as having 2
-observations in \code{data}, each containing a copy of the corresponding
-person's data.
+have length equal to \code{nrow(data)} for complete or imputed data and should
+have length equal to \code{nrow(na.omit(data))} if \code{na_action} is \code{"omit"}.
+Values in \code{weights} are treated like replication weights, i.e., a value
+of 2 is the same thing as having 2 observations in \code{data}, each
+containing a copy of the corresponding person's data.
 
 \emph{Use} \code{weights} \emph{cautiously}, as \code{orsf} will count the number of
 observations and events prior to growing a node for a tree, so higher
-values in \code{weights} will lead to deeper trees.}
+values in \code{weights} will lead to deeper trees. If you use this
+input, it is highly recommended you scale the weights so that
+\code{sum(weights) == nrow(data)}, as this will help make tree depth
+consistent with the default \code{weights = rep(1, nrow(data))}}
 
 \item{n_tree}{(\emph{integer}) the number of trees to grow.
 Default is \code{n_tree = 500.}}
@@ -78,7 +89,7 @@ Default is \code{n_tree = 500.}}
 \item{n_split}{(\emph{integer}) the number of cut-points assessed when splitting
 a node in decision trees. Default is \code{n_split = 5}.}
 
-\item{n_retry}{(\emph{integer}) when a node can be split, but the current
+\item{n_retry}{(\emph{integer}) when a node is splittable, but the current
 linear combination of inputs is unable to provide a valid split, \code{orsf}
 will try again with a new linear combination based on a different set
 of randomly selected predictors, up to \code{n_retry} times. Default is
@@ -109,39 +120,86 @@ leaf node. Default is \code{leaf_min_events = 1}}
 leaf node. Default is \code{leaf_min_obs = 5}.}
 
 \item{split_rule}{(\emph{character}) how to assess the quality of a potential
-splitting rule for a node. Valid options are
+splitting rule for a node. Valid options for survival are:
 \itemize{
-\item 'logrank' : a log-rank test statistic.
+\item 'logrank' : a log-rank test statistic (default).
 \item 'cstat'   : Harrell's concordance statistic.
+}
+
+For classification, valid options are:
+\itemize{
+\item 'gini'  : gini impurity (default)
+\item 'cstat' : area underneath the ROC curve (AUC-ROC)
+}
+
+For regression, valid options are:
+\itemize{
+\item 'variance' : variance reduction (default)
 }}
 
 \item{split_min_events}{(\emph{integer}) minimum number of events required
-in a node to consider splitting it. Default is \code{split_min_events = 5}}
+in a node to consider splitting it. Default is \code{split_min_events = 5}.
+This input is only relevant for survival trees.}
 
 \item{split_min_obs}{(\emph{integer}) minimum number of observations required
 in a node to consider splitting it. Default is \code{split_min_obs = 10}.}
 
 \item{split_min_stat}{(double) minimum test statistic required to split
-a node. Default is 3.841459 if \code{split_rule = 'logrank'} and 0.50 if
-\code{split_rule = 'cstat'}. If no splits are found with a statistic
-exceeding \code{split_min_stat}, the given node either becomes a leaf or
-a retry occurs (up to \code{n_retry} retries).}
+a node. If no splits are found with a statistic exceeding \code{split_min_stat},
+the given node either becomes a leaf or a retry occurs (up to \code{n_retry}
+retries). Defaults are
+\itemize{
+\item 3.84 if \code{split_rule = 'logrank'}
+\item 0.50 if \code{split_rule = 'cstat'} (see first note below)
+\item 0.00 if \code{split_rule = 'gini'} (see second note below)
+\item 0.00 if \code{split_rule = 'variance'}
+}
+
+\strong{Note 1} For C-statistic splitting, if C is < 0.50, we consider the statistic
+value to be 1 - C to allow for good 'anti-predictive' splits. So,
+if a C-statistic is initially computed as 0.1, it will be considered
+as 1 - 0.10 = 0.90.
+
+\strong{Note 2} For Gini impurity, a value of 0 and 1 usually indicate the best and
+worst possible scores, respectively. To make things simple and to avoid
+introducing a \code{split_max_stat} input, we flip the values of Gini
+impurity so that 1 and 0 indicate the best and worst possible scores,
+respectively.}
 
 \item{oobag_pred_type}{(\emph{character}) The type of out-of-bag predictions
-to compute while fitting the ensemble. Valid options are
+to compute while fitting the ensemble. Valid options for any tree type:
 \itemize{
 \item 'none' : don't compute out-of-bag predictions
-\item 'risk' : probability of event occurring at or before \code{oobag_pred_horizon}.
+\item 'leaf' : the ID of the predicted leaf is returned for each tree
+}
+
+Valid options for survival:
+\itemize{
+\item 'risk' : probability of event occurring at or before
+\code{oobag_pred_horizon} (default).
 \item 'surv' : 1 - risk.
 \item 'chf'  : cumulative hazard function at \code{oobag_pred_horizon}.
 \item 'mort' : mortality, i.e., the number of events expected if all
 observations in the training data were identical to a
 given observation.
+}
+
+Valid options for classification:
+\itemize{
+\item 'prob'  : probability of each class (default)
+\item 'class' : class (i.e., which.max(prob))
+}
+
+Valid options for regression:
+\itemize{
+\item 'mean' : mean value (default)
 }}
 
 \item{oobag_pred_horizon}{(\emph{numeric}) A numeric value indicating what time
 should be used for out-of-bag predictions. Default is the median
-of the observed times, i.e., \code{oobag_pred_horizon = median(time)}.}
+of the observed times, i.e., \code{oobag_pred_horizon = median(time)}.
+This input is only relevant for survival trees that have prediction
+type of 'risk', 'surv', or 'chf'.}
 
 \item{oobag_eval_every}{(\emph{integer}) The out-of-bag performance of the
 ensemble will be checked every \code{oobag_eval_every} trees. So, if
@@ -150,11 +208,18 @@ after growing the 10th tree, the 20th tree, and so on. Default
 is \code{oobag_eval_every = n_tree}.}
 
 \item{oobag_fun}{(\emph{function}) to be used for evaluating out-of-bag prediction accuracy every \code{oobag_eval_every}
-trees. When \code{oobag_fun = NULL} (the default), Harrell's C-statistic (1982) is used to evaluate accuracy. if you use your own \code{oobag_fun} note the following:
+trees. When \code{oobag_fun = NULL} (the default), the evaluation statistic is selected based on tree type
 \itemize{
-\item \code{oobag_fun} should have two inputs: \code{y_mat} and \code{s_vec}
-\item \code{y_mat} is a two column matrix with first column named 'time', second named 'status'
-\item \code{s_vec} is a numeric vector containing predicted survival probabilities.
+\item survival: Harrell's C-statistic (1982)
+\item classification: Area underneath the ROC curve (AUC-ROC)
+\item regression: Traditional prediction R-squared
+}
+
+if you use your own \code{oobag_fun} note the following:
+\itemize{
+\item \code{oobag_fun} should have three inputs: \code{y_mat}, \code{w_vec}, and \code{s_vec}
+\item For survival trees, \code{y_mat} should be a two column matrix with first column named 'time' and second named 'status'. For classification trees, \code{y_mat} should be a matrix with number of columns = number of distinct classes in the outcome. For regression, \code{y_mat} should be a matrix with one column.
+\item \code{s_vec} is a numeric vector containing predictions
 \item \code{oobag_fun} should return a numeric output of length 1
 }
 
@@ -184,10 +249,10 @@ will be set using the values in \code{tree_seeds[i]}  before growing tree \code{
 Two forests grown with the same number of trees and the same seeds will
 have the exact same out-of-bag samples, making out-of-bag error
 estimates of the forests more comparable. If \code{NULL} (the default),
-no seeds are set during the training process.}
+seeds are picked at random.}
 
 \item{attach_data}{(\emph{logical}) if \code{TRUE}, a copy of the training
-data will be attached to the output. This is helpful if you
+data will be attached to the output. This is required if you
 plan on using functions like \link{orsf_pd_oob} or \link{orsf_summarize_uni}
 to interpret the forest using its training data. Default is \code{TRUE}.}
 
@@ -199,9 +264,7 @@ directly submitted to \code{orsf_train()} so long as \code{attach_data} is \code
 \itemize{
 \item 'fail' : an error is thrown if \code{data} contains \code{NA} values
 \item 'omit' : rows in \code{data} with incomplete data will be dropped
-\item 'impute_meanmode' : missing values for continuous and categorical variables in \code{data} will be imputed using the mean and mode, respectively. Note that is this
-option is selected and \code{attach_data} is \code{TRUE}, the data attached
-to the output will be the imputed version of \code{data}.
+\item 'impute_meanmode' : missing values for continuous and categorical variables in \code{data} will be imputed using the mean and mode, respectively.
 }}
 
 \item{verbose_progress}{(\emph{logical}) if \code{TRUE}, progress messages are

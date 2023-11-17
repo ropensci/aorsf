@@ -6,43 +6,54 @@
 #' @param data a `r roxy_data_allowed()` that contains the
 #'  relevant variables.
 #'
-#' @param formula (_formula_) The response on the left hand side should
-#'   include a time variable, followed by a status variable, and may be
-#'   written inside a call to [Surv][survival::Surv] (see examples).
-#'   The terms on the right are names of predictor variables.
+#' @param formula (*formula*) Two sided formula with a single outcome.
+#'   The terms on the right are names of predictor variables, and the
+#'   symbol '.' may be used to indicate all variables in the data
+#'   except the response. The symbol '-' may also be used to indicate
+#'   removal of a predictor. Details on the response vary depending
+#'   on forest type:
+#'
+#'   - *Survival*: The response should include a time variable,
+#'   followed by a status variable, and may be written inside a
+#'   call to [Surv][survival::Surv] (see examples).
+#'
+#'   - *Classification*: The response should be a single variable,
+#'   and that variable should have type `factor` in `data`.
+#'
+#'   - *Regression*: The response should be a single variable, and
+#'   that variable should have typee `double` or `integer` with at
+#'   least 10 unique numeric values in `data`.
+#'
 #'
 #' @param control (*orsf_control*) An object returned from one of the
-#'  `orsf_control` functions:
+#'  `orsf_control` functions: [orsf_control_survival],
+#'  [orsf_control_classification], and [orsf_control_regression]. If
+#'  `NULL` (the default) will use an accelerated control, which is the
+#'   fastest available option. For survival and classification, this is
+#'   Cox and Logistic regression with 1 iteration, and for regression
+#'   it is ordinary least squares.
 #'
-#'  - [orsf_control_fast] (the default) uses a single iteration of Newton
-#'    Raphson scoring to identify a linear combination of predictors.
-#'
-#'  - [orsf_control_cph] uses Newton Raphson scoring until a convergence
-#'    criteria is met.
-#'
-#'  - [orsf_control_net] uses `glmnet` to identify linear combinations of
-#'    predictors, similar to Jaeger (2019).
-#'
-#'  - [orsf_control_custom] allows the user to apply their own function
-#'    to create linear combinations of predictors.
-#'
-#' @param weights (_numeric vector_) Optional. If given, this input should
-#'   have length equal to `nrow(data)`. Values in `weights` are treated like
-#'   replication weights, i.e., a value of 2 is the same thing as having 2
-#'   observations in `data`, each containing a copy of the corresponding
-#'   person's data.
+#' @param weights (*numeric vector*) Optional. If given, this input should
+#'   have length equal to `nrow(data)` for complete or imputed data and should
+#'   have length equal to `nrow(na.omit(data))` if `na_action` is `"omit"`.
+#'   Values in `weights` are treated like replication weights, i.e., a value
+#'   of 2 is the same thing as having 2 observations in `data`, each
+#'   containing a copy of the corresponding person's data.
 #'
 #'   *Use* `weights` *cautiously*, as `orsf` will count the number of
 #'   observations and events prior to growing a node for a tree, so higher
-#'   values in `weights` will lead to deeper trees.
+#'   values in `weights` will lead to deeper trees. If you use this
+#'   input, it is highly recommended you scale the weights so that
+#'   `sum(weights) == nrow(data)`, as this will help make tree depth
+#'   consistent with the default `weights = rep(1, nrow(data))`
 #'
-#' @param n_tree (_integer_) the number of trees to grow.
+#' @param n_tree (*integer*) the number of trees to grow.
 #' Default is `n_tree = 500.`
 #'
-#' @param n_split (_integer_) the number of cut-points assessed when splitting
+#' @param n_split (*integer*) the number of cut-points assessed when splitting
 #'  a node in decision trees. Default is `n_split = 5`.
 #'
-#' @param n_retry (_integer_) when a node can be split, but the current
+#' @param n_retry (*integer*) when a node is splittable, but the current
 #'  linear combination of inputs is unable to provide a valid split, `orsf`
 #'  will try again with a new linear combination based on a different set
 #'  of randomly selected predictors, up to `n_retry` times. Default is
@@ -50,69 +61,112 @@
 #'
 #' @param n_thread `r roxy_n_thread_header("growing trees, computing predictions, and computing importance")`
 #'
-#' @param mtry (_integer_) Number of predictors randomly included as candidates
+#' @param mtry (*integer*) Number of predictors randomly included as candidates
 #'   for splitting a node. The default is the smallest integer greater than
 #'   the square root of the number of total predictors, i.e.,
 #'   `mtry = ceiling(sqrt(number of predictors))`
 #'
-#' @param sample_with_replacement (_logical_) If `TRUE` (the default),
+#' @param sample_with_replacement (*logical*) If `TRUE` (the default),
 #'   observations are sampled with replacement when an in-bag sample
 #'   is created for a decision tree. If `FALSE`, observations are
 #'   sampled without replacement and each tree will have an in-bag sample
 #'   containing `sample_fraction`% of the original sample.
 #'
-#' @param sample_fraction (_double_) the proportion of observations that
+#' @param sample_fraction (*double*) the proportion of observations that
 #'   each trees' in-bag sample will contain, relative to the number of
 #'   rows in `data`. Only used if `sample_with_replacement` is `FALSE`.
 #'   Default value is 0.632.
 #'
-#' @param leaf_min_events (_integer_) minimum number of events in a
+#' @param leaf_min_events (*integer*) minimum number of events in a
 #'   leaf node. Default is `leaf_min_events = 1`
 #'
-#' @param leaf_min_obs (_integer_) minimum number of observations in a
+#' @param leaf_min_obs (*integer*) minimum number of observations in a
 #'   leaf node. Default is `leaf_min_obs = 5`.
 #'
-#' @param split_rule (_character_) how to assess the quality of a potential
-#'   splitting rule for a node. Valid options are
+#' @param split_rule (*character*) how to assess the quality of a potential
+#'   splitting rule for a node. Valid options for survival are:
 #'
-#'   - 'logrank' : a log-rank test statistic.
+#'   - 'logrank' : a log-rank test statistic (default).
 #'   - 'cstat'   : Harrell's concordance statistic.
 #'
-#' @param split_min_events (_integer_) minimum number of events required
-#'   in a node to consider splitting it. Default is `split_min_events = 5`
+#'   For classification, valid options are:
 #'
-#' @param split_min_obs (_integer_) minimum number of observations required
+#'   - 'gini'  : gini impurity (default)
+#'   - 'cstat' : area underneath the ROC curve (AUC-ROC)
+#'
+#'   For regression, valid options are:
+#'
+#'   - 'variance' : variance reduction (default)
+#'
+#' @param split_min_events (*integer*) minimum number of events required
+#'   in a node to consider splitting it. Default is `split_min_events = 5`.
+#'   This input is only relevant for survival trees.
+#'
+#' @param split_min_obs (*integer*) minimum number of observations required
 #'   in a node to consider splitting it. Default is `split_min_obs = 10`.
 #'
 #' @param split_min_stat (double) minimum test statistic required to split
-#'   a node. Default is 3.841459 if `split_rule = 'logrank'` and 0.50 if
-#'   `split_rule = 'cstat'`. If no splits are found with a statistic
-#'   exceeding `split_min_stat`, the given node either becomes a leaf or
-#'   a retry occurs (up to `n_retry` retries).
+#'   a node. If no splits are found with a statistic exceeding `split_min_stat`,
+#'   the given node either becomes a leaf or a retry occurs (up to `n_retry`
+#'   retries). Defaults are
 #'
-#' @param oobag_pred_type (_character_) The type of out-of-bag predictions
-#'   to compute while fitting the ensemble. Valid options are
+#'   - 3.84 if `split_rule = 'logrank'`
+#'   - 0.50 if `split_rule = 'cstat'` (see first note below)
+#'   - 0.00 if `split_rule = 'gini'` (see second note below)
+#'   - 0.00 if `split_rule = 'variance'`
+#'
+#'   **Note 1** For C-statistic splitting, if C is < 0.50, we consider the statistic
+#'   value to be 1 - C to allow for good 'anti-predictive' splits. So,
+#'   if a C-statistic is initially computed as 0.1, it will be considered
+#'   as 1 - 0.10 = 0.90.
+#'
+#'   **Note 2** For Gini impurity, a value of 0 and 1 usually indicate the best and
+#'   worst possible scores, respectively. To make things simple and to avoid
+#'   introducing a `split_max_stat` input, we flip the values of Gini
+#'   impurity so that 1 and 0 indicate the best and worst possible scores,
+#'   respectively.
+#'
+#' @param oobag_pred_type (*character*) The type of out-of-bag predictions
+#'   to compute while fitting the ensemble. Valid options for any tree type:
 #'
 #'   - 'none' : don't compute out-of-bag predictions
-#'   - 'risk' : probability of event occurring at or before `oobag_pred_horizon`.
+#'   - 'leaf' : the ID of the predicted leaf is returned for each tree
+#'
+#'   Valid options for survival:
+#'
+#'   - 'risk' : probability of event occurring at or before
+#'              `oobag_pred_horizon` (default).
 #'   - 'surv' : 1 - risk.
 #'   - 'chf'  : cumulative hazard function at `oobag_pred_horizon`.
 #'   - 'mort' : mortality, i.e., the number of events expected if all
 #'              observations in the training data were identical to a
 #'              given observation.
 #'
-#' @param oobag_pred_horizon (_numeric_) A numeric value indicating what time
+#'   Valid options for classification:
+#'
+#'   - 'prob'  : probability of each class (default)
+#'   - 'class' : class (i.e., which.max(prob))
+#'
+#'   Valid options for regression:
+#'
+#'   - 'mean' : mean value (default)
+#'
+#' @param oobag_pred_horizon (*numeric*) A numeric value indicating what time
 #'   should be used for out-of-bag predictions. Default is the median
 #'   of the observed times, i.e., `oobag_pred_horizon = median(time)`.
+#'   This input is only relevant for survival trees that have prediction
+#'   type of 'risk', 'surv', or 'chf'.
 #'
-#' @param oobag_eval_every (_integer_) The out-of-bag performance of the
+#' @param oobag_eval_every (*integer*) The out-of-bag performance of the
 #'   ensemble will be checked every `oobag_eval_every` trees. So, if
 #'   `oobag_eval_every = 10`, then out-of-bag performance is checked
 #'   after growing the 10th tree, the 20th tree, and so on. Default
 #'   is `oobag_eval_every = n_tree`.
 #'
 #' @param oobag_fun `r roxy_oobag_fun_header()` every `oobag_eval_every`
-#'  trees. `r roxy_oobag_fun_default()` `r roxy_oobag_fun_user()`
+#'  trees. `r roxy_oobag_fun_default()`
+#'
+#'  `r roxy_oobag_fun_user()`
 #'   - `r roxy_oobag_fun_inputs()`
 #'   - `r roxy_oobag_fun_ymat()`
 #'   - `r roxy_oobag_fun_svec()`
@@ -128,28 +182,28 @@
 #'
 #' For details on these methods, see [orsf_vi].
 #'
-#' @param importance_max_pvalue (_double_) Only relevant if `importance`
+#' @param importance_max_pvalue (*double*) Only relevant if `importance`
 #'   is `"anova"`. The maximum p-value that will register as a positive
 #'   case when counting the number of times a variable was found to be
 #'   'significant' during tree growth. Default is 0.01, as recommended
 #'   by Menze et al.
 #'
-#' @param group_factors (_logical_) Only relevant if variable importance is
+#' @param group_factors (*logical*) Only relevant if variable importance is
 #'   being estimated. `r roxy_group_factors()`
 #'
-#' @param tree_seeds (_integer vector_) Optional. if specified, random seeds
+#' @param tree_seeds (*integer vector*) Optional. if specified, random seeds
 #'   will be set using the values in `tree_seeds[i]`  before growing tree `i`.
 #'   Two forests grown with the same number of trees and the same seeds will
 #'   have the exact same out-of-bag samples, making out-of-bag error
 #'   estimates of the forests more comparable. If `NULL` (the default),
-#'   no seeds are set during the training process.
+#'   seeds are picked at random.
 #'
-#' @param attach_data (_logical_) if `TRUE`, a copy of the training
-#'   data will be attached to the output. This is helpful if you
+#' @param attach_data (*logical*) if `TRUE`, a copy of the training
+#'   data will be attached to the output. This is required if you
 #'   plan on using functions like [orsf_pd_oob] or [orsf_summarize_uni]
 #'   to interpret the forest using its training data. Default is `TRUE`.
 #'
-#' @param no_fit (_logical_) if `TRUE`, model fitting steps are defined and
+#' @param no_fit (*logical*) if `TRUE`, model fitting steps are defined and
 #'   saved, but training is not initiated. The object returned can be
 #'   directly submitted to `orsf_train()` so long as `attach_data` is `TRUE`.
 #'
@@ -157,11 +211,9 @@
 #'
 #'   - `r roxy_na_action_fail("data")`
 #'   - `r roxy_na_action_omit("data")`
-#'   - `r roxy_na_action_impute_meanmode("data")`. Note that is this
-#'     option is selected and `attach_data` is `TRUE`, the data attached
-#'     to the output will be the imputed version of `data`.
+#'   - `r roxy_na_action_impute_meanmode("data")`.
 #'
-#' @param verbose_progress (_logical_) if `TRUE`, progress messages are
+#' @param verbose_progress (*logical*) if `TRUE`, progress messages are
 #'   printed in the console. If `FALSE` (the default), nothing is printed.
 #'
 #' @param ... `r roxy_dots()`
@@ -417,7 +469,7 @@ orsf_train <- function(object, attach_data = TRUE){
 #'
 #' @param object an untrained `aorsf` object
 #'
-#' @param n_tree_subset (_integer_)  how many trees should be fit in order
+#' @param n_tree_subset (*integer*)  how many trees should be fit in order
 #'   to estimate the time needed to train `object`. The default value is 50,
 #'   as this usually gives a good enough approximation.
 #'

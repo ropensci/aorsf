@@ -67,6 +67,10 @@
 
    vec y_i = y_node.unsafe_col(y_col_split);
    result = compute_cstat_clsf(y_i, w_node, g_node);
+
+   // if the split has good 'anti-prediction' properties:
+   if(result < 0.50){ result = 1 - result; }
+
    break;
 
   }

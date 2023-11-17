@@ -129,6 +129,94 @@ ObliqueForest <- R6::R6Class(
 
   },
 
+  # initialization
+  update = function(data = NULL,
+                    formula = NULL,
+                    control = NULL,
+                    weights = NULL,
+                    n_tree = NULL,
+                    n_split = NULL,
+                    n_retry = NULL,
+                    n_thread = NULL,
+                    mtry = NULL,
+                    sample_with_replacement = NULL,
+                    sample_fraction = NULL,
+                    leaf_min_events = NULL,
+                    leaf_min_obs = NULL,
+                    split_rule = NULL,
+                    split_min_events = NULL,
+                    split_min_obs = NULL,
+                    split_min_stat = NULL,
+                    pred_type = NULL,
+                    oobag_pred_horizon = NULL,
+                    oobag_eval_every = NULL,
+                    oobag_fun = NULL,
+                    importance_type = NULL,
+                    importance_max_pvalue = NULL,
+                    importance_group_factors = NULL,
+                    tree_seeds = NULL,
+                    na_action = NULL,
+                    verbose_progress = NULL) {
+
+   if(!is.null(data))
+    self$data <- data
+   if(!is.null(formula))
+    self$formula <- formula
+   if(!is.null(control))
+    self$control <- control
+   if(!is.null(weights))
+    self$weights <- weights
+   if(!is.null(n_tree))
+    self$n_tree <- n_tree
+   if(!is.null(n_split))
+    self$n_split <- n_split
+   if(!is.null(n_retry))
+    self$n_retry <- n_retry
+   if(!is.null(n_thread))
+    self$n_thread <- n_thread
+   if(!is.null(mtry))
+    self$mtry <- mtry
+   if(!is.null(sample_with_replacement))
+    self$sample_with_replacement <- sample_with_replacement
+   if(!is.null(sample_fraction))
+    self$sample_fraction <- sample_fraction
+   if(!is.null(leaf_min_events))
+    self$leaf_min_events <- leaf_min_events
+   if(!is.null(leaf_min_obs))
+    self$leaf_min_obs <- leaf_min_obs
+   if(!is.null(split_rule))
+    self$split_rule <- split_rule
+   if(!is.null(split_min_events))
+    self$split_min_events <- split_min_events
+   if(!is.null(split_min_obs))
+    self$split_min_obs <- split_min_obs
+   if(!is.null(split_min_stat))
+    self$split_min_stat <- split_min_stat
+   if(!is.null(pred_type))
+    self$pred_type <- pred_type
+   if(!is.null(oobag_pred_horizon))
+    self$pred_horizon <- oobag_pred_horizon
+   if(!is.null(oobag_eval_every))
+    self$oobag_eval_every <- oobag_eval_every
+   if(!is.null(oobag_fun))
+    self$oobag_eval_function <- oobag_fun
+   if(!is.null(importance_type))
+    self$importance_type <- importance_type
+   if(!is.null(importance_max_pvalue))
+    self$importance_max_pvalue <- importance_max_pvalue
+   if(!is.null(importance_group_factors))
+    self$importance_group_factors <- importance_group_factors
+   if(!is.null(tree_seeds))
+    self$tree_seeds <- tree_seeds
+   if(!is.null(na_action))
+    self$na_action <- na_action
+   if(!is.null(verbose_progress))
+    self$verbose_progress <- verbose_progress
+
+   private$init()
+
+  },
+
   print = function(){
 
    info_model_type <- switch(self$tree_type,

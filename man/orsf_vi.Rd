@@ -54,12 +54,15 @@ orsf_vi_anova(object, group_factors = TRUE, ...)
 (if importance = 'negate') or permuting the values of a predictor
 (if importance = 'permute')
 \itemize{
-\item When \code{oobag_fun = NULL} (the default), Harrell's C-statistic (1982) is used to evaluate accuracy.
+\item When \code{oobag_fun = NULL} (the default), the evaluation statistic is selected based on tree type
+\item survival: Harrell's C-statistic (1982)
+\item classification: Area underneath the ROC curve (AUC-ROC)
+\item regression: Traditional prediction R-squared
 \item if you use your own \code{oobag_fun} note the following:
 \itemize{
-\item \code{oobag_fun} should have two inputs: \code{y_mat} and \code{s_vec}
-\item \code{y_mat} is a two column matrix with first column named 'time', second named 'status'
-\item \code{s_vec} is a numeric vector containing predicted survival probabilities.
+\item \code{oobag_fun} should have three inputs: \code{y_mat}, \code{w_vec}, and \code{s_vec}
+\item For survival trees, \code{y_mat} should be a two column matrix with first column named 'time' and second named 'status'. For classification trees, \code{y_mat} should be a matrix with number of columns = number of distinct classes in the outcome. For regression, \code{y_mat} should be a matrix with one column.
+\item \code{s_vec} is a numeric vector containing predictions
 \item \code{oobag_fun} should return a numeric output of length 1
 \item the same \code{oobag_fun} should have been used when you created \code{object}
 so that the initial value of out-of-bag prediction accuracy is
