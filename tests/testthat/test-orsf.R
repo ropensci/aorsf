@@ -88,15 +88,15 @@ test_that(
                  control = controls_clsf$fast,
                  tree_seed = seeds_standard)
 
-  expect_equal_leaf_summary(fit_dt, fit_standard_penguins$fast)
+  expect_equal_leaf_summary(fit_dt, fit_standard_penguin_species$fast)
 
-  fit_dt <- orsf(as.data.table(mtcars),
-                 formula = mpg ~ .,
+  fit_dt <- orsf(as.data.table(penguins),
+                 formula = bill_length_mm ~ .,
                  n_tree = n_tree_test,
                  control = controls_regr$fast,
                  tree_seed = seeds_standard)
 
-  expect_equal_leaf_summary(fit_dt, fit_standard_mtcars$fast)
+  expect_equal_leaf_summary(fit_dt, fit_standard_penguin_bills$fast)
 
  }
 )
@@ -358,27 +358,27 @@ test_that(
   })
 
   expect_equal_oobag_eval(fits_clsf$penguins_scaled,
-                          fit_standard_penguins$fast,
+                          fit_standard_penguin_species$fast,
                           tolerance = .01)
 
   expect_equal_oobag_eval(fits_clsf$penguins_noised,
-                          fit_standard_penguins$fast,
+                          fit_standard_penguin_species$fast,
                           tolerance = .01)
 
-  fits_regr <- lapply(data_list_mtcars[-1],  function(data){
+  fits_regr <- lapply(data_list_penguins[-1],  function(data){
    orsf(data,
-        formula = mpg ~ .,
+        formula = bill_length_mm ~ .,
         n_thread = 2,
         n_tree = n_tree_test,
         tree_seeds = seeds_standard)
   })
 
-  expect_equal_oobag_eval(fits_regr$mtcars_scaled,
-                          fit_standard_mtcars$fast,
+  expect_equal_oobag_eval(fits_regr$penguins_scaled,
+                          fit_standard_penguin_bills$fast,
                           tolerance = .01)
 
-  expect_equal_oobag_eval(fits_regr$mtcars_noised,
-                          fit_standard_mtcars$fast,
+  expect_equal_oobag_eval(fits_regr$penguins_scaled,
+                          fit_standard_penguin_bills$fast,
                           tolerance = .01)
 
  }
@@ -445,7 +445,7 @@ test_that(
   #             oobag_fun = oobag_cstat_clsf,
   #             tree_seeds = seeds_standard)
   #
-  # expect_equal_oobag_eval(fit, fit_standard_penguins$fast)
+  # expect_equal_oobag_eval(fit, fit_standard_penguin_species$fast)
 
 
  }

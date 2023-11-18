@@ -85,13 +85,13 @@ test_that(
  }
 )
 
-# Note: eval_oobag is not the same,
+# Note: eval_oobag is not the same on ubuntu,
 # maybe because fit_imputed x is scaled using imputed values?
 
 test_that(
  desc = 'fit with impute is identical to fit on imputed',
  code = {
-  skip()
+  skip_on_os(os = 'linux')
   expect_equal_leaf_summary(fit_miss, fit_imputed)
   expect_equal(fit_miss$n_obs, fit_imputed$n_obs)
  }

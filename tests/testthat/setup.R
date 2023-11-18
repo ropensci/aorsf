@@ -68,20 +68,6 @@ for(i in vars){
 # make sorted x and y matrices for testing internal cpp functions
 penguins_mats <- prep_test_matrices(penguins, outcomes = c("species"))
 
-# mtcars ----
-
-mtcars_scale <- mtcars_noise <- mtcars
-
-vars <- c("drat", "wt", "qsec", "disp")
-
-for(i in vars){
- mtcars_noise[[i]] <- add_noise(mtcars_noise[[i]])
- mtcars_scale[[i]] <- change_scale(mtcars_scale[[i]])
-}
-
-# make sorted x and y matrices for testing internal cpp functions
-mtcars_mats <- prep_test_matrices(mtcars, outcomes = c("mpg"))
-
 # data lists ----
 
 data_list_pbc <- list(pbc_standard = pbc,
@@ -92,13 +78,6 @@ data_list_pbc <- list(pbc_standard = pbc,
 data_list_penguins <- list(penguins_standard = penguins,
                            penguins_scaled = penguins_scale,
                            penguins_noised = penguins_noise)
-
-data_list_mtcars <- list(mtcars_standard = mtcars,
-                         mtcars_scaled = mtcars_scale,
-                         mtcars_noised = mtcars_noise)
-
-
-
 
 
 # matrix lists ----
@@ -137,7 +116,7 @@ controls_clsf <- list(
  custom = orsf_control_classification(method = f_pca)
 )
 
-fit_standard_penguins <- lapply(
+fit_standard_penguin_species <- lapply(
  controls_clsf,
  function(cntrl){
   orsf(penguins,
@@ -154,11 +133,11 @@ controls_regr <- list(
  custom = orsf_control_regression(method = f_pca)
 )
 
-fit_standard_mtcars <- lapply(
+fit_standard_penguin_bills <- lapply(
  controls_regr,
  function(cntrl){
-  orsf(mtcars,
-       formula = mpg ~ .,
+  orsf(penguins,
+       formula = bill_length_mm ~ .,
        n_tree = n_tree_test,
        control = cntrl,
        tree_seed = seeds_standard)
@@ -187,8 +166,4 @@ pbc_test <- pbc[-pbc_train_rows, ]
 penguins_train_rows <- sample(nrow(penguins_orsf), size = 180)
 penguins_train <- penguins[penguins_train_rows, ]
 penguins_test <- penguins[-penguins_train_rows, ]
-
-mtcars_train_rows <- sample(nrow(mtcars), size = 16)
-mtcars_train <- mtcars[mtcars_train_rows, ]
-mtcars_test <- mtcars[-mtcars_train_rows, ]
 
