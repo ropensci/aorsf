@@ -97,7 +97,6 @@ test_that(
  }
 )
 
-
 test_that(
  desc = "imputation does not coerce columns to new types",
  code = {

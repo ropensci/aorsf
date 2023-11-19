@@ -36,16 +36,10 @@
 #' @param weights (*numeric vector*) Optional. If given, this input should
 #'   have length equal to `nrow(data)` for complete or imputed data and should
 #'   have length equal to `nrow(na.omit(data))` if `na_action` is `"omit"`.
-#'   Values in `weights` are treated like replication weights, i.e., a value
-#'   of 2 is the same thing as having 2 observations in `data`, each
-#'   containing a copy of the corresponding person's data.
-#'
-#'   *Use* `weights` *cautiously*, as `orsf` will count the number of
-#'   observations and events prior to growing a node for a tree, so higher
-#'   values in `weights` will lead to deeper trees. If you use this
-#'   input, it is highly recommended you scale the weights so that
-#'   `sum(weights) == nrow(data)`, as this will help make tree depth
-#'   consistent with the default `weights = rep(1, nrow(data))`
+#'   As the weights vector is used to count observations and events prior to
+#'   growing a node for a tree, `orsf()` scales `weights` so that
+#'   `sum(weights) == nrow(data)`. This helps to make tree depth consistent
+#'   between weighted and un-weighted fits.
 #'
 #' @param n_tree (*integer*) the number of trees to grow.
 #' Default is `n_tree = 500.`
@@ -111,7 +105,7 @@
 #'   retries). Defaults are
 #'
 #'   - 3.84 if `split_rule = 'logrank'`
-#'   - 0.50 if `split_rule = 'cstat'` (see first note below)
+#'   - 0.55 if `split_rule = 'cstat'` (see first note below)
 #'   - 0.00 if `split_rule = 'gini'` (see second note below)
 #'   - 0.00 if `split_rule = 'variance'`
 #'

@@ -105,14 +105,16 @@ ObliqueForest <- R6::R6Class(
    # always be checked if a user wants to use update().
 
    private$user_specified <- list(
-    control            = !is.null(control),
-    weights            = !is.null(weights),
-    mtry               = !is.null(mtry),
-    split_rule         = !is.null(split_rule),
-    split_min_stat     = !is.null(split_min_stat),
-    pred_type          = !is.null(pred_type),
-    pred_horizon       = !is.null(oobag_pred_horizon),
-    tree_seeds         = !is.null(tree_seeds)
+    control             = !is.null(control),
+    lincomb_df_target   = !is.null(control$lincomb_df_target),
+    weights             = !is.null(weights),
+    mtry                = !is.null(mtry),
+    split_rule          = !is.null(split_rule),
+    split_min_stat      = !is.null(split_min_stat),
+    pred_type           = !is.null(pred_type),
+    pred_horizon        = !is.null(oobag_pred_horizon),
+    oobag_eval_function = !is.null(oobag_fun),
+    tree_seeds          = !is.null(tree_seeds)
    )
 
    self$data     <- data
@@ -175,8 +177,6 @@ ObliqueForest <- R6::R6Class(
                     na_action = NULL,
                     verbose_progress = NULL) {
 
-   if(!is.null(data))
-    self$data <- data
    if(!is.null(formula))
     self$formula <- formula
    if(!is.null(control))
@@ -230,7 +230,7 @@ ObliqueForest <- R6::R6Class(
    if(!is.null(verbose_progress))
     self$verbose_progress <- verbose_progress
 
-   private$init()
+   private$init(data = data)
 
   },
 
@@ -322,7 +322,7 @@ ObliqueForest <- R6::R6Class(
    # for survival, inputs should be sorted by time
    private$sort_inputs()
 
-   # allow re-training (b/c why not).
+   # allow re-training
    if(self$trained){ self$forest <- list() }
 
    cpp_args <- private$prep_cpp_args(...)
@@ -1097,54 +1097,121 @@ ObliqueForest <- R6::R6Class(
 
   mean_leaves = 0,
 
-  # runs checks and sets defaults where needed
-  init = function() {
+  # runs checks and sets defaults where needed.
+  # data is NULL when we are creating a new forest,
+  # but may be non-NULL if we update an existing one
+  init = function(data = NULL) {
 
-   private$check_data()
+   # look for odd symbols in formula before you check variables in data
    private$check_formula()
+   # check & init data should be near first bc they set up other checks
+   private$check_data(data)
+   private$init_data(data)
 
-   if(is.null(self$control)){
-    private$init_control()
-   } else {
+   # if data is not null, it means we are updating an orsf spec
+   # and in that process applying it to a new dataset, so:
+   if(!is.null(data)) self$data <- data
+
+
+
+   if(private$user_specified$control){
     private$check_control()
+   } else {
+    private$init_control()
    }
 
-   private$init_data()
-   private$init_mtry()
-   private$init_weights()
 
+   if(private$user_specified$mtry){
+    private$check_mtry()
+   } else {
+    private$init_mtry()
+   }
+
+   if(private$user_specified$lincomb_df_target){
+    private$check_lincomb_df_target()
+   } else {
+    private$init_lincomb_df_target()
+   }
+
+   if(private$user_specified$weights){
+    private$check_weights()
+   } else {
+    private$init_weights()
+   }
+
+   if(private$user_specified$pred_type){
+    private$check_pred_type(oobag = TRUE)
+   } else {
+    private$init_pred_type()
+   }
+
+   if(private$user_specified$split_rule){
+    private$check_split_rule()
+   } else {
+    private$init_split_rule()
+   }
+
+   if(private$user_specified$split_min_stat){
+    private$check_split_min_stat()
+   } else {
+    private$init_split_min_stat()
+   }
+
+   if(private$user_specified$oobag_eval_function){
+    private$check_oobag_eval_function()
+    self$oobag_eval_type <- "User-specified function"
+   } else {
+    private$init_oobag_eval_function()
+   }
+
+   if(self$control$lincomb_type == 'custom'){
+    private$check_lincomb_R_function()
+   } else if (is.null(self$control$lincomb_R_function)){
+    private$init_lincomb_R_function()
+   }
+
+   # arguments with hard defaults do not need an init option
    private$check_n_tree()
    private$check_n_split()
    private$check_n_retry()
    private$check_n_thread()
-   private$check_mtry()
    private$check_sample_with_replacement()
    private$check_sample_fraction()
    private$check_leaf_min_obs()
-   private$check_split_rule()
    private$check_split_min_obs()
-   private$check_split_min_stat()
-   private$check_pred_type(oobag = TRUE)
    private$check_oobag_eval_every()
    private$check_importance_type()
    private$check_importance_max_pvalue()
    private$check_importance_group_factors()
-   private$check_tree_seeds()
    private$check_na_action()
 
+   # args below depend on at least one upstream arg
 
-   private$init_oobag_eval_function()
-   private$init_lincomb_R_function()
+   if(private$user_specified$tree_seeds){
+    private$check_tree_seeds()
+   } else {
+    private$init_tree_seeds()
+   }
+
+   if(length(self$tree_seeds) == 1 && self$n_tree > 1){
+    private$plant_tree_seed()
+   }
+
+   # oobag_pred_mode depends on pred_type, which is checked above,
+   # so there is no reason to check it here.
    private$init_oobag_pred_mode()
-   private$init_tree_seeds()
+   # check if sample_fraction conflicts with oobag_pred_mode
+   private$check_oobag_pred_mode(self$oobag_pred_mode,
+                                 label = 'oobag_pred_mode',
+                                 sample_fraction = self$sample_fraction)
+
    private$init_internal()
 
 
   },
-  init_internal = function(){
-   stop("this method should only be called from derived classes")
-  },
-  init_data = function(){
+  init_data = function(data = NULL){
+
+   if(!is.null(data)) self$data <- data
 
    formula_terms <- suppressWarnings(
     stats::terms(x = self$formula, data = self$data)
@@ -1160,8 +1227,7 @@ ObliqueForest <- R6::R6Class(
    fctr_check(self$data, names_x_data)
    fctr_id_check(self$data, names_x_data)
 
-
-   private$check_var_names(c(names_x_data, names_y_data))
+   private$check_var_names(c(names_x_data, names_y_data), data = self$data)
 
    private$data_names <- list(y = names_y_data,
                               x_original = names_x_data)
@@ -1205,14 +1271,11 @@ ObliqueForest <- R6::R6Class(
 
   },
   init_tree_seeds = function(){
+
    if(is.null(self$tree_seeds)){
     self$tree_seeds <- sample(1e6, size = 1)
    }
 
-   if(length(self$tree_seeds) == 1 && self$n_tree > 1){
-     set.seed(self$tree_seeds)
-     self$tree_seeds <- sample(self$n_tree*10, size = self$n_tree)
-   }
   },
   init_numeric_names = function(){
 
@@ -1250,20 +1313,16 @@ ObliqueForest <- R6::R6Class(
   },
   init_oobag_pred_mode = function(){
 
+   # if pred_type is null when this is run, it means
+   # the user did not specify pred_type, which means the
+   # family-specific default will be used, which means
+   # pred_type will not be 'none', so it is safe to assume
+   # oobag_pred_mode is TRUE if pred_type is currently null
+
    if(is.null(self$pred_type)){
     self$oobag_pred_mode <- TRUE
    } else {
     self$oobag_pred_mode <- self$pred_type != "none"
-   }
-
-   if(!self$oobag_pred_mode) self$oobag_eval_type <- "none"
-
-   if(self$oobag_pred_mode && self$sample_fraction == 1){
-    stop(
-     "cannot compute out-of-bag predictions if no samples are out-of-bag.",
-     " Try setting sample_fraction < 1 or pred_type = 'none'.",
-     call. = FALSE
-    )
    }
 
   },
@@ -1271,83 +1330,71 @@ ObliqueForest <- R6::R6Class(
 
    n_col_x <- length(private$data_names$x_ref_code)
 
-   if(is.null(self$mtry)){
-
-    self$mtry <-  ceiling(sqrt(n_col_x))
-
-   } else {
-
-    check_arg_lteq(
-     arg_value = self$mtry,
-     arg_name = 'mtry',
-     bound = n_col_x,
-     append_to_msg = "(number of columns in the one-hot encoded x-matrix)"
-    )
-
-   }
-
-   if(is.null(self$control$lincomb_df_target)){
-
-    self$control$lincomb_df_target <- self$mtry
-
-   } else {
-
-    check_arg_lteq(
-     arg_value = self$control$lincomb_df_target,
-     arg_name = 'df_target',
-     bound = self$mtry,
-     append_to_msg = "(number of randomly selected predictors)"
-    )
-
-   }
+   self$mtry <- ceiling(sqrt(n_col_x))
 
   },
+
+
+
+
+  init_lincomb_df_target = function(mtry = NULL){
+
+   mtry <- mtry %||% self$mtry
+
+   self$control$lincomb_df_target <- mtry
+
+  },
+
+  check_lincomb_df_target = function(lincomb_df_target = NULL,
+                                     mtry = NULL){
+
+   input <- lincomb_df_target %||% self$control$lincomb_df_target
+   mtry <- mtry %||% self$mtry
+
+   check_arg_lteq(
+    arg_value = input,
+    arg_name = 'df_target',
+    bound = mtry,
+    append_to_msg = "(number of randomly selected predictors)"
+   )
+
+  },
+
   init_weights = function(){
 
    # set weights as 1 if user did not supply them.
    # length of weights depends on how missing are handled.
-   if(is.null(self$weights)){
-
-    private$w <- rep(1, self$n_obs)
-
-   } else {
-
-    private$check_weights()
-    private$w <- self$weights
-
-   }
+   self$weights <- rep(1, self$n_obs)
 
   },
+
+
   init_oobag_eval_function = function(){
 
-   if(is.null(self$oobag_eval_function)){
-
-    self$oobag_eval_function <- function(y_mat, w_vec, s_vec){
-     return(1)
-    }
-
-   } else {
-
-    private$check_oobag_eval_function()
-    self$oobag_eval_type <- "User-specified function"
-
+   self$oobag_eval_function <- function(y_mat, w_vec, s_vec){
+    return(1)
    }
 
   },
 
   init_lincomb_R_function = function(){
 
-   if(self$control$lincomb_type == 'custom'){
+   self$control$lincomb_R_function <- function(x) x
 
-    private$check_lincomb_R_function(self$control$lincomb_R_function)
+  },
 
-   }
+  # use a starter seed to create n_tree seeds
+  plant_tree_seed = function(){
+
+   set.seed(self$tree_seeds)
+   self$tree_seeds <- sample(self$n_tree*10, size = self$n_tree)
 
   },
 
   # checkers
   check_data = function(data = NULL, new = FALSE){
 
+   # additional data checks are run during initialization.
    input <- data %||% self$data
 
    check_arg_is(arg_value = input,
@@ -1421,9 +1468,11 @@ ObliqueForest <- R6::R6Class(
 
   },
 
-  check_var_names = function(.names){
+  check_var_names = function(.names, data = NULL){
 
-   names_not_found <- setdiff(c(.names), names(self$data))
+   data <- data %||% self$data
+
+   names_not_found <- setdiff(c(.names), names(data))
 
    if(!is_empty(names_not_found)){
     msg <- paste0(
@@ -1589,11 +1638,9 @@ ObliqueForest <- R6::R6Class(
                   arg_name = 'weights',
                   bound = 0)
 
-   check_arg_length(
-    arg_value = input,
-    arg_name  = 'weights',
-    expected_length = self$n_obs
-   )
+   check_arg_length(arg_value = input,
+                    arg_name  = 'weights',
+                    expected_length = self$n_obs)
 
   },
   check_n_tree = function(n_tree = NULL){
@@ -1713,6 +1760,8 @@ ObliqueForest <- R6::R6Class(
 
    input <- mtry %||% self$mtry
 
+   n_predictors <- length(private$data_names$x_ref_code)
+
    # okay for this to be unspecified at startup
    if(!is.null(input)){
 
@@ -1730,6 +1779,15 @@ ObliqueForest <- R6::R6Class(
     check_arg_length(arg_value = input,
                      arg_name = 'mtry',
                      expected_length = 1)
+
+    if(!is.null(n_predictors)){
+     check_arg_lteq(
+      arg_value = input,
+      arg_name = 'mtry',
+      bound = n_predictors,
+      append_to_msg = "(number of columns in the reference coded x-matrix)"
+     )
+    }
 
    }
 
@@ -1924,11 +1982,6 @@ ObliqueForest <- R6::R6Class(
 
   },
 
-  check_pred_type_internal = function(oobag, pred_type = NULL){
-
-   stop("this method should be defined in a derived class.")
-
-  },
   check_pred_aggregate = function(pred_aggregate = NULL){
 
    input <- pred_aggregate %||% self$pred_aggregate
@@ -2133,7 +2186,7 @@ ObliqueForest <- R6::R6Class(
 
   check_lincomb_R_function = function(lincomb_R_function = NULL){
 
-   input <- lincomb_R_function %||% self$lincomb_R_function
+   input <- lincomb_R_function %||% self$control$lincomb_R_function
 
    args <- names(formals(input))
 
@@ -2378,7 +2431,10 @@ ObliqueForest <- R6::R6Class(
 
   },
 
-  check_oobag_pred_mode = function(oobag_pred_mode, label){
+  check_oobag_pred_mode = function(oobag_pred_mode, label,
+                                   sample_fraction = NULL){
+
+   sample_fraction <- sample_fraction %||% self$sample_fraction
 
    check_arg_type(arg_value = oobag_pred_mode,
                   arg_name = label,
@@ -2388,6 +2444,17 @@ ObliqueForest <- R6::R6Class(
                     arg_name = label,
                     expected_length = 1)
 
+   if(!is.null(sample_fraction)){
+
+    if(oobag_pred_mode && sample_fraction == 1){
+     stop(
+      "cannot compute out-of-bag predictions if no samples are out-of-bag.",
+      " Try setting sample_fraction < 1 or oobag_pred_type = 'none'.",
+      call. = FALSE
+     )
+    }
+
+   }
 
   },
 
@@ -2396,6 +2463,11 @@ ObliqueForest <- R6::R6Class(
   compute_means = function(){
 
    numeric_data <- select_cols(self$data, private$data_names$x_numeric)
+
+   if(self$na_action == 'omit'){
+    numeric_data <- collapse::fsubset(numeric_data, private$data_rows_complete)
+   }
+
    private$data_means <- collapse::fmean(numeric_data, w = self$weights)
 
   },
@@ -2403,18 +2475,27 @@ ObliqueForest <- R6::R6Class(
 
   compute_modes = function(){
 
-   private$data_modes <- vapply(
-    select_cols(self$data, private$data_fctrs$cols),
-    collapse::fmode,
-    FUN.VALUE = integer(1),
-    w = self$weights
-   )
+   nominal_data <- select_cols(self$data, private$data_fctrs$cols)
+
+   if(self$na_action == 'omit'){
+    nominal_data <- collapse::fsubset(nominal_data, private$data_rows_complete)
+   }
+
+   private$data_modes <- vapply(nominal_data,
+                                collapse::fmode,
+                                FUN.VALUE = integer(1),
+                                w = self$weights)
 
   },
 
   compute_stdev = function(){
 
    numeric_data <- select_cols(self$data, private$data_names$x_numeric)
+
+   if(self$na_action == 'omit'){
+    numeric_data <- collapse::fsubset(numeric_data, private$data_rows_complete)
+   }
+
    private$data_stdev <- collapse::fsd(numeric_data, w = self$weights)
 
   },
@@ -2422,6 +2503,10 @@ ObliqueForest <- R6::R6Class(
   compute_bounds = function(){
 
    numeric_data <- select_cols(self$data, private$data_names$x_numeric)
+
+   if(self$na_action == 'omit'){
+    numeric_data <- collapse::fsubset(numeric_data, private$data_rows_complete)
+   }
 
    private$data_bounds <- matrix(
     data = c(
@@ -2513,8 +2598,8 @@ ObliqueForest <- R6::R6Class(
 
   prep_w = function(){
 
-   # re-initialize
-   private$init_weights()
+   # re-scale so that sum(w) == nrow(data)
+   private$w <- self$weights * length(self$weights) / sum(self$weights)
 
   },
 
@@ -2964,6 +3049,24 @@ ObliqueForestSurvival <- R6::R6Class(
 
   },
 
+  init_pred_type = function(){
+   self$pred_type <- 'risk'
+  },
+
+  init_split_rule = function(){
+   self$split_rule <- 'logrank'
+  },
+
+  init_split_min_stat = function(){
+
+   if(is.null(self$split_rule))
+    stop("cannot init split_min_stat without split_rule", call. = FALSE)
+
+   self$split_min_stat <- switch(self$split_rule,
+                                 'logrank' = 3.841459,
+                                 'cstat' = 0.55)
+  },
+
   init_internal = function(){
 
    self$tree_type <- "survival"
@@ -2972,11 +3075,6 @@ ObliqueForestSurvival <- R6::R6Class(
       self$control$lincomb_type == 'net'){
     self$control$lincomb_R_function <- penalized_cph
    }
-
-   self$split_rule <- self$split_rule %||% 'logrank'
-   self$pred_type <- self$pred_type %||% 'surv'
-   self$split_min_stat <- self$split_min_stat %||%
-    switch(self$split_rule, 'logrank' = 3.841459, 'cstat' = 0.50)
 
    y <- select_cols(self$data, private$data_names$y)
 
@@ -3020,14 +3118,16 @@ ObliqueForestSurvival <- R6::R6Class(
 
    # if pred_horizon is unspecified, provide sensible default
    # if it is specified, check for correctness
-   if(is.null(self$pred_horizon)){
-    self$pred_horizon <- collapse::fmedian(y[, 1])
-   } else {
+   if(private$user_specified$pred_horizon){
     private$check_pred_horizon(self$pred_horizon, boundary_checks = TRUE)
+   } else {
+    self$pred_horizon <- collapse::fmedian(y[, 1])
    }
 
    private$check_leaf_min_events()
    private$check_split_min_events()
+
+   if(!self$oobag_pred_mode) self$oobag_eval_type <- "none"
 
    # use default if eval type was not specified by user
    if(self$oobag_pred_mode && is.null(self$oobag_eval_type)){
@@ -3376,6 +3476,25 @@ ObliqueForestClassification <- R6::R6Class(
 
   },
 
+  init_pred_type = function(){
+   self$pred_type <- 'prob'
+  },
+
+  init_split_rule = function(){
+   self$split_rule <- 'gini'
+  },
+
+  init_split_min_stat = function(){
+
+   if(is.null(self$split_rule))
+    stop("cannot init split_min_stat without split_rule", call. = FALSE)
+
+   self$split_min_stat <- switch(self$split_rule,
+                                 'gini' = 0,
+                                 'cstat' = 0.55)
+
+  },
+
   init_internal = function(){
 
    self$tree_type <- "classification"
@@ -3385,10 +3504,7 @@ ObliqueForestClassification <- R6::R6Class(
     self$control$lincomb_R_function <- penalized_logreg
    }
 
-   self$split_rule <- self$split_rule %||% 'gini'
-   self$pred_type <- self$pred_type %||% 'prob'
-   self$split_min_stat <- self$split_min_stat %||%
-    switch(self$split_rule, 'gini' = 0, 'cstat' = 0.50)
+   if(!self$oobag_pred_mode) self$oobag_eval_type <- "none"
 
    # use default if eval type was not specified by user
    if(self$oobag_pred_mode && is.null(self$oobag_eval_type)){
@@ -3452,7 +3568,7 @@ ObliqueForestClassification <- R6::R6Class(
 
    y <- as.numeric(y) - 1
 
-   if(min(y) > 0) browser()
+   if(min(y) > 0) stop("y is less than 0")
 
    private$y <- expand_y_clsf(as_matrix(y), n_class)
 
@@ -3595,6 +3711,23 @@ ObliqueForestRegression <- R6::R6Class(
 
   },
 
+  init_pred_type = function(){
+   self$pred_type <- 'mean'
+  },
+
+  init_split_rule = function(){
+   self$split_rule <- 'variance'
+  },
+
+  init_split_min_stat = function(){
+
+   if(is.null(self$split_rule))
+    stop("cannot init split_min_stat without split_rule", call. = FALSE)
+
+   self$split_min_stat <- switch(self$split_rule, 'variance' = 0)
+
+  },
+
   init_internal = function(){
 
    self$tree_type <- "regression"
@@ -3611,10 +3744,7 @@ ObliqueForestRegression <- R6::R6Class(
     self$control$lincomb_R_function <- penalized_linreg
    }
 
-   self$split_rule <- self$split_rule %||% 'variance'
-   self$pred_type <- self$pred_type %||% 'mean'
-   self$split_min_stat <- self$split_min_stat %||%
-    switch(self$split_rule, 'variance' = 0)
+   if(!self$oobag_pred_mode) self$oobag_eval_type <- "none"
 
    # use default if eval type was not specified by user
    if(self$oobag_pred_mode && is.null(self$oobag_eval_type)){
@@ -3649,9 +3779,8 @@ ObliqueForestRegression <- R6::R6Class(
    }
 
    # y is always 1 column for regression (for now)
-   y <- private$y[[1]]
-
-   private$y <- as_matrix(y)
+   private$y <- as_matrix(private$y[[1]])
+   colnames(private$y) <- private$data_names$y
 
   },
 

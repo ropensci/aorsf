@@ -454,13 +454,15 @@ orsf_control <- function(tree_type,
   lincomb_R_function <- switch(tree_type,
                                'survival' = penalized_cph,
                                'classification' = penalized_logreg,
+                               'regression' = penalized_linreg,
                                'unknown' = 'unknown')
 
  } else {
 
-  lincomb_R_function <- function(x) x
+  lincomb_R_function <- NULL
 
  }
+
 
  structure(
   .Data = list(

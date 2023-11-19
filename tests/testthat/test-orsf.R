@@ -31,7 +31,7 @@ test_that(
  code = {
 
 
-  fit_regr <- orsf(mtcars, mpg ~ ., no_fit = TRUE)
+  fit_regr <- orsf(penguins, bill_length_mm ~ ., no_fit = TRUE)
   fit_clsf <- orsf(penguins, species ~ ., no_fit = TRUE)
   fit_surv <- orsf(pbc, time + status ~ ., no_fit = TRUE)
 
@@ -52,8 +52,8 @@ test_that(
   )
 
   expect_error(
-   orsf(mtcars, mpg ~., control = orsf_control_classification()),
-   "please convert mpg to a factor"
+   orsf(penguins, bill_length_mm ~., control = orsf_control_classification()),
+   "please convert bill_length_mm to a factor"
   )
 
  }
@@ -230,9 +230,9 @@ test_that(
   expect_lt(fit$eval_oobag$stat_values[1],
             last_value(fit$eval_oobag$stat_values))
 
-  fit <- orsf(mtcars,
-              formula = mpg ~ .,
-              leaf_min_obs = 10,
+  fit <- orsf(penguins,
+              formula = bill_length_mm ~ .,
+              leaf_min_obs = 50,
               n_tree = n_tree, # just needs a bit extra
               tree_seeds = seeds_standard,
               oobag_eval_every = eval_every)
@@ -306,25 +306,6 @@ test_that(
  }
 )
 
-test_that(
- desc = 'missing data are imputed when na_action is impute_meanmode',
- code = {
-
-  mtcars_temp <- mtcars
-  mtcars_temp$disp[1] <- NA
-
-  fit_impute <- orsf(mtcars_temp, mpg ~ .,
-                     na_action = 'impute_meanmode')
-
-  expect_equal(fit_impute$n_obs, nrow(mtcars_temp))
-
-  # users data are not modified by imputation
-  expect_true(is.na(mtcars_temp$disp[1]))
-  expect_identical(mtcars_temp, fit_impute$data)
-
- }
-)
-
 
 test_that(
  desc = 'robust to threading, outcome formats, scaling, and noising',
@@ -392,14 +373,14 @@ test_that(
   fit <- orsf(data = pbc,
               formula = time + status ~ . -id,
               n_tree = n_tree_test,
-              oobag_fun = oobag_c_survival,
+              oobag_fun = oobag_c_risk,
               tree_seeds = seeds_standard)
 
   expect_equal_oobag_eval(fit, fit_standard_pbc$fast)
 
   # can also reproduce it from the oobag predictions
   expect_equal(
-   oobag_c_survival(
+   oobag_c_risk(
     y_mat = as.matrix(pbc_orsf[,c("time", "status")]),
     w_vec = rep(1, nrow(pbc_orsf)),
     s_vec = fit$pred_oobag
@@ -503,21 +484,23 @@ test_that(
 )
 
 test_that(
- desc = 'weights work as intended',
+ desc = 'weights do not make trees grow more than intended',
  code = {
 
-  fit_unwtd <- orsf(pbc_orsf,
-                    Surv(time, status) ~ . - id,
-                    n_tree = n_tree_test)
+  fit_unwtd <- orsf(pbc, time + status ~ .,
+                    n_tree = n_tree_test,
+                    tree_seeds = seeds_standard)
 
-  fit_wtd <- orsf(pbc_orsf,
-                  Surv(time, status) ~ . - id,
+  fit_wtd <- orsf(pbc,
+                  time + status ~ .,
                   weights = rep(2, nrow(pbc_orsf)),
-                  n_tree = n_tree_test)
+                  n_tree = n_tree_test,
+                  tree_seeds = seeds_standard)
 
-  # using weights should make the trees much deeper:
-  expect_gt(fit_wtd$get_mean_leaves_per_tree(),
-            fit_unwtd$get_mean_leaves_per_tree())
+  # using weights should not inadvertently make trees deeper.
+  expect_equal(fit_wtd$get_mean_leaves_per_tree(),
+               fit_unwtd$get_mean_leaves_per_tree(),
+               tolerance = 1/2)
 
  }
 )
@@ -897,8 +880,8 @@ test_that(
     sample_fraction <- runif(n = 1, min = .25, max = .75)
    }
 
-   fit <- orsf(data = data_fun(mtcars),
-               formula = mpg ~ .,
+   fit <- orsf(data = data_fun(penguins),
+               formula = bill_length_mm ~ .,
                control = control,
                sample_with_replacement = inputs$sample_with_replacement[i],
                sample_fraction = sample_fraction,
@@ -916,7 +899,7 @@ test_that(
    expect_s3_class(fit, class = 'ObliqueForestRegression')
 
    # data are not unintentionally modified by reference,
-   expect_identical(data_fun(mtcars), fit$data)
+   expect_identical(data_fun(penguins), fit$data)
 
 
    expect_no_missing(fit$forest)
