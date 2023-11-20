@@ -86,14 +86,14 @@
 </div>
 <!-- badges: start -->
 
-<p>Fit, interpret, and make predictions with oblique random survival forests (ORSFs).</p>
+<p>Fit, interpret, and make predictions with oblique random forests (RFs).</p>
 <div class="section level2">
 <h2 id="why-aorsf">Why aorsf?<a class="anchor" aria-label="anchor" href="#why-aorsf"></a>
 </h2>
 <ul>
-<li><p>Hundreds of times faster than <code>obliqueRSF</code>.<sup>1</sup></p></li>
-<li><p>Accurate predictions for censored outcomes.<sup>2</sup></p></li>
-<li><p>Negation importance, a novel technique to estimate variable importance for ORSFs.<sup>2</sup></p></li>
+<li><p>Hundreds of times faster than other software for oblique RFs.<sup>1</sup></p></li>
+<li><p>Accurate predictions.<sup>2</sup></p></li>
+<li><p>Computes partial dependence and variable importance.<sup>2</sup></p></li>
 <li><p>Intuitive API with formula based interface.</p></li>
 <li><p>Extensive input checks and informative error messages.</p></li>
 </ul>
@@ -120,7 +120,7 @@
 <div class="section level2">
 <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
-<p>The <code><a href="reference/orsf.html">orsf()</a></code> function can fit several types of ORSF ensembles. My personal favorite is the accelerated ORSF because it has a great combination of prediction accuracy and computational efficiency (see <a href="https://doi.org/10.1080/10618600.2023.2231048" class="external-link">JCGS paper</a>).<sup>2</sup></p>
+<p>The <code><a href="reference/orsf.html">orsf()</a></code> function can fit several types of oblique RFs. My personal favorite is the accelerated oblique survival RF because it has a great combination of prediction accuracy and computational efficiency (see <a href="https://doi.org/10.1080/10618600.2023.2231048" class="external-link">JCGS paper</a>).<sup>2</sup></p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
@@ -144,17 +144,17 @@
 <span><span class="va">fit</span></span>
 <span><span class="co">#&gt; ---------- Oblique random survival forest</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;      Linear combinations: Accelerated</span></span>
+<span><span class="co">#&gt;      Linear combinations: Accelerated Cox regression</span></span>
 <span><span class="co">#&gt;           N observations: 150</span></span>
 <span><span class="co">#&gt;                 N events: 52</span></span>
 <span><span class="co">#&gt;                  N trees: 500</span></span>
 <span><span class="co">#&gt;       N predictors total: 17</span></span>
 <span><span class="co">#&gt;    N predictors per node: 5</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 10</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 10.198</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;       Min events in leaf: 1</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.83</span></span>
-<span><span class="co">#&gt;            OOB stat type: Harrell's C-statistic</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.84</span></span>
+<span><span class="co">#&gt;            OOB stat type: Harrell's C-index</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -----------------------------------------</span></span></code></pre></div>
@@ -174,39 +174,39 @@
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;          bili           sex        copper         stage           age </span></span>
-<span><span class="co">#&gt;  0.1162463868  0.0517905362  0.0375565841  0.0240450064  0.0239056901 </span></span>
-<span><span class="co">#&gt;           ast       protime        hepato         edema       ascites </span></span>
-<span><span class="co">#&gt;  0.0191083400  0.0158014897  0.0139536512  0.0119264604  0.0100865906 </span></span>
-<span><span class="co">#&gt;       albumin          chol       spiders           trt          trig </span></span>
-<span><span class="co">#&gt;  0.0085394443  0.0037903802  0.0030727468  0.0020617896  0.0018361632 </span></span>
-<span><span class="co">#&gt;      alk.phos      platelet </span></span>
-<span><span class="co">#&gt;  0.0006586211 -0.0044967624</span></span></code></pre></div>
+<span><span class="co">#&gt;  0.1152040355  0.0550384871  0.0346540451  0.0342394602  0.0212811906 </span></span>
+<span><span class="co">#&gt;           ast       protime        hepato          chol       albumin </span></span>
+<span><span class="co">#&gt;  0.0189147173  0.0179113542  0.0151705980  0.0111316204  0.0107352274 </span></span>
+<span><span class="co">#&gt;         edema       ascites       spiders          trig      alk.phos </span></span>
+<span><span class="co">#&gt;  0.0101276579  0.0097629480  0.0043991365  0.0031611867  0.0030722039 </span></span>
+<span><span class="co">#&gt;           trt      platelet </span></span>
+<span><span class="co">#&gt;  0.0024625381 -0.0005569787</span></span></code></pre></div>
 </li>
 <li>
 <p><strong>permutation</strong>: Each variable is assessed separately by randomly permuting the variable’s values and then determining how much the model’s performance changes. The worse the model’s performance after permuting the values of a given variable, the more important the variable. This technique is flexible, intuitive, and frequently used. It also has several <a href="https://christophm.github.io/interpretable-ml-book/feature-importance.html#disadvantages-9" class="external-link">known limitations</a></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          bili        copper           age         stage           sex </span></span>
-<span><span class="co">#&gt;  0.0523994364  0.0187964038  0.0152246586  0.0115192591  0.0110127557 </span></span>
-<span><span class="co">#&gt;           ast        hepato         edema       ascites       albumin </span></span>
-<span><span class="co">#&gt;  0.0100104477  0.0082889176  0.0079183046  0.0077834483  0.0070642325 </span></span>
-<span><span class="co">#&gt;       protime          trig          chol       spiders      alk.phos </span></span>
-<span><span class="co">#&gt;  0.0066513097  0.0015656325  0.0014474560  0.0006015308  0.0001369292 </span></span>
-<span><span class="co">#&gt;           trt      platelet </span></span>
-<span><span class="co">#&gt; -0.0013984860 -0.0022427356</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili         stage        copper           age           sex </span></span>
+<span><span class="co">#&gt;  0.0487808290  0.0180334035  0.0178325263  0.0124277288  0.0111897854 </span></span>
+<span><span class="co">#&gt;           ast        hepato         edema       protime       ascites </span></span>
+<span><span class="co">#&gt;  0.0111084077  0.0095618267  0.0082559886  0.0082473977  0.0078725536 </span></span>
+<span><span class="co">#&gt;       albumin          chol       spiders      alk.phos          trig </span></span>
+<span><span class="co">#&gt;  0.0073437819  0.0057881417  0.0033941136  0.0028194077  0.0019933887 </span></span>
+<span><span class="co">#&gt;      platelet           trt </span></span>
+<span><span class="co">#&gt; -0.0002101522 -0.0016860907</span></span></code></pre></div>
 </li>
 <li>
 <p><strong>analysis of variance (ANOVA)</strong><sup>3</sup>: A p-value is computed for each coefficient in each linear combination of variables in each decision tree. Importance for an individual predictor variable is the proportion of times a p-value for its coefficient is &lt; 0.01. This technique is very efficient computationally, but may not be as effective as permutation or negation in terms of selecting signal over noise variables. See <a href="https://link.springer.com/chapter/10.1007/978-3-642-23783-6_29" class="external-link">Menze, 2011</a> for more details on this technique.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       bili    ascites      edema     copper      stage        sex        age </span></span>
-<span><span class="co">#&gt; 0.48778004 0.44943820 0.41677872 0.31865585 0.26675095 0.26458616 0.25448430 </span></span>
-<span><span class="co">#&gt;        ast     hepato    albumin       chol    protime       trig    spiders </span></span>
-<span><span class="co">#&gt; 0.21743929 0.19945726 0.18191604 0.15240328 0.15076561 0.13709677 0.11833550 </span></span>
+<span><span class="co">#&gt;       bili    ascites      edema        sex     copper      stage        age </span></span>
+<span><span class="co">#&gt; 0.48004315 0.43536122 0.38654727 0.31024531 0.29493088 0.27168950 0.26673985 </span></span>
+<span><span class="co">#&gt;     hepato        ast    albumin    protime       chol    spiders       trig </span></span>
+<span><span class="co">#&gt; 0.21492921 0.20151679 0.18771331 0.18352060 0.14617169 0.13932292 0.13620489 </span></span>
 <span><span class="co">#&gt;   alk.phos   platelet        trt </span></span>
-<span><span class="co">#&gt; 0.10113636 0.06302021 0.05019305</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.09051254 0.07011494 0.06179067</span></span></code></pre></div>
 </li>
 </ul>
 <p>You can supply your own R function to estimate out-of-bag error when using negation or permutation importance (see <a href="https://docs.ropensci.org/aorsf/articles/oobag.html" class="external-link">oob vignette</a>)</p>
@@ -224,16 +224,16 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;        |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;   0.70 0.1986719 0.1044026 0.04354701 0.2968290</span></span>
-<span><span class="co">#&gt;    1.3 0.2132847 0.1210276 0.05245387 0.3208855</span></span>
-<span><span class="co">#&gt;    3.2 0.2883814 0.1917119 0.11951296 0.4147258</span></span>
+<span><span class="co">#&gt;   0.70 0.2099215 0.1262483 0.05057666 0.3160044</span></span>
+<span><span class="co">#&gt;   1.30 0.2244830 0.1472311 0.06196578 0.3369922</span></span>
+<span><span class="co">#&gt;   3.18 0.2932736 0.2263620 0.11896921 0.4424589</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- sex (VI Rank: 2) ----------------------------</span></span>
+<span><span class="co">#&gt; -- ascites (VI Rank: 2) ------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;        |---------------- Risk ----------------|</span></span>
-<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;      m 0.3394141 0.2313787 0.13762339 0.5311308</span></span>
-<span><span class="co">#&gt;      f 0.2390067 0.1112093 0.04782891 0.3773551</span></span>
+<span><span class="co">#&gt;  Value      Mean    Median    25th %    75th %</span></span>
+<span><span class="co">#&gt;      0 0.2630294 0.1490837 0.0613327 0.4186542</span></span>
+<span><span class="co">#&gt;      1 0.3924844 0.3053928 0.2222267 0.5253717</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Predicted risk at time t = 1826.25 for top 2 predictors</span></span></code></pre></div>
 <p>For more on PD, see the <a href="https://docs.ropensci.org/aorsf/articles/pd.html" class="external-link">vignette</a></p>
