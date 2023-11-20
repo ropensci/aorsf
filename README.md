@@ -19,17 +19,16 @@ status](https://www.r-pkg.org/badges/version/aorsf)](https://CRAN.R-project.org/
 [![DOI](https://zenodo.org/badge/394311897.svg)](https://zenodo.org/doi/10.5281/zenodo.7116854)
 <!-- badges: end -->
 
-Fit, interpret, and make predictions with oblique random survival
-forests (ORSFs).
+Fit, interpret, and make predictions with oblique random forests (RFs).
 
 ## Why aorsf?
 
-- Hundreds of times faster than `obliqueRSF`.<sup>1</sup>
+- Hundreds of times faster than other software for oblique
+  RFs.<sup>1</sup>
 
-- Accurate predictions for censored outcomes.<sup>2</sup>
+- Accurate predictions.<sup>2</sup>
 
-- Negation importance, a novel technique to estimate variable importance
-  for ORSFs.<sup>2</sup>
+- Computes partial dependence and variable importance.<sup>2</sup>
 
 - Intuitive API with formula based interface.
 
@@ -75,8 +74,8 @@ separating the two classes.
 
 ## Examples
 
-The `orsf()` function can fit several types of ORSF ensembles. My
-personal favorite is the accelerated ORSF because it has a great
+The `orsf()` function can fit several types of oblique RFs. My personal
+favorite is the accelerated oblique survival RF because it has a great
 combination of prediction accuracy and computational efficiency (see
 [JCGS
 paper](https://doi.org/10.1080/10618600.2023.2231048)).<sup>2</sup>
@@ -107,17 +106,17 @@ descriptive statistics about the ensemble.
 fit
 #> ---------- Oblique random survival forest
 #> 
-#>      Linear combinations: Accelerated
+#>      Linear combinations: Accelerated Cox regression
 #>           N observations: 150
 #>                 N events: 52
 #>                  N trees: 500
 #>       N predictors total: 17
 #>    N predictors per node: 5
-#>  Average leaves per tree: 10
+#>  Average leaves per tree: 10.198
 #> Min observations in leaf: 5
 #>       Min events in leaf: 1
-#>           OOB stat value: 0.83
-#>            OOB stat type: Harrell's C-statistic
+#>           OOB stat value: 0.84
+#>            OOB stat type: Harrell's C-index
 #>      Variable importance: anova
 #> 
 #> -----------------------------------------
@@ -151,13 +150,13 @@ using `aorsf`:
 
   orsf_vi_negate(fit)
   #>          bili           sex        copper         stage           age 
-  #>  0.1162463868  0.0517905362  0.0375565841  0.0240450064  0.0239056901 
-  #>           ast       protime        hepato         edema       ascites 
-  #>  0.0191083400  0.0158014897  0.0139536512  0.0119264604  0.0100865906 
-  #>       albumin          chol       spiders           trt          trig 
-  #>  0.0085394443  0.0037903802  0.0030727468  0.0020617896  0.0018361632 
-  #>      alk.phos      platelet 
-  #>  0.0006586211 -0.0044967624
+  #>  0.1152040355  0.0550384871  0.0346540451  0.0342394602  0.0212811906 
+  #>           ast       protime        hepato          chol       albumin 
+  #>  0.0189147173  0.0179113542  0.0151705980  0.0111316204  0.0107352274 
+  #>         edema       ascites       spiders          trig      alk.phos 
+  #>  0.0101276579  0.0097629480  0.0043991365  0.0031611867  0.0030722039 
+  #>           trt      platelet 
+  #>  0.0024625381 -0.0005569787
   ```
 
 - **permutation**: Each variable is assessed separately by randomly
@@ -171,14 +170,14 @@ using `aorsf`:
   ``` r
 
   orsf_vi_permute(fit)
-  #>          bili        copper           age         stage           sex 
-  #>  0.0523994364  0.0187964038  0.0152246586  0.0115192591  0.0110127557 
-  #>           ast        hepato         edema       ascites       albumin 
-  #>  0.0100104477  0.0082889176  0.0079183046  0.0077834483  0.0070642325 
-  #>       protime          trig          chol       spiders      alk.phos 
-  #>  0.0066513097  0.0015656325  0.0014474560  0.0006015308  0.0001369292 
-  #>           trt      platelet 
-  #> -0.0013984860 -0.0022427356
+  #>          bili         stage        copper           age           sex 
+  #>  0.0487808290  0.0180334035  0.0178325263  0.0124277288  0.0111897854 
+  #>           ast        hepato         edema       protime       ascites 
+  #>  0.0111084077  0.0095618267  0.0082559886  0.0082473977  0.0078725536 
+  #>       albumin          chol       spiders      alk.phos          trig 
+  #>  0.0073437819  0.0057881417  0.0033941136  0.0028194077  0.0019933887 
+  #>      platelet           trt 
+  #> -0.0002101522 -0.0016860907
   ```
 
 - **analysis of variance (ANOVA)**<sup>3</sup>: A p-value is computed
@@ -194,12 +193,12 @@ using `aorsf`:
   ``` r
 
   orsf_vi_anova(fit)
-  #>       bili    ascites      edema     copper      stage        sex        age 
-  #> 0.48778004 0.44943820 0.41677872 0.31865585 0.26675095 0.26458616 0.25448430 
-  #>        ast     hepato    albumin       chol    protime       trig    spiders 
-  #> 0.21743929 0.19945726 0.18191604 0.15240328 0.15076561 0.13709677 0.11833550 
+  #>       bili    ascites      edema        sex     copper      stage        age 
+  #> 0.48004315 0.43536122 0.38654727 0.31024531 0.29493088 0.27168950 0.26673985 
+  #>     hepato        ast    albumin    protime       chol    spiders       trig 
+  #> 0.21492921 0.20151679 0.18771331 0.18352060 0.14617169 0.13932292 0.13620489 
   #>   alk.phos   platelet        trt 
-  #> 0.10113636 0.06302021 0.05019305
+  #> 0.09051254 0.07011494 0.06179067
   ```
 
 You can supply your own R function to estimate out-of-bag error when
@@ -225,16 +224,16 @@ orsf_summarize_uni(fit, n_variables = 2)
 #> 
 #>        |---------------- Risk ----------------|
 #>  Value      Mean    Median     25th %    75th %
-#>   0.70 0.1986719 0.1044026 0.04354701 0.2968290
-#>    1.3 0.2132847 0.1210276 0.05245387 0.3208855
-#>    3.2 0.2883814 0.1917119 0.11951296 0.4147258
+#>   0.70 0.2099215 0.1262483 0.05057666 0.3160044
+#>   1.30 0.2244830 0.1472311 0.06196578 0.3369922
+#>   3.18 0.2932736 0.2263620 0.11896921 0.4424589
 #> 
-#> -- sex (VI Rank: 2) ----------------------------
+#> -- ascites (VI Rank: 2) ------------------------
 #> 
 #>        |---------------- Risk ----------------|
-#>  Value      Mean    Median     25th %    75th %
-#>      m 0.3394141 0.2313787 0.13762339 0.5311308
-#>      f 0.2390067 0.1112093 0.04782891 0.3773551
+#>  Value      Mean    Median    25th %    75th %
+#>      0 0.2630294 0.1490837 0.0613327 0.4186542
+#>      1 0.3924844 0.3053928 0.2222267 0.5253717
 #> 
 #>  Predicted risk at time t = 1826.25 for top 2 predictors
 ```

@@ -31,16 +31,15 @@ knitr::opts_chunk$set(
 [![DOI](https://zenodo.org/badge/394311897.svg)](https://zenodo.org/doi/10.5281/zenodo.7116854)
 <!-- badges: end -->
 
-Fit, interpret, and make predictions with oblique random survival forests (ORSFs).  
-
+Fit, interpret, and make predictions with oblique random forests (RFs).  
 
 ## Why aorsf?
 
-- Hundreds of times faster than `obliqueRSF`.^1^
+- Hundreds of times faster than other software for oblique RFs.^1^
 
-- Accurate predictions for censored outcomes.^2^
+- Accurate predictions.^2^
 
-- Negation importance, a novel technique to estimate variable importance for ORSFs.^2^
+- Computes partial dependence and variable importance.^2^
 
 - Intuitive API with formula based interface.
 
@@ -78,7 +77,7 @@ knitr::include_graphics('man/figures/tree_axis_v_oblique.png')
 
 ## Examples
 
-The `orsf()` function can fit several types of ORSF ensembles. My personal favorite is the accelerated ORSF because it has a great combination of prediction accuracy and computational efficiency (see [JCGS paper](https://doi.org/10.1080/10618600.2023.2231048)).^2^
+The `orsf()` function can fit several types of oblique RFs. My personal favorite is the accelerated oblique survival RF because it has a great combination of prediction accuracy and computational efficiency (see [JCGS paper](https://doi.org/10.1080/10618600.2023.2231048)).^2^
 
 ```{r, child='Rmd/orsf-fit-accelerated.Rmd'}
 
