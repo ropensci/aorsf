@@ -28,6 +28,7 @@
   TreeClassification(arma::uword n_class);
 
   TreeClassification(arma::uword n_obs,
+                     arma::uword n_class,
                      arma::uvec& rows_oobag,
                      std::vector<double>& cutpoint,
                      std::vector<arma::uword>& child_left,

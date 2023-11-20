@@ -85,11 +85,11 @@ pbc_fit <- pbc_orsf |>
 
 ## Interpretation
 
-`aorsf` includes several functions dedicated to interpretation of ORSFs, both through estimation of partial dependence and variable importance.
+`aorsf` includes several functions dedicated to interpretation of ORSFs, both through estimation of partial dependence and variable importance. 
 
 ### Variable importance
 
-There are multiple methods to compute variable importance. 
+There are multiple methods to compute variable importance, and each can be applied to any type of oblique forest. 
 
 - To compute *negation* importance, ORSF multiplies each coefficient of that variable by -1 and then re-computes the out-of-sample (sometimes referred to as out-of-bag) accuracy of the ORSF model. 
 
@@ -103,7 +103,7 @@ There are multiple methods to compute variable importance.
 
     ```{r}
   
-    orsf_vi_permute(pbc_fit)
+    orsf_vi_permute(penguin_fit)
   
     ```
 
@@ -111,7 +111,7 @@ There are multiple methods to compute variable importance.
 
     ```{r}
     
-    orsf_vi_anova(pbc_fit)
+    orsf_vi_anova(bill_fit)
     
     ```
 

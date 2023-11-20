@@ -23,6 +23,7 @@
  }
 
  TreeClassification::TreeClassification(arma::uword n_obs,
+                                        arma::uword n_class,
                                         arma::uvec& rows_oobag,
                                         std::vector<double>& cutpoint,
                                         std::vector<arma::uword>& child_left,
@@ -33,6 +34,8 @@
  Tree(rows_oobag, cutpoint, child_left, coef_values, coef_indices, leaf_summary),
  leaf_pred_prob(leaf_pred_prob){
 
+  this->n_class = n_class;
+  this->binary = n_class == 2;
   find_rows_inbag(n_obs);
 
  }

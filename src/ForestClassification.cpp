@@ -33,6 +33,7 @@ void ForestClassification::resize_pred_mat_internal(arma::mat& p){
 void ForestClassification::load(
   arma::uword n_tree,
   arma::uword n_obs,
+  arma::uword n_class,
   std::vector<arma::uvec>& forest_rows_oobag,
   std::vector<std::vector<double>>& forest_cutpoint,
   std::vector<std::vector<arma::uword>>& forest_child_left,
@@ -47,6 +48,7 @@ void ForestClassification::load(
 ) {
 
  this->n_tree    = n_tree;
+ this->n_class   = n_class;
  this->pd_type   = pd_type;
  this->pd_x_vals = pd_x_vals;
  this->pd_x_cols = pd_x_cols;
@@ -63,6 +65,7 @@ void ForestClassification::load(
  for (uword i = 0; i < n_tree; ++i) {
   trees.push_back(
    std::make_unique<TreeClassification>(n_obs,
+                                        n_class,
                                         forest_rows_oobag[i],
                                         forest_cutpoint[i],
                                         forest_child_left[i],

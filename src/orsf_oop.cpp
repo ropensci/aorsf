@@ -544,7 +544,9 @@ double compute_mse_exported(arma::vec& y,
 
      auto& temp = dynamic_cast<ForestClassification&>(*forest);
 
-     temp.load(n_tree, n_obs, rows_oobag, cutpoint, child_left,
+     uword n_class = y.n_cols;
+
+     temp.load(n_tree, n_obs, n_class, rows_oobag, cutpoint, child_left,
                coef_values, coef_indices, leaf_pred_prob, leaf_summary,
                pd_type, pd_x_vals, pd_x_cols, pd_probs);
 

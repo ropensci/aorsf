@@ -26,6 +26,7 @@ public:
  void load(
    arma::uword n_tree,
    arma::uword n_obs,
+   arma::uword n_class,
    std::vector<arma::uvec>& forest_rows_oobag,
    std::vector<std::vector<double>>& forest_cutpoint,
    std::vector<std::vector<arma::uword>>& forest_child_left,
