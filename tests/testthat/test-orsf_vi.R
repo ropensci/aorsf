@@ -1,4 +1,6 @@
 
+# survival tests ----------------------------------------------------------
+
 pbc_vi <- pbc_orsf
 
 pbc_vi$junk <- rnorm(nrow(pbc_orsf))
@@ -14,9 +16,11 @@ formula <- Surv(time, status) ~ protime + edema + bili + junk + junk_cat
 
 test_that(
  desc = paste(
+  "Survival forest:",
   "(1) variable importance is independent from function order",
   "(2) variable importance is independent from n_thread",
-  "(3) variable importance is correct"
+  "(3) variable importance is correct",
+  collapse = '\n'
  ),
  code = {
 
@@ -142,6 +146,152 @@ test_that(
  }
 
 )
+
+# classification tests -----------------------------------------------------
+
+penguins_vi <- penguins_orsf
+
+penguins_vi$junk <- rnorm(nrow(penguins_orsf))
+
+penguins_vi$junk_cat <- factor(
+ sample(letters[1:5], size = nrow(penguins_orsf), replace = TRUE)
+)
+
+# simulate a variable with unused factor level
+levels(penguins_vi$island) <- c(levels(penguins_vi$island), 'empty_lvl')
+
+formula <- species ~ .
+
+importance <- 'negate'
+group_factors <- TRUE
+
+test_that(
+ desc = paste(
+  "Classification forest:",
+  "(1) variable importance is independent from function order",
+  "(2) variable importance is independent from n_thread",
+  "(3) variable importance is correct",
+  collapse = '\n'
+ ),
+ code = {
+
+  for(importance in c('negate', 'permute', 'anova')){
+
+   for(group_factors in c(TRUE, FALSE)){
+
+    fit_with_vi <- orsf(penguins_vi,
+                        formula = formula,
+                        importance = importance,
+                        n_tree = n_tree_test,
+                        group_factors = group_factors,
+                        tree_seeds = seeds_standard)
+
+    vi_during_fit <- orsf_vi(fit_with_vi,
+                             group_factors = group_factors)
+
+    wrapper_fun <- switch(
+     importance,
+     'anova' = orsf_vi_anova,
+     'permute' = orsf_vi_permute,
+     'negate' = orsf_vi_negate
+    )
+
+    expect_equal(
+     vi_during_fit,
+     wrapper_fun(fit_with_vi, group_factors = group_factors)
+    )
+
+    if(group_factors){
+     expect_true("island" %in% names(vi_during_fit))
+    } else {
+     expect_true("island_Dream" %in% names(vi_during_fit))
+     expect_true("island_Torgersen" %in% names(vi_during_fit))
+     expect_true("island_empty_lvl" %in% names(vi_during_fit))
+     expect_true(vi_during_fit['island_empty_lvl'] == 0)
+    }
+
+    if(importance != 'anova'){
+
+     fit_no_vi <- orsf(penguins_vi,
+                       formula = formula,
+                       importance = 'none',
+                       n_tree = n_tree_test,
+                       group_factors = group_factors,
+                       tree_seeds = seeds_standard)
+
+     expect_error(orsf_vi(fit_no_vi), regexp = 'no variable importance')
+
+     vi_after_fit <- orsf_vi(fit_no_vi,
+                             importance = importance,
+                             group_factors = group_factors)
+
+     f <- function(y_mat, w_vec, s_vec){
+      y_mean <- mean(y_mat)
+      1 - mean((y_mat - s_vec)^2) / mean((y_mat - y_mean)^2)
+     }
+
+     fit_vi_custom <- orsf(penguins_vi,
+                           formula = formula,
+                           n_tree = n_tree_test,
+                           oobag_fun = f,
+                           importance = importance,
+                           tree_seeds = seeds_standard)
+
+     vi_custom_during_fit <- orsf_vi(fit_vi_custom,
+                                     group_factors = group_factors)
+
+     vi_custom_after_fit <- orsf_vi(fit_no_vi,
+                                    importance = importance,
+                                    group_factors = group_factors,
+                                    oobag_fun = f)
+
+
+     expect_equal(vi_during_fit, vi_after_fit)
+     expect_equal(vi_custom_during_fit, vi_custom_after_fit)
+
+    }
+
+    fit_threads <- orsf(penguins_vi,
+                        formula = formula,
+                        importance = importance,
+                        n_tree = n_tree_test,
+                        n_thread = 0,
+                        group_factors = group_factors,
+                        tree_seeds = seeds_standard)
+
+    vi_threads <- orsf_vi(fit_threads,
+                          group_factors = group_factors)
+
+    expect_equal(vi_during_fit, vi_threads)
+
+    good_vars <- c('bill_length_mm',
+                   'flipper_length_mm',
+                   'body_mass_g')
+
+    bad_vars <- c('junk',
+                  if(group_factors) 'junk_cat'
+                  else paste("junk_cat", levels(penguins_vi$junk_cat)[-1], sep = '_'))
+
+    vi_good_vars <- vi_during_fit[good_vars]
+    vi_bad_vars <- vi_during_fit[bad_vars]
+
+    for(j in seq_along(vi_good_vars)){
+     expect_true( mean(vi_bad_vars < vi_good_vars[j]) > 1/2 )
+    }
+
+   }
+
+  }
+
+ }
+
+)
+
+
+
+# General tests -----------------------------------------------------------
+
+
 
 test_that(
  desc = 'can only compute anova vi during fit',

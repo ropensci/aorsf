@@ -55,6 +55,7 @@
   arma::mat user_fit() override;
 
   uword get_n_col_vi() override;
+  PredType get_pred_type_vi() override;
 
   bool is_node_splittable_internal() override;
 

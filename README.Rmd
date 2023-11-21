@@ -159,7 +159,7 @@ Comparisons between `aorsf` and existing software are presented in our [JCGS pap
 
 - reports prediction accuracy and computational efficiency of all learners.
 
-- runs a simulation study comparing variable importance techniques with ORSFs, axis based RSFs, and boosted trees.
+- runs a simulation study comparing variable importance techniques with oblique survival RFs, axis based survival RFs, and boosted trees.
 
 - reports the probability that each variable importance technique will rank a relevant variable with higher importance than an irrelevant variable.
 
@@ -181,7 +181,7 @@ cat("3. ", aorsf:::roxy_cite_menze_2011())
 
 ## Funding
 
-The developers of `aorsf` receive financial support from the Center for Biomedical Informatics, Wake Forest University School of Medicine. We also receive support from the National Center for Advancing Translational Sciences of the National Institutes of Health under Award Number UL1TR001420. 
+The developers of `aorsf` received financial support from the Center for Biomedical Informatics, Wake Forest University School of Medicine. We also received support from the National Center for Advancing Translational Sciences of the National Institutes of Health under Award Number UL1TR001420. 
 
 The content is solely the responsibility of the authors and does not necessarily represent the official views of the National Institutes of Health.
 

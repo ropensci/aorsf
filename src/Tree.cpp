@@ -672,9 +672,7 @@
   // using oobag = false for predict b/c data_oobag is already subsetted
   predict_leaf(data_oobag.get(), false);
 
-  uword n_col_vi = get_n_col_vi();
-
-  mat pred_values(data_oobag->n_rows, n_col_vi);
+  mat pred_values(data_oobag->n_rows, get_n_col_vi());
 
   fill_pred_values_vi(pred_values);
 
@@ -683,9 +681,9 @@
 
   if(verbosity > 1){
    // # nocov start
-   Rcout << "  -- prediction accuracy before noising: ";
+   Rcout << "   -- prediction accuracy before noising: ";
    Rcout << accuracy_normal << std::endl;
-   Rcout << "  -- mean leaf pred: ";
+   Rcout << "   -- mean leaf pred: ";
    Rcout << mean(conv_to<vec>::from(pred_leaf));
    Rcout << std::endl << std::endl;
    // # nocov end
@@ -1184,24 +1182,6 @@
  }
 
  double Tree::compute_prediction_accuracy(arma::mat& preds){
-
-  if (oobag_eval_type == EVAL_R_FUNCTION){
-
-   vec preds_vec = preds.unsafe_col(0);
-
-   NumericMatrix y_wrap = wrap(y_oobag);
-   NumericVector w_wrap = wrap(w_oobag);
-   NumericVector p_wrap = wrap(preds_vec);
-
-   // initialize function from tree object
-   // (Functions can't be stored in C++ classes, but RObjects can)
-   Function f_oobag = as<Function>(oobag_R_function);
-
-   NumericVector result_R = f_oobag(y_wrap, w_wrap, p_wrap);
-
-   return(result_R[0]);
-
-  }
 
   return(compute_prediction_accuracy_internal(preds));
 

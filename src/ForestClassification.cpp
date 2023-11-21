@@ -91,14 +91,13 @@ void ForestClassification::compute_prediction_accuracy_internal(
   arma::uword row_fill
 ) {
 
- double result = 0;
+ double result = 0, denom = 0;
 
  if(oobag_eval_type == EVAL_R_FUNCTION){
 
   // initialize function from tree object
   // (Functions can't be stored in C++ classes, but Robjects can)
   Rcpp::Function f_oobag_eval = Rcpp::as<Rcpp::Function>(oobag_R_function);
-
 
   // go through all columns if multi-class y,
   // but only go through one column if y is binary
@@ -129,13 +128,31 @@ void ForestClassification::compute_prediction_accuracy_internal(
 
  }
 
- for(uword i = 0; i < predictions.n_cols; i++){
-  vec y_i = y.unsafe_col(i);
-  vec p_i = predictions.unsafe_col(i);
-  result += compute_cstat_clsf(y_i, w, p_i);
+ if(pred_type == PRED_PROBABILITY){
+
+  denom = predictions.n_cols;
+
+  for(uword i = 0; i < predictions.n_cols; i++){
+   vec y_i = y.unsafe_col(i);
+   vec p_i = predictions.unsafe_col(i);
+   result += compute_cstat_clsf(y_i, w, p_i);
+  }
+
+ } else if (pred_type == PRED_CLASS){
+
+  for(uword i = 0; i < y.n_rows; i++){
+
+   if(predictions.at(i, 0) == y.at(i, 0)){
+    result += w[i];
+   }
+
+   denom += w[i];
+
+  }
+
  }
 
- oobag_eval(row_fill, 0) = result / predictions.n_cols;
+ oobag_eval(row_fill, 0) = result / denom;
 
 }
 

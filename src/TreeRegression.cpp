@@ -210,6 +210,24 @@
    arma::mat& preds
  ){
 
+  if (oobag_eval_type == EVAL_R_FUNCTION){
+
+   vec preds_vec = preds.unsafe_col(0);
+
+   NumericMatrix y_wrap = wrap(y_oobag);
+   NumericVector w_wrap = wrap(w_oobag);
+   NumericVector p_wrap = wrap(preds_vec);
+
+   // initialize function from tree object
+   // (Functions can't be stored in C++ classes, but RObjects can)
+   Function f_oobag = as<Function>(oobag_R_function);
+
+   NumericVector result_R = f_oobag(y_wrap, w_wrap, p_wrap);
+
+   return(result_R[0]);
+
+  }
+
   double mse_sum = 0;
 
   for(uword i = 0; i < y_oobag.n_cols; i++){
@@ -253,6 +271,14 @@
 
  uword TreeRegression::get_n_col_vi(){
   return(1);
+ }
+
+ PredType TreeRegression::get_pred_type_vi(){
+
+  PredType out = PRED_MEAN;
+
+  return(out);
+
  }
 
  void TreeRegression::fill_pred_values_vi(mat& pred_values){

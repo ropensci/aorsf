@@ -71,7 +71,7 @@
    vec y_i = y_node.unsafe_col(y_col_split);
    result = compute_cstat_clsf(y_i, w_node, g_node);
 
-   // if the split has good 'anti-prediction' properties:
+   // if the split has good 'anti-prediction':
    if(result < 0.50){ result = 1 - result; }
 
    break;
@@ -79,7 +79,7 @@
   }
 
   default:
-   Rcpp::stop("invalid split rule");
+   stop("invalid split rule");
    break;
 
   }
@@ -202,17 +202,51 @@
    arma::mat& preds
  ){
 
-  double cstat_sum = 0;
+  double result = 0, denom = preds.n_cols;
 
-  uword start = 0; if(binary) start = 1;
+  uword start = 0;
+
+  if(binary){
+
+   start = 1;
+   denom = 1;
+
+  }
+
+  if (oobag_eval_type == EVAL_R_FUNCTION){
+
+   // initialize function from tree object
+   // (Functions can't be stored in C++ classes, but RObjects can)
+   Function f_oobag_eval = as<Function>(oobag_R_function);
+
+   NumericVector w_ = wrap(w_oobag);
+
+   for(uword i = start; i < preds.n_cols; ++i){
+
+    vec y_i = y_oobag.unsafe_col(i);
+    vec p_i = preds.unsafe_col(i);
+
+    NumericVector y_ = wrap(y_i);
+    NumericVector p_ = wrap(p_i);
+    NumericVector R_result = f_oobag_eval(y_, w_, p_);
+
+    double result_addon = R_result[0];
+
+    result += result_addon;
+
+   }
+
+   return(result / denom);
+
+  }
 
   for(uword i = start; i < y_oobag.n_cols; i++){
    vec y_i = y_oobag.unsafe_col(i);
    vec p_i = preds.unsafe_col(i);
-   cstat_sum += compute_cstat_clsf(y_i, w_oobag, p_i);
+   result += compute_cstat_clsf(y_i, w_oobag, p_i);
   }
 
-  return cstat_sum / preds.n_cols;
+  return result / denom;
 
  }
 
@@ -365,7 +399,23 @@
  }
 
  uword TreeClassification::get_n_col_vi(){
+
   return(n_class);
+
+ }
+
+ PredType TreeClassification::get_pred_type_vi(){
+
+  PredType out;
+
+  if(pred_type == PRED_CLASS){
+   out = PRED_CLASS;
+  } else {
+   out = PRED_PROBABILITY;
+  }
+
+  return(out);
+
  }
 
  void TreeClassification::fill_pred_values_vi(mat& pred_values){

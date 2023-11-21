@@ -59,6 +59,7 @@
   void sprout_leaf_internal(uword node_id) override;
 
   uword get_n_col_vi() override;
+  PredType get_pred_type_vi() override;
 
   void fill_pred_values_vi(arma::mat& pred_values) override;
 
