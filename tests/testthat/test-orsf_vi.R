@@ -321,6 +321,8 @@ test_that(
  desc = 'informative errors for custom functions',
  code = {
 
+  formula <- Surv(time, status) ~ protime + edema + bili + junk + junk_cat
+
   fit_no_vi <- orsf(pbc_vi, formula, importance = 'none', n_tree = 1)
 
   expect_error(
