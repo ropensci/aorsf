@@ -175,3 +175,6 @@ penguins_train_rows <- sample(nrow(penguins_orsf), size = 180)
 penguins_train <- penguins[penguins_train_rows, ]
 penguins_test <- penguins[-penguins_train_rows, ]
 
+penguins_binary_train <- penguins_binary[penguins_train_rows, ]
+penguins_binary_test <- penguins_binary[-penguins_train_rows, ]
+

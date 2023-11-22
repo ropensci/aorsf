@@ -1458,21 +1458,9 @@ ObliqueForest <- R6::R6Class(
 
    } else {
 
-    check_new_data_names(new_data  = input,
-                         ref_names = private$data_names$x_original,
-                         label_new = "new_data",
-                         label_ref = 'training data')
-
-    check_new_data_types(new_data  = input,
-                         ref_names = private$data_names$x_original,
-                         ref_types = private$data_types$x,
-                         label_new = "new_data",
-                         label_ref = 'training data')
-
-    check_new_data_fctrs(new_data  = input,
-                         names_x   = private$data_names$x_original,
-                         fi_ref    = private$data_fctrs,
-                         label_new = "new_data")
+    private$check_var_names_new(new_data = input)
+    private$check_var_types_new(new_data = input)
+    private$check_fctrs_new(new_data = input)
 
    }
 
@@ -1494,6 +1482,62 @@ ObliqueForest <- R6::R6Class(
    }
 
   },
+
+  check_var_names_new = function(new_data,
+                                 check_new_in_ref = FALSE,
+                                 check_ref_in_new = TRUE){
+
+   ref_names = private$data_names$x_original
+   label_new = "new_data"
+   label_ref = 'training data'
+
+   new_names <- names(new_data)
+
+   list_new <- FALSE
+
+   if(check_new_in_ref) list_new <- !(new_names %in% ref_names)
+
+   list_ref <- FALSE
+
+   if(check_ref_in_new) list_ref <- !(ref_names %in% new_names)
+
+   error_new <- any(list_new)
+   error_ref <- any(list_ref)
+
+   if(error_new){
+    out_msg_new <- paste(
+     label_new, " have columns not contained in ", label_ref, ": ",
+     paste_collapse(new_names[list_new], last = ' and ')
+    )
+   }
+
+   if(error_ref){
+    out_msg_ref <- paste(
+     label_ref, " have columns not contained in ", label_new, ": ",
+     paste_collapse(ref_names[list_ref], last = ' and ')
+    )
+   }
+
+   if(error_new && error_ref){
+    out_msg <- c(out_msg_new, '\n Also, ', out_msg_ref)
+   }
+
+   if (error_new && !error_ref) {
+    out_msg <- c(out_msg_new)
+   }
+
+   if (!error_new && error_ref){
+    out_msg <- c(out_msg_ref)
+   }
+
+   any_error <- error_new | error_ref
+
+   if(any_error){
+    stop(out_msg, call. = FALSE)
+   }
+
+  },
+
   check_var_types = function(var_types, var_names, valid_types){
 
    good_vars <- var_types %in% valid_types
@@ -1520,6 +1564,42 @@ ObliqueForest <- R6::R6Class(
 
 
   },
+
+  check_var_types_new = function(new_data){
+
+   ref_names = private$data_names$x_original
+   ref_types = private$data_types$x
+   label_new = "new_data"
+   label_ref = "training data"
+
+   var_types <- vector(mode = 'character', length = length(ref_names))
+
+   for(i in seq_along(ref_names)){
+    var_types[i] <- class(new_data[[ ref_names[i] ]])[1]
+   }
+
+   bad_types <- which(var_types != ref_types)
+
+   if(!is_empty(bad_types)){
+
+    vars_to_list <- ref_names[bad_types]
+    types_to_list <- var_types[bad_types]
+
+    meat <- paste0('<', vars_to_list, '> has type <',
+                   types_to_list, '>', " in ", label_new,
+                   "; type <", ref_types[bad_types], "> in ",
+                   label_ref, collapse = '\n')
+
+    msg <- paste("some variables in", label_new,
+                 "have different type in",
+                 label_ref, ":\n", meat)
+
+    stop(msg, call. = FALSE)
+
+   }
+
+  },
+
   check_var_missing = function(data = NULL,
                                new = FALSE,
                                na_action = NULL){
@@ -1584,6 +1664,26 @@ ObliqueForest <- R6::R6Class(
      }
     }
 
+   }
+
+  },
+
+  check_fctrs_new = function(new_data){
+
+   names_x   = private$data_names$x_original
+   fi_ref    = private$data_fctrs
+   label_new = "new_data"
+
+   fctr_check(new_data, names_x)
+
+   fi_new <- fctr_info(new_data, names_x)
+
+   for(fi_col in fi_ref$cols){
+    fctr_check_levels(ref = fi_ref$lvls[[fi_col]],
+                      new = fi_new$lvls[[fi_col]],
+                      name = fi_col,
+                      label_ref = "training data",
+                      label_new = label_new)
    }
 
   },

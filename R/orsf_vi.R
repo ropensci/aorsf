@@ -95,7 +95,25 @@ orsf_vi <- function(object,
   if(importance == 'none') importance <- NULL
  }
 
- check_orsf_inputs(importance = importance)
+ if(!is.null(importance)){
+
+  check_arg_type(arg_value = importance,
+                 arg_name = 'importance',
+                 expected_type = 'character')
+
+  check_arg_length(arg_value = importance,
+                   arg_name = 'importance',
+                   expected_length = 1)
+
+  check_arg_is_valid(arg_value = importance,
+                     arg_name = 'importance',
+                     valid_options = c("none",
+                                       "anova",
+                                       "negate",
+                                       "permute"))
+
+
+ }
 
  type_vi <- object$importance_type
 

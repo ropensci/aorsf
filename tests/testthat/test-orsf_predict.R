@@ -283,10 +283,258 @@ test_preds_clsf_multi <- function(pred_type){
 
 }
 
+test_preds_clsf_bnry <- function(pred_type){
+
+ n_train <- nrow(penguins_binary_train)
+ n_test <- nrow(penguins_binary_test)
+
+ pred_ncols_expect_agg <- switch(
+  pred_type,
+  prob = 2,
+  class = 1,
+  leaf = n_tree_test
+ )
+
+ dim_expect_agg <- list(
+  oob = c(n_train, pred_ncols_expect_agg),
+  new = c(n_test, pred_ncols_expect_agg)
+ )
+
+ dim_expect_raw <- c(n_test, n_tree_test)
+
+ fit <- orsf(formula = species ~ .,
+             data = penguins_binary_train,
+             oobag_pred_type = pred_type,
+             n_tree = n_tree_test,
+             tree_seeds = seeds_standard)
+
+ prd_agg <- predict(fit,
+                    new_data = penguins_binary_test,
+                    pred_type = pred_type,
+                    n_thread = 1)
+
+ prd_raw <- predict(fit,
+                    new_data = penguins_binary_test,
+                    pred_aggregate = FALSE,
+                    pred_type = pred_type,
+                    n_thread = 1)
+
+  test_that(
+   'No missing, nan, or infinite values in unaggregated predictions',
+   code = {
+    expect_false(any(is.na(prd_raw)))
+    expect_false(any(is.nan(prd_raw)))
+    expect_false(any(is.infinite(prd_raw)))
+   }
+  )
+
+  test_that(
+   "unaggregated prediction dimensions match expectations",
+   code = {
+    expect_equal(dim_expect_raw, dim(prd_raw))
+   }
+  )
+
+ test_that(
+  'No missing, nan, or infinite values in aggregated prediction output',
+  code = {
+   expect_false(any(is.na(prd_agg)))
+   expect_false(any(is.nan(prd_agg)))
+   expect_false(any(is.infinite(prd_agg)))
+  }
+ )
+
+
+ if(pred_type == "prob"){
+
+  test_that(
+   desc = "probability predictions are bounded",
+   code = {
+    expect_true(all(prd_agg <= 1))
+    expect_true(all(prd_agg >= 0))
+   }
+  )
+
+  test_that(
+   desc = "probability predictions sum to 1",
+   code = {
+    expect_equal(apply(prd_agg, 1, sum), rep(1, nrow(prd_agg)),
+                 tolerance = .Machine$double.eps)
+   }
+  )
+
+ }
+
+ if(pred_type != 'leaf'){
+  test_that(
+   desc = "predictions are accurate",
+   code = {
+
+    if(pred_type == 'prob'){
+     prd_class <- apply(prd_agg, 1, which.max)
+    } else if (pred_type == 'class') {
+     prd_class <- as.numeric(prd_agg+1)
+    }
+
+    accuracy <- mean(prd_class == as.numeric(penguins_binary_test$species))
+
+    expect_true(accuracy > 0.90)
+
+   }
+  )
+ }
+
+ test_that(
+  desc = paste(pred_type, "aggregated prediction dimensions match expectations"),
+  code = {
+   expect_equal(dim_expect_agg$oob, dim(fit$pred_oobag))
+   expect_equal(dim_expect_agg$new, dim(prd_agg))
+  }
+ )
+
+ test_that(
+  desc = paste('thread stability for predictions of type', pred_type),
+  code = {
+   expect_equal(
+    prd_agg,
+    predict(fit,
+            new_data = penguins_binary_test,
+            pred_type = pred_type,
+            n_thread = 0)
+   )
+  }
+ )
+
+ if(pred_type == 'class'){
+  expect_equal(
+   prd_raw,
+   predict(fit,
+           new_data = penguins_binary_test,
+           pred_aggregate = FALSE,
+           pred_type = pred_type,
+           n_thread = 0)
+  )
+ }
+
+ list(fit = fit, prd_agg = prd_agg, prd_raw = prd_raw)
+
+}
+
+test_preds_regr <- function(pred_type){
+
+ n_train <- nrow(penguins_train)
+ n_test <- nrow(penguins_test)
+
+ pred_ncols_expect_agg <- switch(
+  pred_type,
+  mean = 1,
+  leaf = n_tree_test
+ )
+
+ dim_expect_agg <- list(
+  oob = c(n_train, pred_ncols_expect_agg),
+  new = c(n_test, pred_ncols_expect_agg)
+ )
+
+ dim_expect_raw <- c(n_test, n_tree_test)
+
+ fit <- orsf(formula = bill_depth_mm ~ .,
+             data = penguins_train,
+             oobag_pred_type = pred_type,
+             n_tree = n_tree_test,
+             tree_seeds = seeds_standard)
+
+ prd_agg <- predict(fit,
+                    new_data = penguins_test,
+                    pred_type = pred_type,
+                    n_thread = 1)
+
+ prd_raw <- predict(fit,
+                    new_data = penguins_test,
+                    pred_aggregate = FALSE,
+                    pred_type = pred_type,
+                    n_thread = 1)
+
+ test_that(
+  'No missing, nan, or infinite values in unaggregated predictions',
+  code = {
+   expect_false(any(is.na(prd_raw)))
+   expect_false(any(is.nan(prd_raw)))
+   expect_false(any(is.infinite(prd_raw)))
+  }
+ )
+
+ test_that(
+  "unaggregated prediction dimensions match expectations",
+  code = {
+   expect_equal(dim_expect_raw, dim(prd_raw))
+  }
+ )
+
+ test_that(
+  'No missing, nan, or infinite values in aggregated prediction output',
+  code = {
+   expect_false(any(is.na(prd_agg)))
+   expect_false(any(is.nan(prd_agg)))
+   expect_false(any(is.infinite(prd_agg)))
+  }
+ )
+
+ if(pred_type != 'leaf'){
+  test_that(
+   desc = "predictions are accurate",
+   code = {
+
+    y_mean <- mean(penguins_train$bill_depth_mm)
+    ssq <- mean((y_mean - penguins_test$bill_depth_mm)^2)
+    mse <- mean((prd_agg - penguins_test$bill_depth_mm)^2)
+    rsq <- 1 - (mse / ssq)
+
+    expect_true(rsq > 0.70)
+
+   }
+  )
+ }
+
+ test_that(
+  desc = paste(pred_type, "aggregated prediction dimensions match expectations"),
+  code = {
+   expect_equal(dim_expect_agg$oob, dim(fit$pred_oobag))
+   expect_equal(dim_expect_agg$new, dim(prd_agg))
+  }
+ )
+
+ test_that(
+  desc = paste('thread stability for predictions of type', pred_type),
+  code = {
+   expect_equal(
+    prd_agg,
+    predict(fit,
+            new_data = penguins_test,
+            pred_type = pred_type,
+            n_thread = 0)
+   )
+   expect_equal(
+    prd_raw,
+    predict(fit,
+            new_data = penguins_test,
+            pred_aggregate = FALSE,
+            pred_type = pred_type,
+            n_thread = 0)
+   )
+  }
+ )
+
+ list(fit = fit, prd_agg = prd_agg, prd_raw = prd_raw)
+
+}
+
 
 pred_objects_surv <- lapply(pred_types_surv, test_preds_surv)
 
 pred_objects_clsf_multi <- lapply(pred_types_clsf, test_preds_clsf_multi)
+pred_objects_clsf_bnry <- lapply(pred_types_clsf, test_preds_clsf_bnry)
+pred_objects_regr <- lapply(pred_types_regr, test_preds_regr)
 
 test_that(
  desc = "prediction at time 0 is correct",
