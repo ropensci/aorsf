@@ -141,8 +141,12 @@ cp_find_bounds_R <- function(y_node,
 
 # oobag functions ----
 
+oobag_brier_clsf <- function(y_mat, w_vec, s_vec){
+ y_mean <- mean(y_mat)
+ 1 - mean((y_mat - s_vec)^2) / mean((y_mat - y_mean)^2)
+}
 
-oobag_fun_brier <- function(y_mat, w_vec, s_vec){
+oobag_brier_surv <- function(y_mat, w_vec, s_vec){
 
  # risk = 1 - survival
  r_vec <- 1 - s_vec

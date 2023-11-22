@@ -223,9 +223,8 @@
   virtual arma::mat user_fit();
 
   virtual uword get_n_col_vi()=0;
-  virtual PredType get_pred_type_vi()=0;
 
-  virtual void fill_pred_values_vi(arma::mat& pred_values)=0;
+  virtual void predict_value_vi(arma::mat& pred_values)=0;
 
  protected:
 

@@ -753,15 +753,7 @@
   return(1);
  }
 
- PredType TreeSurvival::get_pred_type_vi(){
-
-  PredType out = PRED_MORTALITY;
-
-  return(out);
-
- }
-
- void TreeSurvival::fill_pred_values_vi(mat& pred_values){
+ void TreeSurvival::predict_value_vi(mat& pred_values){
 
   for(uword i = 0; i < pred_values.n_rows; ++i){
    pred_values.at(i, 0) = leaf_summary[pred_leaf[i]];

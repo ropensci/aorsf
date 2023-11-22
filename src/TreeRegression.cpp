@@ -228,15 +228,15 @@
 
   }
 
-  double mse_sum = 0;
+  double result = 0;
 
   for(uword i = 0; i < y_oobag.n_cols; i++){
    vec y_i = y_oobag.unsafe_col(i);
    vec p_i = preds.unsafe_col(i);
-   mse_sum += compute_mse(y_i, w_oobag, p_i);
+   result += compute_rsq(y_i, w_oobag, p_i);
   }
 
-  return mse_sum / preds.n_cols;
+  return result / preds.n_cols;
 
  }
 
@@ -273,15 +273,7 @@
   return(1);
  }
 
- PredType TreeRegression::get_pred_type_vi(){
-
-  PredType out = PRED_MEAN;
-
-  return(out);
-
- }
-
- void TreeRegression::fill_pred_values_vi(mat& pred_values){
+ void TreeRegression::predict_value_vi(mat& pred_values){
 
   for(uword i = 0; i < pred_values.n_rows; ++i){
    pred_values.at(i, 0) = leaf_summary[pred_leaf[i]];

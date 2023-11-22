@@ -60,9 +60,8 @@
   arma::mat user_fit() override;
 
   uword get_n_col_vi() override;
-  PredType get_pred_type_vi() override;
 
-  void fill_pred_values_vi(arma::mat& pred_values) override;
+  void predict_value_vi(arma::mat& pred_values) override;
 
   std::vector<arma::vec>& get_leaf_pred_prob(){
    return(leaf_pred_prob);

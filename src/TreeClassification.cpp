@@ -111,10 +111,23 @@
    for(auto& it : pred_leaf_sort){
 
     uword leaf_id = pred_leaf[it];
-    if(leaf_id == max_nodes) break;
-    pred_output.row(it) += leaf_pred_prob[leaf_id].t();
 
-    n_preds_made++;
+    // the stopping condition for oobag predictions
+    if(leaf_id == max_nodes) break;
+
+    // usual case: a prediction matrix with one column per class
+    if(pred_output.n_cols > 1){
+     pred_output.row(it) += leaf_pred_prob[leaf_id].t();
+     n_preds_made++;
+    }
+
+    // unusual case: a single column matrix
+    // this occurs when pred_aggregate is false in forest.cpp's predict
+    if(pred_output.n_cols == 1){
+     pred_output.at(it, 0) += leaf_pred_prob[leaf_id][1];
+     n_preds_made++;
+    }
+
     if(oobag) pred_denom[it]++;
 
    }
@@ -126,11 +139,19 @@
     uword leaf_id = pred_leaf[it];
     if(leaf_id == max_nodes) break;
 
-    pred_output.at(it, leaf_summary[leaf_id])++;
+    // usual case: a prediction matrix with one column per class
+    if(pred_output.n_cols > 1){
+     pred_output.at(it, leaf_summary[leaf_id])++;
+     n_preds_made++;
+    }
 
-    // pred_output.row(it) = leaf_summary[leaf_id];
+    // unusual case: a single column matrix
+    // this occurs when pred_aggregate is false in forest.cpp's predict
+    if(pred_output.n_cols == 1){
+     pred_output.at(it, 0) = leaf_summary[leaf_id];
+     n_preds_made++;
+    }
 
-    n_preds_made++;
     if(oobag) pred_denom[it]++;
 
    }
@@ -404,21 +425,7 @@
 
  }
 
- PredType TreeClassification::get_pred_type_vi(){
-
-  PredType out;
-
-  if(pred_type == PRED_CLASS){
-   out = PRED_CLASS;
-  } else {
-   out = PRED_PROBABILITY;
-  }
-
-  return(out);
-
- }
-
- void TreeClassification::fill_pred_values_vi(mat& pred_values){
+ void TreeClassification::predict_value_vi(mat& pred_values){
 
   for(uword i = 0; i < pred_values.n_rows; ++i){
    pred_values.row(i) = leaf_pred_prob[pred_leaf[i]].t();

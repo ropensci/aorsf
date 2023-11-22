@@ -54,8 +54,15 @@ pbc_mats <- prep_test_matrices(pbc, outcomes = c("time", "status"))
 
 penguins <- penguins_orsf
 
-penguins_scale <- penguins_noise <- penguins
+penguins_binary <- penguins
 
+penguins_binary$species <- factor(
+ penguins_binary$species,
+ levels = c("Adelie", "Chinstrap", "Gentoo"),
+ labels = c("Adelie", "not_Adelie", "not_Adelie")
+)
+
+penguins_scale <- penguins_noise <- penguins
 
 vars <- c("bill_length_mm", "bill_depth_mm",
           "flipper_length_mm", "body_mass_g")
@@ -76,6 +83,7 @@ data_list_pbc <- list(pbc_standard = pbc,
                       pbc_noised = pbc_noise)
 
 data_list_penguins <- list(penguins_standard = penguins,
+                           penguins_binary = penguins_binary,
                            penguins_scaled = penguins_scale,
                            penguins_noised = penguins_noise)
 

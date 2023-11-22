@@ -1,7 +1,18 @@
 
 # TODO:
-# - write virtual function to get prediction type when calculating importance
-# - defaults for split rule split min stat and oobag pred type in init_internal
+# - tests for binary classification (done?)
+# - tests for class predictions
+# - remove compute_leaf_means.R
+# - remove prep_x.R
+# - finish update.obliqueForest
+# - add nocov to cpp
+# - compute_pd re-write
+# - automatic bounds for pd (better interface)
+# - tests for check_oobag_eval_function
+# - tests for survival forest w/no censored
+# - tests for check_oobag_eval_function_internal
+
+
 # ObliqueForest class ----
 
 ObliqueForest <- R6::R6Class(
@@ -3589,6 +3600,11 @@ ObliqueForestClassification <- R6::R6Class(
                                     pred_mode = TRUE,
                                     write_forest = FALSE,
                                     run_forest = TRUE)
+
+   if(!self$pred_aggregate && self$n_class > 2 && self$pred_type == 'prob'){
+    stop("unaggregated probability predictions for outcomes with >2 classes",
+         " is not currently supported.", call. = FALSE)
+   }
 
    # no further cleaning needed
    do.call(orsf_cpp, args = cpp_args)$pred_new

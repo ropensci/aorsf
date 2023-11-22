@@ -674,7 +674,7 @@
 
   mat pred_values(data_oobag->n_rows, get_n_col_vi());
 
-  fill_pred_values_vi(pred_values);
+  predict_value_vi(pred_values);
 
   // Compute normal prediction accuracy.
   double accuracy_normal = compute_prediction_accuracy(pred_values);
@@ -718,7 +718,7 @@
 
     predict_leaf(data_oobag.get(), false);
 
-    fill_pred_values_vi(pred_values);
+    predict_value_vi(pred_values);
 
     double accuracy_permuted = compute_prediction_accuracy(pred_values);
 

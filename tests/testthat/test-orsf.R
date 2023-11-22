@@ -338,6 +338,11 @@ test_that(
         tree_seeds = seeds_standard)
   })
 
+  expect_equal(fits_clsf$penguins_binary$n_class, 2)
+  expect_equal(fits_clsf$penguins_scaled$n_class, 3)
+
+  expect_equal(ncol(fits_clsf$penguins_binary$pred_oobag), 2)
+
   expect_equal_oobag_eval(fits_clsf$penguins_scaled,
                           fit_standard_penguin_species$fast,
                           tolerance = .01)

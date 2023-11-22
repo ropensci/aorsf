@@ -1,7 +1,4 @@
 
-suppressPackageStartupMessages({
- library(collapse)
-})
 
 pbc_miss <- as.data.table(survival::pbc) %>%
  .[status > 0, status := status - 1] %>%
@@ -10,7 +7,8 @@ pbc_miss <- as.data.table(survival::pbc) %>%
                    levels = c(1, 2),
                    labels = c('d_penicill_main',
                               'placebo'))] %>%
- ftransformv(vars = c(ascites, hepato, spiders, edema), FUN = factor)
+ collapse::ftransformv(vars = c(ascites, hepato, spiders, edema),
+                       FUN = factor)
 
 pbc_miss$id <- NULL
 
@@ -26,8 +24,6 @@ impute_values <- c(fit_miss$get_means(),
 pbc_imputed <- data_impute(data = pbc_miss,
                            cols = names(pbc_miss),
                            values = impute_values)
-
-
 
 test_that(
  desc = 'imputation does not modify column types',
@@ -113,7 +109,7 @@ test_that(
 test_that(
  desc = "integer cols imputed by coercing imputed value to integer",
  code = {
-  chol_na <- whichNA(pbc_miss$chol)
+  chol_na <- collapse::whichNA(pbc_miss$chol)
   expect_equal(
    pbc_imputed$chol[chol_na],
    rep(as.integer(impute_values['chol']), length(chol_na))
@@ -124,7 +120,7 @@ test_that(
 test_that(
  desc = "factor cols imputed with the level corresponding to stored int",
  code = {
-  trt_na <- whichNA(pbc_miss$trt)
+  trt_na <- collapse::whichNA(pbc_miss$trt)
   expect_true(
    all(pbc_imputed$trt[trt_na] == levels(pbc_miss$trt)[impute_values['trt']])
   )
@@ -134,7 +130,7 @@ test_that(
 test_that(
  desc = "doubles imputed with the stored double",
  code = {
-  alk_na <- whichNA(pbc_miss$alk.phos)
+  alk_na <- collapse::whichNA(pbc_miss$alk.phos)
   expect_true(
    all(pbc_imputed$alk.phos[alk_na] == impute_values["alk.phos"])
   )

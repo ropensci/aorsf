@@ -712,6 +712,7 @@ void Forest::predict_single_thread(Data* prediction_data,
    vec col_i = result.unsafe_col(i);
    trees[i]->predict_value(col_i, oobag_denom, pred_type, oobag);
 
+
   } else {
 
    trees[i]->predict_value(result, oobag_denom, pred_type, oobag);
