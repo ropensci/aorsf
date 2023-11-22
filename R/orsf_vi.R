@@ -89,47 +89,9 @@ orsf_vi <- function(object,
 
  check_dots(list(...), .f = orsf_vi)
 
- # not sure if anyone would ever call orsf_vi(importance = 'none'),
- # but this is here just for them.
- if(!is.null(importance)){
-  if(importance == 'none') importance <- NULL
- }
-
- if(!is.null(importance)){
-
-  check_arg_type(arg_value = importance,
-                 arg_name = 'importance',
-                 expected_type = 'character')
-
-  check_arg_length(arg_value = importance,
-                   arg_name = 'importance',
-                   expected_length = 1)
-
-  check_arg_is_valid(arg_value = importance,
-                     arg_name = 'importance',
-                     valid_options = c("none",
-                                       "anova",
-                                       "negate",
-                                       "permute"))
-
-
- }
-
- type_vi <- object$importance_type
-
- if(type_vi == 'none' && is.null(importance))
-  stop("object has no variable importance values to extract and the type ",
-       "of importance to compute is not specified. ",
-       "Try setting importance = 'permute', or 'negate', or 'anova' ",
-       "in orsf() or setting importance = 'permute' or 'negate' in ",
-       "orsf_vi().",
-       call. = FALSE)
-
- if(!is.null(importance)) type_vi <- importance
-
  orsf_vi_(object,
           group_factors = group_factors,
-          type_vi = type_vi,
+          importance = importance,
           oobag_fun = oobag_fun,
           n_thread = n_thread,
           verbose_progress = verbose_progress)
@@ -149,7 +111,7 @@ orsf_vi_negate <-
   check_dots(list(...), .f = orsf_vi_negate)
   orsf_vi_(object,
            group_factors,
-           type_vi = 'negate',
+           importance = 'negate',
            oobag_fun = oobag_fun,
            n_thread = n_thread,
            verbose_progress = verbose_progress)
@@ -167,7 +129,7 @@ orsf_vi_permute <-
   check_dots(list(...), .f = orsf_vi_permute)
   orsf_vi_(object,
            group_factors,
-           type_vi = 'permute',
+           importance = 'permute',
            oobag_fun = oobag_fun,
            n_thread = n_thread,
            verbose_progress = verbose_progress)
@@ -181,39 +143,63 @@ orsf_vi_anova <- function(object,
  check_dots(list(...), .f = orsf_vi_anova)
  orsf_vi_(object,
           group_factors,
-          type_vi = 'anova',
+          importance = 'anova',
           oobag_fun = NULL,
+          n_thread = 1,
           verbose_progress = FALSE)
 }
 
 #' Variable importance working function
 #'
 #' @inheritParams orsf_vi_negate
-#' @param type_vi the type of variable importance technique to use.
+#' @param importance the type of variable importance technique to use.
 #'
 #' @noRd
 #'
 orsf_vi_ <- function(object,
                      group_factors,
-                     type_vi,
+                     importance,
                      oobag_fun,
                      n_thread,
                      verbose_progress){
 
- if(!is_aorsf(object)) stop("object must inherit from 'ObliqueForest' class.",
-                            call. = FALSE)
-
- if(object$importance_type != 'anova' && type_vi == 'anova')
-  stop("ANOVA importance can only be computed while an orsf object",
-       " is being fitted. To get ANOVA importance values, train your",
-       " orsf object with importance = 'anova'",
-       call. = FALSE)
+ check_arg_is(object, arg_name = 'object', expected_class = 'ObliqueForest')
 
  if(is.null(object$data)){
   stop("training data were not found in object, ",
        "but are needed to collapse factor importance values. ",
        "Did you use attach_data = FALSE when ",
        "running orsf()?", call. = FALSE)
+ }
+
+ type_vi <- object$importance_type
+
+ if(type_vi == 'none' && is.null(importance))
+  stop("object has no variable importance values to extract and the type ",
+       "of importance to compute is not specified. ",
+       "Try setting importance = 'permute', or 'negate', or 'anova' ",
+       "in orsf() or setting importance = 'permute' or 'negate' in ",
+       "orsf_vi().",
+       call. = FALSE)
+
+ object$check_n_thread(n_thread)
+ object$check_verbose_progress(verbose_progress)
+
+ if(!is.null(importance)){
+
+  object$check_importance_type(importance)
+
+  # would someone call orsf_vi(importance = 'none')? just in case...
+  if(importance == 'none') return(NULL)
+
+  if(object$importance_type != 'anova' && importance == 'anova')
+   stop("ANOVA importance can only be computed while an orsf object",
+        " is being fitted. To get ANOVA importance values, train your",
+        " orsf object with importance = 'anova'",
+        call. = FALSE)
+
+  type_vi <- importance
+
  }
 
  out <- switch(
@@ -225,48 +211,7 @@ orsf_vi_ <- function(object,
                              n_thread, verbose_progress)
  )
 
- # nan's occur if a variable was never used, so:
- out[is.nan(out)] <- 0
-
- if(group_factors) {
-
-  fi <- object$get_fctr_info()
-
-  if(!is_empty(fi$cols)){
-
-   for(f in fi$cols[!fi$ordr]){
-
-    f_lvls <- fi$lvls[[f]]
-    f_rows <- match(paste(f, f_lvls[-1], sep = '_'), rownames(out))
-    f_wts <- 1
-
-    if(length(f_lvls) > 2){
-     f_wts <- prop.table(x = table(object$data[[f]])[-1])
-    }
-
-    f_vi <- sum(out[f_rows] * f_wts, na.rm = TRUE)
-
-    out[f_rows] <- f_vi
-    rownames(out)[f_rows] <- f
-
-   }
-
-   if(!is_empty(fi$cols[!fi$ordr])) {
-    # take extra care in case there are duplicate vi values.
-    out <- data.frame(variable = rownames(out), value = out)
-    out <- unique(out)
-    out$variable <- NULL
-    out <- as.matrix(out)
-    colnames(out) <- NULL
-   }
-
-
-
-  }
-
- }
-
- rev(out[order(out), , drop=TRUE])
+ object$get_importance_clean(out, group_factors)
 
 }
 

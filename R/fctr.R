@@ -40,6 +40,44 @@ fctr_check <- function(data, .names){
 
 }
 
+
+#' check levels of individual factor
+#'
+#' @param ref levels of factor in reference data
+#' @param new levels of factor in new data
+#' @param name name of the factor variable
+#' @param label_ref what to call reference data if error message is printed.
+#' @param label_new what to call new data if error message is printed.
+#'
+#' @return check functions 'return' errors and the intent is
+#'   to return nothing if nothing is wrong,
+#'   so hopefully nothing is returned.
+#'
+#' @noRd
+
+fctr_check_levels <- function(ref,
+                              new,
+                              name,
+                              label_ref,
+                              label_new){
+
+ list_new  <- !(new %in% ref)
+
+ if(any(list_new)){
+
+  out_msg <- paste0(
+   "variable ", name, " in ", label_new,
+   " has levels not contained in ", label_ref, ": ",
+   paste_collapse(new[list_new], last = ' and ')
+  )
+
+  stop(out_msg, call. = FALSE)
+
+ }
+
+
+}
+
 #' Factor tests
 #'
 #' There is a good chance that someone using Surv(time, status) ~ .

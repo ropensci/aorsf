@@ -36,8 +36,7 @@ test_that(
                         tree_seeds = seeds_standard)
 
 
-    vi_during_fit <- orsf_vi(fit_with_vi,
-                             group_factors = group_factors)
+    vi_during_fit <- orsf_vi(fit_with_vi, group_factors = group_factors)
 
     wrapper_fun <- switch(
      importance,

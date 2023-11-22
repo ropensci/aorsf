@@ -276,6 +276,38 @@ expect_no_missing <- function(x){
 
 # data processing ----
 
+check_var_types <- function(data, .names, valid_types){
+
+ var_types <- vector(mode = 'character', length = length(.names))
+
+ for(i in seq_along(.names)){
+  var_types[i] <- class(data[[ .names[i] ]])[1]
+ }
+
+ good_vars <- var_types %in% valid_types
+
+ if(!all(good_vars)){
+
+  bad_vars <- which(!good_vars)
+
+  vars_to_list <- .names[bad_vars]
+  types_to_list <- var_types[bad_vars]
+
+  meat <- paste0(' <', vars_to_list, '> has type <',
+                 types_to_list, '>', collapse = '\n')
+
+  msg <- paste0("some variables have unsupported type:\n",
+                meat, '\nsupported types are ',
+                paste_collapse(valid_types, last = ' and '))
+
+  stop(msg, call. = FALSE)
+
+ }
+
+ var_types
+
+}
+
 prep_test_matrices <- function(data, outcomes = c("time", "status")){
 
  names_y_data <- outcomes

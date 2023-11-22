@@ -421,37 +421,6 @@ check_dots <- function(.dots, .f){
 #'
 #' @noRd
 
-check_var_types <- function(data, .names, valid_types){
-
- var_types <- vector(mode = 'character', length = length(.names))
-
- for(i in seq_along(.names)){
-  var_types[i] <- class(data[[ .names[i] ]])[1]
- }
-
- good_vars <- var_types %in% valid_types
-
- if(!all(good_vars)){
-
-  bad_vars <- which(!good_vars)
-
-  vars_to_list <- .names[bad_vars]
-  types_to_list <- var_types[bad_vars]
-
-  meat <- paste0(' <', vars_to_list, '> has type <',
-                 types_to_list, '>', collapse = '\n')
-
-  msg <- paste0("some variables have unsupported type:\n",
-                meat, '\nsupported types are ',
-                paste_collapse(valid_types, last = ' and '))
-
-  stop(msg, call. = FALSE)
-
- }
-
- var_types
-
-}
 
 #' Check inputs for orsf_control_cph()
 #'
@@ -655,42 +624,7 @@ check_new_data_fctrs <- function(new_data,
 }
 
 
-#' check levels of individual factor
-#'
-#' @param ref levels of factor in reference data
-#' @param new levels of factor in new data
-#' @param name name of the factor variable
-#' @param label_ref what to call reference data if error message is printed.
-#' @param label_new what to call new data if error message is printed.
-#'
-#' @return check functions 'return' errors and the intent is
-#'   to return nothing if nothing is wrong,
-#'   so hopefully nothing is returned.
-#'
-#' @noRd
 
-fctr_check_levels <- function(ref,
-                              new,
-                              name,
-                              label_ref,
-                              label_new){
-
- list_new  <- !(new %in% ref)
-
- if(any(list_new)){
-
-  out_msg <- paste0(
-   "variable ", name, " in ", label_new,
-   " has levels not contained in ", label_ref, ": ",
-   paste_collapse(new[list_new], last = ' and ')
-  )
-
-  stop(out_msg, call. = FALSE)
-
- }
-
-
-}
 
 
 #' check units
@@ -702,7 +636,7 @@ fctr_check_levels <- function(ref,
 #' @return nada
 #'
 #' @noRd
-
+# nocov start
 check_units <- function(new_data, ui_train) {
 
  ui_new <- unit_info(data = new_data, .names = names(ui_train))
@@ -745,6 +679,7 @@ check_units <- function(new_data, ui_train) {
  }
 
 }
+# nocov end
 
 #' Run prediction checks
 #'
@@ -764,136 +699,7 @@ check_units <- function(new_data, ui_train) {
 #'
 #' @noRd
 
-check_predict <- function(object,
-                          new_data = NULL,
-                          pred_horizon = NULL,
-                          pred_type = NULL,
-                          na_action = NULL,
-                          boundary_checks = TRUE,
-                          valid_pred_types = c("risk",
-                                               "surv",
-                                               "chf",
-                                               "mort",
-                                               "prob",
-                                               "class",
-                                               "leaf")){
 
- if(!is.null(new_data)){
-
-  check_arg_is(arg_value = new_data,
-               arg_name = 'new_data',
-               expected_class = 'data.frame')
-
-  if(nrow(new_data) == 0 || ncol(new_data) ==  0){
-   stop("new data are empty",
-        call. = FALSE)
-  }
-
-  ui_train <- get_unit_info(object)
-
-  # check unit info for new data if training data had unit variables
-  if(!is_empty(ui_train)) check_units(new_data, ui_train)
-
-  check_new_data_names(new_data  = new_data,
-                       ref_names = get_names_x(object),
-                       label_new = "new_data",
-                       label_ref = 'training data')
-
-  check_new_data_types(new_data  = new_data,
-                       ref_names = get_names_x(object),
-                       ref_types = get_types_x(object),
-                       label_new = "new_data",
-                       label_ref = 'training data')
-
-  check_new_data_fctrs(new_data  = new_data,
-                       names_x   = get_names_x(object),
-                       fi_ref    = get_fctr_info(object),
-                       label_new = "new_data")
-
-  for(i in c(get_names_x(object))){
-
-   if(any(is.infinite(new_data[[i]]))){
-    stop("Please remove infinite values from ", i, ".",
-         call. = FALSE)
-   }
-
-  }
-
-
- }
-
- if(!is.null(pred_type)){
-
-  check_arg_type(arg_value = pred_type,
-                 arg_name = 'pred_type',
-                 expected_type = 'character')
-
-  check_arg_length(arg_value = pred_type,
-                   arg_name = 'pred_type',
-                   expected_length = 1)
-
-  check_arg_is_valid(arg_value = pred_type,
-                     arg_name = 'pred_type',
-                     valid_options = valid_pred_types)
-
- }
-
- if(!is.null(pred_horizon)){
-
-  if(!is.null(boundary_checks)){
-
-   check_arg_type(arg_value = boundary_checks,
-                  arg_name = 'boundary_checks',
-                  expected_type = 'logical')
-
-   check_arg_length(arg_value = boundary_checks,
-                    arg_name = 'boundary_checks',
-                    expected_length = 1)
-
-  }
-
-  check_arg_type(arg_value = pred_horizon,
-                 arg_name = 'pred_horizon',
-                 expected_type = 'numeric')
-
-  check_arg_gteq(arg_value = pred_horizon,
-                 arg_name = 'pred_horizon',
-                 bound = 0)
-
-  if(any(pred_horizon > object$get_max_time())){
-
-   if(boundary_checks == TRUE){
-    stop("prediction horizon should ",
-         "be <= max follow-up time ",
-         "observed in training data: ",
-         get_max_time(object),
-         call. = FALSE)
-   }
-
-  }
-
-}
-
- if(!is.null(na_action)){
-
-  check_arg_type(arg_value = na_action,
-                 arg_name = 'na_action',
-                 expected_type = 'character')
-
-  check_arg_length(arg_value = na_action,
-                   arg_name = 'na_action',
-                   expected_length = 1)
-
-  check_arg_is_valid(arg_value = na_action,
-                     arg_name = 'na_action',
-                     valid_options = c("fail",
-                                       "pass",
-                                       "omit",
-                                       "impute_meanmode"))
-
- }
-
-}
 
 check_oobag_fun <- function(oobag_fun){
 
