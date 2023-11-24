@@ -14,6 +14,15 @@ roxy_data_allowed <- function(){
  )
 }
 
+# Oblique Forest descriptor -----------------------------------------------
+
+roxy_describe_ObliqueForest <- function(trained){
+ paste("(*ObliqueForest*)",
+       if(trained) "a trained" else "an",
+       "oblique random forest object (see [orsf])")
+}
+
+
 # multi-threading ---------------------------------------------------------
 
 roxy_n_thread_header <- function(action){

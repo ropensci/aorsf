@@ -42,8 +42,7 @@ orsf_ice_new(
 )
 }
 \arguments{
-\item{object}{(\emph{orsf_fit}) a trained oblique random survival forest
-(see \link{orsf}).}
+\item{object}{(\emph{ObliqueForest}) a trained oblique random forest object (see \link{orsf}).}
 
 \item{pred_spec}{(\emph{named list} or \emph{data.frame}).
 \itemize{
@@ -132,7 +131,7 @@ fit
 ##                  N trees: 500
 ##       N predictors total: 17
 ##    N predictors per node: 5
-##  Average leaves per tree: 21.026
+##  Average leaves per tree: 21.048
 ## Min observations in leaf: 5
 ##       Min events in leaf: 1
 ##           OOB stat value: 0.84
@@ -151,18 +150,19 @@ ice_oob <- orsf_ice_oob(fit, pred_spec, boundary_checks = FALSE)
 ice_oob
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row pred_horizon bili      pred
-##    1:           1      1         1788    1 0.1264442
-##    2:           1      2         1788    1 0.1739727
-##    3:           1      3         1788    1 0.3904517
-##    4:           1      4         1788    1 0.2874752
-##    5:           1      5         1788    1 0.4398522
-##   ---                                               
-## 6896:          25    272         1788   10 0.3076971
-## 6897:          25    273         1788   10 0.4942110
-## 6898:          25    274         1788   10 0.6407498
-## 6899:          25    275         1788   10 0.3871298
-## 6900:          25    276         1788   10 0.6479179
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row pred_horizon  bili      pred
+##             <int> <char>        <num> <num>     <num>
+##    1:           1      1         1788     1 0.9080183
+##    2:           1      2         1788     1 0.8503112
+##    3:           1      3         1788     1 0.5990256
+##    4:           1      4         1788     1 0.7468067
+##    5:           1      5         1788     1 0.5814322
+##   ---                                                
+## 6896:          25    272         1788    10 0.7262513
+## 6897:          25    273         1788    10 0.5027661
+## 6898:          25    274         1788    10 0.3203826
+## 6899:          25    275         1788    10 0.5647718
+## 6900:          25    276         1788    10 0.3255800
 }\if{html}{\out{</div>}}
 
 Much more detailed examples are given in the

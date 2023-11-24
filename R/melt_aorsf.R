@@ -7,21 +7,11 @@ melt_aorsf <-
           measure.vars,
           variable.name = "variable",
           value.name = "value") {
-  if (!is.data.frame(data)) {
-   stop("Input 'data' must be a data frame.")
-  }
-
-  if (!is.character(id.vars)) {
-   stop("Input 'id.vars' must be a character vector.")
-  }
-
-  if (!is.character(measure.vars)) {
-   stop("Input 'measure.vars' must be a character vector.")
-  }
 
   # Select id variables and measure variables
-  id_data <- data[id.vars]
-  measure_data <- data[measure.vars]
+  id_data <- select_cols(data, id.vars)
+
+  measure_data <- select_cols(data, measure.vars)
 
   # Create a sequence variable to represent the variable names
   variable_data <- rep(names(measure_data), each = nrow(data))

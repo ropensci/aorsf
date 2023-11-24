@@ -67,7 +67,7 @@ fit_rando
 ##                  N trees: 500
 ##       N predictors total: 17
 ##    N predictors per node: 5
-##  Average leaves per tree: 19.682
+##  Average leaves per tree: 19.882
 ## Min observations in leaf: 5
 ##       Min events in leaf: 1
 ##           OOB stat value: 0.83
@@ -108,12 +108,7 @@ How well do our two customized ORSFs do? Let’s compute their indices of
 prediction accuracy based on out-of-bag predictions:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(riskRegression)
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## riskRegression version 2023.09.08
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(survival)
+library(survival)
 
 risk_preds <- list(rando = 1 - fit_rando$pred_oobag,
                     pca = 1 - fit_pca$pred_oobag)
@@ -133,17 +128,19 @@ The PCA ORSF does quite well! (higher IPA is better)
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## 
 ## Results by model:
 ## 
-##         model times  Brier  lower  upper    IPA
-## 1: Null model  1788 20.479 18.090 22.868  0.000
-## 2:      rando  1788 11.872  9.771 13.972 42.031
-## 3:        pca  1788 12.990 10.971 15.009 36.569
+##         model times  Brier  lower  upper      IPA
+##        <fctr> <num> <char> <char> <char>   <char>
+## 1: Null model  1788 20.479 18.089 22.869    0.000
+## 2:      rando  1788 57.487 53.803 61.172 -180.713
+## 3:        pca  1788 52.444 49.190 55.698 -156.087
 ## 
 ## Results of model comparisons:
 ## 
-##    times model  reference delta.Brier   lower  upper            p
-## 1:  1788 rando Null model      -8.607 -10.809 -6.406 1.832790e-14
-## 2:  1788   pca Null model      -7.489  -9.213 -5.765 1.664802e-17
-## 3:  1788   pca      rando       1.118   0.258  1.979 1.087482e-02
+##    times  model  reference delta.Brier  lower  upper            p
+##    <num> <fctr>     <fctr>      <char> <char> <char>        <num>
+## 1:  1788  rando Null model      37.008 31.647 42.370 1.061084e-41
+## 2:  1788    pca Null model      31.965 26.774 37.157 1.560856e-33
+## 3:  1788    pca      rando      -5.043 -6.405 -3.681 4.008989e-13
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.

@@ -23,6 +23,7 @@ reference:
   desc: Fit, inspect, summarize, and apply ORSF models
 - contents:
   - matches("^orsf$")
+  - matches("^orsf_update$")
   - matches("^print\\.ObliqueForest$")
   - matches("^predict\\.ObliqueForest$")
   - matches("^orsf_summarize")

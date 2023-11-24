@@ -19,9 +19,10 @@ ForestClassification::ForestClassification(arma::uword n_class){
 
 }
 
-void ForestClassification::resize_pred_mat_internal(arma::mat& p){
+void ForestClassification::resize_pred_mat_internal(arma::mat& p,
+                                                    arma::uword n){
 
- p.zeros(data->n_rows, this->n_class);
+ p.zeros(n, this->n_class);
 
  if(verbosity > 3){
   Rcout << "   -- pred mat size: " << p.n_rows << " rows by ";

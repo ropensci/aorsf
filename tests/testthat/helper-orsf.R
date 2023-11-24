@@ -276,6 +276,31 @@ expect_no_missing <- function(x){
 
 # data processing ----
 
+
+prep_x <- function(data,
+                   fi,
+                   cols,
+                   means,
+                   standard_deviations){
+
+ cols_numeric <- setdiff(cols, fi$cols)
+
+ x <- ref_code(data, fi, cols)
+
+ for(i in cols_numeric){
+
+  if(has_units(x[[i]])) x[[i]] <- as.numeric(x[[i]])
+
+  # can't modify by reference here, it would modify the user's data
+  x[[i]] <- (x[[i]] - means[i]) / standard_deviations[i]
+
+ }
+
+ as_matrix(x)
+
+}
+
+
 check_var_types <- function(data, .names, valid_types){
 
  var_types <- vector(mode = 'character', length = length(.names))

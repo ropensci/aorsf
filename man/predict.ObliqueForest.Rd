@@ -2,7 +2,7 @@
 % Please edit documentation in R/orsf_predict.R
 \name{predict.ObliqueForest}
 \alias{predict.ObliqueForest}
-\title{Compute predictions using ORSF}
+\title{Prediction for ObliqueForest Objects}
 \usage{
 \method{predict}{ObliqueForest}(
   object,
@@ -18,8 +18,7 @@
 )
 }
 \arguments{
-\item{object}{(\emph{orsf_fit}) a trained oblique random survival forest
-(see \link{orsf}).}
+\item{object}{(\emph{ObliqueForest}) a trained oblique random forest object (see \link{orsf}).}
 
 \item{new_data}{a \link{data.frame}, \link[tibble:tibble-package]{tibble}, or \link[data.table:data.table]{data.table} to compute predictions in.}
 
@@ -75,7 +74,9 @@ to value \code{j} in \code{pred_horizon}. Row \code{i} of the matrix corresponds
 row \code{i} in \code{new_data}.
 }
 \description{
-Predicted risk, survival, hazard, or mortality from an ORSF model.
+Compute predicted values from an oblique random forest. Predictions
+may be returned in aggregate (i.e., averaging over all the trees)
+or tree-specific.
 }
 \details{
 \code{new_data} must have the same columns with equivalent types as the data
@@ -120,11 +121,11 @@ predict(fit,
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##            [,1]       [,2]       [,3]
-## [1,] 0.45965512 0.73309199 0.89715078
-## [2,] 0.03235764 0.09091330 0.18045864
-## [3,] 0.12091603 0.25919883 0.39403239
-## [4,] 0.01488893 0.03745896 0.07571412
-## [5,] 0.01279842 0.02623832 0.06015808
+## [1,] 0.45320860 0.71688357 0.88729787
+## [2,] 0.03234200 0.07183812 0.14927375
+## [3,] 0.10425422 0.25500251 0.40011524
+## [4,] 0.01869464 0.04162596 0.08060608
+## [5,] 0.01743330 0.02926360 0.06790689
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted survival, i.e., 1 - risk
@@ -135,11 +136,11 @@ predict(fit,
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##           [,1]      [,2]      [,3]
-## [1,] 0.5403449 0.2669080 0.1028492
-## [2,] 0.9676424 0.9090867 0.8195414
-## [3,] 0.8790840 0.7408012 0.6059676
-## [4,] 0.9851111 0.9625410 0.9242859
-## [5,] 0.9872016 0.9737617 0.9398419
+## [1,] 0.5467914 0.2831164 0.1127021
+## [2,] 0.9676580 0.9281619 0.8507263
+## [3,] 0.8957458 0.7449975 0.5998848
+## [4,] 0.9813054 0.9583740 0.9193939
+## [5,] 0.9825667 0.9707364 0.9320931
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted cumulative hazard function
@@ -151,11 +152,11 @@ predict(fit,
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##            [,1]       [,2]       [,3]
-## [1,] 0.65381651 1.28606246 1.75476570
-## [2,] 0.03531788 0.10967272 0.24697387
-## [3,] 0.15371784 0.36989220 0.65462524
-## [4,] 0.01549537 0.04229610 0.09352493
-## [5,] 0.01290261 0.02687956 0.06916273
+## [1,] 0.63853349 1.22980935 1.73663522
+## [2,] 0.03268688 0.08184222 0.20419113
+## [3,] 0.12730379 0.35165725 0.65852061
+## [4,] 0.01977094 0.05130407 0.10527319
+## [5,] 0.01764267 0.03050562 0.07781852
 }\if{html}{\out{</div>}}
 
 Predict mortality, defined as the number of events in the forest’s
@@ -168,12 +169,12 @@ prediction horizon
         pred_type = 'mort')
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##           [,1]
-## [1,] 79.795533
-## [2,] 22.393743
-## [3,] 38.749709
-## [4,] 13.552788
-## [5,]  9.984989
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##          [,1]
+## [1,] 78.37691
+## [2,] 20.85114
+## [3,] 37.80350
+## [4,] 13.39838
+## [5,] 10.15932
 }\if{html}{\out{</div>}}
 }
 

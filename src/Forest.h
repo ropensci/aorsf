@@ -215,6 +215,20 @@ public:
 
  std::vector<std::vector<arma::mat>> compute_dependence(bool oobag);
 
+ void compute_dependence_single_thread(
+   Data* prediction_data,
+   bool oobag,
+   std::vector<std::vector<arma::mat>>& result
+ );
+
+ void compute_dependence_multi_thread(
+   uint thread_idx,
+   Data* prediction_data,
+   bool oobag,
+   std::vector<std::vector<arma::mat>>& result_ptr,
+   arma::vec& denom_ptr
+ );
+
 protected:
 
  void init_trees();
@@ -244,9 +258,11 @@ protected:
 
  void show_progress(std::string operation, size_t max_progress);
 
- virtual void resize_pred_mat(arma::mat& p);
+ virtual void resize_pred_mat(arma::mat& p, arma::uword n);
 
- virtual void resize_pred_mat_internal(arma::mat& p) = 0;
+ virtual void resize_pd_mats(std::vector<std::vector<arma::mat>>& mat_list);
+
+ virtual void resize_pred_mat_internal(arma::mat& p, arma::uword n) = 0;
 
  arma::uword find_max_eval_steps();
 

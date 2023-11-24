@@ -17,7 +17,7 @@ suppressPackageStartupMessages({
  library(tidyverse)
  library(randomForestSRC)
  library(ranger)
- library(riskRegression) 
+ library(riskRegression)
  library(obliqueRSF)
 })
 
@@ -97,66 +97,69 @@ Let's make three customized functions to identify linear combinations of predict
 
 - The first uses random coefficients
 
-  ```{r}
-  
-  f_rando <- function(x_node, y_node, w_node){
-   matrix(runif(ncol(x_node)), ncol=1) 
-  }
-  
-  ```
+```{r}
 
-- The second derives coefficients from principal component analysis.
+f_rando <- function(x_node, y_node, w_node){
+ matrix(runif(ncol(x_node)), ncol=1) 
+}
 
-  ```{r}
-  
-  f_pca <- function(x_node, y_node, w_node) { 
-   
-   # estimate two principal components.
-   pca <- stats::prcomp(x_node, rank. = 2)
-   # use the second principal component to split the node
-   pca$rotation[, 1L, drop = FALSE]
-   
-  }
-  
-  ```
+```
 
-- The third uses `orsf()` inside of `orsf()`.
+- The second derives coefficients from principal component analysis
 
-  ```{r}
-  # This approach is known as reinforcement learning trees.  
-  # some special care is taken to prevent your R session from crashing.
-  # Specifically, random coefficients are used when n_obs <= 10
-  # or n_events <= 5. 
-  
-  f_aorsf <- function(x_node, y_node, w_node){
-   
-   colnames(y_node) <- c('time', 'status')
-   colnames(x_node) <- paste("x", seq(ncol(x_node)), sep = '')
-   
-   data <- as.data.frame(cbind(y_node, x_node))
-  
-   if(nrow(data) <= 10 || sum(y_node[,'status']) <= 5) 
-    return(matrix(runif(ncol(x_node)), ncol = 1))
-    
-   fit <- orsf(data, time + status ~ ., 
-               weights = as.numeric(w_node),
-               n_tree = 25,
-               importance = 'permute')
-   
-   out <- orsf_vi(fit)
-   
-   # drop the least two important variables
-   n_vars <- length(out)
+```{r}
+
+f_pca <- function(x_node, y_node, w_node) { 
+ 
+ # estimate two principal components.
+ pca <- stats::prcomp(x_node, rank. = 2)
+ # use the second principal component to split the node
+ pca$rotation[, 1L, drop = FALSE]
+ 
+}
+
+```
+
+- The third uses `ranger()` inside of `orsf()`. This approach is very similar to a method known as reinforcement learning trees (see the RLT package), although our method of "muting" is very crude compared to the method proposed by Zhu et al. 
+
+```{r}
+
+f_rlt <- function(x_node, y_node, w_node){
+ 
+ colnames(y_node) <- c('time', 'status')
+ colnames(x_node) <- paste("x", seq(ncol(x_node)), sep = '')
+ 
+ data <- as.data.frame(cbind(y_node, x_node))
+ 
+ if(nrow(data) <= 10) 
+  return(matrix(runif(ncol(x_node)), ncol = 1))
+ 
+ fit <- ranger::ranger(data = data, 
+                       formula = Surv(time, status) ~ ., 
+                       num.trees = 25, 
+                       num.threads = 1,
+                       min.node.size = 5,
+                       importance = 'permutation')
+ 
+ out <- sort(fit$variable.importance, decreasing = TRUE)
+ 
+ # "mute" the least two important variables
+ n_vars <- length(out)
+ if(n_vars > 4){
    out[c(n_vars, n_vars-1)] <- 0
-   
-   # ensure out has same variable order as input
-   out <- out[colnames(x_node)]
-   
-   matrix(out, ncol = 1)
-   
-  }
-  
-  ```
+ }
+ 
+ # ensure out has same variable order as input
+ out <- out[colnames(x_node)]
+ 
+ # protect yourself
+ out[is.na(out)] <- 0
+ 
+ matrix(out, ncol = 1)
+ 
+}
+
+```
 
 We can plug these functions into `orsf_control_custom()`, and then pass the result into `orsf()`:
 
@@ -173,7 +176,7 @@ fit_pca <- orsf(pbc_orsf,
                 tree_seeds = 329)
 
 fit_rlt <- orsf(pbc_orsf, time + status ~ . - id, 
-                control = orsf_control_survival(method = f_aorsf),
+                control = orsf_control_survival(method = f_rlt),
                 tree_seeds = 329)
 
 ```
@@ -183,12 +186,12 @@ So which fit seems to work best in this example? Let's find out by evaluating th
 ```{r}
 
 risk_preds <- list(
- accel = 1 - fit_accel$pred_oobag,
- cph   = 1 - fit_cph$pred_oobag,
- net   = 1 - fit_net$pred_oobag,
- rando = 1 - fit_rando$pred_oobag,
- pca   = 1 - fit_pca$pred_oobag,
- rlt   = 1 - fit_rlt$pred_oobag
+ accel = fit_accel$pred_oobag,
+ cph   = fit_cph$pred_oobag,
+ net   = fit_net$pred_oobag,
+ rando = fit_rando$pred_oobag,
+ pca   = fit_pca$pred_oobag,
+ rlt   = fit_rlt$pred_oobag
 )
 
 sc <- Score(object = risk_preds, 
@@ -334,181 +337,4 @@ From inspection,
 - `aorsf` obtained higher index of prediction accuracy (IPA)
 
 
-## mlr3 pipelines
-
-__Warning__: this code may or may not run depending on your current version of `mlr3proba`. First we load some additional `mlr3` libraries.
-
-```{r}
-
-suppressPackageStartupMessages({
- library(mlr3verse)
- library(mlr3proba)
- library(mlr3extralearners)
- library(mlr3viz)
- library(mlr3benchmark)
-})
-
-```
-
-Next we'll define some tasks for our learners to engage with.
-
-```{r, eval = FALSE}
-
-# Mayo Clinic Primary Biliary Cholangitis Data
-task_pbc <- 
- TaskSurv$new(
-  id = 'pbc',  
-  backend = select(pbc_orsf, -id) %>% 
-   mutate(stage = as.numeric(stage)),  
-  time = "time", 
-  event = "status"
- )
-
-# Veteran's Administration Lung Cancer Trial
-data(veteran, package = "randomForestSRC")
-
-task_veteran <- 
- TaskSurv$new(
-  id = 'veteran',  
-  backend = veteran,  
-  time = "time", 
-  event = "status"
- )
-
-# NKI 70 gene signature
-data_nki <- OpenML::getOMLDataSet(data.id = 1228)
-
-task_nki <- 
- TaskSurv$new(
-  id = 'nki',  
-  backend = data_nki$data,  
-  time = "time", 
-  event = "event"
- )
-
-# Gene Expression-Based Survival Prediction in Lung Adenocarcinoma
-data_lung <- OpenML::getOMLDataSet(data.id = 1245)
-
-task_lung <- 
- TaskSurv$new(
-  id = 'nki',  
-  backend = data_lung$data %>% 
-   mutate(OS_event = as.numeric(OS_event) -1),  
-  time = "OS_years", 
-  event = "OS_event"
- )
-
-
-# Chemotherapy for Stage B/C colon cancer
-# (there are two rows per person, one for death 
-#  and the other for recurrence, hence the two tasks)
-
-task_colon_death <-
- TaskSurv$new(
-  id = 'colon_death',  
-  backend = survival::colon %>%
-   filter(etype == 2) %>% 
-   drop_na() %>% 
-   # drop id, redundant variables
-   select(-id, -study, -node4, -etype),
-   mutate(OS_event = as.numeric(OS_event) -1),  
-  time = "time", 
-  event = "status"
- )
-
-task_colon_recur <-
- TaskSurv$new(
-  id = 'colon_death',  
-  backend = survival::colon %>%
-   filter(etype == 1) %>% 
-   drop_na() %>% 
-   # drop id, redundant variables
-   select(-id, -study, -node4, -etype),
-   mutate(OS_event = as.numeric(OS_event) -1),  
-  time = "time", 
-  event = "status"
- )
-
-# putting them all together
-tasks <- list(task_pbc,
-              task_veteran,
-              task_nki,
-              task_lung,
-              task_colon_death,
-              task_colon_recur,
-              # add a few more pre-made ones
-              tsk("actg"),
-              tsk('gbcs'),
-              tsk('grace'),
-              tsk("unemployment"),
-              tsk("whas"))
-
-```
-
-Now we can make a benchmark designed to compare our three favorite learners:
-
-```{r eval = FALSE}
-
-# Learners with default parameters
-learners <- lrns(c("surv.ranger", "surv.rfsrc", "surv.aorsf"))
-
-# Brier (Graf) score, c-index and training time as measures
-measures <- msrs(c("surv.graf", "surv.cindex", "time_train"))
-
-# Benchmark with 5-fold CV
-design <- benchmark_grid(
-  tasks = tasks,
-  learners = learners,
-  resamplings = rsmps("cv", folds = 5)
-)
-
-benchmark_result <- benchmark(design)
-
-bm_scores <- benchmark_result$score(measures, predict_sets = "test")
-
-```
-
-Let's look at the overall results:
-
-```{r eval = FALSE}
-
-bm_scores %>%
- select(task_id, learner_id, surv.graf, surv.cindex, time_train) %>%
- group_by(learner_id) %>% 
- filter(!is.infinite(surv.graf)) %>% 
- summarize(
-  across(
-   .cols = c(surv.graf, surv.cindex, time_train),
-   .fns = ~mean(.x, na.rm = TRUE)
-  )
- )
-
-
-```
-
-
-```{r echo = FALSE}
-
-tbl_data <-
- structure(
-  list(
-   learner_id = c("surv.aorsf", "surv.ranger", "surv.rfsrc"),
-   surv.graf = c(0.150484184019999, 0.164170239607235, 0.154920952989591),
-   surv.cindex = c(0.734037935733795, 0.716040564907922, 0.724149275709082),
-   time_train = c(0.382962962962959, 2.04055555555556, 0.757407407407405)
-  ),
-  row.names = c(NA, -3L),
-  class = c("tbl_df", "tbl", "data.frame")
- )
-
-tbl_data
-
-```
-
-
-From inspection,
-
-- `aorsf` has a higher expected value for 'surv.cindex' (higher is better)
-
-- `aorsf` has a lower expected value for 'surv.graf' (lower is better)
 

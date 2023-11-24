@@ -313,18 +313,18 @@ orsf_pred_dependence <- function(object,
        "did you use attach_data = FALSE when ",
        "running orsf()?", call. = FALSE)
 
- object$compute_dependence(pd_data = pd_data,
-                           pred_spec = pred_spec,
-                           pred_horizon = pred_horizon,
-                           pred_type = pred_type,
-                           na_action = na_action,
-                           expand_grid = expand_grid,
-                           prob_values = prob_values,
-                           prob_labels = prob_labels,
-                           boundary_checks = boundary_checks,
-                           n_thread = n_thread,
-                           oobag = oobag,
-                           type_output = type_output)
+ object$compute_dependence_cpp(pd_data = pd_data,
+                               pred_spec = pred_spec,
+                               pred_horizon = pred_horizon,
+                               pred_type = pred_type,
+                               na_action = na_action,
+                               expand_grid = expand_grid,
+                               prob_values = prob_values,
+                               prob_labels = prob_labels,
+                               boundary_checks = boundary_checks,
+                               n_thread = n_thread,
+                               oobag = oobag,
+                               type_output = type_output)
 
 
 }

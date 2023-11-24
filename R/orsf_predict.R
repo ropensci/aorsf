@@ -1,11 +1,12 @@
 
 
-#' Compute predictions using ORSF
+#' Prediction for ObliqueForest Objects
 #'
-#' Predicted risk, survival, hazard, or mortality from an ORSF model.
+#' Compute predicted values from an oblique random forest. Predictions
+#'   may be returned in aggregate (i.e., averaging over all the trees)
+#'   or tree-specific.
 #'
-#' @param object (*orsf_fit*) a trained oblique random survival forest
-#'   (see [orsf]).
+#' @param object `r roxy_describe_ObliqueForest(trained = TRUE)`.
 #'
 #' @param new_data a `r roxy_data_allowed()` to compute predictions in.
 #'

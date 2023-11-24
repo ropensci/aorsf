@@ -13,9 +13,10 @@ namespace aorsf {
 
 ForestRegression::ForestRegression() { }
 
-void ForestRegression::resize_pred_mat_internal(arma::mat& p){
+void ForestRegression::resize_pred_mat_internal(arma::mat& p,
+                                                arma::uword n){
 
- p.zeros(data->n_rows, 1);
+ p.zeros(n, 1);
 
  if(verbosity > 3){
   Rcout << "   -- pred mat size: " << p.n_rows << " rows by ";

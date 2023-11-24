@@ -59,10 +59,8 @@
  pred_type(DEFAULT_PRED_TYPE),
  vi_type(VI_NONE),
  vi_max_pvalue(DEFAULT_ANOVA_VI_PVALUE),
- // leaf_min_events(DEFAULT_LEAF_MIN_EVENTS),
  leaf_min_obs(DEFAULT_LEAF_MIN_OBS),
  split_rule(DEFAULT_SPLITRULE),
- // split_min_events(DEFAULT_SPLIT_MIN_EVENTS),
  split_min_obs(DEFAULT_SPLIT_MIN_OBS),
  split_min_stat(DEFAULT_SPLIT_MIN_STAT),
  split_max_cuts(DEFAULT_SPLIT_MAX_CUTS),
@@ -746,6 +744,55 @@
   }
  }
 
+ void Tree::compute_dependence(Data* prediction_data,
+                               std::vector<std::vector<arma::mat>>& result,
+                               PartialDepType pd_type,
+                               std::vector<arma::mat>& pd_x_vals,
+                               std::vector<arma::uvec>& pd_x_cols,
+                               arma::vec& oobag_denom,
+                               bool oobag) {
+
+  // a spec is a mat of x-values and umat of x-columns
+  // e.g., x_vals = c(1,2,3) and x_cols = c(1,1,1)
+
+  // an item is a specific row of a spec
+  // e.g., x_vals = 2, x_cols = 1
+
+  // mat_list
+  // -- mat_list[[i]] = vector of mats
+  // -- each mat corresponds to 1 item in spec i
+
+  uword n_specs = pd_x_vals.size();
+
+  if(verbosity > 3){
+   Rcout << "   -- n specs: " << n_specs << std::endl;
+  }
+
+  for(uword k = 0; k < n_specs; ++k){
+
+   uword n_items = pd_x_vals[k].n_rows;
+
+   if(verbosity > 3){
+    Rcout << "   -- n items in this spec: " << n_items << std::endl;
+    print_mat(pd_x_vals[k], "x_vals[k]", 5, 5);
+   }
+
+   for(uword j = 0; j < n_items; ++j){
+
+    vec x_val_vec = pd_x_vals[k].row(j).t();
+
+    if(verbosity > 3){
+     print_vec(x_val_vec, "current row of x_vals", 5);
+    }
+
+    predict_leaf(prediction_data, oobag, x_val_vec, pd_x_cols[k]);
+    predict_value(result[k][j], oobag_denom, pred_type, oobag);
+
+   }
+
+  }
+
+ }
 
  // # nocov start
  // placeholder
@@ -1068,7 +1115,8 @@
 
  } // Tree::grow
 
- void Tree::predict_leaf(Data* prediction_data, bool oobag) {
+ void Tree::predict_leaf(Data* prediction_data,
+                         bool oobag) {
 
   pred_leaf.zeros(prediction_data->n_rows);
 
@@ -1107,6 +1155,88 @@
      lincomb = prediction_data->x_submat_mult_beta(obs_in_node,
                                                    coef_indices[i],
                                                    coef_values[i]);
+
+     it = obs_in_node.begin();
+
+     for(uword j = 0; j < obs_in_node.size(); ++j, ++it){
+
+      if(lincomb[j] <= cutpoint[i]) {
+
+       pred_leaf[*it] = child_left[i];
+
+      } else {
+
+       pred_leaf[*it] = child_left[i]+1;
+
+      }
+
+     }
+
+     if(verbosity > 4){
+      // # nocov start
+      uvec in_left = find(pred_leaf == child_left[i]);
+      uvec in_right = find(pred_leaf == child_left[i]+1);
+      Rcout << "No. to node " << child_left[i] << ": ";
+      Rcout << in_left.size() << "; " << std::endl;
+      Rcout << "No. to node " << child_left[i]+1 << ": ";
+      Rcout << in_right.size() << std::endl << std::endl;
+      // # nocov end
+     }
+
+    }
+
+   }
+
+  }
+
+  if(oobag){ pred_leaf.elem(rows_inbag).fill(max_nodes); }
+
+ }
+
+ void Tree::predict_leaf(Data* prediction_data,
+                         bool oobag,
+                         arma::vec& pd_x_vals,
+                         arma::uvec& pd_x_cols){
+
+  pred_leaf.zeros(prediction_data->n_rows);
+
+  // if tree is root node, 0 is the correct leaf prediction
+  if(coef_values.size() == 0) return;
+
+  if(verbosity > 2){
+   // # nocov start
+   Rcout << "   -- computing dependence leaf predictions" << std::endl;
+   // # nocov end
+  }
+
+  uvec obs_in_node;
+
+  // it iterates over the observations in a node
+  uvec::iterator it;
+
+  // i iterates over nodes, j over observations
+  // uword i, j;
+
+  for(uword i = 0; i < coef_values.size(); i++){
+
+   // if child_left == 0, it's a leaf (no need to find next child)
+   if(child_left[i] != 0){
+
+    if(i == 0 && oobag){
+     obs_in_node = rows_oobag;
+    } else if (i == 0 && !oobag) {
+     obs_in_node = regspace<uvec>(0, 1, pred_leaf.size()-1);
+    } else {
+     obs_in_node = find(pred_leaf == i);
+    }
+
+    if(obs_in_node.size() > 0){
+
+     lincomb = prediction_data->x_submat_mult_beta(obs_in_node,
+                                                   coef_indices[i],
+                                                   coef_values[i],
+                                                   pd_x_vals,
+                                                   pd_x_cols);
 
      it = obs_in_node.begin();
 

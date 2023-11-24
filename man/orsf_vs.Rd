@@ -7,8 +7,7 @@
 orsf_vs(object, n_predictor_min = 3, verbose_progress = FALSE)
 }
 \arguments{
-\item{object}{(\emph{orsf_fit}) a trained oblique random survival forest
-(see \link{orsf}).}
+\item{object}{(\emph{ObliqueForest}) a trained oblique random forest object (see \link{orsf}).}
 
 \item{n_predictor_min}{(\emph{integer}) the minimum number of predictors allowed}
 

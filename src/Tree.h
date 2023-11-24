@@ -97,6 +97,11 @@
   void predict_leaf(Data* prediction_data,
                     bool oobag);
 
+  void predict_leaf(Data* prediction_data,
+                    bool oobag,
+                    arma::vec& pd_x_vals,
+                    arma::uvec& pd_x_cols);
+
   void predict_value(arma::mat& pred_output,
                      arma::vec& pred_denom,
                      PredType pred_type,
@@ -112,7 +117,13 @@
 
   void compute_oobag_vi(arma::vec* vi_numer, VariableImportance vi_type);
 
-  // void grow(arma::vec& vi_numer, arma::uvec& vi_denom);
+  void compute_dependence(Data* prediction_data,
+                          std::vector<std::vector<arma::mat>>& result,
+                          PartialDepType pd_type,
+                          std::vector<arma::mat>& pd_x_vals,
+                          std::vector<arma::uvec>& pd_x_cols,
+                          arma::vec& oobag_denom,
+                          bool oobag);
 
   std::vector<arma::uvec>& get_coef_indices() {
    return(coef_indices);
@@ -234,6 +245,11 @@
   arma::vec* vi_numer;
   arma::uvec* vi_denom;
 
+  // // pointers to partial dependence inputs in forest
+  // PartialDepType pd_type;
+  // std::vector<arma::mat>* pd_x_vals;
+  // std::vector<arma::uvec>* pd_x_cols;
+
   // Pointer to original data
   Data* data;
 
@@ -354,7 +370,6 @@
 
   // leaf values (only in leaf nodes)
   std::vector<double> leaf_summary;
-
 
   virtual double compute_prediction_accuracy(arma::mat& preds);
 

@@ -500,73 +500,171 @@ void Forest::compute_prediction_accuracy(arma::mat&  y,
 
 std::vector<std::vector<arma::mat>> Forest::compute_dependence(bool oobag){
 
- std::vector<std::vector<arma::mat>> result;
+ std::vector<std::vector<mat>> result;
 
- result.reserve(pd_x_vals.size());
+ resize_pd_mats(result);
 
- // looping through each item in the pd list
- for(uword k = 0; k < pd_x_vals.size(); ++k){
+ progress = 0;
+ aborted = false;
+ aborted_threads = 0;
 
-  uword n = pd_x_vals[k].n_rows;
+ if(n_thread == 1){
 
-  std::vector<arma::mat> result_k;
+  compute_dependence_single_thread(data.get(), oobag, result);
 
-  result_k.reserve(n);
+ } else {
 
-  // saving x values
-  for(const auto& x_col : pd_x_cols[k]){
-   data->save_col(x_col);
+  std::vector<std::thread> threads;
+  std::vector<std::vector<std::vector<mat>>> result_threads(n_thread);
+  std::vector<vec> oobag_denom_threads(n_thread);
+
+  threads.reserve(n_thread);
+
+  for (uint i = 0; i < n_thread; ++i) {
+
+   resize_pd_mats(result_threads[i]);
+   if(oobag) oobag_denom_threads[i].zeros(data->n_rows);
+
+   threads.emplace_back(&Forest::compute_dependence_multi_thread,
+                        this, i, data.get(), oobag,
+                        std::ref(result_threads[i]),
+                        std::ref(oobag_denom_threads[i]));
   }
 
-  // loop through each row in the current pd matrix
-  for(uword i = 0; i < n; ++i){
+  if(verbosity == 1){
+   show_progress("Computing dependence", n_tree);
+  }
 
-   uword j = 0;
-   // fill x with current pd values
-   for(const auto& x_col : pd_x_cols[k]){
-    data->fill_col(pd_x_vals[k].at(i, j), x_col);
-    ++j;
-   }
+  // wait for all threads to finish before proceeding
+  for (auto &thread : threads) {
+   thread.join();
+  }
 
-   if(oobag) oobag_denom.fill(0);
+  threads.clear();
 
-   // No. of cols in pred mat depend on the type of forest
-   mat preds;
-   resize_pred_mat(preds);
-   predict_single_thread(data.get(), oobag, preds);
+  for(uint i = 0; i < n_thread; ++i){
+   for(uword k = 0; k < pd_x_vals.size(); ++k){
+    for(uword j = 0; j < pd_x_vals[k].n_rows; ++j){
 
-   if(pd_type == PD_SUMMARY){
+     result[k][j] += result_threads[i][k][j];
 
-    if(preds.has_nonfinite()){
-     uvec is_finite = find_finite(preds.col(0));
-     preds = preds.rows(is_finite);
+     if(i == n_thread - 1){
+      if(oobag){
+       result[k][j].each_col() /= oobag_denom;
+      } else {
+       result[k][j] /= n_tree;
+      }
+     }
+
     }
-
-    mat preds_summary = mean(preds, 0);
-    mat preds_quant = quantile(preds, pd_probs, 0);
-
-    result_k.push_back(join_vert(preds_summary, preds_quant));
-
-   } else if(pd_type == PD_ICE) {
-
-    result_k.push_back(preds);
-
-
-
    }
-
   }
-
-  // bring back original values before moving to next pd item
-  for(const auto& x_col : pd_x_cols[k]){
-   data->restore_col(x_col);
-  }
-
-  result.push_back(result_k);
 
  }
 
  return(result);
+
+}
+
+void Forest::compute_dependence_single_thread(
+  Data* prediction_data,
+  bool oobag,
+  std::vector<std::vector<arma::mat>>& result
+){
+
+ uword oobag_divby = 0;
+ uword n_specs = pd_x_vals.size();
+
+ for(uword k = 0; k < n_specs; ++k){
+  oobag_divby+=pd_x_vals[k].n_rows;
+ }
+
+ for (uint i = 0; i < n_tree; ++i) {
+
+  if(verbosity > 1){
+   if(oobag){
+    Rcpp::Rcout << "--- Computing oobag dependence: tree " << i << " ---";
+   } else {
+    Rcpp::Rcout << "------ Computing dependence: tree " << i << " -----";
+   }
+   Rcpp::Rcout << std::endl;
+   Rcpp::Rcout << std::endl;
+  }
+
+  trees[i] -> compute_dependence(prediction_data, result,
+                                 pd_type, pd_x_vals, pd_x_cols,
+                                 oobag_denom, oobag);
+
+  // trees[i]->predict_leaf(prediction_data, oobag);
+  // trees[i]->predict_value(result, oobag_denom, pred_type, oobag);
+
+  progress++;
+
+ }
+
+ if(oobag){
+  oobag_denom /= oobag_divby;
+  if(verbosity > 3){
+   print_vec(oobag_denom, "oobag denom:", 5);
+  }
+ }
+
+ for(uword k = 0; k < n_specs; ++k){
+  for(uword j = 0; j < pd_x_vals[k].n_rows; ++j){
+   if(oobag){
+    result[k][j].each_col() /= oobag_denom;
+   } else {
+    result[k][j] /= n_tree;
+   }
+  }
+ }
+
+}
+
+void Forest::compute_dependence_multi_thread(
+  uint thread_idx,
+  Data* prediction_data,
+  bool oobag,
+  std::vector<std::vector<arma::mat>>& result_ptr,
+  arma::vec& denom_ptr
+){
+
+ uword oobag_divby = 0;
+ uword n_specs = pd_x_vals.size();
+
+ for(uword k = 0; k < n_specs; ++k){
+  oobag_divby+=pd_x_vals[k].n_rows;;
+ }
+
+ if (thread_ranges.size() > thread_idx + 1) {
+
+  for (uint i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
+
+   trees[i] -> compute_dependence(prediction_data, result_ptr,
+                                  pd_type, pd_x_vals, pd_x_cols,
+                                  denom_ptr, oobag);
+
+   // Check for user interrupt
+   if (aborted) {
+    std::unique_lock<std::mutex> lock(mutex);
+    ++aborted_threads;
+    condition_variable.notify_one();
+    return;
+   }
+
+   // Increase progress by 1 tree
+   std::unique_lock<std::mutex> lock(mutex);
+   ++progress;
+   condition_variable.notify_one();
+
+  }
+
+ }
+
+ if(oobag){
+  denom_ptr /= oobag_divby;
+  oobag_denom += denom_ptr;
+ }
 
 }
 
@@ -575,7 +673,7 @@ mat Forest::predict(bool oobag) {
  mat result;
 
  // No. of cols in pred mat depend on the type of forest
- resize_pred_mat(result);
+ resize_pred_mat(result, data->n_rows);
 
  // Slots to hold oobag prediction accuracy
  // (needs to be resized even if !oobag)
@@ -599,7 +697,7 @@ mat Forest::predict(bool oobag) {
 
   for (uint i = 0; i < n_thread; ++i) {
 
-   resize_pred_mat(result_threads[i]);
+   resize_pred_mat(result_threads[i], data->n_rows);
    if(oobag) oobag_denom_threads[i].zeros(data->n_rows);
 
    threads.emplace_back(&Forest::predict_multi_thread,
@@ -831,15 +929,58 @@ void Forest::resize_oobag_eval(){
 
 }
 
-void Forest::resize_pred_mat(arma::mat& p){
+void Forest::resize_pred_mat(arma::mat& p, arma::uword n){
 
  if(pred_type == PRED_TERMINAL_NODES || !pred_aggregate){
 
-  p.zeros(data->n_rows, n_tree);
+  p.zeros(n, n_tree);
 
  } else {
 
-  resize_pred_mat_internal(p);
+  resize_pred_mat_internal(p, n);
+
+ }
+
+}
+
+void Forest::resize_pd_mats(std::vector<std::vector<arma::mat>>& mat_list){
+
+ // a spec is a mat of x-values and umat of x-columns
+ // e.g., x_vals = c(1,2,3) and x_cols = c(1,1,1)
+
+ // an item is a specific row of a spec
+ // e.g., x_vals = 2, x_cols = 1
+
+ // mat_list
+ // -- mat_list[k][j] = matrix of preds for spec k, item j
+ // -- each mat corresponds to 1 item
+ // -- each mat is filled with predictions, tree by tree
+
+ uword n_specs = pd_x_vals.size();
+
+ mat_list.reserve(n_specs);
+
+ for(uword k = 0; k < n_specs; ++k){
+
+  uword n_items = pd_x_vals[k].n_rows;
+
+  std::vector<arma::mat> result_k;
+
+  result_k.reserve(n_items);
+
+  for(uword j = 0; j < n_items; ++j){
+   mat result_k_j;
+
+   // if(pd_type == PD_SUMMARY){
+   //  resize_pred_mat(result_k_j, 1);
+   // } else {
+   resize_pred_mat(result_k_j, data->n_rows);
+   // }
+
+   result_k.push_back(result_k_j);
+  }
+
+  mat_list.push_back(result_k);
 
  }
 

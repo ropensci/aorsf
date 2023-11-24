@@ -97,9 +97,10 @@ void ForestSurvival::plant() {
 
 }
 
-void ForestSurvival::resize_pred_mat_internal(arma::mat& p){
+void ForestSurvival::resize_pred_mat_internal(arma::mat& p,
+                                              arma::uword n){
 
-  p.zeros(data->n_rows, pred_horizon.size());
+  p.zeros(n, pred_horizon.size());
 
 }
 

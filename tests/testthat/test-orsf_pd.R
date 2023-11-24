@@ -1,3 +1,5 @@
+
+
 test_that(
  desc = "oob stops if there are no data",
  code = {
@@ -59,7 +61,10 @@ test_that(
 funs <- list(
  pd_new = orsf_pd_new,
  pd_inb = orsf_pd_inb,
- pd_oob = orsf_pd_oob
+ pd_oob = orsf_pd_oob,
+ ice_new = orsf_ice_new,
+ ice_inb = orsf_ice_inb,
+ ice_oob = orsf_ice_oob
 )
 
 args_loop <- args_grid <- list(

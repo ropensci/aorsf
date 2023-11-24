@@ -48,8 +48,7 @@ orsf_pd_new(
 )
 }
 \arguments{
-\item{object}{(\emph{orsf_fit}) a trained oblique random survival forest
-(see \link{orsf}).}
+\item{object}{(\emph{ObliqueForest}) a trained oblique random forest object (see \link{orsf}).}
 
 \item{pred_spec}{(\emph{named list} or \emph{data.frame}).
 \itemize{
@@ -160,12 +159,13 @@ You can compute partial dependence and ICE three ways with \code{aorsf}:
 pd_train
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean       lwr      medn       upr
-## 1:      1826.25    1 0.7932390 0.2177461 0.9060625 0.9816153
-## 2:      1826.25    2 0.7642403 0.1988035 0.8717127 0.9710504
-## 3:      1826.25    3 0.7240284 0.1770122 0.8303501 0.9480047
-## 4:      1826.25    4 0.6744615 0.1615326 0.7599508 0.9088882
-## 5:      1826.25    5 0.6313355 0.1553589 0.7152580 0.8658139
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon  bili      mean        lwr      medn       upr
+##           <num> <num>     <num>      <num>     <num>     <num>
+## 1:      1826.25     1 0.2034441 0.01958467 0.0978637 0.7771746
+## 2:      1826.25     2 0.2335524 0.03614317 0.1322952 0.7986061
+## 3:      1826.25     3 0.2679313 0.05276137 0.1745943 0.8177905
+## 4:      1826.25     4 0.3158140 0.07801520 0.2314825 0.8317336
+## 5:      1826.25     5 0.3578420 0.12202134 0.2752057 0.8408508
 }\if{html}{\out{</div>}}
 \item using out-of-bag predictions for the training data
 
@@ -174,12 +174,13 @@ pd_train
 pd_train
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean       lwr      medn       upr
-## 1:      1826.25    1 0.7840481 0.2727537 0.8694252 0.9809905
-## 2:      1826.25    2 0.7549406 0.2525478 0.8333524 0.9693362
-## 3:      1826.25    3 0.7158234 0.2364582 0.7890158 0.9461864
-## 4:      1826.25    4 0.6656823 0.2260407 0.7158336 0.9151153
-## 5:      1826.25    5 0.6225353 0.2071656 0.6734005 0.8681677
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon  bili      mean        lwr      medn       upr
+##           <num> <num>     <num>      <num>     <num>     <num>
+## 1:      1826.25     1 0.2112509 0.01973124 0.1354011 0.7171789
+## 2:      1826.25     2 0.2413456 0.03451762 0.1715079 0.7509849
+## 3:      1826.25     3 0.2750807 0.05181733 0.2127899 0.7609403
+## 4:      1826.25     4 0.3223209 0.08084008 0.2678339 0.7719659
+## 5:      1826.25     5 0.3652664 0.12709393 0.3136925 0.7760334
 }\if{html}{\out{</div>}}
 \item using predictions for a new set of data
 
@@ -190,12 +191,13 @@ pd_train
 pd_test
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon bili      mean       lwr      medn       upr
-## 1:      1826.25    1 0.7524101 0.1868769 0.8121185 0.9803382
-## 2:      1826.25    2 0.7234050 0.1759562 0.7754099 0.9653244
-## 3:      1826.25    3 0.6816975 0.1581292 0.7224945 0.9403449
-## 4:      1826.25    4 0.6339907 0.1467816 0.6598026 0.9000773
-## 5:      1826.25    5 0.5911775 0.1387876 0.6186801 0.8504577
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon  bili      mean        lwr      medn       upr
+##           <num> <num>     <num>      <num>     <num>     <num>
+## 1:      1826.25     1 0.2417344 0.02209149 0.1895773 0.7819458
+## 2:      1826.25     2 0.2718357 0.03915587 0.2252919 0.8042602
+## 3:      1826.25     3 0.3066068 0.05829350 0.2694077 0.8171481
+## 4:      1826.25     4 0.3558594 0.08951223 0.3205839 0.8238288
+## 5:      1826.25     5 0.3982408 0.13810590 0.3683546 0.8300253
 }\if{html}{\out{</div>}}
 \item in-bag partial dependence indicates relationships that the model has
 learned during training. This is helpful if your goal is to interpret

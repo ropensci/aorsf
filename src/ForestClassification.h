@@ -40,7 +40,7 @@ public:
    arma::vec& pd_probs
  );
 
- void resize_pred_mat_internal(arma::mat& p) override;
+ void resize_pred_mat_internal(arma::mat& p, arma::uword n) override;
 
  void compute_prediction_accuracy_internal(
    arma::mat& y,

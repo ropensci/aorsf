@@ -57,7 +57,7 @@ public:
 
 protected:
 
- void resize_pred_mat_internal(arma::mat& p) override;
+ void resize_pred_mat_internal(arma::mat& p, arma::uword n) override;
 
  void resize_oobag_eval() override;
 

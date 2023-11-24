@@ -14,8 +14,7 @@ orsf_summarize_uni(
 )
 }
 \arguments{
-\item{object}{(\emph{orsf_fit}) a trained oblique random survival forest
-(see \link{orsf}).}
+\item{object}{(\emph{ObliqueForest}) a trained oblique random forest object (see \link{orsf}).}
 
 \item{n_variables}{(\emph{integer}) how many variables should be summarized?
 Setting this input to a lower number will reduce computation time.}
