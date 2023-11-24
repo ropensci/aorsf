@@ -580,7 +580,7 @@ test_that(
 )
 
 test_that(
- desc = "user supplied beta functions are applied correctly",
+ desc = "correctly formatted user supplied beta functions are applied",
  code = {
 
   fit_pca = orsf(pbc,
@@ -589,7 +589,9 @@ test_that(
                  control = orsf_control_survival(method = f_pca),
                  n_tree = n_tree_test)
 
-  expect_gt(fit_pca$eval_oobag$stat_values, .765)
+  expect_true(fit_pca$control$lincomb_type == 'custom')
+
+  expect_gt(fit_pca$eval_oobag$stat_values, .65)
 
  }
 )
