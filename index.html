@@ -112,8 +112,7 @@
 <div class="section level2">
 <h2 id="what-is-an-oblique-decision-tree">What is an oblique decision tree?<a class="anchor" aria-label="anchor" href="#what-is-an-oblique-decision-tree"></a>
 </h2>
-<p>Decision trees are developed by splitting a set of training data into two new subsets, with the goal of having more similarity within the new subsets than between them. The splitting process is repeated on resulting subsets of data until a stopping criterion is met.</p>
-<p>When the new subsets of data are formed based on a single predictor, the decision tree is said to be <em>axis-based</em> because the splits of the data appear perpendicular to the axis of the predictor. When linear combinations of variables are used instead of a single variable, the tree is <em>oblique</em> because the splits of the data are neither parallel nor at a right angle to the axis.</p>
+<p>Decision trees are grown by splitting a set of training data into non-overlapping subsets, with the goal of having more similarity within the new subsets than between them. When subsets are created with a single predictor, the decision tree is <em>axis-based</em> because the subset boundaries are perpendicular to the axis of the predictor. When linear combinations (i.e., a weighted sum) of variables are used instead of a single variable, the tree is <em>oblique</em> because the boundaries are neither parallel nor perpendicular to the axis.</p>
 <p><strong>Figure</strong>: Decision trees for classification with axis-based splitting (left) and oblique splitting (right). Cases are orange squares; controls are purple circles. Both trees partition the predictor space defined by variables X1 and X2, but the oblique splits do a better job of separating the two classes.</p>
 <p><img src="reference/figures/tree_axis_v_oblique.png" width="100%"></p>
 </div>
@@ -150,10 +149,10 @@
 <span><span class="co">#&gt;                  N trees: 500</span></span>
 <span><span class="co">#&gt;       N predictors total: 17</span></span>
 <span><span class="co">#&gt;    N predictors per node: 5</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 10.198</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 10.238</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;       Min events in leaf: 1</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.84</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.83</span></span>
 <span><span class="co">#&gt;            OOB stat type: Harrell's C-index</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -173,40 +172,36 @@
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          bili           sex        copper         stage           age </span></span>
-<span><span class="co">#&gt;  0.1152040355  0.0550384871  0.0346540451  0.0342394602  0.0212811906 </span></span>
-<span><span class="co">#&gt;           ast       protime        hepato          chol       albumin </span></span>
-<span><span class="co">#&gt;  0.0189147173  0.0179113542  0.0151705980  0.0111316204  0.0107352274 </span></span>
-<span><span class="co">#&gt;         edema       ascites       spiders          trig      alk.phos </span></span>
-<span><span class="co">#&gt;  0.0101276579  0.0097629480  0.0043991365  0.0031611867  0.0030722039 </span></span>
-<span><span class="co">#&gt;           trt      platelet </span></span>
-<span><span class="co">#&gt;  0.0024625381 -0.0005569787</span></span></code></pre></div>
+<span><span class="co">#&gt;         bili          sex       copper        stage          age          ast </span></span>
+<span><span class="co">#&gt;  0.117180683  0.058528338  0.033761789  0.026655509  0.022144911  0.019139095 </span></span>
+<span><span class="co">#&gt;      protime       hepato        edema      ascites      albumin         chol </span></span>
+<span><span class="co">#&gt;  0.016879701  0.011605852  0.010634489  0.009580159  0.008336260  0.007633992 </span></span>
+<span><span class="co">#&gt;          trt      spiders     alk.phos         trig     platelet </span></span>
+<span><span class="co">#&gt;  0.002705027  0.002662017  0.002413369  0.001197399 -0.003386483</span></span></code></pre></div>
 </li>
 <li>
 <p><strong>permutation</strong>: Each variable is assessed separately by randomly permuting the variable’s values and then determining how much the model’s performance changes. The worse the model’s performance after permuting the values of a given variable, the more important the variable. This technique is flexible, intuitive, and frequently used. It also has several <a href="https://christophm.github.io/interpretable-ml-book/feature-importance.html#disadvantages-9" class="external-link">known limitations</a></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          bili         stage        copper           age           sex </span></span>
-<span><span class="co">#&gt;  0.0487808290  0.0180334035  0.0178325263  0.0124277288  0.0111897854 </span></span>
-<span><span class="co">#&gt;           ast        hepato         edema       protime       ascites </span></span>
-<span><span class="co">#&gt;  0.0111084077  0.0095618267  0.0082559886  0.0082473977  0.0078725536 </span></span>
-<span><span class="co">#&gt;       albumin          chol       spiders      alk.phos          trig </span></span>
-<span><span class="co">#&gt;  0.0073437819  0.0057881417  0.0033941136  0.0028194077  0.0019933887 </span></span>
-<span><span class="co">#&gt;      platelet           trt </span></span>
-<span><span class="co">#&gt; -0.0002101522 -0.0016860907</span></span></code></pre></div>
+<span><span class="co">#&gt;         bili       copper          age        stage          sex          ast </span></span>
+<span><span class="co">#&gt;  0.050536719  0.016394807  0.013793348  0.013204760  0.010261860  0.010101841 </span></span>
+<span><span class="co">#&gt;        edema      ascites      protime      albumin       hepato         chol </span></span>
+<span><span class="co">#&gt;  0.008298456  0.008148291  0.007630773  0.006667768  0.006141770  0.002881687 </span></span>
+<span><span class="co">#&gt;      spiders         trig     alk.phos     platelet          trt </span></span>
+<span><span class="co">#&gt;  0.001669604  0.001047642 -0.000301684 -0.001417230 -0.001665785</span></span></code></pre></div>
 </li>
 <li>
 <p><strong>analysis of variance (ANOVA)</strong><sup>3</sup>: A p-value is computed for each coefficient in each linear combination of variables in each decision tree. Importance for an individual predictor variable is the proportion of times a p-value for its coefficient is &lt; 0.01. This technique is very efficient computationally, but may not be as effective as permutation or negation in terms of selecting signal over noise variables. See <a href="https://link.springer.com/chapter/10.1007/978-3-642-23783-6_29" class="external-link">Menze, 2011</a> for more details on this technique.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       bili    ascites      edema        sex     copper      stage        age </span></span>
-<span><span class="co">#&gt; 0.48004315 0.43536122 0.38654727 0.31024531 0.29493088 0.27168950 0.26673985 </span></span>
-<span><span class="co">#&gt;     hepato        ast    albumin    protime       chol    spiders       trig </span></span>
-<span><span class="co">#&gt; 0.21492921 0.20151679 0.18771331 0.18352060 0.14617169 0.13932292 0.13620489 </span></span>
-<span><span class="co">#&gt;   alk.phos   platelet        trt </span></span>
-<span><span class="co">#&gt; 0.09051254 0.07011494 0.06179067</span></span></code></pre></div>
+<span><span class="co">#&gt;         bili       copper          age        stage          sex          ast </span></span>
+<span><span class="co">#&gt;  0.050536719  0.016394807  0.013793348  0.013204760  0.010261860  0.010101841 </span></span>
+<span><span class="co">#&gt;        edema      ascites      protime      albumin       hepato         chol </span></span>
+<span><span class="co">#&gt;  0.008298456  0.008148291  0.007630773  0.006667768  0.006141770  0.002881687 </span></span>
+<span><span class="co">#&gt;      spiders         trig     alk.phos     platelet          trt </span></span>
+<span><span class="co">#&gt;  0.001669604  0.001047642 -0.000301684 -0.001417230 -0.001665785</span></span></code></pre></div>
 </li>
 </ul>
 <p>You can supply your own R function to estimate out-of-bag error when using negation or permutation importance (see <a href="https://docs.ropensci.org/aorsf/articles/oobag.html" class="external-link">oob vignette</a>)</p>
@@ -224,16 +219,17 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;        |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;   0.70 0.2099215 0.1262483 0.05057666 0.3160044</span></span>
-<span><span class="co">#&gt;   1.30 0.2244830 0.1472311 0.06196578 0.3369922</span></span>
-<span><span class="co">#&gt;   3.18 0.2932736 0.2263620 0.11896921 0.4424589</span></span>
+<span><span class="co">#&gt;   0.70 0.2043124 0.1288782 0.05502854 0.3130744</span></span>
+<span><span class="co">#&gt;   1.30 0.2193531 0.1430383 0.06680735 0.3352729</span></span>
+<span><span class="co">#&gt;   3.18 0.2835984 0.2210419 0.12363028 0.4313679</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- ascites (VI Rank: 2) ------------------------</span></span>
+<span><span class="co">#&gt; -- copper (VI Rank: 2) -------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;        |---------------- Risk ----------------|</span></span>
-<span><span class="co">#&gt;  Value      Mean    Median    25th %    75th %</span></span>
-<span><span class="co">#&gt;      0 0.2630294 0.1490837 0.0613327 0.4186542</span></span>
-<span><span class="co">#&gt;      1 0.3924844 0.3053928 0.2222267 0.5253717</span></span>
+<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;   39.0 0.2308500 0.1358346 0.05536305 0.3575617</span></span>
+<span><span class="co">#&gt;   68.0 0.2415171 0.1482876 0.06189812 0.3682164</span></span>
+<span><span class="co">#&gt;    111 0.2725110 0.1846062 0.08723814 0.4047750</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Predicted risk at time t = 1826.25 for top 2 predictors</span></span></code></pre></div>
 <p>For more on PD, see the <a href="https://docs.ropensci.org/aorsf/articles/pd.html" class="external-link">vignette</a></p>
@@ -253,7 +249,7 @@
 <li><p>describes <code>aorsf</code> in detail with a summary of the procedures used in the tree fitting algorithm</p></li>
 <li><p>runs a general benchmark comparing <code>aorsf</code> with <code>obliqueRSF</code> and several other learners</p></li>
 <li><p>reports prediction accuracy and computational efficiency of all learners.</p></li>
-<li><p>runs a simulation study comparing variable importance techniques with ORSFs, axis based RSFs, and boosted trees.</p></li>
+<li><p>runs a simulation study comparing variable importance techniques with oblique survival RFs, axis based survival RFs, and boosted trees.</p></li>
 <li><p>reports the probability that each variable importance technique will rank a relevant variable with higher importance than an irrelevant variable.</p></li>
 </ul>
 <p>A more hands-on comparison of <code>aorsf</code> and other R packages is provided in <a href="https://docs.ropensci.org/aorsf/reference/orsf.html#tidymodels" class="external-link">orsf examples</a></p>
@@ -270,7 +266,7 @@
 <div class="section level2">
 <h2 id="funding">Funding<a class="anchor" aria-label="anchor" href="#funding"></a>
 </h2>
-<p>The developers of <code>aorsf</code> receive financial support from the Center for Biomedical Informatics, Wake Forest University School of Medicine. We also receive support from the National Center for Advancing Translational Sciences of the National Institutes of Health under Award Number UL1TR001420.</p>
+<p>The developers of <code>aorsf</code> received financial support from the Center for Biomedical Informatics, Wake Forest University School of Medicine. We also received support from the National Center for Advancing Translational Sciences of the National Institutes of Health under Award Number UL1TR001420.</p>
 <p>The content is solely the responsibility of the authors and does not necessarily represent the official views of the National Institutes of Health.</p>
 </div>
 </div>
