@@ -62,9 +62,7 @@ remotes::install_github("ropensci/aorsf")
 
 ## What is an oblique decision tree?
 
-Decision trees are developed by splitting a set of training data into two new subsets, with the goal of having more similarity within the new subsets than between them. The splitting process is repeated on resulting subsets of data until a stopping criterion is met. 
-
-When the new subsets of data are formed based on a single predictor, the decision tree is said to be *axis-based* because the splits of the data appear perpendicular to the axis of the predictor. When linear combinations of variables are used instead of a single variable, the tree is *oblique* because the splits of the data are neither parallel nor at a right angle to the axis. 
+Decision trees are grown by splitting a set of training data into non-overlapping subsets, with the goal of having more similarity within the new subsets than between them. When subsets are created with a single predictor, the decision tree is *axis-based* because the subset boundaries are perpendicular to the axis of the predictor. When linear combinations (i.e., a weighted sum) of variables are used instead of a single variable, the tree is *oblique* because the boundaries are neither parallel nor perpendicular to the axis. 
 
 **Figure**: Decision trees for classification with axis-based splitting (left) and oblique splitting (right). Cases are orange squares; controls are purple circles. Both trees partition the predictor space defined by variables X1 and X2, but the oblique splits do a better job of separating the two classes.
 

@@ -52,17 +52,14 @@ remotes::install_github("ropensci/aorsf")
 
 ## What is an oblique decision tree?
 
-Decision trees are developed by splitting a set of training data into
-two new subsets, with the goal of having more similarity within the new
-subsets than between them. The splitting process is repeated on
-resulting subsets of data until a stopping criterion is met.
-
-When the new subsets of data are formed based on a single predictor, the
-decision tree is said to be *axis-based* because the splits of the data
-appear perpendicular to the axis of the predictor. When linear
-combinations of variables are used instead of a single variable, the
-tree is *oblique* because the splits of the data are neither parallel
-nor at a right angle to the axis.
+Decision trees are grown by splitting a set of training data into
+non-overlapping subsets, with the goal of having more similarity within
+the new subsets than between them. When subsets are created with a
+single predictor, the decision tree is *axis-based* because the subset
+boundaries are perpendicular to the axis of the predictor. When linear
+combinations (i.e., a weighted sum) of variables are used instead of a
+single variable, the tree is *oblique* because the boundaries are
+neither parallel nor perpendicular to the axis.
 
 **Figure**: Decision trees for classification with axis-based splitting
 (left) and oblique splitting (right). Cases are orange squares; controls
@@ -112,10 +109,10 @@ fit
 #>                  N trees: 500
 #>       N predictors total: 17
 #>    N predictors per node: 5
-#>  Average leaves per tree: 10.198
+#>  Average leaves per tree: 10.238
 #> Min observations in leaf: 5
 #>       Min events in leaf: 1
-#>           OOB stat value: 0.84
+#>           OOB stat value: 0.83
 #>            OOB stat type: Harrell's C-index
 #>      Variable importance: anova
 #> 
@@ -149,14 +146,12 @@ using `aorsf`:
   ``` r
 
   orsf_vi_negate(fit)
-  #>          bili           sex        copper         stage           age 
-  #>  0.1152040355  0.0550384871  0.0346540451  0.0342394602  0.0212811906 
-  #>           ast       protime        hepato          chol       albumin 
-  #>  0.0189147173  0.0179113542  0.0151705980  0.0111316204  0.0107352274 
-  #>         edema       ascites       spiders          trig      alk.phos 
-  #>  0.0101276579  0.0097629480  0.0043991365  0.0031611867  0.0030722039 
-  #>           trt      platelet 
-  #>  0.0024625381 -0.0005569787
+  #>         bili          sex       copper        stage          age          ast 
+  #>  0.117180683  0.058528338  0.033761789  0.026655509  0.022144911  0.019139095 
+  #>      protime       hepato        edema      ascites      albumin         chol 
+  #>  0.016879701  0.011605852  0.010634489  0.009580159  0.008336260  0.007633992 
+  #>          trt      spiders     alk.phos         trig     platelet 
+  #>  0.002705027  0.002662017  0.002413369  0.001197399 -0.003386483
   ```
 
 - **permutation**: Each variable is assessed separately by randomly
@@ -170,14 +165,12 @@ using `aorsf`:
   ``` r
 
   orsf_vi_permute(fit)
-  #>          bili         stage        copper           age           sex 
-  #>  0.0487808290  0.0180334035  0.0178325263  0.0124277288  0.0111897854 
-  #>           ast        hepato         edema       protime       ascites 
-  #>  0.0111084077  0.0095618267  0.0082559886  0.0082473977  0.0078725536 
-  #>       albumin          chol       spiders      alk.phos          trig 
-  #>  0.0073437819  0.0057881417  0.0033941136  0.0028194077  0.0019933887 
-  #>      platelet           trt 
-  #> -0.0002101522 -0.0016860907
+  #>         bili       copper          age        stage          sex          ast 
+  #>  0.050536719  0.016394807  0.013793348  0.013204760  0.010261860  0.010101841 
+  #>        edema      ascites      protime      albumin       hepato         chol 
+  #>  0.008298456  0.008148291  0.007630773  0.006667768  0.006141770  0.002881687 
+  #>      spiders         trig     alk.phos     platelet          trt 
+  #>  0.001669604  0.001047642 -0.000301684 -0.001417230 -0.001665785
   ```
 
 - **analysis of variance (ANOVA)**<sup>3</sup>: A p-value is computed
@@ -193,12 +186,12 @@ using `aorsf`:
   ``` r
 
   orsf_vi_anova(fit)
-  #>       bili    ascites      edema        sex     copper      stage        age 
-  #> 0.48004315 0.43536122 0.38654727 0.31024531 0.29493088 0.27168950 0.26673985 
-  #>     hepato        ast    albumin    protime       chol    spiders       trig 
-  #> 0.21492921 0.20151679 0.18771331 0.18352060 0.14617169 0.13932292 0.13620489 
-  #>   alk.phos   platelet        trt 
-  #> 0.09051254 0.07011494 0.06179067
+  #>         bili       copper          age        stage          sex          ast 
+  #>  0.050536719  0.016394807  0.013793348  0.013204760  0.010261860  0.010101841 
+  #>        edema      ascites      protime      albumin       hepato         chol 
+  #>  0.008298456  0.008148291  0.007630773  0.006667768  0.006141770  0.002881687 
+  #>      spiders         trig     alk.phos     platelet          trt 
+  #>  0.001669604  0.001047642 -0.000301684 -0.001417230 -0.001665785
   ```
 
 You can supply your own R function to estimate out-of-bag error when
@@ -224,16 +217,17 @@ orsf_summarize_uni(fit, n_variables = 2)
 #> 
 #>        |---------------- Risk ----------------|
 #>  Value      Mean    Median     25th %    75th %
-#>   0.70 0.2099215 0.1262483 0.05057666 0.3160044
-#>   1.30 0.2244830 0.1472311 0.06196578 0.3369922
-#>   3.18 0.2932736 0.2263620 0.11896921 0.4424589
+#>   0.70 0.2043124 0.1288782 0.05502854 0.3130744
+#>   1.30 0.2193531 0.1430383 0.06680735 0.3352729
+#>   3.18 0.2835984 0.2210419 0.12363028 0.4313679
 #> 
-#> -- ascites (VI Rank: 2) ------------------------
+#> -- copper (VI Rank: 2) -------------------------
 #> 
 #>        |---------------- Risk ----------------|
-#>  Value      Mean    Median    25th %    75th %
-#>      0 0.2630294 0.1490837 0.0613327 0.4186542
-#>      1 0.3924844 0.3053928 0.2222267 0.5253717
+#>  Value      Mean    Median     25th %    75th %
+#>   39.0 0.2308500 0.1358346 0.05536305 0.3575617
+#>   68.0 0.2415171 0.1482876 0.06189812 0.3682164
+#>    111 0.2725110 0.1846062 0.08723814 0.4047750
 #> 
 #>  Predicted risk at time t = 1826.25 for top 2 predictors
 ```
@@ -266,7 +260,7 @@ Comparisons between `aorsf` and existing software are presented in our
   learners.
 
 - runs a simulation study comparing variable importance techniques with
-  ORSFs, axis based RSFs, and boosted trees.
+  oblique survival RFs, axis based survival RFs, and boosted trees.
 
 - reports the probability that each variable importance technique will
   rank a relevant variable with higher importance than an irrelevant
@@ -295,9 +289,9 @@ examples](https://docs.ropensci.org/aorsf/reference/orsf.html#tidymodels)
 
 ## Funding
 
-The developers of `aorsf` receive financial support from the Center for
+The developers of `aorsf` received financial support from the Center for
 Biomedical Informatics, Wake Forest University School of Medicine. We
-also receive support from the National Center for Advancing
+also received support from the National Center for Advancing
 Translational Sciences of the National Institutes of Health under Award
 Number UL1TR001420.
 

@@ -42,6 +42,7 @@ reference:
 - contents:
   - matches("^orsf_ice")
   - matches("^orsf_pd")
+  - matches("^pred_spec")
 - title: Example survival data
   desc: Datasets used in examples and vignettes.
 - contents:
