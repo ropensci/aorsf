@@ -971,11 +971,7 @@ void Forest::resize_pd_mats(std::vector<std::vector<arma::mat>>& mat_list){
   for(uword j = 0; j < n_items; ++j){
    mat result_k_j;
 
-   // if(pd_type == PD_SUMMARY){
-   //  resize_pred_mat(result_k_j, 1);
-   // } else {
    resize_pred_mat(result_k_j, data->n_rows);
-   // }
 
    result_k.push_back(result_k_j);
   }

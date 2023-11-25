@@ -264,7 +264,8 @@ check_arg_lteq <- function(arg_value, arg_name, bound, append_to_msg = NULL){
 #'   so hopefully nothing is returned.
 #'
 #' @noRd
-check_arg_is_valid <- function(arg_value, arg_name, valid_options) {
+check_arg_is_valid <- function(arg_value, arg_name, valid_options,
+                               context = NULL) {
 
  valid_arg <- arg_value %in% valid_options
 
@@ -278,8 +279,11 @@ check_arg_is_valid <- function(arg_value, arg_name, valid_options) {
                                sep = ', ',
                                last = ' or ')
 
+  # context needs an extra bit of text if it isn't null.
+  if(!is.null(context)) context <- paste0(" for ", context)
+
   error_msg <- paste0(
-   arg_name, " should be <", expected_values, ">",
+   arg_name, " should be <", expected_values, ">", context,
    " but is instead <", arg_values, ">"
   )
 

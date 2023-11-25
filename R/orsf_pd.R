@@ -1,5 +1,40 @@
 
 
+#' Automatic variable values for dependence
+#'
+#' For partial dependence and individual conditional expectations,
+#'   this function allows a variable to be considered without having
+#'   to specify what values to set the variable at. The values used
+#'   are based on quantiles for continuous variables (10th, 25th, 50th,
+#'   75th, and 90th) and unique categories for categorical variables.
+#'
+#' @param ... names of the variables to use. These can be in quotes
+#'   or not in quotes (see examples).
+#'
+#' @return a character vector with the names
+#'
+#' @details This function should only be used in the context of
+#'   `orsf_pd` or `orsf_ice` functions.
+#'
+#'
+#' @export
+#'
+#' @examples
+#'
+#' fit <- orsf(penguins_orsf, species ~., n_tree = 5)
+#'
+#' orsf_pd_oob(fit, pred_spec_auto(flipper_length_mm))
+#'
+pred_spec_auto <- function(...){
+
+ input_string <- gsub(".*\\((.*)\\).*", "\\1", match.call())[-1]
+ result <- trimws(unlist(strsplit(input_string, ",")))
+ class(result) <- c("pspec_auto", class(result))
+
+ result
+
+}
+
 
 #' ORSF partial dependence
 #'
@@ -10,7 +45,7 @@
 #' @inheritParams predict.ObliqueForest
 #'
 #'
-#' @param pred_spec (*named list* or _data.frame_).
+#' @param pred_spec (*named list* or *data.frame*).
 #'
 #'  -  If `pred_spec` is a named list,
 #'   Each item in the list should be a vector of values that will be used as
@@ -85,7 +120,7 @@ orsf_pd_oob <- function(object,
                         prob_values = c(0.025, 0.50, 0.975),
                         prob_labels = c('lwr', 'medn', 'upr'),
                         boundary_checks = TRUE,
-                        n_thread = 1,
+                        n_thread = 0,
                         ...){
 
  check_dots(list(...), orsf_pd_oob)
@@ -115,7 +150,7 @@ orsf_pd_inb <- function(object,
                         prob_values = c(0.025, 0.50, 0.975),
                         prob_labels = c('lwr', 'medn', 'upr'),
                         boundary_checks = TRUE,
-                        n_thread = 1,
+                        n_thread = 0,
                         ...){
 
  check_dots(list(...), orsf_pd_inb)
@@ -152,7 +187,7 @@ orsf_pd_new <- function(object,
                         prob_values = c(0.025, 0.50, 0.975),
                         prob_labels = c('lwr', 'medn', 'upr'),
                         boundary_checks = TRUE,
-                        n_thread = 1,
+                        n_thread = 0,
                         ...){
 
  check_dots(list(...), orsf_pd_new)
@@ -197,7 +232,7 @@ orsf_ice_oob <- function(object,
                          pred_type = NULL,
                          expand_grid = TRUE,
                          boundary_checks = TRUE,
-                         n_thread = 1,
+                         n_thread = 0,
                          ...){
 
  check_dots(list(...), orsf_ice_oob)
@@ -223,7 +258,7 @@ orsf_ice_inb <- function(object,
                          pred_type = NULL,
                          expand_grid = TRUE,
                          boundary_checks = TRUE,
-                         n_thread = 1,
+                         n_thread = 0,
                          ...){
 
  check_dots(list(...), orsf_ice_oob)
@@ -256,7 +291,7 @@ orsf_ice_new <- function(object,
                          na_action = 'fail',
                          expand_grid = TRUE,
                          boundary_checks = TRUE,
-                         n_thread = 1,
+                         n_thread = 0,
                          ...){
 
  check_dots(list(...), orsf_ice_new)
@@ -313,18 +348,18 @@ orsf_pred_dependence <- function(object,
        "did you use attach_data = FALSE when ",
        "running orsf()?", call. = FALSE)
 
- object$compute_dependence_cpp(pd_data = pd_data,
-                               pred_spec = pred_spec,
-                               pred_horizon = pred_horizon,
-                               pred_type = pred_type,
-                               na_action = na_action,
-                               expand_grid = expand_grid,
-                               prob_values = prob_values,
-                               prob_labels = prob_labels,
-                               boundary_checks = boundary_checks,
-                               n_thread = n_thread,
-                               oobag = oobag,
-                               type_output = type_output)
+ object$compute_dependence(pd_data = pd_data,
+                           pred_spec = pred_spec,
+                           pred_horizon = pred_horizon,
+                           pred_type = pred_type,
+                           na_action = na_action,
+                           expand_grid = expand_grid,
+                           prob_values = prob_values,
+                           prob_labels = prob_labels,
+                           boundary_checks = boundary_checks,
+                           n_thread = n_thread,
+                           oobag = oobag,
+                           type_output = type_output)
 
 
 }

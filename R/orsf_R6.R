@@ -1,7 +1,6 @@
 
 # TODO:
 # - add nocov to cpp
-# - compute_pd re-write
 # - automatic bounds for pd (better interface)
 # - tests for check_oobag_eval_function
 # - tests for survival forest w/no censored
@@ -423,6 +422,7 @@ ObliqueForest <- R6::R6Class(
    private$data_bounds <- NULL
   },
 
+
   predict = function(new_data,
                      pred_horizon,
                      pred_type,
@@ -563,9 +563,26 @@ ObliqueForest <- R6::R6Class(
 
    public_state <- list(data         = self$data,
                         na_action    = self$na_action,
-                        pred_horizon = self$pred_horizon)
+                        pred_horizon = self$pred_horizon,
+                        n_thread     = self$n_thread)
 
    private_state <- list(data_rows_complete = private$data_rows_complete)
+
+   # run checks before you assign new values to object.
+
+   if(inherits(pred_spec, 'pspec_auto')){
+
+    self$check_var_names(.names = pred_spec,
+                         data = private$data_names$x_original,
+                         location = "pred_spec")
+
+    pred_spec <- list_init(pred_spec)
+
+    for(i in names(pred_spec)){
+     pred_spec[[i]] <- self$get_var_bounds(i)
+    }
+
+   }
 
    self$check_boundary_checks(boundary_checks)
    self$check_pred_spec(pred_spec, boundary_checks)
@@ -585,21 +602,11 @@ ObliqueForest <- R6::R6Class(
    }
 
    # oobag=FALSE to match the format of arg in orsf_pd().
-   self$check_pred_type(pred_type, oobag = FALSE)
-
+   self$check_pred_type(pred_type, oobag = FALSE,
+                        context = 'partial dependence')
    pred_type <- pred_type %||% self$pred_type
 
    self$check_pred_horizon(pred_horizon, boundary_checks, pred_type)
-
-   pred_horizon <- pred_horizon %||% self$pred_horizon %||% 1
-
-   pred_horizon_order <- order(pred_horizon)
-   pred_horizon_ordered <- pred_horizon[pred_horizon_order]
-
-   # run checks before you assign new values to object.
-   # otherwise, if a check throws an error, the object will
-   # not be restored to its normal state.
-
 
    if(!oobag){
     self$check_data(new = TRUE, data = pd_data)
@@ -610,601 +617,20 @@ ObliqueForest <- R6::R6Class(
     self$data <- pd_data
    }
 
-   self$pred_horizon <- pred_horizon
    self$na_action <- na_action
-
-   # make a visible binding for CRAN
-   id_variable = NULL
-
-   private$init_data_rows_complete()
-   private$prep_x()
-   # y and w do not need to be prepped for prediction,
-   # but they need to match orsf_cpp()'s expectations
-   private$prep_y(placeholder = TRUE)
-   private$w <- rep(1, nrow(private$x))
-
-
-   if(oobag){ private$sort_inputs(sort_y = FALSE) }
-
-   # the values in pred_spec need to be centered & scaled to match x,
-   # which is also centered and scaled
-   means <- private$data_means
-   stdev <- private$data_stdev
-
-   for(i in intersect(names(means), names(pred_spec))){
-    pred_spec[[i]] <- (pred_spec[[i]] - means[i]) / stdev[i]
-   }
-
-   fi <- private$data_fctrs
-
-   if(expand_grid){
-
-    if(!is.data.frame(pred_spec))
-     pred_spec <- expand.grid(pred_spec, stringsAsFactors = TRUE)
-
-    for(i in seq_along(fi$cols)){
-
-     ii <- fi$cols[i]
-
-     if(is.character(pred_spec[[ii]]) && !fi$ordr[i]){
-
-      pred_spec[[ii]] <- factor(pred_spec[[ii]], levels = fi$lvls[[ii]])
-
-     }
-
-    }
-
-    check_new_data_fctrs(new_data  = pred_spec,
-                         names_x   = private$data_names$x_original,
-                         fi_ref    = fi,
-                         label_new = "pred_spec")
-
-    pred_spec_new <- ref_code(x_data = pred_spec, fi = fi,
-                              names_x_data = names(pred_spec))
-
-    x_cols <- list(match(names(pred_spec_new), colnames(private$x)))
-
-    pred_spec_new <- list(as.matrix(pred_spec_new))
-
-    pd_bind <- list(pred_spec)
-
-   } else {
-
-    pred_spec_new <- pd_bind <- x_cols <- list()
-
-    for(i in seq_along(pred_spec)){
-
-     pred_spec_new[[i]]  <- as.data.frame(pred_spec[i])
-     pd_name <- names(pred_spec)[i]
-
-     pd_bind[[i]] <- data.frame(
-      variable = pd_name,
-      value = rep(NA_real_, length(pred_spec[[i]])),
-      level = rep(NA_character_, length(pred_spec[[i]]))
-     )
-
-     if(pd_name %in% fi$cols) {
-
-      pd_bind[[i]]$level <- as.character(pred_spec[[i]])
-
-      pred_spec_new[[i]] <- ref_code(pred_spec_new[[i]],
-                                     fi = fi,
-                                     names_x_data = pd_name)
-
-     } else {
-
-      pd_bind[[i]]$value <- pred_spec[[i]]
-
-     }
-
-     x_cols[[i]] <- match(names(pred_spec_new[[i]]), colnames(private$x))
-     pred_spec_new[[i]] <- as.matrix(pred_spec_new[[i]])
-
-    }
-
-   }
-
-
-
-   cpp_args <- private$prep_cpp_args(x = private$x,
-                                     y = private$y,
-                                     w = private$w,
-                                     importance_type = 'none',
-                                     pred_type = pred_type,
-                                     pred_mode = TRUE,
-                                     pred_aggregate = TRUE,
-                                     pred_horizon = pred_horizon_ordered,
-                                     oobag = oobag,
-                                     oobag_eval_type = 'none',
-                                     n_thread = n_thread,
-                                     write_forest = FALSE,
-                                     run_forest = TRUE,
-                                     verbosity = 0)
-
-
-   pd_vals <- list()
-
-   for(i in seq_along(pred_spec_new)){
-
-    pd_vals_i <- list()
-
-    x_pd <- private$x
-
-    for(j in seq(nrow(pred_spec_new[[i]]))){
-
-     x_pd[, x_cols[[i]]] <- pred_spec_new[[i]][j, ]
-
-     cpp_args$x <- x_pd
-
-     pd_vals_i[[j]] <- do.call(orsf_cpp, cpp_args)$pred_new
-
-    }
-
-    if(type_output == 'smry'){
-     pd_vals_i <- lapply(
-      pd_vals_i,
-      function(x) {
-       apply(x, 2, function(x_col){
-        as.numeric(
-         c(mean(x_col, na.rm = TRUE),
-           quantile(x_col, probs = prob_values, na.rm = TRUE))
-        )
-       })
-      }
-     )
-    }
-
-
-    pd_vals[[i]] <- pd_vals_i
-
-   }
-
-   for(i in seq_along(pd_vals)){
-
-    pd_bind[[i]]$id_variable <- seq(nrow(pd_bind[[i]]))
-
-    for(j in seq_along(pd_vals[[i]])){
-
-
-     pd_vals[[i]][[j]]
-
-     if(self$tree_type == 'survival'){
-
-      pd_vals[[i]][[j]] <- matrix(pd_vals[[i]][[j]],
-                                  nrow=length(pred_horizon),
-                                  byrow = T)
-
-      rownames(pd_vals[[i]][[j]]) <- pred_horizon
-
-     } else {
-
-      pd_vals[[i]][[j]] <- t(pd_vals[[i]][[j]])
-
-      if(self$tree_type == 'classification'){
-       rownames(pd_vals[[i]][[j]]) <- self$class_levels
-      }
-
-     }
-
-     if(type_output=='smry')
-      colnames(pd_vals[[i]][[j]]) <- c('mean', prob_labels)
-     else
-      colnames(pd_vals[[i]][[j]]) <- c(paste(1:nrow(private$x)))
-
-     # this will be null for non-survival objects
-     ph <- rownames(pd_vals[[i]][[j]])
-
-     pd_vals[[i]][[j]] <- as.data.frame(pd_vals[[i]][[j]])
-
-     rownames(pd_vals[[i]][[j]]) <- NULL
-
-     pd_vals[[i]][[j]][['pred_horizon']] <- ph
-
-     if(type_output == 'ice'){
-
-      pd_vals[[i]][[j]] <- melt_aorsf(
-       data = pd_vals[[i]][[j]],
-       id.vars = 'pred_horizon',
-       variable.name = 'id_row',
-       value.name = 'pred',
-       measure.vars = setdiff(names(pd_vals[[i]][[j]]), 'pred_horizon'))
-
-     }
-
-
-    }
-
-    pd_vals[[i]] <- rbindlist(pd_vals[[i]], idcol = 'id_variable')
-
-    # this seems awkward but the reason I convert back to data.frame
-    # here is to avoid a potential memory leak from forder & bmerge.
-    # I have no idea why this memory leak may be occurring but it does
-    # not if I apply merge.data.frame instead of merge.data.table
-    pd_vals[[i]] <- merge(as.data.frame(pd_vals[[i]]),
-                          as.data.frame(pd_bind[[i]]),
-                          by = 'id_variable')
-
-   }
-
-   out <- rbindlist(pd_vals)
-
-   # # missings may occur when oobag=TRUE and n_tree is small
-   # if(type_output == 'ice') {
-   #  out <- collapse::na_omit(out, cols = 'pred')
-   # }
-
-   ids <- c('id_variable')
-
-   if(type_output == 'ice') ids <- c(ids, 'id_row')
-
-   mid <- setdiff(names(out), c(ids, 'mean', prob_labels, 'pred'))
-
-   end <- setdiff(names(out), c(ids, mid))
-
-   setcolorder(out, neworder = c(ids, mid, end))
-
-   if(self$tree_type == 'classification'){
-    setnames(out, old = 'pred_horizon', new = 'class')
-    out[, class := factor(class, levels = self$class_levels)]
-    setkey(out, class)
-   }
-
-   if(self$tree_type == 'survival' && pred_type != 'mort')
-    out[, pred_horizon := as.numeric(pred_horizon)]
-
-   if(pred_type == 'mort'){
-    out[, pred_horizon := NULL]
-   }
-
-   # not needed for summary
-   if(type_output == 'smry')
-    out[, id_variable := NULL]
-
-   # put data back into original scale
-   for(j in intersect(names(means), names(pred_spec))){
-
-    if(j %in% names(out)){
-
-     var_index <- collapse::seq_row(out)
-     var_value <- (out[[j]] * stdev[j]) + means[j]
-     var_name  <- j
-
-    } else {
-
-     var_index <- out$variable %==% j
-     var_value <- (out$value[var_index] * stdev[j]) + means[j]
-     var_name  <- 'value'
-
-    }
-
-    set(out, i = var_index, j = var_name, value = var_value)
-
-   }
-
-   # silent print after modify in place
-   out[]
-
-   private$restore_state(public_state, private_state)
-
-   # free up space
-   private$x <- NULL
-   private$y <- NULL
-   private$w <- NULL
-
-   out
-
-
-  },
-
-  compute_dependence_cpp = function(pd_data,
-                                    pred_spec,
-                                    pred_horizon,
-                                    pred_type,
-                                    na_action,
-                                    expand_grid,
-                                    prob_values,
-                                    prob_labels,
-                                    boundary_checks,
-                                    n_thread,
-                                    oobag,
-                                    type_output){
-
-   public_state <- list(data         = self$data,
-                        na_action    = self$na_action,
-                        pred_horizon = self$pred_horizon)
-
-   private_state <- list(data_rows_complete = private$data_rows_complete)
-
-   self$check_boundary_checks(boundary_checks)
-   self$check_pred_spec(pred_spec, boundary_checks)
-   self$check_n_thread(n_thread)
-   self$check_expand_grid(expand_grid)
-   self$check_oobag_pred_mode(oobag, label = 'oobag')
-
-   prob_values <- prob_values %||% c(0.025, 0.50, 0.975)
-   prob_labels <- prob_labels %||% c('lwr', 'medn', 'upr')
-
-   self$check_prob_values(prob_values)
-   self$check_prob_labels(prob_labels)
-
-   if(length(prob_values) != length(prob_labels)){
-    stop("prob_values and prob_labels must have the same length.",
-         call. = FALSE)
-   }
-
-   # oobag=FALSE to match the format of arg in orsf_pd().
-   self$check_pred_type(pred_type, oobag = FALSE)
-
-   pred_type <- pred_type %||% self$pred_type
-
-   self$check_pred_horizon(pred_horizon, boundary_checks, pred_type)
-
-   pred_horizon <- pred_horizon %||% self$pred_horizon %||% 1
-
-   pred_horizon_order <- order(pred_horizon)
-   pred_horizon_ordered <- pred_horizon[pred_horizon_order]
-
-   # run checks before you assign new values to object.
-   # otherwise, if a check throws an error, the object will
-   # not be restored to its normal state.
-
-
-   if(!oobag){
-    self$check_data(new = TRUE, data = pd_data)
-    # say new = FALSE to prevent na_action = 'pass'
-    self$check_na_action(new = FALSE, na_action = na_action)
-    self$check_var_missing(new = TRUE, data = pd_data, na_action)
-    self$check_units(data = pd_data)
-    self$data <- pd_data
-   }
-
-   self$pred_horizon <- pred_horizon
-   self$na_action <- na_action
-
-   # make a visible binding for CRAN
-   id_variable = NULL
-
-   private$init_data_rows_complete()
-   private$prep_x()
-   # y and w do not need to be prepped for prediction,
-   # but they need to match orsf_cpp()'s expectations
-   private$prep_y(placeholder = TRUE)
-   private$w <- rep(1, nrow(private$x))
-
-   if(oobag){ private$sort_inputs(sort_y = FALSE) }
-
-   # the values in pred_spec need to be centered & scaled to match x,
-   # which is also centered and scaled
-   means <- private$data_means
-   stdev <- private$data_stdev
-
-   for(i in intersect(names(means), names(pred_spec))){
-    pred_spec[[i]] <- (pred_spec[[i]] - means[i]) / stdev[i]
-   }
-
-   fi <- private$data_fctrs
-
-   if(expand_grid){
-
-    if(!is.data.frame(pred_spec))
-     pred_spec <- expand.grid(pred_spec, stringsAsFactors = TRUE)
-
-    for(i in seq_along(fi$cols)){
-
-     ii <- fi$cols[i]
-
-     if(is.character(pred_spec[[ii]]) && !fi$ordr[i]){
-
-      pred_spec[[ii]] <- factor(pred_spec[[ii]], levels = fi$lvls[[ii]])
-
-     }
-
-    }
-
-    check_new_data_fctrs(new_data  = pred_spec,
-                         names_x   = private$data_names$x_original,
-                         fi_ref    = fi,
-                         label_new = "pred_spec")
-
-    pred_spec_new <- ref_code(x_data = pred_spec, fi = fi,
-                              names_x_data = names(pred_spec))
-
-    x_cols <- list(match(names(pred_spec_new), colnames(private$x))-1)
-
-    pred_spec_new <- list(as.matrix(pred_spec_new))
-
-    pd_bind <- list(pred_spec)
-
-   } else {
-
-    pred_spec_new <- pd_bind <- x_cols <- list()
-
-    for(i in seq_along(pred_spec)){
-
-     pred_spec_new[[i]]  <- as.data.frame(pred_spec[i])
-     pd_name <- names(pred_spec)[i]
-
-     pd_bind[[i]] <- data.frame(
-      variable = pd_name,
-      value = rep(NA_real_, length(pred_spec[[i]])),
-      level = rep(NA_character_, length(pred_spec[[i]]))
-     )
-
-     if(pd_name %in% fi$cols) {
-
-      pd_bind[[i]]$level <- as.character(pred_spec[[i]])
-
-      pred_spec_new[[i]] <- ref_code(pred_spec_new[[i]],
-                                     fi = fi,
-                                     names_x_data = pd_name)
-
-     } else {
-
-      pd_bind[[i]]$value <- pred_spec[[i]]
-
-     }
-
-     x_cols[[i]] <- match(names(pred_spec_new[[i]]), colnames(private$x)) - 1
-     pred_spec_new[[i]] <- as.matrix(pred_spec_new[[i]])
-
-    }
-
-   }
-
-   cpp_args <- private$prep_cpp_args(x = private$x,
-                                     y = private$y,
-                                     w = private$w,
-                                     importance_type = 'none',
-                                     pred_type = pred_type,
-                                     pred_mode = FALSE,
-                                     pred_aggregate = TRUE,
-                                     pred_horizon = pred_horizon_ordered,
-                                     oobag = oobag,
-                                     oobag_eval_type = 'none',
-                                     n_thread = n_thread,
-                                     pd_type_R = switch(type_output,
-                                                        "smry" = 1L,
-                                                        "ice" = 2L),
-                                     pd_x_vals = pred_spec_new,
-                                     pd_x_cols = x_cols,
-                                     pd_probs = prob_values,
-                                     write_forest = FALSE,
-                                     run_forest = TRUE)
-
-   pd_vals <- do.call(orsf_cpp, cpp_args)$pd_values
-
-   row_delim <- switch(self$tree_type,
-                       "survival" = pred_horizon_ordered,
-                       "regression" = 1,
-                       "classification" = self$class_levels)
-
-   row_delim_label <- switch(self$tree_type,
-                             "survival" = "pred_horizon",
-                             "regression" = "pred_row",
-                             "classification" = "class")
-
-   for(i in seq_along(pd_vals)){
-
-    pd_bind[[i]]$id_variable <- seq(nrow(pd_bind[[i]]))
-
-    for(j in seq_along(pd_vals[[i]])){
-
-     pd_vals[[i]][[j]] <- matrix(pd_vals[[i]][[j]],
-                                 nrow=length(row_delim),
-                                 byrow = T)
-
-     rownames(pd_vals[[i]][[j]]) <- row_delim
-
-
-     if(type_output=='smry'){
-
-      pd_vals[[i]][[j]] <- t(
-       apply(
-        X = pd_vals[[i]][[j]],
-        MARGIN = 1,
-        function(x, p){
-         c(collapse::fmean(x), stats::quantile(x, p, na.rm=TRUE))
-        },
-        prob_values
-       )
-      )
-
-      colnames(pd_vals[[i]][[j]]) <- c('mean', prob_labels)
-
-     } else {
-
-      colnames(pd_vals[[i]][[j]]) <- c(paste(1:nrow(private$x)))
-
-     }
-
-     pd_vals[[i]][[j]] <- as.data.table(pd_vals[[i]][[j]],
-                                        keep.rownames = row_delim_label)
-
-     if(type_output == 'ice'){
-
-      measure.vars <- setdiff(names(pd_vals[[i]][[j]]), row_delim_label)
-
-      pd_vals[[i]][[j]] <- melt_aorsf(data = pd_vals[[i]][[j]],
-                                      id.vars = row_delim_label,
-                                      variable.name = 'id_row',
-                                      value.name = 'pred',
-                                      measure.vars = measure.vars)
-
-     }
-
-    }
-
-    pd_vals[[i]] <- rbindlist(pd_vals[[i]], idcol = 'id_variable')
-
-    # this seems awkward but the reason I convert back to data.frame
-    # here is to avoid a potential memory leak from forder & bmerge.
-    # I have no idea why this memory leak may be occurring but it does
-    # not if I apply merge.data.frame instead of merge.data.table
-    pd_vals[[i]] <- merge(as.data.frame(pd_vals[[i]]),
-                          as.data.frame(pd_bind[[i]]),
-                          by = 'id_variable')
-
-   }
-
-   out <- rbindlist(pd_vals)
-
-   # missings may occur when oobag=TRUE and n_tree is small
-   if(type_output == 'ice') {
-    out <- collapse::na_omit(out, cols = 'pred')
-   }
-
-   ids <- c('id_variable')
-
-   if(type_output == 'ice') ids <- c(ids, 'id_row')
-
-   mid <- setdiff(names(out), c(ids, 'mean', prob_labels, 'pred'))
-
-   end <- setdiff(names(out), c(ids, mid))
-
-   setcolorder(out, neworder = c(ids, mid, end))
-
-   if(self$tree_type == 'classification'){
-    out[, class := factor(class, levels = self$class_levels)]
-    setkey(out, class)
-   }
-
-   if(self$tree_type == 'survival' && pred_type != 'mort')
-    out[, pred_horizon := as.numeric(pred_horizon)]
-
-   if(self$tree_type == 'regression'){
-    out[, pred_row := NULL]
-   }
-
-   if(pred_type == 'mort')
-    out[, pred_horizon := NULL]
-
-   # not needed for summary
-   if(type_output == 'smry')
-    out[, id_variable := NULL]
-
-   # put data back into original scale
-   for(j in intersect(names(means), names(pred_spec))){
-
-    if(j %in% names(out)){
-
-     var_index <- collapse::seq_row(out)
-     var_value <- (out[[j]] * stdev[j]) + means[j]
-     var_name  <- j
-
-    } else {
-
-     var_index <- out$variable %==% j
-     var_value <- (out$value[var_index] * stdev[j]) + means[j]
-     var_name  <- 'value'
-
-    }
-
-    set(out, i = var_index, j = var_name, value = var_value)
-
-   }
-
-   # silent print after modify in place
-   out[]
+   self$n_thread <- n_thread
+
+   out <- try(
+    private$compute_dependence_internal(pred_spec = pred_spec,
+                                        pred_type = pred_type,
+                                        pred_horizon = pred_horizon,
+                                        type_output = type_output,
+                                        expand_grid = expand_grid,
+                                        prob_labels = prob_labels,
+                                        prob_values = prob_values,
+                                        oobag = oobag),
+    silent = FALSE
+   )
 
    private$restore_state(public_state, private_state)
 
@@ -1306,7 +732,8 @@ ObliqueForest <- R6::R6Class(
     self$check_pred_horizon(pred_horizon, boundary_checks = TRUE)
    }
 
-   self$check_pred_type(pred_type, oobag = FALSE)
+   self$check_pred_type(pred_type, oobag = FALSE,
+                        context = 'partial dependence')
    self$check_importance_type(importance_type)
 
    names_x <- private$data_names$x_original
@@ -1426,7 +853,7 @@ ObliqueForest <- R6::R6Class(
   get_var_bounds = function(.name){
 
    if(.name %in% private$data_names$x_numeric)
-    return(private$data_bounds[, .name])
+    return(as.numeric(private$data_bounds[, .name]))
    else
     return(private$data_fctrs$lvls[[.name]])
 
@@ -1542,15 +969,23 @@ ObliqueForest <- R6::R6Class(
   },
 
 
-  check_var_names = function(.names, data = NULL){
+  check_var_names = function(.names,
+                             data = NULL,
+                             location = "formula"){
 
    data <- data %||% self$data
 
-   names_not_found <- setdiff(c(.names), names(data))
+   if(is.character(data)){
+    data_names <- data
+   } else {
+    data_names <- names(data)
+   }
+
+   names_not_found <- setdiff(c(.names), data_names)
 
    if(!is_empty(names_not_found)){
     msg <- paste0(
-     "variables in formula were not found in data: ",
+     "variables in ", location, " were not found in data: ",
      paste_collapse(names_not_found, last = ' and ')
     )
     stop(msg, call. = FALSE)
@@ -1565,7 +1000,9 @@ ObliqueForest <- R6::R6Class(
    check_new_data_names(new_data,
                         ref_names = private$data_names$x_original,
                         label_new = "new_data",
-                        label_ref = 'training data')
+                        label_ref = 'training data',
+                        check_new_in_ref = check_new_in_ref,
+                        check_ref_in_new = check_ref_in_new)
 
 
   },
@@ -2083,7 +1520,7 @@ ObliqueForest <- R6::R6Class(
   },
 
   # must specify oobag when you call this to make sure it isn't forgotten
-  check_pred_type = function(pred_type = NULL, oobag){
+  check_pred_type = function(pred_type = NULL, oobag, context = NULL){
 
    input <- pred_type %||% self$pred_type
 
@@ -2100,7 +1537,9 @@ ObliqueForest <- R6::R6Class(
                      arg_name = arg_name,
                      expected_length = 1)
 
-    self$check_pred_type_internal(oobag, pred_type)
+    self$check_pred_type_internal(oobag = oobag,
+                                  pred_type = pred_type,
+                                  context = context)
 
    }
 
@@ -2990,6 +2429,268 @@ ObliqueForest <- R6::R6Class(
 
   },
 
+  compute_dependence_internal = function(pred_spec,
+                                         pred_type,
+                                         pred_horizon = NULL,
+                                         type_output,
+                                         prob_labels,
+                                         prob_values,
+                                         expand_grid,
+                                         oobag){
+
+   # make a visible binding for CRAN
+   id_variable = NULL
+
+   pred_horizon <- pred_horizon %||% self$pred_horizon %||% 1
+   pred_horizon_order <- order(pred_horizon)
+   pred_horizon_ordered <- pred_horizon[pred_horizon_order]
+
+
+   private$init_data_rows_complete()
+   private$prep_x()
+   # y and w do not need to be prepped for prediction,
+   # but they need to match orsf_cpp()'s expectations
+   private$prep_y(placeholder = TRUE)
+   private$w <- rep(1, nrow(private$x))
+
+   if(oobag){ private$sort_inputs(sort_y = FALSE) }
+
+   # the values in pred_spec need to be centered & scaled to match x,
+   # which is also centered and scaled
+   means <- private$data_means
+   stdev <- private$data_stdev
+
+   for(i in intersect(names(means), names(pred_spec))){
+    pred_spec[[i]] <- (pred_spec[[i]] - means[i]) / stdev[i]
+   }
+
+   fi <- private$data_fctrs
+
+   if(expand_grid){
+
+    if(!is.data.frame(pred_spec))
+     pred_spec <- expand.grid(pred_spec, stringsAsFactors = TRUE)
+
+    for(i in seq_along(fi$cols)){
+
+     ii <- fi$cols[i]
+
+     if(is.character(pred_spec[[ii]]) && !fi$ordr[i]){
+
+      pred_spec[[ii]] <- factor(pred_spec[[ii]], levels = fi$lvls[[ii]])
+
+     }
+
+    }
+
+    check_new_data_fctrs(new_data  = pred_spec,
+                         names_x   = private$data_names$x_original,
+                         fi_ref    = fi,
+                         label_new = "pred_spec")
+
+    pred_spec_new <- ref_code(x_data = pred_spec, fi = fi,
+                              names_x_data = names(pred_spec))
+
+    x_cols <- list(match(names(pred_spec_new), colnames(private$x))-1)
+
+    pred_spec_new <- list(as.matrix(pred_spec_new))
+
+    pd_bind <- list(pred_spec)
+
+   } else {
+
+    pred_spec_new <- pd_bind <- x_cols <- list()
+
+    for(i in seq_along(pred_spec)){
+
+     pred_spec_new[[i]]  <- as.data.frame(pred_spec[i])
+     pd_name <- names(pred_spec)[i]
+
+     pd_bind[[i]] <- data.frame(
+      variable = pd_name,
+      value = rep(NA_real_, length(pred_spec[[i]])),
+      level = rep(NA_character_, length(pred_spec[[i]]))
+     )
+
+     if(pd_name %in% fi$cols) {
+
+      pd_bind[[i]]$level <- as.character(pred_spec[[i]])
+
+      pred_spec_new[[i]] <- ref_code(pred_spec_new[[i]],
+                                     fi = fi,
+                                     names_x_data = pd_name)
+
+     } else {
+
+      pd_bind[[i]]$value <- pred_spec[[i]]
+
+     }
+
+     x_cols[[i]] <- match(names(pred_spec_new[[i]]), colnames(private$x)) - 1
+     pred_spec_new[[i]] <- as.matrix(pred_spec_new[[i]])
+
+    }
+
+   }
+
+   cpp_args <- private$prep_cpp_args(x = private$x,
+                                     y = private$y,
+                                     w = private$w,
+                                     importance_type = 'none',
+                                     pred_type = pred_type,
+                                     pred_mode = FALSE,
+                                     pred_aggregate = TRUE,
+                                     pred_horizon = pred_horizon_ordered,
+                                     oobag = oobag,
+                                     oobag_eval_type = 'none',
+                                     pd_type_R = switch(type_output,
+                                                        "smry" = 1L,
+                                                        "ice" = 2L),
+                                     pd_x_vals = pred_spec_new,
+                                     pd_x_cols = x_cols,
+                                     pd_probs = prob_values,
+                                     write_forest = FALSE,
+                                     run_forest = TRUE)
+
+   pd_vals <- do.call(orsf_cpp, cpp_args)$pd_values
+
+   row_delim <- switch(self$tree_type,
+                       "survival" = pred_horizon_ordered,
+                       "regression" = 1,
+                       "classification" = self$class_levels)
+
+   row_delim_label <- switch(self$tree_type,
+                             "survival" = "pred_horizon",
+                             "regression" = "pred_row",
+                             "classification" = "class")
+
+   for(i in seq_along(pd_vals)){
+
+    pd_bind[[i]]$id_variable <- seq(nrow(pd_bind[[i]]))
+
+    for(j in seq_along(pd_vals[[i]])){
+
+     pd_vals[[i]][[j]] <- matrix(pd_vals[[i]][[j]],
+                                 nrow=length(row_delim),
+                                 byrow = T)
+
+     rownames(pd_vals[[i]][[j]]) <- row_delim
+
+
+     if(type_output=='smry'){
+
+      pd_vals[[i]][[j]] <- t(
+       apply(
+        X = pd_vals[[i]][[j]],
+        MARGIN = 1,
+        function(x, p){
+         c(collapse::fmean(x), stats::quantile(x, p, na.rm=TRUE))
+        },
+        prob_values
+       )
+      )
+
+      colnames(pd_vals[[i]][[j]]) <- c('mean', prob_labels)
+
+     } else {
+
+      colnames(pd_vals[[i]][[j]]) <- c(paste(1:nrow(private$x)))
+
+     }
+
+     pd_vals[[i]][[j]] <- as.data.table(pd_vals[[i]][[j]],
+                                        keep.rownames = row_delim_label)
+
+     if(type_output == 'ice'){
+
+      measure.vars <- setdiff(names(pd_vals[[i]][[j]]), row_delim_label)
+
+      pd_vals[[i]][[j]] <- melt_aorsf(data = pd_vals[[i]][[j]],
+                                      id.vars = row_delim_label,
+                                      variable.name = 'id_row',
+                                      value.name = 'pred',
+                                      measure.vars = measure.vars)
+
+     }
+
+    }
+
+    pd_vals[[i]] <- rbindlist(pd_vals[[i]], idcol = 'id_variable')
+
+    # this seems awkward but the reason I convert back to data.frame
+    # here is to avoid a potential memory leak from forder & bmerge.
+    # I have no idea why this memory leak may be occurring but it does
+    # not if I apply merge.data.frame instead of merge.data.table
+    pd_vals[[i]] <- merge(as.data.frame(pd_vals[[i]]),
+                          as.data.frame(pd_bind[[i]]),
+                          by = 'id_variable')
+
+   }
+
+   out <- rbindlist(pd_vals)
+
+   # missings may occur when oobag=TRUE and n_tree is small
+   if(type_output == 'ice') {
+    out <- collapse::na_omit(out, cols = 'pred')
+   }
+
+   ids <- c('id_variable')
+
+   if(type_output == 'ice') ids <- c(ids, 'id_row')
+
+   mid <- setdiff(names(out), c(ids, 'mean', prob_labels, 'pred'))
+
+   end <- setdiff(names(out), c(ids, mid))
+
+   setcolorder(out, neworder = c(ids, mid, end))
+
+   if(self$tree_type == 'classification'){
+    out[, class := factor(class, levels = self$class_levels)]
+    setkey(out, class)
+   }
+
+   if(self$tree_type == 'survival' && pred_type != 'mort')
+    out[, pred_horizon := as.numeric(pred_horizon)]
+
+   if(self$tree_type == 'regression'){
+    out[, pred_row := NULL]
+   }
+
+   if(pred_type == 'mort')
+    out[, pred_horizon := NULL]
+
+   # not needed for summary
+   if(type_output == 'smry')
+    out[, id_variable := NULL]
+
+   # put data back into original scale
+   for(j in intersect(names(means), names(pred_spec))){
+
+    if(j %in% names(out)){
+
+     var_index <- collapse::seq_row(out)
+     var_value <- (out[[j]] * stdev[j]) + means[j]
+     var_name  <- j
+
+    } else {
+
+     var_index <- out$variable %==% j
+     var_value <- (out$value[var_index] * stdev[j]) + means[j]
+     var_name  <- 'value'
+
+    }
+
+    set(out, i = var_index, j = var_name, value = var_value)
+
+   }
+
+   # silent print after modify in place
+   out[]
+
+   out
+
+  },
+
   # preppers
 
   prep_x = function(){
@@ -3297,16 +2998,29 @@ ObliqueForestSurvival <- R6::R6Class(
                       valid_options = c("logrank", "cstat"))
 
   },
-  check_pred_type_internal = function(oobag, pred_type = NULL){
+  check_pred_type_internal = function(oobag,
+                                      pred_type = NULL,
+                                      context = NULL){
 
    input <- pred_type %||% self$pred_type
 
    arg_name <- if(oobag) 'oobag_pred_type' else 'pred_type'
 
+   if(is.null(context)){
+    valid_options <- c("none", "surv", "risk", "chf", "mort", "leaf")
+   } else {
+    valid_options <- switch(
+     context,
+     'partial dependence' = c("surv", "risk", "chf", "mort"),
+     'prediction' = c("surv", "risk", "chf", "mort", "leaf")
+    )
+    context <- paste(context, 'with survival forests')
+   }
+
    check_arg_is_valid(arg_value = input,
                       arg_name = arg_name,
-                      valid_options = c("none", "surv", "risk",
-                                        "chf", "mort", "leaf"))
+                      valid_options = valid_options,
+                      context = context)
 
   },
 
@@ -3845,15 +3559,29 @@ ObliqueForestClassification <- R6::R6Class(
                       valid_options = c("gini", "cstat"))
 
   },
-  check_pred_type_internal = function(oobag, pred_type = NULL){
+  check_pred_type_internal = function(oobag,
+                                      pred_type = NULL,
+                                      context = NULL){
 
    input <- pred_type %||% self$pred_type
 
    arg_name <- if(oobag) 'oobag_pred_type' else 'pred_type'
 
+   if(is.null(context)){
+    valid_options <- c("none", "prob", "class", "leaf")
+   } else {
+    valid_options <- switch(
+     context,
+     'partial dependence' = c("prob"),
+     'prediction' = c("prob", "class", "leaf")
+    )
+    context <- paste(context, 'with classification forests')
+   }
+
    check_arg_is_valid(arg_value = input,
                       arg_name = arg_name,
-                      valid_options = c("none", "prob", "class", "leaf"))
+                      valid_options = valid_options,
+                      context = context)
 
   },
 
@@ -4089,15 +3817,29 @@ ObliqueForestRegression <- R6::R6Class(
 
   },
 
-  check_pred_type_internal = function(oobag, pred_type = NULL){
+  check_pred_type_internal = function(oobag,
+                                      pred_type = NULL,
+                                      context = NULL){
 
    input <- pred_type %||% self$pred_type
 
    arg_name <- if(oobag) 'oobag_pred_type' else 'pred_type'
 
+   if(is.null(context)){
+    valid_options <- c("none", "mean", "leaf")
+   } else {
+    valid_options <- switch(
+     context,
+     'partial dependence' = c("mean"),
+     'prediction' = c("mean", "leaf")
+    )
+    context <- paste(context, 'with regression forests')
+   }
+
    check_arg_is_valid(arg_value = input,
                       arg_name = arg_name,
-                      valid_options = c("none", "mean", "leaf"))
+                      valid_options = valid_options,
+                      context = context)
 
   },
 

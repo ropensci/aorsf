@@ -89,9 +89,21 @@ You can compute PD three ways with `aorsf`:
 
 - in-bag PD indicates relationships that the model has learned during training. This is helpful if your goal is to interpret the model.
 
-- out-of-bag PD indicates relationships that the model has learned during training but using the out-of-bag data simulates application of the model to new data. if you want to test your model's reliability or fairness in new data but you don't have access to a large testing set.
+- out-of-bag PD indicates relationships that the model has learned during training but using the out-of-bag data simulates application of the model to new data. This is helpful if you want to test your model's reliability or fairness in new data but you don't have access to a large testing set.
 
 - new data PD shows how the model predicts outcomes for observations it has not seen. This is helpful if you want to test your model's reliability or fairness.
+
+## Automatic variable values
+
+Use `pred_spec_auto()` if you know the variables you want to check out but you don't have a specific set of values in mind:
+
+```{r}
+
+orsf_pd_inb(fit, pred_spec_auto(bili))
+
+```
+
+`pred_spec_auto()` lets you specify a variable in your model with or without quotes, and then assign values for that variable on your behalf. For continuous variables, it uses quantiles (10, 25, 50, 75, and 90). For nominal variables, it uses unique categories.
 
 Let's re-fit our ORSF model to all available data before proceeding to the next sections.
 
@@ -112,7 +124,7 @@ Computing PD for a single variable is straightforward:
 
 ```{r}
 
-pd_sex <- orsf_pd_oob(fit, pred_spec = list(sex = c("m", "f")))
+pd_sex <- orsf_pd_oob(fit, pred_spec = pred_spec_auto(sex))
 
 pd_sex
 
@@ -126,7 +138,7 @@ What if the effect of a predictor varies over time? PD can show this.
 
 ```{r}
 
-pd_sex_tv <- orsf_pd_oob(fit, pred_spec = list(sex = c("m", "f")),
+pd_sex_tv <- orsf_pd_oob(fit, pred_spec = pred_spec_auto(sex),
                          pred_horizon = seq(365, 365*5))
 
 ggplot(pd_sex_tv, aes(x = pred_horizon, y = mean, color = sex)) + 
@@ -162,14 +174,14 @@ If you want to compute PD marginally for multiple variables, just list the varia
 
 pd_two_vars <-  
  orsf_pd_oob(fit,
-             pred_spec = list(sex = c("m", "f"), bili = 1:5),
+             pred_spec = pred_spec_auto(sex, bili),
              expand_grid = FALSE)
 
 pd_two_vars
 
 ```
 
-Now would it be tedious if you wanted to do this for all the variables? You bet. That's why we made a function for that. As a bonus, the printed output is sorted from most to least important variables.
+To get a view of partial dependence for any number of variables in the training data, use `orsf_summarize_uni()`. This function computes out-of-bag PD for the most important `n_variables` and returns a nicely formatted view of the output:
 
 ```{r}
 
@@ -179,7 +191,7 @@ pd_smry
 
 ```
 
-It's easy enough to turn this 'summary' object into a `data.table` for downstream plotting and tables.
+This 'summary' object can be converted into a `data.table` for downstream plotting and tables.
 
 ```{r}
 
@@ -194,9 +206,7 @@ PD can show the expected value of a model's predictions as a function of a speci
 
 ```{r}
 
-pred_spec = list(bili = seq(1, 5, length.out = 20),
-                 edema = levels(pbc_orsf_train$edema),
-                 trt = levels(pbc_orsf$trt))
+pred_spec = pred_spec_auto(bili, edema, trt)
 
 pd_bili_edema <- orsf_pd_oob(fit, pred_spec)
 

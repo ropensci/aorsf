@@ -51,7 +51,7 @@ orsf_control_fast <- function(method = 'efron',
 
  method <- tolower(method)
 
- check_control_cph(method = method, do_scale = do_scale)
+ # check_control_cph(method = method, do_scale = do_scale)
 
  ties_method <- method
 
@@ -126,9 +126,9 @@ orsf_control_cph <- function(method = 'efron',
 
  check_dots(list(...), orsf_control_cph)
 
- check_control_cph(method = method,
-                   eps = eps,
-                   iter_max = iter_max)
+ # check_control_cph(method = method,
+ #                   eps = eps,
+ #                   iter_max = iter_max)
 
  ties_method <- method
 
@@ -188,7 +188,7 @@ orsf_control_net <- function(alpha = 1/2,
  )
 
  check_dots(list(...), orsf_control_net)
- check_control_net(alpha, df_target)
+ # check_control_net(alpha, df_target)
 
  orsf_control(tree_type = 'unknown',
               method = 'net',

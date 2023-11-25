@@ -1,4 +1,238 @@
 
+funs <- list(
+ pd_new = orsf_pd_new,
+ pd_inb = orsf_pd_inb,
+ pd_oob = orsf_pd_oob,
+ ice_new = orsf_ice_new,
+ ice_inb = orsf_ice_inb,
+ ice_oob = orsf_ice_oob
+)
+
+# survival ----
+
+args_loop <- args_grid <- list(
+ object = fit_standard_pbc$fast,
+ pred_spec = pred_spec_auto(bili, sex),
+ new_data = pbc_test,
+ pred_horizon = 1000,
+ pred_type = 'risk',
+ expand_grid = TRUE
+)
+
+args_loop$expand_grid <- FALSE
+
+for(i in seq_along(funs)){
+
+ f_name <- names(funs)[i]
+
+ formals <- intersect(setdiff(names(formals(funs[[i]])), '...'),
+                      names(args_grid))
+
+ for(pred_type in setdiff(pred_types_surv, c('leaf'))){
+
+  args_grid$pred_type = pred_type
+  args_loop$pred_type = pred_type
+
+  pd_object_grid <- do.call(funs[[i]], args = args_grid[formals])
+  pd_object_loop <- do.call(funs[[i]], args = args_loop[formals])
+
+  test_that(
+   desc = paste('pred_spec data are returned on the original scale',
+                ' for orsf_', f_name, sep = ''),
+   code = {
+
+    expect_equal(unique(pd_object_grid$bili),
+                 args_grid$object$get_var_bounds('bili'))
+
+    expect_equal(unique(na.omit(pd_object_loop$value)),
+                 args_grid$object$get_var_bounds('bili'))
+
+   }
+  )
+
+  test_that(
+   desc = paste(f_name, 'returns a data.table'),
+   code = {
+    expect_s3_class(pd_object_grid, 'data.table')
+    expect_s3_class(pd_object_loop, 'data.table')
+   }
+  )
+
+  test_that(
+   desc = 'output is named consistently',
+   code = {
+
+    if(f_name %in% c("ice_new", "ice_inb", "ice_oob")){
+     expect_true('id_variable' %in% names(pd_object_grid))
+     expect_true('id_variable' %in% names(pd_object_loop))
+     expect_true('id_row' %in% names(pd_object_grid))
+     expect_true('id_row' %in% names(pd_object_loop))
+    }
+
+    expect_true('variable' %in% names(pd_object_loop))
+    expect_true('value' %in% names(pd_object_loop))
+
+    vars <- as.character(args_loop$pred_spec)
+    expect_true(all(vars %in% names(pd_object_grid)))
+    expect_true(all(vars %in% unique(pd_object_loop$variable)))
+
+    if(pred_type == 'mort'){
+     expect_false('pred_horizon' %in% names(pd_object_grid))
+     expect_false('pred_horizon' %in% names(pd_object_loop))
+    }
+
+   }
+  )
+
+ }
+
+}
+
+# classification ----
+
+args_loop <- args_grid <- list(
+ object = fit_standard_penguin_species$fast,
+ pred_spec = pred_spec_auto(bill_length_mm,
+                            bill_depth_mm),
+ new_data = penguins_test,
+ pred_type = 'prob',
+ expand_grid = TRUE
+)
+
+args_loop$expand_grid <- FALSE
+
+for(i in seq_along(funs)){
+
+ f_name <- names(funs)[i]
+
+ formals <- intersect(setdiff(names(formals(funs[[i]])), '...'),
+                      names(args_grid))
+
+ pd_object_grid <- do.call(funs[[i]], args = args_grid[formals])
+ pd_object_loop <- do.call(funs[[i]], args = args_loop[formals])
+
+ test_that(
+  desc = paste('pred_spec data are returned on the original scale',
+               ' for orsf_', f_name, sep = ''),
+  code = {
+
+   expect_equal(unique(pd_object_grid$bill_length_mm),
+                args_grid$object$get_var_bounds('bill_length_mm'))
+
+   expect_equal(
+    unique(na.omit(
+     pd_object_loop[pd_object_loop$variable == 'bill_depth_mm', value]
+    )),
+    args_grid$object$get_var_bounds('bill_depth_mm')
+   )
+
+  }
+ )
+
+ test_that(
+  desc = paste(f_name, 'returns a data.table'),
+  code = {
+   expect_s3_class(pd_object_grid, 'data.table')
+   expect_s3_class(pd_object_loop, 'data.table')
+  }
+ )
+
+ test_that(
+  desc = 'output is named consistently',
+  code = {
+
+   if(f_name %in% c("ice_new", "ice_inb", "ice_oob")){
+    expect_true('id_variable' %in% names(pd_object_grid))
+    expect_true('id_variable' %in% names(pd_object_loop))
+    expect_true('id_row' %in% names(pd_object_grid))
+    expect_true('id_row' %in% names(pd_object_loop))
+   }
+
+   expect_true('variable' %in% names(pd_object_loop))
+   expect_true('value' %in% names(pd_object_loop))
+
+   vars <- as.character(args_loop$pred_spec)
+   expect_true(all(vars %in% names(pd_object_grid)))
+   expect_true(all(vars %in% unique(pd_object_loop$variable)))
+
+  }
+ )
+
+}
+
+
+# regression ----
+
+args_loop <- args_grid <- list(
+ object = fit_standard_penguin_bills$fast,
+ pred_spec = pred_spec_auto(species, island),
+ new_data = penguins_test,
+ pred_type = 'mean',
+ expand_grid = TRUE
+)
+
+args_loop$expand_grid <- FALSE
+
+for(i in seq_along(funs)){
+
+ f_name <- names(funs)[i]
+
+ formals <- intersect(setdiff(names(formals(funs[[i]])), '...'),
+                      names(args_grid))
+
+ pd_object_grid <- do.call(funs[[i]], args = args_grid[formals])
+ pd_object_loop <- do.call(funs[[i]], args = args_loop[formals])
+
+ test_that(
+  desc = paste('pred_spec data are returned on the original scale',
+               ' for orsf_', f_name, sep = ''),
+  code = {
+
+   expect_equal(levels(pd_object_grid$species),
+                levels(penguins_orsf$species))
+
+   loop_vals <- unique(pd_object_loop$level)
+   data_vals <- c(unique(penguins_orsf$species),
+                  unique(penguins_orsf$island))
+
+   expect_true(all(loop_vals %in% data_vals))
+   expect_true(all(data_vals %in% loop_vals))
+
+  }
+ )
+
+ test_that(
+  desc = paste(f_name, 'returns a data.table'),
+  code = {
+   expect_s3_class(pd_object_grid, 'data.table')
+   expect_s3_class(pd_object_loop, 'data.table')
+  }
+ )
+
+ test_that(
+  desc = 'output is named consistently',
+  code = {
+
+   if(f_name %in% c("ice_new", "ice_inb", "ice_oob")){
+    expect_true('id_variable' %in% names(pd_object_grid))
+    expect_true('id_variable' %in% names(pd_object_loop))
+    expect_true('id_row' %in% names(pd_object_grid))
+    expect_true('id_row' %in% names(pd_object_loop))
+   }
+
+   expect_true('variable' %in% names(pd_object_loop))
+   expect_true('value' %in% names(pd_object_loop))
+
+   vars <- as.character(args_loop$pred_spec)
+   expect_true(all(vars %in% names(pd_object_grid)))
+   expect_true(all(vars %in% unique(pd_object_loop$variable)))
+
+  }
+ )
+
+}
+
+# general ----
 
 test_that(
  desc = "oob stops if there are no data",
@@ -36,6 +270,13 @@ test_that(
                 pred_spec = list(bili = 1:5,
                                  nope = c(1,2),
                                  no_sir = 1),
+                pred_horizon = 1000),
+   regexp = 'nope and no_sir'
+  )
+
+  expect_error(
+   orsf_ice_oob(fit,
+                pred_spec = pred_spec_auto(bili, nope, no_sir),
                 pred_horizon = 1000),
    regexp = 'nope and no_sir'
   )

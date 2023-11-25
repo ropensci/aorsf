@@ -7,27 +7,51 @@
 orsf_update(object, ..., modify_in_place = FALSE, no_fit = NULL)
 }
 \arguments{
-\item{object}{(\emph{ObliqueForest}) an oblique random forest object (see \link{orsf})}
+\item{object}{(\emph{ObliqueForest}) an oblique random forest object (see \link{orsf}).}
 
-\item{...}{arguments to plug into \link{orsf} that will be used to define the update.}
+\item{...}{arguments to plug into \link{orsf} that will be used to define the
+update (see examples).}
 
-\item{modify_in_place}{(\emph{logical}) if \code{TRUE}, \code{object} will be modified.
-Be cautious, as modification in place will overwrite existing data. If
-\code{FALSE} (the default), \code{object} will be copied and then the modifications
-will be applied to the copy, leaving \code{object} unmodified.}
+\item{modify_in_place}{(\emph{logical}) if \code{TRUE}, \code{object} will be modified
+by the inputs specified in \code{...}. Be cautious, as modification in place
+will overwrite existing data. If \code{FALSE} (the default), \code{object} will
+be copied and then the modifications will be applied to the copy,
+leaving the original \code{object} unmodified.}
 
 \item{no_fit}{(\emph{logical}) if \code{TRUE}, model fitting steps are defined and
 saved, but training is not initiated. The object returned can be
 directly submitted to \code{orsf_train()} so long as \code{attach_data} is \code{TRUE}.}
 }
+\value{
+an \code{ObliqueForest} object.
+}
 \description{
 Update orsf objects
 }
+\details{
+There are several dynamic inputs in \code{orsf} with default values of \code{NULL}.
+Specifically, these inputs are \code{control}, \code{weights}, \code{mtry}, \code{split_rule},
+\code{split_min_stat}, \code{pred_type}, \code{pred_horizon}, \code{oobag_eval_function},
+\code{tree_seeds}, and \code{oobag_eval_every}. If no explicit value is given for
+these inputs in the call, they \emph{will be re-formed}. For example, if
+an initial forest includes 17 predictors, the default \code{mtry} is the
+smallest integer that is greater than or equal to the square root of 17,
+i.e., 5. Then, if you make an updated forest with 1 less predictor and
+you do not explicitly say \code{mtry = 5}, then \code{mtry} will be re-initialized
+in the update based on the available 16 predictors, and the resulting
+value of \code{mtry} will be 4. This is done to avoid many potential errors
+that would occur if the dynamic outputs were not re-initialized.
+}
 \examples{
 
+# initial fit has mtry of 5
 fit <- orsf(pbc_orsf, time + status ~ . -id)
 
+# note that mtry is now 4 (see details)
 fit_new <- orsf_update(fit, formula = . ~ . - edema, n_tree = 100)
+
+# prevent dynamic updates by specifying inputs you want to freeze.
+fit_newer <- orsf_update(fit_new, mtry = 2)
 
 
 }
