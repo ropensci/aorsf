@@ -120,7 +120,7 @@ fit
 ```
 
 - See
-  [print.orsf_fit](https://docs.ropensci.org/aorsf/reference/print.orsf_fit.html)
+  [print.ObliqueForest](https://docs.ropensci.org/aorsf/reference/print.orsf_fit.html)
   for a description of each line in the printed output.
 
 - See [orsf

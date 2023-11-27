@@ -18,7 +18,7 @@
 #' - OOB stat type: How was out-of-bag error computed?
 #' - Variable importance: How was variable importance computed?
 #'
-#' @param x (*orsf_fit*) an oblique random survival forest (ORSF; see [orsf]).
+#' @param x (*ObliqueForest*) an oblique random survival forest (ORSF; see [orsf]).
 #'
 #' @param ... `r roxy_dots()`
 #'

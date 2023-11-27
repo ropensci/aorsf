@@ -95,14 +95,14 @@ Estimate the importance of individual variables using oblique random
 survival forests.
 }
 \details{
-When an \code{orsf_fit} object is fitted with importance = 'anova', 'negate', or
-'permute', the output will have a vector of importance values based on
-the requested type of importance. However, you may still want to call
-\code{orsf_vi()} on this output if you want to group factor levels into one
-overall importance value.
+When an \code{ObliqueForest} object is grown with importance = 'anova',
+'negate', or 'permute', the output will have a vector of importance
+values based on the requested type of importance. However, \code{orsf_vi()}
+can be used to compute variable importance after growing a forest
+or to compute a different type of importance.
 
 \code{orsf_vi()} is a general purpose function to extract or compute variable
-importance estimates from an \code{'orsf_fit'} object (see \link{orsf}).
+importance estimates from an \code{ObliqueForest} object (see \link{orsf}).
 \code{orsf_vi_negate()}, \code{orsf_vi_permute()}, and \code{orsf_vi_anova()} are wrappers
 for \code{orsf_vi()}. The way these functions work depends on whether the
 \code{object} they are given already has variable importance estimates in it

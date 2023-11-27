@@ -468,7 +468,7 @@ test_that(
 )
 
 test_that(
- desc = 'orsf_fit objects can be saved and loaded with saveRDS and readRDS',
+ desc = 'ObliqueForest objects can be saved and loaded with saveRDS and readRDS',
  code = {
 
   skip_on_cran()

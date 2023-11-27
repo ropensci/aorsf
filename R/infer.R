@@ -9,7 +9,7 @@
 
 #' helper for inferring pred_horizon input
 #'
-#' @param object 'orsf_fit' object
+#' @param object 'ObliqueForest' object
 #' @param pred_horizon NULL or a user's specified pred_horizon
 #'
 #' @return

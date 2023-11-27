@@ -228,7 +228,6 @@ orsf_control_net <- function(alpha = 1/2,
 #'
 #' @family orsf_control
 #'
-#' @includeRmd Rmd/orsf_control_custom_examples.Rmd
 
 orsf_control_custom <- function(beta_fun, ...){
 
@@ -239,7 +238,6 @@ orsf_control_custom <- function(beta_fun, ...){
  )
 
  check_dots(list(...), .f = orsf_control_custom)
- check_beta_fun(beta_fun)
 
  orsf_control(tree_type = 'unknown',
               method = beta_fun,
@@ -339,6 +337,8 @@ orsf_control_custom <- function(beta_fun, ...){
 #' - `lincomb_R_function`: R function for custom splits
 #'
 #' @export
+#'
+#' @includeRmd Rmd/orsf_control_examples.Rmd
 #'
 orsf_control <- function(tree_type,
                          method,

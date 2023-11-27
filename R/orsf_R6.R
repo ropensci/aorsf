@@ -75,7 +75,8 @@ ObliqueForest <- R6::R6Class(
   # miscellaneous
   verbose_progress = NULL,
 
-  # initialization
+
+  # Assign incoming member variables, then run input checks.
   initialize = function(data,
                         formula,
                         control,
@@ -157,6 +158,7 @@ ObliqueForest <- R6::R6Class(
 
   },
 
+  # Update: re-initialize if dynamic args were unspecified
   update = function(data = NULL,
                     formula = NULL,
                     control = NULL,
@@ -290,8 +292,10 @@ ObliqueForest <- R6::R6Class(
 
   },
 
+  # Print object with data dependent on tree_type and lincomb_type
   print = function(){
 
+   # TODO: make tree-specific get_ function for this
    info_model_type <- switch(self$tree_type,
                              'survival' = "Cox regression",
                              'regression' = "Linear regression",
@@ -301,7 +305,6 @@ ObliqueForest <- R6::R6Class(
                                'glm'    = NULL,
                                'net'    = "Penalized ",
                                'custom' = "Custom user function")
-
 
    if(self$control$lincomb_type != 'custom'){
 
@@ -364,6 +367,12 @@ ObliqueForest <- R6::R6Class(
 
   },
 
+
+  # train an untrained ObliqueForest
+  #
+  #  ... parameters to override defaults in orsf_cpp. Review
+  #   prep_cpp_args() before trying to use this, as some input names
+  #   are slightly different in the call to cpp.
   train = function(...){
 
    private$compute_means()
@@ -384,6 +393,11 @@ ObliqueForest <- R6::R6Class(
    cpp_args <- private$prep_cpp_args(...)
 
    cpp_output <- do.call(orsf_cpp, args = cpp_args)
+
+   .dots <- list(...)
+   if(length(.dots) > 0)
+    for(i in names(.dots)) self[[i]] <- .dots[[i]]
+
 
    self$forest <- cpp_output$forest
    self$importance <- cpp_output$importance
@@ -409,6 +423,7 @@ ObliqueForest <- R6::R6Class(
 
   },
 
+  # this is the inverse of train.
   untrain = function(){
    self$forest <- NULL
    self$importance <- NULL
@@ -423,6 +438,7 @@ ObliqueForest <- R6::R6Class(
   },
 
 
+  # Prediction always returns matrix or array of predictions
   predict = function(new_data,
                      pred_horizon,
                      pred_type,
@@ -500,6 +516,9 @@ ObliqueForest <- R6::R6Class(
 
   },
 
+  # Variable importance
+  # returns a named numeric vector with importance values
+
   compute_vi = function(type_vi,
                         oobag_fun,
                         n_thread,
@@ -547,6 +566,9 @@ ObliqueForest <- R6::R6Class(
    out
 
   },
+
+  # Partial dependence
+  # returns a data.table with dependence values
 
   compute_dependence = function(pd_data,
                                 pred_spec,
@@ -639,10 +661,17 @@ ObliqueForest <- R6::R6Class(
    private$y <- NULL
    private$w <- NULL
 
+   # errors within the try statement are not expected,
+   # but if they do occur we want to make sure the
+   # object is restored to its original state.
+   if(is_error(out)) stop(out, call. = FALSE)
+
    out
 
   },
 
+  # Variable selection
+  # returns a data.table with variable selection info
   select_variables = function(n_predictor_min, verbose_progress){
 
    public_state <- list(verbose_progress = self$verbose_progress,
@@ -720,6 +749,8 @@ ObliqueForest <- R6::R6Class(
 
   },
 
+  # Univariate summary of predictors
+  # calls both orsf_vi and orsf_pd_oob to create a summary object
   summarize_uni = function(n_variables = NULL,
                            pred_horizon = NULL,
                            pred_type = NULL,
@@ -837,7 +868,9 @@ ObliqueForest <- R6::R6Class(
   },
 
   # getters
-
+  # the get_ functions return a private member variable in
+  # standard or requested format, allowing for info about
+  # specific variables to be returned.
   get_names_x = function(ref_coded = FALSE){
 
    if(ref_coded) return(private$data_names$x_ref_code)
@@ -1007,21 +1040,13 @@ ObliqueForest <- R6::R6Class(
 
   },
 
-  #' Check variable types
-  #'
-  #' orsf() should only be run with certain types of variables. This function
-  #'   checks input data to make sure all variables have a primary (i.e., first)
-  #'   class that is within the list of valid options.
-  #'
-  #' @param var_types types of variables in `data` to check
-  #' @param var_names names of variables in `data` to check
-  #' @param valid_types any of these types are okay.
-  #'
-  #' @return check functions 'return' errors and the intent is
-  #'   to return nothing if nothing is wrong,
-  #'   so hopefully nothing is returned.
-  #'
-  #' @noRd
+  # Check variable types
+  #
+  # orsf() should only be run with certain types of variables. This function
+  #   checks input data to make sure all variables have a primary (i.e., first)
+  #   class that is within the list of valid options.
+  #
+  # return an error if something is wrong.
   check_var_types = function(var_types, var_names, valid_types){
 
    good_vars <- var_types %in% valid_types
@@ -1667,8 +1692,8 @@ ObliqueForest <- R6::R6Class(
 
       stop('tree_seeds should have length = 1 or length = ",
           "n_tree <', self$n_tree,
-          "> (the number of trees) but instead has length <",
-          length(input), ">", call. = FALSE)
+           "> (the number of trees) but instead has length <",
+           length(input), ">", call. = FALSE)
 
      }
 
@@ -2742,6 +2767,30 @@ ObliqueForest <- R6::R6Class(
 
   },
 
+  # Prep the outcome variable
+  #
+  # Coerce the outcome to be compatible with C++ routines.
+  # If there is no feasible way to make it work, throw an error.
+  # If there aren't any problems, return the outcome.
+  #
+  # placeholder (*logical*) whether to engage with the
+  #   outcome member variable or just make a version that is safe
+  #   to pass to orsf_cpp().
+  #
+  # For survival, y is a matrix with two columns:
+  #   - first column: time values
+  #   - second column: status values
+  #
+  # For classification, y is a factor or character vector
+  #
+  # For regression, y is a numeric vector
+  #
+  # @return stored the outcome in a matrix format in private$y
+  #
+  # - Survival outcomes are transformed to have status values of 0 and 1
+  # - Classification outcomes are transformed to a one-hot matrix
+  # - Regression outcomes are converted to a matrix
+  #
   prep_y = function(placeholder = FALSE){
 
    private$y <- select_cols(self$data, private$data_names$y)

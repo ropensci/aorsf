@@ -449,13 +449,21 @@ orsf <- function(data,
 
 #' @rdname orsf
 #' @export
-orsf_train <- function(object, attach_data = TRUE){
+orsf_train <- function(object, attach_data = TRUE, ...){
 
- object$train()
+ new_args <- !is_empty(list(...))
 
- if(!attach_data) object$data <- NULL
+ if(new_args){
+  object_new <- object$clone(deep = TRUE)
+ } else {
+  object_new <- object
+ }
 
- return(object)
+ object_new$train(...)
+
+ if(!attach_data) object_new$data <- NULL
+
+ invisible(object_new)
 
 }
 

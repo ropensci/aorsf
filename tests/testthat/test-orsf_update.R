@@ -7,6 +7,26 @@ fit_new <- orsf_update(fit, formula = . ~ . - edema - spiders,
 
 fit_newer <- orsf_update(fit_new, formula = . ~ . + spiders)
 
+fit_untrained <- orsf_update(fit, no_fit = TRUE)
+
+fit_trained <- orsf_update(fit_untrained, no_fit = FALSE)
+
+test_that(
+ desc = "train and untrain update trained status and parameters",
+ code = {
+
+
+  expect_false(fit_untrained$trained)
+  expect_null(fit_untrained$get_means())
+  expect_equal(fit_untrained$get_mean_leaves_per_tree(), 0)
+
+  expect_true(fit_trained$trained)
+  expect_equal(fit_trained$get_means(), fit$get_means())
+  expect_equal(fit_trained$get_mean_leaves_per_tree(),
+               fit$get_mean_leaves_per_tree())
+ }
+)
+
 test_that(
  desc = 'variables can be removed and added with updated formula',
  code = {

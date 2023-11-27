@@ -125,7 +125,7 @@ orsf_pd_oob <- function(object,
 
  check_dots(list(...), orsf_pd_oob)
 
- orsf_pred_dependence(object = object,
+ orsf_dependence(object = object,
                       pred_spec = pred_spec,
                       pd_data = NULL,
                       pred_horizon = pred_horizon,
@@ -160,7 +160,7 @@ orsf_pd_inb <- function(object,
        "did you use attach_data = FALSE when ",
        "running orsf()?", call. = FALSE)
 
- orsf_pred_dependence(object = object,
+ orsf_dependence(object = object,
                       pred_spec = pred_spec,
                       pd_data = object$data,
                       pred_horizon = pred_horizon,
@@ -192,7 +192,7 @@ orsf_pd_new <- function(object,
 
  check_dots(list(...), orsf_pd_new)
 
- orsf_pred_dependence(object = object,
+ orsf_dependence(object = object,
                       pred_spec = pred_spec,
                       pd_data = new_data,
                       pred_horizon = pred_horizon,
@@ -237,7 +237,7 @@ orsf_ice_oob <- function(object,
 
  check_dots(list(...), orsf_ice_oob)
 
- orsf_pred_dependence(object = object,
+ orsf_dependence(object = object,
                       pred_spec = pred_spec,
                       pd_data = NULL,
                       pred_horizon = pred_horizon,
@@ -268,7 +268,7 @@ orsf_ice_inb <- function(object,
        "did you use attach_data = FALSE when ",
        "running orsf()?", call. = FALSE)
 
- orsf_pred_dependence(object = object,
+ orsf_dependence(object = object,
                       pred_spec = pred_spec,
                       pd_data = object$data,
                       pred_horizon = pred_horizon,
@@ -296,7 +296,7 @@ orsf_ice_new <- function(object,
 
  check_dots(list(...), orsf_ice_new)
 
- orsf_pred_dependence(object = object,
+ orsf_dependence(object = object,
                       pred_spec = pred_spec,
                       pd_data = new_data,
                       pred_horizon = pred_horizon,
@@ -327,7 +327,7 @@ orsf_ice_new <- function(object,
 #'
 #' @noRd
 
-orsf_pred_dependence <- function(object,
+orsf_dependence <- function(object,
                                  pd_data,
                                  pred_spec,
                                  pred_horizon,

@@ -49,18 +49,18 @@
 #'
 #' @details
 #'
-#' When an `orsf_fit` object is fitted with importance = 'anova', 'negate', or
-#'  'permute', the output will have a vector of importance values based on
-#'  the requested type of importance. However, you may still want to call
-#'  `orsf_vi()` on this output if you want to group factor levels into one
-#'  overall importance value.
+#' When an `ObliqueForest` object is grown with importance = 'anova',
+#'  'negate', or 'permute', the output will have a vector of importance
+#'  values based on the requested type of importance. However, `orsf_vi()`
+#'  can be used to compute variable importance after growing a forest
+#'  or to compute a different type of importance.
 #'
 #' `orsf_vi()` is a general purpose function to extract or compute variable
-#'   importance estimates from an `'orsf_fit'` object (see [orsf]).
-#'   `orsf_vi_negate()`, `orsf_vi_permute()`, and `orsf_vi_anova()` are wrappers
-#'   for `orsf_vi()`. The way these functions work depends on whether the
-#'   `object` they are given already has variable importance estimates in it
-#'   or not (see examples).
+#'  importance estimates from an `ObliqueForest` object (see [orsf]).
+#'  `orsf_vi_negate()`, `orsf_vi_permute()`, and `orsf_vi_anova()` are wrappers
+#'  for `orsf_vi()`. The way these functions work depends on whether the
+#'  `object` they are given already has variable importance estimates in it
+#'  or not (see examples).
 #'
 #'
 #' @export

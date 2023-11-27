@@ -7,7 +7,7 @@
 \method{print}{ObliqueForest}(x, ...)
 }
 \arguments{
-\item{x}{(\emph{orsf_fit}) an oblique random survival forest (ORSF; see \link{orsf}).}
+\item{x}{(\emph{ObliqueForest}) an oblique random survival forest (ORSF; see \link{orsf}).}
 
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 }

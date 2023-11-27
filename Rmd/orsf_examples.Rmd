@@ -7,19 +7,11 @@ knitr::opts_chunk$set(cache = TRUE)
 
 First we load some relevant packages
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 
 set.seed(329730)
-suppressPackageStartupMessages({
- library(aorsf)
- library(survival)
- library(tidymodels)
- library(tidyverse)
- library(randomForestSRC)
- library(ranger)
- library(riskRegression)
- library(obliqueRSF)
-})
+library(aorsf)
+library(survival)
 
 ```
 
@@ -38,189 +30,51 @@ printing `fit` provides quick descriptive summaries:
 fit
 ```
 
-## Model control
+## More than one way to grow a forest
 
-For these examples we will make use of the `orsf_control_` functions to build and compare models based on their out-of-bag predictions. We will also standardize the out-of-bag samples using the input argument `tree_seeds`
+You can use `orsf(no_fit = TRUE)` to make a specification to grow a forest that can be used as a blueprint for `orsf_train()`:
 
-### Accelerated linear combinations
+```{r}
 
-The accelerated ORSF ensemble is the default because it has a nice balance of computational speed and prediction accuracy. It runs a single iteration of Newton Raphson scoring on the Cox partial likelihood function to find linear combinations of predictors.
+orsf_spec <- orsf(pbc_orsf, time + status ~ . - id, no_fit = TRUE)
+orsf_spec
+
+```
 
 
 ```{r}
 
-fit_accel <- orsf(pbc_orsf, 
-                  control = orsf_control_survival(),
-                  formula = Surv(time, status) ~ . - id,
-                  tree_seeds = 329)
+orsf_fit <- orsf_train(orsf_spec)
+orsf_fit
 
 ```
 
-### Linear combinations with Cox regression
-
-`orsf_control_cph` runs Cox regression in each non-terminal node of each survival tree, using the regression coefficients to create linear combinations of predictors:
+You can also update the specification in place when passing it to `orsf_train()`, making it easy to fit several models from one spec:
 
 ```{r}
 
-control_cph <- orsf_control_survival(method = 'glm', 
-                                     scale_x = TRUE, 
-                                     max_iter = 20)
+orsf_fit_10 <- orsf_train(orsf_spec, leaf_min_obs = 10)
+orsf_fit_20 <- orsf_train(orsf_spec, leaf_min_obs = 20)
 
-fit_cph <- orsf(pbc_orsf, 
-                control = control_cph,
-                formula = Surv(time, status) ~ . - id,
-                tree_seeds = 329)
+orsf_fit$leaf_min_obs
+orsf_fit_10$leaf_min_obs
+orsf_fit_20$leaf_min_obs
 
 ```
 
-### Linear combinations with penalized cox regression
-
-`orsf_control_net` runs penalized Cox regression in each non-terminal node of each survival tree, using the regression coefficients to create linear combinations of predictors. This can be really helpful if you want to do feature selection within the node, but it is a lot slower than the other options.
-
-```{r}
-
-# select 3 predictors out of 5 to be used in
-# each linear combination of predictors.
-
-control_net <- orsf_control_survival(method = 'net', target_df = 3)
-
-fit_net <- orsf(pbc_orsf, 
-                control = control_net,
-                formula = Surv(time, status) ~ . - id,
-                tree_seeds = 329)
-
-```
-
-### Linear combinations with your own function 
-
-Let's make three customized functions to identify linear combinations of predictors. 
-
-- The first uses random coefficients
-
-```{r}
-
-f_rando <- function(x_node, y_node, w_node){
- matrix(runif(ncol(x_node)), ncol=1) 
-}
-
-```
-
-- The second derives coefficients from principal component analysis
-
-```{r}
-
-f_pca <- function(x_node, y_node, w_node) { 
- 
- # estimate two principal components.
- pca <- stats::prcomp(x_node, rank. = 2)
- # use the second principal component to split the node
- pca$rotation[, 1L, drop = FALSE]
- 
-}
-
-```
-
-- The third uses `ranger()` inside of `orsf()`. This approach is very similar to a method known as reinforcement learning trees (see the RLT package), although our method of "muting" is very crude compared to the method proposed by Zhu et al. 
-
-```{r}
-
-f_rlt <- function(x_node, y_node, w_node){
- 
- colnames(y_node) <- c('time', 'status')
- colnames(x_node) <- paste("x", seq(ncol(x_node)), sep = '')
- 
- data <- as.data.frame(cbind(y_node, x_node))
- 
- if(nrow(data) <= 10) 
-  return(matrix(runif(ncol(x_node)), ncol = 1))
- 
- fit <- ranger::ranger(data = data, 
-                       formula = Surv(time, status) ~ ., 
-                       num.trees = 25, 
-                       num.threads = 1,
-                       min.node.size = 5,
-                       importance = 'permutation')
- 
- out <- sort(fit$variable.importance, decreasing = TRUE)
- 
- # "mute" the least two important variables
- n_vars <- length(out)
- if(n_vars > 4){
-   out[c(n_vars, n_vars-1)] <- 0
- }
- 
- # ensure out has same variable order as input
- out <- out[colnames(x_node)]
- 
- # protect yourself
- out[is.na(out)] <- 0
- 
- matrix(out, ncol = 1)
- 
-}
-
-```
-
-We can plug these functions into `orsf_control_custom()`, and then pass the result into `orsf()`:
-
-```{r}
-
-fit_rando <- orsf(pbc_orsf,
-                  Surv(time, status) ~ . - id,
-                  control = orsf_control_survival(method = f_rando),
-                  tree_seeds = 329)
-
-fit_pca <- orsf(pbc_orsf,
-                Surv(time, status) ~ . - id,
-                control = orsf_control_survival(method = f_pca),
-                tree_seeds = 329)
-
-fit_rlt <- orsf(pbc_orsf, time + status ~ . - id, 
-                control = orsf_control_survival(method = f_rlt),
-                tree_seeds = 329)
-
-```
-
-So which fit seems to work best in this example? Let's find out by evaluating the out-of-bag survival predictions.
-
-```{r}
-
-risk_preds <- list(
- accel = fit_accel$pred_oobag,
- cph   = fit_cph$pred_oobag,
- net   = fit_net$pred_oobag,
- rando = fit_rando$pred_oobag,
- pca   = fit_pca$pred_oobag,
- rlt   = fit_rlt$pred_oobag
-)
-
-sc <- Score(object = risk_preds, 
-            formula = Surv(time, status) ~ 1, 
-            data = pbc_orsf, 
-            summary = 'IPA',
-            times = fit_accel$pred_horizon)
-
-```
-
-The AUC values, from highest to lowest:
-
-```{r}
-sc$AUC$score[order(-AUC)]
-```
-
-And the indices of prediction accuracy:
-
-```{r}
-sc$Brier$score[order(-IPA), .(model, times, IPA)]
-```
-
-From inspection,
-
-- `net`, `accel`, and `rlt` have high discrimination and index of prediction accuracy.
-
-- `rando` and `pca` do less well, but they aren't bad.
 
 ## tidymodels
+
+```{r, warning=FALSE, echo=TRUE, message=FALSE}
+
+library(tidymodels)
+library(tidyverse)
+library(randomForestSRC)
+library(ranger)
+library(riskRegression)
+
+```
+
 
 This example uses `tidymodels` functions but stops short of using an official `tidymodels` workflow. I am working on getting `aorsf` pulled into the `censored` package and I will update this with real workflows if that happens!
 
@@ -330,11 +184,6 @@ Score(
 
 ```
 
-From inspection, 
-
-- `aorsf` obtained slightly higher discrimination (AUC)
-
-- `aorsf` obtained higher index of prediction accuracy (IPA)
 
 
 

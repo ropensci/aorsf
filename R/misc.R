@@ -113,3 +113,15 @@ has_units <- function(x){
  library.dynam.unload("aorsf", libpath)
 }
 
+
+
+#' Determine whether object has variable importance estimates
+#'
+#' @param object an object of class 'ObliqueForest'
+#'
+#' @return `TRUE` if variable importance estimates are present, `FALSE` otherwise
+#'
+#' @noRd
+#'
+contains_vi <- function(object) {!is_empty(object$importance)}
+

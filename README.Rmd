@@ -91,7 +91,7 @@ fit
 
 ```
 
-- See [print.orsf_fit](https://docs.ropensci.org/aorsf/reference/print.orsf_fit.html) for a description of each line in the printed output.
+- See [print.ObliqueForest](https://docs.ropensci.org/aorsf/reference/print.orsf_fit.html) for a description of each line in the printed output.
 
 - See [orsf examples](https://docs.ropensci.org/aorsf/reference/orsf.html#examples) for more details on controlling ORSF ensemble fits and using them in prediction modeling workflows.
 

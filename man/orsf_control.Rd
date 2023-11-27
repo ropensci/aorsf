@@ -137,6 +137,212 @@ Adjust \code{scale_x} \emph{at your own risk}. Setting \code{scale_x = FALSE} wi
 reduce computation time but will also make the \code{orsf} model dependent
 on the scale of your data, which is why the default value is \code{TRUE}.
 }
+\section{Examples}{
+First we load some relevant packages
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329730)
+suppressPackageStartupMessages(\{
+ library(aorsf)
+ library(survival)
+ library(ranger)
+ library(riskRegression)
+\})
+}\if{html}{\out{</div>}}
+\subsection{Accelerated linear combinations}{
+
+The accelerated ORSF ensemble is the default because it has a nice
+balance of computational speed and prediction accuracy. It runs a single
+iteration of Newton Raphson scoring on the Cox partial likelihood
+function to find linear combinations of predictors.
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_accel <- orsf(pbc_orsf, 
+                  control = orsf_control_survival(),
+                  formula = Surv(time, status) ~ . - id,
+                  tree_seeds = 329)
+}\if{html}{\out{</div>}}
+}
+
+\subsection{Linear combinations with Cox regression}{
+
+Setting inputs in \code{orsf_control_survival} to scale the X matrix and
+repeat iterations until convergence allows you to run Cox regression in
+each non-terminal node of each survival tree, using the regression
+coefficients to create linear combinations of predictors:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{control_cph <- orsf_control_survival(method = 'glm', 
+                                     scale_x = TRUE, 
+                                     max_iter = 20)
+
+fit_cph <- orsf(pbc_orsf, 
+                control = control_cph,
+                formula = Surv(time, status) ~ . - id,
+                tree_seeds = 329)
+}\if{html}{\out{</div>}}
+}
+
+\subsection{Linear combinations with penalized cox regression}{
+
+Setting \code{method == 'net'} runs penalized Cox regression in each
+non-terminal node of each survival tree. This can be really helpful if
+you want to do feature selection within the node, but it is a lot slower
+than the \code{'glm'} option.
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# select 3 predictors out of 5 to be used in
+# each linear combination of predictors.
+
+control_net <- orsf_control_survival(method = 'net', target_df = 3)
+
+fit_net <- orsf(pbc_orsf, 
+                control = control_net,
+                formula = Surv(time, status) ~ . - id,
+                tree_seeds = 329)
+}\if{html}{\out{</div>}}
+}
+
+\subsection{Linear combinations with your own function}{
+
+In addition to the built-in methods, customized functions can be used to
+identify linear combinations of predictors. We’ll demonstrate a few
+here.
+\itemize{
+\item The first uses random coefficients
+}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{f_rando <- function(x_node, y_node, w_node)\{
+ matrix(runif(ncol(x_node)), ncol=1) 
+\}
+}\if{html}{\out{</div>}}
+\itemize{
+\item The second derives coefficients from principal component analysis
+}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{f_pca <- function(x_node, y_node, w_node) \{ 
+ 
+ # estimate two principal components.
+ pca <- stats::prcomp(x_node, rank. = 2)
+ # use the second principal component to split the node
+ pca$rotation[, 1L, drop = FALSE]
+ 
+\}
+}\if{html}{\out{</div>}}
+\itemize{
+\item The third uses \code{ranger()} inside of \code{orsf()}. This approach is very
+similar to a method known as reinforcement learning trees (see the
+\code{RLT} package), although our method of “muting” is very crude compared
+to the method proposed by Zhu et al. 
+}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{f_rlt <- function(x_node, y_node, w_node)\{
+ 
+ colnames(y_node) <- c('time', 'status')
+ colnames(x_node) <- paste("x", seq(ncol(x_node)), sep = '')
+ 
+ data <- as.data.frame(cbind(y_node, x_node))
+ 
+ if(nrow(data) <= 10) 
+  return(matrix(runif(ncol(x_node)), ncol = 1))
+ 
+ fit <- ranger::ranger(data = data, 
+                       formula = Surv(time, status) ~ ., 
+                       num.trees = 25, 
+                       num.threads = 1,
+                       min.node.size = 5,
+                       importance = 'permutation')
+ 
+ out <- sort(fit$variable.importance, decreasing = TRUE)
+ 
+ # "mute" the least two important variables
+ n_vars <- length(out)
+ if(n_vars > 4)\{
+   out[c(n_vars, n_vars-1)] <- 0
+ \}
+ 
+ # ensure out has same variable order as input
+ out <- out[colnames(x_node)]
+ 
+ # protect yourself
+ out[is.na(out)] <- 0
+ 
+ matrix(out, ncol = 1)
+ 
+\}
+}\if{html}{\out{</div>}}
+
+We can plug these functions into \code{orsf_control_custom()}, and then pass
+the result into \code{orsf()}:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_rando <- orsf(pbc_orsf,
+                  Surv(time, status) ~ . - id,
+                  control = orsf_control_survival(method = f_rando),
+                  tree_seeds = 329)
+
+fit_pca <- orsf(pbc_orsf,
+                Surv(time, status) ~ . - id,
+                control = orsf_control_survival(method = f_pca),
+                tree_seeds = 329)
+
+fit_rlt <- orsf(pbc_orsf, time + status ~ . - id, 
+                control = orsf_control_survival(method = f_rlt),
+                tree_seeds = 329)
+}\if{html}{\out{</div>}}
+
+So which fit seems to work best in this example? Let’s find out by
+evaluating the out-of-bag survival predictions.
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{risk_preds <- list(
+ accel = fit_accel$pred_oobag,
+ cph   = fit_cph$pred_oobag,
+ net   = fit_net$pred_oobag,
+ rando = fit_rando$pred_oobag,
+ pca   = fit_pca$pred_oobag,
+ rlt   = fit_rlt$pred_oobag
+)
+
+sc <- Score(object = risk_preds, 
+            formula = Surv(time, status) ~ 1, 
+            data = pbc_orsf, 
+            summary = 'IPA',
+            times = fit_accel$pred_horizon)
+}\if{html}{\out{</div>}}
+
+The AUC values, from highest to lowest:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{sc$AUC$score[order(-AUC)]
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    model times       AUC         se     lower     upper
+## 1:   net  1788 0.9151649 0.02025057 0.8754745 0.9548553
+## 2:   rlt  1788 0.9136390 0.02013475 0.8741756 0.9531024
+## 3: accel  1788 0.9095628 0.02143250 0.8675558 0.9515697
+## 4:   cph  1788 0.9095628 0.02143250 0.8675558 0.9515697
+## 5: rando  1788 0.9062197 0.02148854 0.8641029 0.9483365
+## 6:   pca  1788 0.8999479 0.02226683 0.8563057 0.9435901
+}\if{html}{\out{</div>}}
+
+And the indices of prediction accuracy:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{sc$Brier$score[order(-IPA), .(model, times, IPA)]
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##         model times       IPA
+## 1:        net  1788 0.4905777
+## 2:      accel  1788 0.4806065
+## 3:        cph  1788 0.4806065
+## 4:        rlt  1788 0.4687322
+## 5:        pca  1788 0.4383995
+## 6:      rando  1788 0.4302814
+## 7: Null model  1788 0.0000000
+}\if{html}{\out{</div>}}
+
+From inspection,
+\itemize{
+\item \code{net}, \code{accel}, and \code{rlt} have high discrimination and index of
+prediction accuracy.
+\item \code{rando} and \code{pca} do less well, but they aren’t bad.
+}
+}
+}
+
 \seealso{
 linear combination control functions
 \code{\link{orsf_control_cph}()},

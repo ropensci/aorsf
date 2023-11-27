@@ -38,7 +38,7 @@ orsf(
   ...
 )
 
-orsf_train(object, attach_data = TRUE)
+orsf_train(object, attach_data = TRUE, ...)
 }
 \arguments{
 \item{data}{a \link{data.frame}, \link[tibble:tibble-package]{tibble}, or \link[data.table:data.table]{data.table} that contains the
@@ -393,16 +393,8 @@ such as \code{recipes} or \code{mlr3pipelines}.
 First we load some relevant packages
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329730)
-suppressPackageStartupMessages(\{
- library(aorsf)
- library(survival)
- library(tidymodels)
- library(tidyverse)
- library(randomForestSRC)
- library(ranger)
- library(riskRegression)
- library(obliqueRSF)
-\})
+library(aorsf)
+library(survival)
 }\if{html}{\out{</div>}}
 
 The entry-point into \code{aorsf} is the standard call to \code{orsf()}:
@@ -432,208 +424,88 @@ printing \code{fit} provides quick descriptive summaries:
 ## 
 ## -----------------------------------------
 }\if{html}{\out{</div>}}
-\subsection{Model control}{
+\subsection{More than one way to grow a forest}{
 
-For these examples we will make use of the \code{orsf_control_} functions to
-build and compare models based on their out-of-bag predictions. We will
-also standardize the out-of-bag samples using the input argument
-\code{tree_seeds}
-\subsection{Accelerated linear combinations}{
+You can use \code{orsf(no_fit = TRUE)} to make a specification to grow a
+forest that can be used as a blueprint for \code{orsf_train()}:
 
-The accelerated ORSF ensemble is the default because it has a nice
-balance of computational speed and prediction accuracy. It runs a single
-iteration of Newton Raphson scoring on the Cox partial likelihood
-function to find linear combinations of predictors.
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_accel <- orsf(pbc_orsf, 
-                  control = orsf_control_survival(),
-                  formula = Surv(time, status) ~ . - id,
-                  tree_seeds = 329)
-}\if{html}{\out{</div>}}
-}
-
-\subsection{Linear combinations with Cox regression}{
-
-\code{orsf_control_cph} runs Cox regression in each non-terminal node of each
-survival tree, using the regression coefficients to create linear
-combinations of predictors:
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{control_cph <- orsf_control_survival(method = 'glm', 
-                                     scale_x = TRUE, 
-                                     max_iter = 20)
-
-fit_cph <- orsf(pbc_orsf, 
-                control = control_cph,
-                formula = Surv(time, status) ~ . - id,
-                tree_seeds = 329)
-}\if{html}{\out{</div>}}
-}
-
-\subsection{Linear combinations with penalized cox regression}{
-
-\code{orsf_control_net} runs penalized Cox regression in each non-terminal
-node of each survival tree, using the regression coefficients to create
-linear combinations of predictors. This can be really helpful if you
-want to do feature selection within the node, but it is a lot slower
-than the other options.
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{# select 3 predictors out of 5 to be used in
-# each linear combination of predictors.
-
-control_net <- orsf_control_survival(method = 'net', target_df = 3)
-
-fit_net <- orsf(pbc_orsf, 
-                control = control_net,
-                formula = Surv(time, status) ~ . - id,
-                tree_seeds = 329)
-}\if{html}{\out{</div>}}
-}
-
-\subsection{Linear combinations with your own function}{
-
-Let’s make three customized functions to identify linear combinations of
-predictors.
-\itemize{
-\item The first uses random coefficients
-}
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{f_rando <- function(x_node, y_node, w_node)\{
- matrix(runif(ncol(x_node)), ncol=1) 
-\}
-}\if{html}{\out{</div>}}
-\itemize{
-\item The second derives coefficients from principal component analysis
-}
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{f_pca <- function(x_node, y_node, w_node) \{ 
- 
- # estimate two principal components.
- pca <- stats::prcomp(x_node, rank. = 2)
- # use the second principal component to split the node
- pca$rotation[, 1L, drop = FALSE]
- 
-\}
-}\if{html}{\out{</div>}}
-\itemize{
-\item The third uses \code{ranger()} inside of \code{orsf()}. This approach is very
-similar to a method known as reinforcement learning trees (see the RLT
-package), although our method of “muting” is very crude compared to
-the method proposed by Zhu et al. 
-}
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{f_rlt <- function(x_node, y_node, w_node)\{
- 
- colnames(y_node) <- c('time', 'status')
- colnames(x_node) <- paste("x", seq(ncol(x_node)), sep = '')
- 
- data <- as.data.frame(cbind(y_node, x_node))
- 
- if(nrow(data) <= 10) 
-  return(matrix(runif(ncol(x_node)), ncol = 1))
- 
- fit <- ranger::ranger(data = data, 
-                       formula = Surv(time, status) ~ ., 
-                       num.trees = 25, 
-                       num.threads = 1,
-                       min.node.size = 5,
-                       importance = 'permutation')
- 
- out <- sort(fit$variable.importance, decreasing = TRUE)
- 
- # "mute" the least two important variables
- n_vars <- length(out)
- if(n_vars > 4)\{
-   out[c(n_vars, n_vars-1)] <- 0
- \}
- 
- # ensure out has same variable order as input
- out <- out[colnames(x_node)]
- 
- # protect yourself
- out[is.na(out)] <- 0
- 
- matrix(out, ncol = 1)
- 
-\}
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_spec <- orsf(pbc_orsf, time + status ~ . - id, no_fit = TRUE)
+orsf_spec
 }\if{html}{\out{</div>}}
 
-We can plug these functions into \code{orsf_control_custom()}, and then pass
-the result into \code{orsf()}:
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_rando <- orsf(pbc_orsf,
-                  Surv(time, status) ~ . - id,
-                  control = orsf_control_survival(method = f_rando),
-                  tree_seeds = 329)
-
-fit_pca <- orsf(pbc_orsf,
-                Surv(time, status) ~ . - id,
-                control = orsf_control_survival(method = f_pca),
-                tree_seeds = 329)
-
-fit_rlt <- orsf(pbc_orsf, time + status ~ . - id, 
-                control = orsf_control_survival(method = f_rlt),
-                tree_seeds = 329)
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## Untrained oblique random survival forest
+## 
+##      Linear combinations: Accelerated Cox regression
+##           N observations: 276
+##                 N events: 111
+##                  N trees: 500
+##       N predictors total: 17
+##    N predictors per node: 5
+##  Average leaves per tree: 0
+## Min observations in leaf: 5
+##       Min events in leaf: 1
+##           OOB stat value: none
+##            OOB stat type: Harrell's C-index
+##      Variable importance: anova
+## 
+## -----------------------------------------
 }\if{html}{\out{</div>}}
 
-So which fit seems to work best in this example? Let’s find out by
-evaluating the out-of-bag survival predictions.
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{risk_preds <- list(
- accel = fit_accel$pred_oobag,
- cph   = fit_cph$pred_oobag,
- net   = fit_net$pred_oobag,
- rando = fit_rando$pred_oobag,
- pca   = fit_pca$pred_oobag,
- rlt   = fit_rlt$pred_oobag
-)
-
-sc <- Score(object = risk_preds, 
-            formula = Surv(time, status) ~ 1, 
-            data = pbc_orsf, 
-            summary = 'IPA',
-            times = fit_accel$pred_horizon)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_fit <- orsf_train(orsf_spec)
+orsf_fit
 }\if{html}{\out{</div>}}
 
-The AUC values, from highest to lowest:
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{sc$AUC$score[order(-AUC)]
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
+## 
+##      Linear combinations: Accelerated Cox regression
+##           N observations: 276
+##                 N events: 111
+##                  N trees: 500
+##       N predictors total: 17
+##    N predictors per node: 5
+##  Average leaves per tree: 21.006
+## Min observations in leaf: 5
+##       Min events in leaf: 1
+##           OOB stat value: 0.85
+##            OOB stat type: Harrell's C-index
+##      Variable importance: anova
+## 
+## -----------------------------------------
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    model times       AUC         se     lower     upper
-## 1:   net  1788 0.9134593 0.02079935 0.8726933 0.9542253
-## 2:   rlt  1788 0.9129537 0.01979016 0.8741657 0.9517417
-## 3: accel  1788 0.9112315 0.02098077 0.8701099 0.9523530
-## 4:   cph  1788 0.9063871 0.02165434 0.8639453 0.9488288
-## 5: rando  1788 0.9023489 0.02218936 0.8588586 0.9458393
-## 6:   pca  1788 0.8994220 0.02201713 0.8562692 0.9425748
+You can also update the specification in place when passing it to
+\code{orsf_train()}, making it easy to fit several models from one spec:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_fit_10 <- orsf_train(orsf_spec, leaf_min_obs = 10)
+orsf_fit_20 <- orsf_train(orsf_spec, leaf_min_obs = 20)
+
+orsf_fit$leaf_min_obs
 }\if{html}{\out{</div>}}
 
-And the indices of prediction accuracy:
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{sc$Brier$score[order(-IPA), .(model, times, IPA)]
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 5
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##         model times       IPA
-## 1:        net  1788 0.4916038
-## 2:      accel  1788 0.4879683
-## 3:        cph  1788 0.4751883
-## 4:        rlt  1788 0.4640282
-## 5:        pca  1788 0.4370592
-## 6:      rando  1788 0.4258344
-## 7: Null model  1788 0.0000000
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_fit_10$leaf_min_obs
 }\if{html}{\out{</div>}}
 
-From inspection,
-\itemize{
-\item \code{net}, \code{accel}, and \code{rlt} have high discrimination and index of
-prediction accuracy.
-\item \code{rando} and \code{pca} do less well, but they aren’t bad.
-}
-}
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 10
+}\if{html}{\out{</div>}}
 
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_fit_20$leaf_min_obs
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 20
+}\if{html}{\out{</div>}}
 }
 
 \subsection{tidymodels}{
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(tidymodels)
+library(tidyverse)
+library(randomForestSRC)
+library(ranger)
+library(riskRegression)
+}\if{html}{\out{</div>}}
 
 This example uses \code{tidymodels} functions but stops short of using an
 official \code{tidymodels} workflow. I am working on getting \code{aorsf} pulled
@@ -664,16 +536,16 @@ analyses
 ## # A tibble: 10 x 5
 ##    splits           id     recipe   train               test              
 ##    <list>           <chr>  <list>   <list>              <list>            
-##  1 <split [248/28]> Fold01 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
-##  2 <split [248/28]> Fold02 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
-##  3 <split [248/28]> Fold03 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
-##  4 <split [248/28]> Fold04 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
-##  5 <split [248/28]> Fold05 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
-##  6 <split [248/28]> Fold06 <recipe> <tibble [248 x 20]> <tibble [28 x 20]>
-##  7 <split [249/27]> Fold07 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
-##  8 <split [249/27]> Fold08 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
-##  9 <split [249/27]> Fold09 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
-## 10 <split [249/27]> Fold10 <recipe> <tibble [249 x 20]> <tibble [27 x 20]>
+##  1 <split [248/28]> Fold01 <recipe> <tibble [248 x 19]> <tibble [28 x 19]>
+##  2 <split [248/28]> Fold02 <recipe> <tibble [248 x 19]> <tibble [28 x 19]>
+##  3 <split [248/28]> Fold03 <recipe> <tibble [248 x 19]> <tibble [28 x 19]>
+##  4 <split [248/28]> Fold04 <recipe> <tibble [248 x 19]> <tibble [28 x 19]>
+##  5 <split [248/28]> Fold05 <recipe> <tibble [248 x 19]> <tibble [28 x 19]>
+##  6 <split [248/28]> Fold06 <recipe> <tibble [248 x 19]> <tibble [28 x 19]>
+##  7 <split [249/27]> Fold07 <recipe> <tibble [249 x 19]> <tibble [27 x 19]>
+##  8 <split [249/27]> Fold08 <recipe> <tibble [249 x 19]> <tibble [27 x 19]>
+##  9 <split [249/27]> Fold09 <recipe> <tibble [249 x 19]> <tibble [27 x 19]>
+## 10 <split [249/27]> Fold10 <recipe> <tibble [249 x 19]> <tibble [27 x 19]>
 }\if{html}{\out{</div>}}
 
 Define functions for a ‘workflow’ with \code{randomForestSRC}, \code{ranger}, and
@@ -733,30 +605,29 @@ glimpse(results)
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## Rows: 276
-## Columns: 23
-## $ id          <int> 1, 8, 15, 17, 23, 35, 56, 68, 92, 94, 97, 109, 116, 130, 1~
-## $ trt         <fct> d_penicill_main, placebo, d_penicill_main, placebo, placeb~
-## $ age         <dbl> 58.76523, 53.05681, 64.64613, 52.18344, 55.96715, 48.61875~
-## $ sex         <fct> f, f, f, f, f, f, f, f, f, f, m, f, f, f, f, f, f, f, f, f~
-## $ ascites     <fct> 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~
-## $ hepato      <fct> 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0~
-## $ spiders     <fct> 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0~
-## $ edema       <fct> 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0, 0.5, 0, 0, 0, 0.5, 0~
-## $ bili        <dbl> 14.5, 0.3, 0.8, 2.7, 17.4, 1.2, 1.1, 0.7, 1.4, 3.2, 2.0, 0~
-## $ chol        <int> 261, 280, 231, 274, 395, 314, 498, 174, 206, 201, 420, 120~
-## $ albumin     <dbl> 2.60, 4.00, 3.87, 3.15, 2.94, 3.20, 3.80, 4.09, 3.13, 3.11~
-## $ copper      <int> 156, 52, 173, 159, 558, 201, 88, 58, 36, 178, 62, 53, 74, ~
-## $ alk.phos    <dbl> 1718.0, 4651.2, 9009.8, 1533.0, 6064.8, 12258.8, 13862.4, ~
-## $ ast         <dbl> 137.95, 28.38, 127.71, 117.80, 227.04, 72.24, 95.46, 71.30~
-## $ trig        <int> 172, 189, 96, 128, 191, 151, 319, 46, 70, 69, 91, 52, 382,~
-## $ platelet    <int> 190, 373, 295, 224, 214, 431, 365, 203, 145, 188, 344, 271~
-## $ protime     <dbl> 12.2, 11.0, 11.0, 10.5, 11.7, 10.6, 10.6, 10.6, 12.2, 11.8~
-## $ stage       <ord> 4, 3, 3, 4, 4, 3, 2, 3, 4, 4, 3, 3, 3, 3, 2, 2, 3, 2, 3, 2~
-## $ time        <int> 400, 2466, 3584, 769, 264, 2847, 1847, 4039, 388, 750, 611~
-## $ status      <dbl> 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0~
-## $ pred_aorsf  <dbl> 0.95858574, 0.05070837, 0.22924369, 0.47048899, 0.94442624~
-## $ pred_rfsrc  <dbl> 0.85474291, 0.05480510, 0.31751746, 0.45156052, 0.85784657~
-## $ pred_ranger <dbl> 0.77897322, 0.04599438, 0.30267242, 0.43467381, 0.77914735~
+## Columns: 22
+## $ trt         <fct> d_penicill_main, placebo, d_penicill_main, d_penicill_main~
+## $ age         <dbl> 58.76523, 53.05681, 42.50787, 53.93018, 49.56057, 56.27652~
+## $ sex         <fct> f, f, f, f, f, f, f, f, f, f, f, f, m, f, m, f, f, f, f, f~
+## $ ascites     <fct> 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0~
+## $ hepato      <fct> 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1~
+## $ spiders     <fct> 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1~
+## $ edema       <fct> 1, 0, 0, 1, 0.5, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 1, 0, 0, 0, ~
+## $ bili        <dbl> 14.5, 0.3, 3.2, 11.4, 0.7, 3.4, 4.7, 0.8, 1.2, 2.1, 0.8, 5~
+## $ chol        <int> 261, 280, 562, 178, 235, 271, 296, 210, 314, 373, 315, 325~
+## $ albumin     <dbl> 2.60, 4.00, 3.08, 2.80, 3.56, 3.63, 3.44, 3.19, 3.20, 3.50~
+## $ copper      <int> 156, 52, 79, 588, 39, 464, 114, 82, 201, 52, 13, 110, 208,~
+## $ alk.phos    <dbl> 1718.0, 4651.2, 2276.0, 961.0, 1881.0, 1376.0, 9933.2, 159~
+## $ ast         <dbl> 137.95, 28.38, 144.15, 280.55, 93.00, 120.90, 206.40, 218.~
+## $ trig        <int> 172, 189, 88, 200, 123, 55, 101, 113, 151, 188, 70, 56, 78~
+## $ platelet    <int> 190, 373, 251, 283, 209, 173, 195, 180, 431, 178, 426, 430~
+## $ protime     <dbl> 12.2, 11.0, 11.0, 12.4, 11.0, 11.6, 10.3, 12.0, 10.6, 11.0~
+## $ stage       <ord> 4, 3, 2, 4, 3, 4, 2, 3, 3, 3, 3, 4, 3, 2, 3, 2, 3, 3, 4, 4~
+## $ time        <int> 400, 2466, 2400, 131, 4232, 673, 3839, 3170, 2847, 1487, 3~
+## $ status      <dbl> 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0~
+## $ pred_aorsf  <dbl> 0.94986902, 0.04055628, 0.33944791, 0.89062181, 0.15908091~
+## $ pred_rfsrc  <dbl> 0.86664135, 0.04543564, 0.37300014, 0.81065989, 0.10473570~
+## $ pred_ranger <dbl> 0.777229745, 0.023942064, 0.339384520, 0.736158608, 0.0609~
 }\if{html}{\out{</div>}}
 
 And finish by aggregating the predictions and computing performance in
@@ -782,16 +653,16 @@ counts.
 ## Results by model:
 ## 
 ##     model times  AUC lower upper
-## 1:  aorsf  1826 90.7  86.4  95.0
-## 2:  rfsrc  1826 89.9  85.6  94.2
-## 3: ranger  1826 89.7  85.5  94.0
+## 1:  aorsf  1826 91.6  87.6  95.6
+## 2:  rfsrc  1826 89.9  85.7  94.1
+## 3: ranger  1826 90.7  86.7  94.6
 ## 
 ## Results of model comparisons:
 ## 
-##    times  model reference delta.AUC lower upper   p
-## 1:  1826  rfsrc     aorsf      -0.8  -2.2   0.5 0.2
-## 2:  1826 ranger     aorsf      -1.0  -2.5   0.5 0.2
-## 3:  1826 ranger     rfsrc      -0.1  -1.3   1.0 0.8
+##    times  model reference delta.AUC lower upper    p
+## 1:  1826  rfsrc     aorsf      -1.7  -3.1  -0.2 0.03
+## 2:  1826 ranger     aorsf      -0.9  -2.3   0.4 0.17
+## 3:  1826 ranger     rfsrc       0.7  -0.3   1.8 0.18
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.
@@ -805,31 +676,25 @@ counts.
 ## 
 ##         model   times Brier lower upper  IPA
 ## 1: Null model 1826.25  20.5  18.1  22.9  0.0
-## 2:      aorsf 1826.25  10.8   8.6  13.0 47.3
-## 3:      rfsrc 1826.25  11.8   9.7  13.9 42.5
-## 4:     ranger 1826.25  11.9   9.8  14.0 41.9
+## 2:      aorsf 1826.25  10.4   8.2  12.5 49.4
+## 3:      rfsrc 1826.25  11.7   9.6  13.9 42.7
+## 4:     ranger 1826.25  11.5   9.5  13.6 43.6
 ## 
 ## Results of model comparisons:
 ## 
 ##      times  model  reference delta.Brier lower upper            p
-## 1: 1826.25  aorsf Null model        -9.7 -12.3  -7.1 2.179169e-13
-## 2: 1826.25  rfsrc Null model        -8.7 -11.0  -6.4 3.915661e-14
-## 3: 1826.25 ranger Null model        -8.6 -10.9  -6.2 8.869452e-13
-## 4: 1826.25  rfsrc      aorsf         1.0   0.3   1.7 5.383491e-03
-## 5: 1826.25 ranger      aorsf         1.1   0.5   1.7 7.890574e-04
-## 6: 1826.25 ranger      rfsrc         0.1  -0.4   0.6 6.310608e-01
+## 1: 1826.25  aorsf Null model       -10.1 -12.7  -7.5 1.061922e-14
+## 2: 1826.25  rfsrc Null model        -8.7 -11.0  -6.4 9.953144e-14
+## 3: 1826.25 ranger Null model        -8.9 -11.2  -6.6 2.801473e-14
+## 4: 1826.25  rfsrc      aorsf         1.4   0.6   2.1 2.385384e-04
+## 5: 1826.25 ranger      aorsf         1.2   0.5   1.8 4.279696e-04
+## 6: 1826.25 ranger      rfsrc        -0.2  -0.7   0.3 4.719110e-01
 
 ## 
 ## NOTE: Values are multiplied by 100 and given in \%.
 
 ## NOTE: The lower Brier the better, the higher IPA the better.
 }\if{html}{\out{</div>}}
-
-From inspection,
-\itemize{
-\item \code{aorsf} obtained slightly higher discrimination (AUC)
-\item \code{aorsf} obtained higher index of prediction accuracy (IPA)
-}
 }
 
 }
