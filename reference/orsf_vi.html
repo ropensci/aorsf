@@ -157,13 +157,13 @@ values indicating higher importance.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>When an <code>orsf_fit</code> object is fitted with importance = 'anova', 'negate', or
-'permute', the output will have a vector of importance values based on
-the requested type of importance. However, you may still want to call
-<code>orsf_vi()</code> on this output if you want to group factor levels into one
-overall importance value.</p>
+    <p>When an <code>ObliqueForest</code> object is grown with importance = 'anova',
+'negate', or 'permute', the output will have a vector of importance
+values based on the requested type of importance. However, <code>orsf_vi()</code>
+can be used to compute variable importance after growing a forest
+or to compute a different type of importance.</p>
 <p><code>orsf_vi()</code> is a general purpose function to extract or compute variable
-importance estimates from an <code>'orsf_fit'</code> object (see <a href="orsf.html">orsf</a>).
+importance estimates from an <code>ObliqueForest</code> object (see <a href="orsf.html">orsf</a>).
 <code>orsf_vi_negate()</code>, <code>orsf_vi_permute()</code>, and <code>orsf_vi_anova()</code> are wrappers
 for <code>orsf_vi()</code>. The way these functions work depends on whether the
 <code>object</code> they are given already has variable importance estimates in it
