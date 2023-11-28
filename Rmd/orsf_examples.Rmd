@@ -62,23 +62,189 @@ orsf_fit_20$leaf_min_obs
 
 ```
 
-
 ## tidymodels
+
+`tidymodels` includes support for `aorsf` as a computational engine:
 
 ```{r, warning=FALSE, echo=TRUE, message=FALSE}
 
 library(tidymodels)
 library(tidyverse)
-library(randomForestSRC)
-library(ranger)
-library(riskRegression)
+library(censored)
+library(yardstick)
+
+pbc_tidy <- pbc_orsf %>% 
+ mutate(event_time = Surv(time, status), .before = 1) %>% 
+ select(-c(id, time, status)) %>% 
+ as_tibble()
+
+split  <- initial_split(pbc_tidy)
+
+orsf_spec <- rand_forest() %>% 
+ set_engine("aorsf") %>% 
+ set_mode("censored regression")
+
+orsf_fit <- fit(orsf_spec, event_time ~ ., data = training(split))
+
+```
+
+Prediction with `aorsf` models at different times is also supported:
+
+```{r}
+
+time_points <- seq(500, 3000, by = 500)
+
+test_pred <- augment(orsf_fit, 
+                     new_data = testing(split), 
+                     eval_time = time_points)
+
+brier_scores <- test_pred %>% 
+  brier_survival(truth = event_time, .pred)
+
+brier_scores
+
+roc_scores <- test_pred %>% 
+  roc_auc_survival(truth = event_time, .pred)
+
+roc_scores
 
 ```
 
 
-This example uses `tidymodels` functions but stops short of using an official `tidymodels` workflow. I am working on getting `aorsf` pulled into the `censored` package and I will update this with real workflows if that happens!
+## Comparisons with existing software (classification)
 
-### Comparing ORSF with other learners
+Several other R packages can grow oblique forests for classification, including 
+
+- `RLT` (https://cran.r-project.org/package=RLT)
+- `ODRF` (https://liuyu-star.github.io/ODRF/)
+- `obliqueRF` (no longer on CRAN, so not included)
+
+```{r, warning=FALSE, message=FALSE}
+
+library(ODRF)
+library(RLT)
+library(microbenchmark)
+
+```
+
+### Computation
+
+We'll use the the `attrition` data from the `modeldata` R package.
+
+```{r}
+
+# keep only numeric predictors (easier to convert to matrix)
+data_all <- as_tibble(modeldata::attrition) %>% 
+ select(outcome = Attrition, where(is.numeric))
+
+# x and y matrices for ODRF and RLT
+x <- as.matrix(select(data_all, -outcome))
+y <- data_all$outcome
+
+```
+
+
+Compare the time taken to grow a forest of 100 trees with the `RLT`, `aorsf`, and `ODRF` packages:
+
+```{r, warning=FALSE, message=FALSE, eval=FALSE}
+
+options(microbenchmark.unit="relative")
+
+# This benchmark is run using a 24-core processor
+bm <- microbenchmark::microbenchmark(
+ fit_orsf = orsf(data_all, outcome ~ ., n_tree = 100, n_thread = 0),
+ fit_odrf = ODRF(X = x, y = y,  parallel = TRUE, ntrees = 100),
+ fit_rlt = RLT(x = x, y = y,  model = 'classification', ntrees = 100, 
+               combsplit = 3, reinforcement = TRUE),
+ times = 10
+)
+
+```
+
+```{r, echo=FALSE}
+
+options(microbenchmark.unit="relative")
+
+bm <- structure(list(expr = structure(c(1L, 1L, 2L, 3L, 2L, 1L, 2L, 
+3L, 3L, 1L, 2L, 3L, 1L, 2L, 2L, 3L, 3L, 1L, 1L, 2L, 1L, 2L, 1L, 
+3L, 1L, 3L, 2L, 3L, 2L, 3L), levels = c("fit_orsf", "fit_odrf", 
+"fit_rlt"), class = "factor"), time = c(48109600, 49112600, 10993356800, 
+48030845700, 11083532300, 50480400, 11266350100, 49670644800, 
+48571226500, 51156800, 11005391000, 49984885500, 50464800, 11087423500, 
+11290844100, 50331647300, 51760008300, 41431800, 40718000, 11054960000, 
+48484100, 11253251900, 48914400, 47786809400, 52255200, 44269840300, 
+11077901500, 44499918900, 11067692900, 43761864500)), class = c("microbenchmark", 
+"data.frame"), row.names = c(NA, -30L))
+
+print(bm)
+
+```
+
+Based on a benchmark on the `attrition` data (`nrow` = `r nrow(data_all)`, `ncol` = `r ncol(data_all)`), `aorsf` runs faster than `ODRF` and `RLT`. 
+
+### Prediction
+
+Using the same `attrition` data, compare the prediction accuracy of the three oblique random forest R packages. First, split intro train/test sets:
+
+```{r}
+
+set.seed(730)
+train_rows <- sample(nrow(data_all), nrow(data_all)/2)
+
+data_train <- data_all[train_rows, ]
+data_test <- data_all[-train_rows, ]
+
+x_train <- as.matrix(select(data_train, -outcome))
+y_train <- data_train$outcome
+
+x_test <- as.matrix(select(data_test, -outcome))
+y_test <- data_test$outcome
+
+```
+
+Next, fit the models to the training data:
+
+```{r, warning=FALSE}
+
+fit_orsf = orsf(data_train, outcome ~ ., n_tree = 100)
+
+fit_odrf = ODRF(X = x_train, y = y_train, ntrees = 100)
+
+fit_rlt = RLT(x = x_train, y = y_train, model = 'classification', 
+              combsplit = 3, reinforcement = TRUE, ntrees = 100)
+
+```
+
+Last, evaluate in the testing data
+
+```{r}
+
+eval <- tibble(
+ orsf = predict(fit_orsf, new_data = data_test)[, 1],
+ odrf = predict(fit_odrf, Xnew = x_test, type = 'prob')[, 1],
+ rlt  = predict(fit_rlt, testx = x_test)$ProbPrediction[, 1],
+ truth = data_test$outcome
+) %>% 
+ pivot_longer(-truth) %>% 
+ group_by(name) %>% 
+ roc_auc(truth = truth, value) %>% 
+ arrange(desc(.estimate))
+
+eval
+
+```
+
+Not surprisingly, discrimination is very similar when all the models being compared are oblique random forests.
+
+## Comparison with existing software (survival)
+
+A much more thorough comparison of `aorsf` and other learners for survival data has been published (see DOI: 10.1080/10618600.2023.2231048). Below is an example comparing `aorsf` to the two most widely used R packages for axis based random forests: `randomForestSRC` and `ranger`. Since I used mostly base R to run the classification example, I'll run this using `tidy` tools.
+
+```{r, warning=FALSE, message=FALSE}
+library(ranger)
+library(randomForestSRC)
+library(riskRegression)
+```
 
 Start with a recipe to pre-process data
 
@@ -183,7 +349,5 @@ Score(
 )
 
 ```
-
-
 
 
