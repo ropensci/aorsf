@@ -75,7 +75,7 @@ knitr::include_graphics('man/figures/tree_axis_v_oblique.png')
 
 ## Examples
 
-The `orsf()` function can fit several types of oblique RFs. My personal favorite is the accelerated oblique survival RF because it has a great combination of prediction accuracy and computational efficiency (see [JCGS paper](https://doi.org/10.1080/10618600.2023.2231048)).^2^
+`orsf()` fits several types of oblique RFs. My personal favorite is the accelerated oblique survival RF because it has a great combination of prediction accuracy and computational efficiency (see [JCGS paper](https://doi.org/10.1080/10618600.2023.2231048)).^2^
 
 ```{r, child='Rmd/orsf-fit-accelerated.Rmd'}
 

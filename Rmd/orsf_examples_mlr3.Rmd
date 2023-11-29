@@ -113,7 +113,7 @@ tasks <- list(task_pbc,
 
 Now we can make a benchmark designed to compare our three favorite learners:
 
- ```{r eval = FALSE}
+```{r}
 
 # Learners with default parameters
 learners <- lrns(c("surv.ranger", "surv.rfsrc", "surv.aorsf"))
@@ -133,6 +133,7 @@ benchmark_result <- benchmark(design)
 bm_scores <- benchmark_result$score(measures, predict_sets = "test")
 
 ```
+
 
 Let's look at the overall results:
 

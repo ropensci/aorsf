@@ -1,6 +1,8 @@
 
 # Examples
 
+`orsf()` is the entry-point of the `aorsf` package. It can be used to fit classification, regression, and survival forests. It can also compute out-of-bag prediction accuracy or out-of-bag variable importance using built-in functions or custom functions supplied by users.  
+
 ```{r, echo=FALSE}
 knitr::opts_chunk$set(cache = TRUE)
 ```
@@ -11,12 +13,208 @@ First we load some relevant packages
 
 set.seed(329730)
 library(aorsf)
+library(tidyverse)
 library(survival)
+
+penguins_orsf$bill_length_mm <- 
+ as.numeric(penguins_orsf$bill_length_mm)
+penguins_orsf$flipper_length_mm <-
+ as.numeric(penguins_orsf$flipper_length_mm)
+
+```
+
+## Classification
+
+We'll use the outstanding `penguin` data for this example:
+
+```{r}
+
+# penguins_orsf is a copy of the penguins data
+# from palmerpenguins but only includes complete cases:
+head(penguins_orsf)
+
+```
+
+The `orsf()` function will automatically fit a classification forest if the outcome variable is a factor:
+
+```{r}
+
+fit_penguins <- orsf(data = penguins_orsf,
+                     formula = species ~ bill_length_mm + flipper_length_mm)
+
+fit_penguins
+
+```
+
+You can also tell `orsf()` to do classification manually if you'd prefer keeping a numeric outcome. The way to do this is through the `control` argument:
+
+```{r}
+
+penguins_numeric <- penguins_orsf
+penguins_numeric$species <- as.numeric(penguins_numeric$species)
+
+fit_numeric <- orsf(penguins_numeric,
+                    formula = species ~ bill_length_mm + flipper_length_mm,
+                    control = orsf_control_classification())
+
+fit_numeric
+
+```
+
+You could also use `orsf_update` to make `fit_numeric` simply by giving it a new `data` argument
+
+```{r}
+
+orsf_update(fit_penguins, data = penguins_numeric)
+
+```
+
+### Difference between oblique and axis-based
+
+The difference between oblique random forests and axis-based random forests is most clear in their decision surface. The decision surface of an oblique forest is smooth:
+
+```{r}
+
+fit_tree <- orsf(penguins_numeric,
+                 n_tree = 1,
+                 formula = species ~ bill_length_mm + flipper_length_mm,
+                 control = orsf_control_classification())
+
+fit_tree <- orsf_update(fit_penguins, 
+                        control = orsf_control_classification(),
+                        n_tree = 1, 
+                        tree_seeds = 358815)
+
+grid <- expand_grid(
+
+ flipper_length_mm = seq(min(penguins_orsf$flipper_length_mm),
+                     max(penguins_orsf$flipper_length_mm),
+                  len = 100),
+ bill_length_mm = seq(min(penguins_orsf$bill_length_mm),
+                      max(penguins_orsf$bill_length_mm),
+                      len = 100)
+)
+
+pred_tree <- predict(fit_tree, new_data = grid, pred_type = 'prob')
+pred_forest <- predict(fit_penguins, new_data = grid, pred_type = 'prob')
+
+colnames(pred_forest) <- levels(penguins_orsf$species)
+colnames(pred_tree) <- levels(penguins_orsf$species)
+
+grid_forest <- bind_cols(grid, pred_forest) %>%
+ pivot_longer(cols = c(Adelie,
+                       Chinstrap,
+                       Gentoo)) %>%
+ group_by(flipper_length_mm, bill_length_mm) %>%
+ arrange(desc(value)) %>%
+ slice(1)
+
+grid_tree <- bind_cols(grid, pred_tree) %>%
+ pivot_longer(cols = c(Adelie,
+                       Chinstrap,
+                       Gentoo)) %>%
+ group_by(flipper_length_mm, bill_length_mm) %>%
+ arrange(desc(value)) %>%
+ slice(1)
+
+cols <- c("darkorange", "purple", "cyan4")
+
+ggplot(grid_forest, aes(bill_length_mm, flipper_length_mm)) +
+ geom_point(data = penguins_orsf,
+            aes(color = species, shape = species),
+            size = 3,
+            alpha = 0.8) +
+ geom_contour_filled(aes(z = value, fill = name),
+                     alpha = .25) +
+ scale_color_manual(values = cols) +
+ scale_fill_manual(values = cols) +
+ labs(x = "\nBill length, scaled",
+      y = "Bill depth, scaled\n") +
+ theme_minimal() +
+ scale_x_continuous(expand = c(0,0)) +
+ scale_y_continuous(expand = c(0,0)) +
+ theme(panel.grid = element_blank(),
+       panel.border = element_rect(fill = NA),
+       legend.position = '') + 
+ labs(title = "Decision surface of an oblique forest")
+
+ggplot(grid_tree, aes(bill_length_mm, flipper_length_mm)) +
+ geom_point(data = penguins_orsf,
+            aes(color = species, shape = species),
+            size = 3,
+            alpha = 0.8) +
+ geom_contour_filled(aes(z = value, fill = name),
+                     alpha = .25) +
+ scale_color_manual(values = cols) +
+ scale_fill_manual(values = cols) +
+ labs(x = "\nBill length, scaled",
+      y = "Bill depth, scaled\n") +
+ theme_minimal() +
+ scale_x_continuous(expand = c(0,0)) +
+ scale_y_continuous(expand = c(0,0)) +
+ theme(panel.grid = element_blank(),
+       panel.border = element_rect(fill = NA),
+       legend.position = '') + 
+ labs(title = "Decision surface of an oblique forest")
+
+```
+
+This is because oblique trees create decision boundaries that are neither parallel or perpendicular to the axes of corresponding predictors. 
+
+By comparison, an axis based forest's decision surface is sharper:
+
+```{r}
+
+library(ranger)
+
+fit_ranger <- ranger::ranger(
+ data = penguins_orsf, 
+ formula = species ~ bill_length_mm + flipper_length_mm,
+ probability = TRUE
+)
+
+pred_ranger <- predict(fit_ranger, data = grid)$predictions
+
+colnames(pred_ranger) <- levels(penguins_orsf$species)
+
+grid_ranger <- bind_cols(grid, pred_ranger) %>%
+ pivot_longer(cols = c(Adelie,
+                       Chinstrap,
+                       Gentoo)) %>%
+ group_by(flipper_length_mm, bill_length_mm) %>%
+ arrange(desc(value)) %>%
+ slice(1)
+
+cols <- c("darkorange", "purple", "cyan4")
+
+ggplot(grid_ranger, aes(bill_length_mm, flipper_length_mm)) +
+ geom_point(data = penguins_orsf,
+            aes(color = species, shape = species),
+            size = 3,
+            alpha = 0.8) +
+ geom_contour_filled(aes(z = value, fill = name),
+                     alpha = .25) +
+ scale_color_manual(values = cols) +
+ scale_fill_manual(values = cols) +
+ labs(x = "\nBill length, scaled",
+      y = "Bill depth, scaled\n") +
+ theme_minimal() +
+ scale_x_continuous(expand = c(0,0)) +
+ scale_y_continuous(expand = c(0,0)) +
+ theme(panel.grid = element_blank(),
+       panel.border = element_rect(fill = NA),
+       legend.position = '') + 
+ labs(title = "Decision surface of an axis-based forest")
+
 
 ```
 
 
-The entry-point into `aorsf` is the standard call to `orsf()`:
+## Regression
+
+
+
+## Survival
 
 ```{r}
 
@@ -29,6 +227,7 @@ printing `fit` provides quick descriptive summaries:
 ```{r}
 fit
 ```
+
 
 ## More than one way to grow a forest
 
@@ -69,7 +268,6 @@ orsf_fit_20$leaf_min_obs
 ```{r, warning=FALSE, echo=TRUE, message=FALSE}
 
 library(tidymodels)
-library(tidyverse)
 library(censored)
 library(yardstick)
 
@@ -235,6 +433,134 @@ eval
 ```
 
 Not surprisingly, discrimination is very similar when all the models being compared are oblique random forests.
+
+
+## Comparisons with existing software (regression)
+
+Several other R packages can grow oblique forests for regression, including 
+
+- `RLT` (https://cran.r-project.org/package=RLT)
+- `ODRF` (https://liuyu-star.github.io/ODRF/)
+- `obliqueRF` (no longer on CRAN, so not included)
+
+```{r, warning=FALSE, message=FALSE}
+
+library(ODRF)
+library(RLT)
+library(microbenchmark)
+
+```
+
+### Computation
+
+We'll use the the `ames` housing data from the `modeldata` R package.
+
+```{r}
+
+# keep only numeric predictors (easier to convert to matrix)
+data_all <- as_tibble(modeldata::ames) %>% 
+ mutate(outcome = log(Sale_Price)) %>%
+ select(outcome, where(is.numeric), -Sale_Price)
+
+# x and y matrices for ODRF and RLT
+x <- as.matrix(select(data_all, -outcome))
+y <- data_all$outcome
+
+```
+
+
+Compare the time taken to grow a forest of 100 trees with the `RLT`, `aorsf`, and `ODRF` packages:
+
+```{r, warning=FALSE, message=FALSE, eval=FALSE}
+
+options(microbenchmark.unit="relative")
+
+# This benchmark is run using a 24-core processor
+bm <- microbenchmark::microbenchmark(
+ fit_orsf = orsf(data_all, outcome ~ ., n_tree = 100, n_thread = 0),
+ fit_odrf = ODRF(X = x, y = y,  parallel = TRUE, ntrees = 100),
+ fit_rlt = RLT(x = x, y = y,  model = 'regression', ntrees = 100,
+               combsplit = 3, reinforcement = TRUE),
+ times = 1
+)
+
+```
+
+```{r, echo=FALSE}
+
+options(microbenchmark.unit="relative")
+
+bm <- structure(list(expr = structure(c(1L, 1L, 2L, 3L, 2L, 1L, 2L, 
+3L, 3L, 1L, 2L, 3L, 1L, 2L, 2L, 3L, 3L, 1L, 1L, 2L, 1L, 2L, 1L, 
+3L, 1L, 3L, 2L, 3L, 2L, 3L), levels = c("fit_orsf", "fit_odrf", 
+"fit_rlt"), class = "factor"), time = c(48109600, 49112600, 10993356800, 
+48030845700, 11083532300, 50480400, 11266350100, 49670644800, 
+48571226500, 51156800, 11005391000, 49984885500, 50464800, 11087423500, 
+11290844100, 50331647300, 51760008300, 41431800, 40718000, 11054960000, 
+48484100, 11253251900, 48914400, 47786809400, 52255200, 44269840300, 
+11077901500, 44499918900, 11067692900, 43761864500)), class = c("microbenchmark", 
+"data.frame"), row.names = c(NA, -30L))
+
+print(bm)
+
+```
+
+Based on a benchmark on the `attrition` data (`nrow` = `r nrow(data_all)`, `ncol` = `r ncol(data_all)`), `aorsf` runs faster than `ODRF` and `RLT`. 
+
+### Prediction
+
+Using the same `attrition` data, compare the prediction accuracy of the three oblique random forest R packages. First, split intro train/test sets:
+
+```{r}
+
+set.seed(730)
+train_rows <- sample(nrow(data_all), nrow(data_all)/2)
+
+data_train <- data_all[train_rows, ]
+data_test <- data_all[-train_rows, ]
+
+x_train <- as.matrix(select(data_train, -outcome))
+y_train <- data_train$outcome
+
+x_test <- as.matrix(select(data_test, -outcome))
+y_test <- data_test$outcome
+
+```
+
+Next, fit the models to the training data:
+
+```{r, warning=FALSE}
+
+fit_orsf = orsf(data_train, outcome ~ ., n_tree = 100)
+
+fit_odrf = ODRF(X = x_train, y = y_train, ntrees = 100)
+
+fit_rlt = RLT(x = x_train, y = y_train, model = 'regression', 
+              combsplit = 3, reinforcement = TRUE, ntrees = 100)
+
+```
+
+Last, evaluate in the testing data
+
+```{r}
+
+eval <- tibble(
+ orsf = predict(fit_orsf, new_data = data_test)[, 1],
+ odrf = predict(fit_odrf, Xnew = x_test)[,1],
+ rlt  = predict(fit_rlt, testx = x_test)$Prediction,
+ truth = data_test$outcome
+) %>% 
+ pivot_longer(-truth) %>% 
+ group_by(name) %>% 
+ rsq(truth = truth, value) %>% 
+ arrange(desc(.estimate))
+
+eval
+
+```
+
+prediction accuracy is similar.
+
 
 ## Comparison with existing software (survival)
 
