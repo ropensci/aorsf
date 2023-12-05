@@ -397,7 +397,8 @@ using built-in functions or custom functions supplied by users.
 
 First we load some relevant packages
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329730)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+set.seed(329730)
 library(aorsf)
 library(tidyverse)
 library(survival)
@@ -406,54 +407,54 @@ library(survival)
 
 We’ll use the outstanding \code{penguin} data for this example:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{# penguins_orsf is a copy of the penguins data
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+# penguins_orsf is a copy of the penguins data
 # from palmerpenguins but only includes complete cases:
 head(penguins_orsf)
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 8
-##   species island    bill_length_mm bill_depth_mm flipper_length_mm body_mass_g
-##   <fct>   <fct>              <dbl>         <dbl>             <dbl>       <int>
-## 1 Adelie  Torgersen           39.1          18.7               181        3750
-## 2 Adelie  Torgersen           39.5          17.4               186        3800
-## 3 Adelie  Torgersen           40.3          18                 195        3250
-## 4 Adelie  Torgersen           36.7          19.3               193        3450
-## 5 Adelie  Torgersen           39.3          20.6               190        3650
-## 6 Adelie  Torgersen           38.9          17.8               181        3625
-## # i 2 more variables: sex <fct>, year <int>
+#> # A tibble: 6 x 8
+#>   species island    bill_length_mm bill_depth_mm
+#>   <fct>   <fct>              <dbl>         <dbl>
+#> 1 Adelie  Torgersen           39.1          18.7
+#> 2 Adelie  Torgersen           39.5          17.4
+#> 3 Adelie  Torgersen           40.3          18  
+#> 4 Adelie  Torgersen           36.7          19.3
+#> 5 Adelie  Torgersen           39.3          20.6
+#> 6 Adelie  Torgersen           38.9          17.8
+#> # i 4 more variables: flipper_length_mm <dbl>,
+#> #   body_mass_g <int>, sex <fct>, year <int>
 }\if{html}{\out{</div>}}
 
 The \code{orsf()} function will automatically fit a classification forest if
 the outcome variable is a factor:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_penguins <- orsf(data = penguins_orsf,
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+fit_penguins <- orsf(data = penguins_orsf,
                      formula = species ~ bill_length_mm + flipper_length_mm)
 
 fit_penguins
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random classification forest
-## 
-##      Linear combinations: Accelerated Logistic regression
-##           N observations: 333
-##                N classes: 3
-##                  N trees: 500
-##       N predictors total: 2
-##    N predictors per node: 2
-##  Average leaves per tree: 5.896
-## Min observations in leaf: 5
-##           OOB stat value: 0.99
-##            OOB stat type: AUC-ROC
-##      Variable importance: anova
-## 
-## -----------------------------------------
+#> ---------- Oblique random classification forest
+#> 
+#>      Linear combinations: Accelerated Logistic regression
+#>           N observations: 333
+#>                N classes: 3
+#>                  N trees: 500
+#>       N predictors total: 2
+#>    N predictors per node: 2
+#>  Average leaves per tree: 5.896
+#> Min observations in leaf: 5
+#>           OOB stat value: 0.99
+#>            OOB stat type: AUC-ROC
+#>      Variable importance: anova
+#> 
+#> -----------------------------------------
 }\if{html}{\out{</div>}}
 
 You can also tell \code{orsf()} to do classification manually if you’d prefer
 keeping a numeric outcome. The way to do this is through the \code{control}
 argument:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{penguins_numeric <- penguins_orsf
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+penguins_numeric <- penguins_orsf
 penguins_numeric$species <- as.numeric(penguins_numeric$species)
 
 fit_numeric <- orsf(penguins_numeric,
@@ -461,185 +462,44 @@ fit_numeric <- orsf(penguins_numeric,
                     control = orsf_control_classification())
 
 fit_numeric
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random classification forest
-## 
-##      Linear combinations: Logistic regression
-##           N observations: 333
-##                N classes: 3
-##                  N trees: 500
-##       N predictors total: 2
-##    N predictors per node: 2
-##  Average leaves per tree: 6.134
-## Min observations in leaf: 5
-##           OOB stat value: 0.99
-##            OOB stat type: AUC-ROC
-##      Variable importance: anova
-## 
-## -----------------------------------------
+#> ---------- Oblique random classification forest
+#> 
+#>      Linear combinations: Logistic regression
+#>           N observations: 333
+#>                N classes: 3
+#>                  N trees: 500
+#>       N predictors total: 2
+#>    N predictors per node: 2
+#>  Average leaves per tree: 6.134
+#> Min observations in leaf: 5
+#>           OOB stat value: 0.99
+#>            OOB stat type: AUC-ROC
+#>      Variable importance: anova
+#> 
+#> -----------------------------------------
 }\if{html}{\out{</div>}}
 
 You could also use \code{orsf_update} to make \code{fit_numeric} simply by giving
 it a new \code{data} argument
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_update(fit_penguins, data = penguins_numeric)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+orsf_update(fit_penguins, data = penguins_numeric)
+#> ---------- Oblique random classification forest
+#> 
+#>      Linear combinations: Accelerated Logistic regression
+#>           N observations: 333
+#>                N classes: 3
+#>                  N trees: 500
+#>       N predictors total: 2
+#>    N predictors per node: 2
+#>  Average leaves per tree: 5.896
+#> Min observations in leaf: 5
+#>           OOB stat value: 0.99
+#>            OOB stat type: AUC-ROC
+#>      Variable importance: anova
+#> 
+#> -----------------------------------------
 }\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random classification forest
-## 
-##      Linear combinations: Accelerated Logistic regression
-##           N observations: 333
-##                N classes: 3
-##                  N trees: 500
-##       N predictors total: 2
-##    N predictors per node: 2
-##  Average leaves per tree: 5.896
-## Min observations in leaf: 5
-##           OOB stat value: 0.99
-##            OOB stat type: AUC-ROC
-##      Variable importance: anova
-## 
-## -----------------------------------------
-}\if{html}{\out{</div>}}
-\subsection{Difference between oblique and axis-based}{
-
-For this example, we modify integer columns in the penguins data to be
-doubles so that \code{aorsf} will not throw an error when we ask it to
-predict at non-integer values of these predictors:
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{penguins_orsf <- penguins_orsf \%>\% 
- mutate(bill_length_mm = as.numeric(bill_length_mm),
-        flipper_length_mm = as.numeric(flipper_length_mm))
-}\if{html}{\out{</div>}}
-
-We will also use the same code to make several plots, so I define a
-function below to minimize repetition.
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{plot_decision_surface <- function(predictions, grid, title)\{
- 
- # this is not a general function for plotting
- # decision surfaces. It just helps to minimize 
- # copying and pasting of code.
- 
- colnames(predictions) <- levels(penguins_orsf$species)
- 
- class_preds <- bind_cols(grid, predictions) \%>\%
-  pivot_longer(cols = c(Adelie,
-                        Chinstrap,
-                        Gentoo)) \%>\%
-  group_by(flipper_length_mm, bill_length_mm) \%>\%
-  arrange(desc(value)) \%>\%
-  slice(1)
- 
- cols <- c("darkorange", "purple", "cyan4")
-
- ggplot(class_preds, aes(bill_length_mm, flipper_length_mm)) +
-  geom_contour_filled(aes(z = value, fill = name),
-                      alpha = .25) +
-  geom_point(data = penguins_orsf,
-             aes(color = species, shape = species),
-             size = 3,
-             alpha = 0.8) +
-  scale_color_manual(values = cols) +
-  scale_fill_manual(values = cols) +
-  labs(x = "\nBill length, scaled",
-       y = "Bill depth, scaled\n") +
-  theme_minimal() +
-  scale_x_continuous(expand = c(0,0)) +
-  scale_y_continuous(expand = c(0,0)) +
-  theme(panel.grid = element_blank(),
-        panel.border = element_rect(fill = NA),
-        legend.position = '') + 
-  labs(title = title)
- 
-\}
-}\if{html}{\out{</div>}}
-
-We also use a grid of points for plotting the decision surface, which is
-created as follows:
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{grid <- expand_grid(
-
- flipper_length_mm = seq(min(penguins_orsf$flipper_length_mm),
-                     max(penguins_orsf$flipper_length_mm),
-                  len = 200),
- bill_length_mm = seq(min(penguins_orsf$bill_length_mm),
-                      max(penguins_orsf$bill_length_mm),
-                      len = 200)
-)
-}\if{html}{\out{</div>}}
-
-Axis-based random forests comprise axis-based trees, which partition
-data by splitting them into subgroups using a single variable.
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{# ranger and randomForestSRC are fantastic packages for
-# axis-based random forests. For simplicity, we use orsf
-# to fit one here. Note that orsf with mtry = 1 is similar
-# to an extremely randomized axis-based forest 
-
-fit_axis_tree <- penguins_orsf \%>\% 
- orsf(species ~ bill_length_mm + flipper_length_mm,
-      n_tree = 1,
-      mtry = 1,
-      tree_seeds = 106760)
-
-pred_axis_tree <- predict(fit_axis_tree, new_data = grid)
-}\if{html}{\out{</div>}}
-
-With axis-based splits, decision boundaries will always be perpendicular
-to the axis of the relevant predictor:
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{plot_decision_surface(pred_axis_tree, grid, "Axis-based tree")
-}\if{html}{\out{</div>}}
-
-\figure{D:/aorsf/Rmd/figureunnamed-chunk-12-1.png}\if{html}{\out{<!-- -->}}
-
-When predictions from hundreds of axis-based trees are aggregated, the
-collective decision surface is much more flexible. However, even with
-hundreds of axis-based trees, it is difficult to capture smooth decision
-boundaries:
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_axis_forest <- fit_axis_tree \%>\% 
- orsf_update(n_tree = 500)
-
-pred_axis_forest <- predict(fit_axis_forest, new_data = grid)
-
-plot_decision_surface(pred_axis_forest, grid, "Axis-based forest")
-}\if{html}{\out{</div>}}
-
-\figure{D:/aorsf/Rmd/figureunnamed-chunk-13-1.png}\if{html}{\out{<!-- -->}}
-
-Instead of using a single predictor to split data, oblique trees use a
-weighted combination of predictors. This creates decision boundaries
-that are neither parallel or perpendicular to the axes of corresponding
-predictors:
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_oblique_tree <- fit_axis_tree \%>\% 
- orsf_update(mtry = 2)
-
-pred_oblique_tree <- predict(fit_oblique_tree, new_data = grid)
-
-plot_decision_surface(pred_oblique_tree, grid, "Oblique tree")
-}\if{html}{\out{</div>}}
-
-\figure{D:/aorsf/Rmd/figureunnamed-chunk-14-1.png}\if{html}{\out{<!-- -->}}
-
-And, when predictions from these trees are aggregated, they do a great
-job of capturing smooth geometries!
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_oblique_forest <- fit_oblique_tree \%>\% 
- orsf_update(n_tree = 500)
-
-pred_oblique_forest <- predict(fit_oblique_forest, 
-                               new_data = grid)
-
-plot_decision_surface(pred_oblique_forest, grid, "Oblique forest")
-}\if{html}{\out{</div>}}
-
-\figure{D:/aorsf/Rmd/figureunnamed-chunk-15-1.png}\if{html}{\out{<!-- -->}}
-}
-
 }
 
 \subsection{Regression}{
@@ -647,30 +507,29 @@ plot_decision_surface(pred_oblique_forest, grid, "Oblique forest")
 
 \subsection{Survival}{
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 }\if{html}{\out{</div>}}
 
 printing \code{fit} provides quick descriptive summaries:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
-## 
-##      Linear combinations: Accelerated Cox regression
-##           N observations: 276
-##                 N events: 111
-##                  N trees: 500
-##       N predictors total: 17
-##    N predictors per node: 5
-##  Average leaves per tree: 20.994
-## Min observations in leaf: 5
-##       Min events in leaf: 1
-##           OOB stat value: 0.84
-##            OOB stat type: Harrell's C-index
-##      Variable importance: anova
-## 
-## -----------------------------------------
+#> ---------- Oblique random survival forest
+#> 
+#>      Linear combinations: Accelerated Cox regression
+#>           N observations: 276
+#>                 N events: 111
+#>                  N trees: 500
+#>       N predictors total: 17
+#>    N predictors per node: 5
+#>  Average leaves per tree: 20.866
+#> Min observations in leaf: 5
+#>       Min events in leaf: 1
+#>           OOB stat value: 0.84
+#>            OOB stat type: Harrell's C-index
+#>      Variable importance: anova
+#> 
+#> -----------------------------------------
 }\if{html}{\out{</div>}}
 }
 
@@ -679,72 +538,61 @@ printing \code{fit} provides quick descriptive summaries:
 You can use \code{orsf(no_fit = TRUE)} to make a specification to grow a
 forest that can be used as a blueprint for \code{orsf_train()}:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_spec <- orsf(pbc_orsf, time + status ~ . - id, no_fit = TRUE)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+orsf_spec <- orsf(pbc_orsf, time + status ~ . - id, no_fit = TRUE)
 orsf_spec
+#> Untrained oblique random survival forest
+#> 
+#>      Linear combinations: Accelerated Cox regression
+#>           N observations: 276
+#>                 N events: 111
+#>                  N trees: 500
+#>       N predictors total: 17
+#>    N predictors per node: 5
+#>  Average leaves per tree: 0
+#> Min observations in leaf: 5
+#>       Min events in leaf: 1
+#>           OOB stat value: none
+#>            OOB stat type: Harrell's C-index
+#>      Variable importance: anova
+#> 
+#> -----------------------------------------
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## Untrained oblique random survival forest
-## 
-##      Linear combinations: Accelerated Cox regression
-##           N observations: 276
-##                 N events: 111
-##                  N trees: 500
-##       N predictors total: 17
-##    N predictors per node: 5
-##  Average leaves per tree: 0
-## Min observations in leaf: 5
-##       Min events in leaf: 1
-##           OOB stat value: none
-##            OOB stat type: Harrell's C-index
-##      Variable importance: anova
-## 
-## -----------------------------------------
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_fit <- orsf_train(orsf_spec)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+orsf_fit <- orsf_train(orsf_spec)
 orsf_fit
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
-## 
-##      Linear combinations: Accelerated Cox regression
-##           N observations: 276
-##                 N events: 111
-##                  N trees: 500
-##       N predictors total: 17
-##    N predictors per node: 5
-##  Average leaves per tree: 20.854
-## Min observations in leaf: 5
-##       Min events in leaf: 1
-##           OOB stat value: 0.84
-##            OOB stat type: Harrell's C-index
-##      Variable importance: anova
-## 
-## -----------------------------------------
+#> ---------- Oblique random survival forest
+#> 
+#>      Linear combinations: Accelerated Cox regression
+#>           N observations: 276
+#>                 N events: 111
+#>                  N trees: 500
+#>       N predictors total: 17
+#>    N predictors per node: 5
+#>  Average leaves per tree: 20.994
+#> Min observations in leaf: 5
+#>       Min events in leaf: 1
+#>           OOB stat value: 0.84
+#>            OOB stat type: Harrell's C-index
+#>      Variable importance: anova
+#> 
+#> -----------------------------------------
 }\if{html}{\out{</div>}}
 
 You can also update the specification in place when passing it to
 \code{orsf_train()}, making it easy to fit several models from one spec:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_fit_10 <- orsf_train(orsf_spec, leaf_min_obs = 10)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+orsf_fit_10 <- orsf_train(orsf_spec, leaf_min_obs = 10)
 orsf_fit_20 <- orsf_train(orsf_spec, leaf_min_obs = 20)
 
 orsf_fit$leaf_min_obs
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 5
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_fit_10$leaf_min_obs
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 10
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_fit_20$leaf_min_obs
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 20
+#> [1] 5
+orsf_fit_10$leaf_min_obs
+#> [1] 10
+orsf_fit_20$leaf_min_obs
+#> [1] 20
 }\if{html}{\out{</div>}}
 }
 
@@ -752,7 +600,8 @@ orsf_fit$leaf_min_obs
 
 \code{tidymodels} includes support for \code{aorsf} as a computational engine:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(tidymodels)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+library(tidymodels)
 library(censored)
 library(yardstick)
 
@@ -772,7 +621,8 @@ orsf_fit <- fit(orsf_spec, event_time ~ ., data = training(split))
 
 Prediction with \code{aorsf} models at different times is also supported:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{time_points <- seq(500, 3000, by = 500)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+time_points <- seq(500, 3000, by = 500)
 
 test_pred <- augment(orsf_fit, 
                      new_data = testing(split), 
@@ -782,34 +632,29 @@ brier_scores <- test_pred \%>\%
   brier_survival(truth = event_time, .pred)
 
 brier_scores
-}\if{html}{\out{</div>}}
+#> # A tibble: 6 x 4
+#>   .metric        .estimator .eval_time .estimate
+#>   <chr>          <chr>           <dbl>     <dbl>
+#> 1 brier_survival standard          500    0.0670
+#> 2 brier_survival standard         1000    0.0688
+#> 3 brier_survival standard         1500    0.0890
+#> 4 brier_survival standard         2000    0.0937
+#> 5 brier_survival standard         2500    0.147 
+#> 6 brier_survival standard         3000    0.163
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 4
-##   .metric        .estimator .eval_time .estimate
-##   <chr>          <chr>           <dbl>     <dbl>
-## 1 brier_survival standard          500    0.0333
-## 2 brier_survival standard         1000    0.0668
-## 3 brier_survival standard         1500    0.0653
-## 4 brier_survival standard         2000    0.0580
-## 5 brier_survival standard         2500    0.0785
-## 6 brier_survival standard         3000    0.114
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{roc_scores <- test_pred \%>\% 
+roc_scores <- test_pred \%>\% 
   roc_auc_survival(truth = event_time, .pred)
 
 roc_scores
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 4
-##   .metric          .estimator .eval_time .estimate
-##   <chr>            <chr>           <dbl>     <dbl>
-## 1 roc_auc_survival standard          500     0.955
-## 2 roc_auc_survival standard         1000     0.934
-## 3 roc_auc_survival standard         1500     0.989
-## 4 roc_auc_survival standard         2000     0.998
-## 5 roc_auc_survival standard         2500     0.964
-## 6 roc_auc_survival standard         3000     0.943
+#> # A tibble: 6 x 4
+#>   .metric          .estimator .eval_time .estimate
+#>   <chr>            <chr>           <dbl>     <dbl>
+#> 1 roc_auc_survival standard          500     0.993
+#> 2 roc_auc_survival standard         1000     0.962
+#> 3 roc_auc_survival standard         1500     0.939
+#> 4 roc_auc_survival standard         2000     0.943
+#> 5 roc_auc_survival standard         2500     0.913
+#> 6 roc_auc_survival standard         3000     0.903
 }\if{html}{\out{</div>}}
 }
 }

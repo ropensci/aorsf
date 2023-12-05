@@ -69,12 +69,129 @@ separating the two classes.
 
 <img src="man/figures/tree_axis_v_oblique.png" width="100%" />
 
+So, how does this difference translate to real data, and how does it
+impact random forests comprising hundreds of axis-based or oblique
+trees? We will demonstrate this using the `penguin` data from the
+magnificent `palmerpenguins` R package.
+
+``` r
+library(aorsf)
+library(tidyverse)
+
+penguins_orsf <- penguins_orsf %>% 
+ mutate(bill_length_mm = as.numeric(bill_length_mm),
+        flipper_length_mm = as.numeric(flipper_length_mm))
+```
+
+We will also use this function to make several plots:
+
+``` r
+plot_decision_surface <- function(predictions, title, grid){
+ 
+ # this is not a general function for plotting
+ # decision surfaces. It just helps to minimize 
+ # copying and pasting of code.
+ 
+ colnames(predictions) <- levels(penguins_orsf$species)
+ 
+ class_preds <- bind_cols(grid, predictions) %>%
+  pivot_longer(cols = c(Adelie,
+                        Chinstrap,
+                        Gentoo)) %>%
+  group_by(flipper_length_mm, bill_length_mm) %>%
+  arrange(desc(value)) %>%
+  slice(1)
+ 
+ cols <- c("darkorange", "purple", "cyan4")
+
+ ggplot(class_preds, aes(bill_length_mm, flipper_length_mm)) +
+  geom_contour_filled(aes(z = value, fill = name),
+                      alpha = .25) +
+  geom_point(data = penguins_orsf,
+             aes(color = species, shape = species),
+             size = 2,
+             alpha = 0.8) +
+  scale_color_manual(values = cols) +
+  scale_fill_manual(values = cols) +
+  labs(x = "Bill length, mm",
+       y = "Flipper length, mm") +
+  theme_minimal() +
+  scale_x_continuous(expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0)) +
+  theme(panel.grid = element_blank(),
+        panel.border = element_rect(fill = NA),
+        legend.position = '') + 
+  labs(title = title)
+ 
+}
+```
+
+We also use a grid of points for plotting decision surfaces:
+
+``` r
+grid <- expand_grid(
+
+ flipper_length_mm = seq(min(penguins_orsf$flipper_length_mm),
+                     max(penguins_orsf$flipper_length_mm),
+                  len = 200),
+ bill_length_mm = seq(min(penguins_orsf$bill_length_mm),
+                      max(penguins_orsf$bill_length_mm),
+                      len = 200)
+)
+```
+
+We use `orsf` with `mtry=1` to fit axis-based trees and random forests.
+Then we use `orsf_update` to expand axis-based trees to oblique ones,
+and single trees to forests:
+
+``` r
+fit_axis_tree <- penguins_orsf %>% 
+ orsf(species ~ bill_length_mm + flipper_length_mm,
+      n_tree = 1,
+      mtry = 1,
+      tree_seeds = 106760)
+
+fit_axis_forest <- fit_axis_tree %>% 
+ orsf_update(n_tree = 500)
+
+fit_oblique_tree <- fit_axis_tree %>% 
+ orsf_update(mtry = 2)
+
+fit_oblique_forest <- fit_oblique_tree %>% 
+ orsf_update(n_tree = 500)
+
+
+preds <- list(fit_axis_tree,
+              fit_axis_forest,
+              fit_oblique_tree,
+              fit_oblique_forest) %>% 
+ map(predict, new_data = grid, pred_type = 'prob')
+
+titles <- c("Axis-based tree",
+            "Axis-based forest",
+            "Oblique tree",
+            "Oblique forest")
+
+plots <- map2(preds, titles,  
+              .f = plot_decision_surface, 
+              grid = grid)
+```
+
+**Figure**: Axis-based and oblique decision surfaces from a single tree
+and an ensemble of 500 trees. Axis-based trees have boundaries
+perpendicular to predictor axes, whereas oblique trees can have
+boundaries that are neither parallel nor perpendicular to predictor
+axes. Axis-based forests tend to have ‘step-function’ decision
+boundaries, while oblique forests tend to have smooth decision
+boundaries.
+
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+
 ## Examples
 
-The `orsf()` function can fit several types of oblique RFs. My personal
-favorite is the accelerated oblique survival RF because it has a great
-combination of prediction accuracy and computational efficiency (see
-[JCGS
+`orsf()` fits several types of oblique RFs. My personal favorite is the
+accelerated oblique survival RF because it has a great combination of
+prediction accuracy and computational efficiency (see [JCGS
 paper](https://doi.org/10.1080/10618600.2023.2231048)).<sup>2</sup>
 
 ``` r
@@ -99,7 +216,6 @@ Printing the output from `orsf()` will give some information and
 descriptive statistics about the ensemble.
 
 ``` r
-
 fit
 #> ---------- Oblique random survival forest
 #> 
@@ -144,7 +260,6 @@ using `aorsf`:
   Jaeger, (2023) for more details on this technique.
 
   ``` r
-
   orsf_vi_negate(fit)
   #>         bili          sex       copper        stage          age          ast 
   #>  0.117180683  0.058528338  0.033761789  0.026655509  0.022144911  0.019139095 
@@ -163,7 +278,6 @@ using `aorsf`:
   limitations](https://christophm.github.io/interpretable-ml-book/feature-importance.html#disadvantages-9)
 
   ``` r
-
   orsf_vi_permute(fit)
   #>         bili       copper          age        stage          sex          ast 
   #>  0.050536719  0.016394807  0.013793348  0.013204760  0.010261860  0.010101841 
@@ -184,7 +298,6 @@ using `aorsf`:
   for more details on this technique.
 
   ``` r
-
   orsf_vi_anova(fit)
   #>         bili       copper          age        stage          sex          ast 
   #>  0.050536719  0.016394807  0.013793348  0.013204760  0.010261860  0.010101841 
@@ -210,24 +323,25 @@ The summary function, `orsf_summarize_uni()`, computes PD for as many
 variables as you ask it to, using sensible values.
 
 ``` r
-
 orsf_summarize_uni(fit, n_variables = 2)
 #> 
-#> -- bili (VI Rank: 1) ---------------------------
+#> -- bili (VI Rank: 1) ----------------------------
 #> 
-#>        |---------------- Risk ----------------|
-#>  Value      Mean    Median     25th %    75th %
-#>   0.70 0.2043124 0.1288782 0.05502854 0.3130744
-#>   1.30 0.2193531 0.1430383 0.06680735 0.3352729
-#>   3.18 0.2835984 0.2210419 0.12363028 0.4313679
+#>         |---------------- Risk ----------------|
+#>   Value      Mean    Median     25th %    75th %
+#>  <char>     <num>     <num>      <num>     <num>
+#>    0.70 0.2043124 0.1288782 0.05502854 0.3130744
+#>    1.30 0.2193531 0.1430383 0.06680735 0.3352729
+#>    3.20 0.2843241 0.2228119 0.12421850 0.4304313
 #> 
-#> -- copper (VI Rank: 2) -------------------------
+#> -- copper (VI Rank: 2) --------------------------
 #> 
-#>        |---------------- Risk ----------------|
-#>  Value      Mean    Median     25th %    75th %
-#>   39.0 0.2308500 0.1358346 0.05536305 0.3575617
-#>   68.0 0.2415171 0.1482876 0.06189812 0.3682164
-#>    111 0.2725110 0.1846062 0.08723814 0.4047750
+#>         |---------------- Risk ----------------|
+#>   Value      Mean    Median     25th %    75th %
+#>  <char>     <num>     <num>      <num>     <num>
+#>    39.0 0.2308500 0.1358346 0.05536305 0.3575617
+#>    68.0 0.2415171 0.1482876 0.06189812 0.3682164
+#>     111 0.2727120 0.1846062 0.08723814 0.4084767
 #> 
 #>  Predicted risk at time t = 1826.25 for top 2 predictors
 ```

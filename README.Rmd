@@ -9,11 +9,12 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%"
+  out.width = "100%",
+  dpi = 300,
+  warning = FALSE,
+  message = FALSE
 )
 
-#' @srrstats {G1.2} *Project status describes current and anticipated future states of development.* 
- 
 ```
 
 # aorsf <a href="https://docs.ropensci.org/aorsf/"><img src="man/figures/logo.png" align="right" height="138" /></a>
@@ -73,6 +74,121 @@ knitr::include_graphics('man/figures/tree_axis_v_oblique.png')
 
 ```
 
+So, how does this difference translate to real data, and how does it impact random forests comprising hundreds of axis-based or oblique trees? We will demonstrate this using the `penguin` data from the magnificent `palmerpenguins` R package.
+
+```{r}
+library(aorsf)
+library(tidyverse)
+
+penguins_orsf <- penguins_orsf %>% 
+ mutate(bill_length_mm = as.numeric(bill_length_mm),
+        flipper_length_mm = as.numeric(flipper_length_mm))
+```
+
+We will also use this function to make several plots:
+
+```{r}
+plot_decision_surface <- function(predictions, title, grid){
+ 
+ # this is not a general function for plotting
+ # decision surfaces. It just helps to minimize 
+ # copying and pasting of code.
+ 
+ colnames(predictions) <- levels(penguins_orsf$species)
+ 
+ class_preds <- bind_cols(grid, predictions) %>%
+  pivot_longer(cols = c(Adelie,
+                        Chinstrap,
+                        Gentoo)) %>%
+  group_by(flipper_length_mm, bill_length_mm) %>%
+  arrange(desc(value)) %>%
+  slice(1)
+ 
+ cols <- c("darkorange", "purple", "cyan4")
+
+ ggplot(class_preds, aes(bill_length_mm, flipper_length_mm)) +
+  geom_contour_filled(aes(z = value, fill = name),
+                      alpha = .25) +
+  geom_point(data = penguins_orsf,
+             aes(color = species, shape = species),
+             size = 2,
+             alpha = 0.8) +
+  scale_color_manual(values = cols) +
+  scale_fill_manual(values = cols) +
+  labs(x = "Bill length, mm",
+       y = "Flipper length, mm") +
+  theme_minimal() +
+  scale_x_continuous(expand = c(0,0)) +
+  scale_y_continuous(expand = c(0,0)) +
+  theme(panel.grid = element_blank(),
+        panel.border = element_rect(fill = NA),
+        legend.position = '') + 
+  labs(title = title)
+ 
+}
+```
+
+We also use a grid of points for plotting decision surfaces:
+
+```{r}
+grid <- expand_grid(
+
+ flipper_length_mm = seq(min(penguins_orsf$flipper_length_mm),
+                     max(penguins_orsf$flipper_length_mm),
+                  len = 200),
+ bill_length_mm = seq(min(penguins_orsf$bill_length_mm),
+                      max(penguins_orsf$bill_length_mm),
+                      len = 200)
+)
+```
+
+
+We use `orsf` with `mtry=1` to fit axis-based trees and random forests. Then we use `orsf_update` to expand axis-based trees to oblique ones, and single trees to forests:
+
+
+```{r}
+fit_axis_tree <- penguins_orsf %>% 
+ orsf(species ~ bill_length_mm + flipper_length_mm,
+      n_tree = 1,
+      mtry = 1,
+      tree_seeds = 106760)
+
+fit_axis_forest <- fit_axis_tree %>% 
+ orsf_update(n_tree = 500)
+
+fit_oblique_tree <- fit_axis_tree %>% 
+ orsf_update(mtry = 2)
+
+fit_oblique_forest <- fit_oblique_tree %>% 
+ orsf_update(n_tree = 500)
+
+
+preds <- list(fit_axis_tree,
+              fit_axis_forest,
+              fit_oblique_tree,
+              fit_oblique_forest) %>% 
+ map(predict, new_data = grid, pred_type = 'prob')
+
+titles <- c("Axis-based tree",
+            "Axis-based forest",
+            "Oblique tree",
+            "Oblique forest")
+
+plots <- map2(preds, titles,  
+              .f = plot_decision_surface, 
+              grid = grid)
+```
+
+**Figure**: Axis-based and oblique decision surfaces from a single tree and an ensemble of 500 trees. Axis-based trees have boundaries perpendicular to predictor axes, whereas oblique trees can have boundaries that are neither parallel nor perpendicular to predictor axes. Axis-based forests tend to have 'step-function' decision boundaries, while oblique forests tend to have smooth decision boundaries.
+
+```{r, echo=FALSE}
+
+cowplot::plot_grid(plotlist = plots)
+
+```
+
+
+
 ## Examples
 
 `orsf()` fits several types of oblique RFs. My personal favorite is the accelerated oblique survival RF because it has a great combination of prediction accuracy and computational efficiency (see [JCGS paper](https://doi.org/10.1080/10618600.2023.2231048)).^2^
@@ -86,9 +202,7 @@ knitr::include_graphics('man/figures/tree_axis_v_oblique.png')
 Printing the output from `orsf()` will give some information and descriptive statistics about the ensemble.
 
 ```{r}
-
 fit
-
 ```
 
 - See [print.ObliqueForest](https://docs.ropensci.org/aorsf/reference/print.orsf_fit.html) for a description of each line in the printed output.
@@ -102,25 +216,19 @@ The importance of individual variables can be estimated in three ways using `aor
 - **negation**^2^: `r aorsf:::roxy_vi_describe('negate')`
 
   ```{r}
-  
   orsf_vi_negate(fit)
-  
   ```
 
 - **permutation**: `r aorsf:::roxy_vi_describe('permute')`
 
   ```{r}
-  
   orsf_vi_permute(fit)
-  
   ```
   
 - **analysis of variance (ANOVA)**^3^: `r aorsf:::roxy_vi_describe('anova')`
 
   ```{r}
-  
   orsf_vi_anova(fit)
-  
   ```
 
 You can supply your own R function to estimate out-of-bag error when using negation or permutation importance (see [oob vignette](https://docs.ropensci.org/aorsf/articles/oobag.html))
@@ -132,9 +240,7 @@ You can supply your own R function to estimate out-of-bag error when using negat
 The summary function, `orsf_summarize_uni()`, computes PD for as many variables as you ask it to, using sensible values.
 
 ```{r}
-
 orsf_summarize_uni(fit, n_variables = 2)
-
 ```
 
 

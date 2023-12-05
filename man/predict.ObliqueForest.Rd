@@ -97,7 +97,8 @@ used for \code{oobag_pred_horizon} when \code{object} was created (see \link{ors
 \section{Examples}{
 Begin by fitting an ORSF ensemble:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(aorsf)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+library(aorsf)
 
 set.seed(329730)
 
@@ -113,50 +114,43 @@ fit <- orsf(data = pbc_orsf_train,
 
 Predict risk, survival, or cumulative hazard at one or several times:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted risk, the default
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+# predicted risk, the default
 predict(fit, 
         new_data = pbc_orsf_test[1:5, ], 
         pred_type = 'risk', 
         pred_horizon = c(500, 1000, 1500))
-}\if{html}{\out{</div>}}
+#>            [,1]       [,2]       [,3]
+#> [1,] 0.45320860 0.71688357 0.88729787
+#> [2,] 0.03234200 0.07183812 0.14927375
+#> [3,] 0.10425422 0.25500251 0.40011524
+#> [4,] 0.01869464 0.04162596 0.08060608
+#> [5,] 0.01743330 0.02926360 0.06790689
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##            [,1]       [,2]       [,3]
-## [1,] 0.45320860 0.71688357 0.88729787
-## [2,] 0.03234200 0.07183812 0.14927375
-## [3,] 0.10425422 0.25500251 0.40011524
-## [4,] 0.01869464 0.04162596 0.08060608
-## [5,] 0.01743330 0.02926360 0.06790689
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted survival, i.e., 1 - risk
+# predicted survival, i.e., 1 - risk
 predict(fit, 
         new_data = pbc_orsf_test[1:5, ], 
         pred_type = 'surv',
         pred_horizon = c(500, 1000, 1500))
-}\if{html}{\out{</div>}}
+#>           [,1]      [,2]      [,3]
+#> [1,] 0.5467914 0.2831164 0.1127021
+#> [2,] 0.9676580 0.9281619 0.8507263
+#> [3,] 0.8957458 0.7449975 0.5998848
+#> [4,] 0.9813054 0.9583740 0.9193939
+#> [5,] 0.9825667 0.9707364 0.9320931
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##           [,1]      [,2]      [,3]
-## [1,] 0.5467914 0.2831164 0.1127021
-## [2,] 0.9676580 0.9281619 0.8507263
-## [3,] 0.8957458 0.7449975 0.5998848
-## [4,] 0.9813054 0.9583740 0.9193939
-## [5,] 0.9825667 0.9707364 0.9320931
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted cumulative hazard function
+# predicted cumulative hazard function
 # (expected number of events for person i at time j)
 predict(fit, 
         new_data = pbc_orsf_test[1:5, ], 
         pred_type = 'chf',
         pred_horizon = c(500, 1000, 1500))
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##            [,1]       [,2]       [,3]
-## [1,] 0.63853349 1.22980935 1.73663522
-## [2,] 0.03268688 0.08184222 0.20419113
-## [3,] 0.12730379 0.35165725 0.65852061
-## [4,] 0.01977094 0.05130407 0.10527319
-## [5,] 0.01764267 0.03050562 0.07781852
+#>            [,1]       [,2]       [,3]
+#> [1,] 0.63853349 1.22980935 1.73663522
+#> [2,] 0.03268688 0.08184222 0.20419113
+#> [3,] 0.12730379 0.35165725 0.65852061
+#> [4,] 0.01977094 0.05130407 0.10527319
+#> [5,] 0.01764267 0.03050562 0.07781852
 }\if{html}{\out{</div>}}
 
 Predict mortality, defined as the number of events in the forest’s
@@ -164,17 +158,16 @@ population if all observations had characteristics like the current
 observation. This type of prediction does not require you to specify a
 prediction horizon
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{predict(fit, 
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+predict(fit, 
         new_data = pbc_orsf_test[1:5, ], 
         pred_type = 'mort')
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##          [,1]
-## [1,] 78.37691
-## [2,] 20.85114
-## [3,] 37.80350
-## [4,] 13.39838
-## [5,] 10.15932
+#>          [,1]
+#> [1,] 78.37691
+#> [2,] 20.85114
+#> [3,] 37.80350
+#> [4,] 13.39838
+#> [5,] 10.15932
 }\if{html}{\out{</div>}}
 }
 

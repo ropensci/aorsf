@@ -124,27 +124,26 @@ or not (see examples).
 The default variable importance technique, ANOVA, is calculated while
 you fit an ORSF ensemble.
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 
 fit
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
-## 
-##      Linear combinations: Accelerated Cox regression
-##           N observations: 276
-##                 N events: 111
-##                  N trees: 500
-##       N predictors total: 17
-##    N predictors per node: 5
-##  Average leaves per tree: 21.28
-## Min observations in leaf: 5
-##       Min events in leaf: 1
-##           OOB stat value: 0.84
-##            OOB stat type: Harrell's C-index
-##      Variable importance: anova
-## 
-## -----------------------------------------
+#> ---------- Oblique random survival forest
+#> 
+#>      Linear combinations: Accelerated Cox regression
+#>           N observations: 276
+#>                 N events: 111
+#>                  N trees: 500
+#>       N predictors total: 17
+#>    N predictors per node: 5
+#>  Average leaves per tree: 21.28
+#> Min observations in leaf: 5
+#>       Min events in leaf: 1
+#>           OOB stat value: 0.84
+#>            OOB stat type: Harrell's C-index
+#>      Variable importance: anova
+#> 
+#> -----------------------------------------
 }\if{html}{\out{</div>}}
 
 ANOVA is the default because it is fast, but it may not be as decisive
@@ -155,10 +154,9 @@ as the permutation and negation techniques for variable selection.
 
 the ‘raw’ variable importance values can be accessed from the fit object
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{attr(fit, 'importance_values')
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## NULL
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+attr(fit, 'importance_values')
+#> NULL
 }\if{html}{\out{</div>}}
 
 these are ‘raw’ because values for factors have not been aggregated into
@@ -174,27 +172,25 @@ To get aggregated values across all levels of each factor,
 \itemize{
 \item access the \code{importance} element from the \code{orsf} fit:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit$importance
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper    albumin        age    protime 
-## 0.48908730 0.40201927 0.31576154 0.28808594 0.25707434 0.24918491 0.23739599 
-##       chol      stage        ast    spiders     hepato        sex   alk.phos 
-## 0.22546673 0.20949432 0.17276227 0.17108825 0.15844298 0.15646688 0.11049164 
-##       trig   platelet        trt 
-## 0.10526316 0.08373905 0.07367336
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+fit$importance
+#>    ascites       bili      edema     copper    albumin        age    protime 
+#> 0.48908730 0.40201927 0.31576154 0.28808594 0.25707434 0.24918491 0.23739599 
+#>       chol      stage        ast    spiders     hepato        sex   alk.phos 
+#> 0.22546673 0.20949432 0.17276227 0.17108825 0.15844298 0.15646688 0.11049164 
+#>       trig   platelet        trt 
+#> 0.10526316 0.08373905 0.07367336
 }\if{html}{\out{</div>}}
 \item use \code{orsf_vi()} with group_factors set to \code{TRUE} (the default)
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi(fit)
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper    albumin        age    protime 
-## 0.48908730 0.40201927 0.31576154 0.28808594 0.25707434 0.24918491 0.23739599 
-##       chol      stage        ast    spiders     hepato        sex   alk.phos 
-## 0.22546673 0.20949432 0.17276227 0.17108825 0.15844298 0.15646688 0.11049164 
-##       trig   platelet        trt 
-## 0.10526316 0.08373905 0.07367336
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+orsf_vi(fit)
+#>    ascites       bili      edema     copper    albumin        age    protime 
+#> 0.48908730 0.40201927 0.31576154 0.28808594 0.25707434 0.24918491 0.23739599 
+#>       chol      stage        ast    spiders     hepato        sex   alk.phos 
+#> 0.22546673 0.20949432 0.17276227 0.17108825 0.15844298 0.15646688 0.11049164 
+#>       trig   platelet        trt 
+#> 0.10526316 0.08373905 0.07367336
 }\if{html}{\out{</div>}}
 }
 
@@ -207,7 +203,8 @@ by setting \code{group_factors} to \code{FALSE} in the \code{orsf_vi} functions 
 
 You can fit an ORSF without VI, then add VI later
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_no_vi <- orsf(pbc_orsf,
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+fit_no_vi <- orsf(pbc_orsf,
                   Surv(time, status) ~ . - id,
                   importance = 'none')
 
@@ -215,27 +212,22 @@ You can fit an ORSF without VI, then add VI later
 # VI can only be computed while the forest is being grown.
 
 orsf_vi_negate(fit_no_vi)
-}\if{html}{\out{</div>}}
+#>         bili       copper          sex        stage      protime          age 
+#> 0.1237139435 0.0522875916 0.0436374058 0.0264254542 0.0242211214 0.0208034497 
+#>      albumin         chol      ascites          ast       hepato        edema 
+#> 0.0203449935 0.0152155212 0.0134918141 0.0122755546 0.0080937907 0.0068807789 
+#>      spiders     alk.phos          trt         trig     platelet 
+#> 0.0058287217 0.0037382254 0.0024557752 0.0018237051 0.0006883272
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##         bili       copper          sex        stage      protime          age 
-## 0.1237139435 0.0522875916 0.0436374058 0.0264254542 0.0242211214 0.0208034497 
-##      albumin         chol      ascites          ast       hepato        edema 
-## 0.0203449935 0.0152155212 0.0134918141 0.0122755546 0.0080937907 0.0068807789 
-##      spiders     alk.phos          trt         trig     platelet 
-## 0.0058287217 0.0037382254 0.0024557752 0.0018237051 0.0006883272
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi_permute(fit_no_vi)
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili        copper       protime         stage       ascites 
-##  0.0561427515  0.0237024406  0.0133988228  0.0125754046  0.0111755937 
-##       albumin           age          chol           ast         edema 
-##  0.0110805054  0.0108799933  0.0066262186  0.0062079536  0.0055363061 
-##       spiders        hepato           sex      alk.phos          trig 
-##  0.0053754874  0.0048894468  0.0038219855  0.0022462567  0.0009261366 
-##      platelet           trt 
-##  0.0007595733 -0.0012610217
+orsf_vi_permute(fit_no_vi)
+#>          bili        copper       protime         stage       ascites 
+#>  0.0561427515  0.0237024406  0.0133988228  0.0125754046  0.0111755937 
+#>       albumin           age          chol           ast         edema 
+#>  0.0110805054  0.0108799933  0.0066262186  0.0062079536  0.0055363061 
+#>       spiders        hepato           sex      alk.phos          trig 
+#>  0.0053754874  0.0048894468  0.0038219855  0.0022462567  0.0009261366 
+#>      platelet           trt 
+#>  0.0007595733 -0.0012610217
 }\if{html}{\out{</div>}}
 }
 
@@ -243,35 +235,33 @@ orsf_vi_negate(fit_no_vi)
 
 fit an ORSF and compute vi at the same time
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_permute_vi <- orsf(pbc_orsf,
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+fit_permute_vi <- orsf(pbc_orsf,
                         Surv(time, status) ~ . - id,
                         importance = 'permute')
 
 # get the vi instantly (i.e., it doesn't need to be computed again)
 orsf_vi_permute(fit_permute_vi)
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili        copper       protime           age       albumin 
-##  0.0556303145  0.0236357483  0.0142531459  0.0140897553  0.0117613116 
-##         stage       ascites          chol           ast       spiders 
-##  0.0113418077  0.0113139114  0.0058735307  0.0056767581  0.0052889836 
-##         edema        hepato          trig      alk.phos           sex 
-##  0.0050020021  0.0041316272  0.0019724136  0.0015504082  0.0014809407 
-##      platelet           trt 
-##  0.0004440263 -0.0001428931
+#>          bili        copper       protime           age       albumin 
+#>  0.0556303145  0.0236357483  0.0142531459  0.0140897553  0.0117613116 
+#>         stage       ascites          chol           ast       spiders 
+#>  0.0113418077  0.0113139114  0.0058735307  0.0056767581  0.0052889836 
+#>         edema        hepato          trig      alk.phos           sex 
+#>  0.0050020021  0.0041316272  0.0019724136  0.0015504082  0.0014809407 
+#>      platelet           trt 
+#>  0.0004440263 -0.0001428931
 }\if{html}{\out{</div>}}
 
 You can still get negation VI from this fit, but it needs to be computed
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi_negate(fit_permute_vi)
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##         bili       copper          sex      protime        stage          age 
-## 0.1243138054 0.0512366504 0.0355333945 0.0245616522 0.0244816644 0.0220214226 
-##      albumin      ascites          ast         chol      spiders       hepato 
-## 0.0199297370 0.0116687313 0.0115769922 0.0113597854 0.0065500245 0.0064090827 
-##        edema          trt         trig     alk.phos     platelet 
-## 0.0061703318 0.0043143732 0.0041226791 0.0028748538 0.0007984187
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+orsf_vi_negate(fit_permute_vi)
+#>         bili       copper          sex      protime        stage          age 
+#> 0.1243138054 0.0512366504 0.0355333945 0.0245616522 0.0244816644 0.0220214226 
+#>      albumin      ascites          ast         chol      spiders       hepato 
+#> 0.0199297370 0.0116687313 0.0115769922 0.0113597854 0.0065500245 0.0064090827 
+#>        edema          trt         trig     alk.phos     platelet 
+#> 0.0061703318 0.0043143732 0.0041226791 0.0028748538 0.0007984187
 }\if{html}{\out{</div>}}
 }
 }

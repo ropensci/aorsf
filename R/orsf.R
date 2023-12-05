@@ -342,10 +342,9 @@
 #'
 #' `r roxy_cite_jaeger_2023()`
 #'
-#' @export
-#'
 #' @includeRmd Rmd/orsf_examples.Rmd
 #'
+#' @export
 #'
 
 orsf <- function(data,
