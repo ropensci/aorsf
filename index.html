@@ -115,12 +115,105 @@
 <p>Decision trees are grown by splitting a set of training data into non-overlapping subsets, with the goal of having more similarity within the new subsets than between them. When subsets are created with a single predictor, the decision tree is <em>axis-based</em> because the subset boundaries are perpendicular to the axis of the predictor. When linear combinations (i.e., a weighted sum) of variables are used instead of a single variable, the tree is <em>oblique</em> because the boundaries are neither parallel nor perpendicular to the axis.</p>
 <p><strong>Figure</strong>: Decision trees for classification with axis-based splitting (left) and oblique splitting (right). Cases are orange squares; controls are purple circles. Both trees partition the predictor space defined by variables X1 and X2, but the oblique splits do a better job of separating the two classes.</p>
 <p><img src="reference/figures/tree_axis_v_oblique.png" width="100%"></p>
+<p>So, how does this difference translate to real data, and how does it impact random forests comprising hundreds of axis-based or oblique trees? We will demonstrate this using the <code>penguin</code> data from the magnificent <code>palmerpenguins</code> R package.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">penguins_orsf</span> <span class="op">&lt;-</span> <span class="va">penguins_orsf</span> <span class="op">%&gt;%</span> </span>
+<span> <span class="fu">mutate</span><span class="op">(</span>bill_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">bill_length_mm</span><span class="op">)</span>,</span>
+<span>        flipper_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">flipper_length_mm</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>We will also use this function to make several plots:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">plot_decision_surface</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">predictions</span>, <span class="va">title</span>, <span class="va">grid</span><span class="op">)</span><span class="op">{</span></span>
+<span> </span>
+<span> <span class="co"># this is not a general function for plotting</span></span>
+<span> <span class="co"># decision surfaces. It just helps to minimize </span></span>
+<span> <span class="co"># copying and pasting of code.</span></span>
+<span> </span>
+<span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">predictions</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">$</span><span class="va">species</span><span class="op">)</span></span>
+<span> </span>
+<span> <span class="va">class_preds</span> <span class="op">&lt;-</span> <span class="fu">bind_cols</span><span class="op">(</span><span class="va">grid</span>, <span class="va">predictions</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">pivot_longer</span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">Adelie</span>,</span>
+<span>                        <span class="va">Chinstrap</span>,</span>
+<span>                        <span class="va">Gentoo</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">group_by</span><span class="op">(</span><span class="va">flipper_length_mm</span>, <span class="va">bill_length_mm</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">arrange</span><span class="op">(</span><span class="fu">desc</span><span class="op">(</span><span class="va">value</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
+<span>  <span class="fu">slice</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span> </span>
+<span> <span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"darkorange"</span>, <span class="st">"purple"</span>, <span class="st">"cyan4"</span><span class="op">)</span></span>
+<span></span>
+<span> <span class="fu">ggplot</span><span class="op">(</span><span class="va">class_preds</span>, <span class="fu">aes</span><span class="op">(</span><span class="va">bill_length_mm</span>, <span class="va">flipper_length_mm</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_contour_filled</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>z <span class="op">=</span> <span class="va">value</span>, fill <span class="op">=</span> <span class="va">name</span><span class="op">)</span>,</span>
+<span>                      alpha <span class="op">=</span> <span class="fl">.25</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_point</span><span class="op">(</span>data <span class="op">=</span> <span class="va">penguins_orsf</span>,</span>
+<span>             <span class="fu">aes</span><span class="op">(</span>color <span class="op">=</span> <span class="va">species</span>, shape <span class="op">=</span> <span class="va">species</span><span class="op">)</span>,</span>
+<span>             size <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>             alpha <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_color_manual</span><span class="op">(</span>values <span class="op">=</span> <span class="va">cols</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_fill_manual</span><span class="op">(</span>values <span class="op">=</span> <span class="va">cols</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Bill length, mm"</span>,</span>
+<span>       y <span class="op">=</span> <span class="st">"Flipper length, mm"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_x_continuous</span><span class="op">(</span>expand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_y_continuous</span><span class="op">(</span>expand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme</span><span class="op">(</span>panel.grid <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>        panel.border <span class="op">=</span> <span class="fu">element_rect</span><span class="op">(</span>fill <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>        legend.position <span class="op">=</span> <span class="st">''</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu">labs</span><span class="op">(</span>title <span class="op">=</span> <span class="va">title</span><span class="op">)</span></span>
+<span> </span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>We also use a grid of points for plotting decision surfaces:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu">expand_grid</span><span class="op">(</span></span>
+<span></span>
+<span> flipper_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">$</span><span class="va">flipper_length_mm</span><span class="op">)</span>,</span>
+<span>                     <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">$</span><span class="va">flipper_length_mm</span><span class="op">)</span>,</span>
+<span>                  len <span class="op">=</span> <span class="fl">200</span><span class="op">)</span>,</span>
+<span> bill_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">$</span><span class="va">bill_length_mm</span><span class="op">)</span>,</span>
+<span>                      <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">$</span><span class="va">bill_length_mm</span><span class="op">)</span>,</span>
+<span>                      len <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>We use <code>orsf</code> with <code>mtry=1</code> to fit axis-based trees and random forests. Then we use <code>orsf_update</code> to expand axis-based trees to oblique ones, and single trees to forests:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_axis_tree</span> <span class="op">&lt;-</span> <span class="va">penguins_orsf</span> <span class="op">%&gt;%</span> </span>
+<span> <span class="fu"><a href="reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">species</span> <span class="op">~</span> <span class="va">bill_length_mm</span> <span class="op">+</span> <span class="va">flipper_length_mm</span>,</span>
+<span>      n_tree <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>      mtry <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>      tree_seeds <span class="op">=</span> <span class="fl">106760</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit_axis_forest</span> <span class="op">&lt;-</span> <span class="va">fit_axis_tree</span> <span class="op">%&gt;%</span> </span>
+<span> <span class="fu"><a href="reference/orsf_update.html">orsf_update</a></span><span class="op">(</span>n_tree <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit_oblique_tree</span> <span class="op">&lt;-</span> <span class="va">fit_axis_tree</span> <span class="op">%&gt;%</span> </span>
+<span> <span class="fu"><a href="reference/orsf_update.html">orsf_update</a></span><span class="op">(</span>mtry <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit_oblique_forest</span> <span class="op">&lt;-</span> <span class="va">fit_oblique_tree</span> <span class="op">%&gt;%</span> </span>
+<span> <span class="fu"><a href="reference/orsf_update.html">orsf_update</a></span><span class="op">(</span>n_tree <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="va">preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">fit_axis_tree</span>,</span>
+<span>              <span class="va">fit_axis_forest</span>,</span>
+<span>              <span class="va">fit_oblique_tree</span>,</span>
+<span>              <span class="va">fit_oblique_forest</span><span class="op">)</span> <span class="op">%&gt;%</span> </span>
+<span> <span class="fu">map</span><span class="op">(</span><span class="va">predict</span>, new_data <span class="op">=</span> <span class="va">grid</span>, pred_type <span class="op">=</span> <span class="st">'prob'</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">titles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Axis-based tree"</span>,</span>
+<span>            <span class="st">"Axis-based forest"</span>,</span>
+<span>            <span class="st">"Oblique tree"</span>,</span>
+<span>            <span class="st">"Oblique forest"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu">map2</span><span class="op">(</span><span class="va">preds</span>, <span class="va">titles</span>,  </span>
+<span>              .f <span class="op">=</span> <span class="va">plot_decision_surface</span>, </span>
+<span>              grid <span class="op">=</span> <span class="va">grid</span><span class="op">)</span></span></code></pre></div>
+<p><strong>Figure</strong>: Axis-based and oblique decision surfaces from a single tree and an ensemble of 500 trees. Axis-based trees have boundaries perpendicular to predictor axes, whereas oblique trees can have boundaries that are neither parallel nor perpendicular to predictor axes. Axis-based forests tend to have ‘step-function’ decision boundaries, while oblique forests tend to have smooth decision boundaries.</p>
+<p><img src="reference/figures/README-unnamed-chunk-6-1.png" width="100%"></p>
 </div>
 <div class="section level2">
 <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
-<p>The <code><a href="reference/orsf.html">orsf()</a></code> function can fit several types of oblique RFs. My personal favorite is the accelerated oblique survival RF because it has a great combination of prediction accuracy and computational efficiency (see <a href="https://doi.org/10.1080/10618600.2023.2231048" class="external-link">JCGS paper</a>).<sup>2</sup></p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<p><code><a href="reference/orsf.html">orsf()</a></code> fits several types of oblique RFs. My personal favorite is the accelerated oblique survival RF because it has a great combination of prediction accuracy and computational efficiency (see <a href="https://doi.org/10.1080/10618600.2023.2231048" class="external-link">JCGS paper</a>).<sup>2</sup></p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
 <span></span>
@@ -138,9 +231,8 @@
 <h3 id="inspect">Inspect<a class="anchor" aria-label="anchor" href="#inspect"></a>
 </h3>
 <p>Printing the output from <code><a href="reference/orsf.html">orsf()</a></code> will give some information and descriptive statistics about the ensemble.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">fit</span></span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit</span></span>
 <span><span class="co">#&gt; ---------- Oblique random survival forest</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;      Linear combinations: Accelerated Cox regression</span></span>
@@ -169,9 +261,8 @@
 <ul>
 <li>
 <p><strong>negation</strong><sup>2</sup>: Each variable is assessed separately by multiplying the variable’s coefficients by -1 and then determining how much the model’s performance changes. The worse the model’s performance after negating coefficients for a given variable, the more important the variable. This technique is promising b/c it does not require permutation and it emphasizes variables with larger coefficients in linear combinations, but it is also relatively new and hasn’t been studied as much as permutation importance. See Jaeger, (2023) for more details on this technique.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         bili          sex       copper        stage          age          ast </span></span>
 <span><span class="co">#&gt;  0.117180683  0.058528338  0.033761789  0.026655509  0.022144911  0.019139095 </span></span>
 <span><span class="co">#&gt;      protime       hepato        edema      ascites      albumin         chol </span></span>
@@ -181,9 +272,8 @@
 </li>
 <li>
 <p><strong>permutation</strong>: Each variable is assessed separately by randomly permuting the variable’s values and then determining how much the model’s performance changes. The worse the model’s performance after permuting the values of a given variable, the more important the variable. This technique is flexible, intuitive, and frequently used. It also has several <a href="https://christophm.github.io/interpretable-ml-book/feature-importance.html#disadvantages-9" class="external-link">known limitations</a></p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         bili       copper          age        stage          sex          ast </span></span>
 <span><span class="co">#&gt;  0.050536719  0.016394807  0.013793348  0.013204760  0.010261860  0.010101841 </span></span>
 <span><span class="co">#&gt;        edema      ascites      protime      albumin       hepato         chol </span></span>
@@ -193,9 +283,8 @@
 </li>
 <li>
 <p><strong>analysis of variance (ANOVA)</strong><sup>3</sup>: A p-value is computed for each coefficient in each linear combination of variables in each decision tree. Importance for an individual predictor variable is the proportion of times a p-value for its coefficient is &lt; 0.01. This technique is very efficient computationally, but may not be as effective as permutation or negation in terms of selecting signal over noise variables. See <a href="https://link.springer.com/chapter/10.1007/978-3-642-23783-6_29" class="external-link">Menze, 2011</a> for more details on this technique.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         bili       copper          age        stage          sex          ast </span></span>
 <span><span class="co">#&gt;  0.050536719  0.016394807  0.013793348  0.013204760  0.010261860  0.010101841 </span></span>
 <span><span class="co">#&gt;        edema      ascites      protime      albumin       hepato         chol </span></span>
@@ -211,25 +300,26 @@
 </h3>
 <p>Partial dependence (PD) shows the expected prediction from a model as a function of a single predictor or multiple predictors. The expectation is marginalized over the values of all other predictors, giving something like a multivariable adjusted estimate of the model’s prediction.</p>
 <p>The summary function, <code><a href="reference/orsf_summarize_uni.html">orsf_summarize_uni()</a></code>, computes PD for as many variables as you ask it to, using sensible values.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="reference/orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">fit</span>, n_variables <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">fit</span>, n_variables <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- bili (VI Rank: 1) ---------------------------</span></span>
+<span><span class="co">#&gt; -- bili (VI Rank: 1) ----------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |---------------- Risk ----------------|</span></span>
-<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;   0.70 0.2043124 0.1288782 0.05502854 0.3130744</span></span>
-<span><span class="co">#&gt;   1.30 0.2193531 0.1430383 0.06680735 0.3352729</span></span>
-<span><span class="co">#&gt;   3.18 0.2835984 0.2210419 0.12363028 0.4313679</span></span>
+<span><span class="co">#&gt;         |---------------- Risk ----------------|</span></span>
+<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;    0.70 0.2043124 0.1288782 0.05502854 0.3130744</span></span>
+<span><span class="co">#&gt;    1.30 0.2193531 0.1430383 0.06680735 0.3352729</span></span>
+<span><span class="co">#&gt;    3.20 0.2843241 0.2228119 0.12421850 0.4304313</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- copper (VI Rank: 2) -------------------------</span></span>
+<span><span class="co">#&gt; -- copper (VI Rank: 2) --------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |---------------- Risk ----------------|</span></span>
-<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;   39.0 0.2308500 0.1358346 0.05536305 0.3575617</span></span>
-<span><span class="co">#&gt;   68.0 0.2415171 0.1482876 0.06189812 0.3682164</span></span>
-<span><span class="co">#&gt;    111 0.2725110 0.1846062 0.08723814 0.4047750</span></span>
+<span><span class="co">#&gt;         |---------------- Risk ----------------|</span></span>
+<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;    39.0 0.2308500 0.1358346 0.05536305 0.3575617</span></span>
+<span><span class="co">#&gt;    68.0 0.2415171 0.1482876 0.06189812 0.3682164</span></span>
+<span><span class="co">#&gt;     111 0.2727120 0.1846062 0.08723814 0.4084767</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Predicted risk at time t = 1826.25 for top 2 predictors</span></span></code></pre></div>
 <p>For more on PD, see the <a href="https://docs.ropensci.org/aorsf/articles/pd.html" class="external-link">vignette</a></p>

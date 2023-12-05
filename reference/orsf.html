@@ -467,7 +467,8 @@ fit classification, regression, and survival forests. It can also
 compute out-of-bag prediction accuracy or out-of-bag variable importance
 using built-in functions or custom functions supplied by users.</p>
 <p>First we load some relevant packages</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329730</span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329730</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span></code></pre><p></p></div><div class="section">
@@ -475,197 +476,89 @@ using built-in functions or custom functions supplied by users.</p>
 
 
 <p>We’ll use the outstanding <code>penguin</code> data for this example:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="co"># penguins_orsf is a copy of the penguins data</span></span>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="co"># penguins_orsf is a copy of the penguins data</span></span>
 <span><span class="co"># from palmerpenguins but only includes complete cases:</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## # A tibble: 6 x 8</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##   species island    bill_length_mm bill_depth_mm flipper_length_mm body_mass_g</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##   &lt;fct&gt;   &lt;fct&gt;              &lt;dbl&gt;         &lt;dbl&gt;             &lt;dbl&gt;       &lt;int&gt;</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 1 Adelie  Torgersen           39.1          18.7               181        3750</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 2 Adelie  Torgersen           39.5          17.4               186        3800</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 3 Adelie  Torgersen           40.3          18                 195        3250</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 4 Adelie  Torgersen           36.7          19.3               193        3450</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 5 Adelie  Torgersen           39.3          20.6               190        3650</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 6 Adelie  Torgersen           38.9          17.8               181        3625</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## # i 2 more variables: sex &lt;fct&gt;, year &lt;int&gt;</span></span></code></pre><p></p></div>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 6 x 8</span></span>
+<span><span class="co">#&gt;   species island    bill_length_mm bill_depth_mm</span></span>
+<span><span class="co">#&gt;   &lt;fct&gt;   &lt;fct&gt;              &lt;dbl&gt;         &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 Adelie  Torgersen           39.1          18.7</span></span>
+<span><span class="co">#&gt; 2 Adelie  Torgersen           39.5          17.4</span></span>
+<span><span class="co">#&gt; 3 Adelie  Torgersen           40.3          18  </span></span>
+<span><span class="co">#&gt; 4 Adelie  Torgersen           36.7          19.3</span></span>
+<span><span class="co">#&gt; 5 Adelie  Torgersen           39.3          20.6</span></span>
+<span><span class="co">#&gt; 6 Adelie  Torgersen           38.9          17.8</span></span>
+<span><span class="co">#&gt; # i 4 more variables: flipper_length_mm &lt;dbl&gt;,</span></span>
+<span><span class="co">#&gt; #   body_mass_g &lt;int&gt;, sex &lt;fct&gt;, year &lt;int&gt;</span></span></code></pre><p></p></div>
 <p>The <code>orsf()</code> function will automatically fit a classification forest if
 the outcome variable is a factor:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_penguins</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">penguins_orsf</span>,</span>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="va">fit_penguins</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">penguins_orsf</span>,</span>
 <span>                     formula <span class="op">=</span> <span class="va">species</span> <span class="op">~</span> <span class="va">bill_length_mm</span> <span class="op">+</span> <span class="va">flipper_length_mm</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit_penguins</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## ---------- Oblique random classification forest</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##      Linear combinations: Accelerated Logistic regression</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##           N observations: 333</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##                N classes: 3</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##                  N trees: 500</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##       N predictors total: 2</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##    N predictors per node: 2</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  Average leaves per tree: 5.896</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## Min observations in leaf: 5</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">##           OOB stat value: 0.99</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">##            OOB stat type: AUC-ROC</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="do">##      Variable importance: anova</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="do">## -----------------------------------------</span></span></code></pre><p></p></div>
+<span><span class="va">fit_penguins</span></span>
+<span><span class="co">#&gt; ---------- Oblique random classification forest</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;      Linear combinations: Accelerated Logistic regression</span></span>
+<span><span class="co">#&gt;           N observations: 333</span></span>
+<span><span class="co">#&gt;                N classes: 3</span></span>
+<span><span class="co">#&gt;                  N trees: 500</span></span>
+<span><span class="co">#&gt;       N predictors total: 2</span></span>
+<span><span class="co">#&gt;    N predictors per node: 2</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 5.896</span></span>
+<span><span class="co">#&gt; Min observations in leaf: 5</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.99</span></span>
+<span><span class="co">#&gt;            OOB stat type: AUC-ROC</span></span>
+<span><span class="co">#&gt;      Variable importance: anova</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -----------------------------------------</span></span></code></pre><p></p></div>
 <p>You can also tell <code>orsf()</code> to do classification manually if you’d prefer
 keeping a numeric outcome. The way to do this is through the <code>control</code>
 argument:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">penguins_numeric</span> <span class="op">&lt;-</span> <span class="va">penguins_orsf</span></span>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="va">penguins_numeric</span> <span class="op">&lt;-</span> <span class="va">penguins_orsf</span></span>
 <span><span class="va">penguins_numeric</span><span class="op">$</span><span class="va">species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">penguins_numeric</span><span class="op">$</span><span class="va">species</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit_numeric</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">penguins_numeric</span>,</span>
 <span>                    formula <span class="op">=</span> <span class="va">species</span> <span class="op">~</span> <span class="va">bill_length_mm</span> <span class="op">+</span> <span class="va">flipper_length_mm</span>,</span>
 <span>                    control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control.html">orsf_control_classification</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit_numeric</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## ---------- Oblique random classification forest</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##      Linear combinations: Logistic regression</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##           N observations: 333</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##                N classes: 3</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##                  N trees: 500</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##       N predictors total: 2</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##    N predictors per node: 2</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  Average leaves per tree: 6.134</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## Min observations in leaf: 5</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">##           OOB stat value: 0.99</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">##            OOB stat type: AUC-ROC</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="do">##      Variable importance: anova</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="do">## -----------------------------------------</span></span></code></pre><p></p></div>
+<span><span class="va">fit_numeric</span></span>
+<span><span class="co">#&gt; ---------- Oblique random classification forest</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;      Linear combinations: Logistic regression</span></span>
+<span><span class="co">#&gt;           N observations: 333</span></span>
+<span><span class="co">#&gt;                N classes: 3</span></span>
+<span><span class="co">#&gt;                  N trees: 500</span></span>
+<span><span class="co">#&gt;       N predictors total: 2</span></span>
+<span><span class="co">#&gt;    N predictors per node: 2</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 6.134</span></span>
+<span><span class="co">#&gt; Min observations in leaf: 5</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.99</span></span>
+<span><span class="co">#&gt;            OOB stat type: AUC-ROC</span></span>
+<span><span class="co">#&gt;      Variable importance: anova</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -----------------------------------------</span></span></code></pre><p></p></div>
 <p>You could also use <code>orsf_update</code> to make <code>fit_numeric</code> simply by giving
 it a new <code>data</code> argument</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="../reference/orsf_update.html">orsf_update</a></span><span class="op">(</span><span class="va">fit_penguins</span>, data <span class="op">=</span> <span class="va">penguins_numeric</span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## ---------- Oblique random classification forest</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##      Linear combinations: Accelerated Logistic regression</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##           N observations: 333</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##                N classes: 3</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##                  N trees: 500</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##       N predictors total: 2</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##    N predictors per node: 2</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  Average leaves per tree: 5.896</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## Min observations in leaf: 5</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">##           OOB stat value: 0.99</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">##            OOB stat type: AUC-ROC</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="do">##      Variable importance: anova</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="do">## -----------------------------------------</span></span></code></pre><p></p></div><div class="section">
-<h4 id="difference-between-oblique-and-axis-based">Difference between oblique and axis-based<a class="anchor" aria-label="anchor" href="#difference-between-oblique-and-axis-based"></a></h4>
-
-
-<p>For this example, we modify integer columns in the penguins data to be
-doubles so that <code>aorsf</code> will not throw an error when we ask it to
-predict at non-integer values of these predictors:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">penguins_orsf</span> <span class="op">&lt;-</span> <span class="va">penguins_orsf</span> <span class="op">%&gt;%</span> </span>
-<span> <span class="fu">mutate</span><span class="op">(</span>bill_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">bill_length_mm</span><span class="op">)</span>,</span>
-<span>        flipper_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">flipper_length_mm</span><span class="op">)</span><span class="op">)</span></span></code></pre><p></p></div>
-<p>We will also use the same code to make several plots, so I define a
-function below to minimize repetition.</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">plot_decision_surface</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">predictions</span>, <span class="va">grid</span>, <span class="va">title</span><span class="op">)</span><span class="op">{</span></span>
-<span> </span>
-<span> <span class="co"># this is not a general function for plotting</span></span>
-<span> <span class="co"># decision surfaces. It just helps to minimize </span></span>
-<span> <span class="co"># copying and pasting of code.</span></span>
-<span> </span>
-<span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">predictions</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">$</span><span class="va">species</span><span class="op">)</span></span>
-<span> </span>
-<span> <span class="va">class_preds</span> <span class="op">&lt;-</span> <span class="fu">bind_cols</span><span class="op">(</span><span class="va">grid</span>, <span class="va">predictions</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">pivot_longer</span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">Adelie</span>,</span>
-<span>                        <span class="va">Chinstrap</span>,</span>
-<span>                        <span class="va">Gentoo</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">group_by</span><span class="op">(</span><span class="va">flipper_length_mm</span>, <span class="va">bill_length_mm</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">arrange</span><span class="op">(</span><span class="fu">desc</span><span class="op">(</span><span class="va">value</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
-<span>  <span class="fu">slice</span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span> </span>
-<span> <span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"darkorange"</span>, <span class="st">"purple"</span>, <span class="st">"cyan4"</span><span class="op">)</span></span>
-<span></span>
-<span> <span class="fu">ggplot</span><span class="op">(</span><span class="va">class_preds</span>, <span class="fu">aes</span><span class="op">(</span><span class="va">bill_length_mm</span>, <span class="va">flipper_length_mm</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_contour_filled</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>z <span class="op">=</span> <span class="va">value</span>, fill <span class="op">=</span> <span class="va">name</span><span class="op">)</span>,</span>
-<span>                      alpha <span class="op">=</span> <span class="fl">.25</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_point</span><span class="op">(</span>data <span class="op">=</span> <span class="va">penguins_orsf</span>,</span>
-<span>             <span class="fu">aes</span><span class="op">(</span>color <span class="op">=</span> <span class="va">species</span>, shape <span class="op">=</span> <span class="va">species</span><span class="op">)</span>,</span>
-<span>             size <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>             alpha <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">scale_color_manual</span><span class="op">(</span>values <span class="op">=</span> <span class="va">cols</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">scale_fill_manual</span><span class="op">(</span>values <span class="op">=</span> <span class="va">cols</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"\nBill length, scaled"</span>,</span>
-<span>       y <span class="op">=</span> <span class="st">"Bill depth, scaled\n"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">scale_x_continuous</span><span class="op">(</span>expand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">scale_y_continuous</span><span class="op">(</span>expand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">theme</span><span class="op">(</span>panel.grid <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>        panel.border <span class="op">=</span> <span class="fu">element_rect</span><span class="op">(</span>fill <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span>,</span>
-<span>        legend.position <span class="op">=</span> <span class="st">''</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu">labs</span><span class="op">(</span>title <span class="op">=</span> <span class="va">title</span><span class="op">)</span></span>
-<span> </span>
-<span><span class="op">}</span></span></code></pre><p></p></div>
-<p>We also use a grid of points for plotting the decision surface, which is
-created as follows:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu">expand_grid</span><span class="op">(</span></span>
-<span></span>
-<span> flipper_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">$</span><span class="va">flipper_length_mm</span><span class="op">)</span>,</span>
-<span>                     <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">$</span><span class="va">flipper_length_mm</span><span class="op">)</span>,</span>
-<span>                  len <span class="op">=</span> <span class="fl">200</span><span class="op">)</span>,</span>
-<span> bill_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">$</span><span class="va">bill_length_mm</span><span class="op">)</span>,</span>
-<span>                      <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">$</span><span class="va">bill_length_mm</span><span class="op">)</span>,</span>
-<span>                      len <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre><p></p></div>
-<p>Axis-based random forests comprise axis-based trees, which partition
-data by splitting them into subgroups using a single variable.</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="co"># ranger and randomForestSRC are fantastic packages for</span></span>
-<span><span class="co"># axis-based random forests. For simplicity, we use orsf</span></span>
-<span><span class="co"># to fit one here. Note that orsf with mtry = 1 is similar</span></span>
-<span><span class="co"># to an extremely randomized axis-based forest </span></span>
-<span></span>
-<span><span class="va">fit_axis_tree</span> <span class="op">&lt;-</span> <span class="va">penguins_orsf</span> <span class="op">%&gt;%</span> </span>
-<span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">species</span> <span class="op">~</span> <span class="va">bill_length_mm</span> <span class="op">+</span> <span class="va">flipper_length_mm</span>,</span>
-<span>      n_tree <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>      mtry <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>      tree_seeds <span class="op">=</span> <span class="fl">106760</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">pred_axis_tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_axis_tree</span>, new_data <span class="op">=</span> <span class="va">grid</span><span class="op">)</span></span></code></pre><p></p></div>
-<p>With axis-based splits, decision boundaries will always be perpendicular
-to the axis of the relevant predictor:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="fu">plot_decision_surface</span><span class="op">(</span><span class="va">pred_axis_tree</span>, <span class="va">grid</span>, <span class="st">"Axis-based tree"</span><span class="op">)</span></span></code></pre><p></p></div>
-<p><img src="figures/D:/aorsf/Rmd/figureunnamed-chunk-12-1.png" alt=""><!-- --></p>
-<p>When predictions from hundreds of axis-based trees are aggregated, the
-collective decision surface is much more flexible. However, even with
-hundreds of axis-based trees, it is difficult to capture smooth decision
-boundaries:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_axis_forest</span> <span class="op">&lt;-</span> <span class="va">fit_axis_tree</span> <span class="op">%&gt;%</span> </span>
-<span> <span class="fu"><a href="../reference/orsf_update.html">orsf_update</a></span><span class="op">(</span>n_tree <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">pred_axis_forest</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_axis_forest</span>, new_data <span class="op">=</span> <span class="va">grid</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">plot_decision_surface</span><span class="op">(</span><span class="va">pred_axis_forest</span>, <span class="va">grid</span>, <span class="st">"Axis-based forest"</span><span class="op">)</span></span></code></pre><p></p></div>
-<p><img src="figures/D:/aorsf/Rmd/figureunnamed-chunk-13-1.png" alt=""><!-- --></p>
-<p>Instead of using a single predictor to split data, oblique trees use a
-weighted combination of predictors. This creates decision boundaries
-that are neither parallel or perpendicular to the axes of corresponding
-predictors:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_oblique_tree</span> <span class="op">&lt;-</span> <span class="va">fit_axis_tree</span> <span class="op">%&gt;%</span> </span>
-<span> <span class="fu"><a href="../reference/orsf_update.html">orsf_update</a></span><span class="op">(</span>mtry <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">pred_oblique_tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_oblique_tree</span>, new_data <span class="op">=</span> <span class="va">grid</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">plot_decision_surface</span><span class="op">(</span><span class="va">pred_oblique_tree</span>, <span class="va">grid</span>, <span class="st">"Oblique tree"</span><span class="op">)</span></span></code></pre><p></p></div>
-<p><img src="figures/D:/aorsf/Rmd/figureunnamed-chunk-14-1.png" alt=""><!-- --></p>
-<p>And, when predictions from these trees are aggregated, they do a great
-job of capturing smooth geometries!</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_oblique_forest</span> <span class="op">&lt;-</span> <span class="va">fit_oblique_tree</span> <span class="op">%&gt;%</span> </span>
-<span> <span class="fu"><a href="../reference/orsf_update.html">orsf_update</a></span><span class="op">(</span>n_tree <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">pred_oblique_forest</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_oblique_forest</span>, </span>
-<span>                               new_data <span class="op">=</span> <span class="va">grid</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">plot_decision_surface</span><span class="op">(</span><span class="va">pred_oblique_forest</span>, <span class="va">grid</span>, <span class="st">"Oblique forest"</span><span class="op">)</span></span></code></pre><p></p></div>
-<p><img src="figures/D:/aorsf/Rmd/figureunnamed-chunk-15-1.png" alt=""><!-- --></p>
-</div>
-
-
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="fu"><a href="../reference/orsf_update.html">orsf_update</a></span><span class="op">(</span><span class="va">fit_penguins</span>, data <span class="op">=</span> <span class="va">penguins_numeric</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ---------- Oblique random classification forest</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;      Linear combinations: Accelerated Logistic regression</span></span>
+<span><span class="co">#&gt;           N observations: 333</span></span>
+<span><span class="co">#&gt;                N classes: 3</span></span>
+<span><span class="co">#&gt;                  N trees: 500</span></span>
+<span><span class="co">#&gt;       N predictors total: 2</span></span>
+<span><span class="co">#&gt;    N predictors per node: 2</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 5.896</span></span>
+<span><span class="co">#&gt; Min observations in leaf: 5</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.99</span></span>
+<span><span class="co">#&gt;            OOB stat type: AUC-ROC</span></span>
+<span><span class="co">#&gt;      Variable importance: anova</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -----------------------------------------</span></span></code></pre><p></p></div>
 </div>
 
 <div class="section">
@@ -678,25 +571,26 @@ job of capturing smooth geometries!</p>
 <h3 id="survival">Survival<a class="anchor" aria-label="anchor" href="#survival"></a></h3>
 
 
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span></code></pre><p></p></div>
 <p>printing <code>fit</code> provides quick descriptive summaries:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## ---------- Oblique random survival forest</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##      Linear combinations: Accelerated Cox regression</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##           N observations: 276</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##                 N events: 111</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##                  N trees: 500</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##       N predictors total: 17</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##    N predictors per node: 5</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  Average leaves per tree: 20.994</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## Min observations in leaf: 5</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">##       Min events in leaf: 1</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">##           OOB stat value: 0.84</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="do">##            OOB stat type: Harrell's C-index</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="do">##      Variable importance: anova</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="do">## -----------------------------------------</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit</span></span>
+<span><span class="co">#&gt; ---------- Oblique random survival forest</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;      Linear combinations: Accelerated Cox regression</span></span>
+<span><span class="co">#&gt;           N observations: 276</span></span>
+<span><span class="co">#&gt;                 N events: 111</span></span>
+<span><span class="co">#&gt;                  N trees: 500</span></span>
+<span><span class="co">#&gt;       N predictors total: 17</span></span>
+<span><span class="co">#&gt;    N predictors per node: 5</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 20.866</span></span>
+<span><span class="co">#&gt; Min observations in leaf: 5</span></span>
+<span><span class="co">#&gt;       Min events in leaf: 1</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.84</span></span>
+<span><span class="co">#&gt;            OOB stat type: Harrell's C-index</span></span>
+<span><span class="co">#&gt;      Variable importance: anova</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -----------------------------------------</span></span></code></pre><p></p></div>
 </div>
 
 <div class="section">
@@ -705,53 +599,56 @@ job of capturing smooth geometries!</p>
 
 <p>You can use <code>orsf(no_fit = TRUE)</code> to make a specification to grow a
 forest that can be used as a blueprint for <code>orsf_train()</code>:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">orsf_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, <span class="va">time</span> <span class="op">+</span> <span class="va">status</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>, no_fit <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">orsf_spec</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Untrained oblique random survival forest</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##      Linear combinations: Accelerated Cox regression</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##           N observations: 276</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##                 N events: 111</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##                  N trees: 500</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##       N predictors total: 17</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##    N predictors per node: 5</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  Average leaves per tree: 0</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## Min observations in leaf: 5</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">##       Min events in leaf: 1</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">##           OOB stat value: none</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="do">##            OOB stat type: Harrell's C-index</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="do">##      Variable importance: anova</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="do">## -----------------------------------------</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">orsf_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf_train</a></span><span class="op">(</span><span class="va">orsf_spec</span><span class="op">)</span></span>
-<span><span class="va">orsf_fit</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## ---------- Oblique random survival forest</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##      Linear combinations: Accelerated Cox regression</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##           N observations: 276</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##                 N events: 111</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##                  N trees: 500</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##       N predictors total: 17</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##    N predictors per node: 5</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  Average leaves per tree: 20.854</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## Min observations in leaf: 5</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">##       Min events in leaf: 1</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">##           OOB stat value: 0.84</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="do">##            OOB stat type: Harrell's C-index</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="do">##      Variable importance: anova</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="do">## -----------------------------------------</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="va">orsf_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, <span class="va">time</span> <span class="op">+</span> <span class="va">status</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>, no_fit <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">orsf_spec</span></span>
+<span><span class="co">#&gt; Untrained oblique random survival forest</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;      Linear combinations: Accelerated Cox regression</span></span>
+<span><span class="co">#&gt;           N observations: 276</span></span>
+<span><span class="co">#&gt;                 N events: 111</span></span>
+<span><span class="co">#&gt;                  N trees: 500</span></span>
+<span><span class="co">#&gt;       N predictors total: 17</span></span>
+<span><span class="co">#&gt;    N predictors per node: 5</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 0</span></span>
+<span><span class="co">#&gt; Min observations in leaf: 5</span></span>
+<span><span class="co">#&gt;       Min events in leaf: 1</span></span>
+<span><span class="co">#&gt;           OOB stat value: none</span></span>
+<span><span class="co">#&gt;            OOB stat type: Harrell's C-index</span></span>
+<span><span class="co">#&gt;      Variable importance: anova</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -----------------------------------------</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="va">orsf_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf_train</a></span><span class="op">(</span><span class="va">orsf_spec</span><span class="op">)</span></span>
+<span><span class="va">orsf_fit</span></span>
+<span><span class="co">#&gt; ---------- Oblique random survival forest</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;      Linear combinations: Accelerated Cox regression</span></span>
+<span><span class="co">#&gt;           N observations: 276</span></span>
+<span><span class="co">#&gt;                 N events: 111</span></span>
+<span><span class="co">#&gt;                  N trees: 500</span></span>
+<span><span class="co">#&gt;       N predictors total: 17</span></span>
+<span><span class="co">#&gt;    N predictors per node: 5</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 20.994</span></span>
+<span><span class="co">#&gt; Min observations in leaf: 5</span></span>
+<span><span class="co">#&gt;       Min events in leaf: 1</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.84</span></span>
+<span><span class="co">#&gt;            OOB stat type: Harrell's C-index</span></span>
+<span><span class="co">#&gt;      Variable importance: anova</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -----------------------------------------</span></span></code></pre><p></p></div>
 <p>You can also update the specification in place when passing it to
 <code>orsf_train()</code>, making it easy to fit several models from one spec:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">orsf_fit_10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf_train</a></span><span class="op">(</span><span class="va">orsf_spec</span>, leaf_min_obs <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="va">orsf_fit_10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf_train</a></span><span class="op">(</span><span class="va">orsf_spec</span>, leaf_min_obs <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">orsf_fit_20</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf_train</a></span><span class="op">(</span><span class="va">orsf_spec</span>, leaf_min_obs <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">orsf_fit</span><span class="op">$</span><span class="va">leaf_min_obs</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 5</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">orsf_fit_10</span><span class="op">$</span><span class="va">leaf_min_obs</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 10</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">orsf_fit_20</span><span class="op">$</span><span class="va">leaf_min_obs</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## [1] 20</span></span></code></pre><p></p></div>
+<span><span class="va">orsf_fit</span><span class="op">$</span><span class="va">leaf_min_obs</span></span>
+<span><span class="co">#&gt; [1] 5</span></span>
+<span><span class="va">orsf_fit_10</span><span class="op">$</span><span class="va">leaf_min_obs</span></span>
+<span><span class="co">#&gt; [1] 10</span></span>
+<span><span class="va">orsf_fit_20</span><span class="op">$</span><span class="va">leaf_min_obs</span></span>
+<span><span class="co">#&gt; [1] 20</span></span></code></pre><p></p></div>
 </div>
 
 <div class="section">
@@ -759,7 +656,8 @@ forest that can be used as a blueprint for <code>orsf_train()</code>:</p>
 
 
 <p><code>tidymodels</code> includes support for <code>aorsf</code> as a computational engine:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tidymodels/censored" class="external-link">censored</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tidymodels/yardstick" class="external-link">yardstick</a></span><span class="op">)</span></span>
 <span></span>
@@ -776,7 +674,8 @@ forest that can be used as a blueprint for <code>orsf_train()</code>:</p>
 <span></span>
 <span><span class="va">orsf_fit</span> <span class="op">&lt;-</span> <span class="fu">fit</span><span class="op">(</span><span class="va">orsf_spec</span>, <span class="va">event_time</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="fu">training</span><span class="op">(</span><span class="va">split</span><span class="op">)</span><span class="op">)</span></span></code></pre><p></p></div>
 <p>Prediction with <code>aorsf</code> models at different times is also supported:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">time_points</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">3000</span>, by <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="va">time_points</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">3000</span>, by <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">test_pred</span> <span class="op">&lt;-</span> <span class="fu">augment</span><span class="op">(</span><span class="va">orsf_fit</span>, </span>
 <span>                     new_data <span class="op">=</span> <span class="fu">testing</span><span class="op">(</span><span class="va">split</span><span class="op">)</span>, </span>
@@ -785,29 +684,30 @@ forest that can be used as a blueprint for <code>orsf_train()</code>:</p>
 <span><span class="va">brier_scores</span> <span class="op">&lt;-</span> <span class="va">test_pred</span> <span class="op">%&gt;%</span> </span>
 <span>  <span class="fu">brier_survival</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">event_time</span>, <span class="va">.pred</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">brier_scores</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## # A tibble: 6 x 4</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##   .metric        .estimator .eval_time .estimate</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 1 brier_survival standard          500    0.0333</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 2 brier_survival standard         1000    0.0668</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 3 brier_survival standard         1500    0.0653</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 4 brier_survival standard         2000    0.0580</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 5 brier_survival standard         2500    0.0785</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 6 brier_survival standard         3000    0.114</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">roc_scores</span> <span class="op">&lt;-</span> <span class="va">test_pred</span> <span class="op">%&gt;%</span> </span>
+<span><span class="va">brier_scores</span></span>
+<span><span class="co">#&gt; # A tibble: 6 x 4</span></span>
+<span><span class="co">#&gt;   .metric        .estimator .eval_time .estimate</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 brier_survival standard          500    0.0670</span></span>
+<span><span class="co">#&gt; 2 brier_survival standard         1000    0.0688</span></span>
+<span><span class="co">#&gt; 3 brier_survival standard         1500    0.0890</span></span>
+<span><span class="co">#&gt; 4 brier_survival standard         2000    0.0937</span></span>
+<span><span class="co">#&gt; 5 brier_survival standard         2500    0.147 </span></span>
+<span><span class="co">#&gt; 6 brier_survival standard         3000    0.163</span></span>
+<span></span>
+<span><span class="va">roc_scores</span> <span class="op">&lt;-</span> <span class="va">test_pred</span> <span class="op">%&gt;%</span> </span>
 <span>  <span class="fu">roc_auc_survival</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">event_time</span>, <span class="va">.pred</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">roc_scores</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## # A tibble: 6 x 4</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##   .metric          .estimator .eval_time .estimate</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##   &lt;chr&gt;            &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 1 roc_auc_survival standard          500     0.955</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 2 roc_auc_survival standard         1000     0.934</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 3 roc_auc_survival standard         1500     0.989</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 4 roc_auc_survival standard         2000     0.998</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 5 roc_auc_survival standard         2500     0.964</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 6 roc_auc_survival standard         3000     0.943</span></span></code></pre><p></p></div>
+<span><span class="va">roc_scores</span></span>
+<span><span class="co">#&gt; # A tibble: 6 x 4</span></span>
+<span><span class="co">#&gt;   .metric          .estimator .eval_time .estimate</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;            &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 roc_auc_survival standard          500     0.993</span></span>
+<span><span class="co">#&gt; 2 roc_auc_survival standard         1000     0.962</span></span>
+<span><span class="co">#&gt; 3 roc_auc_survival standard         1500     0.939</span></span>
+<span><span class="co">#&gt; 4 roc_auc_survival standard         2000     0.943</span></span>
+<span><span class="co">#&gt; 5 roc_auc_survival standard         2500     0.913</span></span>
+<span><span class="co">#&gt; 6 roc_auc_survival standard         3000     0.903</span></span></code></pre><p></p></div>
 </div>
 
     </div>

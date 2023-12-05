@@ -217,7 +217,8 @@ on the scale of your data, which is why the default value is <code>TRUE</code>.<
 balance of computational speed and prediction accuracy. It runs a single
 iteration of Newton Raphson scoring on the Cox partial likelihood
 function to find linear combinations of predictors.</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_accel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="va">fit_accel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
 <span>                  control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control.html">orsf_control_survival</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>                  formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
 <span>                  tree_seeds <span class="op">=</span> <span class="fl">329</span><span class="op">)</span></span></code></pre><p></p></div>
@@ -231,7 +232,8 @@ function to find linear combinations of predictors.</p>
 repeat iterations until convergence allows you to run Cox regression in
 each non-terminal node of each survival tree, using the regression
 coefficients to create linear combinations of predictors:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">control_cph</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_control.html">orsf_control_survival</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">'glm'</span>, </span>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="va">control_cph</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_control.html">orsf_control_survival</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">'glm'</span>, </span>
 <span>                                     scale_x <span class="op">=</span> <span class="cn">TRUE</span>, </span>
 <span>                                     max_iter <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
 <span></span>
@@ -249,7 +251,8 @@ coefficients to create linear combinations of predictors:</p>
 non-terminal node of each survival tree. This can be really helpful if
 you want to do feature selection within the node, but it is a lot slower
 than the <code>'glm'</code> option.</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="co"># select 3 predictors out of 5 to be used in</span></span>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="co"># select 3 predictors out of 5 to be used in</span></span>
 <span><span class="co"># each linear combination of predictors.</span></span>
 <span></span>
 <span><span class="va">control_net</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_control.html">orsf_control_survival</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">'net'</span>, target_df <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
@@ -267,10 +270,12 @@ than the <code>'glm'</code> option.</p>
 <p>In addition to the built-in methods, customized functions can be used to
 identify linear combinations of predictors. We’ll demonstrate a few
 here.</p><ul><li><p>The first uses random coefficients</p></li>
-</ul><p></p><div class="sourceCode r"><pre><code><span><span class="va">f_rando</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x_node</span>, <span class="va">y_node</span>, <span class="va">w_node</span><span class="op">)</span><span class="op">{</span></span>
+</ul><p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="va">f_rando</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x_node</span>, <span class="va">y_node</span>, <span class="va">w_node</span><span class="op">)</span><span class="op">{</span></span>
 <span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">x_node</span><span class="op">)</span><span class="op">)</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span> </span>
 <span><span class="op">}</span></span></code></pre><p></p></div><ul><li><p>The second derives coefficients from principal component analysis</p></li>
-</ul><p></p><div class="sourceCode r"><pre><code><span><span class="va">f_pca</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x_node</span>, <span class="va">y_node</span>, <span class="va">w_node</span><span class="op">)</span> <span class="op">{</span> </span>
+</ul><p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="va">f_pca</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x_node</span>, <span class="va">y_node</span>, <span class="va">w_node</span><span class="op">)</span> <span class="op">{</span> </span>
 <span> </span>
 <span> <span class="co"># estimate two principal components.</span></span>
 <span> <span class="va">pca</span> <span class="op">&lt;-</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/prcomp.html" class="external-link">prcomp</a></span><span class="op">(</span><span class="va">x_node</span>, rank. <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
@@ -281,7 +286,8 @@ here.</p><ul><li><p>The first uses random coefficients</p></li>
 similar to a method known as reinforcement learning trees (see the
 <code>RLT</code> package), although our method of “muting” is very crude compared
 to the method proposed by Zhu et al. </p></li>
-</ul><p></p><div class="sourceCode r"><pre><code><span><span class="va">f_rlt</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x_node</span>, <span class="va">y_node</span>, <span class="va">w_node</span><span class="op">)</span><span class="op">{</span></span>
+</ul><p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="va">f_rlt</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x_node</span>, <span class="va">y_node</span>, <span class="va">w_node</span><span class="op">)</span><span class="op">{</span></span>
 <span> </span>
 <span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">y_node</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'time'</span>, <span class="st">'status'</span><span class="op">)</span></span>
 <span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">x_node</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"x"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">x_node</span><span class="op">)</span><span class="op">)</span>, sep <span class="op">=</span> <span class="st">''</span><span class="op">)</span></span>
@@ -317,7 +323,8 @@ to the method proposed by Zhu et al. </p></li>
 <span><span class="op">}</span></span></code></pre><p></p></div>
 <p>We can plug these functions into <code><a href="orsf_control_custom.html">orsf_control_custom()</a></code>, and then pass
 the result into <code><a href="orsf.html">orsf()</a></code>:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_rando</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>,</span>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="va">fit_rando</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>,</span>
 <span>                  <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
 <span>                  control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control.html">orsf_control_survival</a></span><span class="op">(</span>method <span class="op">=</span> <span class="va">f_rando</span><span class="op">)</span>,</span>
 <span>                  tree_seeds <span class="op">=</span> <span class="fl">329</span><span class="op">)</span></span>
@@ -332,7 +339,8 @@ the result into <code><a href="orsf.html">orsf()</a></code>:</p>
 <span>                tree_seeds <span class="op">=</span> <span class="fl">329</span><span class="op">)</span></span></code></pre><p></p></div>
 <p>So which fit seems to work best in this example? Let’s find out by
 evaluating the out-of-bag survival predictions.</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">risk_preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="va">risk_preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span> accel <span class="op">=</span> <span class="va">fit_accel</span><span class="op">$</span><span class="va">pred_oobag</span>,</span>
 <span> cph   <span class="op">=</span> <span class="va">fit_cph</span><span class="op">$</span><span class="va">pred_oobag</span>,</span>
 <span> net   <span class="op">=</span> <span class="va">fit_net</span><span class="op">$</span><span class="va">pred_oobag</span>,</span>
@@ -347,26 +355,26 @@ evaluating the out-of-bag survival predictions.</p>
 <span>            summary <span class="op">=</span> <span class="st">'IPA'</span>,</span>
 <span>            times <span class="op">=</span> <span class="va">fit_accel</span><span class="op">$</span><span class="va">pred_horizon</span><span class="op">)</span></span></code></pre><p></p></div>
 <p>The AUC values, from highest to lowest:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">sc</span><span class="op">$</span><span class="va">AUC</span><span class="op">$</span><span class="va">score</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">AUC</span><span class="op">)</span><span class="op">]</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##     model times       AUC         se     lower     upper</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##    &lt;fctr&gt; &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:    net  1788 0.9151649 0.02025057 0.8754745 0.9548553</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:    rlt  1788 0.9119200 0.02090107 0.8709547 0.9528854</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 3:  accel  1788 0.9095628 0.02143250 0.8675558 0.9515697</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 4:    cph  1788 0.9095628 0.02143250 0.8675558 0.9515697</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 5:  rando  1788 0.9062197 0.02148854 0.8641029 0.9483365</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 6:    pca  1788 0.8983266 0.02303267 0.8531834 0.9434698</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">sc</span><span class="op">$</span><span class="va">AUC</span><span class="op">$</span><span class="va">score</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">AUC</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;     model times       AUC         se     lower     upper</span></span>
+<span><span class="co">#&gt;    &lt;fctr&gt; &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:    net  1788 0.9151649 0.02025057 0.8754745 0.9548553</span></span>
+<span><span class="co">#&gt; 2:    rlt  1788 0.9119200 0.02090107 0.8709547 0.9528854</span></span>
+<span><span class="co">#&gt; 3:  accel  1788 0.9095628 0.02143250 0.8675558 0.9515697</span></span>
+<span><span class="co">#&gt; 4:    cph  1788 0.9095628 0.02143250 0.8675558 0.9515697</span></span>
+<span><span class="co">#&gt; 5:  rando  1788 0.9062197 0.02148854 0.8641029 0.9483365</span></span>
+<span><span class="co">#&gt; 6:    pca  1788 0.8983266 0.02303267 0.8531834 0.9434698</span></span></code></pre><p></p></div>
 <p>And the indices of prediction accuracy:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">sc</span><span class="op">$</span><span class="va">Brier</span><span class="op">$</span><span class="va">score</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">IPA</span><span class="op">)</span>, <span class="fu">.</span><span class="op">(</span><span class="va">model</span>, <span class="va">times</span>, <span class="va">IPA</span><span class="op">)</span><span class="op">]</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##         model times       IPA</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##        &lt;fctr&gt; &lt;num&gt;     &lt;num&gt;</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:        net  1788 0.4905777</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:      accel  1788 0.4806649</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 3:        cph  1788 0.4806649</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 4:        rlt  1788 0.4675228</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 5:        pca  1788 0.4369636</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 6:      rando  1788 0.4302814</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 7: Null model  1788 0.0000000</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">sc</span><span class="op">$</span><span class="va">Brier</span><span class="op">$</span><span class="va">score</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">IPA</span><span class="op">)</span>, <span class="fu">.</span><span class="op">(</span><span class="va">model</span>, <span class="va">times</span>, <span class="va">IPA</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;         model times       IPA</span></span>
+<span><span class="co">#&gt;        &lt;fctr&gt; &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:        net  1788 0.4905777</span></span>
+<span><span class="co">#&gt; 2:      accel  1788 0.4806649</span></span>
+<span><span class="co">#&gt; 3:        cph  1788 0.4806649</span></span>
+<span><span class="co">#&gt; 4:        rlt  1788 0.4675228</span></span>
+<span><span class="co">#&gt; 5:        pca  1788 0.4369636</span></span>
+<span><span class="co">#&gt; 6:      rando  1788 0.4302814</span></span>
+<span><span class="co">#&gt; 7: Null model  1788 0.0000000</span></span></code></pre><p></p></div>
 <p>From inspection,</p><ul><li><p><code>net</code>, <code>accel</code>, and <code>rlt</code> have high discrimination and index of
 prediction accuracy.</p></li>
 <li><p><code>rando</code> and <code>pca</code> do less well, but they aren’t bad.</p></li>
