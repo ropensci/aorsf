@@ -96,6 +96,8 @@
     
 <p>This article covers core features of the <code>aorsf</code>
 package.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="background">Background<a class="anchor" aria-label="anchor" href="#background"></a>
 </h2>
@@ -116,37 +118,10 @@ prediction accuracy to more computational approaches.</p>
 function. Here we begin with an oblique RF for survival using the
 <code>pbc_orsf</code> data. Note that <code>n_tree</code> is 5 for
 convenience in these examples, but should be &gt;= 500 in practice.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># An oblique survival RF</span></span>
-<span><span class="va">pbc_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf</span>, </span>
-<span>                 n_tree <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>                 formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">pbc_fit</span></span>
-<span><span class="co">#&gt; ---------- Oblique random survival forest</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;      Linear combinations: Accelerated Cox regression</span></span>
-<span><span class="co">#&gt;           N observations: 276</span></span>
-<span><span class="co">#&gt;                 N events: 111</span></span>
-<span><span class="co">#&gt;                  N trees: 5</span></span>
-<span><span class="co">#&gt;       N predictors total: 17</span></span>
-<span><span class="co">#&gt;    N predictors per node: 5</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 20.6</span></span>
-<span><span class="co">#&gt; Min observations in leaf: 5</span></span>
-<span><span class="co">#&gt;       Min events in leaf: 1</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.80</span></span>
-<span><span class="co">#&gt;            OOB stat type: Harrell's C-index</span></span>
-<span><span class="co">#&gt;      Variable importance: anova</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -----------------------------------------</span></span></code></pre></div>
-<p>Next, an oblique RF for classification using the
-<code>penguins_orsf</code> data:</p>
+<p>For classification, we fit an oblique RF to predict penguin
+species:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co"># An oblique classification RF</span></span>
+<code class="sourceCode R"><span><span class="co"># An oblique classification RF</span></span>
 <span><span class="va">penguin_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">penguins_orsf</span>,</span>
 <span>                    n_tree <span class="op">=</span> <span class="fl">5</span>, </span>
 <span>                    formula <span class="op">=</span> <span class="va">species</span> <span class="op">~</span> <span class="va">.</span><span class="op">)</span></span>
@@ -160,18 +135,17 @@ convenience in these examples, but should be &gt;= 500 in practice.</p>
 <span><span class="co">#&gt;                  N trees: 5</span></span>
 <span><span class="co">#&gt;       N predictors total: 7</span></span>
 <span><span class="co">#&gt;    N predictors per node: 3</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 6.8</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 6.2</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.99</span></span>
+<span><span class="co">#&gt;           OOB stat value: 1.00</span></span>
 <span><span class="co">#&gt;            OOB stat type: AUC-ROC</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -----------------------------------------</span></span></code></pre></div>
-<p>and for regression, we again use the penguins data but switch the
-outcome:</p>
+<p>For regression, we use the same data but predict bill length of
+penguins:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="co"># An oblique regression RF</span></span>
+<code class="sourceCode R"><span><span class="co"># An oblique regression RF</span></span>
 <span><span class="va">bill_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">penguins_orsf</span>, </span>
 <span>                 n_tree <span class="op">=</span> <span class="fl">5</span>, </span>
 <span>                 formula <span class="op">=</span> <span class="va">bill_length_mm</span> <span class="op">~</span> <span class="va">.</span><span class="op">)</span></span>
@@ -184,10 +158,35 @@ outcome:</p>
 <span><span class="co">#&gt;                  N trees: 5</span></span>
 <span><span class="co">#&gt;       N predictors total: 7</span></span>
 <span><span class="co">#&gt;    N predictors per node: 3</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 51</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 50.2</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;           OOB stat value: 0.76</span></span>
 <span><span class="co">#&gt;            OOB stat type: RSQ</span></span>
+<span><span class="co">#&gt;      Variable importance: anova</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -----------------------------------------</span></span></code></pre></div>
+<p>For survival, we predict mortality risk following diagnosis of
+primary biliary cirrhosis:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># An oblique survival RF</span></span>
+<span><span class="va">pbc_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf</span>, </span>
+<span>                n_tree <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>                formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pbc_fit</span></span>
+<span><span class="co">#&gt; ---------- Oblique random survival forest</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;      Linear combinations: Accelerated Cox regression</span></span>
+<span><span class="co">#&gt;           N observations: 276</span></span>
+<span><span class="co">#&gt;                 N events: 111</span></span>
+<span><span class="co">#&gt;                  N trees: 5</span></span>
+<span><span class="co">#&gt;       N predictors total: 17</span></span>
+<span><span class="co">#&gt;    N predictors per node: 5</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 21.6</span></span>
+<span><span class="co">#&gt; Min observations in leaf: 5</span></span>
+<span><span class="co">#&gt;       Min events in leaf: 1</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.75</span></span>
+<span><span class="co">#&gt;            OOB stat type: Harrell's C-index</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -----------------------------------------</span></span></code></pre></div>
@@ -195,7 +194,7 @@ outcome:</p>
 <code>data</code>. This is a design choice that makes it easier to use
 <code>orsf</code> with pipes (i.e., <code>%&gt;%</code> or
 <code>|&gt;</code>). For instance,</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span></span>
@@ -221,40 +220,42 @@ can be applied to any type of oblique forest.</p>
 coefficient of that variable by -1 and then re-computes the
 out-of-sample (sometimes referred to as out-of-bag) accuracy of the ORSF
 model.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">pbc_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;         bili       copper          sex      protime          ast      albumin </span></span>
-<span><span class="co">#&gt;  0.096929273  0.062639837  0.053670893  0.044755264  0.028618894  0.027399101 </span></span>
-<span><span class="co">#&gt;         chol        stage      ascites        edema          trt     platelet </span></span>
-<span><span class="co">#&gt;  0.022402593  0.018119849  0.017568007  0.013810978  0.012516049  0.011327077 </span></span>
-<span><span class="co">#&gt;      spiders          age         trig       hepato     alk.phos </span></span>
-<span><span class="co">#&gt;  0.008841018  0.008819152 -0.001934063 -0.003423866 -0.007547621</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili       albumin        copper         stage           age </span></span>
+<span><span class="co">#&gt;  0.1930512900  0.0376313579  0.0359599937  0.0262688635  0.0226483637 </span></span>
+<span><span class="co">#&gt;       ascites           sex        hepato          chol       protime </span></span>
+<span><span class="co">#&gt;  0.0189557778  0.0163082084  0.0128867166  0.0120834000  0.0110599191 </span></span>
+<span><span class="co">#&gt;      platelet           trt         edema       spiders           ast </span></span>
+<span><span class="co">#&gt;  0.0072162721 -0.0000822925 -0.0024283893 -0.0028564713 -0.0044019598 </span></span>
+<span><span class="co">#&gt;          trig      alk.phos </span></span>
+<span><span class="co">#&gt; -0.0055904728 -0.0089838244</span></span></code></pre></div>
 </li>
 <li>
 <p>You can also compute variable importance using
 <em>permutation</em>, a more classical approach that noises up a
 predictor and then assigned the resulting degradation in prediction
 accuracy to be the importance of that predictor.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">penguin_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    bill_length_mm       body_mass_g            island     bill_depth_mm </span></span>
-<span><span class="co">#&gt;      1.907618e-01      1.530976e-01      5.258628e-02      4.163627e-02 </span></span>
-<span><span class="co">#&gt; flipper_length_mm               sex              year </span></span>
-<span><span class="co">#&gt;      2.010523e-02      1.859059e-02     -9.000102e-05</span></span></code></pre></div>
+<span><span class="co">#&gt;    bill_length_mm       body_mass_g flipper_length_mm     bill_depth_mm </span></span>
+<span><span class="co">#&gt;       0.206687071       0.122867970       0.088313968       0.069145712 </span></span>
+<span><span class="co">#&gt;            island               sex              year </span></span>
+<span><span class="co">#&gt;       0.029161023       0.028556193      -0.005580771</span></span></code></pre></div>
 </li>
 <li>
 <p>A faster alternative to permutation and negation importance is
 ANOVA importance, which computes the proportion of times each variable
 obtains a low p-value (p &lt; 0.01) while the forest is grown.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">bill_fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           species               sex            island     bill_depth_mm </span></span>
-<span><span class="co">#&gt;        0.39201078        0.25000000        0.10570028        0.10000000 </span></span>
+<span><span class="co">#&gt;        0.36264463        0.14893617        0.09294300        0.08849558 </span></span>
 <span><span class="co">#&gt;       body_mass_g flipper_length_mm              year </span></span>
-<span><span class="co">#&gt;        0.07438017        0.06611570        0.00000000</span></span></code></pre></div>
+<span><span class="co">#&gt;        0.06722689        0.05600000        0.02061856</span></span></code></pre></div>
 </li>
 </ul>
 </div>
@@ -285,7 +286,7 @@ a function of a predictor.</p>
 <code>glmnet</code> to find linear combinations of inputs.
 <code>aorsf</code> allows users to implement this approach using the
 <code>orsf_control_survival(method = 'net')</code> function:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">orsf_net</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf</span>, </span>
 <span>                 formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>, </span>
