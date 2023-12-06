@@ -1,0 +1,36 @@
+
+For classification, we fit an oblique RF to predict penguin species: 
+
+```{r}
+# An oblique classification RF
+penguin_fit <- orsf(data = penguins_orsf,
+                    n_tree = 5, 
+                    formula = species ~ .)
+
+penguin_fit
+
+```
+
+For regression, we use the same data but predict bill length of penguins:
+
+```{r}
+# An oblique regression RF
+bill_fit <- orsf(data = penguins_orsf, 
+                 n_tree = 5, 
+                 formula = bill_length_mm ~ .)
+
+bill_fit
+
+```
+
+For survival, we predict mortality risk following diagnosis of primary biliary cirrhosis:
+
+```{r}
+# An oblique survival RF
+pbc_fit <- orsf(data = pbc_orsf, 
+                n_tree = 5,
+                formula = Surv(time, status) ~ . - id)
+
+pbc_fit
+
+```

@@ -3,7 +3,7 @@
 
 Begin by fitting an ORSF ensemble:
 
-```{r, child = 'orsf-fit-accelerated.Rmd'}
+```{r, child = 'orsf-fit-surv-train-test.Rmd'}
 
 ```
 

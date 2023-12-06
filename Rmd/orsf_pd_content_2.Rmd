@@ -10,8 +10,6 @@ fit <- orsf(pbc_orsf, Surv(time, status) ~ . -id)
 
 ```
 
-
-
 partial dependence can show the expected value of a model's predictions as a function of a specific predictor, or as a function of multiple predictors. For instance, we can estimate predicted risk as a joint function of `bili`, `edema`, and `trt`:
 
 ```{r, -orsf_pd}

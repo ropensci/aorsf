@@ -1,118 +1,63 @@
 
 # Examples
 
-`orsf()` is the entry-point of the `aorsf` package. It can be used to fit classification, regression, and survival forests. It can also compute out-of-bag prediction accuracy or out-of-bag variable importance using built-in functions or custom functions supplied by users.  
-
-```{r, echo=FALSE}
-knitr::opts_chunk$set(cache = TRUE)
-```
-
-First we load some relevant packages
-
-```{r, message=FALSE, warning=FALSE}
-
-set.seed(329730)
+```{r}
 library(aorsf)
-library(tidyverse)
-library(survival)
-
+library(magrittr) # for %>%
 ```
 
+`orsf()` is the entry-point of the `aorsf` package. It can be used to fit classification, regression, and survival forests. 
 
-## Classification
-
-We'll use the outstanding `penguin` data for this example:
-
-```{r}
-
-# penguins_orsf is a copy of the penguins data
-# from palmerpenguins but only includes complete cases:
-head(penguins_orsf)
+```{r child = "orsf-fit-intro.Rmd"}
 
 ```
-
-The `orsf()` function will automatically fit a classification forest if the outcome variable is a factor:
-
-```{r}
-
-fit_penguins <- orsf(data = penguins_orsf,
-                     formula = species ~ bill_length_mm + flipper_length_mm)
-
-fit_penguins
-
-```
-
-You can also tell `orsf()` to do classification manually if you'd prefer keeping a numeric outcome. The way to do this is through the `control` argument:
-
-```{r}
-
-penguins_numeric <- penguins_orsf
-penguins_numeric$species <- as.numeric(penguins_numeric$species)
-
-fit_numeric <- orsf(penguins_numeric,
-                    formula = species ~ bill_length_mm + flipper_length_mm,
-                    control = orsf_control_classification())
-
-fit_numeric
-
-```
-
-You could also use `orsf_update` to make `fit_numeric` simply by giving it a new `data` argument
-
-```{r}
-
-orsf_update(fit_penguins, data = penguins_numeric)
-
-```
-
-## Regression
-
-
-
-## Survival
-
-```{r}
-
-fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
-
-```
-
-printing `fit` provides quick descriptive summaries:
-
-```{r}
-fit
-```
-
 
 ## More than one way to grow a forest
 
-You can use `orsf(no_fit = TRUE)` to make a specification to grow a forest that can be used as a blueprint for `orsf_train()`:
+You can use `orsf(no_fit = TRUE)` to make a *specification* to grow a forest instead of a fitted forest. 
+```{r}
+orsf_spec <- orsf(pbc_orsf, 
+                  formula = time + status ~ . - id,
+                  no_fit = TRUE)
+
+orsf_spec
+```
+
+Why would you do this? Two reasons:
+
+1. For very computational tasks, you may want to check how long it will take to fit the forest before you commit to it:
 
 ```{r}
 
-orsf_spec <- orsf(pbc_orsf, time + status ~ . - id, no_fit = TRUE)
-orsf_spec
+orsf_spec %>% 
+ orsf_update(n_tree = 10000) %>%
+ orsf_time_to_train()
 
 ```
 
+
+1. If fitting multiple forests, pass the blueprint into `orsf_train` along with any modifications you'd like to make:
 
 ```{r}
 
 orsf_fit <- orsf_train(orsf_spec)
-orsf_fit
-
-```
-
-You can also update the specification in place when passing it to `orsf_train()`, making it easy to fit several models from one spec:
-
-```{r}
-
 orsf_fit_10 <- orsf_train(orsf_spec, leaf_min_obs = 10)
 orsf_fit_20 <- orsf_train(orsf_spec, leaf_min_obs = 20)
 
 orsf_fit$leaf_min_obs
 orsf_fit_10$leaf_min_obs
 orsf_fit_20$leaf_min_obs
+
+```
+
+You can also use `orsf_update` to get similar functionality:
+
+```{r}
+
+orsf_fit <- orsf_train(orsf_spec)
+orsf_fit_10 <- orsf_update(orsf_fit, leaf_min_obs = 10)
+orsf_fit_20 <- orsf_update(orsf_fit, leaf_min_obs = 20)
+
 
 ```
 
@@ -137,7 +82,9 @@ orsf_spec <- rand_forest() %>%
  set_engine("aorsf") %>% 
  set_mode("censored regression")
 
-orsf_fit <- fit(orsf_spec, event_time ~ ., data = training(split))
+orsf_fit <- fit(orsf_spec, 
+                formula = event_time ~ ., 
+                data = training(split))
 
 ```
 

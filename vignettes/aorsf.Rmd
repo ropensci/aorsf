@@ -21,6 +21,11 @@ knitr::opts_chunk$set(
 
 This article covers core features of the `aorsf` package.
 
+```{r}
+library(aorsf)
+```
+
+
 ## Background
 
 The oblique random forest (RF) is an extension of the traditional (axis-based) RF. Instead of using a single variable to split data and grow new branches, trees in the oblique RF use a weighted combination of multiple variables.  
@@ -31,44 +36,10 @@ The purpose of `aorsf` ('a' is short for accelerated) is to provide a unifying f
 
 Everything in `aorsf` begins with the `orsf()` function. Here we begin with an oblique RF for survival using the `pbc_orsf` data. Note that `n_tree` is 5 for convenience in these examples, but should be >= 500 in practice.
 
-```{r}
-
-library(aorsf)
-
-# An oblique survival RF
-pbc_fit <- orsf(data = pbc_orsf, 
-                 n_tree = 5,
-                 formula = Surv(time, status) ~ . - id)
-
-pbc_fit
+```{r child = "../Rmd/orsf-fit-intro.Rmd"}
 
 ```
 
-Next, an oblique RF for classification using the `penguins_orsf` data:
-
-```{r}
-
-# An oblique classification RF
-penguin_fit <- orsf(data = penguins_orsf,
-                    n_tree = 5, 
-                    formula = species ~ .)
-
-penguin_fit
-
-```
-
-and for regression, we again use the penguins data but switch the outcome:
-
-```{r}
-
-# An oblique regression RF
-bill_fit <- orsf(data = penguins_orsf, 
-                 n_tree = 5, 
-                 formula = bill_length_mm ~ .)
-
-bill_fit
-
-```
 
 you may notice that the first input of `aorsf` is `data`. This is a design choice that makes it easier to use `orsf` with pipes (i.e., `%>%` or `|>`). For instance,
 

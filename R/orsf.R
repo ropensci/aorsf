@@ -504,11 +504,17 @@ orsf_train <- function(object, attach_data = TRUE, ...){
 
 orsf_time_to_train <- function(object, n_tree_subset = 50){
 
+ n_tree_original <- object$n_tree
+
  time_train_start <- Sys.time()
 
  object$train(n_tree = n_tree_subset)
 
  time_train_stop <- Sys.time()
+
+ object$untrain()
+
+ object$set_field(n_tree = n_tree_original)
 
  difftime(time_train_stop, time_train_start) * object$n_tree / n_tree_subset
 

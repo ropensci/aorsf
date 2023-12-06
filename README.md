@@ -23,12 +23,9 @@ Fit, interpret, and make predictions with oblique random forests (RFs).
 
 ## Why aorsf?
 
-- Hundreds of times faster than other software for oblique
-  RFs.<sup>1</sup>
+- Fast and versatile tools for oblique RFs.<sup>1</sup>
 
 - Accurate predictions.<sup>2</sup>
-
-- Computes partial dependence and variable importance.<sup>2</sup>
 
 - Intuitive API with formula based interface.
 
@@ -50,7 +47,101 @@ You can install the development version of aorsf from
 remotes::install_github("ropensci/aorsf")
 ```
 
-## What is an oblique decision tree?
+## Get started
+
+``` r
+library(aorsf)
+library(tidyverse)
+```
+
+`aorsf` fits several types of oblique RFs with the `orsf()` function,
+including survival, classification, and regression RFs. My personal
+favorite is the oblique survival RF with accelerated Cox regression
+because it has a great combination of prediction accuracy and
+computational efficiency (see [JCGS
+paper](https://doi.org/10.1080/10618600.2023.2231048)).<sup>2</sup>
+
+For classification, we fit an oblique RF to predict penguin species:
+
+``` r
+# An oblique classification RF
+penguin_fit <- orsf(data = penguins_orsf,
+                    n_tree = 5, 
+                    formula = species ~ .)
+
+penguin_fit
+#> ---------- Oblique random classification forest
+#> 
+#>      Linear combinations: Accelerated Logistic regression
+#>           N observations: 333
+#>                N classes: 3
+#>                  N trees: 5
+#>       N predictors total: 7
+#>    N predictors per node: 3
+#>  Average leaves per tree: 4.8
+#> Min observations in leaf: 5
+#>           OOB stat value: 1.00
+#>            OOB stat type: AUC-ROC
+#>      Variable importance: anova
+#> 
+#> -----------------------------------------
+```
+
+For regression, we use the same data but predict bill length of
+penguins:
+
+``` r
+# An oblique regression RF
+bill_fit <- orsf(data = penguins_orsf, 
+                 n_tree = 5, 
+                 formula = bill_length_mm ~ .)
+
+bill_fit
+#> ---------- Oblique random regression forest
+#> 
+#>      Linear combinations: Accelerated Linear regression
+#>           N observations: 333
+#>                  N trees: 5
+#>       N predictors total: 7
+#>    N predictors per node: 3
+#>  Average leaves per tree: 50
+#> Min observations in leaf: 5
+#>           OOB stat value: 0.69
+#>            OOB stat type: RSQ
+#>      Variable importance: anova
+#> 
+#> -----------------------------------------
+```
+
+For survival, we predict mortality risk following diagnosis of primary
+biliary cirrhosis:
+
+``` r
+# An oblique survival RF
+pbc_fit <- orsf(data = pbc_orsf, 
+                n_tree = 5,
+                formula = Surv(time, status) ~ . - id)
+
+pbc_fit
+#> ---------- Oblique random survival forest
+#> 
+#>      Linear combinations: Accelerated Cox regression
+#>           N observations: 276
+#>                 N events: 111
+#>                  N trees: 5
+#>       N predictors total: 17
+#>    N predictors per node: 5
+#>  Average leaves per tree: 20.2
+#> Min observations in leaf: 5
+#>       Min events in leaf: 1
+#>           OOB stat value: 0.75
+#>            OOB stat type: Harrell's C-index
+#>      Variable importance: anova
+#> 
+#> -----------------------------------------
+```
+
+## What does “oblique” mean?
 
 Decision trees are grown by splitting a set of training data into
 non-overlapping subsets, with the goal of having more similarity within
@@ -72,18 +163,8 @@ separating the two classes.
 So, how does this difference translate to real data, and how does it
 impact random forests comprising hundreds of axis-based or oblique
 trees? We will demonstrate this using the `penguin` data from the
-magnificent `palmerpenguins` R package.
-
-``` r
-library(aorsf)
-library(tidyverse)
-
-penguins_orsf <- penguins_orsf %>% 
- mutate(bill_length_mm = as.numeric(bill_length_mm),
-        flipper_length_mm = as.numeric(flipper_length_mm))
-```
-
-We will also use this function to make several plots:
+magnificent `palmerpenguins` R package. We will also use this function
+to make several plots:
 
 ``` r
 plot_decision_surface <- function(predictions, title, grid){
@@ -140,9 +221,7 @@ grid <- expand_grid(
 )
 ```
 
-We use `orsf` with `mtry=1` to fit axis-based trees and random forests.
-Then we use `orsf_update` to expand axis-based trees to oblique ones,
-and single trees to forests:
+We use `orsf` with `mtry=1` to fit axis-based trees:
 
 ``` r
 fit_axis_tree <- penguins_orsf %>% 
@@ -150,7 +229,13 @@ fit_axis_tree <- penguins_orsf %>%
       n_tree = 1,
       mtry = 1,
       tree_seeds = 106760)
+```
 
+Next we use `orsf_update` to copy and modify the original model,
+expanding it to fit an oblique tree by using `mtry=2` instead of
+`mtry=1`, and to include 500 trees instead of 1:
+
+``` r
 fit_axis_forest <- fit_axis_tree %>% 
  orsf_update(n_tree = 500)
 
@@ -159,8 +244,12 @@ fit_oblique_tree <- fit_axis_tree %>%
 
 fit_oblique_forest <- fit_oblique_tree %>% 
  orsf_update(n_tree = 500)
+```
 
+And now we have all we need to visualize decision surfaces using
+predictions from these four fits:
 
+``` r
 preds <- list(fit_axis_tree,
               fit_axis_forest,
               fit_oblique_tree,
@@ -185,69 +274,14 @@ axes. Axis-based forests tend to have ‘step-function’ decision
 boundaries, while oblique forests tend to have smooth decision
 boundaries.
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
 
-## Examples
+## Variable importance
 
-`orsf()` fits several types of oblique RFs. My personal favorite is the
-accelerated oblique survival RF because it has a great combination of
-prediction accuracy and computational efficiency (see [JCGS
-paper](https://doi.org/10.1080/10618600.2023.2231048)).<sup>2</sup>
-
-``` r
-
-library(aorsf)
-
-set.seed(329730)
-
-index_train <- sample(nrow(pbc_orsf), 150) 
-
-pbc_orsf_train <- pbc_orsf[index_train, ]
-pbc_orsf_test <- pbc_orsf[-index_train, ]
-
-fit <- orsf(data = pbc_orsf_train, 
-            formula = Surv(time, status) ~ . - id,
-            oobag_pred_horizon = 365.25 * 5)
-```
-
-### Inspect
-
-Printing the output from `orsf()` will give some information and
-descriptive statistics about the ensemble.
-
-``` r
-fit
-#> ---------- Oblique random survival forest
-#> 
-#>      Linear combinations: Accelerated Cox regression
-#>           N observations: 150
-#>                 N events: 52
-#>                  N trees: 500
-#>       N predictors total: 17
-#>    N predictors per node: 5
-#>  Average leaves per tree: 10.238
-#> Min observations in leaf: 5
-#>       Min events in leaf: 1
-#>           OOB stat value: 0.83
-#>            OOB stat type: Harrell's C-index
-#>      Variable importance: anova
-#> 
-#> -----------------------------------------
-```
-
-- See
-  [print.ObliqueForest](https://docs.ropensci.org/aorsf/reference/print.orsf_fit.html)
-  for a description of each line in the printed output.
-
-- See [orsf
-  examples](https://docs.ropensci.org/aorsf/reference/orsf.html#examples)
-  for more details on controlling ORSF ensemble fits and using them in
-  prediction modeling workflows.
-
-### Variable importance
-
-The importance of individual variables can be estimated in three ways
-using `aorsf`:
+The importance of individual predictor variables can be estimated in
+three ways using `aorsf` and can be used on any type of oblique RF.
+Also, variable importance functions always return a named character
+vector
 
 - **negation**<sup>2</sup>: Each variable is assessed separately by
   multiplying the variable’s coefficients by -1 and then determining how
@@ -260,13 +294,13 @@ using `aorsf`:
   Jaeger, (2023) for more details on this technique.
 
   ``` r
-  orsf_vi_negate(fit)
-  #>         bili          sex       copper        stage          age          ast 
-  #>  0.117180683  0.058528338  0.033761789  0.026655509  0.022144911  0.019139095 
-  #>      protime       hepato        edema      ascites      albumin         chol 
-  #>  0.016879701  0.011605852  0.010634489  0.009580159  0.008336260  0.007633992 
-  #>          trt      spiders     alk.phos         trig     platelet 
-  #>  0.002705027  0.002662017  0.002413369  0.001197399 -0.003386483
+  orsf_vi_negate(pbc_fit)
+  #>         bili          sex       copper      protime         trig        stage 
+  #>  0.123886962  0.079314182  0.033690082  0.024993393  0.024824543  0.022596171 
+  #>          age      ascites         chol      albumin          trt          ast 
+  #>  0.022230055  0.022102660  0.021148146  0.019735757  0.016349041  0.015422072 
+  #>        edema     platelet      spiders       hepato     alk.phos 
+  #>  0.011281582  0.009236892 -0.004852893 -0.008039998 -0.016934342
   ```
 
 - **permutation**: Each variable is assessed separately by randomly
@@ -278,13 +312,11 @@ using `aorsf`:
   limitations](https://christophm.github.io/interpretable-ml-book/feature-importance.html#disadvantages-9)
 
   ``` r
-  orsf_vi_permute(fit)
-  #>         bili       copper          age        stage          sex          ast 
-  #>  0.050536719  0.016394807  0.013793348  0.013204760  0.010261860  0.010101841 
-  #>        edema      ascites      protime      albumin       hepato         chol 
-  #>  0.008298456  0.008148291  0.007630773  0.006667768  0.006141770  0.002881687 
-  #>      spiders         trig     alk.phos     platelet          trt 
-  #>  0.001669604  0.001047642 -0.000301684 -0.001417230 -0.001665785
+  orsf_vi_permute(penguin_fit)
+  #>    bill_length_mm            island flipper_length_mm       body_mass_g 
+  #>       0.143264349       0.087622456       0.083339890       0.075864339 
+  #>     bill_depth_mm               sex              year 
+  #>       0.069297784       0.016607005       0.002510418
   ```
 
 - **analysis of variance (ANOVA)**<sup>3</sup>: A p-value is computed
@@ -298,13 +330,11 @@ using `aorsf`:
   for more details on this technique.
 
   ``` r
-  orsf_vi_anova(fit)
-  #>         bili       copper          age        stage          sex          ast 
-  #>  0.050536719  0.016394807  0.013793348  0.013204760  0.010261860  0.010101841 
-  #>        edema      ascites      protime      albumin       hepato         chol 
-  #>  0.008298456  0.008148291  0.007630773  0.006667768  0.006141770  0.002881687 
-  #>      spiders         trig     alk.phos     platelet          trt 
-  #>  0.001669604  0.001047642 -0.000301684 -0.001417230 -0.001665785
+  orsf_vi_anova(bill_fit)
+  #>           species               sex            island flipper_length_mm 
+  #>        0.61764706        0.29166667        0.15302191        0.12403101 
+  #>     bill_depth_mm       body_mass_g              year 
+  #>        0.07142857        0.06106870        0.02564103
   ```
 
 You can supply your own R function to estimate out-of-bag error when
@@ -323,27 +353,26 @@ The summary function, `orsf_summarize_uni()`, computes PD for as many
 variables as you ask it to, using sensible values.
 
 ``` r
-orsf_summarize_uni(fit, n_variables = 2)
+orsf_summarize_uni(pbc_fit, n_variables = 2)
 #> 
-#> -- bili (VI Rank: 1) ----------------------------
+#> -- bili (VI Rank: 1) -----------------------------
 #> 
-#>         |---------------- Risk ----------------|
+#>         |----------------- Risk -----------------|
+#>   Value      Mean     Median     25th %    75th %
+#>  <char>     <num>      <num>      <num>     <num>
+#>    0.80 0.1962502 0.05782313 0.01521944 0.3064935
+#>    1.40 0.2184447 0.06462585 0.01541984 0.3333333
+#>    3.55 0.3613502 0.27833749 0.10859877 0.6000000
+#> 
+#> -- sex (VI Rank: 2) ------------------------------
+#> 
+#>         |----------------- Risk -----------------|
 #>   Value      Mean    Median     25th %    75th %
 #>  <char>     <num>     <num>      <num>     <num>
-#>    0.70 0.2043124 0.1288782 0.05502854 0.3130744
-#>    1.30 0.2193531 0.1430383 0.06680735 0.3352729
-#>    3.20 0.2843241 0.2228119 0.12421850 0.4304313
+#>       m 0.3329003 0.2222222 0.01636962 0.5740741
+#>       f 0.2692446 0.1055556 0.01541984 0.4000000
 #> 
-#> -- copper (VI Rank: 2) --------------------------
-#> 
-#>         |---------------- Risk ----------------|
-#>   Value      Mean    Median     25th %    75th %
-#>  <char>     <num>     <num>      <num>     <num>
-#>    39.0 0.2308500 0.1358346 0.05536305 0.3575617
-#>    68.0 0.2415171 0.1482876 0.06189812 0.3682164
-#>     111 0.2727120 0.1846062 0.08723814 0.4084767
-#> 
-#>  Predicted risk at time t = 1826.25 for top 2 predictors
+#>  Predicted risk at time t = 1788 for top 2 predictors
 ```
 
 For more on PD, see the
@@ -380,9 +409,7 @@ Comparisons between `aorsf` and existing software are presented in our
   rank a relevant variable with higher importance than an irrelevant
   variable.
 
-A more hands-on comparison of `aorsf` and other R packages is provided
-in [orsf
-examples](https://docs.ropensci.org/aorsf/reference/orsf.html#tidymodels)
+<!-- A more hands-on comparison of `aorsf` and other R packages is provided in [orsf examples](https://docs.ropensci.org/aorsf/reference/orsf.html#tidymodels) -->
 
 ## References
 

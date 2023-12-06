@@ -17,3 +17,4 @@
 lastMiKTeXException
 ^\.zenodo\.json$
 ^scratch\.R$
+^cache$

@@ -390,209 +390,178 @@ such as \code{recipes} or \code{mlr3pipelines}.
 }
 
 \section{Examples}{
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(aorsf)
+library(magrittr) # for \%>\%
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## 
+## Attaching package: 'magrittr'
+
+## The following objects are masked from 'package:testthat':
+## 
+##     equals, is_less_than, not
+}\if{html}{\out{</div>}}
+
 \code{orsf()} is the entry-point of the \code{aorsf} package. It can be used to
-fit classification, regression, and survival forests. It can also
-compute out-of-bag prediction accuracy or out-of-bag variable importance
-using built-in functions or custom functions supplied by users.
+fit classification, regression, and survival forests.
 
-First we load some relevant packages
+For classification, we fit an oblique RF to predict penguin species:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-set.seed(329730)
-library(aorsf)
-library(tidyverse)
-library(survival)
-}\if{html}{\out{</div>}}
-\subsection{Classification}{
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# An oblique classification RF
+penguin_fit <- orsf(data = penguins_orsf,
+                    n_tree = 5, 
+                    formula = species ~ .)
 
-We’ll use the outstanding \code{penguin} data for this example:
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-# penguins_orsf is a copy of the penguins data
-# from palmerpenguins but only includes complete cases:
-head(penguins_orsf)
-#> # A tibble: 6 x 8
-#>   species island    bill_length_mm bill_depth_mm
-#>   <fct>   <fct>              <dbl>         <dbl>
-#> 1 Adelie  Torgersen           39.1          18.7
-#> 2 Adelie  Torgersen           39.5          17.4
-#> 3 Adelie  Torgersen           40.3          18  
-#> 4 Adelie  Torgersen           36.7          19.3
-#> 5 Adelie  Torgersen           39.3          20.6
-#> 6 Adelie  Torgersen           38.9          17.8
-#> # i 4 more variables: flipper_length_mm <dbl>,
-#> #   body_mass_g <int>, sex <fct>, year <int>
+penguin_fit
 }\if{html}{\out{</div>}}
 
-The \code{orsf()} function will automatically fit a classification forest if
-the outcome variable is a factor:
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-fit_penguins <- orsf(data = penguins_orsf,
-                     formula = species ~ bill_length_mm + flipper_length_mm)
-
-fit_penguins
-#> ---------- Oblique random classification forest
-#> 
-#>      Linear combinations: Accelerated Logistic regression
-#>           N observations: 333
-#>                N classes: 3
-#>                  N trees: 500
-#>       N predictors total: 2
-#>    N predictors per node: 2
-#>  Average leaves per tree: 5.896
-#> Min observations in leaf: 5
-#>           OOB stat value: 0.99
-#>            OOB stat type: AUC-ROC
-#>      Variable importance: anova
-#> 
-#> -----------------------------------------
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random classification forest
+## 
+##      Linear combinations: Accelerated Logistic regression
+##           N observations: 333
+##                N classes: 3
+##                  N trees: 5
+##       N predictors total: 7
+##    N predictors per node: 3
+##  Average leaves per tree: 7.4
+## Min observations in leaf: 5
+##           OOB stat value: 0.99
+##            OOB stat type: AUC-ROC
+##      Variable importance: anova
+## 
+## -----------------------------------------
 }\if{html}{\out{</div>}}
 
-You can also tell \code{orsf()} to do classification manually if you’d prefer
-keeping a numeric outcome. The way to do this is through the \code{control}
-argument:
+For regression, we use the same data but predict bill length of
+penguins:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-penguins_numeric <- penguins_orsf
-penguins_numeric$species <- as.numeric(penguins_numeric$species)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# An oblique regression RF
+bill_fit <- orsf(data = penguins_orsf, 
+                 n_tree = 5, 
+                 formula = bill_length_mm ~ .)
 
-fit_numeric <- orsf(penguins_numeric,
-                    formula = species ~ bill_length_mm + flipper_length_mm,
-                    control = orsf_control_classification())
-
-fit_numeric
-#> ---------- Oblique random classification forest
-#> 
-#>      Linear combinations: Logistic regression
-#>           N observations: 333
-#>                N classes: 3
-#>                  N trees: 500
-#>       N predictors total: 2
-#>    N predictors per node: 2
-#>  Average leaves per tree: 6.134
-#> Min observations in leaf: 5
-#>           OOB stat value: 0.99
-#>            OOB stat type: AUC-ROC
-#>      Variable importance: anova
-#> 
-#> -----------------------------------------
+bill_fit
 }\if{html}{\out{</div>}}
 
-You could also use \code{orsf_update} to make \code{fit_numeric} simply by giving
-it a new \code{data} argument
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-orsf_update(fit_penguins, data = penguins_numeric)
-#> ---------- Oblique random classification forest
-#> 
-#>      Linear combinations: Accelerated Logistic regression
-#>           N observations: 333
-#>                N classes: 3
-#>                  N trees: 500
-#>       N predictors total: 2
-#>    N predictors per node: 2
-#>  Average leaves per tree: 5.896
-#> Min observations in leaf: 5
-#>           OOB stat value: 0.99
-#>            OOB stat type: AUC-ROC
-#>      Variable importance: anova
-#> 
-#> -----------------------------------------
-}\if{html}{\out{</div>}}
-}
-
-\subsection{Regression}{
-}
-
-\subsection{Survival}{
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random regression forest
+## 
+##      Linear combinations: Accelerated Linear regression
+##           N observations: 333
+##                  N trees: 5
+##       N predictors total: 7
+##    N predictors per node: 3
+##  Average leaves per tree: 51.4
+## Min observations in leaf: 5
+##           OOB stat value: 0.76
+##            OOB stat type: RSQ
+##      Variable importance: anova
+## 
+## -----------------------------------------
 }\if{html}{\out{</div>}}
 
-printing \code{fit} provides quick descriptive summaries:
+For survival, we predict mortality risk following diagnosis of primary
+biliary cirrhosis:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit
-#> ---------- Oblique random survival forest
-#> 
-#>      Linear combinations: Accelerated Cox regression
-#>           N observations: 276
-#>                 N events: 111
-#>                  N trees: 500
-#>       N predictors total: 17
-#>    N predictors per node: 5
-#>  Average leaves per tree: 20.866
-#> Min observations in leaf: 5
-#>       Min events in leaf: 1
-#>           OOB stat value: 0.84
-#>            OOB stat type: Harrell's C-index
-#>      Variable importance: anova
-#> 
-#> -----------------------------------------
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# An oblique survival RF
+pbc_fit <- orsf(data = pbc_orsf, 
+                n_tree = 5,
+                formula = Surv(time, status) ~ . - id)
+
+pbc_fit
 }\if{html}{\out{</div>}}
-}
 
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
+## 
+##      Linear combinations: Accelerated Cox regression
+##           N observations: 276
+##                 N events: 111
+##                  N trees: 5
+##       N predictors total: 17
+##    N predictors per node: 5
+##  Average leaves per tree: 20.6
+## Min observations in leaf: 5
+##       Min events in leaf: 1
+##           OOB stat value: 0.78
+##            OOB stat type: Harrell's C-index
+##      Variable importance: anova
+## 
+## -----------------------------------------
+}\if{html}{\out{</div>}}
 \subsection{More than one way to grow a forest}{
 
-You can use \code{orsf(no_fit = TRUE)} to make a specification to grow a
-forest that can be used as a blueprint for \code{orsf_train()}:
+You can use \code{orsf(no_fit = TRUE)} to make a \emph{specification} to grow a
+forest instead of a fitted forest.
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-orsf_spec <- orsf(pbc_orsf, time + status ~ . - id, no_fit = TRUE)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_spec <- orsf(pbc_orsf, 
+                  formula = time + status ~ . - id,
+                  no_fit = TRUE)
+
 orsf_spec
-#> Untrained oblique random survival forest
-#> 
-#>      Linear combinations: Accelerated Cox regression
-#>           N observations: 276
-#>                 N events: 111
-#>                  N trees: 500
-#>       N predictors total: 17
-#>    N predictors per node: 5
-#>  Average leaves per tree: 0
-#> Min observations in leaf: 5
-#>       Min events in leaf: 1
-#>           OOB stat value: none
-#>            OOB stat type: Harrell's C-index
-#>      Variable importance: anova
-#> 
-#> -----------------------------------------
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-orsf_fit <- orsf_train(orsf_spec)
-orsf_fit
-#> ---------- Oblique random survival forest
-#> 
-#>      Linear combinations: Accelerated Cox regression
-#>           N observations: 276
-#>                 N events: 111
-#>                  N trees: 500
-#>       N predictors total: 17
-#>    N predictors per node: 5
-#>  Average leaves per tree: 20.994
-#> Min observations in leaf: 5
-#>       Min events in leaf: 1
-#>           OOB stat value: 0.84
-#>            OOB stat type: Harrell's C-index
-#>      Variable importance: anova
-#> 
-#> -----------------------------------------
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## Untrained oblique random survival forest
+## 
+##      Linear combinations: Accelerated Cox regression
+##           N observations: 276
+##                 N events: 111
+##                  N trees: 500
+##       N predictors total: 17
+##    N predictors per node: 5
+##  Average leaves per tree: 0
+## Min observations in leaf: 5
+##       Min events in leaf: 1
+##           OOB stat value: none
+##            OOB stat type: Harrell's C-index
+##      Variable importance: anova
+## 
+## -----------------------------------------
 }\if{html}{\out{</div>}}
 
-You can also update the specification in place when passing it to
-\code{orsf_train()}, making it easy to fit several models from one spec:
+Why would you do this? Two reasons:
+\enumerate{
+\item For very computational tasks, you may want to check how long it will
+take to fit the forest before you commit to it:
+}
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_spec \%>\% 
+ orsf_update(n_tree = 10000) \%>\%
+ orsf_time_to_train()
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## Time difference of 3.802586 secs
+}\if{html}{\out{</div>}}
+\enumerate{
+\item If fitting multiple forests, pass the blueprint into \code{orsf_train}
+along with any modifications you’d like to make:
+}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_fit <- orsf_train(orsf_spec)
 orsf_fit_10 <- orsf_train(orsf_spec, leaf_min_obs = 10)
 orsf_fit_20 <- orsf_train(orsf_spec, leaf_min_obs = 20)
 
 orsf_fit$leaf_min_obs
-#> [1] 5
-orsf_fit_10$leaf_min_obs
-#> [1] 10
-orsf_fit_20$leaf_min_obs
-#> [1] 20
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 5
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_fit_10$leaf_min_obs
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 10
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_fit_20$leaf_min_obs
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 20
+}\if{html}{\out{</div>}}
+
+You can also use \code{orsf_update} to get similar functionality:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_fit <- orsf_train(orsf_spec)
+orsf_fit_10 <- orsf_update(orsf_fit, leaf_min_obs = 10)
+orsf_fit_20 <- orsf_update(orsf_fit, leaf_min_obs = 20)
 }\if{html}{\out{</div>}}
 }
 
@@ -600,8 +569,7 @@ orsf_fit_20$leaf_min_obs
 
 \code{tidymodels} includes support for \code{aorsf} as a computational engine:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-library(tidymodels)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(tidymodels)
 library(censored)
 library(yardstick)
 
@@ -616,13 +584,14 @@ orsf_spec <- rand_forest() \%>\%
  set_engine("aorsf") \%>\% 
  set_mode("censored regression")
 
-orsf_fit <- fit(orsf_spec, event_time ~ ., data = training(split))
+orsf_fit <- fit(orsf_spec, 
+                formula = event_time ~ ., 
+                data = training(split))
 }\if{html}{\out{</div>}}
 
 Prediction with \code{aorsf} models at different times is also supported:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-time_points <- seq(500, 3000, by = 500)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{time_points <- seq(500, 3000, by = 500)
 
 test_pred <- augment(orsf_fit, 
                      new_data = testing(split), 
@@ -632,29 +601,34 @@ brier_scores <- test_pred \%>\%
   brier_survival(truth = event_time, .pred)
 
 brier_scores
-#> # A tibble: 6 x 4
-#>   .metric        .estimator .eval_time .estimate
-#>   <chr>          <chr>           <dbl>     <dbl>
-#> 1 brier_survival standard          500    0.0670
-#> 2 brier_survival standard         1000    0.0688
-#> 3 brier_survival standard         1500    0.0890
-#> 4 brier_survival standard         2000    0.0937
-#> 5 brier_survival standard         2500    0.147 
-#> 6 brier_survival standard         3000    0.163
+}\if{html}{\out{</div>}}
 
-roc_scores <- test_pred \%>\% 
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 4
+##   .metric        .estimator .eval_time .estimate
+##   <chr>          <chr>           <dbl>     <dbl>
+## 1 brier_survival standard          500    0.0577
+## 2 brier_survival standard         1000    0.111 
+## 3 brier_survival standard         1500    0.119 
+## 4 brier_survival standard         2000    0.118 
+## 5 brier_survival standard         2500    0.127 
+## 6 brier_survival standard         3000    0.144
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{roc_scores <- test_pred \%>\% 
   roc_auc_survival(truth = event_time, .pred)
 
 roc_scores
-#> # A tibble: 6 x 4
-#>   .metric          .estimator .eval_time .estimate
-#>   <chr>            <chr>           <dbl>     <dbl>
-#> 1 roc_auc_survival standard          500     0.993
-#> 2 roc_auc_survival standard         1000     0.962
-#> 3 roc_auc_survival standard         1500     0.939
-#> 4 roc_auc_survival standard         2000     0.943
-#> 5 roc_auc_survival standard         2500     0.913
-#> 6 roc_auc_survival standard         3000     0.903
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 4
+##   .metric          .estimator .eval_time .estimate
+##   <chr>            <chr>           <dbl>     <dbl>
+## 1 roc_auc_survival standard          500     0.850
+## 2 roc_auc_survival standard         1000     0.822
+## 3 roc_auc_survival standard         1500     0.882
+## 4 roc_auc_survival standard         2000     0.915
+## 5 roc_auc_survival standard         2500     0.895
+## 6 roc_auc_survival standard         3000     0.891
 }\if{html}{\out{</div>}}
 }
 }

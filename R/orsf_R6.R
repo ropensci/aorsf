@@ -867,6 +867,55 @@ ObliqueForest <- R6::R6Class(
 
   },
 
+  # setter
+
+  set_field = function(...){
+
+   .dots <- list(...)
+
+   valid_fields <- c("data",
+                     "formula",
+                     "control",
+                     "weights",
+                     "n_tree",
+                     "n_split",
+                     "n_retry",
+                     "n_thread",
+                     "mtry",
+                     "sample_with_replacement",
+                     "sample_fraction",
+                     "leaf_min_events",
+                     "leaf_min_obs",
+                     "split_rule",
+                     "split_min_events",
+                     "split_min_obs",
+                     "split_min_stat",
+                     "pred_type",
+                     "oobag_pred_horizon",
+                     "oobag_eval_every",
+                     "oobag_fun",
+                     "importance_type",
+                     "importance_max_pvalue",
+                     "importance_group_factors",
+                     "tree_seeds",
+                     "na_action",
+                     "verbose_progress")
+
+   if(!is_empty(.dots)){
+
+    for(i in names(.dots)){
+
+     if(!(i %in% valid_fields))
+      stop("field ", i, " is unrecognized")
+
+     self[[i]] <- .dots[[i]]
+
+    }
+
+   }
+
+  },
+
   # getters
   # the get_ functions return a private member variable in
   # standard or requested format, allowing for info about

@@ -135,8 +135,7 @@ Partial dependence has a number of \href{https://christophm.github.io/interpreta
 \section{Examples}{
 Begin by fitting an ORSF ensemble:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-library(aorsf)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(aorsf)
 
 set.seed(329730)
 
@@ -155,47 +154,50 @@ You can compute partial dependence and ICE three ways with \code{aorsf}:
 \itemize{
 \item using in-bag predictions for the training data
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-pd_train <- orsf_pd_inb(fit, pred_spec = list(bili = 1:5))
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_train <- orsf_pd_inb(fit, pred_spec = list(bili = 1:5))
 
 pd_train
-#>    pred_horizon  bili      mean        lwr      medn       upr
-#>           <num> <num>     <num>      <num>     <num>     <num>
-#> 1:      1826.25     1 0.2034441 0.01958467 0.0978637 0.7771746
-#> 2:      1826.25     2 0.2335524 0.03614317 0.1322952 0.7986061
-#> 3:      1826.25     3 0.2679313 0.05276137 0.1745943 0.8177905
-#> 4:      1826.25     4 0.3158140 0.07801520 0.2314825 0.8317336
-#> 5:      1826.25     5 0.3578420 0.12202134 0.2752057 0.8408508
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon  bili      mean        lwr      medn       upr
+##           <num> <num>     <num>      <num>     <num>     <num>
+## 1:      1826.25     1 0.2034441 0.01958467 0.0978637 0.7771746
+## 2:      1826.25     2 0.2335524 0.03614317 0.1322952 0.7986061
+## 3:      1826.25     3 0.2679313 0.05276137 0.1745943 0.8177905
+## 4:      1826.25     4 0.3158140 0.07801520 0.2314825 0.8317336
+## 5:      1826.25     5 0.3578420 0.12202134 0.2752057 0.8408508
 }\if{html}{\out{</div>}}
 \item using out-of-bag predictions for the training data
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-pd_train <- orsf_pd_oob(fit, pred_spec = list(bili = 1:5))
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_train <- orsf_pd_oob(fit, pred_spec = list(bili = 1:5))
 
 pd_train
-#>    pred_horizon  bili      mean        lwr      medn       upr
-#>           <num> <num>     <num>      <num>     <num>     <num>
-#> 1:      1826.25     1 0.2112509 0.01973124 0.1354011 0.7171789
-#> 2:      1826.25     2 0.2413456 0.03451762 0.1715079 0.7509849
-#> 3:      1826.25     3 0.2750807 0.05181733 0.2127899 0.7609403
-#> 4:      1826.25     4 0.3223209 0.08084008 0.2678339 0.7719659
-#> 5:      1826.25     5 0.3652664 0.12709393 0.3136925 0.7760334
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon  bili      mean        lwr      medn       upr
+##           <num> <num>     <num>      <num>     <num>     <num>
+## 1:      1826.25     1 0.2112509 0.01973124 0.1354011 0.7171789
+## 2:      1826.25     2 0.2413456 0.03451762 0.1715079 0.7509849
+## 3:      1826.25     3 0.2750807 0.05181733 0.2127899 0.7609403
+## 4:      1826.25     4 0.3223209 0.08084008 0.2678339 0.7719659
+## 5:      1826.25     5 0.3652664 0.12709393 0.3136925 0.7760334
 }\if{html}{\out{</div>}}
 \item using predictions for a new set of data
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-pd_test <- orsf_pd_new(fit, 
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_test <- orsf_pd_new(fit, 
                        new_data = pbc_orsf_test, 
                        pred_spec = list(bili = 1:5))
 
 pd_test
-#>    pred_horizon  bili      mean        lwr      medn       upr
-#>           <num> <num>     <num>      <num>     <num>     <num>
-#> 1:      1826.25     1 0.2417344 0.02209149 0.1895773 0.7819458
-#> 2:      1826.25     2 0.2718357 0.03915587 0.2252919 0.8042602
-#> 3:      1826.25     3 0.3066068 0.05829350 0.2694077 0.8171481
-#> 4:      1826.25     4 0.3558594 0.08951223 0.3205839 0.8238288
-#> 5:      1826.25     5 0.3982408 0.13810590 0.3683546 0.8300253
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon  bili      mean        lwr      medn       upr
+##           <num> <num>     <num>      <num>     <num>     <num>
+## 1:      1826.25     1 0.2417344 0.02209149 0.1895773 0.7819458
+## 2:      1826.25     2 0.2718357 0.03915587 0.2252919 0.8042602
+## 3:      1826.25     3 0.3066068 0.05829350 0.2694077 0.8171481
+## 4:      1826.25     4 0.3558594 0.08951223 0.3205839 0.8238288
+## 5:      1826.25     5 0.3982408 0.13810590 0.3683546 0.8300253
 }\if{html}{\out{</div>}}
 \item in-bag partial dependence indicates relationships that the model has
 learned during training. This is helpful if your goal is to interpret
