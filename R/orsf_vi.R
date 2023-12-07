@@ -1,9 +1,9 @@
 
 
-#' ORSF variable importance
+#' Variable Importance
 #'
-#' Estimate the importance of individual variables using oblique random
-#'   survival forests.
+#' Estimate the importance of individual predictor variables using
+#'  oblique random forests.
 #'
 #' @inheritParams predict.ObliqueForest
 #'
@@ -83,7 +83,7 @@ orsf_vi <- function(object,
                     group_factors = TRUE,
                     importance = NULL,
                     oobag_fun = NULL,
-                    n_thread = 1,
+                    n_thread = 0,
                     verbose_progress = FALSE,
                     ...){
 
@@ -105,7 +105,7 @@ orsf_vi_negate <-
  function(object,
           group_factors = TRUE,
           oobag_fun = NULL,
-          n_thread = 1,
+          n_thread = 0,
           verbose_progress = FALSE,
           ...) {
   check_dots(list(...), .f = orsf_vi_negate)
@@ -123,7 +123,7 @@ orsf_vi_permute <-
  function(object,
           group_factors = TRUE,
           oobag_fun = NULL,
-          n_thread = 1,
+          n_thread = 0,
           verbose_progress = FALSE,
           ...) {
   check_dots(list(...), .f = orsf_vi_permute)
@@ -139,13 +139,14 @@ orsf_vi_permute <-
 #' @export
 orsf_vi_anova <- function(object,
                           group_factors = TRUE,
+                          verbose_progress = FALSE,
                           ...) {
  check_dots(list(...), .f = orsf_vi_anova)
  orsf_vi_(object,
           group_factors,
           importance = 'anova',
           oobag_fun = NULL,
-          n_thread = 1,
+          n_thread = 0,
           verbose_progress = FALSE)
 }
 

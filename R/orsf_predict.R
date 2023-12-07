@@ -10,20 +10,44 @@
 #'
 #' @param new_data a `r roxy_data_allowed()` to compute predictions in.
 #'
-#' @param pred_horizon (_double_) a value or vector indicating the time(s)
-#'   that predictions will be calibrated to. E.g., if you were predicting
-#'   risk of incident heart failure within the next 10 years, then
-#'   `pred_horizon = 10`. `pred_horizon` can be `NULL` if `pred_type` is
-#'   `'mort'`, since mortality predictions are aggregated over all
-#'   event times
-#'
 #' @param pred_type (_character_) the type of predictions to compute. Valid
-#'   options are
+#'   options for survival are:
 #'
 #'   - 'risk' : probability of having an event at or before `pred_horizon`.
 #'   - 'surv' : 1 - risk.
 #'   - 'chf': cumulative hazard function
 #'   - 'mort': mortality prediction
+#'
+#'  For classification:
+#'
+#'  - 'prob': probability for each class
+#'  - 'class': predicted class
+#'
+#'  For regression:
+#'
+#'  - 'mean': predicted mean, i.e., the expected value
+#'
+#' @param pred_horizon (_double_) Only relevent for survival forests.
+#'   A value or vector indicating the time(s) that predictions will be
+#'   calibrated to. E.g., if you were predicting risk of incident heart
+#'   failure within the next 10 years, then `pred_horizon = 10`.
+#'   `pred_horizon` can be `NULL` if `pred_type` is `'mort'`, since
+#'   mortality predictions are aggregated over all event times
+#'
+#'
+#' @param pred_aggregate (_logical_) If `TRUE` (the default), predictions
+#'   will be aggregated over all trees by taking the mean. If `FALSE`, the
+#'   returned output will contain one row per observation and one column
+#'   for each tree. If the length of `pred_horizon` is two or more and
+#'   `pred_aggregate` is `FALSE`, then the result will be a list of such
+#'   matrices, with the i'th item in the list corresponding to the i'th
+#'   value of `pred_horizon`.
+#'
+#' @param pred_simplify (_logical_) If `FALSE` (the default), predictions
+#'   will always be returned in a numeric matrix or a list of numeric matrices.
+#'   If `TRUE`, predictions may be simplified to a vector, e.g., if `pred_type`
+#'   is `'mort'` for survival or `'class'` for classification, or an array of
+#'   matrices if `length(pred_horizon) > 1`.
 #'
 #' @param na_action `r roxy_na_action_header("new_data")`
 #'
@@ -40,14 +64,6 @@
 #'  are skipped.
 #'
 #' @param n_thread `r roxy_n_thread_header("computing predictions")`
-#'
-#' @param pred_aggregate (_logical_) If `TRUE` (the default), predictions
-#'   will be aggregated over all trees by taking the mean. If `FALSE`, the
-#'   returned output will contain one row per observation and one column
-#'   for each tree. If the length of `pred_horizon` is two or more and
-#'   `pred_aggregate` is `FALSE`, then the result will be a list of such
-#'   matrices, with the i'th item in the list corresponding to the i'th
-#'   value of `pred_horizon`.
 #'
 #' @inheritParams orsf
 #'
@@ -81,13 +97,14 @@
 #'
 predict.ObliqueForest <- function(object,
                                   new_data,
-                                  pred_horizon = NULL,
                                   pred_type = NULL,
+                                  pred_horizon = NULL,
+                                  pred_aggregate = TRUE,
+                                  pred_simplify = FALSE,
                                   na_action = 'fail',
                                   boundary_checks = TRUE,
-                                  n_thread = 1,
+                                  n_thread = 0,
                                   verbose_progress = FALSE,
-                                  pred_aggregate = TRUE,
                                   ...){
 
  # catch any arguments that didn't match and got relegated to ...
@@ -95,13 +112,14 @@ predict.ObliqueForest <- function(object,
  check_dots(list(...), .f = predict.ObliqueForest)
 
  out <- object$predict(new_data = new_data,
-                       pred_horizon = pred_horizon,
                        pred_type = pred_type,
+                       pred_horizon = pred_horizon,
+                       pred_aggregate = pred_aggregate,
+                       pred_simplify = pred_simplify,
                        na_action = na_action,
                        boundary_checks = boundary_checks,
                        n_thread = n_thread,
-                       verbose_progress = verbose_progress,
-                       pred_aggregate = pred_aggregate)
+                       verbose_progress = verbose_progress)
 
  out
 

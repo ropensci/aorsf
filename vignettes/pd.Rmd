@@ -14,11 +14,10 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>", 
   fig.height = 5, 
-  fig.width = 7
+  fig.width = 7,
+  warning = FALSE,
+  message = FALSE
 )
-
-library(aorsf)
-library(ggplot2)
 
 ```
 
@@ -26,122 +25,201 @@ library(ggplot2)
 
 `r aorsf:::roxy_pd_explain()`
 
-Begin by fitting an ORSF ensemble. Set a prediction horizon of 5 years when we fit the ensemble so that any `aorsf` function that we pass this ensemble to will assume we want to compute predictions at 5 years.
+```{r}
+library(aorsf)
+library(tidyverse)
+```
+
+You can compute PD and individual conditional expectation (ICE) in three ways: 
+
+- using in-bag predictions for the training data. In-bag PD indicates relationships that the model has learned during training. This is helpful if your goal is to interpret the model.
+
+- using out-of-bag predictions for the training data. Out-of-bag PD indicates relationships that the model has learned during training but using the out-of-bag data simulates application of the model to new data. This is helpful if you want to test your model's reliability or fairness in new data but you don't have access to a large testing set.
+
+- using predictions for a new set of data. New data PD shows how the model predicts outcomes for observations it has not seen. This is helpful if you want to test your model's reliability or fairness.
+
+## Classification
+
+Begin by fitting an oblique classification random forest:
 
 ```{r}
 
-library(aorsf)
+set.seed(329)
 
-pred_horizon <- 365.25 * 5
+index_train <- sample(nrow(penguins_orsf), 150) 
 
-set.seed(329730)
+penguins_orsf_train <- penguins_orsf[index_train, ]
+penguins_orsf_test <- penguins_orsf[-index_train, ]
+
+fit_clsf <- orsf(data = penguins_orsf_train, 
+                 formula = species ~ .)
+
+```
+
+
+Compute PD using out-of-bag data for `flipper_length_mm = c(190, 210)`. 
+
+```{r}
+
+pred_spec <- list(flipper_length_mm = c(190, 210))
+
+pd_oob <- orsf_pd_oob(fit_clsf, pred_spec = pred_spec)
+
+pd_oob
+
+```
+
+Note that predicted probabilities are returned for each class and probabilities in the `mean` column sum to 1 if you take the sum over each class at a specific value of the `pred_spec` variables. For example, 
+
+```{r}
+
+sum(pd_oob[flipper_length_mm == 190, mean])
+
+```
+
+But this isn't the case for the median predicted probability!
+
+```{r}
+
+sum(pd_oob[flipper_length_mm == 190, medn])
+
+```
+
+## Regression
+
+Begin by fitting an oblique regression random forest:
+
+```{r}
+
+set.seed(329)
+
+index_train <- sample(nrow(penguins_orsf), 150) 
+
+penguins_orsf_train <- penguins_orsf[index_train, ]
+penguins_orsf_test <- penguins_orsf[-index_train, ]
+
+fit_regr <- orsf(data = penguins_orsf_train, 
+                 formula = bill_length_mm ~ .)
+
+```
+
+
+Compute PD using new data for `flipper_length_mm = c(190, 210)`. 
+
+```{r}
+
+pred_spec <- list(flipper_length_mm = c(190, 210))
+
+pd_new <- orsf_pd_new(fit_regr, 
+                      pred_spec = pred_spec,
+                      new_data = penguins_orsf_test)
+
+pd_new
+
+```
+
+You can also let `pred_spec_auto` pick reasonable values like so:
+
+```{r}
+
+pred_spec = pred_spec_auto(species, island, body_mass_g)
+
+pd_new <- orsf_pd_new(fit_regr, 
+                      pred_spec = pred_spec,
+                      new_data = penguins_orsf_test)
+
+pd_new
+
+```
+
+By default, all combinations of all variables are used. However, you can also look at the variables one by one, separately, like so:
+
+```{r}
+
+pd_new <- orsf_pd_new(fit_regr, 
+                      expand_grid = FALSE,
+                      pred_spec = pred_spec,
+                      new_data = penguins_orsf_test)
+
+pd_new
+
+```
+
+And you can also bypass all the bells and whistles by using your own `data.frame` for a `pred_spec`. (Just make sure you request values that exist in the training data.)
+
+```{r}
+
+custom_pred_spec <- data.frame(species = 'Adelie', 
+                               island = 'Biscoe')
+
+pd_new <- orsf_pd_new(fit_regr, 
+                      pred_spec = custom_pred_spec,
+                      new_data = penguins_orsf_test)
+
+pd_new
+
+```
+
+
+## Survival
+
+Begin by fitting an oblique survival random forest:
+
+```{r}
+
+set.seed(329)
 
 index_train <- sample(nrow(pbc_orsf), 150) 
 
 pbc_orsf_train <- pbc_orsf[index_train, ]
 pbc_orsf_test <- pbc_orsf[-index_train, ]
 
-fit <- orsf(data = pbc_orsf_train, 
-            formula = Surv(time, status) ~ . - id,
-            n_tree = 50,
-            oobag_pred_horizon = pred_horizon)
-
-fit
+fit_surv <- orsf(data = pbc_orsf_train, 
+                 formula = Surv(time, status) ~ . - id,
+                 oobag_pred_horizon = 365.25 * 5)
 
 ```
 
 
-## Three ways to compute PD
+Compute PD using in-bag data for `bili = c(1,2,3,4,5)`:
 
-You can compute PD three ways with `aorsf`: 
+```{r}
+pd_train <- orsf_pd_inb(fit_surv, pred_spec = list(bili = 1:5))
+pd_train
+```
 
-- using in-bag predictions for the training data
+If you don't have specific values of a variable in mind, let `pred_spec_auto` pick for you:
 
-  ```{r}
-  
-  pd_inb <- orsf_pd_inb(fit, pred_spec = list(bili = 1:5))
-  
-  pd_inb
-  
-  ```
+```{r}
+pd_train <- orsf_pd_inb(fit_surv, pred_spec_auto(bili))
+pd_train
+```
 
-- using out-of-bag predictions for the training data
-
-  ```{r}
-  
-  pd_oob <- orsf_pd_oob(fit, pred_spec = list(bili = 1:5))
-  
-  pd_oob
-  
-  ```
-
-- using predictions for a new set of data
-
-  ```{r}
-  
-  pd_test <- orsf_pd_new(fit, 
-                         new_data = pbc_orsf_test, 
-                         pred_spec = list(bili = 1:5))
-  
-  pd_test
-  
-  ```
-
-- in-bag PD indicates relationships that the model has learned during training. This is helpful if your goal is to interpret the model.
-
-- out-of-bag PD indicates relationships that the model has learned during training but using the out-of-bag data simulates application of the model to new data. This is helpful if you want to test your model's reliability or fairness in new data but you don't have access to a large testing set.
-
-- new data PD shows how the model predicts outcomes for observations it has not seen. This is helpful if you want to test your model's reliability or fairness.
-
-## Automatic variable values
-
-Use `pred_spec_auto()` if you know the variables you want to check out but you don't have a specific set of values in mind:
+Specify `pred_horizon` to get PD at each value:
 
 ```{r}
 
-orsf_pd_inb(fit, pred_spec_auto(bili))
+pd_train <- orsf_pd_inb(fit_surv, pred_spec_auto(bili),
+                        pred_horizon = seq(500, 3000, by = 500))
+pd_train
 
 ```
 
-`pred_spec_auto()` lets you specify a variable in your model with or without quotes, and then assign values for that variable on your behalf. For continuous variables, it uses quantiles (10, 25, 50, 75, and 90). For nominal variables, it uses unique categories.
 
-Let's re-fit our ORSF model to all available data before proceeding to the next sections.
 
-```{r}
-
-set.seed(329730)
-
-fit <- orsf(pbc_orsf, 
-            Surv(time, status) ~ . -id,
-            n_tree = 50,
-            oobag_pred_horizon = pred_horizon)
-
-```
-
-## One variable, one horizon
-
-Computing PD for a single variable is straightforward:
-
-```{r}
-
-pd_sex <- orsf_pd_oob(fit, pred_spec = pred_spec_auto(sex))
-
-pd_sex
-
-```
-
-The output shows that the expected predicted mortality risk for men is substantially higher than women at 5 years after baseline.
 
 ## One variable, moving horizon
 
-What if the effect of a predictor varies over time? PD can show this.
+What if the effect of a predictor varies over time? Partial dependence can show this.
 
 ```{r}
 
-pd_sex_tv <- orsf_pd_oob(fit, pred_spec = pred_spec_auto(sex),
+pd_sex_tv <- orsf_pd_oob(fit_surv, 
+                         pred_spec = pred_spec_auto(sex),
                          pred_horizon = seq(365, 365*5))
 
-ggplot(pd_sex_tv, aes(x = pred_horizon, y = mean, color = sex)) + 
+ggplot(pd_sex_tv) +
+ aes(x = pred_horizon, y = mean, color = sex) + 
  geom_line() +
  labs(x = 'Time since baseline',
       y = 'Expected risk')
@@ -166,53 +244,33 @@ ggplot(ratio_tv, aes(x = pred_horizon, y = ratio)) +
 
 ```
 
-## Multiple variables, marginally
-
-If you want to compute PD marginally for multiple variables, just list the variable values in `pred_spec` and specify `expand_grid = FALSE`. 
+To get a view of PD for any number of variables in the training data, use `orsf_summarize_uni()`. This function computes out-of-bag PD for the most important `n_variables` and returns a nicely formatted view of the output:
 
 ```{r}
-
-pd_two_vars <-  
- orsf_pd_oob(fit,
-             pred_spec = pred_spec_auto(sex, bili),
-             expand_grid = FALSE)
-
-pd_two_vars
-
-```
-
-To get a view of partial dependence for any number of variables in the training data, use `orsf_summarize_uni()`. This function computes out-of-bag PD for the most important `n_variables` and returns a nicely formatted view of the output:
-
-```{r}
-
-pd_smry <- orsf_summarize_uni(fit, n_variables = 4)
+pd_smry <- orsf_summarize_uni(fit_surv, n_variables = 4)
 
 pd_smry
-
 ```
 
 This 'summary' object can be converted into a `data.table` for downstream plotting and tables.
 
 ```{r}
-
 head(as.data.table(pd_smry))
-
 ```
 
 
 ## Multiple variables, jointly
 
-PD can show the expected value of a model's predictions as a function of a specific predictor, or as a function of multiple predictors. For instance, we can estimate predicted risk as a joint function of `bili`, `edema`, and `trt`:
+Partial dependence can show the expected value of a model's predictions as a function of a specific predictor, or as a function of multiple predictors. For instance, we can estimate predicted risk as a joint function of `bili`, `edema`, and `trt`:
 
 ```{r}
 
 pred_spec = pred_spec_auto(bili, edema, trt)
 
-pd_bili_edema <- orsf_pd_oob(fit, pred_spec)
+pd_bili_edema <- orsf_pd_oob(fit_surv, pred_spec)
 
-library(ggplot2)
-
-ggplot(pd_bili_edema, aes(x = bili, y = medn, col = trt, linetype = edema)) + 
+ggplot(pd_bili_edema) + 
+ aes(x = bili, y = medn, col = trt, linetype = edema) + 
  geom_line() + 
  labs(y = 'Expected predicted risk')
 
@@ -248,12 +306,134 @@ pbc_orsf$edema_05 <- NULL
 ```
 
 
-
 ## Individual conditional expectations (ICE)
 
 `r aorsf:::roxy_ice_explain()`
 
-Just like PD, we can compute ICE using in-bag, out-of-bag, or testing data, and the same principles apply. We'll use out-of-bag estimates here.
+```{r echo=FALSE}
+library(magrittr)
+```
+
+## Classification
+
+Compute ICE using out-of-bag data for `flipper_length_mm = c(190, 210)`. 
+
+```{r}
+
+pred_spec <- list(flipper_length_mm = c(190, 210))
+
+ice_oob <- orsf_ice_oob(fit_clsf, pred_spec = pred_spec)
+
+ice_oob
+
+```
+
+There are two identifiers in the output:
+
+- `id_variable` is an identifier for the current value of the variable(s) that are in the data. It is redundant if you only have one variable, but helpful if there are multiple variables.
+
+- `id_row` is an identifier for the observation in the original data.
+
+Note that predicted probabilities are returned for each class and each observation in the data. Predicted probabilities for a given observation and given variable value sum to 1. For example, 
+
+```{r}
+
+ice_oob %>%
+ .[flipper_length_mm == 190] %>% 
+ .[id_row == 1] %>% 
+ .[['pred']] %>% 
+ sum()
+
+```
+
+## Regression
+
+Compute ICE using new data for `flipper_length_mm = c(190, 210)`. 
+
+```{r}
+
+pred_spec <- list(flipper_length_mm = c(190, 210))
+
+ice_new <- orsf_ice_new(fit_regr, 
+                        pred_spec = pred_spec,
+                        new_data = penguins_orsf_test)
+
+ice_new
+
+```
+
+You can also let `pred_spec_auto` pick reasonable values like so:
+
+```{r}
+
+pred_spec = pred_spec_auto(species, island, body_mass_g)
+
+ice_new <- orsf_ice_new(fit_regr, 
+                        pred_spec = pred_spec,
+                        new_data = penguins_orsf_test)
+
+ice_new
+
+```
+
+By default, all combinations of all variables are used. However, you can also look at the variables one by one, separately, like so:
+
+```{r}
+
+ice_new <- orsf_ice_new(fit_regr, 
+                        expand_grid = FALSE,
+                        pred_spec = pred_spec,
+                        new_data = penguins_orsf_test)
+
+ice_new
+
+```
+
+And you can also bypass all the bells and whistles by using your own `data.frame` for a `pred_spec`. (Just make sure you request values that exist in the training data.)
+
+```{r}
+
+custom_pred_spec <- data.frame(species = 'Adelie', 
+                               island = 'Biscoe')
+
+ice_new <- orsf_ice_new(fit_regr, 
+                        pred_spec = custom_pred_spec,
+                        new_data = penguins_orsf_test)
+
+ice_new
+
+```
+
+
+## Survival
+
+Compute ICE using in-bag data for `bili = c(1,2,3,4,5)`:
+
+```{r}
+ice_train <- orsf_ice_inb(fit_surv, pred_spec = list(bili = 1:5))
+ice_train
+```
+
+If you don't have specific values of a variable in mind, let `pred_spec_auto` pick for you:
+
+```{r}
+ice_train <- orsf_ice_inb(fit_surv, pred_spec_auto(bili))
+ice_train
+```
+
+Specify `pred_horizon` to get ICE at each value:
+
+```{r}
+
+ice_train <- orsf_ice_inb(fit_surv, pred_spec_auto(bili),
+                          pred_horizon = seq(500, 3000, by = 500))
+ice_train
+
+```
+
+Multi-prediction horizon ice comes with minimal extra computational cost. Use a fine grid of time values and  assess whether predictors have time-varying effects.
+
+
 
 ## Visualizing ICE curves
 
@@ -265,15 +445,11 @@ I am going to turn off boundary checking in `orsf_ice_oob` by setting `boundary_
   
   pred_spec <- list(bili = seq(1, 10, length.out = 25))
   
-  ice_oob <- orsf_ice_oob(fit, pred_spec, boundary_checks = FALSE)
+  ice_oob <- orsf_ice_oob(fit_surv, pred_spec, boundary_checks = FALSE)
   
   ice_oob
                        
   ```
-
-- `id_variable` is an identifier for the current value of the variable(s) that are in the data. It is redundant if you only have one variable, but helpful if there are multiple variables.
-
-- `id_row` is an identifier for the observation in the original data. It is used to group an observation's predictions together in plots.
 
 For plots, it is helpful to scale the ICE data. I subtract the initial value of predicted risk (i.e., when `bili = 1`) from each observation's conditional expectation values. So,
 
@@ -291,8 +467,6 @@ For plots, it is helpful to scale the ICE data. I subtract the initial value of 
 Now we can visualize the curves.
 
 ```{r, -orsf_ice}
-
-library(ggplot2)
 
 ggplot(ice_oob, aes(x = bili, 
                     y = pred, 

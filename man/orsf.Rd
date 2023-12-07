@@ -3,7 +3,7 @@
 \name{orsf}
 \alias{orsf}
 \alias{orsf_train}
-\title{Oblique Random Survival Forest (ORSF)}
+\title{Oblique Random Forests}
 \usage{
 orsf(
   data,
@@ -13,7 +13,7 @@ orsf(
   n_tree = 500,
   n_split = 5,
   n_retry = 3,
-  n_thread = 1,
+  n_thread = 0,
   mtry = NULL,
   sample_with_replacement = TRUE,
   sample_fraction = 0.632,
@@ -38,7 +38,7 @@ orsf(
   ...
 )
 
-orsf_train(object, attach_data = TRUE, ...)
+orsf_train(object, attach_data = TRUE)
 }
 \arguments{
 \item{data}{a \link{data.frame}, \link[tibble:tibble-package]{tibble}, or \link[data.table:data.table]{data.table} that contains the
@@ -51,14 +51,14 @@ except the response. The symbol '-' may also be used to indicate
 removal of a predictor. Details on the response vary depending
 on forest type:
 \itemize{
-\item \emph{Survival}: The response should include a time variable,
-followed by a status variable, and may be written inside a
-call to \link[survival:Surv]{Surv} (see examples).
 \item \emph{Classification}: The response should be a single variable,
 and that variable should have type \code{factor} in \code{data}.
 \item \emph{Regression}: The response should be a single variable, and
 that variable should have typee \code{double} or \code{integer} with at
 least 10 unique numeric values in \code{data}.
+\item \emph{Survival}: The response should include a time variable,
+followed by a status variable, and may be written inside a
+call to \link[survival:Surv]{Surv} (see examples).
 }}
 
 \item{control}{(\emph{orsf_control}) An object returned from one of the
@@ -89,7 +89,7 @@ will try again with a new linear combination based on a different set
 of randomly selected predictors, up to \code{n_retry} times. Default is
 \code{n_retry = 3}. Set \code{n_retry = 0} to prevent any retries.}
 
-\item{n_thread}{(\emph{integer}) number of threads to use while growing trees, computing predictions, and computing importance. Default is one thread. To use the maximum number of threads that your system provides for concurrent execution, set \code{n_thread = 0}.}
+\item{n_thread}{(\emph{integer}) number of threads to use while growing trees, computing predictions, and computing importance. Default is 0, which allows a suitable number of threads to be used based on availability.}
 
 \item{mtry}{(\emph{integer}) Number of predictors randomly included as candidates
 for splitting a node. The default is the smallest integer greater than
@@ -107,7 +107,8 @@ each trees' in-bag sample will contain, relative to the number of
 rows in \code{data}. Only used if \code{sample_with_replacement} is \code{FALSE}.
 Default value is 0.632.}
 
-\item{leaf_min_events}{(\emph{integer}) minimum number of events in a
+\item{leaf_min_events}{(\emph{integer}) This input is only relevant for
+survival analysis, and specifies the minimum number of events in a
 leaf node. Default is \code{leaf_min_events = 1}}
 
 \item{leaf_min_obs}{(\emph{integer}) minimum number of observations in a
@@ -270,55 +271,34 @@ printed in the console. If \code{FALSE} (the default), nothing is printed.}
 \code{no_fit = TRUE} in \code{orsf()}.}
 }
 \value{
-an accelerated oblique RSF object (\code{aorsf})
+an \emph{obliqueForest} object
 }
 \description{
-Fit an oblique random survival forest
+Grow or specify an oblique random forest. While the name \code{orsf()}
+implies that this function only works for survival forests,
+it can be used for classification, regression, or survival
+forests. So, why isn't this function called \code{orf()}? In its
+early development, the \code{aorsf} package was exclusively for
+oblique random survival forests, but now it is broader.
 }
 \details{
-This function is based on and similar to the \code{ORSF} function
-in the \code{obliqueRSF} R package. The primary difference is that this
-function runs much faster. The speed increase is attributable to better
-management of memory (i.e., no unnecessary copies of inputs) and using
-a Newton Raphson scoring algorithm to identify linear combinations of
-inputs rather than performing penalized regression using routines in
-\code{glmnet}.The modified Newton Raphson scoring algorithm that this
-function applies is an adaptation of the C++ routine developed by
-Terry M. Therneau that fits Cox proportional hazards models
-(see \code{\link[survival:coxph]{survival::coxph()}} and more specifically \code{\link[survival:agreg.fit]{survival::coxph.fit()}}).
-}
-\section{Details on inputs}{
-
-
-\strong{formula}:
+\strong{formula for survival oblique RFs}:
 \itemize{
 \item The response in \code{formula} can be a survival
 object as returned by the \link[survival:Surv]{Surv} function,
 but can also just be the time and status variables. I.e.,
-\code{Surv(time, status) ~ .} works just like \code{time + status ~ .}
-\item A \code{.} symbol on the right hand side is short-hand for using all
-variables in \code{data} (omitting those on the left hand side of
-\code{formula}) as predictors.
-\item The order of variables in the left hand side matters. i.e.,
-writing \code{status + time ~ .} will make \code{orsf} assume your
-\code{status} variable is actually the \code{time} variable.
-\item The response variable can be a survival object stored in \code{data}.
-For example, y ~ . is a valid formula if \code{data$y} inherits
+\code{Surv(time, status) ~ .} works and \code{time + status ~ .} works
+\item The response can also be a survival object stored in \code{data}.
+For example, \code{y ~ .} is a valid formula if \code{data$y} inherits
 from the \code{Surv} class.
-\item Although you can fit an oblique random survival forest with 1 predictor
-variable, your formula should have at least 2 predictors. The reason for
-this recommendation is that a linear combination of predictors is trivial
-if there is only one predictor.
 }
 
 \strong{mtry}:
 
-The \code{mtry} parameter may be temporarily reduced to ensure there
-are at least 2 events per predictor variable. This occurs when using
-\link{orsf_control_cph} because coefficients in the Newton Raphson scoring
-algorithm may become unstable when the number of covariates is
-greater than or equal to the number of events. This reduction does not
-occur when using \link{orsf_control_net}.
+The \code{mtry} parameter may be temporarily reduced to ensure that linear
+models used to find combinations of predictors remain stable. This occurs
+because coefficients in linear model fitting algorithms may become infinite
+if the number of predictors exceeds the number of observations.
 
 \strong{oobag_fun}:
 
@@ -328,12 +308,11 @@ for ANOVA importance.
 
 \strong{n_thread}:
 
-If an R function must be called from C++ (i.e., user-supplied function to
+If an R function is to be called from C++ (i.e., user-supplied function to
 compute out-of-bag error or identify linear combinations of variables),
 \code{n_thread} will automatically be set to 1 because attempting to run R
 functions in multiple threads will cause the R session to crash.
 }
-
 \section{What is an oblique decision tree?}{
 
 
@@ -381,31 +360,16 @@ random forest's predictions when it is applied to predict outcomes for
 data that were not used to train it, i.e., testing data.
 }
 
-\section{Missing data}{
-
-
-Data passed to aorsf functions are not allowed to have missing values.
-A user should impute missing values using an R package with that purpose,
-such as \code{recipes} or \code{mlr3pipelines}.
-}
-
 \section{Examples}{
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(aorsf)
 library(magrittr) # for \%>\%
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## 
-## Attaching package: 'magrittr'
-
-## The following objects are masked from 'package:testthat':
-## 
-##     equals, is_less_than, not
-}\if{html}{\out{</div>}}
-
 \code{orsf()} is the entry-point of the \code{aorsf} package. It can be used to
 fit classification, regression, and survival forests.
 
-For classification, we fit an oblique RF to predict penguin species:
+For classification, we fit an oblique RF to predict penguin species
+using \code{penguin} data from the magnificent \code{palmerpenguins} \href{https://allisonhorst.github.io/palmerpenguins/}{R package}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{# An oblique classification RF
 penguin_fit <- orsf(data = penguins_orsf,
@@ -423,9 +387,9 @@ penguin_fit
 ##                  N trees: 5
 ##       N predictors total: 7
 ##    N predictors per node: 3
-##  Average leaves per tree: 7.4
+##  Average leaves per tree: 6.4
 ## Min observations in leaf: 5
-##           OOB stat value: 0.99
+##           OOB stat value: 0.97
 ##            OOB stat type: AUC-ROC
 ##      Variable importance: anova
 ## 
@@ -450,17 +414,19 @@ bill_fit
 ##                  N trees: 5
 ##       N predictors total: 7
 ##    N predictors per node: 3
-##  Average leaves per tree: 51.4
+##  Average leaves per tree: 51.6
 ## Min observations in leaf: 5
-##           OOB stat value: 0.76
+##           OOB stat value: 0.68
 ##            OOB stat type: RSQ
 ##      Variable importance: anova
 ## 
 ## -----------------------------------------
 }\if{html}{\out{</div>}}
 
-For survival, we predict mortality risk following diagnosis of primary
-biliary cirrhosis:
+My personal favorite is the oblique survival RF with accelerated Cox
+regression because it has a great combination of prediction accuracy and
+computational efficiency (see \href{https://doi.org/10.1080/10618600.2023.2231048}{JCGS paper}). Here, we predict
+mortality risk following diagnosis of primary biliary cirrhosis:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{# An oblique survival RF
 pbc_fit <- orsf(data = pbc_orsf, 
@@ -481,7 +447,7 @@ pbc_fit
 ##  Average leaves per tree: 20.6
 ## Min observations in leaf: 5
 ##       Min events in leaf: 1
-##           OOB stat value: 0.78
+##           OOB stat value: 0.79
 ##            OOB stat type: Harrell's C-index
 ##      Variable importance: anova
 ## 
@@ -528,16 +494,16 @@ take to fit the forest before you commit to it:
  orsf_time_to_train()
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## Time difference of 3.802586 secs
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## Time difference of 4.664803 secs
 }\if{html}{\out{</div>}}
 \enumerate{
-\item If fitting multiple forests, pass the blueprint into \code{orsf_train}
-along with any modifications you’d like to make:
+\item If fitting multiple forests, use the blueprint along with
+\code{orsf_train()} and \code{orsf_update()} to simplify your code:
 }
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_fit <- orsf_train(orsf_spec)
-orsf_fit_10 <- orsf_train(orsf_spec, leaf_min_obs = 10)
-orsf_fit_20 <- orsf_train(orsf_spec, leaf_min_obs = 20)
+orsf_fit_10 <- orsf_update(orsf_fit, leaf_min_obs = 10)
+orsf_fit_20 <- orsf_update(orsf_fit, leaf_min_obs = 20)
 
 orsf_fit$leaf_min_obs
 }\if{html}{\out{</div>}}
@@ -555,13 +521,6 @@ orsf_fit$leaf_min_obs
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 20
-}\if{html}{\out{</div>}}
-
-You can also use \code{orsf_update} to get similar functionality:
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_fit <- orsf_train(orsf_spec)
-orsf_fit_10 <- orsf_update(orsf_fit, leaf_min_obs = 10)
-orsf_fit_20 <- orsf_update(orsf_fit, leaf_min_obs = 20)
 }\if{html}{\out{</div>}}
 }
 
@@ -606,12 +565,12 @@ brier_scores
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 4
 ##   .metric        .estimator .eval_time .estimate
 ##   <chr>          <chr>           <dbl>     <dbl>
-## 1 brier_survival standard          500    0.0577
-## 2 brier_survival standard         1000    0.111 
-## 3 brier_survival standard         1500    0.119 
-## 4 brier_survival standard         2000    0.118 
-## 5 brier_survival standard         2500    0.127 
-## 6 brier_survival standard         3000    0.144
+## 1 brier_survival standard          500    0.0447
+## 2 brier_survival standard         1000    0.0980
+## 3 brier_survival standard         1500    0.128 
+## 4 brier_survival standard         2000    0.134 
+## 5 brier_survival standard         2500    0.166 
+## 6 brier_survival standard         3000    0.236
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{roc_scores <- test_pred \%>\% 
@@ -623,26 +582,26 @@ roc_scores
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 4
 ##   .metric          .estimator .eval_time .estimate
 ##   <chr>            <chr>           <dbl>     <dbl>
-## 1 roc_auc_survival standard          500     0.850
-## 2 roc_auc_survival standard         1000     0.822
-## 3 roc_auc_survival standard         1500     0.882
-## 4 roc_auc_survival standard         2000     0.915
-## 5 roc_auc_survival standard         2500     0.895
-## 6 roc_auc_survival standard         3000     0.891
+## 1 roc_auc_survival standard          500     0.862
+## 2 roc_auc_survival standard         1000     0.830
+## 3 roc_auc_survival standard         1500     0.830
+## 4 roc_auc_survival standard         2000     0.848
+## 5 roc_auc_survival standard         2500     0.826
+## 6 roc_auc_survival standard         3000     0.776
 }\if{html}{\out{</div>}}
 }
 }
 
 \references{
-Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. Evaluating the Yield of Medical Tests. \emph{JAMA} 1982; 247(18):2543-2546. DOI: 10.1001/jama.1982.03320430047030
+Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. Evaluating the Yield of Medical Tests. \emph{JAMA}. 1982; 247(18):2543-2546. DOI: 10.1001/jama.1982.03320430047030
 
-Breiman L. Random forests. \emph{Machine learning} 2001 Oct; 45(1):5-32. DOI: 10.1023/A:1010933404324
+Breiman L. Random forests. \emph{Machine learning}. 2001 Oct; 45(1):5-32. DOI: 10.1023/A:1010933404324
 
-Ishwaran H, Kogalur UB, Blackstone EH, Lauer MS. Random survival forests. \emph{Annals of applied statistics} 2008 Sep; 2(3):841-60. DOI: 10.1214/08-AOAS169
+Ishwaran H, Kogalur UB, Blackstone EH, Lauer MS. Random survival forests. \emph{Annals of applied statistics}. 2008 Sep; 2(3):841-60. DOI: 10.1214/08-AOAS169
 
-Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. \emph{Joint European Conference on Machine Learning and Knowledge Discovery in Databases} 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29
+Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. \emph{Joint European Conference on Machine Learning and Knowledge Discovery in Databases}. 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29
 
-Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA, Howard G, Simon N. Oblique random survival forests. \emph{Annals of applied statistics} 2019 Sep; 13(3):1847-83. DOI: 10.1214/19-AOAS1261
+Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA, Howard G, Simon N. Oblique random survival forests. \emph{Annals of applied statistics}. 2019 Sep; 13(3):1847-83. DOI: 10.1214/19-AOAS1261
 
-Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{Journal of Computational and Graphical Statistics} Published online 08 Aug 2023. DOI: 10.1080/10618600.2023.2231048
+Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{Journal of Computational and Graphical Statistics}. Published online 08 Aug 2023. DOI: 10.1080/10618600.2023.2231048
 }

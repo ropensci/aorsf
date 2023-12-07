@@ -40,9 +40,11 @@ Fit, interpret, and make predictions with oblique random forests (RFs).
 
 - Accurate predictions.^2^
 
-- Intuitive API with formula based interface.
+- Intuitive design with formula based interface.
 
 - Extensive input checks and informative error messages.
+
+- Compatible with `tidymodels` and `mlr3`
 
 ## Installation
 You can install `aorsf` from CRAN using
@@ -66,7 +68,7 @@ library(aorsf)
 library(tidyverse)
 ```
 
-`aorsf` fits several types of oblique RFs with the `orsf()` function, including survival, classification, and regression RFs. My personal favorite is the oblique survival RF with accelerated Cox regression because it has a great combination of prediction accuracy and computational efficiency (see [JCGS paper](https://doi.org/10.1080/10618600.2023.2231048)).^2^
+`aorsf` fits several types of oblique RFs with the `orsf()` function, including classification, regression, and survival RFs. 
 
 ```{r, child='Rmd/orsf-fit-intro.Rmd'}
 
@@ -85,7 +87,7 @@ knitr::include_graphics('man/figures/tree_axis_v_oblique.png')
 
 ```
 
-So, how does this difference translate to real data, and how does it impact random forests comprising hundreds of axis-based or oblique trees? We will demonstrate this using the `penguin` data from the magnificent `palmerpenguins` R package. We will also use this function to make several plots:
+So, how does this difference translate to real data, and how does it impact random forests comprising hundreds of axis-based or oblique trees? We will demonstrate this using the `penguin` data.^3^ We will also use this function to make several plots:
 
 ```{r}
 plot_decision_surface <- function(predictions, title, grid){
@@ -93,8 +95,6 @@ plot_decision_surface <- function(predictions, title, grid){
  # this is not a general function for plotting
  # decision surfaces. It just helps to minimize 
  # copying and pasting of code.
- 
- colnames(predictions) <- levels(penguins_orsf$species)
  
  class_preds <- bind_cols(grid, predictions) %>%
   pivot_longer(cols = c(Adelie,
@@ -111,8 +111,7 @@ plot_decision_surface <- function(predictions, title, grid){
                       alpha = .25) +
   geom_point(data = penguins_orsf,
              aes(color = species, shape = species),
-             size = 2,
-             alpha = 0.8) +
+             alpha = 0.5) +
   scale_color_manual(values = cols) +
   scale_fill_manual(values = cols) +
   labs(x = "Bill length, mm",
@@ -181,9 +180,7 @@ titles <- c("Axis-based tree",
             "Oblique tree",
             "Oblique forest")
 
-plots <- map2(preds, titles,  
-              .f = plot_decision_surface, 
-              grid = grid)
+plots <- map2(preds, titles, plot_decision_surface, grid = grid)
 ```
 
 **Figure**: Axis-based and oblique decision surfaces from a single tree and an ensemble of 500 trees. Axis-based trees have boundaries perpendicular to predictor axes, whereas oblique trees can have boundaries that are neither parallel nor perpendicular to predictor axes. Axis-based forests tend to have 'step-function' decision boundaries, while oblique forests tend to have smooth decision boundaries.
@@ -210,7 +207,7 @@ The importance of individual predictor variables can be estimated in three ways 
   orsf_vi_permute(penguin_fit)
   ```
   
-- **analysis of variance (ANOVA)**^3^: `r aorsf:::roxy_vi_describe('anova')`
+- **analysis of variance (ANOVA)**^4^: `r aorsf:::roxy_vi_describe('anova')`
 
   ```{r}
   orsf_vi_anova(bill_fit)
@@ -240,7 +237,7 @@ For more on ICE, see the [vignette](https://docs.ropensci.org/aorsf/articles/pd.
 
 ## Comparison to existing software
 
-Comparisons between `aorsf` and existing software are presented in our [JCGS paper](https://doi.org/10.1080/10618600.2023.2231048). The paper:
+For survival analysis, comparisons between `aorsf` and existing software are presented in our [JCGS paper](https://doi.org/10.1080/10618600.2023.2231048). The paper:
 
 - describes `aorsf` in detail with a summary of the procedures used in the tree fitting algorithm 
 
@@ -263,8 +260,9 @@ cat("1. ", aorsf:::roxy_cite_jaeger_2019(), '\n\n')
 
 cat("2. ", aorsf:::roxy_cite_jaeger_2023(), '\n\n')
 
-cat("3. ", aorsf:::roxy_cite_menze_2011())
+cat("3. ", aorsf:::roxy_cite_penguins(),  '\n\n')
 
+cat("4. ", aorsf:::roxy_cite_menze_2011())
 ```
 
 

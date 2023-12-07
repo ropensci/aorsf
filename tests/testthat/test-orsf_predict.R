@@ -43,6 +43,7 @@ test_preds_surv <- function(pred_type){
  prd_raw <- predict(fit,
                     new_data = pbc_test,
                     pred_aggregate = FALSE,
+                    pred_simplify = TRUE,
                     pred_type = pred_type,
                     pred_horizon = pred_horizon,
                     n_thread = 1)
@@ -120,6 +121,7 @@ test_preds_surv <- function(pred_type){
             new_data = pbc_test,
             pred_aggregate = FALSE,
             pred_type = pred_type,
+            pred_simplify = TRUE,
             pred_horizon = pred_horizon,
             n_thread = 3)
    )
@@ -236,7 +238,7 @@ test_preds_clsf_multi <- function(pred_type){
     if(pred_type == 'prob'){
      prd_class <- apply(prd_agg, 1, which.max)
     } else if (pred_type == 'class') {
-     prd_class <- as.numeric(prd_agg+1)
+     prd_class <- as.numeric(prd_agg)
     }
 
     accuracy <- mean(prd_class == as.numeric(penguins_test$species))
@@ -373,7 +375,7 @@ test_preds_clsf_bnry <- function(pred_type){
     if(pred_type == 'prob'){
      prd_class <- apply(prd_agg, 1, which.max)
     } else if (pred_type == 'class') {
-     prd_class <- as.numeric(prd_agg+1)
+     prd_class <- as.numeric(prd_agg)
     }
 
     accuracy <- mean(prd_class == as.numeric(penguins_binary_test$species))

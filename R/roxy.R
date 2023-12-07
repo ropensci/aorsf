@@ -27,14 +27,9 @@ roxy_describe_ObliqueForest <- function(trained){
 
 roxy_n_thread_header <- function(action){
  paste("(_integer_) number of threads to use while ",
-       action, ". Default is one thread. ",
-       "To use the maximum number of threads that ",
-       "your system provides for concurrent execution, ",
-       "set `n_thread = 0`.", sep = "")
-}
-
-roxy_n_thread_details <- function(){
- "(_integer_) number of threads to use. Default is one thread."
+       action, ". Default is 0, which allows a suitable",
+       " number of threads to be used based on availability.",
+       sep = "")
 }
 
 # importance --------------------------------------------------------------
@@ -149,7 +144,7 @@ roxy_na_action_impute_meanmode <- function(data_label){
 
 roxy_cite <- function(authors,
                       title,
-                      journal,
+                      journal = NULL,
                       date,
                       number=NULL,
                       doi=NULL,
@@ -158,13 +153,14 @@ roxy_cite <- function(authors,
  if(!is.null(number)) number <- paste0('; ', number)
  if(!is.null(doi)) doi <- paste(" DOI:", doi)
  if(!is.null(url)) url <- paste(" URL:", url)
+ if(!is.null(journal)) journal <- paste0('*', journal, '*. ')
 
  ending <- paste(c(doi, url), collapse = '.')
 
  paste0(
   authors, '. ',
   title, '. ',
-  '*', journal, '* ',
+  journal,
   date,
   number, '.',
   ending
@@ -272,6 +268,17 @@ roxy_cite_simon_2011 <- function(){
   date = "2011 Mar",
   number = '39(5):1',
   doi = "10.18637/jss.v039.i05"
+ )
+
+}
+
+roxy_cite_penguins <- function(){
+
+ roxy_cite(
+  authors = "Horst AM, Hill AP, Gorman KB",
+  title = "palmerpenguins: Palmer Archipelago (Antarctica) penguin data. R package version 0.1.0",
+  date = "2020",
+  doi = "10.5281/zenodo.3960218"
  )
 
 }

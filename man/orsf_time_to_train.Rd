@@ -23,16 +23,16 @@ Estimate training time
 
 # specify but do not train the model by setting no_fit = TRUE.
 object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-               n_tree = 500, no_fit = TRUE)
+               n_tree = 500, n_thread = 1, no_fit = TRUE)
 
-# grow 50 trees to approximate the time it will take to grow 500 trees
-time_estimated <- orsf_time_to_train(object, n_tree_subset = 50)
+# approximate the time it will take to grow 500 trees
+time_estimated <- orsf_time_to_train(object)
 
 print(time_estimated)
 
 # let's see how close the approximation was
 time_true_start <- Sys.time()
-fit <- orsf_train(object)
+orsf_train(object)
 time_true_stop <- Sys.time()
 
 time_true <- time_true_stop - time_true_start

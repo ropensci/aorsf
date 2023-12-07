@@ -16,7 +16,8 @@ args_loop <- args_grid <- list(
  new_data = pbc_test,
  pred_horizon = 1000,
  pred_type = 'risk',
- expand_grid = TRUE
+ expand_grid = TRUE,
+ verbose_progress = FALSE
 )
 
 args_loop$expand_grid <- FALSE
@@ -319,7 +320,8 @@ args_loop <- args_grid <- list(
  prob_values = c(0.025, 0.50, 0.975),
  prob_labels = c("lwr", "medn", "upr"),
  boundary_checks = TRUE,
- n_thread = 1
+ n_thread = 1,
+ verbose_progress = FALSE
 )
 
 args_loop$expand_grid <- FALSE

@@ -4,7 +4,7 @@
 \alias{orsf_pd_oob}
 \alias{orsf_pd_inb}
 \alias{orsf_pd_new}
-\title{ORSF partial dependence}
+\title{Partial dependence}
 \usage{
 orsf_pd_oob(
   object,
@@ -50,32 +50,44 @@ orsf_pd_new(
 \arguments{
 \item{object}{(\emph{ObliqueForest}) a trained oblique random forest object (see \link{orsf}).}
 
-\item{pred_spec}{(\emph{named list} or \emph{data.frame}).
+\item{pred_spec}{(\emph{named list}, \emph{pspec_auto}, or \emph{data.frame}).
 \itemize{
 \item If \code{pred_spec} is a named list,
 Each item in the list should be a vector of values that will be used as
 points in the partial dependence function. The name of each item in the
 list should indicate which variable will be modified to take the
 corresponding values.
+\item If \code{pred_spec} is created using \code{pred_spec_auto()}, all that is needed
+is the names of variables to use (see \link{pred_spec_auto}).
 \item If \code{pred_spec} is a \code{data.frame}, columns will
 indicate variable names, values will indicate variable values, and
 partial dependence will be computed using the inputs on each row.
 }}
 
-\item{pred_horizon}{(\emph{double}) a value or vector indicating the time(s)
-that predictions will be calibrated to. E.g., if you were predicting
-risk of incident heart failure within the next 10 years, then
-\code{pred_horizon = 10}. \code{pred_horizon} can be \code{NULL} if \code{pred_type} is
-\code{'mort'}, since mortality predictions are aggregated over all
-event times}
+\item{pred_horizon}{(\emph{double}) Only relevent for survival forests.
+A value or vector indicating the time(s) that predictions will be
+calibrated to. E.g., if you were predicting risk of incident heart
+failure within the next 10 years, then \code{pred_horizon = 10}.
+\code{pred_horizon} can be \code{NULL} if \code{pred_type} is \code{'mort'}, since
+mortality predictions are aggregated over all event times}
 
 \item{pred_type}{(\emph{character}) the type of predictions to compute. Valid
-options are
+Valid options for survival are:
 \itemize{
 \item 'risk' : probability of having an event at or before \code{pred_horizon}.
 \item 'surv' : 1 - risk.
 \item 'chf': cumulative hazard function
 \item 'mort': mortality prediction
+}
+
+For classification:
+\itemize{
+\item 'prob': probability for each class
+}
+
+For regression:
+\itemize{
+\item 'mean': predicted mean, i.e., the expected value
 }}
 
 \item{expand_grid}{(\emph{logical}) if \code{TRUE}, partial dependence will be
@@ -100,7 +112,7 @@ to make sure the requested values are between the 10th and 90th
 percentile in the object's training data. If \code{FALSE}, these checks are
 skipped.}
 
-\item{n_thread}{(\emph{integer}) number of threads to use while computing predictions. Default is one thread. To use the maximum number of threads that your system provides for concurrent execution, set \code{n_thread = 0}.}
+\item{n_thread}{(\emph{integer}) number of threads to use while computing predictions. Default is 0, which allows a suitable number of threads to be used based on availability.}
 
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 
@@ -114,11 +126,11 @@ skipped.}
 }
 \value{
 a \link[data.table:data.table]{data.table} containing
-partial dependence values for the specified variable(s) at the
-specified prediction horizon(s).
+partial dependence values for the specified variable(s)
+and, if relevant, at the specified prediction horizon(s).
 }
 \description{
-Compute partial dependence for an ORSF model.
+Compute partial dependence for an oblique random forest.
 Partial dependence (PD) shows the expected prediction from a model as a function of a single predictor or multiple predictors. The expectation is marginalized over the values of all other predictors, giving something like a multivariable adjusted estimate of the model's prediction.
 You can compute partial dependence three ways using a random forest:
 \itemize{
@@ -133,87 +145,260 @@ See examples for more details
 Partial dependence has a number of \href{https://christophm.github.io/interpretable-ml-book/pdp.html#disadvantages-5}{known limitations and assumptions} that users should be aware of (see Hooker, 2021). In particular, partial dependence is less intuitive when >2 predictors are examined jointly, and it is assumed that the feature(s) for which the partial dependence is computed are not correlated with other features (this is likely not true in many cases). Accumulated local effect plots can be used (see \href{https://christophm.github.io/interpretable-ml-book/ale.html}{here}) in the case where feature independence is not a valid assumption.
 }
 \section{Examples}{
-Begin by fitting an ORSF ensemble:
+You can compute partial dependence and individual conditional
+expectations in three ways:
+\itemize{
+\item using in-bag predictions for the training data. In-bag partial
+dependence indicates relationships that the model has learned during
+training. This is helpful if your goal is to interpret the model.
+\item using out-of-bag predictions for the training data. Out-of-bag partial
+dependence indicates relationships that the model has learned during
+training but using the out-of-bag data simulates application of the
+model to new data. This is helpful if you want to test your model’s
+reliability or fairness in new data but you don’t have access to a
+large testing set.
+\item using predictions for a new set of data. New data partial dependence
+shows how the model predicts outcomes for observations it has not
+seen. This is helpful if you want to test your model’s reliability or
+fairness.
+}
+\subsection{Classification}{
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(aorsf)
+Begin by fitting an oblique classification random forest:
 
-set.seed(329730)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329)
+
+index_train <- sample(nrow(penguins_orsf), 150) 
+
+penguins_orsf_train <- penguins_orsf[index_train, ]
+penguins_orsf_test <- penguins_orsf[-index_train, ]
+
+fit_clsf <- orsf(data = penguins_orsf_train, 
+                 formula = species ~ .)
+}\if{html}{\out{</div>}}
+
+Compute partial dependence using out-of-bag data for
+\code{flipper_length_mm = c(190, 210)}.
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pred_spec <- list(flipper_length_mm = c(190, 210))
+
+pd_oob <- orsf_pd_oob(fit_clsf, pred_spec = pred_spec)
+
+pd_oob
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## Key: <class>
+##        class flipper_length_mm      mean         lwr       medn       upr
+##       <fctr>             <num>     <num>       <num>      <num>     <num>
+## 1:    Adelie               190 0.6176908 0.202278109 0.75856417 0.9810614
+## 2:    Adelie               210 0.4338528 0.019173811 0.56489202 0.8648110
+## 3: Chinstrap               190 0.2114979 0.017643385 0.15211271 0.7215181
+## 4: Chinstrap               210 0.1803019 0.020108201 0.09679464 0.7035053
+## 5:    Gentoo               190 0.1708113 0.001334861 0.02769695 0.5750201
+## 6:    Gentoo               210 0.3858453 0.068685035 0.20717073 0.9532853
+}\if{html}{\out{</div>}}
+
+Note that predicted probabilities are returned for each class and
+probabilities in the \code{mean} column sum to 1 if you take the sum over
+each class at a specific value of the \code{pred_spec} variables. For
+example,
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{sum(pd_oob[flipper_length_mm == 190, mean])
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 1
+}\if{html}{\out{</div>}}
+
+But this isn’t the case for the median predicted probability!
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{sum(pd_oob[flipper_length_mm == 190, medn])
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 0.9383738
+}\if{html}{\out{</div>}}
+}
+
+\subsection{Regression}{
+
+Begin by fitting an oblique regression random forest:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329)
+
+index_train <- sample(nrow(penguins_orsf), 150) 
+
+penguins_orsf_train <- penguins_orsf[index_train, ]
+penguins_orsf_test <- penguins_orsf[-index_train, ]
+
+fit_regr <- orsf(data = penguins_orsf_train, 
+                 formula = bill_length_mm ~ .)
+}\if{html}{\out{</div>}}
+
+Compute partial dependence using new data for
+\code{flipper_length_mm = c(190, 210)}.
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pred_spec <- list(flipper_length_mm = c(190, 210))
+
+pd_new <- orsf_pd_new(fit_regr, 
+                      pred_spec = pred_spec,
+                      new_data = penguins_orsf_test)
+
+pd_new
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    flipper_length_mm     mean      lwr     medn      upr
+##                <num>    <num>    <num>    <num>    <num>
+## 1:               190 42.96571 37.09805 43.69769 48.72301
+## 2:               210 45.66012 40.50693 46.31577 51.65163
+}\if{html}{\out{</div>}}
+
+You can also let \code{pred_spec_auto} pick reasonable values like so:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pred_spec = pred_spec_auto(species, island, body_mass_g)
+
+pd_new <- orsf_pd_new(fit_regr, 
+                      pred_spec = pred_spec,
+                      new_data = penguins_orsf_test)
+
+pd_new
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##       species    island body_mass_g     mean      lwr     medn      upr
+##        <fctr>    <fctr>       <num>    <num>    <num>    <num>    <num>
+##  1:    Adelie    Biscoe        3200 40.31374 37.24373 40.31967 44.22824
+##  2: Chinstrap    Biscoe        3200 45.10582 42.63342 45.10859 47.60119
+##  3:    Gentoo    Biscoe        3200 42.81649 40.19221 42.55664 46.84035
+##  4:    Adelie     Dream        3200 40.16219 36.95895 40.34633 43.90681
+##  5: Chinstrap     Dream        3200 46.21778 43.53954 45.90929 49.19173
+## ---                                                                    
+## 41: Chinstrap     Dream        5300 48.48139 46.36282 48.25679 51.02996
+## 42:    Gentoo     Dream        5300 45.91819 43.62832 45.54110 49.91622
+## 43:    Adelie Torgersen        5300 42.92879 40.66576 42.31072 46.76406
+## 44: Chinstrap Torgersen        5300 46.59576 44.80400 46.49196 49.03906
+## 45:    Gentoo Torgersen        5300 45.11384 42.95190 44.51289 49.27629
+}\if{html}{\out{</div>}}
+
+By default, all combinations of all variables are used. However, you can
+also look at the variables one by one, separately, like so:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_new <- orsf_pd_new(fit_regr, 
+                      expand_grid = FALSE,
+                      pred_spec = pred_spec,
+                      new_data = penguins_orsf_test)
+
+pd_new
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##        variable value     level     mean      lwr     medn      upr
+##          <char> <num>    <char>    <num>    <num>    <num>    <num>
+##  1:     species    NA    Adelie 41.90271 37.10417 41.51723 48.51478
+##  2:     species    NA Chinstrap 47.11314 42.40419 46.96478 51.51392
+##  3:     species    NA    Gentoo 44.37038 39.87306 43.89889 51.21635
+##  4:      island    NA    Biscoe 44.21332 37.22711 45.27862 51.21635
+##  5:      island    NA     Dream 44.43354 37.01471 45.57261 51.51392
+##  6:      island    NA Torgersen 43.29539 37.01513 44.26924 49.84391
+##  7: body_mass_g  3200      <NA> 42.84625 37.03978 43.95991 49.19173
+##  8: body_mass_g  3550      <NA> 43.53326 37.56730 44.43756 50.47092
+##  9: body_mass_g  3975      <NA> 44.30431 38.31567 45.22089 51.50683
+## 10: body_mass_g  4700      <NA> 45.22559 39.88199 46.34680 51.18955
+## 11: body_mass_g  5300      <NA> 45.91412 40.84742 46.95327 51.48851
+}\if{html}{\out{</div>}}
+
+And you can also bypass all the bells and whistles by using your own
+\code{data.frame} for a \code{pred_spec}. (Just make sure you request values that
+exist in the training data.)
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{custom_pred_spec <- data.frame(species = 'Adelie', 
+                               island = 'Biscoe')
+
+pd_new <- orsf_pd_new(fit_regr, 
+                      pred_spec = custom_pred_spec,
+                      new_data = penguins_orsf_test)
+
+pd_new
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    species island     mean      lwr     medn      upr
+##     <fctr> <fctr>    <num>    <num>    <num>    <num>
+## 1:  Adelie Biscoe 41.98024 37.22711 41.65252 48.51478
+}\if{html}{\out{</div>}}
+}
+
+\subsection{Survival}{
+
+Begin by fitting an oblique survival random forest:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329)
 
 index_train <- sample(nrow(pbc_orsf), 150) 
 
 pbc_orsf_train <- pbc_orsf[index_train, ]
 pbc_orsf_test <- pbc_orsf[-index_train, ]
 
-fit <- orsf(data = pbc_orsf_train, 
-            formula = Surv(time, status) ~ . - id,
-            oobag_pred_horizon = 365.25 * 5)
+fit_surv <- orsf(data = pbc_orsf_train, 
+                 formula = Surv(time, status) ~ . - id,
+                 oobag_pred_horizon = 365.25 * 5)
 }\if{html}{\out{</div>}}
-\subsection{Three ways to compute PD and ICE}{
 
-You can compute partial dependence and ICE three ways with \code{aorsf}:
-\itemize{
-\item using in-bag predictions for the training data
+Compute partial dependence using in-bag data for \code{bili = c(1,2,3,4,5)}:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_train <- orsf_pd_inb(fit, pred_spec = list(bili = 1:5))
-
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_train <- orsf_pd_inb(fit_surv, pred_spec = list(bili = 1:5))
 pd_train
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon  bili      mean        lwr      medn       upr
 ##           <num> <num>     <num>      <num>     <num>     <num>
-## 1:      1826.25     1 0.2034441 0.01958467 0.0978637 0.7771746
-## 2:      1826.25     2 0.2335524 0.03614317 0.1322952 0.7986061
-## 3:      1826.25     3 0.2679313 0.05276137 0.1745943 0.8177905
-## 4:      1826.25     4 0.3158140 0.07801520 0.2314825 0.8317336
-## 5:      1826.25     5 0.3578420 0.12202134 0.2752057 0.8408508
+## 1:      1826.25     1 0.2566200 0.02234786 0.1334170 0.8918909
+## 2:      1826.25     2 0.3121392 0.06853733 0.1896849 0.9204338
+## 3:      1826.25     3 0.3703242 0.11409793 0.2578505 0.9416791
+## 4:      1826.25     4 0.4240692 0.15645214 0.3331057 0.9591581
+## 5:      1826.25     5 0.4663670 0.20123406 0.3841700 0.9655296
 }\if{html}{\out{</div>}}
-\item using out-of-bag predictions for the training data
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_train <- orsf_pd_oob(fit, pred_spec = list(bili = 1:5))
+If you don’t have specific values of a variable in mind, let
+\code{pred_spec_auto} pick for you:
 
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_train <- orsf_pd_inb(fit_surv, pred_spec_auto(bili))
 pd_train
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon  bili      mean        lwr      medn       upr
 ##           <num> <num>     <num>      <num>     <num>     <num>
-## 1:      1826.25     1 0.2112509 0.01973124 0.1354011 0.7171789
-## 2:      1826.25     2 0.2413456 0.03451762 0.1715079 0.7509849
-## 3:      1826.25     3 0.2750807 0.05181733 0.2127899 0.7609403
-## 4:      1826.25     4 0.3223209 0.08084008 0.2678339 0.7719659
-## 5:      1826.25     5 0.3652664 0.12709393 0.3136925 0.7760334
-}\if{html}{\out{</div>}}
-\item using predictions for a new set of data
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_test <- orsf_pd_new(fit, 
-                       new_data = pbc_orsf_test, 
-                       pred_spec = list(bili = 1:5))
-
-pd_test
+## 1:      1826.25  0.55 0.2481444 0.02035041 0.1242215 0.8801444
+## 2:      1826.25  0.70 0.2502831 0.02045039 0.1271039 0.8836536
+## 3:      1826.25  1.50 0.2797763 0.03964900 0.1601715 0.9041584
+## 4:      1826.25  3.50 0.3959349 0.13431288 0.2920400 0.9501230
+## 5:      1826.25  7.25 0.5351935 0.28064629 0.4652185 0.9783000
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon  bili      mean        lwr      medn       upr
-##           <num> <num>     <num>      <num>     <num>     <num>
-## 1:      1826.25     1 0.2417344 0.02209149 0.1895773 0.7819458
-## 2:      1826.25     2 0.2718357 0.03915587 0.2252919 0.8042602
-## 3:      1826.25     3 0.3066068 0.05829350 0.2694077 0.8171481
-## 4:      1826.25     4 0.3558594 0.08951223 0.3205839 0.8238288
-## 5:      1826.25     5 0.3982408 0.13810590 0.3683546 0.8300253
+Specify \code{pred_horizon} to get partial dependence at each value:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_train <- orsf_pd_inb(fit_surv, pred_spec_auto(bili),
+                        pred_horizon = seq(500, 3000, by = 500))
+pd_train
 }\if{html}{\out{</div>}}
-\item in-bag partial dependence indicates relationships that the model has
-learned during training. This is helpful if your goal is to interpret
-the model.
-\item out-of-bag partial dependence indicates relationships that the model
-has learned during training but using the out-of-bag data simulates
-application of the model to new data. if you want to test your model’s
-reliability or fairness in new data but you don’t have access to a
-large testing set.
-\item new data partial dependence shows how the model predicts outcomes for
-observations it has not seen. This is helpful if you want to test your
-model’s reliability or fairness.
-}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##     pred_horizon  bili      mean         lwr       medn       upr
+##            <num> <num>     <num>       <num>      <num>     <num>
+##  1:          500  0.55 0.0617199 0.000443399 0.00865419 0.5907104
+##  2:         1000  0.55 0.1418501 0.005793742 0.05572853 0.7360749
+##  3:         1500  0.55 0.2082505 0.013609478 0.09174558 0.8556319
+##  4:         2000  0.55 0.2679017 0.023047689 0.14574169 0.8910549
+##  5:         2500  0.55 0.3179617 0.063797305 0.20254500 0.9017710
+## ---                                                              
+## 26:         1000  7.25 0.3264627 0.135343689 0.25956791 0.8884333
+## 27:         1500  7.25 0.4641265 0.218208755 0.38787435 0.9702903
+## 28:         2000  7.25 0.5511761 0.293367409 0.48427730 0.9812413
+## 29:         2500  7.25 0.6200238 0.371965247 0.56954399 0.9845058
+## 30:         3000  7.25 0.6803482 0.425128031 0.64642318 0.9888637
+}\if{html}{\out{</div>}}
+
+vector-valued \code{pred_horizon} input comes with minimal extra
+computational cost. Use a fine grid of time values and assess whether
+predictors have time-varying effects. (see partial dependence vignette
+for example)
 }
 }
 
 \references{
-Giles Hooker, Lucas Mentch, Siyu Zhou. Unrestricted Permutation forces Extrapolation: Variable Importance Requires at least One More Model, or There Is No Free Variable Importance. \emph{arXiv e-prints} 2021 Oct; arXiv-1905. URL: https://doi.org/10.48550/arXiv.1905.03151
+Giles Hooker, Lucas Mentch, Siyu Zhou. Unrestricted Permutation forces Extrapolation: Variable Importance Requires at least One More Model, or There Is No Free Variable Importance. \emph{arXiv e-prints}. 2021 Oct; arXiv-1905. URL: https://doi.org/10.48550/arXiv.1905.03151
 }

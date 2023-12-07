@@ -7,8 +7,8 @@ library(aorsf)
 
 ```
 
-```{r child = 'orsf_pd_content_1.Rmd'}
+```{r child="orsf_pd_content.Rmd"}
 
 ```
-  
 
+vector-valued `pred_horizon` input comes with minimal extra computational cost. Use a fine grid of time values and  assess whether predictors have time-varying effects. (see partial dependence vignette for example)

@@ -1,7 +1,12 @@
 
-#' Oblique Random Survival Forest (ORSF)
+#' Oblique Random Forests
 #'
-#' Fit an oblique random survival forest
+#' Grow or specify an oblique random forest. While the name `orsf()`
+#'  implies that this function only works for survival forests,
+#'  it can be used for classification, regression, or survival
+#'  forests. So, why isn't this function called `orf()`? In its
+#'  early development, the `aorsf` package was exclusively for
+#'  oblique random survival forests, but now it is broader.
 #'
 #' @param data a `r roxy_data_allowed()` that contains the
 #'  relevant variables.
@@ -13,16 +18,16 @@
 #'   removal of a predictor. Details on the response vary depending
 #'   on forest type:
 #'
-#'   - *Survival*: The response should include a time variable,
-#'   followed by a status variable, and may be written inside a
-#'   call to [Surv][survival::Surv] (see examples).
-#'
 #'   - *Classification*: The response should be a single variable,
 #'   and that variable should have type `factor` in `data`.
 #'
 #'   - *Regression*: The response should be a single variable, and
 #'   that variable should have typee `double` or `integer` with at
 #'   least 10 unique numeric values in `data`.
+#'
+#'   - *Survival*: The response should include a time variable,
+#'   followed by a status variable, and may be written inside a
+#'   call to [Surv][survival::Surv] (see examples).
 #'
 #'
 #' @param control (*orsf_control*) An object returned from one of the
@@ -71,7 +76,8 @@
 #'   rows in `data`. Only used if `sample_with_replacement` is `FALSE`.
 #'   Default value is 0.632.
 #'
-#' @param leaf_min_events (*integer*) minimum number of events in a
+#' @param leaf_min_events (*integer*) This input is only relevant for
+#'   survival analysis, and specifies the minimum number of events in a
 #'   leaf node. Default is `leaf_min_events = 1`
 #'
 #' @param leaf_min_obs (*integer*) minimum number of observations in a
@@ -215,57 +221,27 @@
 #' @param object an untrained 'aorsf' object, created by setting
 #'   `no_fit = TRUE` in `orsf()`.
 #'
-#' @return an accelerated oblique RSF object (`aorsf`)
+#' @return an *obliqueForest* object
 #'
 #' @details
 #'
-#' This function is based on and similar to the `ORSF` function
-#'   in the `obliqueRSF` R package. The primary difference is that this
-#'   function runs much faster. The speed increase is attributable to better
-#'   management of memory (i.e., no unnecessary copies of inputs) and using
-#'   a Newton Raphson scoring algorithm to identify linear combinations of
-#'   inputs rather than performing penalized regression using routines in
-#'   `glmnet`.The modified Newton Raphson scoring algorithm that this
-#'   function applies is an adaptation of the C++ routine developed by
-#'   Terry M. Therneau that fits Cox proportional hazards models
-#'   (see [survival::coxph()] and more specifically [survival::coxph.fit()]).
-#'
-#'
-#' @section Details on inputs:
-#'
-#' **formula**:
+#' **formula for survival oblique RFs**:
 #'
 #' - The response in `formula` can be a survival
 #'   object as returned by the [Surv][survival::Surv] function,
 #'   but can also just be the time and status variables. I.e.,
-#'   `Surv(time, status) ~ .` works just like `time + status ~ .`
+#'   `Surv(time, status) ~ .` works and `time + status ~ .` works
 #'
-#' - A `.` symbol on the right hand side is short-hand for using all
-#'   variables in `data` (omitting those on the left hand side of
-#'   `formula`) as predictors.
-#'
-#' - The order of variables in the left hand side matters. i.e.,
-#'   writing `status + time ~ .` will make `orsf` assume your
-#'   `status` variable is actually the `time` variable.
-#'
-#' - The response variable can be a survival object stored in `data`.
-#'   For example, y ~ . is a valid formula if `data$y` inherits
+#' - The response can also be a survival object stored in `data`.
+#'   For example, `y ~ .` is a valid formula if `data$y` inherits
 #'   from the `Surv` class.
-#'
-#' - Although you can fit an oblique random survival forest with 1 predictor
-#'   variable, your formula should have at least 2 predictors. The reason for
-#'   this recommendation is that a linear combination of predictors is trivial
-#'   if there is only one predictor.
-#'
 #'
 #' **mtry**:
 #'
-#' The `mtry` parameter may be temporarily reduced to ensure there
-#'   are at least 2 events per predictor variable. This occurs when using
-#'   [orsf_control_cph] because coefficients in the Newton Raphson scoring
-#'   algorithm may become unstable when the number of covariates is
-#'   greater than or equal to the number of events. This reduction does not
-#'   occur when using [orsf_control_net].
+#' The `mtry` parameter may be temporarily reduced to ensure that linear
+#'   models used to find combinations of predictors remain stable. This occurs
+#'   because coefficients in linear model fitting algorithms may become infinite
+#'   if the number of predictors exceeds the number of observations.
 #'
 #' **oobag_fun**:
 #'
@@ -275,7 +251,7 @@
 #'
 #' **n_thread**:
 #'
-#' If an R function must be called from C++ (i.e., user-supplied function to
+#' If an R function is to be called from C++ (i.e., user-supplied function to
 #'  compute out-of-bag error or identify linear combinations of variables),
 #'  `n_thread` will automatically be set to 1 because attempting to run R
 #'  functions in multiple threads will cause the R session to crash.
@@ -322,12 +298,6 @@
 #'   random forest's predictions when it is applied to predict outcomes for
 #'   data that were not used to train it, i.e., testing data.
 #'
-#' @section Missing data:
-#'
-#' Data passed to aorsf functions are not allowed to have missing values.
-#'   A user should impute missing values using an R package with that purpose,
-#'   such as `recipes` or `mlr3pipelines`.
-#'
 #' @references
 #'
 #' `r roxy_cite_harrell_1982()`
@@ -354,7 +324,7 @@ orsf <- function(data,
                  n_tree = 500,
                  n_split = 5,
                  n_retry = 3,
-                 n_thread = 1,
+                 n_thread = 0,
                  mtry = NULL,
                  sample_with_replacement = TRUE,
                  sample_fraction = 0.632,
@@ -448,21 +418,13 @@ orsf <- function(data,
 
 #' @rdname orsf
 #' @export
-orsf_train <- function(object, attach_data = TRUE, ...){
+orsf_train <- function(object, attach_data = TRUE){
 
- new_args <- !is_empty(list(...))
+ object$train()
 
- if(new_args){
-  object_new <- object$clone(deep = TRUE)
- } else {
-  object_new <- object
- }
+ if(!attach_data) object$data <- NULL
 
- object_new$train(...)
-
- if(!attach_data) object_new$data <- NULL
-
- invisible(object_new)
+ invisible(object)
 
 }
 
@@ -482,16 +444,16 @@ orsf_train <- function(object, attach_data = TRUE, ...){
 #'
 #' # specify but do not train the model by setting no_fit = TRUE.
 #' object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-#'                n_tree = 500, no_fit = TRUE)
+#'                n_tree = 500, n_thread = 1, no_fit = TRUE)
 #'
-#' # grow 50 trees to approximate the time it will take to grow 500 trees
-#' time_estimated <- orsf_time_to_train(object, n_tree_subset = 50)
+#' # approximate the time it will take to grow 500 trees
+#' time_estimated <- orsf_time_to_train(object)
 #'
 #' print(time_estimated)
 #'
 #' # let's see how close the approximation was
 #' time_true_start <- Sys.time()
-#' fit <- orsf_train(object)
+#' orsf_train(object)
 #' time_true_stop <- Sys.time()
 #'
 #' time_true <- time_true_stop - time_true_start

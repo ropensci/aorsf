@@ -1,5 +1,5 @@
 
-#' ORSF summary; univariate
+#' Univariate summary
 #'
 #' @description Summarize the univariate information from an ORSF object
 #'
@@ -45,7 +45,7 @@
 #' # used for ranking variables in the summary, unless we specify
 #' # a different type of importance
 #'
-#' orsf_summarize_uni(object, n_variables = 3)
+#' orsf_summarize_uni(object)
 #'
 #' # if we want to summarize object according to variables
 #' # ranked by negation importance, we can compute negation
@@ -59,6 +59,7 @@ orsf_summarize_uni <- function(object,
                                pred_horizon = NULL,
                                pred_type = NULL,
                                importance = NULL,
+                               verbose_progress = FALSE,
                                ...){
 
  check_dots(list(...), .f = orsf_summarize_uni)
@@ -70,7 +71,8 @@ orsf_summarize_uni <- function(object,
  object$summarize_uni(n_variables     = n_variables,
                       pred_horizon    = pred_horizon,
                       pred_type       = pred_type,
-                      importance_type = importance)
+                      importance_type = importance,
+                      verbose_progress = verbose_progress)
 
 }
 

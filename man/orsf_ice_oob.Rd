@@ -4,7 +4,7 @@
 \alias{orsf_ice_oob}
 \alias{orsf_ice_inb}
 \alias{orsf_ice_new}
-\title{ORSF Individual Conditional Expectations}
+\title{Individual Conditional Expectations}
 \usage{
 orsf_ice_oob(
   object,
@@ -44,32 +44,44 @@ orsf_ice_new(
 \arguments{
 \item{object}{(\emph{ObliqueForest}) a trained oblique random forest object (see \link{orsf}).}
 
-\item{pred_spec}{(\emph{named list} or \emph{data.frame}).
+\item{pred_spec}{(\emph{named list}, \emph{pspec_auto}, or \emph{data.frame}).
 \itemize{
 \item If \code{pred_spec} is a named list,
 Each item in the list should be a vector of values that will be used as
 points in the partial dependence function. The name of each item in the
 list should indicate which variable will be modified to take the
 corresponding values.
+\item If \code{pred_spec} is created using \code{pred_spec_auto()}, all that is needed
+is the names of variables to use (see \link{pred_spec_auto}).
 \item If \code{pred_spec} is a \code{data.frame}, columns will
 indicate variable names, values will indicate variable values, and
 partial dependence will be computed using the inputs on each row.
 }}
 
-\item{pred_horizon}{(\emph{double}) a value or vector indicating the time(s)
-that predictions will be calibrated to. E.g., if you were predicting
-risk of incident heart failure within the next 10 years, then
-\code{pred_horizon = 10}. \code{pred_horizon} can be \code{NULL} if \code{pred_type} is
-\code{'mort'}, since mortality predictions are aggregated over all
-event times}
+\item{pred_horizon}{(\emph{double}) Only relevent for survival forests.
+A value or vector indicating the time(s) that predictions will be
+calibrated to. E.g., if you were predicting risk of incident heart
+failure within the next 10 years, then \code{pred_horizon = 10}.
+\code{pred_horizon} can be \code{NULL} if \code{pred_type} is \code{'mort'}, since
+mortality predictions are aggregated over all event times}
 
 \item{pred_type}{(\emph{character}) the type of predictions to compute. Valid
-options are
+Valid options for survival are:
 \itemize{
 \item 'risk' : probability of having an event at or before \code{pred_horizon}.
 \item 'surv' : 1 - risk.
 \item 'chf': cumulative hazard function
 \item 'mort': mortality prediction
+}
+
+For classification:
+\itemize{
+\item 'prob': probability for each class
+}
+
+For regression:
+\itemize{
+\item 'mean': predicted mean, i.e., the expected value
 }}
 
 \item{expand_grid}{(\emph{logical}) if \code{TRUE}, partial dependence will be
@@ -82,7 +94,7 @@ to make sure the requested values are between the 10th and 90th
 percentile in the object's training data. If \code{FALSE}, these checks are
 skipped.}
 
-\item{n_thread}{(\emph{integer}) number of threads to use while computing predictions. Default is one thread. To use the maximum number of threads that your system provides for concurrent execution, set \code{n_thread = 0}.}
+\item{n_thread}{(\emph{integer}) number of threads to use while computing predictions. Default is 0, which allows a suitable number of threads to be used based on availability.}
 
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 
@@ -96,12 +108,12 @@ skipped.}
 }
 \value{
 a \link[data.table:data.table]{data.table} containing
-individual conditional expectations for the specified variable(s) at the
-specified prediction horizon(s).
+individual conditional expectations for the specified variable(s)
+and, if relevant, at the specified prediction horizon(s).
 }
 \description{
-Compute individual conditional expectations for an ORSF model.
-Unlike partial dependence, which shows the expected prediction as a function of one or multiple predictors, individual conditional expectations (ICE) show the prediction for an individual observation as a function of a predictor.
+Compute individual conditional expectations for an
+oblique random forest. Unlike partial dependence, which shows the expected prediction as a function of one or multiple predictors, individual conditional expectations (ICE) show the prediction for an individual observation as a function of a predictor.
 You can compute individual conditional expectations three ways using a random forest:
 \itemize{
 \item using in-bag predictions for the training data
@@ -112,60 +124,298 @@ You can compute individual conditional expectations three ways using a random fo
 See examples for more details
 }
 \section{Examples}{
-Begin by fitting an ORSF ensemble
+You can compute individual conditional expectation and individual
+conditional expectations in three ways:
+\itemize{
+\item using in-bag predictions for the training data. In-bag individual
+conditional expectation indicates relationships that the model has
+learned during training. This is helpful if your goal is to interpret
+the model.
+\item using out-of-bag predictions for the training data. Out-of-bag
+individual conditional expectation indicates relationships that the
+model has learned during training but using the out-of-bag data
+simulates application of the model to new data. This is helpful if you
+want to test your model’s reliability or fairness in new data but you
+don’t have access to a large testing set.
+\item using predictions for a new set of data. New data individual
+conditional expectation shows how the model predicts outcomes for
+observations it has not seen. This is helpful if you want to test your
+model’s reliability or fairness.
+}
+\subsection{Classification}{
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(aorsf)
+Begin by fitting an oblique classification random forest:
 
-set.seed(329)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329)
 
-fit <- orsf(data = pbc_orsf, formula = Surv(time, status) ~ . - id)
+index_train <- sample(nrow(penguins_orsf), 150) 
 
-fit
+penguins_orsf_train <- penguins_orsf[index_train, ]
+penguins_orsf_test <- penguins_orsf[-index_train, ]
+
+fit_clsf <- orsf(data = penguins_orsf_train, 
+                 formula = species ~ .)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
-## 
-##      Linear combinations: Accelerated Cox regression
-##           N observations: 276
-##                 N events: 111
-##                  N trees: 500
-##       N predictors total: 17
-##    N predictors per node: 5
-##  Average leaves per tree: 21.048
-## Min observations in leaf: 5
-##       Min events in leaf: 1
-##           OOB stat value: 0.84
-##            OOB stat type: Harrell's C-index
-##      Variable importance: anova
-## 
-## -----------------------------------------
-}\if{html}{\out{</div>}}
+Compute individual conditional expectation using out-of-bag data for
+\code{flipper_length_mm = c(190, 210)}.
 
-Use the ensemble to compute ICE values using out-of-bag predictions:
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pred_spec <- list(flipper_length_mm = c(190, 210))
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{pred_spec <- list(bili = seq(1, 10, length.out = 25))
-
-ice_oob <- orsf_ice_oob(fit, pred_spec, boundary_checks = FALSE)
+ice_oob <- orsf_ice_oob(fit_clsf, pred_spec = pred_spec)
 
 ice_oob
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row pred_horizon  bili      pred
-##             <int> <char>        <num> <num>     <num>
-##    1:           1      1         1788     1 0.9080183
-##    2:           1      2         1788     1 0.8503112
-##    3:           1      3         1788     1 0.5990256
-##    4:           1      4         1788     1 0.7468067
-##    5:           1      5         1788     1 0.5814322
-##   ---                                                
-## 6896:          25    272         1788    10 0.7262513
-## 6897:          25    273         1788    10 0.5027661
-## 6898:          25    274         1788    10 0.3203826
-## 6899:          25    275         1788    10 0.5647718
-## 6900:          25    276         1788    10 0.3255800
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## Key: <class>
+##      id_variable id_row  class flipper_length_mm       pred
+##            <int> <char> <fctr>             <num>      <num>
+##   1:           1      1 Adelie               190 0.92169247
+##   2:           1      2 Adelie               190 0.80944657
+##   3:           1      3 Adelie               190 0.85172955
+##   4:           1      4 Adelie               190 0.93559327
+##   5:           1      5 Adelie               190 0.97708693
+##  ---                                                       
+## 896:           2    146 Gentoo               210 0.26092984
+## 897:           2    147 Gentoo               210 0.04798334
+## 898:           2    148 Gentoo               210 0.07927359
+## 899:           2    149 Gentoo               210 0.84779971
+## 900:           2    150 Gentoo               210 0.11105143
 }\if{html}{\out{</div>}}
 
-Much more detailed examples are given in the
-\href{https://docs.ropensci.org/aorsf/articles/pd.html#individual-conditional-expectations-ice}{vignette}
+There are two identifiers in the output:
+\itemize{
+\item \code{id_variable} is an identifier for the current value of the
+variable(s) that are in the data. It is redundant if you only have one
+variable, but helpful if there are multiple variables.
+\item \code{id_row} is an identifier for the observation in the original data.
+}
+
+Note that predicted probabilities are returned for each class and each
+observation in the data. Predicted probabilities for a given observation
+and given variable value sum to 1. For example,
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{ice_oob \%>\%
+ .[flipper_length_mm == 190] \%>\% 
+ .[id_row == 1] \%>\% 
+ .[['pred']] \%>\% 
+ sum()
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 1
+}\if{html}{\out{</div>}}
+}
+
+\subsection{Regression}{
+
+Begin by fitting an oblique regression random forest:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329)
+
+index_train <- sample(nrow(penguins_orsf), 150) 
+
+penguins_orsf_train <- penguins_orsf[index_train, ]
+penguins_orsf_test <- penguins_orsf[-index_train, ]
+
+fit_regr <- orsf(data = penguins_orsf_train, 
+                 formula = bill_length_mm ~ .)
+}\if{html}{\out{</div>}}
+
+Compute individual conditional expectation using new data for
+\code{flipper_length_mm = c(190, 210)}.
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pred_spec <- list(flipper_length_mm = c(190, 210))
+
+ice_new <- orsf_ice_new(fit_regr, 
+                        pred_spec = pred_spec,
+                        new_data = penguins_orsf_test)
+
+ice_new
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##      id_variable id_row flipper_length_mm     pred
+##            <int> <char>             <num>    <num>
+##   1:           1      1               190 37.94483
+##   2:           1      2               190 37.61595
+##   3:           1      3               190 37.53681
+##   4:           1      4               190 39.49476
+##   5:           1      5               190 38.95635
+##  ---                                              
+## 362:           2    179               210 51.80471
+## 363:           2    180               210 47.27183
+## 364:           2    181               210 47.05031
+## 365:           2    182               210 50.39028
+## 366:           2    183               210 48.44774
+}\if{html}{\out{</div>}}
+
+You can also let \code{pred_spec_auto} pick reasonable values like so:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pred_spec = pred_spec_auto(species, island, body_mass_g)
+
+ice_new <- orsf_ice_new(fit_regr, 
+                        pred_spec = pred_spec,
+                        new_data = penguins_orsf_test)
+
+ice_new
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row species    island body_mass_g     pred
+##             <int> <char>  <fctr>    <fctr>       <num>    <num>
+##    1:           1      1  Adelie    Biscoe        3200 37.78339
+##    2:           1      2  Adelie    Biscoe        3200 37.73273
+##    3:           1      3  Adelie    Biscoe        3200 37.71248
+##    4:           1      4  Adelie    Biscoe        3200 40.25782
+##    5:           1      5  Adelie    Biscoe        3200 40.04074
+##   ---                                                          
+## 8231:          45    179  Gentoo Torgersen        5300 46.14559
+## 8232:          45    180  Gentoo Torgersen        5300 43.98050
+## 8233:          45    181  Gentoo Torgersen        5300 44.59837
+## 8234:          45    182  Gentoo Torgersen        5300 44.85146
+## 8235:          45    183  Gentoo Torgersen        5300 44.23710
+}\if{html}{\out{</div>}}
+
+By default, all combinations of all variables are used. However, you can
+also look at the variables one by one, separately, like so:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{ice_new <- orsf_ice_new(fit_regr, 
+                        expand_grid = FALSE,
+                        pred_spec = pred_spec,
+                        new_data = penguins_orsf_test)
+
+ice_new
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row    variable value  level     pred
+##             <int> <char>      <char> <num> <char>    <num>
+##    1:           1      1     species    NA Adelie 37.74136
+##    2:           1      2     species    NA Adelie 37.42367
+##    3:           1      3     species    NA Adelie 37.04598
+##    4:           1      4     species    NA Adelie 39.89602
+##    5:           1      5     species    NA Adelie 39.14848
+##   ---                                                     
+## 2009:           5    179 body_mass_g  5300   <NA> 51.50196
+## 2010:           5    180 body_mass_g  5300   <NA> 47.27055
+## 2011:           5    181 body_mass_g  5300   <NA> 48.34064
+## 2012:           5    182 body_mass_g  5300   <NA> 48.75828
+## 2013:           5    183 body_mass_g  5300   <NA> 48.11020
+}\if{html}{\out{</div>}}
+
+And you can also bypass all the bells and whistles by using your own
+\code{data.frame} for a \code{pred_spec}. (Just make sure you request values that
+exist in the training data.)
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{custom_pred_spec <- data.frame(species = 'Adelie', 
+                               island = 'Biscoe')
+
+ice_new <- orsf_ice_new(fit_regr, 
+                        pred_spec = custom_pred_spec,
+                        new_data = penguins_orsf_test)
+
+ice_new
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##      id_variable id_row species island     pred
+##            <int> <char>  <fctr> <fctr>    <num>
+##   1:           1      1  Adelie Biscoe 38.52327
+##   2:           1      2  Adelie Biscoe 38.32073
+##   3:           1      3  Adelie Biscoe 37.71248
+##   4:           1      4  Adelie Biscoe 41.68380
+##   5:           1      5  Adelie Biscoe 40.91140
+##  ---                                           
+## 179:           1    179  Adelie Biscoe 43.09493
+## 180:           1    180  Adelie Biscoe 38.79455
+## 181:           1    181  Adelie Biscoe 39.37734
+## 182:           1    182  Adelie Biscoe 40.71952
+## 183:           1    183  Adelie Biscoe 39.34501
+}\if{html}{\out{</div>}}
+}
+
+\subsection{Survival}{
+
+Begin by fitting an oblique survival random forest:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329)
+
+index_train <- sample(nrow(pbc_orsf), 150) 
+
+pbc_orsf_train <- pbc_orsf[index_train, ]
+pbc_orsf_test <- pbc_orsf[-index_train, ]
+
+fit_surv <- orsf(data = pbc_orsf_train, 
+                 formula = Surv(time, status) ~ . - id,
+                 oobag_pred_horizon = 365.25 * 5)
+}\if{html}{\out{</div>}}
+
+Compute individual conditional expectation using in-bag data for
+\code{bili = c(1,2,3,4,5)}:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{ice_train <- orsf_ice_inb(fit_surv, pred_spec = list(bili = 1:5))
+ice_train
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##      id_variable id_row pred_horizon  bili      pred
+##            <int> <char>        <num> <num>     <num>
+##   1:           1      1      1826.25     1 0.1290317
+##   2:           1      2      1826.25     1 0.1242352
+##   3:           1      3      1826.25     1 0.0963452
+##   4:           1      4      1826.25     1 0.1172367
+##   5:           1      5      1826.25     1 0.2030256
+##  ---                                                
+## 746:           5    146      1826.25     5 0.7868537
+## 747:           5    147      1826.25     5 0.2012954
+## 748:           5    148      1826.25     5 0.4893605
+## 749:           5    149      1826.25     5 0.4698220
+## 750:           5    150      1826.25     5 0.9557285
+}\if{html}{\out{</div>}}
+
+If you don’t have specific values of a variable in mind, let
+\code{pred_spec_auto} pick for you:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{ice_train <- orsf_ice_inb(fit_surv, pred_spec_auto(bili))
+ice_train
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##      id_variable id_row pred_horizon  bili       pred
+##            <int> <char>        <num> <num>      <num>
+##   1:           1      1      1826.25  0.55 0.11728559
+##   2:           1      2      1826.25  0.55 0.11728839
+##   3:           1      3      1826.25  0.55 0.08950739
+##   4:           1      4      1826.25  0.55 0.10064959
+##   5:           1      5      1826.25  0.55 0.18736417
+##  ---                                                 
+## 746:           5    146      1826.25  7.25 0.82600898
+## 747:           5    147      1826.25  7.25 0.29156437
+## 748:           5    148      1826.25  7.25 0.58395919
+## 749:           5    149      1826.25  7.25 0.54202021
+## 750:           5    150      1826.25  7.25 0.96391985
+}\if{html}{\out{</div>}}
+
+Specify \code{pred_horizon} to get individual conditional expectation at each
+value:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{ice_train <- orsf_ice_inb(fit_surv, pred_spec_auto(bili),
+                          pred_horizon = seq(500, 3000, by = 500))
+ice_train
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row pred_horizon  bili        pred
+##             <int> <char>        <num> <num>       <num>
+##    1:           1      1          500  0.55 0.008276627
+##    2:           1      1         1000  0.55 0.055724516
+##    3:           1      1         1500  0.55 0.085091120
+##    4:           1      1         2000  0.55 0.123423352
+##    5:           1      1         2500  0.55 0.166380739
+##   ---                                                  
+## 4496:           5    150         1000  7.25 0.837774757
+## 4497:           5    150         1500  7.25 0.934536379
+## 4498:           5    150         2000  7.25 0.967823286
+## 4499:           5    150         2500  7.25 0.972059574
+## 4500:           5    150         3000  7.25 0.980785643
+}\if{html}{\out{</div>}}
+
+Multi-prediction horizon ice comes with minimal extra computational
+cost. Use a fine grid of time values and assess whether predictors have
+time-varying effects.
+}
 }
 

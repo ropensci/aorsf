@@ -1,30 +1,14 @@
 
 # Examples
 
-Begin by fitting an ORSF ensemble
-
-```{r}
+```{r, echo = FALSE}
 
 library(aorsf)
-
-set.seed(329)
-
-fit <- orsf(data = pbc_orsf, formula = Surv(time, status) ~ . - id)
-
-fit
+library(magrittr) # for %>%
 
 ```
 
-Use the ensemble to compute ICE values using out-of-bag predictions:
-
-```{r}
-
-pred_spec <- list(bili = seq(1, 10, length.out = 25))
-
-ice_oob <- orsf_ice_oob(fit, pred_spec, boundary_checks = FALSE)
-
-ice_oob
+```{r child="orsf_ice_content.Rmd"}
 
 ```
 
-Much more detailed examples are given in the [vignette](https://docs.ropensci.org/aorsf/articles/pd.html#individual-conditional-expectations-ice)

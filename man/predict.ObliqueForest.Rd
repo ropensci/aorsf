@@ -7,13 +7,14 @@
 \method{predict}{ObliqueForest}(
   object,
   new_data,
-  pred_horizon = NULL,
   pred_type = NULL,
+  pred_horizon = NULL,
+  pred_aggregate = TRUE,
+  pred_simplify = FALSE,
   na_action = "fail",
   boundary_checks = TRUE,
-  n_thread = 1,
+  n_thread = 0,
   verbose_progress = FALSE,
-  pred_aggregate = TRUE,
   ...
 )
 }
@@ -22,21 +23,46 @@
 
 \item{new_data}{a \link{data.frame}, \link[tibble:tibble-package]{tibble}, or \link[data.table:data.table]{data.table} to compute predictions in.}
 
-\item{pred_horizon}{(\emph{double}) a value or vector indicating the time(s)
-that predictions will be calibrated to. E.g., if you were predicting
-risk of incident heart failure within the next 10 years, then
-\code{pred_horizon = 10}. \code{pred_horizon} can be \code{NULL} if \code{pred_type} is
-\code{'mort'}, since mortality predictions are aggregated over all
-event times}
-
 \item{pred_type}{(\emph{character}) the type of predictions to compute. Valid
-options are
+options for survival are:
 \itemize{
 \item 'risk' : probability of having an event at or before \code{pred_horizon}.
 \item 'surv' : 1 - risk.
 \item 'chf': cumulative hazard function
 \item 'mort': mortality prediction
+}
+
+For classification:
+\itemize{
+\item 'prob': probability for each class
+\item 'class': predicted class
+}
+
+For regression:
+\itemize{
+\item 'mean': predicted mean, i.e., the expected value
 }}
+
+\item{pred_horizon}{(\emph{double}) Only relevent for survival forests.
+A value or vector indicating the time(s) that predictions will be
+calibrated to. E.g., if you were predicting risk of incident heart
+failure within the next 10 years, then \code{pred_horizon = 10}.
+\code{pred_horizon} can be \code{NULL} if \code{pred_type} is \code{'mort'}, since
+mortality predictions are aggregated over all event times}
+
+\item{pred_aggregate}{(\emph{logical}) If \code{TRUE} (the default), predictions
+will be aggregated over all trees by taking the mean. If \code{FALSE}, the
+returned output will contain one row per observation and one column
+for each tree. If the length of \code{pred_horizon} is two or more and
+\code{pred_aggregate} is \code{FALSE}, then the result will be a list of such
+matrices, with the i'th item in the list corresponding to the i'th
+value of \code{pred_horizon}.}
+
+\item{pred_simplify}{(\emph{logical}) If \code{FALSE} (the default), predictions
+will always be returned in a numeric matrix or a list of numeric matrices.
+If \code{TRUE}, predictions may be simplified to a vector, e.g., if \code{pred_type}
+is \code{'mort'} for survival or \code{'class'} for classification, or an array of
+matrices if \code{length(pred_horizon) > 1}.}
 
 \item{na_action}{(\emph{character}) what should happen when \code{new_data} contains missing values (i.e., \code{NA} values). Valid options are:
 \itemize{
@@ -53,18 +79,10 @@ checked to make sure the requested values are less than the maximum
 observed time in \code{object}'s training data. If \code{FALSE}, these checks
 are skipped.}
 
-\item{n_thread}{(\emph{integer}) number of threads to use while computing predictions. Default is one thread. To use the maximum number of threads that your system provides for concurrent execution, set \code{n_thread = 0}.}
+\item{n_thread}{(\emph{integer}) number of threads to use while computing predictions. Default is 0, which allows a suitable number of threads to be used based on availability.}
 
 \item{verbose_progress}{(\emph{logical}) if \code{TRUE}, progress messages are
 printed in the console. If \code{FALSE} (the default), nothing is printed.}
-
-\item{pred_aggregate}{(\emph{logical}) If \code{TRUE} (the default), predictions
-will be aggregated over all trees by taking the mean. If \code{FALSE}, the
-returned output will contain one row per observation and one column
-for each tree. If the length of \code{pred_horizon} is two or more and
-\code{pred_aggregate} is \code{FALSE}, then the result will be a list of such
-matrices, with the i'th item in the list corresponding to the i'th
-value of \code{pred_horizon}.}
 
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 }
@@ -95,68 +113,154 @@ If unspecified, \code{pred_horizon} may be automatically specified as the value
 used for \code{oobag_pred_horizon} when \code{object} was created (see \link{orsf}).
 }
 \section{Examples}{
-Begin by fitting an ORSF ensemble:
-
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(aorsf)
+}\if{html}{\out{</div>}}
+\subsection{Classification}{
 
-set.seed(329730)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329)
+
+index_train <- sample(nrow(penguins_orsf), 150) 
+
+penguins_orsf_train <- penguins_orsf[index_train, ]
+penguins_orsf_test <- penguins_orsf[-index_train, ]
+
+fit_clsf <- orsf(data = penguins_orsf_train, 
+                 formula = species ~ .)
+}\if{html}{\out{</div>}}
+
+Predict probability for each class or the predicted class:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted probabilities, the default
+predict(fit_clsf, 
+        new_data = penguins_orsf_test[1:5, ],
+        pred_type = 'prob')
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##         Adelie  Chinstrap      Gentoo
+## [1,] 0.9405310 0.04121955 0.018249405
+## [2,] 0.9628988 0.03455909 0.002542096
+## [3,] 0.9032074 0.08510528 0.011687309
+## [4,] 0.9300133 0.05209040 0.017896329
+## [5,] 0.7965703 0.16243492 0.040994821
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted class (as a matrix by default)
+predict(fit_clsf, 
+        new_data = penguins_orsf_test[1:5, ],
+        pred_type = 'class')
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##      [,1]
+## [1,]    1
+## [2,]    1
+## [3,]    1
+## [4,]    1
+## [5,]    1
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted class (as a factor if you use simplify)
+predict(fit_clsf, 
+        new_data = penguins_orsf_test[1:5, ],
+        pred_type = 'class',
+        pred_simplify = TRUE)
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] Adelie Adelie Adelie Adelie Adelie
+## Levels: Adelie Chinstrap Gentoo
+}\if{html}{\out{</div>}}
+}
+
+\subsection{Regression}{
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329)
+
+index_train <- sample(nrow(penguins_orsf), 150) 
+
+penguins_orsf_train <- penguins_orsf[index_train, ]
+penguins_orsf_test <- penguins_orsf[-index_train, ]
+
+fit_regr <- orsf(data = penguins_orsf_train, 
+                 formula = bill_length_mm ~ .)
+}\if{html}{\out{</div>}}
+
+Predict the mean value of the outcome:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{predict(fit_regr, 
+        new_data = penguins_orsf_test[1:5, ], 
+        pred_type = 'mean')
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##          [,1]
+## [1,] 37.74136
+## [2,] 37.42367
+## [3,] 37.04598
+## [4,] 39.89602
+## [5,] 39.14848
+}\if{html}{\out{</div>}}
+}
+
+\subsection{Survival}{
+
+Begin by fitting an oblique survival random forest:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329)
 
 index_train <- sample(nrow(pbc_orsf), 150) 
 
 pbc_orsf_train <- pbc_orsf[index_train, ]
 pbc_orsf_test <- pbc_orsf[-index_train, ]
 
-fit <- orsf(data = pbc_orsf_train, 
-            formula = Surv(time, status) ~ . - id,
-            oobag_pred_horizon = 365.25 * 5)
+fit_surv <- orsf(data = pbc_orsf_train, 
+                 formula = Surv(time, status) ~ . - id,
+                 oobag_pred_horizon = 365.25 * 5)
 }\if{html}{\out{</div>}}
 
 Predict risk, survival, or cumulative hazard at one or several times:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted risk, the default
-predict(fit, 
+predict(fit_surv, 
         new_data = pbc_orsf_test[1:5, ], 
         pred_type = 'risk', 
         pred_horizon = c(500, 1000, 1500))
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##            [,1]       [,2]       [,3]
-## [1,] 0.45320860 0.71688357 0.88729787
-## [2,] 0.03234200 0.07183812 0.14927375
-## [3,] 0.10425422 0.25500251 0.40011524
-## [4,] 0.01869464 0.04162596 0.08060608
-## [5,] 0.01743330 0.02926360 0.06790689
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##             [,1]        [,2]       [,3]
+## [1,] 0.013648562 0.058393393 0.11184029
+## [2,] 0.003811413 0.026857586 0.04774151
+## [3,] 0.030548361 0.100600301 0.14847107
+## [4,] 0.040381075 0.169596943 0.27018952
+## [5,] 0.001484698 0.006663576 0.01337655
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted survival, i.e., 1 - risk
-predict(fit, 
+predict(fit_surv, 
         new_data = pbc_orsf_test[1:5, ], 
         pred_type = 'surv',
         pred_horizon = c(500, 1000, 1500))
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##           [,1]      [,2]      [,3]
-## [1,] 0.5467914 0.2831164 0.1127021
-## [2,] 0.9676580 0.9281619 0.8507263
-## [3,] 0.8957458 0.7449975 0.5998848
-## [4,] 0.9813054 0.9583740 0.9193939
-## [5,] 0.9825667 0.9707364 0.9320931
+## [1,] 0.9863514 0.9416066 0.8881597
+## [2,] 0.9961886 0.9731424 0.9522585
+## [3,] 0.9694516 0.8993997 0.8515289
+## [4,] 0.9596189 0.8304031 0.7298105
+## [5,] 0.9985153 0.9933364 0.9866235
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted cumulative hazard function
 # (expected number of events for person i at time j)
-predict(fit, 
+predict(fit_surv, 
         new_data = pbc_orsf_test[1:5, ], 
         pred_type = 'chf',
         pred_horizon = c(500, 1000, 1500))
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##            [,1]       [,2]       [,3]
-## [1,] 0.63853349 1.22980935 1.73663522
-## [2,] 0.03268688 0.08184222 0.20419113
-## [3,] 0.12730379 0.35165725 0.65852061
-## [4,] 0.01977094 0.05130407 0.10527319
-## [5,] 0.01764267 0.03050562 0.07781852
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##             [,1]        [,2]       [,3]
+## [1,] 0.015395388 0.067815817 0.14942956
+## [2,] 0.004022524 0.028740305 0.05424314
+## [3,] 0.034832754 0.127687156 0.20899732
+## [4,] 0.059978334 0.233048809 0.42562310
+## [5,] 0.001651365 0.007173177 0.01393016
 }\if{html}{\out{</div>}}
 
 Predict mortality, defined as the number of events in the forest’s
@@ -164,17 +268,18 @@ population if all observations had characteristics like the current
 observation. This type of prediction does not require you to specify a
 prediction horizon
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{predict(fit, 
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{predict(fit_surv, 
         new_data = pbc_orsf_test[1:5, ], 
         pred_type = 'mort')
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##          [,1]
-## [1,] 78.37691
-## [2,] 20.85114
-## [3,] 37.80350
-## [4,] 13.39838
-## [5,] 10.15932
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##           [,1]
+## [1,] 23.405016
+## [2,] 15.362916
+## [3,] 26.180648
+## [4,] 36.515629
+## [5,]  5.856674
 }\if{html}{\out{</div>}}
+}
 }
 

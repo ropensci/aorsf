@@ -572,6 +572,13 @@ void Forest::compute_dependence_single_thread(
   std::vector<std::vector<arma::mat>>& result
 ){
 
+ using std::chrono::steady_clock;
+ using std::chrono::duration_cast;
+ using std::chrono::seconds;
+ steady_clock::time_point start_time = steady_clock::now();
+ steady_clock::time_point last_time = steady_clock::now();
+ size_t max_progress = n_tree;
+
  uword oobag_divby = 0;
  uword n_specs = pd_x_vals.size();
 
@@ -595,10 +602,34 @@ void Forest::compute_dependence_single_thread(
                                  pd_type, pd_x_vals, pd_x_cols,
                                  oobag_denom, oobag);
 
-  // trees[i]->predict_leaf(prediction_data, oobag);
-  // trees[i]->predict_value(result, oobag_denom, pred_type, oobag);
-
   progress++;
+
+  if(verbosity == 1){
+
+   seconds elapsed_time = duration_cast<seconds>(steady_clock::now() - last_time);
+
+   if ((progress > 0 && elapsed_time.count() > STATUS_INTERVAL) ||
+       (progress == max_progress)) {
+
+    double relative_progress = (double) progress / (double) max_progress;
+    seconds time_from_start = duration_cast<seconds>(steady_clock::now() - start_time);
+    uint remaining_time = (1 / relative_progress - 1) * time_from_start.count();
+
+    Rcpp::Rcout << "Computing dependence: ";
+    Rcpp::Rcout << round(100 * relative_progress) << "%. ";
+
+    if(progress < max_progress){
+     Rcpp::Rcout << "~ time remaining: ";
+     Rcpp::Rcout << beautifyTime(remaining_time) << ".";
+    }
+
+    Rcpp::Rcout << std::endl;
+
+    last_time = steady_clock::now();
+
+   }
+
+  }
 
  }
 

@@ -32,7 +32,7 @@ combinations of input variables while fitting an \link{orsf} model.
 finding a linear combination of those variables.
 }
 \references{
-Simon N, Friedman J, Hastie T, Tibshirani R. Regularization paths for Cox's proportional hazards model via coordinate descent. \emph{Journal of statistical software} 2011 Mar; 39(5):1. DOI: 10.18637/jss.v039.i05
+Simon N, Friedman J, Hastie T, Tibshirani R. Regularization paths for Cox's proportional hazards model via coordinate descent. \emph{Journal of statistical software}. 2011 Mar; 39(5):1. DOI: 10.18637/jss.v039.i05
 }
 \seealso{
 linear combination control functions

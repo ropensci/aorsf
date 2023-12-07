@@ -5,14 +5,14 @@
 \alias{orsf_vi_negate}
 \alias{orsf_vi_permute}
 \alias{orsf_vi_anova}
-\title{ORSF variable importance}
+\title{Variable Importance}
 \usage{
 orsf_vi(
   object,
   group_factors = TRUE,
   importance = NULL,
   oobag_fun = NULL,
-  n_thread = 1,
+  n_thread = 0,
   verbose_progress = FALSE,
   ...
 )
@@ -21,7 +21,7 @@ orsf_vi_negate(
   object,
   group_factors = TRUE,
   oobag_fun = NULL,
-  n_thread = 1,
+  n_thread = 0,
   verbose_progress = FALSE,
   ...
 )
@@ -30,12 +30,12 @@ orsf_vi_permute(
   object,
   group_factors = TRUE,
   oobag_fun = NULL,
-  n_thread = 1,
+  n_thread = 0,
   verbose_progress = FALSE,
   ...
 )
 
-orsf_vi_anova(object, group_factors = TRUE, ...)
+orsf_vi_anova(object, group_factors = TRUE, verbose_progress = FALSE, ...)
 }
 \arguments{
 \item{object}{(\emph{ObliqueForest}) a trained oblique random forest object (see \link{orsf}).}
@@ -73,7 +73,7 @@ importance is estimated.
 For more details, see the out-of-bag
 \href{https://docs.ropensci.org/aorsf/articles/oobag.html}{vignette}.}
 
-\item{n_thread}{(\emph{integer}) number of threads to use while computing predictions. Default is one thread. To use the maximum number of threads that your system provides for concurrent execution, set \code{n_thread = 0}.}
+\item{n_thread}{(\emph{integer}) number of threads to use while computing predictions. Default is 0, which allows a suitable number of threads to be used based on availability.}
 
 \item{verbose_progress}{(\emph{logical}) if \code{TRUE}, progress messages are
 printed in the console. If \code{FALSE} (the default), nothing is printed.}
@@ -91,8 +91,8 @@ The returned vector is sorted from highest to lowest value, with higher
 values indicating higher importance.
 }
 \description{
-Estimate the importance of individual variables using oblique random
-survival forests.
+Estimate the importance of individual predictor variables using
+oblique random forests.
 }
 \details{
 When an \code{ObliqueForest} object is grown with importance = 'anova',
@@ -122,7 +122,7 @@ or not (see examples).
 \subsection{ANOVA importance}{
 
 The default variable importance technique, ANOVA, is calculated while
-you fit an ORSF ensemble.
+you fit an oblique random forest ensemble.
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 
@@ -137,7 +137,7 @@ fit
 ##                  N trees: 500
 ##       N predictors total: 17
 ##    N predictors per node: 5
-##  Average leaves per tree: 21.28
+##  Average leaves per tree: 21.022
 ## Min observations in leaf: 5
 ##       Min events in leaf: 1
 ##           OOB stat value: 0.84
@@ -155,10 +155,28 @@ as the permutation and negation techniques for variable selection.
 
 the ‘raw’ variable importance values can be accessed from the fit object
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{attr(fit, 'importance_values')
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit$get_importance_raw()
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## NULL
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##                   [,1]
+## trt_placebo 0.06355042
+## age         0.23259259
+## sex_f       0.14700432
+## ascites_1   0.46791708
+## hepato_1    0.14349776
+## spiders_1   0.17371938
+## edema_0.5   0.17459191
+## edema_1     0.51197605
+## bili        0.40590758
+## chol        0.17666667
+## albumin     0.25972156
+## copper      0.28840580
+## alk.phos    0.10614251
+## ast         0.18327491
+## trig        0.12815626
+## platelet    0.09265648
+## protime     0.22656250
+## stage       0.20264766
 }\if{html}{\out{</div>}}
 
 these are ‘raw’ because values for factors have not been aggregated into
@@ -178,11 +196,11 @@ To get aggregated values across all levels of each factor,
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper    albumin        age    protime 
-## 0.48908730 0.40201927 0.31576154 0.28808594 0.25707434 0.24918491 0.23739599 
-##       chol      stage        ast    spiders     hepato        sex   alk.phos 
-## 0.22546673 0.20949432 0.17276227 0.17108825 0.15844298 0.15646688 0.11049164 
-##       trig   platelet        trt 
-## 0.10526316 0.08373905 0.07367336
+## 0.46791708 0.40590758 0.31115216 0.28840580 0.25972156 0.23259259 0.22656250 
+##      stage        ast       chol    spiders        sex     hepato       trig 
+## 0.20264766 0.18327491 0.17666667 0.17371938 0.14700432 0.14349776 0.12815626 
+##   alk.phos   platelet        trt 
+## 0.10614251 0.09265648 0.06355042
 }\if{html}{\out{</div>}}
 \item use \code{orsf_vi()} with group_factors set to \code{TRUE} (the default)
 
@@ -190,11 +208,11 @@ To get aggregated values across all levels of each factor,
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper    albumin        age    protime 
-## 0.48908730 0.40201927 0.31576154 0.28808594 0.25707434 0.24918491 0.23739599 
-##       chol      stage        ast    spiders     hepato        sex   alk.phos 
-## 0.22546673 0.20949432 0.17276227 0.17108825 0.15844298 0.15646688 0.11049164 
-##       trig   platelet        trt 
-## 0.10526316 0.08373905 0.07367336
+## 0.46791708 0.40590758 0.31115216 0.28840580 0.25972156 0.23259259 0.22656250 
+##      stage        ast       chol    spiders        sex     hepato       trig 
+## 0.20264766 0.18327491 0.17666667 0.17371938 0.14700432 0.14349776 0.12815626 
+##   alk.phos   platelet        trt 
+## 0.10614251 0.09265648 0.06355042
 }\if{html}{\out{</div>}}
 }
 
@@ -203,9 +221,9 @@ by setting \code{group_factors} to \code{FALSE} in the \code{orsf_vi} functions 
 \code{orsf} function.
 }
 
-\subsection{Add VI to an ORSF}{
+\subsection{Add VI to an oblique random forest}{
 
-You can fit an ORSF without VI, then add VI later
+You can fit an oblique random forest without VI, then add VI later
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_no_vi <- orsf(pbc_orsf,
                   Surv(time, status) ~ . - id,
@@ -217,31 +235,31 @@ You can fit an ORSF without VI, then add VI later
 orsf_vi_negate(fit_no_vi)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##         bili       copper          sex        stage      protime          age 
-## 0.1237139435 0.0522875916 0.0436374058 0.0264254542 0.0242211214 0.0208034497 
-##      albumin         chol      ascites          ast       hepato        edema 
-## 0.0203449935 0.0152155212 0.0134918141 0.0122755546 0.0080937907 0.0068807789 
-##      spiders     alk.phos          trt         trig     platelet 
-## 0.0058287217 0.0037382254 0.0024557752 0.0018237051 0.0006883272
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##        bili      copper         sex     protime         age       stage 
+## 0.130439814 0.051880867 0.038308025 0.025115249 0.023826061 0.020354822 
+##     albumin     ascites        chol         ast     spiders      hepato 
+## 0.019997729 0.015918292 0.013320469 0.010086726 0.007409116 0.007326714 
+##       edema         trt    alk.phos        trig    platelet 
+## 0.006844435 0.003214544 0.002517057 0.002469545 0.001056829
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi_permute(fit_no_vi)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili        copper       protime         stage       ascites 
-##  0.0561427515  0.0237024406  0.0133988228  0.0125754046  0.0111755937 
-##       albumin           age          chol           ast         edema 
-##  0.0110805054  0.0108799933  0.0066262186  0.0062079536  0.0055363061 
-##       spiders        hepato           sex      alk.phos          trig 
-##  0.0053754874  0.0048894468  0.0038219855  0.0022462567  0.0009261366 
-##      platelet           trt 
-##  0.0007595733 -0.0012610217
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili        copper           age       ascites       protime 
+##  0.0592069141  0.0237362075  0.0136479213  0.0130805894  0.0123091354 
+##         stage       albumin          chol        hepato           ast 
+##  0.0117177661  0.0106414724  0.0064501213  0.0058813969  0.0057753740 
+##         edema       spiders           sex          trig      platelet 
+##  0.0052171180  0.0048427005  0.0023386947  0.0017883700  0.0013533691 
+##      alk.phos           trt 
+##  0.0006492029 -0.0009921507
 }\if{html}{\out{</div>}}
 }
 
-\subsection{ORSF and VI all at once}{
+\subsection{Oblique random forest and VI all at once}{
 
-fit an ORSF and compute vi at the same time
+fit an oblique random forest and compute vi at the same time
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_permute_vi <- orsf(pbc_orsf,
                         Surv(time, status) ~ . - id,
@@ -251,14 +269,14 @@ fit an ORSF and compute vi at the same time
 orsf_vi_permute(fit_permute_vi)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili        copper       protime           age       albumin 
-##  0.0556303145  0.0236357483  0.0142531459  0.0140897553  0.0117613116 
-##         stage       ascites          chol           ast       spiders 
-##  0.0113418077  0.0113139114  0.0058735307  0.0056767581  0.0052889836 
-##         edema        hepato          trig      alk.phos           sex 
-##  0.0050020021  0.0041316272  0.0019724136  0.0015504082  0.0014809407 
-##      platelet           trt 
-##  0.0004440263 -0.0001428931
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili        copper       ascites       protime       albumin 
+##  0.0571305446  0.0243657146  0.0138318057  0.0133401675  0.0130746154 
+##           age         stage          chol           ast       spiders 
+##  0.0123610374  0.0102963203  0.0077895394  0.0075250059  0.0048628813 
+##         edema        hepato           sex      platelet          trig 
+##  0.0046003168  0.0039818730  0.0016891584  0.0012767063  0.0007324402 
+##      alk.phos           trt 
+##  0.0005128897 -0.0014443967
 }\if{html}{\out{</div>}}
 
 You can still get negation VI from this fit, but it needs to be computed
@@ -266,22 +284,22 @@ You can still get negation VI from this fit, but it needs to be computed
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi_negate(fit_permute_vi)
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##         bili       copper          sex      protime        stage          age 
-## 0.1243138054 0.0512366504 0.0355333945 0.0245616522 0.0244816644 0.0220214226 
-##      albumin      ascites          ast         chol      spiders       hepato 
-## 0.0199297370 0.0116687313 0.0115769922 0.0113597854 0.0065500245 0.0064090827 
-##        edema          trt         trig     alk.phos     platelet 
-## 0.0061703318 0.0043143732 0.0041226791 0.0028748538 0.0007984187
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##        bili      copper         sex     protime       stage         age 
+## 0.123331760 0.052544318 0.037291358 0.024977898 0.023239189 0.021934511 
+##     albumin     ascites        chol         ast     spiders       edema 
+## 0.020586632 0.014229536 0.014053040 0.012227048 0.007643156 0.006832766 
+##      hepato         trt    alk.phos        trig    platelet 
+## 0.006301693 0.004348705 0.002371797 0.002309396 0.001347035
 }\if{html}{\out{</div>}}
 }
 }
 
 \references{
-Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. Evaluating the Yield of Medical Tests. \emph{JAMA} 1982; 247(18):2543-2546. DOI: 10.1001/jama.1982.03320430047030
+Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. Evaluating the Yield of Medical Tests. \emph{JAMA}. 1982; 247(18):2543-2546. DOI: 10.1001/jama.1982.03320430047030
 
-Breiman L. Random forests. \emph{Machine learning} 2001 Oct; 45(1):5-32. DOI: 10.1023/A:1010933404324
+Breiman L. Random forests. \emph{Machine learning}. 2001 Oct; 45(1):5-32. DOI: 10.1023/A:1010933404324
 
-Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. \emph{Joint European Conference on Machine Learning and Knowledge Discovery in Databases} 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29
+Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. \emph{Joint European Conference on Machine Learning and Knowledge Discovery in Databases}. 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29
 
-Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{Journal of Computational and Graphical Statistics} Published online 08 Aug 2023. DOI: 10.1080/10618600.2023.2231048
+Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{Journal of Computational and Graphical Statistics}. Published online 08 Aug 2023. DOI: 10.1080/10618600.2023.2231048
 }

@@ -36,16 +36,16 @@ pred_spec_auto <- function(...){
 }
 
 
-#' ORSF partial dependence
+#' Partial dependence
 #'
-#' Compute partial dependence for an ORSF model.
+#' Compute partial dependence for an oblique random forest.
 #' `r roxy_pd_explain()`
 #' `r roxy_pd_oob_explain('partial dependence')`
 #'
 #' @inheritParams predict.ObliqueForest
 #'
 #'
-#' @param pred_spec (*named list* or *data.frame*).
+#' @param pred_spec (*named list*, *pspec_auto*, or *data.frame*).
 #'
 #'  -  If `pred_spec` is a named list,
 #'   Each item in the list should be a vector of values that will be used as
@@ -53,17 +53,28 @@ pred_spec_auto <- function(...){
 #'   list should indicate which variable will be modified to take the
 #'   corresponding values.
 #'
+#'  - If `pred_spec` is created using `pred_spec_auto()`, all that is needed
+#'    is the names of variables to use (see [pred_spec_auto]).
+#'
 #'  - If `pred_spec` is a `data.frame`, columns will
 #'   indicate variable names, values will indicate variable values, and
 #'   partial dependence will be computed using the inputs on each row.
 #'
 #' @param pred_type (_character_) the type of predictions to compute. Valid
-#'   options are
+#'   Valid options for survival are:
 #'
 #'   - 'risk' : probability of having an event at or before `pred_horizon`.
 #'   - 'surv' : 1 - risk.
 #'   - 'chf': cumulative hazard function
 #'   - 'mort': mortality prediction
+#'
+#'  For classification:
+#'
+#'  - 'prob': probability for each class
+#'
+#'  For regression:
+#'
+#'  - 'mean': predicted mean, i.e., the expected value
 #'
 #' @param na_action `r roxy_na_action_header("new_data")`
 #'
@@ -97,8 +108,8 @@ pred_spec_auto <- function(...){
 #' @param ... `r roxy_dots()`
 #'
 #' @return a [data.table][data.table::data.table-package] containing
-#'   partial dependence values for the specified variable(s) at the
-#'   specified prediction horizon(s).
+#'   partial dependence values for the specified variable(s)
+#'   and, if relevant, at the specified prediction horizon(s).
 #'
 #' @details
 #'
@@ -121,22 +132,24 @@ orsf_pd_oob <- function(object,
                         prob_labels = c('lwr', 'medn', 'upr'),
                         boundary_checks = TRUE,
                         n_thread = 0,
+                        verbose_progress = FALSE,
                         ...){
 
  check_dots(list(...), orsf_pd_oob)
 
  orsf_dependence(object = object,
-                      pred_spec = pred_spec,
-                      pd_data = NULL,
-                      pred_horizon = pred_horizon,
-                      pred_type = pred_type,
-                      expand_grid = expand_grid,
-                      prob_values = prob_values,
-                      prob_labels = prob_labels,
-                      boundary_checks = boundary_checks,
-                      n_thread = n_thread,
-                      oobag = TRUE,
-                      type_output = 'smry')
+                 pred_spec = pred_spec,
+                 pd_data = NULL,
+                 pred_horizon = pred_horizon,
+                 pred_type = pred_type,
+                 expand_grid = expand_grid,
+                 prob_values = prob_values,
+                 prob_labels = prob_labels,
+                 boundary_checks = boundary_checks,
+                 n_thread = n_thread,
+                 verbose_progress = verbose_progress,
+                 oobag = TRUE,
+                 type_output = 'smry')
 
 }
 
@@ -151,6 +164,7 @@ orsf_pd_inb <- function(object,
                         prob_labels = c('lwr', 'medn', 'upr'),
                         boundary_checks = TRUE,
                         n_thread = 0,
+                        verbose_progress = FALSE,
                         ...){
 
  check_dots(list(...), orsf_pd_inb)
@@ -161,17 +175,18 @@ orsf_pd_inb <- function(object,
        "running orsf()?", call. = FALSE)
 
  orsf_dependence(object = object,
-                      pred_spec = pred_spec,
-                      pd_data = object$data,
-                      pred_horizon = pred_horizon,
-                      pred_type = pred_type,
-                      expand_grid = expand_grid,
-                      prob_values = prob_values,
-                      prob_labels = prob_labels,
-                      boundary_checks = boundary_checks,
-                      n_thread = n_thread,
-                      oobag = FALSE,
-                      type_output = 'smry')
+                 pred_spec = pred_spec,
+                 pd_data = object$data,
+                 pred_horizon = pred_horizon,
+                 pred_type = pred_type,
+                 expand_grid = expand_grid,
+                 prob_values = prob_values,
+                 prob_labels = prob_labels,
+                 boundary_checks = boundary_checks,
+                 n_thread = n_thread,
+                 verbose_progress = verbose_progress,
+                 oobag = FALSE,
+                 type_output = 'smry')
 
 }
 
@@ -188,38 +203,40 @@ orsf_pd_new <- function(object,
                         prob_labels = c('lwr', 'medn', 'upr'),
                         boundary_checks = TRUE,
                         n_thread = 0,
+                        verbose_progress = FALSE,
                         ...){
 
  check_dots(list(...), orsf_pd_new)
 
  orsf_dependence(object = object,
-                      pred_spec = pred_spec,
-                      pd_data = new_data,
-                      pred_horizon = pred_horizon,
-                      pred_type = pred_type,
-                      na_action = na_action,
-                      expand_grid = expand_grid,
-                      prob_values = prob_values,
-                      prob_labels = prob_labels,
-                      boundary_checks = boundary_checks,
-                      n_thread = n_thread,
-                      oobag = FALSE,
-                      type_output = 'smry')
+                 pred_spec = pred_spec,
+                 pd_data = new_data,
+                 pred_horizon = pred_horizon,
+                 pred_type = pred_type,
+                 na_action = na_action,
+                 expand_grid = expand_grid,
+                 prob_values = prob_values,
+                 prob_labels = prob_labels,
+                 boundary_checks = boundary_checks,
+                 n_thread = n_thread,
+                 verbose_progress = verbose_progress,
+                 oobag = FALSE,
+                 type_output = 'smry')
 
 }
 
 
-#' ORSF Individual Conditional Expectations
+#' Individual Conditional Expectations
 #'
-#' Compute individual conditional expectations for an ORSF model.
-#' `r roxy_ice_explain()`
-#' `r roxy_pd_oob_explain('individual conditional expectations')`
+#' Compute individual conditional expectations for an
+#'  oblique random forest. `r roxy_ice_explain()`
+#'  `r roxy_pd_oob_explain('individual conditional expectations')`
 #'
 #' @inheritParams orsf_pd_oob
 #'
 #' @return a [data.table][data.table::data.table-package] containing
-#'   individual conditional expectations for the specified variable(s) at the
-#'   specified prediction horizon(s).
+#'   individual conditional expectations for the specified variable(s)
+#'   and, if relevant, at the specified prediction horizon(s).
 #'
 #' @includeRmd Rmd/orsf_ice_examples.Rmd
 #'
@@ -233,20 +250,22 @@ orsf_ice_oob <- function(object,
                          expand_grid = TRUE,
                          boundary_checks = TRUE,
                          n_thread = 0,
+                         verbose_progress = FALSE,
                          ...){
 
  check_dots(list(...), orsf_ice_oob)
 
  orsf_dependence(object = object,
-                      pred_spec = pred_spec,
-                      pd_data = NULL,
-                      pred_horizon = pred_horizon,
-                      pred_type = pred_type,
-                      expand_grid = expand_grid,
-                      boundary_checks = boundary_checks,
-                      n_thread = n_thread,
-                      oobag = TRUE,
-                      type_output = 'ice')
+                 pred_spec = pred_spec,
+                 pd_data = NULL,
+                 pred_horizon = pred_horizon,
+                 pred_type = pred_type,
+                 expand_grid = expand_grid,
+                 boundary_checks = boundary_checks,
+                 n_thread = n_thread,
+                 verbose_progress = verbose_progress,
+                 oobag = TRUE,
+                 type_output = 'ice')
 
 }
 
@@ -259,6 +278,7 @@ orsf_ice_inb <- function(object,
                          expand_grid = TRUE,
                          boundary_checks = TRUE,
                          n_thread = 0,
+                         verbose_progress = FALSE,
                          ...){
 
  check_dots(list(...), orsf_ice_oob)
@@ -269,15 +289,16 @@ orsf_ice_inb <- function(object,
        "running orsf()?", call. = FALSE)
 
  orsf_dependence(object = object,
-                      pred_spec = pred_spec,
-                      pd_data = object$data,
-                      pred_horizon = pred_horizon,
-                      pred_type = pred_type,
-                      expand_grid = expand_grid,
-                      boundary_checks = boundary_checks,
-                      n_thread = n_thread,
-                      oobag = FALSE,
-                      type_output = 'ice')
+                 pred_spec = pred_spec,
+                 pd_data = object$data,
+                 pred_horizon = pred_horizon,
+                 pred_type = pred_type,
+                 expand_grid = expand_grid,
+                 boundary_checks = boundary_checks,
+                 n_thread = n_thread,
+                 verbose_progress = verbose_progress,
+                 oobag = FALSE,
+                 type_output = 'ice')
 
 }
 
@@ -292,21 +313,23 @@ orsf_ice_new <- function(object,
                          expand_grid = TRUE,
                          boundary_checks = TRUE,
                          n_thread = 0,
+                         verbose_progress = FALSE,
                          ...){
 
  check_dots(list(...), orsf_ice_new)
 
  orsf_dependence(object = object,
-                      pred_spec = pred_spec,
-                      pd_data = new_data,
-                      pred_horizon = pred_horizon,
-                      pred_type = pred_type,
-                      na_action = na_action,
-                      expand_grid = expand_grid,
-                      boundary_checks = boundary_checks,
-                      n_thread = n_thread,
-                      oobag = FALSE,
-                      type_output = 'ice')
+                 pred_spec = pred_spec,
+                 pd_data = new_data,
+                 pred_horizon = pred_horizon,
+                 pred_type = pred_type,
+                 na_action = na_action,
+                 expand_grid = expand_grid,
+                 boundary_checks = boundary_checks,
+                 n_thread = n_thread,
+                 verbose_progress = verbose_progress,
+                 oobag = FALSE,
+                 type_output = 'ice')
 
 
 }
@@ -328,18 +351,19 @@ orsf_ice_new <- function(object,
 #' @noRd
 
 orsf_dependence <- function(object,
-                                 pd_data,
-                                 pred_spec,
-                                 pred_horizon,
-                                 pred_type,
-                                 na_action = 'fail',
-                                 expand_grid,
-                                 prob_values = NULL,
-                                 prob_labels = NULL,
-                                 boundary_checks,
-                                 n_thread,
-                                 oobag,
-                                 type_output){
+                            pd_data,
+                            pred_spec,
+                            pred_horizon,
+                            pred_type,
+                            na_action = 'fail',
+                            expand_grid,
+                            prob_values = NULL,
+                            prob_labels = NULL,
+                            boundary_checks,
+                            n_thread,
+                            verbose_progress,
+                            oobag,
+                            type_output){
 
  check_arg_is(object, arg_name = 'object', expected_class = 'ObliqueForest')
 
@@ -358,6 +382,7 @@ orsf_dependence <- function(object,
                            prob_labels = prob_labels,
                            boundary_checks = boundary_checks,
                            n_thread = n_thread,
+                           verbose_progress = verbose_progress,
                            oobag = oobag,
                            type_output = type_output)
 

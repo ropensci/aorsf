@@ -3,7 +3,7 @@
 
 ## ANOVA importance
 
-The default variable importance technique, ANOVA, is calculated while you fit an ORSF ensemble. 
+The default variable importance technique, ANOVA, is calculated while you fit an oblique random forest ensemble. 
 
 ```{r}
 
@@ -21,7 +21,7 @@ the 'raw' variable importance values can be accessed from the fit object
 
 ```{r}
 
-attr(fit, 'importance_values')
+fit$get_importance_raw()
 
 ```
 
@@ -34,25 +34,21 @@ To get aggregated values across all levels of each factor,
 - access the `importance` element from the `orsf` fit:
 
   ```{r}
-  
   fit$importance
-  
   ```
 
 
 - use `orsf_vi()` with group_factors set to `TRUE` (the default)
 
   ```{r}
-  
   orsf_vi(fit)
-  
   ```
 
 Note that you can make the default returned importance values ungrouped by setting `group_factors` to `FALSE` in the `orsf_vi` functions or the `orsf` function.
 
-## Add VI to an ORSF
+## Add VI to an oblique random forest
 
-You can fit an ORSF without VI, then add VI later
+You can fit an oblique random forest without VI, then add VI later
 
 ```{r}
 
@@ -70,9 +66,9 @@ orsf_vi_permute(fit_no_vi)
 ```
 
 
-## ORSF and VI all at once
+## Oblique random forest and VI all at once
 
-fit an ORSF and compute vi at the same time
+fit an oblique random forest and compute vi at the same time
 
 ```{r}
 

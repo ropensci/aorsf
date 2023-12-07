@@ -27,9 +27,11 @@ Fit, interpret, and make predictions with oblique random forests (RFs).
 
 - Accurate predictions.<sup>2</sup>
 
-- Intuitive API with formula based interface.
+- Intuitive design with formula based interface.
 
 - Extensive input checks and informative error messages.
+
+- Compatible with `tidymodels` and `mlr3`
 
 ## Installation
 
@@ -55,13 +57,11 @@ library(tidyverse)
 ```
 
 `aorsf` fits several types of oblique RFs with the `orsf()` function,
-including survival, classification, and regression RFs. My personal
-favorite is the oblique survival RF with accelerated Cox regression
-because it has a great combination of prediction accuracy and
-computational efficiency (see [JCGS
-paper](https://doi.org/10.1080/10618600.2023.2231048)).<sup>2</sup>
+including classification, regression, and survival RFs.
 
-For classification, we fit an oblique RF to predict penguin species:
+For classification, we fit an oblique RF to predict penguin species
+using `penguin` data from the magnificent `palmerpenguins` [R
+package](https://allisonhorst.github.io/palmerpenguins/)
 
 ``` r
 # An oblique classification RF
@@ -80,7 +80,7 @@ penguin_fit
 #>    N predictors per node: 3
 #>  Average leaves per tree: 4.8
 #> Min observations in leaf: 5
-#>           OOB stat value: 1.00
+#>           OOB stat value: 0.99
 #>            OOB stat type: AUC-ROC
 #>      Variable importance: anova
 #> 
@@ -104,17 +104,20 @@ bill_fit
 #>                  N trees: 5
 #>       N predictors total: 7
 #>    N predictors per node: 3
-#>  Average leaves per tree: 50
+#>  Average leaves per tree: 49.6
 #> Min observations in leaf: 5
-#>           OOB stat value: 0.69
+#>           OOB stat value: 0.73
 #>            OOB stat type: RSQ
 #>      Variable importance: anova
 #> 
 #> -----------------------------------------
 ```
 
-For survival, we predict mortality risk following diagnosis of primary
-biliary cirrhosis:
+My personal favorite is the oblique survival RF with accelerated Cox
+regression because it has a great combination of prediction accuracy and
+computational efficiency (see [JCGS
+paper](https://doi.org/10.1080/10618600.2023.2231048)). Here, we predict
+mortality risk following diagnosis of primary biliary cirrhosis:
 
 ``` r
 # An oblique survival RF
@@ -131,10 +134,10 @@ pbc_fit
 #>                  N trees: 5
 #>       N predictors total: 17
 #>    N predictors per node: 5
-#>  Average leaves per tree: 20.2
+#>  Average leaves per tree: 21.4
 #> Min observations in leaf: 5
 #>       Min events in leaf: 1
-#>           OOB stat value: 0.75
+#>           OOB stat value: 0.73
 #>            OOB stat type: Harrell's C-index
 #>      Variable importance: anova
 #> 
@@ -162,9 +165,8 @@ separating the two classes.
 
 So, how does this difference translate to real data, and how does it
 impact random forests comprising hundreds of axis-based or oblique
-trees? We will demonstrate this using the `penguin` data from the
-magnificent `palmerpenguins` R package. We will also use this function
-to make several plots:
+trees? We will demonstrate this using the `penguin` data.<sup>3</sup> We
+will also use this function to make several plots:
 
 ``` r
 plot_decision_surface <- function(predictions, title, grid){
@@ -172,8 +174,6 @@ plot_decision_surface <- function(predictions, title, grid){
  # this is not a general function for plotting
  # decision surfaces. It just helps to minimize 
  # copying and pasting of code.
- 
- colnames(predictions) <- levels(penguins_orsf$species)
  
  class_preds <- bind_cols(grid, predictions) %>%
   pivot_longer(cols = c(Adelie,
@@ -190,8 +190,7 @@ plot_decision_surface <- function(predictions, title, grid){
                       alpha = .25) +
   geom_point(data = penguins_orsf,
              aes(color = species, shape = species),
-             size = 2,
-             alpha = 0.8) +
+             alpha = 0.5) +
   scale_color_manual(values = cols) +
   scale_fill_manual(values = cols) +
   labs(x = "Bill length, mm",
@@ -261,9 +260,7 @@ titles <- c("Axis-based tree",
             "Oblique tree",
             "Oblique forest")
 
-plots <- map2(preds, titles,  
-              .f = plot_decision_surface, 
-              grid = grid)
+plots <- map2(preds, titles, plot_decision_surface, grid = grid)
 ```
 
 **Figure**: Axis-based and oblique decision surfaces from a single tree
@@ -295,12 +292,14 @@ vector
 
   ``` r
   orsf_vi_negate(pbc_fit)
-  #>         bili          sex       copper      protime         trig        stage 
-  #>  0.123886962  0.079314182  0.033690082  0.024993393  0.024824543  0.022596171 
-  #>          age      ascites         chol      albumin          trt          ast 
-  #>  0.022230055  0.022102660  0.021148146  0.019735757  0.016349041  0.015422072 
-  #>        edema     platelet      spiders       hepato     alk.phos 
-  #>  0.011281582  0.009236892 -0.004852893 -0.008039998 -0.016934342
+  #>          bili        copper           age           trt          trig 
+  #>  0.1719756333  0.0465239881  0.0322328707  0.0308438130  0.0266140192 
+  #>           sex       protime           ast      alk.phos         edema 
+  #>  0.0253567213  0.0231892823  0.0231803440  0.0102134973  0.0090376413 
+  #>       ascites          chol       albumin         stage      platelet 
+  #>  0.0089475709  0.0077027397  0.0072715135  0.0039566416  0.0019083851 
+  #>       spiders        hepato 
+  #> -0.0005253927 -0.0075028026
   ```
 
 - **permutation**: Each variable is assessed separately by randomly
@@ -313,13 +312,13 @@ vector
 
   ``` r
   orsf_vi_permute(penguin_fit)
-  #>    bill_length_mm            island flipper_length_mm       body_mass_g 
-  #>       0.143264349       0.087622456       0.083339890       0.075864339 
-  #>     bill_depth_mm               sex              year 
-  #>       0.069297784       0.016607005       0.002510418
+  #>       body_mass_g    bill_length_mm     bill_depth_mm            island 
+  #>       0.165103246       0.161935256       0.088688330       0.059562304 
+  #> flipper_length_mm               sex              year 
+  #>       0.052541170       0.026012585      -0.003977858
   ```
 
-- **analysis of variance (ANOVA)**<sup>3</sup>: A p-value is computed
+- **analysis of variance (ANOVA)**<sup>4</sup>: A p-value is computed
   for each coefficient in each linear combination of variables in each
   decision tree. Importance for an individual predictor variable is the
   proportion of times a p-value for its coefficient is \< 0.01. This
@@ -331,10 +330,10 @@ vector
 
   ``` r
   orsf_vi_anova(bill_fit)
-  #>           species               sex            island flipper_length_mm 
-  #>        0.61764706        0.29166667        0.15302191        0.12403101 
-  #>     bill_depth_mm       body_mass_g              year 
-  #>        0.07142857        0.06106870        0.02564103
+  #>           species               sex flipper_length_mm       body_mass_g 
+  #>       0.306238859       0.215686275       0.110169492       0.100000000 
+  #>            island     bill_depth_mm              year 
+  #>       0.084256514       0.063636364       0.009433962
   ```
 
 You can supply your own R function to estimate out-of-bag error when
@@ -355,22 +354,23 @@ variables as you ask it to, using sensible values.
 ``` r
 orsf_summarize_uni(pbc_fit, n_variables = 2)
 #> 
-#> -- bili (VI Rank: 1) -----------------------------
+#> -- bili (VI Rank: 1) ------------------------------
 #> 
 #>         |----------------- Risk -----------------|
-#>   Value      Mean     Median     25th %    75th %
-#>  <char>     <num>      <num>      <num>     <num>
-#>    0.80 0.1962502 0.05782313 0.01521944 0.3064935
-#>    1.40 0.2184447 0.06462585 0.01541984 0.3333333
-#>    3.55 0.3613502 0.27833749 0.10859877 0.6000000
+#>   Value      Mean     Median      25th %    75th %
+#>  <char>     <num>      <num>       <num>     <num>
+#>    0.80 0.2410135 0.07692308 0.006289308 0.4397423
+#>    1.40 0.2858958 0.14652236 0.013188572 0.5043706
+#>    3.55 0.4247489 0.40000000 0.142857143 0.6680556
 #> 
-#> -- sex (VI Rank: 2) ------------------------------
+#> -- copper (VI Rank: 2) ----------------------------
 #> 
 #>         |----------------- Risk -----------------|
-#>   Value      Mean    Median     25th %    75th %
-#>  <char>     <num>     <num>      <num>     <num>
-#>       m 0.3329003 0.2222222 0.01636962 0.5740741
-#>       f 0.2692446 0.1055556 0.01541984 0.4000000
+#>   Value      Mean    Median      25th %    75th %
+#>  <char>     <num>     <num>       <num>     <num>
+#>    42.5 0.2909554 0.1262687 0.006289308 0.5175000
+#>    74.0 0.3093496 0.1479291 0.009891429 0.5562696
+#>     130 0.3716437 0.2877435 0.066184326 0.6040054
 #> 
 #>  Predicted risk at time t = 1788 for top 2 predictors
 ```
@@ -390,8 +390,9 @@ For more on ICE, see the
 
 ## Comparison to existing software
 
-Comparisons between `aorsf` and existing software are presented in our
-[JCGS paper](https://doi.org/10.1080/10618600.2023.2231048). The paper:
+For survival analysis, comparisons between `aorsf` and existing software
+are presented in our [JCGS
+paper](https://doi.org/10.1080/10618600.2023.2231048). The paper:
 
 - describes `aorsf` in detail with a summary of the procedures used in
   the tree fitting algorithm
@@ -415,17 +416,21 @@ Comparisons between `aorsf` and existing software are presented in our
 
 1.  Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure
     LA, Howard G, Simon N. Oblique random survival forests. *Annals of
-    applied statistics* 2019 Sep; 13(3):1847-83. DOI:
+    applied statistics*. 2019 Sep; 13(3):1847-83. DOI:
     10.1214/19-AOAS1261
 
 2.  Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A,
     Pajewski NM. Accelerated and interpretable oblique random survival
-    forests. *Journal of Computational and Graphical Statistics*
+    forests. *Journal of Computational and Graphical Statistics*.
     Published online 08 Aug 2023. DOI: 10.1080/10618600.2023.2231048
 
-3.  Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique
+3.  Horst AM, Hill AP, Gorman KB. palmerpenguins: Palmer Archipelago
+    (Antarctica) penguin data. R package version 0.1.0. 2020. DOI:
+    10.5281/zenodo.3960218
+
+4.  Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique
     random forests. *Joint European Conference on Machine Learning and
-    Knowledge Discovery in Databases* 2011 Sep 4; pp. 453-469. DOI:
+    Knowledge Discovery in Databases*. 2011 Sep 4; pp. 453-469. DOI:
     10.1007/978-3-642-23783-6_29
 
 ## Funding

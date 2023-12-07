@@ -1,7 +1,57 @@
 
 # Examples
 
-Begin by fitting an ORSF ensemble:
+```{r}
+library(aorsf)
+```
+
+## Classification
+
+```{r, child = 'orsf-fit-clsf-train-test.Rmd'}
+
+```
+
+Predict probability for each class or the predicted class:
+
+```{r}
+# predicted probabilities, the default
+predict(fit_clsf, 
+        new_data = penguins_orsf_test[1:5, ],
+        pred_type = 'prob')
+
+# predicted class (as a matrix by default)
+predict(fit_clsf, 
+        new_data = penguins_orsf_test[1:5, ],
+        pred_type = 'class')
+
+# predicted class (as a factor if you use simplify)
+predict(fit_clsf, 
+        new_data = penguins_orsf_test[1:5, ],
+        pred_type = 'class',
+        pred_simplify = TRUE)
+```
+
+
+## Regression
+
+```{r, child = 'orsf-fit-regr-train-test.Rmd'}
+
+```
+
+Predict the mean value of the outcome:
+
+```{r}
+
+predict(fit_regr, 
+        new_data = penguins_orsf_test[1:5, ], 
+        pred_type = 'mean')
+
+```
+
+
+## Survival
+
+Begin by fitting an oblique survival random forest:
 
 ```{r, child = 'orsf-fit-surv-train-test.Rmd'}
 
@@ -12,20 +62,20 @@ Predict risk, survival, or cumulative hazard at one or several times:
 ```{r}
 
 # predicted risk, the default
-predict(fit, 
+predict(fit_surv, 
         new_data = pbc_orsf_test[1:5, ], 
         pred_type = 'risk', 
         pred_horizon = c(500, 1000, 1500))
 
 # predicted survival, i.e., 1 - risk
-predict(fit, 
+predict(fit_surv, 
         new_data = pbc_orsf_test[1:5, ], 
         pred_type = 'surv',
         pred_horizon = c(500, 1000, 1500))
 
 # predicted cumulative hazard function
 # (expected number of events for person i at time j)
-predict(fit, 
+predict(fit_surv, 
         new_data = pbc_orsf_test[1:5, ], 
         pred_type = 'chf',
         pred_horizon = c(500, 1000, 1500))
@@ -36,7 +86,7 @@ Predict mortality, defined as the number of events in the forest's population if
 
 ```{r}
 
-predict(fit, 
+predict(fit_surv, 
         new_data = pbc_orsf_test[1:5, ], 
         pred_type = 'mort')
 

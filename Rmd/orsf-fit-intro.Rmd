@@ -1,5 +1,5 @@
 
-For classification, we fit an oblique RF to predict penguin species: 
+For classification, we fit an oblique RF to predict penguin species using `penguin` data from the magnificent `palmerpenguins` [R package](https://allisonhorst.github.io/palmerpenguins/)
 
 ```{r}
 # An oblique classification RF
@@ -23,7 +23,7 @@ bill_fit
 
 ```
 
-For survival, we predict mortality risk following diagnosis of primary biliary cirrhosis:
+My personal favorite is the oblique survival RF with accelerated Cox regression because it has a great combination of prediction accuracy and computational efficiency (see [JCGS paper](https://doi.org/10.1080/10618600.2023.2231048)). Here, we predict mortality risk following diagnosis of primary biliary cirrhosis:
 
 ```{r}
 # An oblique survival RF

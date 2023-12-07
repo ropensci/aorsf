@@ -1,0 +1,21 @@
+
+```{r echo=FALSE}
+
+library(aorsf)
+
+```
+
+
+```{r}
+
+set.seed(329)
+
+index_train <- sample(nrow(penguins_orsf), 150) 
+
+penguins_orsf_train <- penguins_orsf[index_train, ]
+penguins_orsf_test <- penguins_orsf[-index_train, ]
+
+fit_clsf <- orsf(data = penguins_orsf_train, 
+                 formula = species ~ .)
+
+```

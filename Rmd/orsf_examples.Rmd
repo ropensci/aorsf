@@ -36,21 +36,7 @@ orsf_spec %>%
 ```
 
 
-1. If fitting multiple forests, pass the blueprint into `orsf_train` along with any modifications you'd like to make:
-
-```{r}
-
-orsf_fit <- orsf_train(orsf_spec)
-orsf_fit_10 <- orsf_train(orsf_spec, leaf_min_obs = 10)
-orsf_fit_20 <- orsf_train(orsf_spec, leaf_min_obs = 20)
-
-orsf_fit$leaf_min_obs
-orsf_fit_10$leaf_min_obs
-orsf_fit_20$leaf_min_obs
-
-```
-
-You can also use `orsf_update` to get similar functionality:
+1. If fitting multiple forests, use the blueprint along with `orsf_train()` and `orsf_update()` to simplify your code:
 
 ```{r}
 
@@ -58,6 +44,9 @@ orsf_fit <- orsf_train(orsf_spec)
 orsf_fit_10 <- orsf_update(orsf_fit, leaf_min_obs = 10)
 orsf_fit_20 <- orsf_update(orsf_fit, leaf_min_obs = 20)
 
+orsf_fit$leaf_min_obs
+orsf_fit_10$leaf_min_obs
+orsf_fit_20$leaf_min_obs
 
 ```
 

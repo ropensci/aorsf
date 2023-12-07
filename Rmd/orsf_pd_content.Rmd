@@ -1,0 +1,142 @@
+You can compute partial dependence and individual conditional expectations in three ways: 
+
+- using in-bag predictions for the training data. In-bag partial dependence indicates relationships that the model has learned during training. This is helpful if your goal is to interpret the model.
+
+- using out-of-bag predictions for the training data. Out-of-bag partial dependence indicates relationships that the model has learned during training but using the out-of-bag data simulates application of the model to new data. This is helpful if you want to test your model's reliability or fairness in new data but you don't have access to a large testing set.
+
+- using predictions for a new set of data. New data partial dependence shows how the model predicts outcomes for observations it has not seen. This is helpful if you want to test your model's reliability or fairness.
+
+## Classification
+
+Begin by fitting an oblique classification random forest:
+
+```{r, child = 'orsf-fit-clsf-train-test.Rmd'}
+
+```
+
+Compute partial dependence using out-of-bag data for `flipper_length_mm = c(190, 210)`. 
+
+```{r}
+
+pred_spec <- list(flipper_length_mm = c(190, 210))
+
+pd_oob <- orsf_pd_oob(fit_clsf, pred_spec = pred_spec)
+
+pd_oob
+
+```
+
+Note that predicted probabilities are returned for each class and probabilities in the `mean` column sum to 1 if you take the sum over each class at a specific value of the `pred_spec` variables. For example, 
+
+```{r}
+
+sum(pd_oob[flipper_length_mm == 190, mean])
+
+```
+
+But this isn't the case for the median predicted probability!
+
+```{r}
+
+sum(pd_oob[flipper_length_mm == 190, medn])
+
+```
+
+## Regression
+
+Begin by fitting an oblique regression random forest:
+
+```{r, child = 'orsf-fit-regr-train-test.Rmd'}
+
+```
+
+Compute partial dependence using new data for `flipper_length_mm = c(190, 210)`. 
+
+```{r}
+
+pred_spec <- list(flipper_length_mm = c(190, 210))
+
+pd_new <- orsf_pd_new(fit_regr, 
+                      pred_spec = pred_spec,
+                      new_data = penguins_orsf_test)
+
+pd_new
+
+```
+
+You can also let `pred_spec_auto` pick reasonable values like so:
+
+```{r}
+
+pred_spec = pred_spec_auto(species, island, body_mass_g)
+
+pd_new <- orsf_pd_new(fit_regr, 
+                      pred_spec = pred_spec,
+                      new_data = penguins_orsf_test)
+
+pd_new
+
+```
+
+By default, all combinations of all variables are used. However, you can also look at the variables one by one, separately, like so:
+
+```{r}
+
+pd_new <- orsf_pd_new(fit_regr, 
+                      expand_grid = FALSE,
+                      pred_spec = pred_spec,
+                      new_data = penguins_orsf_test)
+
+pd_new
+
+```
+
+And you can also bypass all the bells and whistles by using your own `data.frame` for a `pred_spec`. (Just make sure you request values that exist in the training data.)
+
+```{r}
+
+custom_pred_spec <- data.frame(species = 'Adelie', 
+                               island = 'Biscoe')
+
+pd_new <- orsf_pd_new(fit_regr, 
+                      pred_spec = custom_pred_spec,
+                      new_data = penguins_orsf_test)
+
+pd_new
+
+```
+
+
+## Survival
+
+Begin by fitting an oblique survival random forest:
+
+```{r, child = 'orsf-fit-surv-train-test.Rmd'}
+
+```
+
+Compute partial dependence using in-bag data for `bili = c(1,2,3,4,5)`:
+
+```{r}
+pd_train <- orsf_pd_inb(fit_surv, pred_spec = list(bili = 1:5))
+pd_train
+```
+
+If you don't have specific values of a variable in mind, let `pred_spec_auto` pick for you:
+
+```{r}
+pd_train <- orsf_pd_inb(fit_surv, pred_spec_auto(bili))
+pd_train
+```
+
+Specify `pred_horizon` to get partial dependence at each value:
+
+```{r}
+
+pd_train <- orsf_pd_inb(fit_surv, pred_spec_auto(bili),
+                        pred_horizon = seq(500, 3000, by = 500))
+pd_train
+
+```
+
+
