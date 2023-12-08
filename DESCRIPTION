@@ -2,60 +2,51 @@ Package: aorsf
 Title: Accelerated Oblique Random Survival Forests
 Version: 0.1.1.9003
 Authors@R: c(
-    person(given = "Byron",
-           family = "Jaeger",
-           role = c("aut", "cre"),
-           email = "bjaeger@wakehealth.edu",
+    person("Byron", "Jaeger", , "bjaeger@wakehealth.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7399-2299")),
-    person(given = "Nicholas",  
-           family = "Pajewski", 
-           role = "ctb"),
-    person(given = "Sawyer",
-           family = "Welden", 
-           role = "ctb", 
-           email = "swelden@wakehealth.edu"),
-    person(given = "Christopher", 
-           family = "Jackson",
-           email = "chris.jackson@mrc-bsu.cam.ac.uk",
-           role = "rev"),
-    person(given = "Marvin", 
-           family = "Wright",
-           role = "rev"),
-    person(given = "Lukas",
-           family = "Burk",
-           role = "rev")
-    )
-Description: Fit, interpret, and make predictions with oblique random survival forests. Oblique decision trees are notoriously slow compared to their axis based counterparts, but 'aorsf' runs as fast or faster than axis-based decision tree algorithms for right-censored time-to-event outcomes. Methods to accelerate and interpret the oblique random survival forest are described in Jaeger et al., (2023) <DOI:10.1080/10618600.2023.2231048>.
+    person("Nicholas", "Pajewski", role = "ctb"),
+    person("Sawyer", "Welden", , "swelden@wakehealth.edu", role = "ctb"),
+    person("Christopher", "Jackson", , "chris.jackson@mrc-bsu.cam.ac.uk", role = "rev"),
+    person("Marvin", "Wright", role = "rev"),
+    person("Lukas", "Burk", role = "rev")
+  )
+Description: Fit, interpret, and make predictions with oblique random
+    survival forests. Oblique decision trees are notoriously slow compared
+    to their axis based counterparts, but 'aorsf' runs as fast or faster
+    than axis-based decision tree algorithms for right-censored
+    time-to-event outcomes. Methods to accelerate and interpret the
+    oblique random survival forest are described in Jaeger et al., (2023)
+    <DOI:10.1080/10618600.2023.2231048>.
 License: MIT + file LICENSE
+URL: https://github.com/ropensci/aorsf, https://docs.ropensci.org/aorsf/
+BugReports: https://github.com/ropensci/aorsf/issues/
+Depends: 
+    R (>= 3.6)
+Imports: 
+    collapse,
+    data.table,
+    lifecycle,
+    R6,
+    Rcpp,
+    utils
+Suggests: 
+    covr,
+    ggplot2,
+    glmnet,
+    knitr,
+    rmarkdown,
+    survival,
+    SurvMetrics,
+    testthat (>= 3.0.0),
+    tibble,
+    units
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo
+VignetteBuilder: 
+    knitr
+Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
-LinkingTo: 
-    Rcpp,
-    RcppArmadillo
-Imports: 
-    Rcpp,
-    data.table,
-    utils,
-    collapse,
-    R6,
-    lifecycle
-URL: https://github.com/ropensci/aorsf,
-    https://docs.ropensci.org/aorsf/
-BugReports: https://github.com/ropensci/aorsf/issues/
-Depends: 
-    R (>= 3.6)
-Suggests: 
-    survival,
-    SurvMetrics,
-    ggplot2,
-    testthat (>= 3.0.0),
-    knitr,
-    rmarkdown,
-    glmnet,
-    covr,
-    units,
-    tibble
-Config/testthat/edition: 3
-VignetteBuilder: knitr
