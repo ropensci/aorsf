@@ -32,7 +32,7 @@ In random forests, each tree is grown with a bootstrapped version of the trainin
 
 Each tree in the random forest can make predictions for its out-of-bag data, and the out-of-bag predictions can be aggregated to make an ensemble out-of-bag prediction. Since the out-of-bag data are not used to grow the tree, the accuracy of the ensemble out-of-bag predictions approximate the generalization error of the random forest. Out-of-bag prediction error plays a central role for some routines that estimate variable importance, e.g. negation importance. 
 
-Let's fit an oblique random survival forest and plot the distribution of the ensemble out-of-bag predictions.
+We fit an oblique random survival forest and plot the distribution of the ensemble out-of-bag predictions.
 
 ```{r}
 
@@ -43,11 +43,11 @@ fit <- orsf(data = pbc_orsf,
             oobag_pred_horizon = 2000)
 
 hist(fit$pred_oobag, 
-     main = 'Ensemble out-of-bag survival predictions at t=3,500')
+     main = 'Out-of-bag survival predictions at t=2,000')
 
 ```
 
-Not surprisingly, all of the survival predictions are between 0 and 1. Next, let's check the out-of-bag accuracy of `fit`:
+Next, let's check the out-of-bag accuracy of `fit`:
 
 ```{r}
 

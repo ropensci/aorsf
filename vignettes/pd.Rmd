@@ -27,7 +27,7 @@ knitr::opts_chunk$set(
 
 ```{r}
 library(aorsf)
-library(tidyverse)
+library(ggplot2)
 ```
 
 You can compute PD and individual conditional expectation (ICE) in three ways: 
