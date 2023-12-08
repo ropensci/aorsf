@@ -93,8 +93,9 @@
 <ul>
 <li><p>Fast and versatile tools for oblique RFs.<sup>1</sup></p></li>
 <li><p>Accurate predictions.<sup>2</sup></p></li>
-<li><p>Intuitive API with formula based interface.</p></li>
+<li><p>Intuitive design with formula based interface.</p></li>
 <li><p>Extensive input checks and informative error messages.</p></li>
+<li><p>Compatible with <code>tidymodels</code> and <code>mlr3</code></p></li>
 </ul>
 </div>
 <div class="section level2">
@@ -114,8 +115,8 @@
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span></code></pre></div>
-<p><code>aorsf</code> fits several types of oblique RFs with the <code><a href="reference/orsf.html">orsf()</a></code> function, including survival, classification, and regression RFs. My personal favorite is the oblique survival RF with accelerated Cox regression because it has a great combination of prediction accuracy and computational efficiency (see <a href="https://doi.org/10.1080/10618600.2023.2231048" class="external-link">JCGS paper</a>).<sup>2</sup></p>
-<p>For classification, we fit an oblique RF to predict penguin species:</p>
+<p><code>aorsf</code> fits several types of oblique RFs with the <code><a href="reference/orsf.html">orsf()</a></code> function, including classification, regression, and survival RFs.</p>
+<p>For classification, we fit an oblique RF to predict penguin species using <code>penguin</code> data from the magnificent <code>palmerpenguins</code> <a href="https://allisonhorst.github.io/palmerpenguins/" class="external-link">R package</a></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># An oblique classification RF</span></span>
 <span><span class="va">penguin_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">penguins_orsf</span>,</span>
@@ -133,7 +134,7 @@
 <span><span class="co">#&gt;    N predictors per node: 3</span></span>
 <span><span class="co">#&gt;  Average leaves per tree: 4.8</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
-<span><span class="co">#&gt;           OOB stat value: 1.00</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.99</span></span>
 <span><span class="co">#&gt;            OOB stat type: AUC-ROC</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -153,14 +154,14 @@
 <span><span class="co">#&gt;                  N trees: 5</span></span>
 <span><span class="co">#&gt;       N predictors total: 7</span></span>
 <span><span class="co">#&gt;    N predictors per node: 3</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 50</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 49.6</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.69</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.73</span></span>
 <span><span class="co">#&gt;            OOB stat type: RSQ</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -----------------------------------------</span></span></code></pre></div>
-<p>For survival, we predict mortality risk following diagnosis of primary biliary cirrhosis:</p>
+<p>My personal favorite is the oblique survival RF with accelerated Cox regression because it has a great combination of prediction accuracy and computational efficiency (see <a href="https://doi.org/10.1080/10618600.2023.2231048" class="external-link">JCGS paper</a>). Here, we predict mortality risk following diagnosis of primary biliary cirrhosis:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># An oblique survival RF</span></span>
 <span><span class="va">pbc_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf</span>, </span>
@@ -176,10 +177,10 @@
 <span><span class="co">#&gt;                  N trees: 5</span></span>
 <span><span class="co">#&gt;       N predictors total: 17</span></span>
 <span><span class="co">#&gt;    N predictors per node: 5</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 20.2</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 21.4</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;       Min events in leaf: 1</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.75</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.73</span></span>
 <span><span class="co">#&gt;            OOB stat type: Harrell's C-index</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -191,15 +192,13 @@
 <p>Decision trees are grown by splitting a set of training data into non-overlapping subsets, with the goal of having more similarity within the new subsets than between them. When subsets are created with a single predictor, the decision tree is <em>axis-based</em> because the subset boundaries are perpendicular to the axis of the predictor. When linear combinations (i.e., a weighted sum) of variables are used instead of a single variable, the tree is <em>oblique</em> because the boundaries are neither parallel nor perpendicular to the axis.</p>
 <p><strong>Figure</strong>: Decision trees for classification with axis-based splitting (left) and oblique splitting (right). Cases are orange squares; controls are purple circles. Both trees partition the predictor space defined by variables X1 and X2, but the oblique splits do a better job of separating the two classes.</p>
 <p><img src="reference/figures/tree_axis_v_oblique.png" width="100%"></p>
-<p>So, how does this difference translate to real data, and how does it impact random forests comprising hundreds of axis-based or oblique trees? We will demonstrate this using the <code>penguin</code> data from the magnificent <code>palmerpenguins</code> R package. We will also use this function to make several plots:</p>
+<p>So, how does this difference translate to real data, and how does it impact random forests comprising hundreds of axis-based or oblique trees? We will demonstrate this using the <code>penguin</code> data.<sup>3</sup> We will also use this function to make several plots:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_decision_surface</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">predictions</span>, <span class="va">title</span>, <span class="va">grid</span><span class="op">)</span><span class="op">{</span></span>
 <span> </span>
 <span> <span class="co"># this is not a general function for plotting</span></span>
 <span> <span class="co"># decision surfaces. It just helps to minimize </span></span>
 <span> <span class="co"># copying and pasting of code.</span></span>
-<span> </span>
-<span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">predictions</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">$</span><span class="va">species</span><span class="op">)</span></span>
 <span> </span>
 <span> <span class="va">class_preds</span> <span class="op">&lt;-</span> <span class="fu">bind_cols</span><span class="op">(</span><span class="va">grid</span>, <span class="va">predictions</span><span class="op">)</span> <span class="op">%&gt;%</span></span>
 <span>  <span class="fu">pivot_longer</span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">Adelie</span>,</span>
@@ -216,8 +215,7 @@
 <span>                      alpha <span class="op">=</span> <span class="fl">.25</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_point</span><span class="op">(</span>data <span class="op">=</span> <span class="va">penguins_orsf</span>,</span>
 <span>             <span class="fu">aes</span><span class="op">(</span>color <span class="op">=</span> <span class="va">species</span>, shape <span class="op">=</span> <span class="va">species</span><span class="op">)</span>,</span>
-<span>             size <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>             alpha <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
+<span>             alpha <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">scale_color_manual</span><span class="op">(</span>values <span class="op">=</span> <span class="va">cols</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">scale_fill_manual</span><span class="op">(</span>values <span class="op">=</span> <span class="va">cols</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Bill length, mm"</span>,</span>
@@ -272,9 +270,7 @@
 <span>            <span class="st">"Oblique tree"</span>,</span>
 <span>            <span class="st">"Oblique forest"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu">map2</span><span class="op">(</span><span class="va">preds</span>, <span class="va">titles</span>,  </span>
-<span>              .f <span class="op">=</span> <span class="va">plot_decision_surface</span>, </span>
-<span>              grid <span class="op">=</span> <span class="va">grid</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu">map2</span><span class="op">(</span><span class="va">preds</span>, <span class="va">titles</span>, <span class="va">plot_decision_surface</span>, grid <span class="op">=</span> <span class="va">grid</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Figure</strong>: Axis-based and oblique decision surfaces from a single tree and an ensemble of 500 trees. Axis-based trees have boundaries perpendicular to predictor axes, whereas oblique trees can have boundaries that are neither parallel nor perpendicular to predictor axes. Axis-based forests tend to have ‘step-function’ decision boundaries, while oblique forests tend to have smooth decision boundaries.</p>
 <p><img src="reference/figures/README-unnamed-chunk-9-1.png" width="100%"></p>
 </div>
@@ -287,30 +283,32 @@
 <p><strong>negation</strong><sup>2</sup>: Each variable is assessed separately by multiplying the variable’s coefficients by -1 and then determining how much the model’s performance changes. The worse the model’s performance after negating coefficients for a given variable, the more important the variable. This technique is promising b/c it does not require permutation and it emphasizes variables with larger coefficients in linear combinations, but it is also relatively new and hasn’t been studied as much as permutation importance. See Jaeger, (2023) for more details on this technique.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">pbc_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;         bili          sex       copper      protime         trig        stage </span></span>
-<span><span class="co">#&gt;  0.123886962  0.079314182  0.033690082  0.024993393  0.024824543  0.022596171 </span></span>
-<span><span class="co">#&gt;          age      ascites         chol      albumin          trt          ast </span></span>
-<span><span class="co">#&gt;  0.022230055  0.022102660  0.021148146  0.019735757  0.016349041  0.015422072 </span></span>
-<span><span class="co">#&gt;        edema     platelet      spiders       hepato     alk.phos </span></span>
-<span><span class="co">#&gt;  0.011281582  0.009236892 -0.004852893 -0.008039998 -0.016934342</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili        copper           age           trt          trig </span></span>
+<span><span class="co">#&gt;  0.1719756333  0.0465239881  0.0322328707  0.0308438130  0.0266140192 </span></span>
+<span><span class="co">#&gt;           sex       protime           ast      alk.phos         edema </span></span>
+<span><span class="co">#&gt;  0.0253567213  0.0231892823  0.0231803440  0.0102134973  0.0090376413 </span></span>
+<span><span class="co">#&gt;       ascites          chol       albumin         stage      platelet </span></span>
+<span><span class="co">#&gt;  0.0089475709  0.0077027397  0.0072715135  0.0039566416  0.0019083851 </span></span>
+<span><span class="co">#&gt;       spiders        hepato </span></span>
+<span><span class="co">#&gt; -0.0005253927 -0.0075028026</span></span></code></pre></div>
 </li>
 <li>
 <p><strong>permutation</strong>: Each variable is assessed separately by randomly permuting the variable’s values and then determining how much the model’s performance changes. The worse the model’s performance after permuting the values of a given variable, the more important the variable. This technique is flexible, intuitive, and frequently used. It also has several <a href="https://christophm.github.io/interpretable-ml-book/feature-importance.html#disadvantages-9" class="external-link">known limitations</a></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">penguin_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    bill_length_mm            island flipper_length_mm       body_mass_g </span></span>
-<span><span class="co">#&gt;       0.143264349       0.087622456       0.083339890       0.075864339 </span></span>
-<span><span class="co">#&gt;     bill_depth_mm               sex              year </span></span>
-<span><span class="co">#&gt;       0.069297784       0.016607005       0.002510418</span></span></code></pre></div>
+<span><span class="co">#&gt;       body_mass_g    bill_length_mm     bill_depth_mm            island </span></span>
+<span><span class="co">#&gt;       0.165103246       0.161935256       0.088688330       0.059562304 </span></span>
+<span><span class="co">#&gt; flipper_length_mm               sex              year </span></span>
+<span><span class="co">#&gt;       0.052541170       0.026012585      -0.003977858</span></span></code></pre></div>
 </li>
 <li>
-<p><strong>analysis of variance (ANOVA)</strong><sup>3</sup>: A p-value is computed for each coefficient in each linear combination of variables in each decision tree. Importance for an individual predictor variable is the proportion of times a p-value for its coefficient is &lt; 0.01. This technique is very efficient computationally, but may not be as effective as permutation or negation in terms of selecting signal over noise variables. See <a href="https://link.springer.com/chapter/10.1007/978-3-642-23783-6_29" class="external-link">Menze, 2011</a> for more details on this technique.</p>
+<p><strong>analysis of variance (ANOVA)</strong><sup>4</sup>: A p-value is computed for each coefficient in each linear combination of variables in each decision tree. Importance for an individual predictor variable is the proportion of times a p-value for its coefficient is &lt; 0.01. This technique is very efficient computationally, but may not be as effective as permutation or negation in terms of selecting signal over noise variables. See <a href="https://link.springer.com/chapter/10.1007/978-3-642-23783-6_29" class="external-link">Menze, 2011</a> for more details on this technique.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">bill_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;           species               sex            island flipper_length_mm </span></span>
-<span><span class="co">#&gt;        0.61764706        0.29166667        0.15302191        0.12403101 </span></span>
-<span><span class="co">#&gt;     bill_depth_mm       body_mass_g              year </span></span>
-<span><span class="co">#&gt;        0.07142857        0.06106870        0.02564103</span></span></code></pre></div>
+<span><span class="co">#&gt;           species               sex flipper_length_mm       body_mass_g </span></span>
+<span><span class="co">#&gt;       0.306238859       0.215686275       0.110169492       0.100000000 </span></span>
+<span><span class="co">#&gt;            island     bill_depth_mm              year </span></span>
+<span><span class="co">#&gt;       0.084256514       0.063636364       0.009433962</span></span></code></pre></div>
 </li>
 </ul>
 <p>You can supply your own R function to estimate out-of-bag error when using negation or permutation importance (see <a href="https://docs.ropensci.org/aorsf/articles/oobag.html" class="external-link">oob vignette</a>)</p>
@@ -322,22 +320,23 @@
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">pbc_fit</span>, n_variables <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- bili (VI Rank: 1) -----------------------------</span></span>
+<span><span class="co">#&gt; -- bili (VI Rank: 1) ------------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;         |----------------- Risk -----------------|</span></span>
-<span><span class="co">#&gt;   Value      Mean     Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;    0.80 0.1962502 0.05782313 0.01521944 0.3064935</span></span>
-<span><span class="co">#&gt;    1.40 0.2184447 0.06462585 0.01541984 0.3333333</span></span>
-<span><span class="co">#&gt;    3.55 0.3613502 0.27833749 0.10859877 0.6000000</span></span>
+<span><span class="co">#&gt;   Value      Mean     Median      25th %    75th %</span></span>
+<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;      &lt;num&gt;       &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;    0.80 0.2410135 0.07692308 0.006289308 0.4397423</span></span>
+<span><span class="co">#&gt;    1.40 0.2858958 0.14652236 0.013188572 0.5043706</span></span>
+<span><span class="co">#&gt;    3.55 0.4247489 0.40000000 0.142857143 0.6680556</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- sex (VI Rank: 2) ------------------------------</span></span>
+<span><span class="co">#&gt; -- copper (VI Rank: 2) ----------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;         |----------------- Risk -----------------|</span></span>
-<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;       m 0.3329003 0.2222222 0.01636962 0.5740741</span></span>
-<span><span class="co">#&gt;       f 0.2692446 0.1055556 0.01541984 0.4000000</span></span>
+<span><span class="co">#&gt;   Value      Mean    Median      25th %    75th %</span></span>
+<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;       &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;    42.5 0.2909554 0.1262687 0.006289308 0.5175000</span></span>
+<span><span class="co">#&gt;    74.0 0.3093496 0.1479291 0.009891429 0.5562696</span></span>
+<span><span class="co">#&gt;     130 0.3716437 0.2877435 0.066184326 0.6040054</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Predicted risk at time t = 1788 for top 2 predictors</span></span></code></pre></div>
 <p>For more on PD, see the <a href="https://docs.ropensci.org/aorsf/articles/pd.html" class="external-link">vignette</a></p>
@@ -352,7 +351,7 @@
 <div class="section level2">
 <h2 id="comparison-to-existing-software">Comparison to existing software<a class="anchor" aria-label="anchor" href="#comparison-to-existing-software"></a>
 </h2>
-<p>Comparisons between <code>aorsf</code> and existing software are presented in our <a href="https://doi.org/10.1080/10618600.2023.2231048" class="external-link">JCGS paper</a>. The paper:</p>
+<p>For survival analysis, comparisons between <code>aorsf</code> and existing software are presented in our <a href="https://doi.org/10.1080/10618600.2023.2231048" class="external-link">JCGS paper</a>. The paper:</p>
 <ul>
 <li><p>describes <code>aorsf</code> in detail with a summary of the procedures used in the tree fitting algorithm</p></li>
 <li><p>runs a general benchmark comparing <code>aorsf</code> with <code>obliqueRSF</code> and several other learners</p></li>
@@ -366,9 +365,10 @@
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <ol style="list-style-type: decimal">
-<li><p>Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA, Howard G, Simon N. Oblique random survival forests. <em>Annals of applied statistics</em> 2019 Sep; 13(3):1847-83. DOI: 10.1214/19-AOAS1261</p></li>
-<li><p>Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. <em>Journal of Computational and Graphical Statistics</em> Published online 08 Aug 2023. DOI: 10.1080/10618600.2023.2231048</p></li>
-<li><p>Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. <em>Joint European Conference on Machine Learning and Knowledge Discovery in Databases</em> 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29</p></li>
+<li><p>Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA, Howard G, Simon N. Oblique random survival forests. <em>Annals of applied statistics</em>. 2019 Sep; 13(3):1847-83. DOI: 10.1214/19-AOAS1261</p></li>
+<li><p>Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. <em>Journal of Computational and Graphical Statistics</em>. Published online 08 Aug 2023. DOI: 10.1080/10618600.2023.2231048</p></li>
+<li><p>Horst AM, Hill AP, Gorman KB. palmerpenguins: Palmer Archipelago (Antarctica) penguin data. R package version 0.1.0. 2020. DOI: 10.5281/zenodo.3960218</p></li>
+<li><p>Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. <em>Joint European Conference on Machine Learning and Knowledge Discovery in Databases</em>. 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29</p></li>
 </ol>
 </div>
 <div class="section level2">

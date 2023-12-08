@@ -102,171 +102,295 @@ a function of a single predictor or multiple predictors. The expectation
 is marginalized over the values of all other predictors, giving
 something like a multivariable adjusted estimate of the model’s
 prediction.</p>
-<p>Begin by fitting an ORSF ensemble. Set a prediction horizon of 5
-years when we fit the ensemble so that any <code>aorsf</code> function
-that we pass this ensemble to will assume we want to compute predictions
-at 5 years.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
+<p>You can compute PD and individual conditional expectation (ICE) in
+three ways:</p>
+<ul>
+<li><p>using in-bag predictions for the training data. In-bag PD
+indicates relationships that the model has learned during training. This
+is helpful if your goal is to interpret the model.</p></li>
+<li><p>using out-of-bag predictions for the training data. Out-of-bag PD
+indicates relationships that the model has learned during training but
+using the out-of-bag data simulates application of the model to new
+data. This is helpful if you want to test your model’s reliability or
+fairness in new data but you don’t have access to a large testing
+set.</p></li>
+<li><p>using predictions for a new set of data. New data PD shows how
+the model predicts outcomes for observations it has not seen. This is
+helpful if you want to test your model’s reliability or
+fairness.</p></li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="classification">Classification<a class="anchor" aria-label="anchor" href="#classification"></a>
+</h2>
+<p>Begin by fitting an oblique classification random forest:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">pred_horizon</span> <span class="op">&lt;-</span> <span class="fl">365.25</span> <span class="op">*</span> <span class="fl">5</span></span>
+<span><span class="va">index_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">)</span>, <span class="fl">150</span><span class="op">)</span> </span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329730</span><span class="op">)</span></span>
+<span><span class="va">penguins_orsf_train</span> <span class="op">&lt;-</span> <span class="va">penguins_orsf</span><span class="op">[</span><span class="va">index_train</span>, <span class="op">]</span></span>
+<span><span class="va">penguins_orsf_test</span> <span class="op">&lt;-</span> <span class="va">penguins_orsf</span><span class="op">[</span><span class="op">-</span><span class="va">index_train</span>, <span class="op">]</span></span>
+<span></span>
+<span><span class="va">fit_clsf</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">penguins_orsf_train</span>, </span>
+<span>                 formula <span class="op">=</span> <span class="va">species</span> <span class="op">~</span> <span class="va">.</span><span class="op">)</span></span></code></pre></div>
+<p>Compute PD using out-of-bag data for
+<code>flipper_length_mm = c(190, 210)</code>.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>flipper_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">190</span>, <span class="fl">210</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pd_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit_clsf</span>, pred_spec <span class="op">=</span> <span class="va">pred_spec</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pd_oob</span></span>
+<span><span class="co">#&gt;        class flipper_length_mm      mean         lwr       medn       upr</span></span>
+<span><span class="co">#&gt; 1:    Adelie               190 0.6182417 0.206899034 0.75537171 0.9796439</span></span>
+<span><span class="co">#&gt; 2:    Adelie               210 0.4348386 0.019519733 0.56802082 0.8620694</span></span>
+<span><span class="co">#&gt; 3: Chinstrap               190 0.2114905 0.018420139 0.15561560 0.7174734</span></span>
+<span><span class="co">#&gt; 4: Chinstrap               210 0.1806274 0.020409141 0.09928047 0.6990198</span></span>
+<span><span class="co">#&gt; 5:    Gentoo               190 0.1702678 0.001281382 0.02830728 0.5733438</span></span>
+<span><span class="co">#&gt; 6:    Gentoo               210 0.3845340 0.072260715 0.20258335 0.9519486</span></span></code></pre></div>
+<p>Note that predicted probabilities are returned for each class and
+probabilities in the <code>mean</code> column sum to 1 if you take the
+sum over each class at a specific value of the <code>pred_spec</code>
+variables. For example,</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">pd_oob</span><span class="op">[</span><span class="va">flipper_length_mm</span> <span class="op">==</span> <span class="fl">190</span>, <span class="va">mean</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+<p>But this isn’t the case for the median predicted probability!</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">pd_oob</span><span class="op">[</span><span class="va">flipper_length_mm</span> <span class="op">==</span> <span class="fl">190</span>, <span class="va">medn</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.9392946</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="regression">Regression<a class="anchor" aria-label="anchor" href="#regression"></a>
+</h2>
+<p>Begin by fitting an oblique regression random forest:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">index_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">)</span>, <span class="fl">150</span><span class="op">)</span> </span>
+<span></span>
+<span><span class="va">penguins_orsf_train</span> <span class="op">&lt;-</span> <span class="va">penguins_orsf</span><span class="op">[</span><span class="va">index_train</span>, <span class="op">]</span></span>
+<span><span class="va">penguins_orsf_test</span> <span class="op">&lt;-</span> <span class="va">penguins_orsf</span><span class="op">[</span><span class="op">-</span><span class="va">index_train</span>, <span class="op">]</span></span>
+<span></span>
+<span><span class="va">fit_regr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">penguins_orsf_train</span>, </span>
+<span>                 formula <span class="op">=</span> <span class="va">bill_length_mm</span> <span class="op">~</span> <span class="va">.</span><span class="op">)</span></span></code></pre></div>
+<p>Compute PD using new data for
+<code>flipper_length_mm = c(190, 210)</code>.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>flipper_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">190</span>, <span class="fl">210</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pd_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
+<span>                      pred_spec <span class="op">=</span> <span class="va">pred_spec</span>,</span>
+<span>                      new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pd_new</span></span>
+<span><span class="co">#&gt;    flipper_length_mm     mean      lwr     medn      upr</span></span>
+<span><span class="co">#&gt; 1:               190 42.96571 37.09805 43.69769 48.72301</span></span>
+<span><span class="co">#&gt; 2:               210 45.66012 40.50693 46.31577 51.65163</span></span></code></pre></div>
+<p>You can also let <code>pred_spec_auto</code> pick reasonable values
+like so:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">pred_spec</span> <span class="op">=</span> <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">species</span>, <span class="va">island</span>, <span class="va">body_mass_g</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pd_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
+<span>                      pred_spec <span class="op">=</span> <span class="va">pred_spec</span>,</span>
+<span>                      new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pd_new</span></span>
+<span><span class="co">#&gt;       species    island body_mass_g     mean      lwr     medn      upr</span></span>
+<span><span class="co">#&gt;  1:    Adelie    Biscoe        3200 40.31374 37.24373 40.31967 44.22824</span></span>
+<span><span class="co">#&gt;  2: Chinstrap    Biscoe        3200 45.10582 42.63342 45.10859 47.60119</span></span>
+<span><span class="co">#&gt;  3:    Gentoo    Biscoe        3200 42.81649 40.19221 42.55664 46.84035</span></span>
+<span><span class="co">#&gt;  4:    Adelie     Dream        3200 40.16219 36.95895 40.34633 43.90681</span></span>
+<span><span class="co">#&gt;  5: Chinstrap     Dream        3200 46.21778 43.53954 45.90929 49.19173</span></span>
+<span><span class="co">#&gt;  6:    Gentoo     Dream        3200 42.60465 39.89647 42.63520 46.28769</span></span>
+<span><span class="co">#&gt;  7:    Adelie Torgersen        3200 39.91652 36.80227 39.79806 43.68842</span></span>
+<span><span class="co">#&gt;  8: Chinstrap Torgersen        3200 44.27807 41.95470 44.40742 46.68848</span></span>
+<span><span class="co">#&gt;  9:    Gentoo Torgersen        3200 42.09510 39.49863 41.80049 45.81833</span></span>
+<span><span class="co">#&gt; 10:    Adelie    Biscoe        3550 40.77971 38.04027 40.59561 44.57505</span></span>
+<span><span class="co">#&gt; 11: Chinstrap    Biscoe        3550 45.81304 43.52102 45.73116 48.36366</span></span>
+<span><span class="co">#&gt; 12:    Gentoo    Biscoe        3550 43.31233 40.77355 43.03077 47.22936</span></span>
+<span><span class="co">#&gt; 13:    Adelie     Dream        3550 40.77741 38.07399 40.78175 44.37273</span></span>
+<span><span class="co">#&gt; 14: Chinstrap     Dream        3550 47.30926 44.80493 46.77540 50.47092</span></span>
+<span><span class="co">#&gt; 15:    Gentoo     Dream        3550 43.26955 40.86119 43.16204 46.89190</span></span>
+<span><span class="co">#&gt; 16:    Adelie Torgersen        3550 40.25780 37.35251 40.07871 44.04576</span></span>
+<span><span class="co">#&gt; 17: Chinstrap Torgersen        3550 44.77911 42.60161 44.81944 47.14986</span></span>
+<span><span class="co">#&gt; 18:    Gentoo Torgersen        3550 42.49520 39.95866 42.14160 46.26237</span></span>
+<span><span class="co">#&gt; 19:    Adelie    Biscoe        3975 41.61744 38.94515 41.36634 45.38752</span></span>
+<span><span class="co">#&gt; 20: Chinstrap    Biscoe        3975 46.59363 44.59970 46.44923 49.11457</span></span>
+<span><span class="co">#&gt; 21:    Gentoo    Biscoe        3975 44.07857 41.60792 43.74562 47.85109</span></span>
+<span><span class="co">#&gt; 22:    Adelie     Dream        3975 41.50511 39.06187 41.24741 45.13027</span></span>
+<span><span class="co">#&gt; 23: Chinstrap     Dream        3975 48.14978 45.87390 47.54867 51.50683</span></span>
+<span><span class="co">#&gt; 24:    Gentoo     Dream        3975 44.01928 41.70577 43.84099 47.50470</span></span>
+<span><span class="co">#&gt; 25:    Adelie Torgersen        3975 40.94764 38.12519 40.66759 44.73689</span></span>
+<span><span class="co">#&gt; 26: Chinstrap Torgersen        3975 45.44820 43.49986 45.44036 47.63243</span></span>
+<span><span class="co">#&gt; 27:    Gentoo Torgersen        3975 43.13791 40.70628 42.70627 46.87306</span></span>
+<span><span class="co">#&gt; 28:    Adelie    Biscoe        4700 42.93914 40.48463 42.44768 46.81756</span></span>
+<span><span class="co">#&gt; 29: Chinstrap    Biscoe        4700 47.18517 45.40866 47.07739 49.55747</span></span>
+<span><span class="co">#&gt; 30:    Gentoo    Biscoe        4700 45.32541 43.08173 44.93498 49.23391</span></span>
+<span><span class="co">#&gt; 31:    Adelie     Dream        4700 42.73806 40.44229 42.22226 46.49936</span></span>
+<span><span class="co">#&gt; 32: Chinstrap     Dream        4700 48.37278 46.34335 48.00781 51.18955</span></span>
+<span><span class="co">#&gt; 33:    Gentoo     Dream        4700 45.09132 42.88328 44.79530 48.82180</span></span>
+<span><span class="co">#&gt; 34:    Adelie Torgersen        4700 42.09349 39.72074 41.56168 45.68838</span></span>
+<span><span class="co">#&gt; 35: Chinstrap Torgersen        4700 46.16807 44.38410 46.09525 48.35127</span></span>
+<span><span class="co">#&gt; 36:    Gentoo Torgersen        4700 44.31621 42.18968 43.81773 47.98024</span></span>
+<span><span class="co">#&gt; 37:    Adelie    Biscoe        5300 43.89769 41.43335 43.28504 48.10892</span></span>
+<span><span class="co">#&gt; 38: Chinstrap    Biscoe        5300 47.53721 45.66038 47.52770 49.88701</span></span>
+<span><span class="co">#&gt; 39:    Gentoo    Biscoe        5300 46.16115 43.81722 45.59309 50.57469</span></span>
+<span><span class="co">#&gt; 40:    Adelie     Dream        5300 43.59846 41.25825 43.24518 47.46193</span></span>
+<span><span class="co">#&gt; 41: Chinstrap     Dream        5300 48.48139 46.36282 48.25679 51.02996</span></span>
+<span><span class="co">#&gt; 42:    Gentoo     Dream        5300 45.91819 43.62832 45.54110 49.91622</span></span>
+<span><span class="co">#&gt; 43:    Adelie Torgersen        5300 42.92879 40.66576 42.31072 46.76406</span></span>
+<span><span class="co">#&gt; 44: Chinstrap Torgersen        5300 46.59576 44.80400 46.49196 49.03906</span></span>
+<span><span class="co">#&gt; 45:    Gentoo Torgersen        5300 45.11384 42.95190 44.51289 49.27629</span></span>
+<span><span class="co">#&gt;       species    island body_mass_g     mean      lwr     medn      upr</span></span></code></pre></div>
+<p>By default, all combinations of all variables are used. However, you
+can also look at the variables one by one, separately, like so:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">pd_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
+<span>                      expand_grid <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                      pred_spec <span class="op">=</span> <span class="va">pred_spec</span>,</span>
+<span>                      new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pd_new</span></span>
+<span><span class="co">#&gt;        variable value     level     mean      lwr     medn      upr</span></span>
+<span><span class="co">#&gt;  1:     species    NA    Adelie 41.90271 37.10417 41.51723 48.51478</span></span>
+<span><span class="co">#&gt;  2:     species    NA Chinstrap 47.11314 42.40419 46.96478 51.51392</span></span>
+<span><span class="co">#&gt;  3:     species    NA    Gentoo 44.37038 39.87306 43.89889 51.21635</span></span>
+<span><span class="co">#&gt;  4:      island    NA    Biscoe 44.21332 37.22711 45.27862 51.21635</span></span>
+<span><span class="co">#&gt;  5:      island    NA     Dream 44.43354 37.01471 45.57261 51.51392</span></span>
+<span><span class="co">#&gt;  6:      island    NA Torgersen 43.29539 37.01513 44.26924 49.84391</span></span>
+<span><span class="co">#&gt;  7: body_mass_g  3200      &lt;NA&gt; 42.84625 37.03978 43.95991 49.19173</span></span>
+<span><span class="co">#&gt;  8: body_mass_g  3550      &lt;NA&gt; 43.53326 37.56730 44.43756 50.47092</span></span>
+<span><span class="co">#&gt;  9: body_mass_g  3975      &lt;NA&gt; 44.30431 38.31567 45.22089 51.50683</span></span>
+<span><span class="co">#&gt; 10: body_mass_g  4700      &lt;NA&gt; 45.22525 39.88199 46.34680 51.18955</span></span>
+<span><span class="co">#&gt; 11: body_mass_g  5300      &lt;NA&gt; 45.91412 40.84742 46.95327 51.48851</span></span></code></pre></div>
+<p>And you can also bypass all the bells and whistles by using your own
+<code>data.frame</code> for a <code>pred_spec</code>. (Just make sure
+you request values that exist in the training data.)</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">custom_pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Adelie'</span>, </span>
+<span>                               island <span class="op">=</span> <span class="st">'Biscoe'</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pd_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
+<span>                      pred_spec <span class="op">=</span> <span class="va">custom_pred_spec</span>,</span>
+<span>                      new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pd_new</span></span>
+<span><span class="co">#&gt;    species island     mean      lwr     medn      upr</span></span>
+<span><span class="co">#&gt; 1:  Adelie Biscoe 41.98024 37.22711 41.65252 48.51478</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="survival">Survival<a class="anchor" aria-label="anchor" href="#survival"></a>
+</h2>
+<p>Begin by fitting an oblique survival random forest:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">index_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">pbc_orsf</span><span class="op">)</span>, <span class="fl">150</span><span class="op">)</span> </span>
 <span></span>
 <span><span class="va">pbc_orsf_train</span> <span class="op">&lt;-</span> <span class="va">pbc_orsf</span><span class="op">[</span><span class="va">index_train</span>, <span class="op">]</span></span>
 <span><span class="va">pbc_orsf_test</span> <span class="op">&lt;-</span> <span class="va">pbc_orsf</span><span class="op">[</span><span class="op">-</span><span class="va">index_train</span>, <span class="op">]</span></span>
 <span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf_train</span>, </span>
-<span>            formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
-<span>            n_tree <span class="op">=</span> <span class="fl">50</span>,</span>
-<span>            oobag_pred_horizon <span class="op">=</span> <span class="va">pred_horizon</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">fit</span></span>
-<span><span class="co">#&gt; ---------- Oblique random survival forest</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;      Linear combinations: Accelerated Cox regression</span></span>
-<span><span class="co">#&gt;           N observations: 150</span></span>
-<span><span class="co">#&gt;                 N events: 52</span></span>
-<span><span class="co">#&gt;                  N trees: 50</span></span>
-<span><span class="co">#&gt;       N predictors total: 17</span></span>
-<span><span class="co">#&gt;    N predictors per node: 5</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 10.14</span></span>
-<span><span class="co">#&gt; Min observations in leaf: 5</span></span>
-<span><span class="co">#&gt;       Min events in leaf: 1</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.83</span></span>
-<span><span class="co">#&gt;            OOB stat type: Harrell's C-index</span></span>
-<span><span class="co">#&gt;      Variable importance: anova</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -----------------------------------------</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="three-ways-to-compute-pd">Three ways to compute PD<a class="anchor" aria-label="anchor" href="#three-ways-to-compute-pd"></a>
-</h2>
-<p>You can compute PD three ways with <code>aorsf</code>:</p>
-<ul>
-<li>
-<p>using in-bag predictions for the training data</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">pd_inb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_inb</a></span><span class="op">(</span><span class="va">fit</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">pd_inb</span></span>
-<span><span class="co">#&gt;    pred_horizon bili      mean        lwr       medn       upr</span></span>
-<span><span class="co">#&gt; 1:      1826.25    1 0.2009424 0.01590826 0.09399154 0.8021860</span></span>
-<span><span class="co">#&gt; 2:      1826.25    2 0.2333312 0.02694801 0.13328302 0.8219914</span></span>
-<span><span class="co">#&gt; 3:      1826.25    3 0.2616408 0.03156470 0.16551050 0.8367423</span></span>
-<span><span class="co">#&gt; 4:      1826.25    4 0.3070941 0.05820874 0.21875904 0.8547467</span></span>
-<span><span class="co">#&gt; 5:      1826.25    5 0.3463971 0.09854666 0.26899889 0.8547467</span></span></code></pre></div>
-</li>
-<li>
-<p>using out-of-bag predictions for the training data</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">pd_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">pd_oob</span></span>
+<span><span class="va">fit_surv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf_train</span>, </span>
+<span>                 formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
+<span>                 oobag_pred_horizon <span class="op">=</span> <span class="fl">365.25</span> <span class="op">*</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
+<p>Compute PD using in-bag data for
+<code>bili = c(1,2,3,4,5)</code>:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pd_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">pd_train</span></span>
 <span><span class="co">#&gt;    pred_horizon bili      mean        lwr      medn       upr</span></span>
-<span><span class="co">#&gt; 1:      1826.25    1 0.2116003 0.01202018 0.1133762 0.7639032</span></span>
-<span><span class="co">#&gt; 2:      1826.25    2 0.2440849 0.01766977 0.1684559 0.8025264</span></span>
-<span><span class="co">#&gt; 3:      1826.25    3 0.2750214 0.02522565 0.2008733 0.8114771</span></span>
-<span><span class="co">#&gt; 4:      1826.25    4 0.3194273 0.03177694 0.2427813 0.8252211</span></span>
-<span><span class="co">#&gt; 5:      1826.25    5 0.3542926 0.05696909 0.2757469 0.8256011</span></span></code></pre></div>
-</li>
-<li>
-<p>using predictions for a new set of data</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<span><span class="co">#&gt; 1:      1826.25    1 0.2575450 0.02234786 0.1334170 0.8917942</span></span>
+<span><span class="co">#&gt; 2:      1826.25    2 0.3130469 0.06853733 0.1906695 0.9203372</span></span>
+<span><span class="co">#&gt; 3:      1826.25    3 0.3711963 0.11409793 0.2582027 0.9416791</span></span>
+<span><span class="co">#&gt; 4:      1826.25    4 0.4248968 0.15648381 0.3334579 0.9591581</span></span>
+<span><span class="co">#&gt; 5:      1826.25    5 0.4671699 0.20123406 0.3855137 0.9655296</span></span></code></pre></div>
+<p>If you don’t have specific values of a variable in mind, let
+<code>pred_spec_auto</code> pick for you:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pd_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bili</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">pd_train</span></span>
+<span><span class="co">#&gt;    pred_horizon  bili      mean        lwr      medn       upr</span></span>
+<span><span class="co">#&gt; 1:      1826.25 0.590 0.2493753 0.02035041 0.1250263 0.8823385</span></span>
+<span><span class="co">#&gt; 2:      1826.25 0.725 0.2517103 0.02060111 0.1281814 0.8836536</span></span>
+<span><span class="co">#&gt; 3:      1826.25 1.500 0.2807082 0.03964900 0.1601715 0.9040617</span></span>
+<span><span class="co">#&gt; 4:      1826.25 3.500 0.3968251 0.13431288 0.2934565 0.9501230</span></span>
+<span><span class="co">#&gt; 5:      1826.25 7.210 0.5352155 0.27869513 0.4658256 0.9782084</span></span></code></pre></div>
+<p>Specify <code>pred_horizon</code> to get PD at each value:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">pd_test</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_new</a></span><span class="op">(</span><span class="va">fit</span>, </span>
-<span>                       new_data <span class="op">=</span> <span class="va">pbc_orsf_test</span>, </span>
-<span>                       pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">pd_test</span></span>
-<span><span class="co">#&gt;    pred_horizon bili      mean        lwr      medn       upr</span></span>
-<span><span class="co">#&gt; 1:      1826.25    1 0.2373354 0.02018629 0.1706567 0.7643862</span></span>
-<span><span class="co">#&gt; 2:      1826.25    2 0.2694548 0.03099876 0.2111509 0.7859409</span></span>
-<span><span class="co">#&gt; 3:      1826.25    3 0.3024748 0.04413066 0.2502721 0.8045073</span></span>
-<span><span class="co">#&gt; 4:      1826.25    4 0.3471510 0.06308585 0.2960804 0.8126026</span></span>
-<span><span class="co">#&gt; 5:      1826.25    5 0.3834739 0.10542180 0.3578699 0.8536859</span></span></code></pre></div>
-</li>
-<li><p>in-bag PD indicates relationships that the model has learned
-during training. This is helpful if your goal is to interpret the
-model.</p></li>
-<li><p>out-of-bag PD indicates relationships that the model has learned
-during training but using the out-of-bag data simulates application of
-the model to new data. This is helpful if you want to test your model’s
-reliability or fairness in new data but you don’t have access to a large
-testing set.</p></li>
-<li><p>new data PD shows how the model predicts outcomes for
-observations it has not seen. This is helpful if you want to test your
-model’s reliability or fairness.</p></li>
-</ul>
-</div>
-<div class="section level2">
-<h2 id="automatic-variable-values">Automatic variable values<a class="anchor" aria-label="anchor" href="#automatic-variable-values"></a>
-</h2>
-<p>Use <code><a href="../reference/pred_spec_auto.html">pred_spec_auto()</a></code> if you know the variables you want
-to check out but you don’t have a specific set of values in mind:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_inb</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bili</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    pred_horizon  bili      mean        lwr       medn       upr</span></span>
-<span><span class="co">#&gt; 1:      1826.25 0.600 0.1916845 0.01393675 0.09277438 0.7862712</span></span>
-<span><span class="co">#&gt; 2:      1826.25 0.700 0.1931983 0.01407259 0.09367646 0.7862712</span></span>
-<span><span class="co">#&gt; 3:      1826.25 1.300 0.2111518 0.01875820 0.10058691 0.8056634</span></span>
-<span><span class="co">#&gt; 4:      1826.25 3.175 0.2707361 0.03183542 0.18335844 0.8402006</span></span>
-<span><span class="co">#&gt; 5:      1826.25 7.110 0.4345519 0.22022836 0.36615264 0.8610052</span></span></code></pre></div>
-<p><code><a href="../reference/pred_spec_auto.html">pred_spec_auto()</a></code> lets you specify a variable in your
-model with or without quotes, and then assign values for that variable
-on your behalf. For continuous variables, it uses quantiles (10, 25, 50,
-75, and 90). For nominal variables, it uses unique categories.</p>
-<p>Let’s re-fit our ORSF model to all available data before proceeding
-to the next sections.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329730</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
-<span>            <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span><span class="va">id</span>,</span>
-<span>            n_tree <span class="op">=</span> <span class="fl">50</span>,</span>
-<span>            oobag_pred_horizon <span class="op">=</span> <span class="va">pred_horizon</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="one-variable-one-horizon">One variable, one horizon<a class="anchor" aria-label="anchor" href="#one-variable-one-horizon"></a>
-</h2>
-<p>Computing PD for a single variable is straightforward:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">pd_sex</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">sex</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">pd_sex</span></span>
-<span><span class="co">#&gt;    pred_horizon sex      mean        lwr      medn       upr</span></span>
-<span><span class="co">#&gt; 1:      1826.25   m 0.3420353 0.01698975 0.2493781 0.9219013</span></span>
-<span><span class="co">#&gt; 2:      1826.25   f 0.3078882 0.01046657 0.1877641 0.9212616</span></span></code></pre></div>
-<p>The output shows that the expected predicted mortality risk for men
-is substantially higher than women at 5 years after baseline.</p>
+<span><span class="va">pd_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bili</span><span class="op">)</span>,</span>
+<span>                        pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">3000</span>, by <span class="op">=</span> <span class="fl">500</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">pd_train</span></span>
+<span><span class="co">#&gt;     pred_horizon  bili       mean          lwr        medn       upr</span></span>
+<span><span class="co">#&gt;  1:          500 0.590 0.06217164 0.0004433990 0.008765301 0.5918852</span></span>
+<span><span class="co">#&gt;  2:         1000 0.590 0.14282695 0.0057937418 0.056509484 0.7381953</span></span>
+<span><span class="co">#&gt;  3:         1500 0.590 0.20944972 0.0136094784 0.092379507 0.8577223</span></span>
+<span><span class="co">#&gt;  4:         2000 0.590 0.26917477 0.0230476894 0.146421502 0.8918696</span></span>
+<span><span class="co">#&gt;  5:         2500 0.590 0.31901518 0.0631155452 0.203673185 0.9034059</span></span>
+<span><span class="co">#&gt;  6:         3000 0.590 0.39244000 0.0911566314 0.302726475 0.9239494</span></span>
+<span><span class="co">#&gt;  7:          500 0.725 0.06287876 0.0004462367 0.009001904 0.5980510</span></span>
+<span><span class="co">#&gt;  8:         1000 0.725 0.14409310 0.0063321712 0.056833294 0.7448126</span></span>
+<span><span class="co">#&gt;  9:         1500 0.725 0.21143724 0.0140736894 0.093685200 0.8597396</span></span>
+<span><span class="co">#&gt; 10:         2000 0.725 0.27150368 0.0235448705 0.147022224 0.8940497</span></span>
+<span><span class="co">#&gt; 11:         2500 0.725 0.32014805 0.0626303822 0.203946002 0.9073003</span></span>
+<span><span class="co">#&gt; 12:         3000 0.725 0.39518173 0.0911457406 0.308428469 0.9252028</span></span>
+<span><span class="co">#&gt; 13:          500 1.500 0.06712295 0.0012717884 0.011028398 0.6240769</span></span>
+<span><span class="co">#&gt; 14:         1000 1.500 0.15802582 0.0114789623 0.068332010 0.7683888</span></span>
+<span><span class="co">#&gt; 15:         1500 1.500 0.23407183 0.0287320952 0.117289745 0.8789647</span></span>
+<span><span class="co">#&gt; 16:         2000 1.500 0.30235436 0.0467927208 0.180096425 0.9143235</span></span>
+<span><span class="co">#&gt; 17:         2500 1.500 0.35354874 0.0845866747 0.238415966 0.9265099</span></span>
+<span><span class="co">#&gt; 18:         3000 1.500 0.43604287 0.1311103304 0.348078730 0.9438196</span></span>
+<span><span class="co">#&gt; 19:          500 3.500 0.08677320 0.0052087533 0.028244374 0.6741102</span></span>
+<span><span class="co">#&gt; 20:         1000 3.500 0.22427808 0.0519179775 0.139857107 0.8277541</span></span>
+<span><span class="co">#&gt; 21:         1500 3.500 0.32788654 0.0901983241 0.217982772 0.9371150</span></span>
+<span><span class="co">#&gt; 22:         2000 3.500 0.41708208 0.1445328597 0.313224605 0.9566091</span></span>
+<span><span class="co">#&gt; 23:         2500 3.500 0.49334883 0.2195110942 0.402932569 0.9636221</span></span>
+<span><span class="co">#&gt; 24:         3000 3.500 0.56094391 0.2647541788 0.503509668 0.9734948</span></span>
+<span><span class="co">#&gt; 25:          500 7.210 0.12591911 0.0220920570 0.063283130 0.7522611</span></span>
+<span><span class="co">#&gt; 26:         1000 7.210 0.32642477 0.1353851175 0.259731888 0.8879218</span></span>
+<span><span class="co">#&gt; 27:         1500 7.210 0.46409472 0.2181840827 0.387142510 0.9700903</span></span>
+<span><span class="co">#&gt; 28:         2000 7.210 0.55116942 0.2912654769 0.484118150 0.9811496</span></span>
+<span><span class="co">#&gt; 29:         2500 7.210 0.62008114 0.3709845684 0.568822502 0.9844945</span></span>
+<span><span class="co">#&gt; 30:         3000 7.210 0.68030697 0.4247511750 0.646009789 0.9888637</span></span>
+<span><span class="co">#&gt;     pred_horizon  bili       mean          lwr        medn       upr</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="one-variable-moving-horizon">One variable, moving horizon<a class="anchor" aria-label="anchor" href="#one-variable-moving-horizon"></a>
 </h2>
-<p>What if the effect of a predictor varies over time? PD can show
-this.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<p>What if the effect of a predictor varies over time? Partial
+dependence can show this.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">pd_sex_tv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">sex</span><span class="op">)</span>,</span>
+<span><span class="va">pd_sex_tv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit_surv</span>, </span>
+<span>                         pred_spec <span class="op">=</span> <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">sex</span><span class="op">)</span>,</span>
 <span>                         pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">365</span>, <span class="fl">365</span><span class="op">*</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">ggplot</span><span class="op">(</span><span class="va">pd_sex_tv</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">pred_horizon</span>, y <span class="op">=</span> <span class="va">mean</span>, color <span class="op">=</span> <span class="va">sex</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span> <span class="fu">geom_line</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span> <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">'Time since baseline'</span>,</span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">pd_sex_tv</span><span class="op">)</span> <span class="op">+</span></span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pred_horizon</span>, y <span class="op">=</span> <span class="va">mean</span>, color <span class="op">=</span> <span class="va">sex</span><span class="op">)</span> <span class="op">+</span> </span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">'Time since baseline'</span>,</span>
 <span>      y <span class="op">=</span> <span class="st">'Expected risk'</span><span class="op">)</span></span></code></pre></div>
-<p><img src="pd_files/figure-html/unnamed-chunk-9-1.png" width="672"></p>
+<p><img src="pd_files/figure-html/unnamed-chunk-16-1.png" width="672"></p>
 <p>From inspection, we can see that males have higher risk than females
 and the difference in that risk grows over time. This can also be seen
 by viewing the ratio of expected risk over time:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span></span>
@@ -274,43 +398,18 @@ by viewing the ratio of expected risk over time:</p>
 <span> , <span class="fu">.</span><span class="op">(</span>ratio <span class="op">=</span> <span class="va">mean</span><span class="op">[</span><span class="va">sex</span> <span class="op">==</span> <span class="st">'m'</span><span class="op">]</span> <span class="op">/</span> <span class="va">mean</span><span class="op">[</span><span class="va">sex</span> <span class="op">==</span> <span class="st">'f'</span><span class="op">]</span><span class="op">)</span>, by <span class="op">=</span> <span class="va">pred_horizon</span></span>
 <span><span class="op">]</span></span>
 <span></span>
-<span><span class="fu">ggplot</span><span class="op">(</span><span class="va">ratio_tv</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">pred_horizon</span>, y <span class="op">=</span> <span class="va">ratio</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span> <span class="fu">geom_line</span><span class="op">(</span>color <span class="op">=</span> <span class="st">'grey'</span><span class="op">)</span> <span class="op">+</span> </span>
-<span> <span class="fu">geom_smooth</span><span class="op">(</span>color <span class="op">=</span> <span class="st">'black'</span>, se <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span> </span>
-<span> <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">'time since baseline'</span>,</span>
-<span>      y <span class="op">=</span> <span class="st">'ratio in expected risk for males versus females'</span><span class="op">)</span></span>
-<span><span class="co">#&gt; `geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = "cs")'</span></span></code></pre></div>
-<p><img src="pd_files/figure-html/unnamed-chunk-10-1.png" width="672"></p>
-</div>
-<div class="section level2">
-<h2 id="multiple-variables-marginally">Multiple variables, marginally<a class="anchor" aria-label="anchor" href="#multiple-variables-marginally"></a>
-</h2>
-<p>If you want to compute PD marginally for multiple variables, just
-list the variable values in <code>pred_spec</code> and specify
-<code>expand_grid = FALSE</code>.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">pd_two_vars</span> <span class="op">&lt;-</span>  </span>
-<span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>,</span>
-<span>             pred_spec <span class="op">=</span> <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">sex</span>, <span class="va">bili</span><span class="op">)</span>,</span>
-<span>             expand_grid <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">pd_two_vars</span></span>
-<span><span class="co">#&gt;    pred_horizon variable value level      mean        lwr      medn       upr</span></span>
-<span><span class="co">#&gt; 1:      1826.25      sex    NA     m 0.3420353 0.01698975 0.2493781 0.9219013</span></span>
-<span><span class="co">#&gt; 2:      1826.25      sex    NA     f 0.3078882 0.01046657 0.1877641 0.9212616</span></span>
-<span><span class="co">#&gt; 3:      1826.25     bili 0.600  &lt;NA&gt; 0.2455223 0.01045620 0.1643707 0.8391940</span></span>
-<span><span class="co">#&gt; 4:      1826.25     bili 0.800  &lt;NA&gt; 0.2505248 0.01046657 0.1666401 0.8360690</span></span>
-<span><span class="co">#&gt; 5:      1826.25     bili 1.400  &lt;NA&gt; 0.2643678 0.01693072 0.1840421 0.8501067</span></span>
-<span><span class="co">#&gt; 6:      1826.25     bili 3.525  &lt;NA&gt; 0.3841995 0.08224197 0.3260132 0.8888114</span></span>
-<span><span class="co">#&gt; 7:      1826.25     bili 7.250  &lt;NA&gt; 0.5193563 0.18367045 0.5021500 0.9141342</span></span></code></pre></div>
-<p>To get a view of partial dependence for any number of variables in
-the training data, use <code><a href="../reference/orsf_summarize_uni.html">orsf_summarize_uni()</a></code>. This function
-computes out-of-bag PD for the most important <code>n_variables</code>
-and returns a nicely formatted view of the output:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">pd_smry</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">fit</span>, n_variables <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">ratio_tv</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">pred_horizon</span>, y <span class="op">=</span> <span class="va">ratio</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">'grey'</span><span class="op">)</span> <span class="op">+</span> </span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">'black'</span>, se <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span> </span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">'time since baseline'</span>,</span>
+<span>      y <span class="op">=</span> <span class="st">'ratio in expected risk for males versus females'</span><span class="op">)</span></span></code></pre></div>
+<p><img src="pd_files/figure-html/unnamed-chunk-17-1.png" width="672"></p>
+<p>To get a view of PD for any number of variables in the training data,
+use <code><a href="../reference/orsf_summarize_uni.html">orsf_summarize_uni()</a></code>. This function computes out-of-bag
+PD for the most important <code>n_variables</code> and returns a nicely
+formatted view of the output:</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pd_smry</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">fit_surv</span>, n_variables <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_smry</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -318,46 +417,45 @@ and returns a nicely formatted view of the output:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;        |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;      0 0.3094268 0.2048280 0.07392497 0.5228134</span></span>
-<span><span class="co">#&gt;      1 0.5036637 0.4638581 0.32705425 0.6882956</span></span>
+<span><span class="co">#&gt;      0 0.3329468 0.2295936 0.07435978 0.5459015</span></span>
+<span><span class="co">#&gt;      1 0.5094724 0.4474909 0.30131458 0.6986446</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -- bili (VI Rank: 2) ---------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;        |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;   0.80 0.2505248 0.1666401 0.06233100 0.3964744</span></span>
-<span><span class="co">#&gt;   1.40 0.2643678 0.1840421 0.07164115 0.4040525</span></span>
-<span><span class="co">#&gt;   3.52 0.3841995 0.3260132 0.19553863 0.5321580</span></span>
+<span><span class="co">#&gt;   0.73 0.2632143 0.1735236 0.06649111 0.4117080</span></span>
+<span><span class="co">#&gt;   1.50 0.2921327 0.2126209 0.09681316 0.4492764</span></span>
+<span><span class="co">#&gt;   3.50 0.4093400 0.3422576 0.21534840 0.5693711</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -- edema (VI Rank: 3) --------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;        |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;      0 0.3020595 0.1994849 0.06741347 0.5174422</span></span>
-<span><span class="co">#&gt;    0.5 0.3808198 0.3181430 0.14075530 0.5974875</span></span>
-<span><span class="co">#&gt;      1 0.4503680 0.3985665 0.24753838 0.6162484</span></span>
+<span><span class="co">#&gt;      0 0.3307694 0.2245123 0.07227854 0.5497073</span></span>
+<span><span class="co">#&gt;    0.5 0.3982399 0.3123939 0.17031799 0.5989200</span></span>
+<span><span class="co">#&gt;      1 0.4743112 0.3877664 0.26978107 0.6621934</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -- copper (VI Rank: 4) -------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;        |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;   42.8 0.2754068 0.1726686 0.06179491 0.4282714</span></span>
-<span><span class="co">#&gt;   74.0 0.2903369 0.1897076 0.07682290 0.4545510</span></span>
-<span><span class="co">#&gt;    129 0.3412883 0.2659864 0.11419673 0.5411165</span></span>
+<span><span class="co">#&gt;   42.2 0.2873164 0.1921840 0.06981454 0.4625175</span></span>
+<span><span class="co">#&gt;   71.5 0.3070164 0.2110141 0.08401296 0.4836416</span></span>
+<span><span class="co">#&gt;    136 0.3866759 0.3051707 0.16297798 0.5750964</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Predicted risk at time t = 1826.25 for top 4 predictors</span></span></code></pre></div>
 <p>This ‘summary’ object can be converted into a <code>data.table</code>
 for downstream plotting and tables.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">pd_smry</span><span class="op">)</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">pd_smry</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    variable importance Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt; 1:  ascites  0.5000000     0 0.3094268 0.2048280 0.07392497 0.5228134</span></span>
-<span><span class="co">#&gt; 2:  ascites  0.5000000     1 0.5036637 0.4638581 0.32705425 0.6882956</span></span>
-<span><span class="co">#&gt; 3:     bili  0.3880597  0.80 0.2505248 0.1666401 0.06233100 0.3964744</span></span>
-<span><span class="co">#&gt; 4:     bili  0.3880597  1.40 0.2643678 0.1840421 0.07164115 0.4040525</span></span>
-<span><span class="co">#&gt; 5:     bili  0.3880597  3.52 0.3841995 0.3260132 0.19553863 0.5321580</span></span>
-<span><span class="co">#&gt; 6:    edema  0.3423269     0 0.3020595 0.1994849 0.06741347 0.5174422</span></span>
+<span><span class="co">#&gt; 1:  ascites  0.7086331     0 0.3329468 0.2295936 0.07435978 0.5459015</span></span>
+<span><span class="co">#&gt; 2:  ascites  0.7086331     1 0.5094724 0.4474909 0.30131458 0.6986446</span></span>
+<span><span class="co">#&gt; 3:     bili  0.5154295  0.73 0.2632143 0.1735236 0.06649111 0.4117080</span></span>
+<span><span class="co">#&gt; 4:     bili  0.5154295  1.50 0.2921327 0.2126209 0.09681316 0.4492764</span></span>
+<span><span class="co">#&gt; 5:     bili  0.5154295  3.50 0.4093400 0.3422576 0.21534840 0.5693711</span></span>
+<span><span class="co">#&gt; 6:    edema  0.4250926     0 0.3307694 0.2245123 0.07227854 0.5497073</span></span>
 <span><span class="co">#&gt;    pred_horizon level</span></span>
 <span><span class="co">#&gt; 1:      1826.25     0</span></span>
 <span><span class="co">#&gt; 2:      1826.25     1</span></span>
@@ -369,22 +467,22 @@ for downstream plotting and tables.</p>
 <div class="section level2">
 <h2 id="multiple-variables-jointly">Multiple variables, jointly<a class="anchor" aria-label="anchor" href="#multiple-variables-jointly"></a>
 </h2>
-<p>PD can show the expected value of a model’s predictions as a function
-of a specific predictor, or as a function of multiple predictors. For
-instance, we can estimate predicted risk as a joint function of
-<code>bili</code>, <code>edema</code>, and <code>trt</code>:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<p>Partial dependence can show the expected value of a model’s
+predictions as a function of a specific predictor, or as a function of
+multiple predictors. For instance, we can estimate predicted risk as a
+joint function of <code>bili</code>, <code>edema</code>, and
+<code>trt</code>:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">pred_spec</span> <span class="op">=</span> <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bili</span>, <span class="va">edema</span>, <span class="va">trt</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">pd_bili_edema</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">pred_spec</span><span class="op">)</span></span>
+<span><span class="va">pd_bili_edema</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="va">pred_spec</span><span class="op">)</span></span>
 <span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">pd_bili_edema</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">bili</span>, y <span class="op">=</span> <span class="va">medn</span>, col <span class="op">=</span> <span class="va">trt</span>, linetype <span class="op">=</span> <span class="va">edema</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">pd_bili_edema</span><span class="op">)</span> <span class="op">+</span> </span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">bili</span>, y <span class="op">=</span> <span class="va">medn</span>, col <span class="op">=</span> <span class="va">trt</span>, linetype <span class="op">=</span> <span class="va">edema</span><span class="op">)</span> <span class="op">+</span> </span>
 <span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
 <span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">'Expected predicted risk'</span><span class="op">)</span></span></code></pre></div>
-<p><img src="pd_files/figure-html/unnamed-chunk-14-1.png" width="672"></p>
+<p><img src="pd_files/figure-html/unnamed-chunk-20-1.png" width="672"></p>
 <p>From inspection,</p>
 <ul>
 <li><p>the model’s predictions indicate slightly lower risk for the
@@ -397,7 +495,7 @@ of <code>bili</code> or <code>edema</code>.</p></li>
 appears highest among patients with <code>edema</code> of 0.5. Is the
 effect of <code>bili</code> modified by <code>edema</code> being 0.5? A
 quick sanity check with <code>coxph</code> suggests there is.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
 <span></span>
@@ -428,9 +526,206 @@ quick sanity check with <code>coxph</code> suggests there is.</p>
 function of one or multiple predictors, individual conditional
 expectations (ICE) show the prediction for an individual observation as
 a function of a predictor.</p>
-<p>Just like PD, we can compute ICE using in-bag, out-of-bag, or testing
-data, and the same principles apply. We’ll use out-of-bag estimates
-here.</p>
+</div>
+<div class="section level2">
+<h2 id="classification-1">Classification<a class="anchor" aria-label="anchor" href="#classification-1"></a>
+</h2>
+<p>Compute ICE using out-of-bag data for
+<code>flipper_length_mm = c(190, 210)</code>.</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>flipper_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">190</span>, <span class="fl">210</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ice_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_oob</a></span><span class="op">(</span><span class="va">fit_clsf</span>, pred_spec <span class="op">=</span> <span class="va">pred_spec</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ice_oob</span></span>
+<span><span class="co">#&gt;      id_variable id_row  class flipper_length_mm       pred</span></span>
+<span><span class="co">#&gt;   1:           1      1 Adelie               190 0.92045213</span></span>
+<span><span class="co">#&gt;   2:           1      2 Adelie               190 0.80427932</span></span>
+<span><span class="co">#&gt;   3:           1      3 Adelie               190 0.84342550</span></span>
+<span><span class="co">#&gt;   4:           1      4 Adelie               190 0.93514694</span></span>
+<span><span class="co">#&gt;   5:           1      5 Adelie               190 0.97172229</span></span>
+<span><span class="co">#&gt;  ---                                                       </span></span>
+<span><span class="co">#&gt; 896:           2    146 Gentoo               210 0.25779089</span></span>
+<span><span class="co">#&gt; 897:           2    147 Gentoo               210 0.04806888</span></span>
+<span><span class="co">#&gt; 898:           2    148 Gentoo               210 0.07926342</span></span>
+<span><span class="co">#&gt; 899:           2    149 Gentoo               210 0.84597108</span></span>
+<span><span class="co">#&gt; 900:           2    150 Gentoo               210 0.10191162</span></span></code></pre></div>
+<p>There are two identifiers in the output:</p>
+<ul>
+<li><p><code>id_variable</code> is an identifier for the current value
+of the variable(s) that are in the data. It is redundant if you only
+have one variable, but helpful if there are multiple variables.</p></li>
+<li><p><code>id_row</code> is an identifier for the observation in the
+original data.</p></li>
+</ul>
+<p>Note that predicted probabilities are returned for each class and
+each observation in the data. Predicted probabilities for a given
+observation and given variable value sum to 1. For example,</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">ice_oob</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span> <span class="va">.</span><span class="op">[</span><span class="va">flipper_length_mm</span> <span class="op">==</span> <span class="fl">190</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span> <span class="va">.</span><span class="op">[</span><span class="va">id_row</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span> <span class="va">.</span><span class="op">[[</span><span class="st">'pred'</span><span class="op">]</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
+<span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="regression-1">Regression<a class="anchor" aria-label="anchor" href="#regression-1"></a>
+</h2>
+<p>Compute ICE using new data for
+<code>flipper_length_mm = c(190, 210)</code>.</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>flipper_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">190</span>, <span class="fl">210</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ice_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
+<span>                        pred_spec <span class="op">=</span> <span class="va">pred_spec</span>,</span>
+<span>                        new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ice_new</span></span>
+<span><span class="co">#&gt;      id_variable id_row flipper_length_mm     pred</span></span>
+<span><span class="co">#&gt;   1:           1      1               190 37.94483</span></span>
+<span><span class="co">#&gt;   2:           1      2               190 37.61595</span></span>
+<span><span class="co">#&gt;   3:           1      3               190 37.53681</span></span>
+<span><span class="co">#&gt;   4:           1      4               190 39.49476</span></span>
+<span><span class="co">#&gt;   5:           1      5               190 38.95635</span></span>
+<span><span class="co">#&gt;  ---                                              </span></span>
+<span><span class="co">#&gt; 362:           2    179               210 51.80471</span></span>
+<span><span class="co">#&gt; 363:           2    180               210 47.27183</span></span>
+<span><span class="co">#&gt; 364:           2    181               210 47.05031</span></span>
+<span><span class="co">#&gt; 365:           2    182               210 50.39028</span></span>
+<span><span class="co">#&gt; 366:           2    183               210 48.44774</span></span></code></pre></div>
+<p>You can also let <code>pred_spec_auto</code> pick reasonable values
+like so:</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">pred_spec</span> <span class="op">=</span> <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">species</span>, <span class="va">island</span>, <span class="va">body_mass_g</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ice_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
+<span>                        pred_spec <span class="op">=</span> <span class="va">pred_spec</span>,</span>
+<span>                        new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ice_new</span></span>
+<span><span class="co">#&gt;       id_variable id_row species    island body_mass_g     pred</span></span>
+<span><span class="co">#&gt;    1:           1      1  Adelie    Biscoe        3200 37.78339</span></span>
+<span><span class="co">#&gt;    2:           1      2  Adelie    Biscoe        3200 37.73273</span></span>
+<span><span class="co">#&gt;    3:           1      3  Adelie    Biscoe        3200 37.71248</span></span>
+<span><span class="co">#&gt;    4:           1      4  Adelie    Biscoe        3200 40.25782</span></span>
+<span><span class="co">#&gt;    5:           1      5  Adelie    Biscoe        3200 40.04074</span></span>
+<span><span class="co">#&gt;   ---                                                          </span></span>
+<span><span class="co">#&gt; 8231:          45    179  Gentoo Torgersen        5300 46.14559</span></span>
+<span><span class="co">#&gt; 8232:          45    180  Gentoo Torgersen        5300 43.98050</span></span>
+<span><span class="co">#&gt; 8233:          45    181  Gentoo Torgersen        5300 44.59837</span></span>
+<span><span class="co">#&gt; 8234:          45    182  Gentoo Torgersen        5300 44.85146</span></span>
+<span><span class="co">#&gt; 8235:          45    183  Gentoo Torgersen        5300 44.23710</span></span></code></pre></div>
+<p>By default, all combinations of all variables are used. However, you
+can also look at the variables one by one, separately, like so:</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">ice_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
+<span>                        expand_grid <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                        pred_spec <span class="op">=</span> <span class="va">pred_spec</span>,</span>
+<span>                        new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ice_new</span></span>
+<span><span class="co">#&gt;       id_variable id_row    variable value  level     pred</span></span>
+<span><span class="co">#&gt;    1:           1      1     species    NA Adelie 37.74136</span></span>
+<span><span class="co">#&gt;    2:           1      2     species    NA Adelie 37.42367</span></span>
+<span><span class="co">#&gt;    3:           1      3     species    NA Adelie 37.04598</span></span>
+<span><span class="co">#&gt;    4:           1      4     species    NA Adelie 39.89602</span></span>
+<span><span class="co">#&gt;    5:           1      5     species    NA Adelie 39.14848</span></span>
+<span><span class="co">#&gt;   ---                                                     </span></span>
+<span><span class="co">#&gt; 2009:           5    179 body_mass_g  5300   &lt;NA&gt; 51.50196</span></span>
+<span><span class="co">#&gt; 2010:           5    180 body_mass_g  5300   &lt;NA&gt; 47.27055</span></span>
+<span><span class="co">#&gt; 2011:           5    181 body_mass_g  5300   &lt;NA&gt; 48.34064</span></span>
+<span><span class="co">#&gt; 2012:           5    182 body_mass_g  5300   &lt;NA&gt; 48.75828</span></span>
+<span><span class="co">#&gt; 2013:           5    183 body_mass_g  5300   &lt;NA&gt; 48.11020</span></span></code></pre></div>
+<p>And you can also bypass all the bells and whistles by using your own
+<code>data.frame</code> for a <code>pred_spec</code>. (Just make sure
+you request values that exist in the training data.)</p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">custom_pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Adelie'</span>, </span>
+<span>                               island <span class="op">=</span> <span class="st">'Biscoe'</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ice_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
+<span>                        pred_spec <span class="op">=</span> <span class="va">custom_pred_spec</span>,</span>
+<span>                        new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ice_new</span></span>
+<span><span class="co">#&gt;      id_variable id_row species island     pred</span></span>
+<span><span class="co">#&gt;   1:           1      1  Adelie Biscoe 38.52327</span></span>
+<span><span class="co">#&gt;   2:           1      2  Adelie Biscoe 38.32073</span></span>
+<span><span class="co">#&gt;   3:           1      3  Adelie Biscoe 37.71248</span></span>
+<span><span class="co">#&gt;   4:           1      4  Adelie Biscoe 41.68380</span></span>
+<span><span class="co">#&gt;   5:           1      5  Adelie Biscoe 40.91140</span></span>
+<span><span class="co">#&gt;  ---                                           </span></span>
+<span><span class="co">#&gt; 179:           1    179  Adelie Biscoe 43.09493</span></span>
+<span><span class="co">#&gt; 180:           1    180  Adelie Biscoe 38.79455</span></span>
+<span><span class="co">#&gt; 181:           1    181  Adelie Biscoe 39.37734</span></span>
+<span><span class="co">#&gt; 182:           1    182  Adelie Biscoe 40.71952</span></span>
+<span><span class="co">#&gt; 183:           1    183  Adelie Biscoe 39.34501</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="survival-1">Survival<a class="anchor" aria-label="anchor" href="#survival-1"></a>
+</h2>
+<p>Compute ICE using in-bag data for
+<code>bili = c(1,2,3,4,5)</code>:</p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ice_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">ice_train</span></span>
+<span><span class="co">#&gt;      id_variable id_row pred_horizon bili      pred</span></span>
+<span><span class="co">#&gt;   1:           1      1      1826.25    1 0.1297460</span></span>
+<span><span class="co">#&gt;   2:           1      2      1826.25    1 0.1260752</span></span>
+<span><span class="co">#&gt;   3:           1      3      1826.25    1 0.0963452</span></span>
+<span><span class="co">#&gt;   4:           1      4      1826.25    1 0.1179410</span></span>
+<span><span class="co">#&gt;   5:           1      5      1826.25    1 0.2060334</span></span>
+<span><span class="co">#&gt;  ---                                               </span></span>
+<span><span class="co">#&gt; 746:           5    146      1826.25    5 0.7868537</span></span>
+<span><span class="co">#&gt; 747:           5    147      1826.25    5 0.2012954</span></span>
+<span><span class="co">#&gt; 748:           5    148      1826.25    5 0.4902176</span></span>
+<span><span class="co">#&gt; 749:           5    149      1826.25    5 0.4750206</span></span>
+<span><span class="co">#&gt; 750:           5    150      1826.25    5 0.9557285</span></span></code></pre></div>
+<p>If you don’t have specific values of a variable in mind, let
+<code>pred_spec_auto</code> pick for you:</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ice_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bili</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">ice_train</span></span>
+<span><span class="co">#&gt;      id_variable id_row pred_horizon bili       pred</span></span>
+<span><span class="co">#&gt;   1:           1      1      1826.25 0.59 0.11778169</span></span>
+<span><span class="co">#&gt;   2:           1      2      1826.25 0.59 0.11746173</span></span>
+<span><span class="co">#&gt;   3:           1      3      1826.25 0.59 0.09110739</span></span>
+<span><span class="co">#&gt;   4:           1      4      1826.25 0.59 0.10140157</span></span>
+<span><span class="co">#&gt;   5:           1      5      1826.25 0.59 0.19070530</span></span>
+<span><span class="co">#&gt;  ---                                                </span></span>
+<span><span class="co">#&gt; 746:           5    146      1826.25 7.21 0.82600898</span></span>
+<span><span class="co">#&gt; 747:           5    147      1826.25 7.21 0.29156437</span></span>
+<span><span class="co">#&gt; 748:           5    148      1826.25 7.21 0.58306633</span></span>
+<span><span class="co">#&gt; 749:           5    149      1826.25 7.21 0.54589261</span></span>
+<span><span class="co">#&gt; 750:           5    150      1826.25 7.21 0.96204106</span></span></code></pre></div>
+<p>Specify <code>pred_horizon</code> to get ICE at each value:</p>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">ice_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bili</span><span class="op">)</span>,</span>
+<span>                          pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">3000</span>, by <span class="op">=</span> <span class="fl">500</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">ice_train</span></span>
+<span><span class="co">#&gt;       id_variable id_row pred_horizon bili        pred</span></span>
+<span><span class="co">#&gt;    1:           1      1          500 0.59 0.008276627</span></span>
+<span><span class="co">#&gt;    2:           1      1         1000 0.59 0.055915858</span></span>
+<span><span class="co">#&gt;    3:           1      1         1500 0.59 0.085701510</span></span>
+<span><span class="co">#&gt;    4:           1      1         2000 0.59 0.124319456</span></span>
+<span><span class="co">#&gt;    5:           1      1         2500 0.59 0.166294749</span></span>
+<span><span class="co">#&gt;   ---                                                 </span></span>
+<span><span class="co">#&gt; 4496:           5    150         1000 7.21 0.835895969</span></span>
+<span><span class="co">#&gt; 4497:           5    150         1500 7.21 0.932657591</span></span>
+<span><span class="co">#&gt; 4498:           5    150         2000 7.21 0.965944498</span></span>
+<span><span class="co">#&gt; 4499:           5    150         2500 7.21 0.970325309</span></span>
+<span><span class="co">#&gt; 4500:           5    150         3000 7.21 0.979051377</span></span></code></pre></div>
+<p>Multi-prediction horizon ice comes with minimal extra computational
+cost. Use a fine grid of time values and assess whether predictors have
+time-varying effects.</p>
 </div>
 <div class="section level2">
 <h2 id="visualizing-ice-curves">Visualizing ICE curves<a class="anchor" aria-label="anchor" href="#visualizing-ice-curves"></a>
@@ -443,33 +738,25 @@ there groups where the variable impacts risk differently?</p>
 by setting <code>boundary_checks = FALSE</code>, and this will allow me
 to generate ICE curves that go beyond the 90th percentile of
 <code>bili</code>.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span>, length.out <span class="op">=</span> <span class="fl">25</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">ice_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_oob</a></span><span class="op">(</span><span class="va">fit</span>, <span class="va">pred_spec</span>, boundary_checks <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">ice_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_oob</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="va">pred_spec</span>, boundary_checks <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ice_oob</span></span>
 <span><span class="co">#&gt;       id_variable id_row pred_horizon bili      pred</span></span>
-<span><span class="co">#&gt;    1:           1      1      1826.25    1 0.9000491</span></span>
-<span><span class="co">#&gt;    2:           1      2      1826.25    1 0.7728780</span></span>
-<span><span class="co">#&gt;    3:           1      3      1826.25    1 0.6262776</span></span>
-<span><span class="co">#&gt;    4:           1      4      1826.25    1 0.8016667</span></span>
-<span><span class="co">#&gt;    5:           1      5      1826.25    1 0.5701027</span></span>
+<span><span class="co">#&gt;    1:           1      1      1826.25    1 0.9212580</span></span>
+<span><span class="co">#&gt;    2:           1      2      1826.25    1 0.8392043</span></span>
+<span><span class="co">#&gt;    3:           1      3      1826.25    1 0.7511480</span></span>
+<span><span class="co">#&gt;    4:           1      4      1826.25    1 0.9131904</span></span>
+<span><span class="co">#&gt;    5:           1      5      1826.25    1 0.3833406</span></span>
 <span><span class="co">#&gt;   ---                                               </span></span>
-<span><span class="co">#&gt; 6896:          25    272      1826.25   10 0.6589833</span></span>
-<span><span class="co">#&gt; 6897:          25    273      1826.25   10 0.4139382</span></span>
-<span><span class="co">#&gt; 6898:          25    274      1826.25   10 0.2736971</span></span>
-<span><span class="co">#&gt; 6899:          25    275      1826.25   10 0.5723036</span></span>
-<span><span class="co">#&gt; 6900:          25    276      1826.25   10 0.5832437</span></span></code></pre></div>
-<ul>
-<li><p><code>id_variable</code> is an identifier for the current value
-of the variable(s) that are in the data. It is redundant if you only
-have one variable, but helpful if there are multiple variables.</p></li>
-<li><p><code>id_row</code> is an identifier for the observation in the
-original data. It is used to group an observation’s predictions together
-in plots.</p></li>
-</ul>
+<span><span class="co">#&gt; 3746:          25    146      1826.25   10 0.5696498</span></span>
+<span><span class="co">#&gt; 3747:          25    147      1826.25   10 0.6474505</span></span>
+<span><span class="co">#&gt; 3748:          25    148      1826.25   10 0.4866673</span></span>
+<span><span class="co">#&gt; 3749:          25    149      1826.25   10 0.5867836</span></span>
+<span><span class="co">#&gt; 3750:          25    150      1826.25   10 0.3735704</span></span></code></pre></div>
 <p>For plots, it is helpful to scale the ICE data. I subtract the
 initial value of predicted risk (i.e., when <code>bili = 1</code>) from
 each observation’s conditional expectation values. So,</p>
@@ -478,24 +765,21 @@ each observation’s conditional expectation values. So,</p>
 <li>
 <p>The plot shows <em>change</em> in predicted risk as a function of
 <code>bili</code>.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">ice_oob</span><span class="op">[</span>, <span class="va">pred_subtract</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">pred</span><span class="op">[</span><span class="va">id_variable</span><span class="op">==</span><span class="fl">1</span><span class="op">]</span>, times<span class="op">=</span><span class="fl">25</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="va">ice_oob</span><span class="op">[</span>, <span class="va">pred</span> <span class="op">:=</span> <span class="va">pred</span> <span class="op">-</span> <span class="va">pred_subtract</span><span class="op">]</span></span></code></pre></div>
 </li>
 </ul>
 <p>Now we can visualize the curves.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">ice_oob</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">bili</span>, </span>
 <span>                    y <span class="op">=</span> <span class="va">pred</span>, </span>
 <span>                    group <span class="op">=</span> <span class="va">id_row</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">0.15</span><span class="op">)</span> <span class="op">+</span> </span>
 <span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">'Change in predicted risk'</span><span class="op">)</span> <span class="op">+</span></span>
-<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>se <span class="op">=</span> <span class="cn">FALSE</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>group <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; `geom_smooth()` using method = 'gam' and formula = 'y ~ s(x, bs = "cs")'</span></span></code></pre></div>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">geom_smooth</a></span><span class="op">(</span>se <span class="op">=</span> <span class="cn">FALSE</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>group <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="pd_files/figure-html/-orsf_ice-1.png" width="672"></p>
 <p>From inspection of the figure,</p>
 <ul>
@@ -523,7 +807,7 @@ in the case where feature independence is not a valid assumption.</p>
 <ol style="list-style-type: decimal">
 <li>Giles Hooker, Lucas Mentch, Siyu Zhou. Unrestricted Permutation
 forces Extrapolation: Variable Importance Requires at least One More
-Model, or There Is No Free Variable Importance. <em>arXiv e-prints</em>
+Model, or There Is No Free Variable Importance. <em>arXiv e-prints</em>.
 2021 Oct; arXiv-1905. URL: <a href="https://doi.org/10.48550/arXiv.1905.03151" class="external-link uri">https://doi.org/10.48550/arXiv.1905.03151</a>
 </li>
 </ol>
