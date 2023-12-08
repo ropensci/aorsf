@@ -91,6 +91,7 @@ You can compute individual conditional expectations three ways using a random fo
 <span>  expand_grid <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  boundary_checks <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_thread <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  verbose_progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -102,6 +103,7 @@ You can compute individual conditional expectations three ways using a random fo
 <span>  expand_grid <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  boundary_checks <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_thread <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  verbose_progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -115,6 +117,7 @@ You can compute individual conditional expectations three ways using a random fo
 <span>  expand_grid <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  boundary_checks <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_thread <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  verbose_progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -175,6 +178,12 @@ skipped.</p></dd>
 
 <dt>n_thread</dt>
 <dd><p>(<em>integer</em>) number of threads to use while computing predictions. Default is 0, which allows a suitable number of threads to be used based on availability.</p></dd>
+
+
+<dt>verbose_progress</dt>
+<dd><p>(<em>logical</em>) if <code>TRUE</code>, progress will be
+printed to console. If <code>FALSE</code> (the default), nothing will be
+printed.</p></dd>
 
 
 <dt>...</dt>

@@ -93,6 +93,7 @@ You can compute partial dependence three ways using a random forest:</p><ul><li>
 <span>  prob_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lwr"</span>, <span class="st">"medn"</span>, <span class="st">"upr"</span><span class="op">)</span>,</span>
 <span>  boundary_checks <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_thread <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  verbose_progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -106,6 +107,7 @@ You can compute partial dependence three ways using a random forest:</p><ul><li>
 <span>  prob_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lwr"</span>, <span class="st">"medn"</span>, <span class="st">"upr"</span><span class="op">)</span>,</span>
 <span>  boundary_checks <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_thread <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  verbose_progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -121,6 +123,7 @@ You can compute partial dependence three ways using a random forest:</p><ul><li>
 <span>  prob_labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"lwr"</span>, <span class="st">"medn"</span>, <span class="st">"upr"</span><span class="op">)</span>,</span>
 <span>  boundary_checks <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_thread <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  verbose_progress <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -197,6 +200,12 @@ skipped.</p></dd>
 
 <dt>n_thread</dt>
 <dd><p>(<em>integer</em>) number of threads to use while computing predictions. Default is 0, which allows a suitable number of threads to be used based on availability.</p></dd>
+
+
+<dt>verbose_progress</dt>
+<dd><p>(<em>logical</em>) if <code>TRUE</code>, progress will be
+printed to console. If <code>FALSE</code> (the default), nothing will be
+printed.</p></dd>
 
 
 <dt>...</dt>
@@ -324,12 +333,47 @@ example,</p>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##  3:    Gentoo    Biscoe        3200 42.81649 40.19221 42.55664 46.84035</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##  4:    Adelie     Dream        3200 40.16219 36.95895 40.34633 43.90681</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##  5: Chinstrap     Dream        3200 46.21778 43.53954 45.90929 49.19173</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## ---                                                                    </span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 41: Chinstrap     Dream        5300 48.48139 46.36282 48.25679 51.02996</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## 42:    Gentoo     Dream        5300 45.91819 43.62832 45.54110 49.91622</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">## 43:    Adelie Torgersen        5300 42.92879 40.66576 42.31072 46.76406</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">## 44: Chinstrap Torgersen        5300 46.59576 44.80400 46.49196 49.03906</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="do">## 45:    Gentoo Torgersen        5300 45.11384 42.95190 44.51289 49.27629</span></span></code></pre><p></p></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  6:    Gentoo     Dream        3200 42.60465 39.89647 42.63520 46.28769</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  7:    Adelie Torgersen        3200 39.91652 36.80227 39.79806 43.68842</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">##  8: Chinstrap Torgersen        3200 44.27807 41.95470 44.40742 46.68848</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">##  9:    Gentoo Torgersen        3200 42.09510 39.49863 41.80049 45.81833</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">## 10:    Adelie    Biscoe        3550 40.77971 38.04027 40.59561 44.57505</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="do">## 11: Chinstrap    Biscoe        3550 45.81304 43.52102 45.73116 48.36366</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="do">## 12:    Gentoo    Biscoe        3550 43.31233 40.77355 43.03077 47.22936</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="do">## 13:    Adelie     Dream        3550 40.77741 38.07399 40.78175 44.37273</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="do">## 14: Chinstrap     Dream        3550 47.30926 44.80493 46.77540 50.47092</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="do">## 15:    Gentoo     Dream        3550 43.26955 40.86119 43.16204 46.89190</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="do">## 16:    Adelie Torgersen        3550 40.25780 37.35251 40.07871 44.04576</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="do">## 17: Chinstrap Torgersen        3550 44.77911 42.60161 44.81944 47.14986</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="do">## 18:    Gentoo Torgersen        3550 42.49520 39.95866 42.14160 46.26237</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="do">## 19:    Adelie    Biscoe        3975 41.61744 38.94515 41.36634 45.38752</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="do">## 20: Chinstrap    Biscoe        3975 46.59363 44.59970 46.44923 49.11457</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="do">## 21:    Gentoo    Biscoe        3975 44.07857 41.60792 43.74562 47.85109</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="do">## 22:    Adelie     Dream        3975 41.50511 39.06187 41.24741 45.13027</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="do">## 23: Chinstrap     Dream        3975 48.14978 45.87390 47.54867 51.50683</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="do">## 24:    Gentoo     Dream        3975 44.01928 41.70577 43.84099 47.50470</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="do">## 25:    Adelie Torgersen        3975 40.94764 38.12519 40.66759 44.73689</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="do">## 26: Chinstrap Torgersen        3975 45.44820 43.49986 45.44036 47.63243</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="do">## 27:    Gentoo Torgersen        3975 43.13791 40.70628 42.70627 46.87306</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="do">## 28:    Adelie    Biscoe        4700 42.93914 40.48463 42.44768 46.81756</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="do">## 29: Chinstrap    Biscoe        4700 47.18534 45.40866 47.07739 49.55747</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="do">## 30:    Gentoo    Biscoe        4700 45.32541 43.08173 44.93498 49.23391</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="do">## 31:    Adelie     Dream        4700 42.73806 40.44229 42.22226 46.49936</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="do">## 32: Chinstrap     Dream        4700 48.37354 46.34335 48.00781 51.18955</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="do">## 33:    Gentoo     Dream        4700 45.09132 42.88328 44.79530 48.82180</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="do">## 34:    Adelie Torgersen        4700 42.09349 39.72074 41.56168 45.68838</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="do">## 35: Chinstrap Torgersen        4700 46.17045 44.39042 46.09525 48.35127</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="do">## 36:    Gentoo Torgersen        4700 44.31621 42.18968 43.81773 47.98024</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="do">## 37:    Adelie    Biscoe        5300 43.89769 41.43335 43.28504 48.10892</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="do">## 38: Chinstrap    Biscoe        5300 47.53721 45.66038 47.52770 49.88701</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="do">## 39:    Gentoo    Biscoe        5300 46.16115 43.81722 45.59309 50.57469</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="do">## 40:    Adelie     Dream        5300 43.59846 41.25825 43.24518 47.46193</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="do">## 41: Chinstrap     Dream        5300 48.48139 46.36282 48.25679 51.02996</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="do">## 42:    Gentoo     Dream        5300 45.91819 43.62832 45.54110 49.91622</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="do">## 43:    Adelie Torgersen        5300 42.92879 40.66576 42.31072 46.76406</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="do">## 44: Chinstrap Torgersen        5300 46.59576 44.80400 46.49196 49.03906</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="do">## 45:    Gentoo Torgersen        5300 45.11384 42.95190 44.51289 49.27629</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="do">##       species    island body_mass_g     mean      lwr     medn      upr</span></span></code></pre><p></p></div>
 <p>By default, all combinations of all variables are used. However, you can
 also look at the variables one by one, separately, like so:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">pd_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
@@ -407,19 +451,39 @@ exist in the training data.)</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">pd_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bili</span><span class="op">)</span>,</span>
 <span>                        pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">3000</span>, by <span class="op">=</span> <span class="fl">500</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">pd_train</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##     pred_horizon  bili      mean         lwr       medn       upr</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##            &lt;num&gt; &lt;num&gt;     &lt;num&gt;       &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##  1:          500  0.55 0.0617199 0.000443399 0.00865419 0.5907104</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##  2:         1000  0.55 0.1418501 0.005793742 0.05572853 0.7360749</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##  3:         1500  0.55 0.2082505 0.013609478 0.09174558 0.8556319</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##  4:         2000  0.55 0.2679017 0.023047689 0.14574169 0.8910549</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##  5:         2500  0.55 0.3179617 0.063797305 0.20254500 0.9017710</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## ---                                                              </span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 26:         1000  7.25 0.3264627 0.135343689 0.25956791 0.8884333</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## 27:         1500  7.25 0.4641265 0.218208755 0.38787435 0.9702903</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">## 28:         2000  7.25 0.5511761 0.293367409 0.48427730 0.9812413</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">## 29:         2500  7.25 0.6200238 0.371965247 0.56954399 0.9845058</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="do">## 30:         3000  7.25 0.6803482 0.425128031 0.64642318 0.9888637</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##     pred_horizon  bili       mean         lwr        medn       upr</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##            &lt;num&gt; &lt;num&gt;      &lt;num&gt;       &lt;num&gt;       &lt;num&gt;     &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##  1:          500  0.55 0.06171990 0.000443399 0.008654190 0.5907104</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##  2:         1000  0.55 0.14185009 0.005793742 0.055728527 0.7360749</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##  3:         1500  0.55 0.20825053 0.013609478 0.091745579 0.8556319</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##  4:         2000  0.55 0.26790167 0.023047689 0.145741690 0.8910549</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##  5:         2500  0.55 0.31796166 0.063797305 0.202544999 0.9017710</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  6:         3000  0.55 0.39108086 0.090852131 0.301804690 0.9234812</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  7:          500  0.70 0.06240527 0.000443399 0.008934806 0.5980510</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">##  8:         1000  0.70 0.14313570 0.006159694 0.056348007 0.7432448</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">##  9:         1500  0.70 0.21012128 0.013717586 0.092461532 0.8597396</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">## 10:         2000  0.70 0.27013021 0.023169510 0.146344595 0.8935664</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="do">## 11:         2500  0.70 0.31880954 0.062506113 0.201979102 0.9068170</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="do">## 12:         3000  0.70 0.39286323 0.089707173 0.308392927 0.9252028</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="do">## 13:          500  1.50 0.06679162 0.001271788 0.011028398 0.6241228</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="do">## 14:         1000  1.50 0.15727919 0.011478962 0.068332010 0.7678732</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="do">## 15:         1500  1.50 0.23316655 0.028732095 0.117289745 0.8789647</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="do">## 16:         2000  1.50 0.30139227 0.046792721 0.180096425 0.9144202</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="do">## 17:         2500  1.50 0.35260943 0.084586675 0.238015966 0.9266065</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="do">## 18:         3000  1.50 0.43512074 0.131110330 0.346025144 0.9438562</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="do">## 19:          500  3.50 0.08638646 0.005208753 0.028239001 0.6740930</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="do">## 20:         1000  3.50 0.22353655 0.051917978 0.139604845 0.8283986</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="do">## 21:         1500  3.50 0.32700976 0.090198324 0.217982772 0.9371150</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="do">## 22:         2000  3.50 0.41618105 0.144532860 0.311508093 0.9566091</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="do">## 23:         2500  3.50 0.49248461 0.219511094 0.402095677 0.9636221</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="do">## 24:         3000  3.50 0.56008108 0.263569896 0.503253258 0.9734948</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="do">## 25:          500  7.25 0.12585007 0.022092057 0.063550987 0.7543806</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="do">## 26:         1000  7.25 0.32646274 0.135343689 0.259567907 0.8884333</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="do">## 27:         1500  7.25 0.46412653 0.218208755 0.387874346 0.9702903</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="do">## 28:         2000  7.25 0.55117610 0.293367409 0.484277295 0.9812413</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="do">## 29:         2500  7.25 0.62002385 0.371965247 0.569543990 0.9845058</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="do">## 30:         3000  7.25 0.68034820 0.425128031 0.646423180 0.9888637</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="do">##     pred_horizon  bili       mean         lwr        medn       upr</span></span></code></pre><p></p></div>
 <p>vector-valued <code>pred_horizon</code> input comes with minimal extra
 computational cost. Use a fine grid of time values and assess whether
 predictors have time-varying effects. (see partial dependence vignette
