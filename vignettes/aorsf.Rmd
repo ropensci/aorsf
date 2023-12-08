@@ -36,9 +36,43 @@ The purpose of `aorsf` ('a' is short for accelerated) is to provide a unifying f
 
 Everything in `aorsf` begins with the `orsf()` function. Here we begin with an oblique RF for survival using the `pbc_orsf` data. Note that `n_tree` is 5 for convenience in these examples, but should be >= 500 in practice.
 
-```{r child = "../Rmd/orsf-fit-intro.Rmd"}
+
+For classification, we fit an oblique RF to predict penguin species using `penguin` data from the magnificent `palmerpenguins` [R package](https://allisonhorst.github.io/palmerpenguins/)
+
+```{r}
+# An oblique classification RF
+penguin_fit <- orsf(data = penguins_orsf,
+                    n_tree = 5, 
+                    formula = species ~ .)
+
+penguin_fit
 
 ```
+
+For regression, we use the same data but predict bill length of penguins:
+
+```{r}
+# An oblique regression RF
+bill_fit <- orsf(data = penguins_orsf, 
+                 n_tree = 5, 
+                 formula = bill_length_mm ~ .)
+
+bill_fit
+
+```
+
+My personal favorite is the oblique survival RF with accelerated Cox regression because it has a great combination of prediction accuracy and computational efficiency (see [JCGS paper](https://doi.org/10.1080/10618600.2023.2231048)). Here, we predict mortality risk following diagnosis of primary biliary cirrhosis:
+
+```{r}
+# An oblique survival RF
+pbc_fit <- orsf(data = pbc_orsf, 
+                n_tree = 5,
+                formula = Surv(time, status) ~ . - id)
+
+pbc_fit
+
+```
+
 
 
 you may notice that the first input of `aorsf` is `data`. This is a design choice that makes it easier to use `orsf` with pipes (i.e., `%>%` or `|>`). For instance,

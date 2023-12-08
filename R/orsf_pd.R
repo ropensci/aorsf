@@ -35,6 +35,23 @@ pred_spec_auto <- function(...){
 
 }
 
+#' @rdname pred_spec_auto
+#' @export
+pred_spec_intr <- function(...){
+
+ input_string <- gsub(".*\\((.*)\\).*", "\\1", match.call())[-1]
+ result <- trimws(unlist(strsplit(input_string, ",")))
+
+ if(length(result) < 2)
+  stop("at least two variables are required for interactions",
+       call. = FALSE)
+
+ class(result) <- c("pspec_intr", class(result))
+
+ result
+
+}
+
 
 #' Partial dependence
 #'
@@ -104,6 +121,10 @@ pred_spec_auto <- function(...){
 #'  skipped.
 #'
 #' @param n_thread `r roxy_n_thread_header("computing predictions")`
+#'
+#' @param verbose_progress (_logical_) if `TRUE`, progress will be
+#'  printed to console. If `FALSE` (the default), nothing will be
+#'  printed.
 #'
 #' @param ... `r roxy_dots()`
 #'

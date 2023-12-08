@@ -56,6 +56,10 @@ For regression:
 
 For details on these methods, see \link{orsf_vi}.}
 
+\item{verbose_progress}{(\emph{logical}) if \code{TRUE}, progress will be
+printed to console. If \code{FALSE} (the default), nothing will be
+printed.}
+
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 }
 \value{
@@ -87,7 +91,7 @@ object <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 25)
 # used for ranking variables in the summary, unless we specify
 # a different type of importance
 
-orsf_summarize_uni(object, n_variables = 3, verbose_progress = TRUE)
+orsf_summarize_uni(object)
 
 # if we want to summarize object according to variables
 # ranked by negation importance, we can compute negation

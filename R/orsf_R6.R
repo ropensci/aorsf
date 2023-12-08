@@ -399,6 +399,8 @@ ObliqueForest <- R6::R6Class(
 
    cpp_output <- do.call(orsf_cpp, args = cpp_args)
 
+   cpp_output$eval_oobag$stat_type <- self$oobag_eval_type
+
    .dots <- list(...)
    if(length(.dots) > 0)
     for(i in names(.dots)) self[[i]] <- .dots[[i]]
@@ -599,6 +601,7 @@ ObliqueForest <- R6::R6Class(
    private_state <- list(data_rows_complete = private$data_rows_complete)
 
    # run checks before you assign new values to object.
+   self$check_boundary_checks(boundary_checks)
 
    if(inherits(pred_spec, 'pspec_auto')){
 
@@ -612,10 +615,29 @@ ObliqueForest <- R6::R6Class(
      pred_spec[[i]] <- self$get_var_bounds(i)
     }
 
+   } else if (inherits(pred_spec, 'pspec_intr')){
+
+    pairs <- utils::combn(pred_spec, m = 2)
+
+    pred_spec <- vector(mode = 'list', length = ncol(pairs))
+
+    for(i in seq_along(pred_spec)){
+
+     pred_spec[[i]] <- expand.grid(
+      forest$get_var_bounds(pairs[1,i]),
+      forest$get_var_bounds(pairs[2,i])
+     )
+
+     colnames(pred_spec[[i]]) <- pairs[, i, drop = TRUE]
+
+    }
+
+   } else {
+
+    self$check_pred_spec(pred_spec, boundary_checks)
+
    }
 
-   self$check_boundary_checks(boundary_checks)
-   self$check_pred_spec(pred_spec, boundary_checks)
    self$check_n_thread(n_thread)
    self$check_expand_grid(expand_grid)
    self$check_verbose_progress(verbose_progress)
@@ -2567,8 +2589,26 @@ ObliqueForest <- R6::R6Class(
    means <- private$data_means
    stdev <- private$data_stdev
 
-   for(i in intersect(names(means), names(pred_spec))){
-    pred_spec[[i]] <- (pred_spec[[i]] - means[i]) / stdev[i]
+   pd_intr <- is_empty(names(pred_spec))
+
+   if(!pd_intr){
+
+    for(i in intersect(names(means), names(pred_spec))){
+     pred_spec[[i]] <- (pred_spec[[i]] - means[i]) / stdev[i]
+    }
+
+   } else {
+
+    for(j in seq_along(pred_spec)){
+
+     for(i in intersect(names(means), names(pred_spec[[j]]))){
+      pred_spec[[j]][[i]] <- (pred_spec[[j]][[i]] - means[i]) / stdev[i]
+     }
+
+    }
+
+    expand_grid <- FALSE
+
    }
 
    fi <- private$data_fctrs
@@ -2604,7 +2644,7 @@ ObliqueForest <- R6::R6Class(
 
     pd_bind <- list(pred_spec)
 
-   } else {
+   } else if(!pd_intr){
 
     pred_spec_new <- pd_bind <- x_cols <- list()
 
@@ -2637,6 +2677,19 @@ ObliqueForest <- R6::R6Class(
      pred_spec_new[[i]] <- as.matrix(pred_spec_new[[i]])
 
     }
+
+   } else {
+
+    pd_bind <- pred_spec
+
+    pred_spec_new <- lapply(pred_spec, collapse::qM)
+
+    x_cols <- lapply(
+     pred_spec,
+     function(x){
+      match(names(x), colnames(private$x)) - 1
+     }
+    )
 
    }
 
@@ -2732,6 +2785,22 @@ ObliqueForest <- R6::R6Class(
                           as.data.frame(pd_bind[[i]]),
                           by = 'id_variable')
 
+    if(pd_intr){
+
+     v1 <- colnames(pred_spec_new[[i]])[1]
+     v2 <- colnames(pred_spec_new[[i]])[2]
+
+     pd_vals[[i]][['var_1_name']] <- v1
+     pd_vals[[i]][['var_2_name']] <- v2
+
+     names(pd_vals[[i]])[names(pd_vals[[i]]) == v1] <- "var_1_value"
+     names(pd_vals[[i]])[names(pd_vals[[i]]) == v2] <- "var_2_value"
+
+     pd_vals[[i]]$var_1_value <- as.numeric(pd_vals[[i]]$var_1_value)
+     pd_vals[[i]]$var_2_value <- as.numeric(pd_vals[[i]]$var_2_value)
+
+    }
+
    }
 
    out <- rbindlist(pd_vals)
@@ -2772,25 +2841,53 @@ ObliqueForest <- R6::R6Class(
     out[, id_variable := NULL]
 
    # put data back into original scale
-   for(j in intersect(names(means), names(pred_spec))){
+   if(pd_intr){
 
-    if(j %in% names(out)){
+    for(j in collapse::funique(out$var_1_name)){
 
-     var_index <- collapse::seq_row(out)
-     var_value <- (out[[j]] * stdev[j]) + means[j]
-     var_name  <- j
+     if(j %in% names(means)){
+      var_index <- out$var_1_name %==% j
+      var_value <- (out$var_1_value[var_index] * stdev[j]) + means[j]
+      set(out, i = var_index, j = 'var_1_value', value = var_value)
+     }
 
-    } else {
-
-     var_index <- out$variable %==% j
-     var_value <- (out$value[var_index] * stdev[j]) + means[j]
-     var_name  <- 'value'
 
     }
 
-    set(out, i = var_index, j = var_name, value = var_value)
+    for(j in collapse::funique(out$var_2_name)){
+
+     if(j %in% names(means)){
+      var_index <- out$var_2_name %==% j
+      var_value <- (out$var_2_value[var_index] * stdev[j]) + means[j]
+      set(out, i = var_index, j = 'var_2_value', value = var_value)
+     }
+
+    }
+
+   } else {
+
+    for(j in intersect(names(means), names(pred_spec))){
+
+     if(j %in% names(out)){
+
+      var_index <- collapse::seq_row(out)
+      var_value <- (out[[j]] * stdev[j]) + means[j]
+      var_name  <- j
+
+     } else {
+
+      var_index <- out$variable %==% j
+      var_value <- (out$value[var_index] * stdev[j]) + means[j]
+      var_name  <- 'value'
+
+     }
+
+     set(out, i = var_index, j = var_name, value = var_value)
+
+    }
 
    }
+
 
    # silent print after modify in place
    out[]

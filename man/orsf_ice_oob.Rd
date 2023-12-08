@@ -14,6 +14,7 @@ orsf_ice_oob(
   expand_grid = TRUE,
   boundary_checks = TRUE,
   n_thread = 0,
+  verbose_progress = FALSE,
   ...
 )
 
@@ -25,6 +26,7 @@ orsf_ice_inb(
   expand_grid = TRUE,
   boundary_checks = TRUE,
   n_thread = 0,
+  verbose_progress = FALSE,
   ...
 )
 
@@ -38,6 +40,7 @@ orsf_ice_new(
   expand_grid = TRUE,
   boundary_checks = TRUE,
   n_thread = 0,
+  verbose_progress = FALSE,
   ...
 )
 }
@@ -95,6 +98,10 @@ percentile in the object's training data. If \code{FALSE}, these checks are
 skipped.}
 
 \item{n_thread}{(\emph{integer}) number of threads to use while computing predictions. Default is 0, which allows a suitable number of threads to be used based on availability.}
+
+\item{verbose_progress}{(\emph{logical}) if \code{TRUE}, progress will be
+printed to console. If \code{FALSE} (the default), nothing will be
+printed.}
 
 \item{...}{Further arguments passed to or from other methods (not currently used).}
 
