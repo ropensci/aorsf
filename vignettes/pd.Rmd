@@ -205,10 +205,20 @@ pd_train
 
 ```
 
-
-
-
 ## One variable, moving horizon
+
+For the next few sections, we update `orsf_fit` to include all the data in `pbc_orsf` instead of just the training sample:
+
+```{r}
+# a rare case of modify_in_place = TRUE
+orsf_update(fit_surv, 
+            data = pbc_orsf, 
+            modify_in_place = TRUE)
+
+fit_surv
+
+```
+
 
 What if the effect of a predictor varies over time? Partial dependence can show this.
 
@@ -299,12 +309,42 @@ From inspection,
   
 ```{r, echo = FALSE}
 
-# in case pbc_orsf is used in downstream docs
+# drop so it won't interfere with downstream code
 
 pbc_orsf$edema_05 <- NULL
 
 ```
 
+## Find interactions using PD
+
+Random forests are good at using interactions, but less good at telling you about them. Use `orsf_vint()` to apply the method for variable interaction scoring with PD described by Greenwell et al (2018). This can take a little while if you have lots of predictors, so setting `verbose_progress = TRUE` may be helpful.
+
+```{r}
+
+vint_scores <- orsf_vint(fit_surv, verbose_progress = TRUE)
+
+vint_scores[1:5]
+
+```
+
+Again we use a sanity check with `coxph` to see if these interactions are detected using a standard test:
+
+```{r}
+fit_cph <- coxph(Surv(time,status) ~ albumin * protime, 
+                 data = pbc_orsf)
+
+anova(fit_cph)
+
+fit_cph <- update(fit_cph, . ~ stage * protime)
+
+anova(fit_cph)
+
+fit_cph <- update(fit_cph, . ~ copper * protime)
+
+anova(fit_cph)
+```
+
+*Note*: Caution is warranted when interpreting statistical hypotheses that are motivated by the same data they are tested with. Results like the p-values for interaction shown above should be interpreted as exploratory.
 
 ## Individual conditional expectations (ICE)
 

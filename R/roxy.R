@@ -283,6 +283,21 @@ roxy_cite_penguins <- function(){
 
 }
 
+roxy_cite_greenwell_2018 <- function(){
+
+ roxy_cite(
+  authors = "Greenwell BM, Boehmke BC, McCarthy AJ",
+  title = "A simple and effective model-based variable importance measure",
+  journal = "arXiv e-prints",
+  date = "2018 May 12",
+  number = 'arXiv:1805.04755',
+  url = "https://doi.org/10.48550/arXiv.1805.04755"
+
+ )
+
+}
+
+
 
 # ... ---------------------------------------------------------------------
 

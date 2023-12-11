@@ -1,5 +1,5 @@
 
-#' Update orsf objects
+#' Update Forest Parameters
 #'
 #' @param object `r roxy_describe_ObliqueForest(trained = FALSE)`.
 #'
@@ -81,6 +81,8 @@ orsf_update <- function(object,
   object_new$train()
 
  }
+
+ if(modify_in_place) return(invisible(object_new))
 
  object_new
 

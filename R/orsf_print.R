@@ -2,7 +2,7 @@
 
 
 
-#' Inspect your ORSF model
+#' Inspect Forest Parameters
 #'
 #' Printing an ORSF model tells you:
 #' - Linear combinations: How were these identified?

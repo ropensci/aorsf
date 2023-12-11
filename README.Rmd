@@ -213,11 +213,21 @@ The importance of individual predictor variables can be estimated in three ways 
   orsf_vi_anova(bill_fit)
   ```
 
-You can supply your own R function to estimate out-of-bag error when using negation or permutation importance (see [oob vignette](https://docs.ropensci.org/aorsf/articles/oobag.html))
+You can supply your own R function to estimate out-of-bag error (see [oob vignette](https://docs.ropensci.org/aorsf/articles/oobag.html)) or to estimate out-of-bag variable importance (see [orsf_vi examples](https://docs.ropensci.org/aorsf/reference/orsf_vi.html#examples))
 
-### Partial dependence (PD) 
+## Partial dependence (PD) 
 
-`r aorsf:::roxy_pd_explain()`
+`r aorsf:::roxy_pd_explain()`. You can use specific values for a predictor to compute PD or let `aorsf` pick reasonable values for you if you use `pred_spec_auto()`:
+
+```{r}
+# pick your own values
+orsf_pd_oob(bill_fit, pred_spec = list(species = c("Adelie", "Gentoo")))
+
+# let aorsf pick reasonable values for you:
+orsf_pd_oob(bill_fit, pred_spec = pred_spec_auto(bill_depth_mm, island))
+
+```
+
 
 The summary function, `orsf_summarize_uni()`, computes PD for as many variables as you ask it to, using sensible values.
 
@@ -225,15 +235,45 @@ The summary function, `orsf_summarize_uni()`, computes PD for as many variables 
 orsf_summarize_uni(pbc_fit, n_variables = 2)
 ```
 
-
 For more on PD, see the [vignette](https://docs.ropensci.org/aorsf/articles/pd.html)
 
-### Individual conditional expectations (ICE)
+## Individual conditional expectations (ICE)
 
 `r aorsf:::roxy_ice_explain()`
 
 
 For more on ICE, see the [vignette](https://docs.ropensci.org/aorsf/articles/pd.html#individual-conditional-expectations-ice)
+
+
+## Interaction scores
+
+The `orsf_vint()` function computes a score for each possible interaction in a model based on PD using the method described in Greenwell et al, 2018.^5^ It can be slow for larger datasets, but substantial speedups occur by making use of multi-threading and restricting the search to a smaller set of predictors. 
+
+```{r}
+preds_interaction <- c("albumin", "protime", "bili", "spiders", "trt")
+
+# While it is tempting to speed up `orsf_vint()` by growing a smaller 
+# number of trees, results may become unstable with this shortcut.
+pbc_interactions <- pbc_fit %>% 
+ orsf_update(n_tree = 500, tree_seeds = 329) %>% 
+ orsf_vint(n_thread = 0,  predictors = preds_interaction)
+
+pbc_interactions
+```
+
+What do the values in `score` mean? These values are the average of the standard deviation of the standard deviation of PD in one variable conditional on the other variable. They should be interpreted relative to one another, i.e., a higher scoring interaction is more likely to reflect a real interaction between two variables than a lower scoring one.
+
+Do these interaction scores make sense? Let's test the top scoring and lowest scoring interactions using `coxph()`.
+
+```{r}
+library(survival)
+# the top scoring interaction should get a lower p-value
+anova(coxph(Surv(time, status) ~ protime * albumin, data = pbc_orsf))
+# the bottom scoring interaction should get a higher p-value
+anova(coxph(Surv(time, status) ~ spiders * trt, data = pbc_orsf))
+```
+
+Note: this is exploratory and not a true null hypothesis test. Why? Because we used the same data both to generate and to test the null hypothesis. We are not so much conducting statistical inference when we test these interactions with `coxph` as we are demonstrating the interaction scores that `orsf_vint()` provides are consistent with tests from other models.
 
 ## Comparison to existing software
 
@@ -262,7 +302,10 @@ cat("2. ", aorsf:::roxy_cite_jaeger_2023(), '\n\n')
 
 cat("3. ", aorsf:::roxy_cite_penguins(),  '\n\n')
 
-cat("4. ", aorsf:::roxy_cite_menze_2011())
+cat("4. ", aorsf:::roxy_cite_menze_2011(), '\n\n')
+
+cat("5. ", aorsf:::roxy_cite_greenwell_2018())
+
 ```
 
 

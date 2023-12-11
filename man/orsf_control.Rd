@@ -310,15 +310,14 @@ The AUC values, from highest to lowest:
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{sc$AUC$score[order(-AUC)]
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##     model times       AUC         se     lower
-##    <fctr> <num>     <num>      <num>     <num>
-## 1:    net  1788 0.9151649 0.02025057 0.8754745
-## 2:    rlt  1788 0.9119200 0.02090107 0.8709547
-## 3:  accel  1788 0.9095628 0.02143250 0.8675558
-## 4:    cph  1788 0.9095628 0.02143250 0.8675558
-## 5:  rando  1788 0.9062197 0.02148854 0.8641029
-## 6:    pca  1788 0.8983266 0.02303267 0.8531834
-## 1 variable(s) not shown: [upper <num>]
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##     model times       AUC         se     lower     upper
+##    <fctr> <num>     <num>      <num>     <num>     <num>
+## 1:    net  1788 0.9151649 0.02025057 0.8754745 0.9548553
+## 2:    rlt  1788 0.9119200 0.02090107 0.8709547 0.9528854
+## 3:  accel  1788 0.9095628 0.02143250 0.8675558 0.9515697
+## 4:    cph  1788 0.9095628 0.02143250 0.8675558 0.9515697
+## 5:  rando  1788 0.9062197 0.02148854 0.8641029 0.9483365
+## 6:    pca  1788 0.8983266 0.02303267 0.8531834 0.9434698
 }\if{html}{\out{</div>}}
 
 And the indices of prediction accuracy:

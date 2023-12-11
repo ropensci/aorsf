@@ -78,7 +78,7 @@ penguin_fit
 #>                  N trees: 5
 #>       N predictors total: 7
 #>    N predictors per node: 3
-#>  Average leaves per tree: 4.8
+#>  Average leaves per tree: 6.2
 #> Min observations in leaf: 5
 #>           OOB stat value: 0.99
 #>            OOB stat type: AUC-ROC
@@ -104,9 +104,9 @@ bill_fit
 #>                  N trees: 5
 #>       N predictors total: 7
 #>    N predictors per node: 3
-#>  Average leaves per tree: 49.6
+#>  Average leaves per tree: 50.4
 #> Min observations in leaf: 5
-#>           OOB stat value: 0.73
+#>           OOB stat value: 0.75
 #>            OOB stat type: RSQ
 #>      Variable importance: anova
 #> 
@@ -114,10 +114,11 @@ bill_fit
 ```
 
 My personal favorite is the oblique survival RF with accelerated Cox
-regression because it has a great combination of prediction accuracy and
-computational efficiency (see [JCGS
-paper](https://doi.org/10.1080/10618600.2023.2231048)). Here, we predict
-mortality risk following diagnosis of primary biliary cirrhosis:
+regression because it was the first type of oblique RF that `aorsf`
+provided (see [JCGS
+paper](https://doi.org/10.1080/10618600.2023.2231048)). Here, we use it
+to predict mortality risk following diagnosis of primary biliary
+cirrhosis:
 
 ``` r
 # An oblique survival RF
@@ -134,10 +135,10 @@ pbc_fit
 #>                  N trees: 5
 #>       N predictors total: 17
 #>    N predictors per node: 5
-#>  Average leaves per tree: 21.4
+#>  Average leaves per tree: 19.6
 #> Min observations in leaf: 5
 #>       Min events in leaf: 1
-#>           OOB stat value: 0.73
+#>           OOB stat value: 0.75
 #>            OOB stat type: Harrell's C-index
 #>      Variable importance: anova
 #> 
@@ -292,14 +293,14 @@ vector
 
   ``` r
   orsf_vi_negate(pbc_fit)
-  #>          bili        copper           age           trt          trig 
-  #>  0.1719756333  0.0465239881  0.0322328707  0.0308438130  0.0266140192 
-  #>           sex       protime           ast      alk.phos         edema 
-  #>  0.0253567213  0.0231892823  0.0231803440  0.0102134973  0.0090376413 
-  #>       ascites          chol       albumin         stage      platelet 
-  #>  0.0089475709  0.0077027397  0.0072715135  0.0039566416  0.0019083851 
-  #>       spiders        hepato 
-  #> -0.0005253927 -0.0075028026
+  #>          bili        copper       protime       albumin       ascites 
+  #>  0.1203848865  0.0592053045  0.0279486559  0.0237897777  0.0147007324 
+  #>           trt           sex      alk.phos          trig       spiders 
+  #>  0.0125080750  0.0116880832  0.0105730484  0.0044249987  0.0024722789 
+  #>          chol         edema           age           ast      platelet 
+  #>  0.0008840789  0.0004944292  0.0003003666 -0.0012533584 -0.0081733249 
+  #>         stage        hepato 
+  #> -0.0091305502 -0.0120281819
   ```
 
 - **permutation**: Each variable is assessed separately by randomly
@@ -312,10 +313,10 @@ vector
 
   ``` r
   orsf_vi_permute(penguin_fit)
-  #>       body_mass_g    bill_length_mm     bill_depth_mm            island 
-  #>       0.165103246       0.161935256       0.088688330       0.059562304 
-  #> flipper_length_mm               sex              year 
-  #>       0.052541170       0.026012585      -0.003977858
+  #>    bill_length_mm       body_mass_g     bill_depth_mm flipper_length_mm 
+  #>       0.210168971       0.079138442       0.061107587       0.050399635 
+  #>            island              year               sex 
+  #>       0.042829130       0.001689854      -0.003287019
   ```
 
 - **analysis of variance (ANOVA)**<sup>4</sup>: A p-value is computed
@@ -330,23 +331,51 @@ vector
 
   ``` r
   orsf_vi_anova(bill_fit)
-  #>           species               sex flipper_length_mm       body_mass_g 
-  #>       0.306238859       0.215686275       0.110169492       0.100000000 
-  #>            island     bill_depth_mm              year 
-  #>       0.084256514       0.063636364       0.009433962
+  #>               sex           species            island flipper_length_mm 
+  #>        0.37500000        0.33602187        0.09470954        0.05263158 
+  #>     bill_depth_mm       body_mass_g              year 
+  #>        0.05000000        0.04918033        0.00000000
   ```
 
-You can supply your own R function to estimate out-of-bag error when
-using negation or permutation importance (see [oob
-vignette](https://docs.ropensci.org/aorsf/articles/oobag.html))
+You can supply your own R function to estimate out-of-bag error (see
+[oob vignette](https://docs.ropensci.org/aorsf/articles/oobag.html)) or
+to estimate out-of-bag variable importance (see [orsf_vi
+examples](https://docs.ropensci.org/aorsf/reference/orsf_vi.html#examples))
 
-### Partial dependence (PD)
+## Partial dependence (PD)
 
 Partial dependence (PD) shows the expected prediction from a model as a
 function of a single predictor or multiple predictors. The expectation
 is marginalized over the values of all other predictors, giving
 something like a multivariable adjusted estimate of the model’s
-prediction.
+prediction.. You can use specific values for a predictor to compute PD
+or let `aorsf` pick reasonable values for you if you use
+`pred_spec_auto()`:
+
+``` r
+# pick your own values
+orsf_pd_oob(bill_fit, pred_spec = list(species = c("Adelie", "Gentoo")))
+#>    species     mean      lwr     medn      upr
+#>     <fctr>    <num>    <num>    <num>    <num>
+#> 1:  Adelie 41.54048 35.51625 40.50000 49.89998
+#> 2:  Gentoo 42.83185 36.01556 42.29556 51.04089
+
+# let aorsf pick reasonable values for you:
+orsf_pd_oob(bill_fit, pred_spec = pred_spec_auto(bill_depth_mm, island))
+#>     bill_depth_mm    island     mean      lwr     medn      upr
+#>             <num>    <fctr>    <num>    <num>    <num>    <num>
+#>  1:          14.3    Biscoe 44.53325 37.12446 44.88000 51.00000
+#>  2:          15.6    Biscoe 44.44897 37.08321 44.75000 51.03689
+#>  3:          17.3    Biscoe 44.01986 36.14000 44.01250 53.43578
+#>  4:          18.7    Biscoe 43.66173 35.99644 42.93095 54.32733
+#>  5:          19.5    Biscoe 44.21056 35.96111 43.99167 54.45133
+#> ---                                                            
+#> 11:          14.3 Torgersen 42.92359 35.77868 42.54875 50.43488
+#> 12:          15.6 Torgersen 42.82373 35.69733 42.54875 50.19559
+#> 13:          17.3 Torgersen 42.93715 35.71257 42.40466 51.57472
+#> 14:          18.7 Torgersen 42.46346 36.00470 41.13466 52.14050
+#> 15:          19.5 Torgersen 42.88632 36.37587 41.55000 52.84875
+```
 
 The summary function, `orsf_summarize_uni()`, computes PD for as many
 variables as you ask it to, using sensible values.
@@ -354,23 +383,23 @@ variables as you ask it to, using sensible values.
 ``` r
 orsf_summarize_uni(pbc_fit, n_variables = 2)
 #> 
-#> -- bili (VI Rank: 1) ------------------------------
+#> -- bili (VI Rank: 1) -----------------------------
 #> 
 #>         |----------------- Risk -----------------|
-#>   Value      Mean     Median      25th %    75th %
-#>  <char>     <num>      <num>       <num>     <num>
-#>    0.80 0.2410135 0.07692308 0.006289308 0.4397423
-#>    1.40 0.2858958 0.14652236 0.013188572 0.5043706
-#>    3.55 0.4247489 0.40000000 0.142857143 0.6680556
+#>   Value      Mean     Median     25th %    75th %
+#>  <char>     <num>      <num>      <num>     <num>
+#>    0.80 0.2039042 0.03907164 0.01204819 0.3547619
+#>    1.40 0.2264253 0.06060606 0.01323529 0.4090909
+#>    3.55 0.3281926 0.22379977 0.09090909 0.5000000
 #> 
-#> -- copper (VI Rank: 2) ----------------------------
+#> -- copper (VI Rank: 2) ---------------------------
 #> 
 #>         |----------------- Risk -----------------|
-#>   Value      Mean    Median      25th %    75th %
-#>  <char>     <num>     <num>       <num>     <num>
-#>    42.5 0.2909554 0.1262687 0.006289308 0.5175000
-#>    74.0 0.3093496 0.1479291 0.009891429 0.5562696
-#>     130 0.3716437 0.2877435 0.066184326 0.6040054
+#>   Value      Mean     Median     25th %    75th %
+#>  <char>     <num>      <num>      <num>     <num>
+#>    42.5 0.2578622 0.05772203 0.01456808 0.4610507
+#>    74.0 0.2774388 0.09090909 0.01666667 0.4945813
+#>     130 0.3241708 0.19790500 0.02409639 0.5384615
 #> 
 #>  Predicted risk at time t = 1788 for top 2 predictors
 ```
@@ -378,7 +407,7 @@ orsf_summarize_uni(pbc_fit, n_variables = 2)
 For more on PD, see the
 [vignette](https://docs.ropensci.org/aorsf/articles/pd.html)
 
-### Individual conditional expectations (ICE)
+## Individual conditional expectations (ICE)
 
 Unlike partial dependence, which shows the expected prediction as a
 function of one or multiple predictors, individual conditional
@@ -387,6 +416,85 @@ a function of a predictor.
 
 For more on ICE, see the
 [vignette](https://docs.ropensci.org/aorsf/articles/pd.html#individual-conditional-expectations-ice)
+
+## Interaction scores
+
+The `orsf_vint()` function computes a score for each possible
+interaction in a model based on PD using the method described in
+Greenwell et al, 2018.<sup>5</sup> It can be slow for larger datasets,
+but substantial speedups occur by making use of multi-threading and
+restricting the search to a smaller set of predictors.
+
+``` r
+preds_interaction <- c("albumin", "protime", "bili", "spiders", "trt")
+
+# While it is tempting to speed up `orsf_vint()` by growing a smaller 
+# number of trees, results may become unstable with this shortcut.
+pbc_interactions <- pbc_fit %>% 
+ orsf_update(n_tree = 500, tree_seeds = 329) %>% 
+ orsf_vint(n_thread = 0,  predictors = preds_interaction)
+
+pbc_interactions
+#>          interaction      score
+#>               <char>      <num>
+#>  1: albumin..protime 1.29270242
+#>  2:    protime..bili 0.85645437
+#>  3:    albumin..bili 0.68987446
+#>  4:    bili..spiders 0.09060722
+#>  5:        bili..trt 0.09060722
+#>  6: protime..spiders 0.07798808
+#>  7:     protime..trt 0.07798808
+#>  8: albumin..spiders 0.05698401
+#>  9:     albumin..trt 0.05698401
+#> 10:     spiders..trt 0.00000000
+```
+
+What do the values in `score` mean? These values are the average of the
+standard deviation of the standard deviation of PD in one variable
+conditional on the other variable. They should be interpreted relative
+to one another, i.e., a higher scoring interaction is more likely to
+reflect a real interaction between two variables than a lower scoring
+one.
+
+Do these interaction scores make sense? Let’s test the top scoring and
+lowest scoring interactions using `coxph()`.
+
+``` r
+library(survival)
+# the top scoring interaction should get a lower p-value
+anova(coxph(Surv(time, status) ~ protime * albumin, data = pbc_orsf))
+#> Analysis of Deviance Table
+#>  Cox model: response is Surv(time, status)
+#> Terms added sequentially (first to last)
+#> 
+#>                  loglik  Chisq Df Pr(>|Chi|)    
+#> NULL            -550.19                         
+#> protime         -538.51 23.353  1  1.349e-06 ***
+#> albumin         -514.89 47.255  1  6.234e-12 ***
+#> protime:albumin -511.76  6.252  1    0.01241 *  
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+# the bottom scoring interaction should get a higher p-value
+anova(coxph(Surv(time, status) ~ spiders * trt, data = pbc_orsf))
+#> Analysis of Deviance Table
+#>  Cox model: response is Surv(time, status)
+#> Terms added sequentially (first to last)
+#> 
+#>              loglik   Chisq Df Pr(>|Chi|)    
+#> NULL        -550.19                          
+#> spiders     -538.58 23.2159  1  1.448e-06 ***
+#> trt         -538.39  0.3877  1     0.5335    
+#> spiders:trt -538.29  0.2066  1     0.6494    
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+Note: this is exploratory and not a true null hypothesis test. Why?
+Because we used the same data both to generate and to test the null
+hypothesis. We are not so much conducting statistical inference when we
+test these interactions with `coxph` as we are demonstrating the
+interaction scores that `orsf_vint()` provides are consistent with tests
+from other models.
 
 ## Comparison to existing software
 
@@ -432,6 +540,11 @@ paper](https://doi.org/10.1080/10618600.2023.2231048). The paper:
     random forests. *Joint European Conference on Machine Learning and
     Knowledge Discovery in Databases*. 2011 Sep 4; pp. 453-469. DOI:
     10.1007/978-3-642-23783-6_29
+
+5.  Greenwell BM, Boehmke BC, McCarthy AJ. A simple and effective
+    model-based variable importance measure. *arXiv e-prints*. 2018 May
+    12; arXiv:1805.04755. URL:
+    <https://doi.org/10.48550/arXiv.1805.04755>
 
 ## Funding
 

@@ -603,6 +603,8 @@ ObliqueForest <- R6::R6Class(
    # run checks before you assign new values to object.
    self$check_boundary_checks(boundary_checks)
 
+   type_input <- 'user'
+
    if(inherits(pred_spec, 'pspec_auto')){
 
     self$check_var_names(.names = pred_spec,
@@ -617,6 +619,8 @@ ObliqueForest <- R6::R6Class(
 
    } else if (inherits(pred_spec, 'pspec_intr')){
 
+    type_input <- 'intr'
+
     pairs <- utils::combn(pred_spec, m = 2)
 
     pred_spec <- vector(mode = 'list', length = ncol(pairs))
@@ -624,8 +628,8 @@ ObliqueForest <- R6::R6Class(
     for(i in seq_along(pred_spec)){
 
      pred_spec[[i]] <- expand.grid(
-      forest$get_var_bounds(pairs[1,i]),
-      forest$get_var_bounds(pairs[2,i])
+      self$get_var_bounds(pairs[1,i]),
+      self$get_var_bounds(pairs[2,i])
      )
 
      colnames(pred_spec[[i]]) <- pairs[, i, drop = TRUE]
@@ -657,6 +661,7 @@ ObliqueForest <- R6::R6Class(
    # oobag=FALSE to match the format of arg in orsf_pd().
    self$check_pred_type(pred_type, oobag = FALSE,
                         context = 'partial dependence')
+
    pred_type <- pred_type %||% self$pred_type
 
    self$check_pred_horizon(pred_horizon, boundary_checks, pred_type)
@@ -678,6 +683,7 @@ ObliqueForest <- R6::R6Class(
     private$compute_dependence_internal(pred_spec = pred_spec,
                                         pred_type = pred_type,
                                         pred_horizon = pred_horizon,
+                                        type_input  = type_input,
                                         type_output = type_output,
                                         expand_grid = expand_grid,
                                         prob_labels = prob_labels,
@@ -2561,6 +2567,7 @@ ObliqueForest <- R6::R6Class(
   compute_dependence_internal = function(pred_spec,
                                          pred_type,
                                          pred_horizon = NULL,
+                                         type_input,
                                          type_output,
                                          prob_labels,
                                          prob_values,
@@ -2589,9 +2596,7 @@ ObliqueForest <- R6::R6Class(
    means <- private$data_means
    stdev <- private$data_stdev
 
-   pd_intr <- is_empty(names(pred_spec))
-
-   if(!pd_intr){
+   if(type_input == 'user'){
 
     for(i in intersect(names(means), names(pred_spec))){
      pred_spec[[i]] <- (pred_spec[[i]] - means[i]) / stdev[i]
@@ -2644,7 +2649,7 @@ ObliqueForest <- R6::R6Class(
 
     pd_bind <- list(pred_spec)
 
-   } else if(!pd_intr){
+   } else if(type_input == 'user'){
 
     pred_spec_new <- pd_bind <- x_cols <- list()
 
@@ -2785,7 +2790,7 @@ ObliqueForest <- R6::R6Class(
                           as.data.frame(pd_bind[[i]]),
                           by = 'id_variable')
 
-    if(pd_intr){
+    if(type_input == 'intr'){
 
      v1 <- colnames(pred_spec_new[[i]])[1]
      v2 <- colnames(pred_spec_new[[i]])[2]
@@ -2841,7 +2846,7 @@ ObliqueForest <- R6::R6Class(
     out[, id_variable := NULL]
 
    # put data back into original scale
-   if(pd_intr){
+   if(type_input == 'intr'){
 
     for(j in collapse::funique(out$var_1_name)){
 

@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, warning=FALSE}
 
 library(aorsf)
 library(survival)
@@ -115,7 +115,7 @@ There are two ways to apply your own function to compute out-of-bag error. First
 ```{r}
 
 oobag_brier_surv(y_mat = pbc_orsf[,c('time', 'status')],
-                s_vec = fit$pred_oobag)
+                 s_vec = fit$pred_oobag)
 
 ```
 
@@ -123,62 +123,83 @@ Second, you can pass your function into `orsf()`, and it will be used in place o
 
 ```{r}
 
-fit <- orsf(data = pbc_orsf,
-            formula = Surv(time, status) ~ . - id,
-            n_tree = 20,
-            tree_seeds = 2,
-            oobag_pred_horizon = 2000,
-            oobag_fun = oobag_brier_surv,
-            oobag_eval_every = 1)
+# instead of copy/pasting the modeling code and then modifying it,
+# you can just use orsf_update.
+
+fit_brier <- orsf_update(fit, oobag_fun = oobag_brier_surv)
 
 plot(
  x = seq(1, 20, by = 1),
- y = fit$eval_oobag$stat_values, 
+ y = fit_brier$eval_oobag$stat_values, 
  main = 'Out-of-bag error computed after each new tree is grown.',
  sub = 'For the Brier score, lower values indicate more accurate predictions',
  xlab = 'Number of trees grown',
  ylab = "Brier score"
 )
 
-lines(x=seq(1, 20), y = fit$eval_oobag$stat_values)
+lines(x=seq(1, 20), y = fit_brier$eval_oobag$stat_values)
 
 ```
+
+<!-- Although earlier versions of `aorsf` were not compatible with `riskRegression::Score()`, they now work together nicely. Notably, it is a little tricky to make the prediction horizon time pass all tests imposed by `aorsf` and `riskRegression` (see code below). -->
+
+<!-- ```{r} -->
+
+<!-- oobag_cstat_surv <- function(y_mat, w_vec, s_vec){ -->
+
+<!--  data <- as.data.frame(y_mat) -->
+<!--  names(data) <- c("time", "status") -->
+
+<!--  times <- 2000 -->
+
+<!--  if(max(data$time) < 2000) times <- median(data$time) -->
+
+<!--  if(any(s_vec > 1) || any(s_vec < 0)){ -->
+<!--   s_vec <- scales::rescale(s_vec, to = c(0, 1)) -->
+<!--  } -->
+
+<!--  sc <- riskRegression::Score(object = list(p = s_vec), -->
+<!--                              formula = Surv(time, status) ~ 1, -->
+<!--                              data = data, -->
+<!--                              times = times) -->
+
+<!--  cstat <- sc$AUC$score$AUC[1] -->
+
+<!--  if(is.nan(cstat)) return(1/2) -->
+
+<!--  if(cstat < 1/2) return(1-cstat) -->
+
+<!--  cstat -->
+
+<!-- } -->
+
+<!-- fit_cstat <- orsf_update(fit, oobag_fun = oobag_cstat_surv) -->
+
+<!-- plot( -->
+<!--  x = seq(1, 20, by = 1), -->
+<!--  y = fit_cstat$eval_oobag$stat_values,  -->
+<!--  main = 'Out-of-bag error computed after each new tree is grown.', -->
+<!--  sub = 'For the C-statistic, higher values indicate better discrimination between low and high risk observations', -->
+<!--  xlab = 'Number of trees grown', -->
+<!--  ylab = "C-statistic using Score()" -->
+<!-- ) -->
+
+<!-- lines(x=seq(1, 20), y = fit_cstat$eval_oobag$stat_values) -->
+
+<!-- ``` -->
 
 ### Specific instructions on user-supplied functions
 
-User-supplied functions must:
+`r aorsf:::roxy_oobag_fun_user()`
 
-1. have exactly three arguments named `y_mat`, `w_vec`, and `s_vec`.
-1. return a numeric output of length 1
+- `r aorsf:::roxy_oobag_fun_inputs()`
 
-If either of these conditions is not true, an error will occur. A simple test to make sure your user-supplied function will work with the aorsf package is below:
+- `r aorsf:::roxy_oobag_fun_ymat()`
 
-```{r}
+- `r aorsf:::roxy_oobag_fun_svec()`
 
-# Helper code to make sure your oobag_fun function will work with aorsf
+- `r aorsf:::roxy_oobag_fun_return()`
 
-# time and status values
-test_time <- seq(from = 1, to = 5, length.out = 100)
-test_status <- rep(c(0,1), each = 50)
-
-# y-matrix is presumed to contain time and status (with column names)
-y_mat <- cbind(time = test_time, status = test_status)
-# s_vec is presumed to be a vector of survival probabilities
-s_vec <- seq(0.9, 0.1, length.out = 100)
-
-# see 1 in the checklist above
-names(formals(oobag_brier_surv)) == c("y_mat", "w_vec", "s_vec")
-
-test_output <- oobag_brier_surv(y_mat = y_mat, 
-                               w_vec = w_vec,
-                               s_vec = s_vec)
-
-# test output should be numeric
-is.numeric(test_output)
-# test_output should be a numeric value of length 1
-length(test_output) == 1
-
-```
 
 ## Notes
 
@@ -188,4 +209,3 @@ When evaluating out-of-bag error:
 
 - Some functions expect predicted risk (i.e., 1 - predicted survival), others expect predicted survival. 
 
-- In most cases, you should also be able to use any function whatsoever to compute out-of-bag prediction error when estimating negation or permutation importance, assuming it passes the tests above. Unfortunately, an exception is `riskRegression::Score()`, one of my favorites. I have experimented with `riskRegression::Score` but found it does not work when I try to run it from C++. I am not sure why this is the case.

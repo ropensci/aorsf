@@ -35,23 +35,6 @@ pred_spec_auto <- function(...){
 
 }
 
-#' @rdname pred_spec_auto
-#' @export
-pred_spec_intr <- function(...){
-
- input_string <- gsub(".*\\((.*)\\).*", "\\1", match.call())[-1]
- result <- trimws(unlist(strsplit(input_string, ",")))
-
- if(length(result) < 2)
-  stop("at least two variables are required for interactions",
-       call. = FALSE)
-
- class(result) <- c("pspec_intr", class(result))
-
- result
-
-}
-
 
 #' Partial dependence
 #'

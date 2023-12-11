@@ -192,7 +192,8 @@ To get aggregated values across all levels of each factor,
 \itemize{
 \item access the \code{importance} element from the \code{orsf} fit:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit$importance
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# this assumes you used group_factors = TRUE in orsf()
+fit$importance
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper    albumin        age    protime 
@@ -262,8 +263,8 @@ orsf_vi_negate(fit_no_vi)
 fit an oblique random forest and compute vi at the same time
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_permute_vi <- orsf(pbc_orsf,
-                        Surv(time, status) ~ . - id,
-                        importance = 'permute')
+                       Surv(time, status) ~ . - id,
+                       importance = 'permute')
 
 # get the vi instantly (i.e., it doesn't need to be computed again)
 orsf_vi_permute(fit_permute_vi)
@@ -290,6 +291,53 @@ You can still get negation VI from this fit, but it needs to be computed
 ## 0.020586632 0.014229536 0.014053040 0.012227048 0.007643156 0.006832766 
 ##      hepato         trt    alk.phos        trig    platelet 
 ## 0.006301693 0.004348705 0.002371797 0.002309396 0.001347035
+}\if{html}{\out{</div>}}
+}
+
+\subsection{Custom functions for VI}{
+
+The default prediction accuracy functions work well most of the time:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_standard <- orsf(penguins_orsf, bill_length_mm ~ ., tree_seeds = 1)
+
+# Default method for prediction accuracy with VI is R-squared
+orsf_vi_permute(fit_standard)
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##           species flipper_length_mm       body_mass_g     bill_depth_mm 
+##      0.3725898166      0.3261834607      0.2225730676      0.1026569498 
+##            island               sex              year 
+##      0.0876071687      0.0844807334      0.0006978493
+}\if{html}{\out{</div>}}
+
+But sometimes you want to do something specific and the defaults just
+won’t work. For these cases, you can compute VI with any function you’d
+like to measure prediction accuracy by supplying a valid function to the
+\code{oobag_fun} input. For example, we use mean absolute error below. Higher
+values are considered good when \code{aorsf} computes prediction accuracy, so
+we make our function return a pseudo R-squared based on mean absolute
+error:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{rsq_mae <- function(y_mat, w_vec, s_vec)\{
+ 
+ mae_standard <- mean(abs((y_mat - mean(y_mat)) * w_vec))
+ mae_fit <- mean(abs((y_mat - s_vec) * w_vec))
+ 
+ 1 - mae_fit / mae_standard
+ 
+\}
+
+fit_custom <- orsf_update(fit_standard, oobag_fun = rsq_mae)
+
+# not much changes, but the difference between variables shrinks
+# and the ordering of sex and island has swapped
+orsf_vi_permute(fit_custom)
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##           species flipper_length_mm       body_mass_g     bill_depth_mm 
+##       0.206951751       0.193248912       0.140899603       0.076759148 
+##               sex            island              year 
+##       0.073042331       0.050851073       0.003633365
 }\if{html}{\out{</div>}}
 }
 }

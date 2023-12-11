@@ -2,7 +2,7 @@
 % Please edit documentation in R/orsf_update.R
 \name{orsf_update}
 \alias{orsf_update}
-\title{Update orsf objects}
+\title{Update Forest Parameters}
 \usage{
 orsf_update(object, ..., modify_in_place = FALSE, no_fit = NULL)
 }
@@ -26,7 +26,7 @@ directly submitted to \code{orsf_train()} so long as \code{attach_data} is \code
 an \code{ObliqueForest} object.
 }
 \description{
-Update orsf objects
+Update Forest Parameters
 }
 \details{
 There are several dynamic inputs in \code{orsf} with default values of \code{NULL}.

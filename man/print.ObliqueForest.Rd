@@ -2,7 +2,7 @@
 % Please edit documentation in R/orsf_print.R
 \name{print.ObliqueForest}
 \alias{print.ObliqueForest}
-\title{Inspect your ORSF model}
+\title{Inspect Forest Parameters}
 \usage{
 \method{print}{ObliqueForest}(x, ...)
 }

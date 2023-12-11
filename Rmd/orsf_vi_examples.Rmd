@@ -1,4 +1,9 @@
 
+```{r, include=FALSE}
+library(aorsf)
+```
+
+
 # Examples
 
 ## ANOVA importance
@@ -34,6 +39,7 @@ To get aggregated values across all levels of each factor,
 - access the `importance` element from the `orsf` fit:
 
   ```{r}
+  # this assumes you used group_factors = TRUE in orsf()
   fit$importance
   ```
 
@@ -73,8 +79,8 @@ fit an oblique random forest and compute vi at the same time
 ```{r}
 
 fit_permute_vi <- orsf(pbc_orsf,
-                        Surv(time, status) ~ . - id,
-                        importance = 'permute')
+                       Surv(time, status) ~ . - id,
+                       importance = 'permute')
 
 # get the vi instantly (i.e., it doesn't need to be computed again)
 orsf_vi_permute(fit_permute_vi)
@@ -86,6 +92,40 @@ You can still get negation VI from this fit, but it needs to be computed
 ```{r}
 
 orsf_vi_negate(fit_permute_vi)
+
+```
+
+## Custom functions for VI
+
+The default prediction accuracy functions work well most of the time:
+
+```{r}
+
+fit_standard <- orsf(penguins_orsf, bill_length_mm ~ ., tree_seeds = 1)
+
+# Default method for prediction accuracy with VI is R-squared
+orsf_vi_permute(fit_standard)
+
+```
+
+But sometimes you want to do something specific and the defaults just won't work. For these cases, you can compute VI with any function you'd like to measure prediction accuracy by supplying a valid function to the `oobag_fun` input. For example, we use mean absolute error below. Higher values are considered good when `aorsf` computes prediction accuracy, so we make our function return a pseudo R-squared based on mean absolute error:
+
+```{r}
+
+rsq_mae <- function(y_mat, w_vec, s_vec){
+ 
+ mae_standard <- mean(abs((y_mat - mean(y_mat)) * w_vec))
+ mae_fit <- mean(abs((y_mat - s_vec) * w_vec))
+ 
+ 1 - mae_fit / mae_standard
+ 
+}
+
+fit_custom <- orsf_update(fit_standard, oobag_fun = rsq_mae)
+
+# not much changes, but the difference between variables shrinks
+# and the ordering of sex and island has swapped
+orsf_vi_permute(fit_custom)
 
 ```
 

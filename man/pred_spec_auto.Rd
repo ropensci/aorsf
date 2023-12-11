@@ -2,12 +2,9 @@
 % Please edit documentation in R/orsf_pd.R
 \name{pred_spec_auto}
 \alias{pred_spec_auto}
-\alias{pred_spec_intr}
 \title{Automatic variable values for dependence}
 \usage{
 pred_spec_auto(...)
-
-pred_spec_intr(...)
 }
 \arguments{
 \item{...}{names of the variables to use. These can be in quotes
