@@ -90,20 +90,20 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, <span class="fu">Surv</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">smry</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">object</span>, n_variables <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">smry</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    variable importance value      mean      medn        lwr       upr</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:  ascites  0.4947064     0 0.3050070 0.1840331 0.06531822 0.5221214</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:  ascites  0.4947064     1 0.4652769 0.3973374 0.26058497 0.6420784</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:     bili  0.4141414  0.80 0.2292848 0.1459439 0.05780859 0.3597061</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:     bili  0.4141414  1.40 0.2511701 0.1684290 0.07362588 0.3992120</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:     bili  0.4141414  3.52 0.3700485 0.2965168 0.16712101 0.5399487</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:    edema  0.3103584     0 0.3004661 0.1810064 0.06231768 0.5146747</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7:    edema  0.3103584   0.5 0.3500270 0.2424507 0.10117387 0.5871975</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8:    edema  0.3103584     1 0.4545005 0.3843846 0.25754347 0.6464531</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:  ascites  0.5054509     0 0.3081802 0.2022126 0.06435804 0.5211909</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:  ascites  0.5054509     1 0.4616319 0.3990927 0.25137678 0.6521789</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:     bili  0.4193700  0.80 0.2398182 0.1563749 0.05786065 0.3823013</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4:     bili  0.4193700  1.40 0.2611692 0.1781803 0.07305514 0.4088129</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5:     bili  0.4193700  3.52 0.3704069 0.3104595 0.17401883 0.5398620</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6:    edema  0.3022856     0 0.3040173 0.1860865 0.06264053 0.5184384</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7:    edema  0.3022856   0.5 0.3516118 0.2535400 0.10398105 0.5908601</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8:    edema  0.3022856     1 0.4404490 0.3737748 0.22873486 0.6398435</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    pred_horizon level</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1:         1788     0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2:         1788     1</span>

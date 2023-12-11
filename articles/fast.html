@@ -127,7 +127,7 @@ compared to other approaches can be striking. For example:</p>
 <span><span class="co"># control_fast() is much faster</span></span>
 <span><span class="va">time_net</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span> <span class="op">/</span> <span class="va">time_fast</span><span class="op">[</span><span class="st">'elapsed'</span><span class="op">]</span></span>
 <span><span class="co">#&gt;  elapsed </span></span>
-<span><span class="co">#&gt; 29.91892</span></span></code></pre></div>
+<span><span class="co">#&gt; 44.34783</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="use-n_thread">Use <code>n_thread</code><a class="anchor" aria-label="anchor" href="#use-n_thread"></a>
@@ -136,9 +136,9 @@ compared to other approaches can be striking. For example:</p>
 <code>aorsf</code> functions in parallel when possible. If you know how
 many threads you want, e.g. you want exactly 5, just say
 <code>n_thread = 5</code>. If you aren’t sure how many threads you have
-available but want to use as many as you can, say
-<code>n_thread = 0</code> and <code>aorsf</code> will figure out the
-number for you.</p>
+available but want to use a feasible amount, using
+<code>n_thread = 0</code> tells <code>aorsf</code> to do that for
+you.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># automatically pick number of threads based on amount available</span></span>
@@ -147,10 +147,12 @@ number for you.</p>
 <span>     formula <span class="op">=</span> <span class="va">time</span><span class="op">+</span><span class="va">status</span><span class="op">~</span><span class="va">.</span> <span class="op">-</span><span class="va">id</span>, </span>
 <span>     n_tree <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>     n_thread <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
-<p>Because R is a single threaded language, multi-threading cannot be
-applied when <code><a href="../reference/orsf.html">orsf()</a></code> needs to call R functions from C++,
-which occurs when a customized R function is used to find linear
-combination of variables or compute prediction accuracy.</p>
+<p>The default value for <code>n_thread</code> is 0, but sometimes
+multi-threading is not possible. For example, because R is a single
+threaded language, multi-threading cannot be applied when
+<code><a href="../reference/orsf.html">orsf()</a></code> needs to call R functions from C++, which occurs
+when a customized R function is used to find linear combination of
+variables or compute prediction accuracy.</p>
 </div>
 <div class="section level2">
 <h2 id="do-less">Do less<a class="anchor" aria-label="anchor" href="#do-less"></a>
@@ -158,16 +160,14 @@ combination of variables or compute prediction accuracy.</p>
 <p>There are some defaults in <code><a href="../reference/orsf.html">orsf()</a></code> that can be adjusted
 to make it run faster:</p>
 <ul>
-<li><p>set <code>n_retry</code> to 0 instead of 3 (the default)</p></li>
-<li><p>set <code>oobag_pred_type</code> to ‘none’ instead of ‘surv’ (the
-default)</p></li>
-<li><p>set ‘importance’ to ‘none’ instead of ‘anova’ (the
-default)</p></li>
+<li><p>set <code>n_retry</code> to 0</p></li>
+<li><p>set <code>oobag_pred_type</code> to ‘none’</p></li>
+<li><p>set ‘importance’ to ‘none’</p></li>
 <li><p>increase <code>split_min_events</code>,
 <code>split_min_obs</code>, <code>leaf_min_events</code>, or
 <code>leaf_min_obs</code> to make trees stop growing sooner</p></li>
-<li><p>increase <code>split_min_stat</code> to make trees stop growing
-sooner</p></li>
+<li><p>increase <code>split_min_stat</code> to enforce more strict
+requirements for growing deeper trees.</p></li>
 </ul>
 <p>Applying these tips:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -200,6 +200,31 @@ running less slow.</p>
 <span>                    verbose_progress <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Growing trees: 100%. </span></span>
 <span><span class="co">#&gt; Computing predictions: 100%.</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="dont-wait--estimate">Don’t wait. Estimate!<a class="anchor" aria-label="anchor" href="#dont-wait--estimate"></a>
+</h2>
+<p>Instead of running a model and hoping it will be fast, you can
+estimate how long a specification of that model will take by using
+<code>no_fit = TRUE</code> in the call to <code><a href="../reference/orsf.html">orsf()</a></code>.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">fit_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, </span>
+<span>                 formula <span class="op">=</span> <span class="va">time</span><span class="op">+</span><span class="va">status</span><span class="op">~</span><span class="va">.</span> <span class="op">-</span><span class="va">id</span>, </span>
+<span>                 control <span class="op">=</span> <span class="fu"><a href="../reference/orsf_control.html">orsf_control_survival</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">'net'</span><span class="op">)</span>, </span>
+<span>                 n_tree <span class="op">=</span> <span class="fl">2000</span>,</span>
+<span>                 no_fit <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># how much time it takes to estimate training time:</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
+<span> <span class="va">time_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_time_to_train.html">orsf_time_to_train</a></span><span class="op">(</span><span class="va">fit_spec</span>, n_tree_subset <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt;    user  system elapsed </span></span>
+<span><span class="co">#&gt;   0.258   0.021   0.279</span></span>
+<span></span>
+<span><span class="co"># the estimated training time:</span></span>
+<span><span class="va">time_est</span></span>
+<span><span class="co">#&gt; Time difference of 111.199 secs</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

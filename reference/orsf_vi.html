@@ -247,7 +247,8 @@ and 1.</p>
 
 
 <p>To get aggregated values across all levels of each factor,</p><ul><li><p>access the <code>importance</code> element from the <code>orsf</code> fit:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit</span><span class="op">$</span><span class="va">importance</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode r"><pre><code><span><span class="co"># this assumes you used group_factors = TRUE in orsf()</span></span>
+<span><span class="va">fit</span><span class="op">$</span><span class="va">importance</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##    ascites       bili      edema     copper    albumin        age    protime </span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 0.46791708 0.40590758 0.31115216 0.28840580 0.25972156 0.23259259 0.22656250 </span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##      stage        ast       chol    spiders        sex     hepato       trig </span></span>
@@ -303,8 +304,8 @@ by setting <code>group_factors</code> to <code>FALSE</code> in the <code>orsf_vi
 
 <p>fit an oblique random forest and compute vi at the same time</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_permute_vi</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>,</span>
-<span>                        <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
-<span>                        importance <span class="op">=</span> <span class="st">'permute'</span><span class="op">)</span></span>
+<span>                       <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
+<span>                       importance <span class="op">=</span> <span class="st">'permute'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># get the vi instantly (i.e., it doesn't need to be computed again)</span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">fit_permute_vi</span><span class="op">)</span></span></code></pre><p></p></div>
@@ -324,6 +325,46 @@ by setting <code>group_factors</code> to <code>FALSE</code> in the <code>orsf_vi
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 0.020586632 0.014229536 0.014053040 0.012227048 0.007643156 0.006832766 </span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##      hepato         trt    alk.phos        trig    platelet </span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 0.006301693 0.004348705 0.002371797 0.002309396 0.001347035</span></span></code></pre><p></p></div>
+</div>
+
+<div class="section">
+<h3 id="custom-functions-for-vi">Custom functions for VI<a class="anchor" aria-label="anchor" href="#custom-functions-for-vi"></a></h3>
+
+
+<p>The default prediction accuracy functions work well most of the time:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">fit_standard</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span><span class="va">penguins_orsf</span>, <span class="va">bill_length_mm</span> <span class="op">~</span> <span class="va">.</span>, tree_seeds <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Default method for prediction accuracy with VI is R-squared</span></span>
+<span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">fit_standard</span><span class="op">)</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##           species flipper_length_mm       body_mass_g     bill_depth_mm </span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##      0.3725898166      0.3261834607      0.2225730676      0.1026569498 </span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##            island               sex              year </span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##      0.0876071687      0.0844807334      0.0006978493</span></span></code></pre><p></p></div>
+<p>But sometimes you want to do something specific and the defaults just
+won’t work. For these cases, you can compute VI with any function you’d
+like to measure prediction accuracy by supplying a valid function to the
+<code>oobag_fun</code> input. For example, we use mean absolute error below. Higher
+values are considered good when <code>aorsf</code> computes prediction accuracy, so
+we make our function return a pseudo R-squared based on mean absolute
+error:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">rsq_mae</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">y_mat</span>, <span class="va">w_vec</span>, <span class="va">s_vec</span><span class="op">)</span><span class="op">{</span></span>
+<span> </span>
+<span> <span class="va">mae_standard</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="op">(</span><span class="va">y_mat</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y_mat</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="va">w_vec</span><span class="op">)</span><span class="op">)</span></span>
+<span> <span class="va">mae_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="op">(</span><span class="va">y_mat</span> <span class="op">-</span> <span class="va">s_vec</span><span class="op">)</span> <span class="op">*</span> <span class="va">w_vec</span><span class="op">)</span><span class="op">)</span></span>
+<span> </span>
+<span> <span class="fl">1</span> <span class="op">-</span> <span class="va">mae_fit</span> <span class="op">/</span> <span class="va">mae_standard</span></span>
+<span> </span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">fit_custom</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_update.html">orsf_update</a></span><span class="op">(</span><span class="va">fit_standard</span>, oobag_fun <span class="op">=</span> <span class="va">rsq_mae</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># not much changes, but the difference between variables shrinks</span></span>
+<span><span class="co"># and the ordering of sex and island has swapped</span></span>
+<span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">fit_custom</span><span class="op">)</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##           species flipper_length_mm       body_mass_g     bill_depth_mm </span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##       0.206951751       0.193248912       0.140899603       0.076759148 </span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##               sex            island              year </span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">##       0.073042331       0.050851073       0.003633365</span></span></code></pre><p></p></div>
 </div>
 
     </div>
