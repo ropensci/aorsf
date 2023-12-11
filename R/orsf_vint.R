@@ -99,12 +99,19 @@ orsf_vint <- function(object,
 
  pd_split <- split(pd, pd$id_intr)
 
+ # for cran
+ . <- score <- var_1_value <- var_2_value <- NULL
+
  pd_scores <- vapply(
   pd_split,
   function(dt){
    mean(
-    c(sd(dt[, .(vi = sd(mean)), by = var_1_value][["vi"]]),
-      sd(dt[, .(vi = sd(mean)), by = var_2_value][["vi"]]))
+    c(collapse::fsd(
+     dt[, .(vi = collapse::fsd(mean)), by = var_1_value][["vi"]]
+    ),
+    collapse::fsd(
+     dt[, .(vi = collapse::fsd(mean)), by = var_2_value][["vi"]])
+    )
    )
   },
   double(1)
