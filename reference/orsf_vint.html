@@ -142,12 +142,10 @@ with more trees.</p>
 <span class="r-in"><span><span class="va">data</span><span class="op">$</span><span class="va">y</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">data</span>, expr <span class="op">=</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">+</span> <span class="va">x3</span> <span class="op">+</span> <span class="fl">1</span><span class="op">/</span><span class="fl">2</span><span class="op">*</span><span class="va">x1</span> <span class="op">*</span> <span class="va">x2</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">*</span> <span class="va">x3</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">500</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">forest</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">y</span> <span class="op">~</span> <span class="va">.</span>, n_tree <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in cols2int(vars, x, attr(x, "names")):</span> cols must be a function, character vector, numeric indices or logical vector!</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">orsf_vint</span><span class="op">(</span><span class="va">forest</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    interaction     score</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:      x2..x3 0.8021932</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:      x1..x2 0.5095065</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:      x1..x3 0.1133252</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in eval(expr, envir, enclos):</span> object 'forest' not found</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
