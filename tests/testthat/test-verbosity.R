@@ -5,6 +5,7 @@ test_that(
  code = {
 
   skip_on_ci()
+  skip_on_cran()
 
   expect_snapshot(
    fit_verbose <- orsf(pbc, time + status ~.,
@@ -18,7 +19,7 @@ test_that(
                        verbose_progress = TRUE,
                        n_tree = n_tree_test,
                        importance = 'negate',
-                       n_thread = 5)
+                       n_thread = 1)
   )
 
  }

@@ -16,7 +16,7 @@ as_matrix <- function(x){
 #'
 select_cols <- function(data, col_names){
 
- collapse::fselect(data, col_names, return = 'data')
+ collapse::fselect(data, as.character(col_names), return = 'data')
 
 }
 

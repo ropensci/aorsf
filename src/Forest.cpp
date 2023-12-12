@@ -664,7 +664,7 @@ void Forest::compute_dependence_multi_thread(
  uword n_specs = pd_x_vals.size();
 
  for(uword k = 0; k < n_specs; ++k){
-  oobag_divby+=pd_x_vals[k].n_rows;;
+  oobag_divby+=pd_x_vals[k].n_rows;
  }
 
  if (thread_ranges.size() > thread_idx + 1) {
