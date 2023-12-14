@@ -28,9 +28,7 @@ test_that(
 test_that(
  desc = "orsf_vint uses only predictors requested",
  code = {
-
   expect_equal(nrow(vints_2), 1)
-
  }
 )
 
