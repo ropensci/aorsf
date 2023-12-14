@@ -34,16 +34,13 @@ The oblique random forest (RF) is an extension of the traditional (axis-based) R
 
 The purpose of `aorsf` ('a' is short for accelerated) is to provide a unifying framework to fit oblique RFs that can scale adequately to large data sets. The fastest algorithms available in the package are used by default because they often have equivalent prediction accuracy to more computational approaches.
 
-Everything in `aorsf` begins with the `orsf()` function. Here we begin with an oblique RF for survival using the `pbc_orsf` data. Note that `n_tree` is 5 for convenience in these examples, but should be >= 500 in practice.
-
+The center piece of `aorsf` is the `orsf()` function. In the initial versions of `aorsf`, the `orsf()` function only fit `o`blique `r`andom `s`urvival `f`orests, but now it allows for classification, regression, and survival forests. (I may introduce an `orf()` function in the future if the name `orsf()` is misleading to users.) 
 
 For classification, we fit an oblique RF to predict penguin species using `penguin` data from the magnificent `palmerpenguins` [R package](https://allisonhorst.github.io/palmerpenguins/)
 
 ```{r}
 # An oblique classification RF
-penguin_fit <- orsf(data = penguins_orsf,
-                    n_tree = 5, 
-                    formula = species ~ .)
+penguin_fit <- orsf(data = penguins_orsf, formula = species ~ .)
 
 penguin_fit
 
@@ -53,9 +50,7 @@ For regression, we use the same data but predict bill length of penguins:
 
 ```{r}
 # An oblique regression RF
-bill_fit <- orsf(data = penguins_orsf, 
-                 n_tree = 5, 
-                 formula = bill_length_mm ~ .)
+bill_fit <- orsf(data = penguins_orsf, formula = bill_length_mm ~ .)
 
 bill_fit
 
