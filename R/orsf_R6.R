@@ -589,6 +589,8 @@ ObliqueForest <- R6::R6Class(
                                 oobag,
                                 type_output){
 
+   na_action <- na_action %||% self$na_action
+
    public_state <- list(data             = self$data,
                         na_action        = self$na_action,
                         pred_horizon     = self$pred_horizon,
@@ -846,9 +848,10 @@ ObliqueForest <- R6::R6Class(
 
     if(i %in% colnames(bounds)){
 
-     pred_spec[[i]] <- unique(
-      as.numeric(bounds[c('25%','50%','75%'), i])
-     )
+     pred_spec[[i]] <- self$get_var_bounds(i)
+      # unique(
+      #  as.numeric(bounds[c('25%','50%','75%'), i])
+      # )
 
     } else if (i %in% fctrs$cols) {
 
@@ -864,6 +867,7 @@ ObliqueForest <- R6::R6Class(
                             pred_type = pred_type,
                             prob_values = c(0.25, 0.50, 0.75),
                             pred_horizon = pred_horizon,
+                            boundary_checks = FALSE,
                             verbose_progress = verbose_progress)
 
    fctrs_unordered <- c()
@@ -986,7 +990,7 @@ ObliqueForest <- R6::R6Class(
      # so use the most common unique values instead.
      unis <- sort(table(self$data[[.name]]), decreasing = TRUE)
      n_items <- min(5, length(unis))
-     out <- sort(as.numeric(names(all_unis)[seq(n_items)]))
+     out <- sort(as.numeric(names(unis)[seq(n_items)]))
     }
 
     return(out)
