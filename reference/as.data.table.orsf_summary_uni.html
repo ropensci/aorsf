@@ -95,24 +95,28 @@
 <span class="r-in"><span><span class="va">smry</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">object</span>, n_variables <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">smry</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    variable importance value      mean      medn        lwr       upr</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:  ascites  0.4942418     0 0.3072137 0.1980682 0.06689782 0.5322781</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:  ascites  0.4942418     1 0.4633410 0.3955275 0.26233266 0.6469514</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:     bili  0.4198157  0.80 0.2406141 0.1548051 0.05625920 0.3811660</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:     bili  0.4198157  1.40 0.2612107 0.1781913 0.07438977 0.4143288</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:     bili  0.4198157  3.52 0.3718351 0.3086242 0.17450222 0.5411849</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:    edema  0.3222663     0 0.3027760 0.1884719 0.06204325 0.5343660</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7:    edema  0.3222663   0.5 0.3549313 0.2631361 0.10986194 0.6013312</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8:    edema  0.3222663     1 0.4586255 0.3919417 0.25777845 0.6349296</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    pred_horizon level</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:         1788     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:         1788     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:         1788  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4:         1788  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5:         1788  &lt;NA&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6:         1788     0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7:         1788   0.5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8:         1788     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     variable importance value      mean      medn        lwr       upr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:  ascites  0.4929860     0 0.3086774 0.2072793 0.06480570 0.5135289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:  ascites  0.4929860     1 0.4765946 0.4152192 0.28277940 0.6594116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:     bili  0.3899431  0.60 0.2404217 0.1562208 0.05567473 0.3781804</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:     bili  0.3899431  0.80 0.2442419 0.1579973 0.05893197 0.3809460</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:     bili  0.3899431  1.40 0.2637365 0.1794649 0.06937658 0.4114551</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:     bili  0.3899431  3.52 0.3686977 0.3024655 0.17265763 0.5378737</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:     bili  0.3899431  7.25 0.4790294 0.4380265 0.30045202 0.6307525</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:    edema  0.3163253     0 0.3038502 0.1977237 0.06213237 0.5235890</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:    edema  0.3163253   0.5 0.3604362 0.2736592 0.11316416 0.5983984</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:    edema  0.3163253     1 0.4674100 0.4054780 0.27288222 0.6595286</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     pred_horizon level</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:         1788     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:         1788     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:         1788  &lt;NA&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:         1788     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:         1788   0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:         1788     1</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

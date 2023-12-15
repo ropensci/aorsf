@@ -137,7 +137,7 @@ using <code>penguin</code> data from the magnificent
 <span><span class="co">#&gt;                  N trees: 500</span></span>
 <span><span class="co">#&gt;       N predictors total: 7</span></span>
 <span><span class="co">#&gt;    N predictors per node: 3</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 5.694</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 5.796</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;           OOB stat value: 1.00</span></span>
 <span><span class="co">#&gt;            OOB stat type: AUC-ROC</span></span>
@@ -158,7 +158,7 @@ penguins:</p>
 <span><span class="co">#&gt;                  N trees: 500</span></span>
 <span><span class="co">#&gt;       N predictors total: 7</span></span>
 <span><span class="co">#&gt;    N predictors per node: 3</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 49.838</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 49.71</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;           OOB stat value: 0.81</span></span>
 <span><span class="co">#&gt;            OOB stat type: RSQ</span></span>
@@ -185,10 +185,10 @@ cirrhosis:</p>
 <span><span class="co">#&gt;                  N trees: 5</span></span>
 <span><span class="co">#&gt;       N predictors total: 17</span></span>
 <span><span class="co">#&gt;    N predictors per node: 5</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 20.2</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 19.6</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;       Min events in leaf: 1</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.76</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.78</span></span>
 <span><span class="co">#&gt;            OOB stat type: Harrell's C-index</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -226,12 +226,14 @@ model.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">pbc_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;        bili      copper         sex       stage     albumin        chol </span></span>
-<span><span class="co">#&gt; 0.176364682 0.061366265 0.031714442 0.029586244 0.027801022 0.020657215 </span></span>
-<span><span class="co">#&gt;      hepato         age     ascites       edema    alk.phos         trt </span></span>
-<span><span class="co">#&gt; 0.019727454 0.017803302 0.015705239 0.012932871 0.011621405 0.011550113 </span></span>
-<span><span class="co">#&gt;     spiders    platelet        trig     protime         ast </span></span>
-<span><span class="co">#&gt; 0.010503329 0.009943024 0.009748145 0.007484292 0.005365752</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili        copper           sex           trt       protime </span></span>
+<span><span class="co">#&gt;  0.0790894793  0.0336075719  0.0197654670  0.0169630651  0.0167327073 </span></span>
+<span><span class="co">#&gt;          chol       spiders       albumin         edema       ascites </span></span>
+<span><span class="co">#&gt;  0.0134531326  0.0099189723  0.0098441622  0.0061420247  0.0059462073 </span></span>
+<span><span class="co">#&gt;           age          trig         stage        hepato           ast </span></span>
+<span><span class="co">#&gt;  0.0043074946  0.0032257580  0.0031646364 -0.0001753714 -0.0031177691 </span></span>
+<span><span class="co">#&gt;      platelet      alk.phos </span></span>
+<span><span class="co">#&gt; -0.0046169680 -0.0109565263</span></span></code></pre></div>
 </li>
 <li>
 <p>You can also compute variable importance using
@@ -242,9 +244,9 @@ accuracy to be the importance of that predictor.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">penguin_fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    bill_length_mm flipper_length_mm     bill_depth_mm       body_mass_g </span></span>
-<span><span class="co">#&gt;       0.172105822       0.102352950       0.077531854       0.064213604 </span></span>
+<span><span class="co">#&gt;      0.1689457489      0.0987682726      0.0798938262      0.0673028720 </span></span>
 <span><span class="co">#&gt;            island               sex              year </span></span>
-<span><span class="co">#&gt;       0.060871167       0.017737824       0.001097948</span></span></code></pre></div>
+<span><span class="co">#&gt;      0.0660229246      0.0189919177      0.0004864554</span></span></code></pre></div>
 </li>
 <li>
 <p>A faster alternative to permutation and negation importance is
@@ -254,9 +256,9 @@ obtains a low p-value (p &lt; 0.01) while the forest is grown.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">bill_fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           species               sex            island flipper_length_mm </span></span>
-<span><span class="co">#&gt;        0.35311121        0.20985723        0.11530027        0.09233098 </span></span>
+<span><span class="co">#&gt;        0.35710995        0.20776166        0.11430061        0.08716952 </span></span>
 <span><span class="co">#&gt;       body_mass_g     bill_depth_mm              year </span></span>
-<span><span class="co">#&gt;        0.08241896        0.06283467        0.01221905</span></span></code></pre></div>
+<span><span class="co">#&gt;        0.07819100        0.06798986        0.01413617</span></span></code></pre></div>
 </li>
 </ul>
 </div>

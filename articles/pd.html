@@ -450,9 +450,11 @@ formatted view of the output:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;        |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;   0.60 0.2356543 0.1536301 0.05872720 0.3719578</span></span>
 <span><span class="co">#&gt;   0.80 0.2398021 0.1609720 0.06167673 0.3776136</span></span>
 <span><span class="co">#&gt;   1.40 0.2613612 0.1809950 0.07893386 0.4064484</span></span>
 <span><span class="co">#&gt;   3.52 0.3702763 0.3118827 0.17050712 0.5447088</span></span>
+<span><span class="co">#&gt;   7.25 0.4780580 0.4406202 0.29442977 0.6434075</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -- edema (VI Rank: 3) --------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -466,9 +468,11 @@ formatted view of the output:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;        |---------------- Risk ----------------|</span></span>
 <span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;   25.5 0.2632768 0.1622871 0.05581251 0.4308234</span></span>
 <span><span class="co">#&gt;   42.8 0.2707739 0.1703028 0.05887747 0.4418590</span></span>
 <span><span class="co">#&gt;   74.0 0.2908707 0.1940176 0.07155433 0.4768302</span></span>
 <span><span class="co">#&gt;    129 0.3444258 0.2651729 0.11918406 0.5574967</span></span>
+<span><span class="co">#&gt;    214 0.4245218 0.3577346 0.21408331 0.6238041</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Predicted risk at time t = 1826.25 for top 4 predictors</span></span></code></pre></div>
 <p>This ‘summary’ object can be converted into a <code>data.table</code>
@@ -478,17 +482,17 @@ for downstream plotting and tables.</p>
 <span><span class="co">#&gt;    variable importance Value      Mean    Median     25th %    75th %</span></span>
 <span><span class="co">#&gt; 1:  ascites  0.4960630     0 0.3083328 0.1985589 0.06581247 0.5241336</span></span>
 <span><span class="co">#&gt; 2:  ascites  0.4960630     1 0.4702396 0.3975953 0.27481738 0.6564321</span></span>
-<span><span class="co">#&gt; 3:     bili  0.4160074  0.80 0.2398021 0.1609720 0.06167673 0.3776136</span></span>
-<span><span class="co">#&gt; 4:     bili  0.4160074  1.40 0.2613612 0.1809950 0.07893386 0.4064484</span></span>
-<span><span class="co">#&gt; 5:     bili  0.4160074  3.52 0.3702763 0.3118827 0.17050712 0.5447088</span></span>
-<span><span class="co">#&gt; 6:    edema  0.3069314     0 0.3035731 0.1840849 0.06509174 0.5228237</span></span>
+<span><span class="co">#&gt; 3:     bili  0.4160074  0.60 0.2356543 0.1536301 0.05872720 0.3719578</span></span>
+<span><span class="co">#&gt; 4:     bili  0.4160074  0.80 0.2398021 0.1609720 0.06167673 0.3776136</span></span>
+<span><span class="co">#&gt; 5:     bili  0.4160074  1.40 0.2613612 0.1809950 0.07893386 0.4064484</span></span>
+<span><span class="co">#&gt; 6:     bili  0.4160074  3.52 0.3702763 0.3118827 0.17050712 0.5447088</span></span>
 <span><span class="co">#&gt;    pred_horizon level</span></span>
 <span><span class="co">#&gt; 1:      1826.25     0</span></span>
 <span><span class="co">#&gt; 2:      1826.25     1</span></span>
 <span><span class="co">#&gt; 3:      1826.25  &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; 4:      1826.25  &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; 5:      1826.25  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 6:      1826.25     0</span></span></code></pre></div>
+<span><span class="co">#&gt; 6:      1826.25  &lt;NA&gt;</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="multiple-variables-jointly">Multiple variables, jointly<a class="anchor" aria-label="anchor" href="#multiple-variables-jointly"></a>
