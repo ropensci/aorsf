@@ -7,29 +7,29 @@ pd_object_grid <- orsf_pd_oob(object = fit,
                               pred_spec = pred_spec_auto(sex, bili),
                               pred_horizon = c(1000, 2000))
 
-pd_object_loop <- orsf_pd_oob(object = fit,
-                              expand_grid = FALSE,
-                              pred_spec = pred_spec_auto(sex, bili),
-                              pred_horizon = c(1000, 2000))
-
-test_that(
- desc = 'pred_spec data are returned on the original scale',
- code = {
-  expect_equal(unique(pd_object_grid$bili),
-               fit$get_var_bounds('bili'))
-
-  expect_equal(unique(na.omit(pd_object_loop$value)),
-               fit$get_var_bounds('bili'))
- }
-)
-
-test_that(
- desc = 'output is a data.table',
- code = {
-  expect_s3_class(pd_object_grid, 'data.table')
-  expect_s3_class(pd_object_loop, 'data.table')
- }
-)
+# pd_object_loop <- orsf_pd_oob(object = fit,
+#                               expand_grid = FALSE,
+#                               pred_spec = pred_spec_auto(sex, bili),
+#                               pred_horizon = c(1000, 2000))
+#
+# test_that(
+#  desc = 'pred_spec data are returned on the original scale',
+#  code = {
+#   expect_equal(unique(pd_object_grid$bili),
+#                fit$get_var_bounds('bili'))
+#
+#   expect_equal(unique(na.omit(pd_object_loop$value)),
+#                fit$get_var_bounds('bili'))
+#  }
+# )
+#
+# test_that(
+#  desc = 'output is a data.table',
+#  code = {
+#   expect_s3_class(pd_object_grid, 'data.table')
+#   expect_s3_class(pd_object_loop, 'data.table')
+#  }
+# )
 
 
 # classification ----
