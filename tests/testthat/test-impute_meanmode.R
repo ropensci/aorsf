@@ -18,6 +18,19 @@ fit_miss <- orsf(pbc_miss,
                  formula = time + status ~ .,
                  na_action = 'impute_meanmode')
 
+test_that(
+ desc = "missingness rule is passed to pd / vi functions and retained in object",
+ code = {
+
+  pd_miss <- orsf_pd_oob(fit_miss, pred_spec_auto(ascites))
+  vi_miss <- orsf_vi(fit_miss, importance = 'permute')
+
+  expect_equal(fit_miss$na_action, 'impute_meanmode')
+
+ }
+)
+
+
 impute_values <- c(fit_miss$get_means(),
                    fit_miss$get_modes())
 
