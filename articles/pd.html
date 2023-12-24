@@ -122,10 +122,9 @@ the model predicts outcomes for observations it has not seen. This is
 helpful if you want to test your model’s reliability or
 fairness.</p></li>
 </ul>
-</div>
-<div class="section level2">
-<h2 id="classification">Classification<a class="anchor" aria-label="anchor" href="#classification"></a>
-</h2>
+<div class="section level3">
+<h3 id="classification">Classification<a class="anchor" aria-label="anchor" href="#classification"></a>
+</h3>
 <p>Begin by fitting an oblique classification random forest:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -168,9 +167,9 @@ variables. For example,</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">pd_oob</span><span class="op">[</span><span class="va">flipper_length_mm</span> <span class="op">==</span> <span class="fl">190</span>, <span class="va">medn</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.9392946</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="regression">Regression<a class="anchor" aria-label="anchor" href="#regression"></a>
-</h2>
+<div class="section level3">
+<h3 id="regression">Regression<a class="anchor" aria-label="anchor" href="#regression"></a>
+</h3>
 <p>Begin by fitting an oblique regression random forest:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -293,9 +292,9 @@ you request values that exist in the training data.)</p>
 <span><span class="co">#&gt;    species island     mean      lwr     medn      upr</span></span>
 <span><span class="co">#&gt; 1:  Adelie Biscoe 41.98024 37.22711 41.65252 48.51478</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="survival">Survival<a class="anchor" aria-label="anchor" href="#survival"></a>
-</h2>
+<div class="section level3">
+<h3 id="survival">Survival<a class="anchor" aria-label="anchor" href="#survival"></a>
+</h3>
 <p>Begin by fitting an oblique survival random forest:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -370,9 +369,9 @@ you request values that exist in the training data.)</p>
 <span><span class="co">#&gt; 30:         3000 7.210 0.68030697 0.4247511750 0.646009789 0.9888637</span></span>
 <span><span class="co">#&gt;     pred_horizon  bili       mean          lwr        medn       upr</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="one-variable-moving-horizon">One variable, moving horizon<a class="anchor" aria-label="anchor" href="#one-variable-moving-horizon"></a>
-</h2>
+<div class="section level3">
+<h3 id="one-variable-moving-horizon">One variable, moving horizon<a class="anchor" aria-label="anchor" href="#one-variable-moving-horizon"></a>
+</h3>
 <p>For the next few sections, we update <code>orsf_fit</code> to include
 all the data in <code>pbc_orsf</code> instead of just the training
 sample:</p>
@@ -494,9 +493,9 @@ for downstream plotting and tables.</p>
 <span><span class="co">#&gt; 5:      1826.25  &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; 6:      1826.25  &lt;NA&gt;</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="multiple-variables-jointly">Multiple variables, jointly<a class="anchor" aria-label="anchor" href="#multiple-variables-jointly"></a>
-</h2>
+<div class="section level3">
+<h3 id="multiple-variables-jointly">Multiple variables, jointly<a class="anchor" aria-label="anchor" href="#multiple-variables-jointly"></a>
+</h3>
 <p>Partial dependence can show the expected value of a model’s
 predictions as a function of a specific predictor, or as a function of
 multiple predictors. For instance, we can estimate predicted risk as a
@@ -549,9 +548,9 @@ quick sanity check with <code>coxph</code> suggests there is.</p>
 </li>
 </ul>
 </div>
-<div class="section level2">
-<h2 id="find-interactions-using-pd">Find interactions using PD<a class="anchor" aria-label="anchor" href="#find-interactions-using-pd"></a>
-</h2>
+<div class="section level3">
+<h3 id="find-interactions-using-pd">Find interactions using PD<a class="anchor" aria-label="anchor" href="#find-interactions-using-pd"></a>
+</h3>
 <p>Random forests are good at using interactions, but less good at
 telling you about them. Use <code><a href="../reference/orsf_vint.html">orsf_vint()</a></code> to apply the method
 for variable interaction scoring with PD described by Greenwell et al
@@ -562,7 +561,7 @@ setting <code>verbose_progress = TRUE</code> may be helpful.</p>
 <span><span class="va">vint_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_vint.html">orsf_vint</a></span><span class="op">(</span><span class="va">fit_surv</span>, verbose_progress <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Computing dependence: 30%. ~ time remaining: 4 seconds.</span></span>
 <span><span class="co">#&gt; Computing dependence: 61%. ~ time remaining: 2 seconds.</span></span>
-<span><span class="co">#&gt; Computing dependence: 91%. ~ time remaining: 0 seconds.</span></span>
+<span><span class="co">#&gt; Computing dependence: 92%. ~ time remaining: 0 seconds.</span></span>
 <span><span class="co">#&gt; Computing dependence: 100%.</span></span>
 <span></span>
 <span><span class="va">vint_scores</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
@@ -625,6 +624,7 @@ hypotheses that are motivated by the same data they are tested with.
 Results like the p-values for interaction shown above should be
 interpreted as exploratory.</p>
 </div>
+</div>
 <div class="section level2">
 <h2 id="individual-conditional-expectations-ice">Individual conditional expectations (ICE)<a class="anchor" aria-label="anchor" href="#individual-conditional-expectations-ice"></a>
 </h2>
@@ -632,10 +632,9 @@ interpreted as exploratory.</p>
 function of one or multiple predictors, individual conditional
 expectations (ICE) show the prediction for an individual observation as
 a function of a predictor.</p>
-</div>
-<div class="section level2">
-<h2 id="classification-1">Classification<a class="anchor" aria-label="anchor" href="#classification-1"></a>
-</h2>
+<div class="section level3">
+<h3 id="classification-1">Classification<a class="anchor" aria-label="anchor" href="#classification-1"></a>
+</h3>
 <p>Compute ICE using out-of-bag data for
 <code>flipper_length_mm = c(190, 210)</code>.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
@@ -677,9 +676,9 @@ observation and given variable value sum to 1. For example,</p>
 <span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; [1] 1</span></span></code></pre>
 </div>
-<div class="section level2">
-<h2 id="regression-1">Regression<a class="anchor" aria-label="anchor" href="#regression-1"></a>
-</h2>
+<div class="section level3">
+<h3 id="regression-1">Regression<a class="anchor" aria-label="anchor" href="#regression-1"></a>
+</h3>
 <p>Compute ICE using new data for
 <code>flipper_length_mm = c(190, 210)</code>.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
@@ -774,9 +773,9 @@ you request values that exist in the training data.)</p>
 <span><span class="co">#&gt; 182:           1    182  Adelie Biscoe 40.71952</span></span>
 <span><span class="co">#&gt; 183:           1    183  Adelie Biscoe 39.34501</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="survival-1">Survival<a class="anchor" aria-label="anchor" href="#survival-1"></a>
-</h2>
+<div class="section level3">
+<h3 id="survival-1">Survival<a class="anchor" aria-label="anchor" href="#survival-1"></a>
+</h3>
 <p>Compute ICE using in-bag data for
 <code>bili = c(1,2,3,4,5)</code>:</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
@@ -833,9 +832,9 @@ you request values that exist in the training data.)</p>
 cost. Use a fine grid of time values and assess whether predictors have
 time-varying effects.</p>
 </div>
-<div class="section level2">
-<h2 id="visualizing-ice-curves">Visualizing ICE curves<a class="anchor" aria-label="anchor" href="#visualizing-ice-curves"></a>
-</h2>
+<div class="section level3">
+<h3 id="visualizing-ice-curves">Visualizing ICE curves<a class="anchor" aria-label="anchor" href="#visualizing-ice-curves"></a>
+</h3>
 <p>Inspecting the ICE curves for each observation can help identify
 whether there is heterogeneity in a model’s predictions. I.e., does the
 effect of the variable follow the same pattern for all the data, or are
@@ -895,9 +894,9 @@ Good!</p></li>
 helpful to investigate this further.</p></li>
 </ul>
 </div>
-<div class="section level2">
-<h2 id="limitations-of-pd">Limitations of PD<a class="anchor" aria-label="anchor" href="#limitations-of-pd"></a>
-</h2>
+<div class="section level3">
+<h3 id="limitations-of-pd">Limitations of PD<a class="anchor" aria-label="anchor" href="#limitations-of-pd"></a>
+</h3>
 <p>Partial dependence has a number of <a href="https://christophm.github.io/interpretable-ml-book/pdp.html#disadvantages-5" class="external-link">known
 limitations and assumptions</a> that users should be aware of (see
 Hooker, 2021). In particular, partial dependence is less intuitive when
@@ -907,9 +906,9 @@ correlated with other features (this is likely not true in many cases).
 Accumulated local effect plots can be used (see <a href="https://christophm.github.io/interpretable-ml-book/ale.html" class="external-link">here</a>)
 in the case where feature independence is not a valid assumption.</p>
 </div>
-<div class="section level2">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
-</h2>
+<div class="section level3">
+<h3 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h3>
 <ol style="list-style-type: decimal">
 <li>Giles Hooker, Lucas Mentch, Siyu Zhou. Unrestricted Permutation
 forces Extrapolation: Variable Importance Requires at least One More
@@ -917,6 +916,7 @@ Model, or There Is No Free Variable Importance. <em>arXiv e-prints</em>.
 2021 Oct; arXiv-1905. URL: <a href="https://doi.org/10.48550/arXiv.1905.03151" class="external-link uri">https://doi.org/10.48550/arXiv.1905.03151</a>
 </li>
 </ol>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
