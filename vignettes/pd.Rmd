@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 
 ```
 
-## Partial dependence (PD)
+# Partial dependence (PD)
 
 `r aorsf:::roxy_pd_explain()`
 
@@ -346,7 +346,7 @@ anova(fit_cph)
 
 *Note*: Caution is warranted when interpreting statistical hypotheses that are motivated by the same data they are tested with. Results like the p-values for interaction shown above should be interpreted as exploratory.
 
-## Individual conditional expectations (ICE)
+# Individual conditional expectations (ICE)
 
 `r aorsf:::roxy_ice_explain()`
 
