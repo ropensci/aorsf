@@ -4,9 +4,7 @@
 #' Grow or specify an oblique random forest. While the name `orsf()`
 #'  implies that this function only works for survival forests,
 #'  it can be used for classification, regression, or survival
-#'  forests. So, why isn't this function called `orf()`? In its
-#'  early development, the `aorsf` package was exclusively for
-#'  oblique random survival forests, but now it is broader.
+#'  forests.
 #'
 #' @param data a `r roxy_data_allowed()` that contains the
 #'  relevant variables.
@@ -224,6 +222,9 @@
 #' @return an *obliqueForest* object
 #'
 #' @details
+#'
+#' Why isn't this function called `orf()`? In its earlier versions, the
+#' `aorsf` package was exclusively for *o*blique *r*andom *s*urvival *f*orests.
 #'
 #' **formula for survival oblique RFs**:
 #'

@@ -1,12 +1,22 @@
 # aorsf 0.1.2 (unreleased)
 
+* Added `pred_spec_auto()` for more convenient specification of variables for partial dependence.
+
+* Partial dependence now runs much faster with multiple threads.
+
+* Added `orsf_vint()` to compute variable interaction scores using partial dependence.
+
+* Added `orsf_update()`, which can copy and modify an `obliqueForest` or modify it in place.
+
 * Added `orsf_control` functions for classification, regression, and survival (https://github.com/ropensci/aorsf/pull/25).
 
 * optimization implemented for matrix multiplication during prediction (https://github.com/ropensci/aorsf/pull/20)
 
 # aorsf 0.1.1
 
-* fixed an uninitialized value for `pd_type`
+* Fixed an uninitialized value for `pd_type`
+
+* Fixed various issues related to memory leaks
 
 # aorsf 0.1.0
 

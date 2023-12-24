@@ -1,6 +1,6 @@
 Package: aorsf
 Title: Accelerated Oblique Random Survival Forests
-Version: 0.1.1.9003
+Version: 0.1.1.9004
 Authors@R: c(
     person("Byron", "Jaeger", , "bjaeger@wakehealth.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7399-2299")),
@@ -10,12 +10,11 @@ Authors@R: c(
     person("Marvin", "Wright", role = "rev"),
     person("Lukas", "Burk", role = "rev")
   )
-Description: Fit, interpret, and make predictions with oblique random
-    survival forests. Oblique decision trees are notoriously slow compared
-    to their axis based counterparts, but 'aorsf' runs as fast or faster
-    than axis-based decision tree algorithms for right-censored
-    time-to-event outcomes. Methods to accelerate and interpret the
-    oblique random survival forest are described in Jaeger et al., (2023)
+Description: Fit, interpret, and compute predictions with oblique random
+    forests. Includes support for partial dependence, variable importance,
+    passing customized functions for variable importance and identification
+    of linear combinations of features. Methods for the oblique random 
+    survival forest are described in Jaeger et al., (2023)
     <DOI:10.1080/10618600.2023.2231048>.
 License: MIT + file LICENSE
 URL: https://github.com/ropensci/aorsf, https://docs.ropensci.org/aorsf/
