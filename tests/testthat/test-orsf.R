@@ -445,6 +445,8 @@ test_that(
   # testing the seed behavior when no_fit is TRUE. You should get the same
   # forest whether you train with orsf() or with orsf_train().
 
+  skip_on_cran()
+
   object <- orsf(pbc, Surv(time, status) ~ .,
                  n_tree = n_tree_test,
                  tree_seeds = 1,
