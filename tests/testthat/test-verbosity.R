@@ -25,5 +25,36 @@ test_that(
  }
 )
 
+test_that(
+ desc = "verbosity is carried by object",
+ code = {
+
+  skip_on_ci()
+  skip_on_cran()
+
+  fit_verbose <- orsf(penguins, species ~ .,
+                      verbose_progress = TRUE,
+                      tree_seeds = seeds_standard,
+                      n_tree = n_tree_test)
+
+  fit_verbose_2 <- orsf(penguins, bill_length_mm ~ .,
+                        verbose_progress = TRUE,
+                        tree_seeds = seeds_standard,
+                        n_tree = n_tree_test)
+
+  expect_snapshot(
+   orsf_pd_oob(fit_verbose, pred_spec_auto(island))
+  )
+
+  expect_snapshot(
+   orsf_vi(fit_verbose_2, importance = 'negate')
+  )
+
+  expect_snapshot(
+   orsf_vs(fit_verbose)
+  )
+
+ }
+)
 
 
