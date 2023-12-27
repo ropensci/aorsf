@@ -189,6 +189,11 @@ ObliqueForest <- R6::R6Class(
     self$formula <- stats::update(as.formula(terms_old), new = formula)
    }
 
+   # for args with default values of NULL, keep track of whether
+   # user specified them or not. If they were un-specified, then
+   # the standard init() function is called. If they were specified,
+   # the standard check function is called.
+
    if(!is.null(control)){
     self$control <- control
     private$user_specified$control <- TRUE
