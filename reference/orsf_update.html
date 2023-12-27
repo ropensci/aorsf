@@ -73,7 +73,36 @@
 
 <dt>...</dt>
 <dd><p>arguments to plug into <a href="orsf.html">orsf</a> that will be used to define the
-update (see examples).</p></dd>
+update. These arguments include:</p><ul><li><p><code>data</code></p></li>
+<li><p><code>formula</code></p></li>
+<li><p><code>control</code></p></li>
+<li><p><code>weights</code></p></li>
+<li><p><code>n_tree</code></p></li>
+<li><p><code>n_split</code></p></li>
+<li><p><code>n_retry</code></p></li>
+<li><p><code>n_thread</code></p></li>
+<li><p><code>mtry</code></p></li>
+<li><p><code>sample_with_replacement</code></p></li>
+<li><p><code>sample_fraction</code></p></li>
+<li><p><code>leaf_min_events</code></p></li>
+<li><p><code>leaf_min_obs</code></p></li>
+<li><p><code>split_rule</code></p></li>
+<li><p><code>split_min_events</code></p></li>
+<li><p><code>split_min_obs</code></p></li>
+<li><p><code>split_min_stat</code></p></li>
+<li><p><code>pred_type</code></p></li>
+<li><p><code>oobag_pred_horizon</code></p></li>
+<li><p><code>oobag_eval_every</code></p></li>
+<li><p><code>oobag_fun</code></p></li>
+<li><p><code>importance</code></p></li>
+<li><p><code>importance_max_pvalue</code></p></li>
+<li><p><code>group_factors</code></p></li>
+<li><p><code>tree_seeds</code></p></li>
+<li><p><code>na_action</code></p></li>
+<li><p><code>verbose_progress</code></p></li>
+</ul><p>Note that you can update <code>control</code>, but you cannot change the type
+of forest. For example, you can't go from classification to regression
+with <code>orsf_update</code>.</p></dd>
 
 
 <dt>modify_in_place</dt>
