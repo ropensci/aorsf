@@ -12,8 +12,8 @@ orsf_vi(
   group_factors = TRUE,
   importance = NULL,
   oobag_fun = NULL,
-  n_thread = 0,
-  verbose_progress = FALSE,
+  n_thread = NULL,
+  verbose_progress = NULL,
   ...
 )
 
@@ -21,8 +21,8 @@ orsf_vi_negate(
   object,
   group_factors = TRUE,
   oobag_fun = NULL,
-  n_thread = 0,
-  verbose_progress = FALSE,
+  n_thread = NULL,
+  verbose_progress = NULL,
   ...
 )
 
@@ -30,12 +30,12 @@ orsf_vi_permute(
   object,
   group_factors = TRUE,
   oobag_fun = NULL,
-  n_thread = 0,
-  verbose_progress = FALSE,
+  n_thread = NULL,
+  verbose_progress = NULL,
   ...
 )
 
-orsf_vi_anova(object, group_factors = TRUE, verbose_progress = FALSE, ...)
+orsf_vi_anova(object, group_factors = TRUE, verbose_progress = NULL, ...)
 }
 \arguments{
 \item{object}{(\emph{ObliqueForest}) a trained oblique random forest object (see \link{orsf}).}

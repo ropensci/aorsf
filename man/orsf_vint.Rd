@@ -7,8 +7,8 @@
 orsf_vint(
   object,
   predictors = NULL,
-  n_thread = 0,
-  verbose_progress = FALSE,
+  n_thread = NULL,
+  verbose_progress = NULL,
   sep = ".."
 )
 }
@@ -34,8 +34,7 @@ a data.table with variable interaction scores
 \description{
 Use the variable interaction score described in Greenwell et al (2018).
 As this method can be computationally demanding, using \code{n_thread=0}
-and supplying a forest with \code{n_tree <= 50} can substantially reduce
-time needed to compute scores.
+can substantially reduce time needed to compute scores.
 }
 \details{
 The number of possible interactions grows exponentially based on the

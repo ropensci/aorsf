@@ -277,11 +277,12 @@ an \emph{obliqueForest} object
 Grow or specify an oblique random forest. While the name \code{orsf()}
 implies that this function only works for survival forests,
 it can be used for classification, regression, or survival
-forests. So, why isn't this function called \code{orf()}? In its
-early development, the \code{aorsf} package was exclusively for
-oblique random survival forests, but now it is broader.
+forests.
 }
 \details{
+Why isn't this function called \code{orf()}? In its earlier versions, the
+\code{aorsf} package was exclusively for \emph{o}blique \emph{r}andom \emph{s}urvival \emph{f}orests.
+
 \strong{formula for survival oblique RFs}:
 \itemize{
 \item The response in \code{formula} can be a survival
@@ -387,9 +388,9 @@ penguin_fit
 ##                  N trees: 5
 ##       N predictors total: 7
 ##    N predictors per node: 3
-##  Average leaves per tree: 5.6
+##  Average leaves per tree: 4.4
 ## Min observations in leaf: 5
-##           OOB stat value: 0.99
+##           OOB stat value: 0.98
 ##            OOB stat type: AUC-ROC
 ##      Variable importance: anova
 ## 
@@ -414,7 +415,7 @@ bill_fit
 ##                  N trees: 5
 ##       N predictors total: 7
 ##    N predictors per node: 3
-##  Average leaves per tree: 47.4
+##  Average leaves per tree: 51.4
 ## Min observations in leaf: 5
 ##           OOB stat value: 0.74
 ##            OOB stat type: RSQ
@@ -445,10 +446,10 @@ pbc_fit
 ##                  N trees: 5
 ##       N predictors total: 17
 ##    N predictors per node: 5
-##  Average leaves per tree: 20.8
+##  Average leaves per tree: 21.8
 ## Min observations in leaf: 5
 ##       Min events in leaf: 1
-##           OOB stat value: 0.77
+##           OOB stat value: 0.79
 ##            OOB stat type: Harrell's C-index
 ##      Variable importance: anova
 ## 
@@ -495,7 +496,7 @@ take to fit the forest before you commit to it:
  orsf_time_to_train()
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## Time difference of 3.380013 secs
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## Time difference of 2.256203 secs
 }\if{html}{\out{</div>}}
 \enumerate{
 \item If fitting multiple forests, use the blueprint along with
@@ -566,12 +567,12 @@ brier_scores
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 4
 ##   .metric        .estimator .eval_time .estimate
 ##   <chr>          <chr>           <dbl>     <dbl>
-## 1 brier_survival standard          500    0.0703
-## 2 brier_survival standard         1000    0.0775
-## 3 brier_survival standard         1500    0.110 
-## 4 brier_survival standard         2000    0.113 
-## 5 brier_survival standard         2500    0.132 
-## 6 brier_survival standard         3000    0.183
+## 1 brier_survival standard          500    0.0477
+## 2 brier_survival standard         1000    0.0851
+## 3 brier_survival standard         1500    0.0988
+## 4 brier_survival standard         2000    0.126 
+## 5 brier_survival standard         2500    0.159 
+## 6 brier_survival standard         3000    0.198
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{roc_scores <- test_pred \%>\% 
@@ -583,12 +584,12 @@ roc_scores
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 4
 ##   .metric          .estimator .eval_time .estimate
 ##   <chr>            <chr>           <dbl>     <dbl>
-## 1 roc_auc_survival standard          500     0.933
-## 2 roc_auc_survival standard         1000     0.937
-## 3 roc_auc_survival standard         1500     0.915
-## 4 roc_auc_survival standard         2000     0.930
-## 5 roc_auc_survival standard         2500     0.921
-## 6 roc_auc_survival standard         3000     0.896
+## 1 roc_auc_survival standard          500     0.966
+## 2 roc_auc_survival standard         1000     0.943
+## 3 roc_auc_survival standard         1500     0.937
+## 4 roc_auc_survival standard         2000     0.923
+## 5 roc_auc_survival standard         2500     0.911
+## 6 roc_auc_survival standard         3000     0.881
 }\if{html}{\out{</div>}}
 }
 }

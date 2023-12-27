@@ -10,7 +10,40 @@ orsf_update(object, ..., modify_in_place = FALSE, no_fit = NULL)
 \item{object}{(\emph{ObliqueForest}) an oblique random forest object (see \link{orsf}).}
 
 \item{...}{arguments to plug into \link{orsf} that will be used to define the
-update (see examples).}
+update. These arguments include:
+\itemize{
+\item \code{data}
+\item \code{formula}
+\item \code{control}
+\item \code{weights}
+\item \code{n_tree}
+\item \code{n_split}
+\item \code{n_retry}
+\item \code{n_thread}
+\item \code{mtry}
+\item \code{sample_with_replacement}
+\item \code{sample_fraction}
+\item \code{leaf_min_events}
+\item \code{leaf_min_obs}
+\item \code{split_rule}
+\item \code{split_min_events}
+\item \code{split_min_obs}
+\item \code{split_min_stat}
+\item \code{pred_type}
+\item \code{oobag_pred_horizon}
+\item \code{oobag_eval_every}
+\item \code{oobag_fun}
+\item \code{importance}
+\item \code{importance_max_pvalue}
+\item \code{group_factors}
+\item \code{tree_seeds}
+\item \code{na_action}
+\item \code{verbose_progress}
+}
+
+Note that you can update \code{control}, but you cannot change the type
+of forest. For example, you can't go from classification to regression
+with \code{orsf_update}.}
 
 \item{modify_in_place}{(\emph{logical}) if \code{TRUE}, \code{object} will be modified
 by the inputs specified in \code{...}. Be cautious, as modification in place

@@ -130,11 +130,15 @@ contains_vi <- function(object) {!is_empty(object$importance)}
 #' beautify time
 #'
 #' @description
-#'  Used to make time printouts more readable with verbose progress
+#'  Used to make time printouts more readable with verbose progress.
+#'  Based on the beautifyTime function in ranger package.
 #'
-#' @param seconds a difftime value
+#' @param seconds time in seconds.
 #'
-#' @return
+#' @noRd
+#'
+#' @return a string with formatted times
+
 beautifyTime <- function(seconds) {
 
  result <- ""

@@ -4,7 +4,7 @@
 \alias{orsf_vs}
 \title{Variable selection}
 \usage{
-orsf_vs(object, n_predictor_min = 3, verbose_progress = FALSE)
+orsf_vs(object, n_predictor_min = 3, verbose_progress = NULL)
 }
 \arguments{
 \item{object}{(\emph{ObliqueForest}) a trained oblique random forest object (see \link{orsf}).}
