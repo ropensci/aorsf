@@ -15,7 +15,6 @@
 
 #include "globals.h"
 #include "Data.h"
-#include "Tree.h"
 #include "Forest.h"
 #include "ForestSurvival.h"
 #include "ForestClassification.h"
@@ -341,6 +340,25 @@ double compute_mse_exported(arma::vec& y,
 }
 
 
+ /*
+  * @description Bridge between Cpp routines and R code. Receives
+  *   R objects, initializes the requested Forest object, and does
+  *   tree growing, predictions, variable importance, or partial
+  *   dependence.
+  *
+  * @params see R/orsf.R
+  *
+  * @details
+  *
+  * 1. some double types may seem odd because they could
+  *    be integer types. The reason these are doubles is that at
+  *    some point they will be multiplied by a double, and coercing
+  *    them to doubles for that operation seems to be a net loss
+  *    in computing efficiency.
+  *
+  * 2. See globals.h for definitions of the enumerations that occur
+  *    at the beginning of this function.
+  */
  // [[Rcpp::export]]
  List orsf_cpp(arma::mat&               x,
                arma::mat&               y,
@@ -388,7 +406,6 @@ double compute_mse_exported(arma::vec& y,
                int                      verbosity){
 
   // re-cast integer inputs from R into enumerations
-  // see globals.h for definitions.
   VariableImportance vi_type = (VariableImportance) vi_type_R;
   SplitRule split_rule = (SplitRule) split_rule_R;
   LinearCombo lincomb_type = (LinearCombo) lincomb_type_R;
@@ -410,14 +427,20 @@ double compute_mse_exported(arma::vec& y,
    n_thread = std::thread::hardware_concurrency();
   }
 
+  // does the forest need to be grown?
+  bool grow_mode = loaded_forest.size() == 0;
+
   // R functions cannot be called from multiple threads
   if(lincomb_type    == LC_R_FUNCTION  ||
-     lincomb_type    == LC_GLMNET      ||
-     oobag_eval_type == EVAL_R_FUNCTION){
+     lincomb_type    == LC_GLMNET      ){
+   if(grow_mode) n_thread = 1;
+  }
+
+  if(oobag_eval_type == EVAL_R_FUNCTION){
    n_thread = 1;
   }
 
-  // usually need to set n_thread to 1 if oobag pred is monitored
+  // might need to set n_thread to 1 if oobag pred is monitored
   if(oobag_eval_every < n_tree){
    // specifically if this isn't true we need to go single thread
    if(n_tree/oobag_eval_every != n_thread){
@@ -473,8 +496,6 @@ double compute_mse_exported(arma::vec& y,
 
   }
 
-  // does the forest need to be grown?
-  bool grow_mode = loaded_forest.size() == 0;
 
   forest->init(std::move(data),
                tree_seeds,
@@ -587,6 +608,7 @@ double compute_mse_exported(arma::vec& y,
 
     List forest_out;
     forest_out.push_back(n_obs, "n_obs");
+    forest_out.push_back(forest->get_oobag_denom(), "oobag_denom");
     forest_out.push_back(forest->get_rows_oobag(), "rows_oobag");
     forest_out.push_back(forest->get_cutpoint(), "cutpoint");
     forest_out.push_back(forest->get_child_left(), "child_left");

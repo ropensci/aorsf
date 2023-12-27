@@ -193,6 +193,10 @@ public:
   return(vi_denom);
  }
 
+ arma::vec& get_oobag_denom(){
+  return(oobag_denom);
+ }
+
  arma::mat& get_oobag_eval(){
   return(oobag_eval);
  }
@@ -327,12 +331,12 @@ protected:
  arma::vec pd_probs;
 
  // out-of-bag
- bool        oobag_pred;
- arma::vec   oobag_denom;
- arma::mat   oobag_eval;
- EvalType    oobag_eval_type;
- arma::uword oobag_eval_every;
- Rcpp::RObject     oobag_R_function;
+ bool          oobag_pred;
+ arma::vec     oobag_denom;
+ arma::mat     oobag_eval;
+ EvalType      oobag_eval_type;
+ arma::uword   oobag_eval_every;
+ Rcpp::RObject oobag_R_function;
 
 
  // multi-threading
