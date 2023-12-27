@@ -4,8 +4,7 @@
 #'
 #' Use the variable interaction score described in Greenwell et al (2018).
 #'   As this method can be computationally demanding, using `n_thread=0`
-#'   and supplying a forest with `n_tree <= 50` can substantially reduce
-#'   time needed to compute scores.
+#'   can substantially reduce time needed to compute scores.
 #'
 #' @param object `r roxy_describe_ObliqueForest(TRUE)`
 #'
@@ -55,8 +54,8 @@
 
 orsf_vint <- function(object,
                       predictors = NULL,
-                      n_thread = 0,
-                      verbose_progress = FALSE,
+                      n_thread = NULL,
+                      verbose_progress = NULL,
                       sep = '..'){
 
  check_arg_is(object, 'object', 'ObliqueForest')
@@ -68,6 +67,7 @@ orsf_vint <- function(object,
                  expected_type = 'character')
 
  }
+
 
  pspec <- predictors %||% object$get_names_x()
 
@@ -81,19 +81,22 @@ orsf_vint <- function(object,
                  'classification' = 'prob',
                  'regression' = 'mean')
 
- pd <- object$compute_dependence(pd_data = NULL,
-                                 pred_spec = pspec,
-                                 pred_horizon = NULL,
-                                 pred_type = ptype,
-                                 na_action = object$na_action,
-                                 expand_grid = FALSE,
-                                 prob_values = NULL,
-                                 prob_labels = NULL,
-                                 boundary_checks = FALSE,
-                                 n_thread = n_thread,
-                                 verbose_progress = verbose_progress,
-                                 oobag = TRUE,
-                                 type_output = "smry")
+ pd <-
+  object$compute_dependence(
+   pd_data = NULL,
+   pred_spec = pspec,
+   pred_horizon = NULL,
+   pred_type = ptype,
+   na_action = object$na_action,
+   expand_grid = FALSE,
+   prob_values = NULL,
+   prob_labels = NULL,
+   boundary_checks = FALSE,
+   n_thread = n_thread %||% object$n_thread,
+   verbose_progress = verbose_progress %||% object$verbose_progress,
+   oobag = TRUE,
+   type_output = "smry"
+  )
 
  pd$id_intr <- paste(pd$var_1_name, pd$var_2_name, sep = sep)
 

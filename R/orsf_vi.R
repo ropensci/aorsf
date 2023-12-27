@@ -83,8 +83,8 @@ orsf_vi <- function(object,
                     group_factors = TRUE,
                     importance = NULL,
                     oobag_fun = NULL,
-                    n_thread = 0,
-                    verbose_progress = FALSE,
+                    n_thread = NULL,
+                    verbose_progress = NULL,
                     ...){
 
  check_dots(list(...), .f = orsf_vi)
@@ -105,8 +105,8 @@ orsf_vi_negate <-
  function(object,
           group_factors = TRUE,
           oobag_fun = NULL,
-          n_thread = 0,
-          verbose_progress = FALSE,
+          n_thread = NULL,
+          verbose_progress = NULL,
           ...) {
   check_dots(list(...), .f = orsf_vi_negate)
   orsf_vi_(object,
@@ -123,8 +123,8 @@ orsf_vi_permute <-
  function(object,
           group_factors = TRUE,
           oobag_fun = NULL,
-          n_thread = 0,
-          verbose_progress = FALSE,
+          n_thread = NULL,
+          verbose_progress = NULL,
           ...) {
   check_dots(list(...), .f = orsf_vi_permute)
   orsf_vi_(object,
@@ -139,7 +139,7 @@ orsf_vi_permute <-
 #' @export
 orsf_vi_anova <- function(object,
                           group_factors = TRUE,
-                          verbose_progress = FALSE,
+                          verbose_progress = NULL,
                           ...) {
  check_dots(list(...), .f = orsf_vi_anova)
  orsf_vi_(object,
@@ -183,15 +183,62 @@ orsf_vi_ <- function(object,
        "orsf_vi().",
        call. = FALSE)
 
- object$check_n_thread(n_thread)
- object$check_verbose_progress(verbose_progress)
+ # check n_thread
+
+ if(!is.null(n_thread)){
+
+  check_arg_type(arg_value = n_thread,
+                 arg_name = 'n_thread',
+                 expected_type = 'numeric')
+
+  check_arg_is_integer(arg_value = n_thread, arg_name = 'n_thread')
+
+  check_arg_gteq(arg_value = n_thread, arg_name = 'n_thread', bound = 0)
+
+  check_arg_length(arg_value = n_thread,
+                   arg_name = 'n_thread',
+                   expected_length = 1)
+
+ }
+
+ # check verbose progress
+
+ if(!is.null(verbose_progress)){
+
+  check_arg_type(arg_value = verbose_progress,
+                 arg_name = 'verbose_progress',
+                 expected_type = 'logical')
+
+  check_arg_length(arg_value = verbose_progress,
+                   arg_name = 'verbose_progress',
+                   expected_length = 1)
+
+ }
+
 
  if(!is.null(importance)){
 
-  object$check_importance_type(importance)
+  # check importance
+  check_arg_type(arg_value = importance,
+                 arg_name = 'importance',
+                 expected_type = 'character')
+
+  check_arg_length(arg_value = importance,
+                   arg_name = 'importance',
+                   expected_length = 1)
+
+  check_arg_is_valid(arg_value = importance,
+                     arg_name = 'importance',
+                     valid_options = c("none",
+                                       "anova",
+                                       "negate",
+                                       "permute"))
 
   # would someone call orsf_vi(importance = 'none')? just in case...
-  if(importance == 'none') return(NULL)
+  if(importance == 'none'){
+   warning("orsf_vi was called with importance = 'none'. Returning NULL")
+   return(NULL)
+  }
 
   if(object$importance_type != 'anova' && importance == 'anova')
    stop("ANOVA importance can only be computed while an orsf object",

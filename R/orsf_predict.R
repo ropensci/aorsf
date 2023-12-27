@@ -101,27 +101,27 @@ predict.ObliqueForest <- function(object,
                                   pred_horizon = NULL,
                                   pred_aggregate = TRUE,
                                   pred_simplify = FALSE,
-                                  na_action = 'fail',
+                                  na_action = NULL,
                                   boundary_checks = TRUE,
-                                  n_thread = 0,
-                                  verbose_progress = FALSE,
+                                  n_thread = NULL,
+                                  verbose_progress = NULL,
                                   ...){
 
  # catch any arguments that didn't match and got relegated to ...
  # these arguments are mistaken input names since ... isn't used.
  check_dots(list(...), .f = predict.ObliqueForest)
 
- out <- object$predict(new_data = new_data,
-                       pred_type = pred_type,
-                       pred_horizon = pred_horizon,
-                       pred_aggregate = pred_aggregate,
-                       pred_simplify = pred_simplify,
-                       na_action = na_action,
-                       boundary_checks = boundary_checks,
-                       n_thread = n_thread,
-                       verbose_progress = verbose_progress)
-
- out
+ object$predict(
+  new_data = new_data,
+  pred_type = pred_type,
+  pred_horizon = pred_horizon,
+  pred_aggregate = pred_aggregate,
+  pred_simplify = pred_simplify,
+  na_action = na_action %||% object$na_action,
+  boundary_checks = boundary_checks,
+  n_thread = n_thread %||% object$n_thread,
+  verbose_progress = verbose_progress %||% object$verbose_progress
+ )
 
 }
 

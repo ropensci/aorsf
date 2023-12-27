@@ -4,7 +4,39 @@
 #' @param object `r roxy_describe_ObliqueForest(trained = FALSE)`.
 #'
 #' @param ... arguments to plug into [orsf] that will be used to define the
-#'  update (see examples).
+#'  update. These arguments include:
+#'
+#'  - `data`
+#'  - `formula`
+#'  - `control`
+#'  - `weights`
+#'  - `n_tree`
+#'  - `n_split`
+#'  - `n_retry`
+#'  - `n_thread`
+#'  - `mtry`
+#'  - `sample_with_replacement`
+#'  - `sample_fraction`
+#'  - `leaf_min_events`
+#'  - `leaf_min_obs`
+#'  - `split_rule`
+#'  - `split_min_events`
+#'  - `split_min_obs`
+#'  - `split_min_stat`
+#'  - `pred_type`
+#'  - `oobag_pred_horizon`
+#'  - `oobag_eval_every`
+#'  - `oobag_fun`
+#'  - `importance`
+#'  - `importance_max_pvalue`
+#'  - `group_factors`
+#'  - `tree_seeds`
+#'  - `na_action`
+#'  - `verbose_progress`
+#'
+#'  Note that you can update `control`, but you cannot change the type
+#'  of forest. For example, you can't go from classification to regression
+#'  with `orsf_update`.
 #'
 #' @param modify_in_place (*logical*) if `TRUE`, `object` will be modified
 #'   by the inputs specified in `...`. Be cautious, as modification in place

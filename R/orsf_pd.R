@@ -135,8 +135,8 @@ orsf_pd_oob <- function(object,
                         prob_values = c(0.025, 0.50, 0.975),
                         prob_labels = c('lwr', 'medn', 'upr'),
                         boundary_checks = TRUE,
-                        n_thread = 0,
-                        verbose_progress = FALSE,
+                        n_thread = NULL,
+                        verbose_progress = NULL,
                         ...){
 
  check_dots(list(...), orsf_pd_oob)
@@ -167,8 +167,8 @@ orsf_pd_inb <- function(object,
                         prob_values = c(0.025, 0.50, 0.975),
                         prob_labels = c('lwr', 'medn', 'upr'),
                         boundary_checks = TRUE,
-                        n_thread = 0,
-                        verbose_progress = FALSE,
+                        n_thread = NULL,
+                        verbose_progress = NULL,
                         ...){
 
  check_dots(list(...), orsf_pd_inb)
@@ -206,8 +206,8 @@ orsf_pd_new <- function(object,
                         prob_values = c(0.025, 0.50, 0.975),
                         prob_labels = c('lwr', 'medn', 'upr'),
                         boundary_checks = TRUE,
-                        n_thread = 0,
-                        verbose_progress = FALSE,
+                        n_thread = NULL,
+                        verbose_progress = NULL,
                         ...){
 
  check_dots(list(...), orsf_pd_new)
@@ -253,8 +253,8 @@ orsf_ice_oob <- function(object,
                          pred_type = NULL,
                          expand_grid = TRUE,
                          boundary_checks = TRUE,
-                         n_thread = 0,
-                         verbose_progress = FALSE,
+                         n_thread = NULL,
+                         verbose_progress = NULL,
                          ...){
 
  check_dots(list(...), orsf_ice_oob)
@@ -281,8 +281,8 @@ orsf_ice_inb <- function(object,
                          pred_type = NULL,
                          expand_grid = TRUE,
                          boundary_checks = TRUE,
-                         n_thread = 0,
-                         verbose_progress = FALSE,
+                         n_thread = NULL,
+                         verbose_progress = NULL,
                          ...){
 
  check_dots(list(...), orsf_ice_oob)
@@ -316,8 +316,8 @@ orsf_ice_new <- function(object,
                          na_action = 'fail',
                          expand_grid = TRUE,
                          boundary_checks = TRUE,
-                         n_thread = 0,
-                         verbose_progress = FALSE,
+                         n_thread = NULL,
+                         verbose_progress = NULL,
                          ...){
 
  check_dots(list(...), orsf_ice_new)
@@ -364,8 +364,8 @@ orsf_dependence <- function(object,
                             prob_values = NULL,
                             prob_labels = NULL,
                             boundary_checks,
-                            n_thread,
-                            verbose_progress,
+                            n_thread = NULL,
+                            verbose_progress = NULL,
                             oobag,
                             type_output){
 
@@ -376,19 +376,21 @@ orsf_dependence <- function(object,
        "did you use attach_data = FALSE when ",
        "running orsf()?", call. = FALSE)
 
- object$compute_dependence(pd_data = pd_data,
-                           pred_spec = pred_spec,
-                           pred_horizon = pred_horizon,
-                           pred_type = pred_type,
-                           na_action = na_action,
-                           expand_grid = expand_grid,
-                           prob_values = prob_values,
-                           prob_labels = prob_labels,
-                           boundary_checks = boundary_checks,
-                           n_thread = n_thread,
-                           verbose_progress = verbose_progress,
-                           oobag = oobag,
-                           type_output = type_output)
+ object$compute_dependence(
+  pd_data = pd_data,
+  pred_spec = pred_spec,
+  pred_horizon = pred_horizon,
+  pred_type = pred_type,
+  na_action = na_action,
+  expand_grid = expand_grid,
+  prob_values = prob_values,
+  prob_labels = prob_labels,
+  boundary_checks = boundary_checks,
+  n_thread = n_thread %||% object$n_thread,
+  verbose_progress = verbose_progress %||% object$verbose_progress,
+  oobag = oobag,
+  type_output = type_output
+ )
 
 
 }

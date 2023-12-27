@@ -177,9 +177,9 @@ ObliqueForest <- R6::R6Class(
                     oobag_pred_horizon = NULL,
                     oobag_eval_every = NULL,
                     oobag_fun = NULL,
-                    importance_type = NULL,
+                    importance = NULL,
                     importance_max_pvalue = NULL,
-                    importance_group_factors = NULL,
+                    group_factors = NULL,
                     tree_seeds = NULL,
                     na_action = NULL,
                     verbose_progress = NULL) {
@@ -270,14 +270,14 @@ ObliqueForest <- R6::R6Class(
     private$user_specified$oobag_eval_function <- TRUE
    }
 
-   if(!is.null(importance_type))
-    self$importance_type <- importance_type
+   if(!is.null(importance))
+    self$importance_type <- importance
 
    if(!is.null(importance_max_pvalue))
     self$importance_max_pvalue <- importance_max_pvalue
 
-   if(!is.null(importance_group_factors))
-    self$importance_group_factors <- importance_group_factors
+   if(!is.null(group_factors))
+    self$importance_group_factors <- group_factors
 
    if(!is.null(tree_seeds)){
     self$tree_seeds <- tree_seeds
@@ -471,16 +471,16 @@ ObliqueForest <- R6::R6Class(
    # otherwise, if a check throws an error, the object will
    # not be restored to its normal state.
 
-   self$check_data(new = TRUE, data = new_data)
-   self$check_na_action(new = TRUE, na_action = na_action)
-   self$check_var_missing(new = TRUE, data = new_data, na_action)
-   self$check_var_values(new = TRUE, data = new_data)
-   self$check_units(data = new_data)
-   self$check_boundary_checks(boundary_checks)
-   self$check_n_thread(n_thread)
-   # self$check_verbose_progress(verbose_progress)
-   self$check_pred_aggregate(pred_aggregate)
-   self$check_pred_simplify(pred_simplify)
+   private$check_data(new = TRUE, data = new_data)
+   private$check_na_action(new = TRUE, na_action = na_action)
+   private$check_var_missing(new = TRUE, data = new_data, na_action)
+   private$check_var_values(new = TRUE, data = new_data)
+   private$check_units(data = new_data)
+   private$check_boundary_checks(boundary_checks)
+   private$check_n_thread(n_thread)
+   private$check_verbose_progress(verbose_progress)
+   private$check_pred_aggregate(pred_aggregate)
+   private$check_pred_simplify(pred_simplify)
 
    # check and/or set self$pred_horizon and self$pred_type
    # with defaults depending on tree type
@@ -536,7 +536,7 @@ ObliqueForest <- R6::R6Class(
 
    if(!is.null(oobag_fun)){
 
-    self$check_oobag_eval_function(oobag_fun)
+    private$check_oobag_eval_function(oobag_fun)
     oobag_eval_function <- oobag_fun
     oobag_eval_type <- "user-specified function"
 
@@ -559,17 +559,19 @@ ObliqueForest <- R6::R6Class(
    # contain oobag observations in cpp.
 
    cpp_args <-
-    private$prep_cpp_args(oobag_eval_function = oobag_eval_function,
-                          oobag_eval_type = oobag_eval_type,
-                          importance_type = type_vi,
-                          pred_type = self$get_pred_type_vi(),
-                          pred_mode = FALSE,
-                          pred_aggregate = TRUE,
-                          oobag = FALSE,
-                          write_forest = FALSE,
-                          run_forest = TRUE,
-                          n_thread = n_thread,
-                          verbosity = verbose_progress)
+    private$prep_cpp_args(
+     oobag_eval_function = oobag_eval_function,
+     oobag_eval_type = oobag_eval_type,
+     importance_type = type_vi,
+     pred_type = self$get_pred_type_vi(),
+     pred_mode = FALSE,
+     pred_aggregate = TRUE,
+     oobag = FALSE,
+     write_forest = FALSE,
+     run_forest = TRUE,
+     n_thread = n_thread %||% self$n_thread,
+     verbosity = verbose_progress %||% self$verbose_progress
+    )
 
    out <- do.call(orsf_cpp, args = cpp_args)$importance
    rownames(out) <- colnames(private$x)
@@ -605,13 +607,13 @@ ObliqueForest <- R6::R6Class(
    private_state <- list(data_rows_complete = private$data_rows_complete)
 
    # run checks before you assign new values to object.
-   self$check_boundary_checks(boundary_checks)
+   private$check_boundary_checks(boundary_checks)
 
    type_input <- 'user'
 
    if(inherits(pred_spec, 'pspec_auto')){
 
-    self$check_var_names(.names = pred_spec,
+    private$check_var_names(.names = pred_spec,
                          data = private$data_names$x_original,
                          location = "pred_spec")
 
@@ -644,20 +646,20 @@ ObliqueForest <- R6::R6Class(
 
    } else {
 
-    self$check_pred_spec(pred_spec, boundary_checks)
+    private$check_pred_spec(pred_spec, boundary_checks)
 
    }
 
-   self$check_n_thread(n_thread)
-   self$check_expand_grid(expand_grid)
-   self$check_verbose_progress(verbose_progress)
-   self$check_oobag_pred_mode(oobag, label = 'oobag')
+   private$check_n_thread(n_thread)
+   private$check_expand_grid(expand_grid)
+   private$check_verbose_progress(verbose_progress)
+   private$check_oobag_pred_mode(oobag, label = 'oobag')
 
    prob_values <- prob_values %||% c(0.025, 0.50, 0.975)
    prob_labels <- prob_labels %||% c('lwr', 'medn', 'upr')
 
-   self$check_prob_values(prob_values)
-   self$check_prob_labels(prob_labels)
+   private$check_prob_values(prob_values)
+   private$check_prob_labels(prob_labels)
 
    if(length(prob_values) != length(prob_labels)){
     stop("prob_values and prob_labels must have the same length.",
@@ -665,19 +667,19 @@ ObliqueForest <- R6::R6Class(
    }
 
    # oobag=FALSE to match the format of arg in orsf_pd().
-   self$check_pred_type(pred_type, oobag = FALSE,
+   private$check_pred_type(pred_type, oobag = FALSE,
                         context = 'partial dependence')
 
    pred_type <- pred_type %||% self$pred_type
 
-   self$check_pred_horizon(pred_horizon, boundary_checks, pred_type)
+   private$check_pred_horizon(pred_horizon, boundary_checks, pred_type)
 
    if(!oobag){
-    self$check_data(new = TRUE, data = pd_data)
+    private$check_data(new = TRUE, data = pd_data)
     # say new = FALSE to prevent na_action = 'pass'
-    self$check_na_action(new = FALSE, na_action = na_action)
-    self$check_var_missing(new = TRUE, data = pd_data, na_action)
-    self$check_units(data = pd_data)
+    private$check_na_action(new = FALSE, na_action = na_action)
+    private$check_var_missing(new = TRUE, data = pd_data, na_action)
+    private$check_units(data = pd_data)
     self$data <- pd_data
    }
 
@@ -722,74 +724,23 @@ ObliqueForest <- R6::R6Class(
                         forest           = self$forest,
                         control          = self$control)
 
-   n_predictors <- length(private$data_names$x_original)
+   object_trained <- self$trained
 
-   oob_data <- data.table(
-    n_predictors = seq(n_predictors),
-    stat_value = rep(NA_real_, n_predictors),
-    predictors_included = vector(mode = 'list', length = n_predictors),
-    predictor_dropped = rep(NA_character_, n_predictors)
+   out <- try(
+    private$select_variables_internal(n_predictor_min, verbose_progress)
    )
 
+   private$restore_state(public_state, private_state = NULL)
 
-   # if the forest was not trained prior to variable selection
-   if(!self$trained){
-    private$compute_means()
-    private$compute_stdev()
-    private$compute_modes()
-    private$compute_bounds()
-   }
+   # you can pass a specification to orsf_vs, but it will be trained
+   # during the variable selection process. Use untrain() to prevent
+   # a specification from being modified when it is passed to orsf_vs
+   if(!object_trained) self$untrain()
 
-   private$prep_x()
-   private$prep_y()
-   private$prep_w()
+   if(is_error(out)) stop(out, call. = FALSE)
 
-   # for survival, inputs should be sorted by time
-   private$sort_inputs()
+   out
 
-   # allow re-training.
-   self$forest <- list()
-
-   pred_type <- switch(self$tree_type,
-                       'survival' = 'mort',
-                       'classification' = 'prob',
-                       'regression' = 'mean')
-
-   cpp_args <- private$prep_cpp_args(pred_type = pred_type,
-                                     oobag_pred = TRUE,
-                                     importance_group_factors = TRUE,
-                                     write_forest = FALSE)
-
-   while(n_predictors >= n_predictor_min){
-
-    if(verbose_progress){
-     cat("Current number of predictors:", n_predictors, "\r")
-    }
-
-    mtry_safe <- ceiling(sqrt(n_predictors))
-
-    if(self$control$lincomb_df_target > mtry_safe){
-     self$control$lincomb_df_target <- mtry_safe
-    }
-
-    cpp_args$mtry <- mtry_safe
-    cpp_output <- do.call(orsf_cpp, args = cpp_args)
-
-    worst_index <- which.min(cpp_output$importance)
-    worst_predictor <- colnames(cpp_args$x)[worst_index]
-
-    oob_data[n_predictors,
-             `:=`(n_predictors = n_predictors,
-                  stat_value = cpp_output$eval_oobag$stat_values[1,1],
-                  predictors_included = colnames(cpp_args$x),
-                  predictor_dropped = worst_predictor)]
-
-    cpp_args$x <- cpp_args$x[, -worst_index]
-    n_predictors <- n_predictors - 1
-
-   }
-
-   collapse::na_omit(oob_data)
 
   },
 
@@ -802,16 +753,16 @@ ObliqueForest <- R6::R6Class(
                            verbose_progress = FALSE){
 
    # check incoming values if they were specified.
-   self$check_n_variables(n_variables)
-   self$check_verbose_progress(verbose_progress)
+   private$check_n_variables(n_variables)
+   private$check_verbose_progress(verbose_progress)
 
    if(!is.null(pred_horizon)){
-    self$check_pred_horizon(pred_horizon, boundary_checks = TRUE)
+    private$check_pred_horizon(pred_horizon, boundary_checks = TRUE)
    }
 
-   self$check_pred_type(pred_type, oobag = FALSE,
+   private$check_pred_type(pred_type, oobag = FALSE,
                         context = 'partial dependence')
-   self$check_importance_type(importance_type)
+   private$check_importance_type(importance_type)
 
    names_x <- private$data_names$x_original
 
@@ -1054,7 +1005,31 @@ ObliqueForest <- R6::R6Class(
 
   get_bounds = function(){
    return(private$data_bounds)
-  },
+  }
+
+ ),
+
+ # private ----
+ private = list(
+
+  user_specified = NULL,
+  data_rows_complete = NULL,
+  data_types = NULL,
+  data_names = NULL,
+  data_fctrs = NULL,
+  data_units = NULL,
+  data_means = NULL,
+  data_stdev = NULL,
+  data_modes = NULL,
+  data_bounds = NULL,
+
+  x = NULL,
+  y = NULL,
+  w = NULL,
+
+  importance_raw = NULL,
+
+  mean_leaves = 0,
 
   # checkers
   check_data = function(data = NULL, new = FALSE){
@@ -1112,9 +1087,9 @@ ObliqueForest <- R6::R6Class(
 
    } else {
 
-    self$check_var_names_new(new_data = input)
-    self$check_var_types_new(new_data = input)
-    self$check_fctrs_new(new_data = input)
+    private$check_var_names_new(new_data = input)
+    private$check_var_types_new(new_data = input)
+    private$check_fctrs_new(new_data = input)
 
    }
 
@@ -1580,7 +1555,7 @@ ObliqueForest <- R6::R6Class(
                      arg_name = 'split_rule',
                      expected_length = 1)
 
-    self$check_split_rule_internal()
+    private$check_split_rule_internal()
 
    }
 
@@ -1682,7 +1657,7 @@ ObliqueForest <- R6::R6Class(
                      arg_name = arg_name,
                      expected_length = 1)
 
-    self$check_pred_type_internal(oobag = oobag,
+    private$check_pred_type_internal(oobag = oobag,
                                   pred_type = pred_type,
                                   context = context)
 
@@ -1888,7 +1863,7 @@ ObliqueForest <- R6::R6Class(
      call. = FALSE
     )
 
-    test_output <- self$check_oobag_eval_function_internal(input)
+    test_output <- private$check_oobag_eval_function_internal(input)
 
     if(!is.numeric(test_output)) stop(
      "oobag_fun should return a numeric output but instead returns ",
@@ -1935,7 +1910,7 @@ ObliqueForest <- R6::R6Class(
      )
    }
 
-   test_output <- self$check_lincomb_R_function_internal(input)
+   test_output <- private$check_lincomb_R_function_internal(input)
 
    if(!is.matrix(test_output)) stop(
     "user-supplied function should return a matrix output ",
@@ -2194,31 +2169,7 @@ ObliqueForest <- R6::R6Class(
     append_to_msg = "(number of randomly selected predictors)"
    )
 
-  }
-
- ),
-
- # private ----
- private = list(
-
-  user_specified = NULL,
-  data_rows_complete = NULL,
-  data_types = NULL,
-  data_names = NULL,
-  data_fctrs = NULL,
-  data_units = NULL,
-  data_means = NULL,
-  data_stdev = NULL,
-  data_modes = NULL,
-  data_bounds = NULL,
-
-  x = NULL,
-  y = NULL,
-  w = NULL,
-
-  importance_raw = NULL,
-
-  mean_leaves = 0,
+  },
 
   # runs checks and sets defaults where needed.
   # data is NULL when we are creating a new forest,
@@ -2226,9 +2177,9 @@ ObliqueForest <- R6::R6Class(
   init = function(data = NULL) {
 
    # look for odd symbols in formula before you check variables in data
-   self$check_formula()
+   private$check_formula()
    # check & init data should be near first bc they set up other checks
-   self$check_data(data)
+   private$check_data(data)
    private$init_data(data)
 
    # if data is not null, it means we are updating an orsf spec
@@ -2236,86 +2187,86 @@ ObliqueForest <- R6::R6Class(
    if(!is.null(data)) self$data <- data
 
    if(private$user_specified$control){
-    self$check_control()
+    private$check_control()
    } else {
     private$init_control()
    }
 
 
    if(private$user_specified$mtry){
-    self$check_mtry()
+    private$check_mtry()
    } else {
     private$init_mtry()
    }
 
    if(private$user_specified$lincomb_df_target){
-    self$check_lincomb_df_target()
+    private$check_lincomb_df_target()
    } else {
     private$init_lincomb_df_target()
    }
 
    if(private$user_specified$weights){
-    self$check_weights()
+    private$check_weights()
    } else {
     private$init_weights()
    }
 
    if(private$user_specified$pred_type){
-    self$check_pred_type(oobag = TRUE)
+    private$check_pred_type(oobag = TRUE)
    } else {
     private$init_pred_type()
    }
 
    if(private$user_specified$split_rule){
-    self$check_split_rule()
+    private$check_split_rule()
    } else {
     private$init_split_rule()
    }
 
    if(private$user_specified$split_min_stat){
-    self$check_split_min_stat()
+    private$check_split_min_stat()
    } else {
     private$init_split_min_stat()
    }
 
    if(private$user_specified$oobag_eval_function){
-    self$check_oobag_eval_function()
+    private$check_oobag_eval_function()
     self$oobag_eval_type <- "User-specified function"
    } else {
     private$init_oobag_eval_function()
    }
 
    if(private$user_specified$oobag_eval_every){
-    self$check_oobag_eval_every()
+    private$check_oobag_eval_every()
    } else {
     private$init_oobag_eval_every()
    }
 
    if(self$control$lincomb_type == 'custom'){
-    self$check_lincomb_R_function()
+    private$check_lincomb_R_function()
    } else if (is.null(self$control$lincomb_R_function)){
     private$init_lincomb_R_function()
    }
 
    # arguments with hard defaults do not need an init option
-   self$check_n_tree()
-   self$check_n_split()
-   self$check_n_retry()
-   self$check_n_thread()
-   self$check_sample_with_replacement()
-   self$check_sample_fraction()
-   self$check_leaf_min_obs()
-   self$check_split_min_obs()
-   self$check_importance_type()
-   self$check_importance_max_pvalue()
-   self$check_importance_group_factors()
-   self$check_na_action()
-   # self$check_verbose_progress()
+   private$check_n_tree()
+   private$check_n_split()
+   private$check_n_retry()
+   private$check_n_thread()
+   private$check_sample_with_replacement()
+   private$check_sample_fraction()
+   private$check_leaf_min_obs()
+   private$check_split_min_obs()
+   private$check_importance_type()
+   private$check_importance_max_pvalue()
+   private$check_importance_group_factors()
+   private$check_na_action()
+   private$check_verbose_progress()
 
    # args below depend on at least one upstream arg
 
    if(private$user_specified$tree_seeds && is.null(self$forest_seed)){
-    self$check_tree_seeds()
+    private$check_tree_seeds()
    } else if (!is.null(self$forest_seed)){
     # this only happens when the forest is updated
     private$plant_tree_seeds(self$forest_seed)
@@ -2331,7 +2282,7 @@ ObliqueForest <- R6::R6Class(
    # so there is no reason to check it here.
    private$init_oobag_pred_mode()
    # check if sample_fraction conflicts with oobag_pred_mode
-   self$check_oobag_pred_mode(self$oobag_pred_mode,
+   private$check_oobag_pred_mode(self$oobag_pred_mode,
                               label = 'oobag_pred_mode',
                               sample_fraction = self$sample_fraction)
 
@@ -2357,7 +2308,7 @@ ObliqueForest <- R6::R6Class(
    fctr_check(self$data, names_x_data)
    fctr_id_check(self$data, names_x_data)
 
-   self$check_var_names(c(names_x_data, names_y_data), data = self$data)
+   private$check_var_names(c(names_x_data, names_y_data), data = self$data)
 
    private$data_names <- list(y = names_y_data,
                               x_original = names_x_data)
@@ -2369,8 +2320,8 @@ ObliqueForest <- R6::R6Class(
    valid_y_types <- c('numeric', 'integer', 'units', 'factor', "Surv")
    valid_x_types <- c(valid_y_types, 'ordered')
 
-   self$check_var_types(types_y_data, names_y_data, valid_y_types)
-   self$check_var_types(types_x_data, names_x_data, valid_x_types)
+   private$check_var_types(types_y_data, names_y_data, valid_y_types)
+   private$check_var_types(types_x_data, names_x_data, valid_x_types)
 
    private$data_types <- list(y = types_y_data, x = types_x_data)
    private$data_fctrs <- fctr_info(self$data, private$data_names$x_original)
@@ -2383,8 +2334,8 @@ ObliqueForest <- R6::R6Class(
                         yes  = length(private$data_rows_complete),
                         no   = nrow(self$data))
 
-   self$check_var_missing()
-   self$check_var_values()
+   private$check_var_missing()
+   private$check_var_values()
 
    unit_names <- c(names_y_data[types_y_data == 'units'],
                    names_x_data[types_x_data == 'units'])
@@ -2924,6 +2875,117 @@ ObliqueForest <- R6::R6Class(
 
   },
 
+  select_variables_internal = function(n_predictor_min, verbose_progress){
+
+   n_predictors <- length(private$data_names$x_original)
+
+   # verbose progress on the forest should always be FALSE
+   # because for orsf_vs, verbosity is coordinated in R
+   self$verbose_progress <- FALSE
+
+   oob_data <- data.table(
+    n_predictors = seq(n_predictors),
+    stat_value = rep(NA_real_, n_predictors),
+    predictors_included = vector(mode = 'list', length = n_predictors),
+    predictor_dropped = rep(NA_character_, n_predictors)
+   )
+
+   # if the forest was not trained prior to variable selection
+   if(!self$trained){
+    private$compute_means()
+    private$compute_stdev()
+    private$compute_modes()
+    private$compute_bounds()
+   }
+
+   private$prep_x()
+   private$prep_y()
+   private$prep_w()
+
+   # for survival, inputs should be sorted by time
+   private$sort_inputs()
+
+   # allow re-training.
+   self$forest <- list()
+
+   pred_type <- switch(self$tree_type,
+                       'survival' = 'mort',
+                       'classification' = 'prob',
+                       'regression' = 'mean')
+
+   cpp_args <- private$prep_cpp_args(pred_type = pred_type,
+                                     oobag_pred = TRUE,
+                                     importance_group_factors = TRUE,
+                                     write_forest = FALSE)
+
+   max_progress <- n_predictors - n_predictor_min
+   current_progress <- 0
+   start_time <- last_time <- Sys.time()
+
+   while(n_predictors >= n_predictor_min){
+
+    if(verbose_progress){
+
+     time_passed <- as.numeric(
+      as.difftime(Sys.time() - start_time),
+      units = "secs"
+     )
+
+     time_lapsed <- as.numeric(
+      as.difftime(Sys.time() - last_time),
+      units = "secs"
+     )
+
+     if(current_progress > 0 && time_lapsed > 3){
+
+      relative_progress <- current_progress / max_progress
+
+      remaining_time = round((1 / relative_progress - 1) * time_passed)
+
+      cat(
+       "Selecting variables:",
+       paste0( round_magnitude(relative_progress*100), "%" ),
+       "~ time remaining:", beautifyTime(remaining_time),
+       "\n")
+
+      last_time <- Sys.time()
+
+     }
+
+    }
+
+    mtry_safe <- ceiling(sqrt(n_predictors))
+
+    if(self$control$lincomb_df_target > mtry_safe){
+     self$control$lincomb_df_target <- mtry_safe
+    }
+
+    cpp_args$mtry <- mtry_safe
+    cpp_output <- do.call(orsf_cpp, args = cpp_args)
+
+    worst_index <- which.min(cpp_output$importance)
+    worst_predictor <- colnames(cpp_args$x)[worst_index]
+
+    oob_data[n_predictors,
+             `:=`(n_predictors = n_predictors,
+                  stat_value = cpp_output$eval_oobag$stat_values[1,1],
+                  predictors_included = colnames(cpp_args$x),
+                  predictor_dropped = worst_predictor)]
+
+    cpp_args$x <- cpp_args$x[, -worst_index]
+    n_predictors <- n_predictors - 1
+    current_progress <- current_progress + 1
+
+   }
+
+   if(verbose_progress){
+    cat("Selecting variables: 100%\n")
+   }
+
+   collapse::na_omit(oob_data)
+
+  },
+
   # preppers
 
   prep_x = function(){
@@ -3248,6 +3310,20 @@ ObliqueForestSurvival <- R6::R6Class(
    return("mort")
   },
 
+  leaf_min_events = NULL,
+  split_min_events = NULL,
+  pred_horizon = NULL
+
+ ),
+
+ # private ----
+ private = list(
+
+  pred_horizon_order = NULL,
+  data_row_sort = NULL,
+  max_time = NULL,
+  n_events = NULL,
+
   check_split_rule_internal= function(){
 
    check_arg_is_valid(arg_value = self$split_rule,
@@ -3446,20 +3522,6 @@ ObliqueForestSurvival <- R6::R6Class(
 
   },
 
-  leaf_min_events = NULL,
-  split_min_events = NULL,
-  pred_horizon = NULL
-
- ),
-
- # private ----
- private = list(
-
-  pred_horizon_order = NULL,
-  data_row_sort = NULL,
-  max_time = NULL,
-  n_events = NULL,
-
   sort_inputs = function(sort_x = TRUE,
                          sort_y = TRUE,
                          sort_w = TRUE){
@@ -3551,13 +3613,13 @@ ObliqueForestSurvival <- R6::R6Class(
    # if pred_horizon is unspecified, provide sensible default
    # if it is specified, check for correctness
    if(private$user_specified$pred_horizon){
-    self$check_pred_horizon(self$pred_horizon, boundary_checks = TRUE)
+    private$check_pred_horizon(self$pred_horizon, boundary_checks = TRUE)
    } else {
     self$pred_horizon <- collapse::fmedian(y[, 1])
    }
 
-   self$check_leaf_min_events()
-   self$check_split_min_events()
+   private$check_leaf_min_events()
+   private$check_split_min_events()
 
    if(!self$oobag_pred_mode) self$oobag_eval_type <- "none"
 
@@ -3575,13 +3637,13 @@ ObliqueForestSurvival <- R6::R6Class(
    pred_horizon_supplied <- !is.null(pred_horizon)
 
    if(pred_type_supplied){
-    self$check_pred_type(oobag = FALSE, pred_type = pred_type)
+    private$check_pred_type(oobag = FALSE, pred_type = pred_type)
    } else {
     pred_type <- self$pred_type %||% "risk"
    }
 
    if(pred_horizon_supplied){
-    self$check_pred_horizon(pred_horizon, boundary_checks, pred_type)
+    private$check_pred_horizon(pred_horizon, boundary_checks, pred_type)
    } else {
     pred_horizon <- self$pred_horizon
     if(is.null(pred_horizon)){
@@ -3809,9 +3871,18 @@ ObliqueForestClassification <- R6::R6Class(
  inherit = ObliqueForest,
  public = list(
 
+  n_class = NULL,
+
+  class_levels = NULL,
+
   get_pred_type_vi = function(){
    return("prob")
-  },
+  }
+
+ ),
+
+ # private ----
+ private = list(
 
   check_split_rule_internal = function(){
 
@@ -3914,15 +3985,6 @@ ObliqueForestClassification <- R6::R6Class(
 
   },
 
-  n_class = NULL,
-
-  class_levels = NULL
-
- ),
-
- # private ----
- private = list(
-
   init_control = function(){
 
    self$control <- orsf_control_classification(method = 'glm',
@@ -3989,7 +4051,7 @@ ObliqueForestClassification <- R6::R6Class(
    }
 
    if(!is.null(pred_type)){
-    self$check_pred_type(oobag = FALSE, pred_type = pred_type)
+    private$check_pred_type(oobag = FALSE, pred_type = pred_type)
    } else {
     pred_type <- self$pred_type %||% "prob"
    }
@@ -4090,7 +4152,12 @@ ObliqueForestRegression <- R6::R6Class(
 
   get_pred_type_vi = function(){
    return("mean")
-  },
+  }
+
+ ),
+
+ # private ----
+ private = list(
 
   check_split_rule_internal = function(){
 
@@ -4193,12 +4260,7 @@ ObliqueForestRegression <- R6::R6Class(
 
    out
 
-  }
-
- ),
-
- # private ----
- private = list(
+  },
 
   init_control = function(){
 
@@ -4259,7 +4321,7 @@ ObliqueForestRegression <- R6::R6Class(
    }
 
    if(!is.null(pred_type)){
-    self$check_pred_type(oobag = FALSE, pred_type = pred_type)
+    private$check_pred_type(oobag = FALSE, pred_type = pred_type)
    } else {
     pred_type <- self$pred_type %||% "mean"
    }

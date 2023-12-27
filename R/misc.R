@@ -125,3 +125,50 @@ has_units <- function(x){
 #'
 contains_vi <- function(object) {!is_empty(object$importance)}
 
+
+
+#' beautify time
+#'
+#' @description
+#'  Used to make time printouts more readable with verbose progress
+#'
+#' @param seconds a difftime value
+#'
+#' @return
+beautifyTime <- function(seconds) {
+
+ result <- ""
+
+ # Add seconds, minutes, hours, days if larger than zero
+ out_seconds <- seconds %% 60
+ result <- paste(out_seconds, "seconds")
+
+ out_minutes <- (seconds %/% 60) %% 60
+ if (seconds %/% 60 == 0) {
+  return(result)
+ } else if (out_minutes == 1) {
+  result <- paste("1 minute,", result)
+ } else {
+  result <- paste(out_minutes, "minutes,", result)
+ }
+
+ out_hours <- (seconds %/% 3600) %% 24
+ if (seconds %/% 3600 == 0) {
+  return(result)
+ } else if (out_hours == 1) {
+  result <- paste("1 hour,", result)
+ } else {
+  result <- paste(out_hours, "hours,", result)
+ }
+
+ out_days <- seconds %/% 86400
+ if (out_days == 0) {
+  return(result)
+ } else if (out_days == 1) {
+  result <- paste("1 day,", result)
+ } else {
+  result <- paste(out_days, "days,", result)
+ }
+
+ return(result)
+}

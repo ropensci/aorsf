@@ -30,7 +30,7 @@
 
 orsf_vs <- function(object,
                     n_predictor_min = 3,
-                    verbose_progress = FALSE){
+                    verbose_progress = NULL){
 
  check_arg_is(arg_value = object,
               arg_name = 'object',
@@ -52,9 +52,18 @@ orsf_vs <- function(object,
               bound = length(object$get_names_x()),
               append_to_msg = "(total number of predictors)")
 
-
  check_arg_length(arg_value = n_predictor_min,
                   arg_name = 'n_predictor_min',
+                  expected_length = 1)
+
+ verbose_progress <- verbose_progress %||% object$verbose_progress
+
+ check_arg_type(arg_value = verbose_progress,
+                arg_name = 'verbose_progress',
+                expected_type = 'logical')
+
+ check_arg_length(arg_value = verbose_progress,
+                  arg_name = 'verbose_progress',
                   expected_length = 1)
 
  object$select_variables(n_predictor_min, verbose_progress)
