@@ -1,35 +1,39 @@
 
 # survival ----
 
-fit <- fit_standard_pbc$fast
-
-pd_object_grid <- orsf_pd_oob(object = fit,
-                              pred_spec = pred_spec_auto(sex, bili),
-                              pred_horizon = c(1000))
-
-pd_object_loop <- orsf_pd_oob(object = fit,
-                              expand_grid = FALSE,
-                              pred_spec = pred_spec_auto(sex, bili),
-                              pred_horizon = c(1000))
-
 test_that(
- desc = 'pred_spec data are returned on the original scale',
+ desc = "Survival partial dependence",
  code = {
+
+  # this has brought up partial memory leaks when it runs in the
+  # testing process, but the source of the leak has been difficult
+  # to pin-point. Skipping these tests on CRAN until I can find it.
+  skip_on_cran()
+
+  fit <- fit_standard_pbc$fast
+
+  pd_object_grid <- orsf_pd_oob(object = fit,
+                                pred_spec = pred_spec_auto(sex, bili),
+                                pred_horizon = c(1000))
+
+  pd_object_loop <- orsf_pd_oob(object = fit,
+                                expand_grid = FALSE,
+                                pred_spec = pred_spec_auto(sex, bili),
+                                pred_horizon = c(1000))
+
   expect_equal(unique(pd_object_grid$bili),
                fit$get_var_bounds('bili'))
 
   expect_equal(unique(na.omit(pd_object_loop$value)),
                fit$get_var_bounds('bili'))
+
+  expect_s3_class(pd_object_grid, 'data.table')
+  expect_s3_class(pd_object_loop, 'data.table')
+
  }
 )
 
-test_that(
- desc = 'output is a data.table',
- code = {
-  expect_s3_class(pd_object_grid, 'data.table')
-  expect_s3_class(pd_object_loop, 'data.table')
- }
-)
+
 
 
 # classification ----
