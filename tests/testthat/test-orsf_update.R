@@ -77,3 +77,19 @@ test_that(
 
  }
 )
+
+test_that(
+ desc = "setting a default null field to null reverts that field to the default value",
+ code = {
+
+  fit_control <- fit_standard_penguin_bills$custom
+
+  fit_control_null <- orsf_update(fit_control, control = NULL)
+
+  expect_equal_leaf_summary(fit_standard_penguin_bills$fast,
+                            fit_control_null)
+
+ }
+)
+
+
