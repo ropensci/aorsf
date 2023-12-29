@@ -89,6 +89,18 @@ test_that(
   expect_equal_leaf_summary(fit_standard_penguin_bills$fast,
                             fit_control_null)
 
+  fit_split <- fit_standard_pbc$fast
+
+  fit_split_c <- orsf_update(fit_split, split_rule = 'cstat')
+
+  expect_true(fit_split_c$split_rule == 'cstat')
+
+  fit_revert <- orsf_update(fit_split_c, split_rule = NULL)
+
+  expect_true(fit_revert$split_rule == 'logrank')
+
+  expect_equal_leaf_summary(fit_revert, fit_split)
+
  }
 )
 
