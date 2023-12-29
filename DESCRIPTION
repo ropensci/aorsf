@@ -1,6 +1,6 @@
 Package: aorsf
 Title: Accelerated Oblique Random Survival Forests
-Version: 0.1.1.9004
+Version: 0.1.2
 Authors@R: c(
     person("Byron", "Jaeger", , "bjaeger@wakehealth.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7399-2299")),
