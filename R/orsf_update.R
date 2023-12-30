@@ -102,7 +102,7 @@ orsf_update <- function(object,
 
  }
 
- object_new$update(...)
+ object_new$update(.dots)
 
  if(no_fit){
 

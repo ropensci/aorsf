@@ -43,15 +43,15 @@ test_that(
                         n_tree = n_tree_test)
 
   expect_snapshot(
-   orsf_pd_oob(fit_verbose, pred_spec_auto(island))
+   pd <- orsf_pd_oob(fit_verbose, pred_spec_auto(island))
   )
 
   expect_snapshot(
-   orsf_vi(fit_verbose_2, importance = 'negate')
+   vi <- orsf_vi(fit_verbose_2, importance = 'negate')
   )
 
   expect_snapshot(
-   orsf_vs(fit_verbose)
+   vs <- orsf_vs(fit_verbose)
   )
 
  }

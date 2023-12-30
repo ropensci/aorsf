@@ -174,18 +174,20 @@ ice_oob <- orsf_ice_oob(fit_clsf, pred_spec = pred_spec)
 ice_oob
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##      id_variable id_row  class flipper_length_mm       pred
-##   1:           1      1 Adelie               190 0.92059968
-##   2:           1      2 Adelie               190 0.80953569
-##   3:           1      3 Adelie               190 0.84869374
-##   4:           1      4 Adelie               190 0.93559660
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## Key: <class>
+##      id_variable id_row  class flipper_length_mm       pred
+##            <int> <char> <fctr>             <num>      <num>
+##   1:           1      1 Adelie               190 0.92169247
+##   2:           1      2 Adelie               190 0.80944657
+##   3:           1      3 Adelie               190 0.85172955
+##   4:           1      4 Adelie               190 0.93559327
 ##   5:           1      5 Adelie               190 0.97708693
 ##  ---                                                       
-## 896:           2    146 Gentoo               210 0.25636964
+## 896:           2    146 Gentoo               210 0.26092984
 ## 897:           2    147 Gentoo               210 0.04798334
-## 898:           2    148 Gentoo               210 0.07945140
-## 899:           2    149 Gentoo               210 0.84811899
-## 900:           2    150 Gentoo               210 0.10695367
+## 898:           2    148 Gentoo               210 0.07927359
+## 899:           2    149 Gentoo               210 0.84779971
+## 900:           2    150 Gentoo               210 0.11105143
 }\if{html}{\out{</div>}}
 
 There are two identifiers in the output:
@@ -239,6 +241,7 @@ ice_new
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##      id_variable id_row flipper_length_mm     pred
+##            <int> <char>             <num>    <num>
 ##   1:           1      1               190 37.94483
 ##   2:           1      2               190 37.61595
 ##   3:           1      3               190 37.53681
@@ -264,6 +267,7 @@ ice_new
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row species    island body_mass_g     pred
+##             <int> <char>  <fctr>    <fctr>       <num>    <num>
 ##    1:           1      1  Adelie    Biscoe        3200 37.78339
 ##    2:           1      2  Adelie    Biscoe        3200 37.73273
 ##    3:           1      3  Adelie    Biscoe        3200 37.71248
@@ -289,6 +293,7 @@ ice_new
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row    variable value  level     pred
+##             <int> <char>      <char> <num> <char>    <num>
 ##    1:           1      1     species    NA Adelie 37.74136
 ##    2:           1      2     species    NA Adelie 37.42367
 ##    3:           1      3     species    NA Adelie 37.04598
@@ -317,6 +322,7 @@ ice_new
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##      id_variable id_row species island     pred
+##            <int> <char>  <fctr> <fctr>    <num>
 ##   1:           1      1  Adelie Biscoe 38.52327
 ##   2:           1      2  Adelie Biscoe 38.32073
 ##   3:           1      3  Adelie Biscoe 37.71248
@@ -354,18 +360,19 @@ Compute individual conditional expectation using in-bag data for
 ice_train
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##      id_variable id_row pred_horizon bili      pred
-##   1:           1      1      1826.25    1 0.1290317
-##   2:           1      2      1826.25    1 0.1242352
-##   3:           1      3      1826.25    1 0.0963452
-##   4:           1      4      1826.25    1 0.1172367
-##   5:           1      5      1826.25    1 0.2030256
-##  ---                                               
-## 746:           5    146      1826.25    5 0.7868537
-## 747:           5    147      1826.25    5 0.2012954
-## 748:           5    148      1826.25    5 0.4893605
-## 749:           5    149      1826.25    5 0.4698220
-## 750:           5    150      1826.25    5 0.9557285
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##      id_variable id_row pred_horizon  bili      pred
+##            <int> <char>        <num> <num>     <num>
+##   1:           1      1      1826.25     1 0.1290317
+##   2:           1      2      1826.25     1 0.1242352
+##   3:           1      3      1826.25     1 0.0963452
+##   4:           1      4      1826.25     1 0.1172367
+##   5:           1      5      1826.25     1 0.2030256
+##  ---                                                
+## 746:           5    146      1826.25     5 0.7868537
+## 747:           5    147      1826.25     5 0.2012954
+## 748:           5    148      1826.25     5 0.4893605
+## 749:           5    149      1826.25     5 0.4698220
+## 750:           5    150      1826.25     5 0.9557285
 }\if{html}{\out{</div>}}
 
 If you don’t have specific values of a variable in mind, let
@@ -375,18 +382,19 @@ If you don’t have specific values of a variable in mind, let
 ice_train
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##      id_variable id_row pred_horizon bili       pred
-##   1:           1      1      1826.25 0.59 0.11706741
-##   2:           1      2      1826.25 0.59 0.11562173
-##   3:           1      3      1826.25 0.59 0.09110739
-##   4:           1      4      1826.25 0.59 0.10069721
-##   5:           1      5      1826.25 0.59 0.18769751
-##  ---                                                
-## 746:           5    146      1826.25 7.21 0.82600898
-## 747:           5    147      1826.25 7.21 0.29156437
-## 748:           5    148      1826.25 7.21 0.58220919
-## 749:           5    149      1826.25 7.21 0.54168688
-## 750:           5    150      1826.25 7.21 0.96204106
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##      id_variable id_row pred_horizon  bili       pred
+##            <int> <char>        <num> <num>      <num>
+##   1:           1      1      1826.25  0.55 0.11728559
+##   2:           1      2      1826.25  0.55 0.11728839
+##   3:           1      3      1826.25  0.55 0.08950739
+##   4:           1      4      1826.25  0.55 0.10064959
+##   5:           1      5      1826.25  0.55 0.18736417
+##  ---                                                 
+## 746:           5    146      1826.25  7.25 0.82600898
+## 747:           5    147      1826.25  7.25 0.29156437
+## 748:           5    148      1826.25  7.25 0.58395919
+## 749:           5    149      1826.25  7.25 0.54202021
+## 750:           5    150      1826.25  7.25 0.96391985
 }\if{html}{\out{</div>}}
 
 Specify \code{pred_horizon} to get individual conditional expectation at each
@@ -397,18 +405,19 @@ value:
 ice_train
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row pred_horizon bili        pred
-##    1:           1      1          500 0.59 0.008276627
-##    2:           1      1         1000 0.59 0.055715858
-##    3:           1      1         1500 0.59 0.084987224
-##    4:           1      1         2000 0.59 0.123090885
-##    5:           1      1         2500 0.59 0.165214938
-##   ---                                                 
-## 4496:           5    150         1000 7.21 0.835895969
-## 4497:           5    150         1500 7.21 0.932657591
-## 4498:           5    150         2000 7.21 0.965944498
-## 4499:           5    150         2500 7.21 0.970325309
-## 4500:           5    150         3000 7.21 0.979051377
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row pred_horizon  bili        pred
+##             <int> <char>        <num> <num>       <num>
+##    1:           1      1          500  0.55 0.008276627
+##    2:           1      1         1000  0.55 0.055724516
+##    3:           1      1         1500  0.55 0.085091120
+##    4:           1      1         2000  0.55 0.123423352
+##    5:           1      1         2500  0.55 0.166380739
+##   ---                                                  
+## 4496:           5    150         1000  7.25 0.837774757
+## 4497:           5    150         1500  7.25 0.934536379
+## 4498:           5    150         2000  7.25 0.967823286
+## 4499:           5    150         2500  7.25 0.972059574
+## 4500:           5    150         3000  7.25 0.980785643
 }\if{html}{\out{</div>}}
 
 Multi-prediction horizon ice comes with minimal extra computational
