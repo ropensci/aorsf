@@ -4,7 +4,7 @@
 \name{aorsf-package}
 \alias{aorsf}
 \alias{aorsf-package}
-\title{aorsf: Accelerated Oblique Random Survival Forests}
+\title{aorsf: Accelerated Oblique Random Forests}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 

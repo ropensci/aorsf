@@ -388,9 +388,9 @@ penguin_fit
 ##                  N trees: 5
 ##       N predictors total: 7
 ##    N predictors per node: 3
-##  Average leaves per tree: 5.6
+##  Average leaves per tree: 4.4
 ## Min observations in leaf: 5
-##           OOB stat value: 0.97
+##           OOB stat value: 0.99
 ##            OOB stat type: AUC-ROC
 ##      Variable importance: anova
 ## 
@@ -415,9 +415,9 @@ bill_fit
 ##                  N trees: 5
 ##       N predictors total: 7
 ##    N predictors per node: 3
-##  Average leaves per tree: 50.4
+##  Average leaves per tree: 46.4
 ## Min observations in leaf: 5
-##           OOB stat value: 0.74
+##           OOB stat value: 0.71
 ##            OOB stat type: RSQ
 ##      Variable importance: anova
 ## 
@@ -446,10 +446,10 @@ pbc_fit
 ##                  N trees: 5
 ##       N predictors total: 17
 ##    N predictors per node: 5
-##  Average leaves per tree: 20.6
+##  Average leaves per tree: 22
 ## Min observations in leaf: 5
 ##       Min events in leaf: 1
-##           OOB stat value: 0.77
+##           OOB stat value: 0.76
 ##            OOB stat type: Harrell's C-index
 ##      Variable importance: anova
 ## 
@@ -496,7 +496,7 @@ take to fit the forest before you commit to it:
  orsf_time_to_train()
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## Time difference of 3.403997 secs
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## Time difference of 2.497625 secs
 }\if{html}{\out{</div>}}
 \enumerate{
 \item If fitting multiple forests, use the blueprint along with
@@ -567,12 +567,12 @@ brier_scores
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 4
 ##   .metric        .estimator .eval_time .estimate
 ##   <chr>          <chr>           <dbl>     <dbl>
-## 1 brier_survival standard          500    0.0608
-## 2 brier_survival standard         1000    0.0877
-## 3 brier_survival standard         1500    0.0860
-## 4 brier_survival standard         2000    0.0761
-## 5 brier_survival standard         2500    0.0857
-## 6 brier_survival standard         3000    0.114
+## 1 brier_survival standard          500    0.0203
+## 2 brier_survival standard         1000    0.0959
+## 3 brier_survival standard         1500    0.116 
+## 4 brier_survival standard         2000    0.162 
+## 5 brier_survival standard         2500    0.178 
+## 6 brier_survival standard         3000    0.262
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{roc_scores <- test_pred \%>\% 
@@ -584,12 +584,12 @@ roc_scores
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 4
 ##   .metric          .estimator .eval_time .estimate
 ##   <chr>            <chr>           <dbl>     <dbl>
-## 1 roc_auc_survival standard          500     0.980
-## 2 roc_auc_survival standard         1000     0.943
-## 3 roc_auc_survival standard         1500     0.960
-## 4 roc_auc_survival standard         2000     0.973
-## 5 roc_auc_survival standard         2500     0.961
-## 6 roc_auc_survival standard         3000     0.950
+## 1 roc_auc_survival standard          500     0.993
+## 2 roc_auc_survival standard         1000     0.860
+## 3 roc_auc_survival standard         1500     0.920
+## 4 roc_auc_survival standard         2000     0.893
+## 5 roc_auc_survival standard         2500     0.908
+## 6 roc_auc_survival standard         3000     0.870
 }\if{html}{\out{</div>}}
 }
 }

@@ -10,7 +10,7 @@ navbar:
     right: [search, github]
 
 articles:
-- title: Learn to use ORSF
+- title: Learn to use oblique RFs
   navbar: ~
   contents:
   - aorsf
@@ -19,8 +19,8 @@ articles:
   - fast
 
 reference:
-- title: Oblique random survival forests (ORSFs)
-  desc: Fit, inspect, summarize, and apply ORSF models
+- title: Oblique random forests (RFs)
+  desc: Fit, inspect, summarize, and apply oblique RFs
 - contents:
   - matches("^orsf$")
   - matches("^orsf_update$")
@@ -28,7 +28,7 @@ reference:
   - matches("^predict\\.ObliqueForest$")
   - matches("^orsf_summarize")
   - matches("^print\\.orsf_summary")
-- title: Control how your ORSF model works
+- title: Control how your oblique RF works
   desc: Choose how to identify linear combinations of predictors and set tuning parameters for your approach
 - contents:
   - matches("^orsf_control")
