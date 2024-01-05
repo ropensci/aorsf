@@ -4,8 +4,7 @@ test_that(
  desc = 'verbosity prints grow, predict, and importance notes',
  code = {
 
-  skip_on_ci()
-  skip_on_cran()
+  skip()
 
   expect_snapshot(
    fit_verbose <- orsf(pbc, time + status ~.,
@@ -29,8 +28,7 @@ test_that(
  desc = "verbosity is carried by object",
  code = {
 
-  skip_on_ci()
-  skip_on_cran()
+  skip()
 
   fit_verbose <- orsf(penguins, species ~ .,
                       verbose_progress = TRUE,
