@@ -12,6 +12,8 @@ suppressPackageStartupMessages({
  library(mlr3extralearners)
  library(mlr3viz)
  library(mlr3benchmark)
+ library(aorsf)
+ library(tidyverse)
 })
 
 ```
@@ -59,7 +61,8 @@ task_lung <-
  TaskSurv$new(
   id = 'nki',
   backend = data_lung$data %>%
-   mutate(OS_event = as.numeric(OS_event) -1),
+   mutate(OS_event = as.numeric(OS_event) -1) %>%
+   select(-histology),
   time = "OS_years",
   event = "OS_event"
  )
@@ -106,8 +109,7 @@ tasks <- list(task_pbc,
               tsk("actg"),
               tsk('gbcs'),
               tsk('grace'),
-              tsk("unemployment"),
-              tsk("whas"))
+              tsk("unemployment"))
 
 ```
 
