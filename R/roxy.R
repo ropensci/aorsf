@@ -214,7 +214,7 @@ roxy_cite_jaeger_2023 <- function(){
   journal = "Journal of Computational and Graphical Statistics",
   date = "Published online 08 Aug 2023",
   number = NULL,
-  doi = "10.1080/10618600.2023.2231048"
+  doi = "10.1080/10618600"
   # url = "https://doi.org/10.1080/10618600.2023.2231048"
  )
 
