@@ -1,3 +1,42 @@
+## Version 0.1.2
+
+I have run R CMD check and have also checked for memory leaks using R CMD check --use-valgrind aorsf_0.1.2.tar.gz.
+
+### Valgrind check results (abbreviated)
+
+==2062== LEAK SUMMARY:
+==2062==    definitely lost: 0 bytes in 0 blocks
+==2062==    indirectly lost: 0 bytes in 0 blocks
+==2062==      possibly lost: 0 bytes in 0 blocks
+==2062==    still reachable: 144,402,034 bytes in 45,757 blocks
+==2062==         suppressed: 0 bytes in 0 blocks
+
+==2062== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+
+### R CMD check results
+
+   
+### R CMD check results 
+
+Duration: 2m 56.3s
+
+0 errors ✔ | 0 warnings ✔ | 0 notes ✔
+
+R CMD check succeeded
+
+### Downstream dependencies
+
+I have also run R CMD check on downstream dependencies of `aorsf`: 
+
+- collapse
+- data.table
+- lifecycle
+- R6
+- Rcpp
+- utils
+
+All packages passed.
+
 ## Version 0.1.1
 
 Update, October 25: Thank you for helping me with this. I have tidied up threads and avoided usage of the `data.table` functions that were creating possible memory leaks.  I have checked this submission locally with valgrind and on rhub, with both indicating 0 memory leaks. However, if this submission does not pass on your end, I would like to request an extension on the October 28th deadline.
