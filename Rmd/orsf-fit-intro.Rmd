@@ -23,7 +23,7 @@ bill_fit
 
 ```
 
-My personal favorite is the oblique survival RF with accelerated Cox regression because it was the first type of oblique RF that `aorsf` provided (see [JCGS paper](https://doi.org/10.1080/10618600.2023.2231048)). Here, we use it to predict mortality risk following diagnosis of primary biliary cirrhosis:
+My personal favorite is the oblique survival RF with accelerated Cox regression because it was the first type of oblique RF that `aorsf` provided (see [JCGS paper](https://www.tandfonline.com/doi/full/10.1080/10618600.2023.2231048)). Here, we use it to predict mortality risk following diagnosis of primary biliary cirrhosis:
 
 ```{r}
 # An oblique survival RF

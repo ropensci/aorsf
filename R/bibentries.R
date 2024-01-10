@@ -13,13 +13,12 @@ cite = function(entry){
    volume      = "45",
    number      = "1",
    pages       = "5--32",
-   doi         = "10.1023/A:1010933404324",
+   # doi         = "10.1023/A:1010933404324",
    issn        = "1573-0565"
   ),
   ishwaran_2008 = utils::bibentry(
    "article",
-   doi         = "10.1214/08-aoas169",
-   url         = "https://doi.org/10.1214/08-aoas169",
+   # doi         = "10.1214/08-aoas169",
    year        = "2008",
    month       = "9",
    publisher   = "Institute of Mathematical Statistics",
@@ -31,7 +30,7 @@ cite = function(entry){
   ),
   jaeger_2019 = utils::bibentry(
    "article",
-   doi           = "10.1214/19-aoas1261",
+   # doi           = "10.1214/19-aoas1261",
    year          = "2019",
    month         = "9",
    publisher     = "Institute of Mathematical Statistics",
@@ -46,7 +45,7 @@ cite = function(entry){
    title         = "Accelerated and interpretable oblique random survival forests",
    author        = "Byron C. Jaeger and Sawyer Welden and Kristin Lenoir and Jaime L. Speiser and Matthew W. Segar and Ambarish Pandey and Nicholas M. Pajewski",
    journal       = "Journal of Computational and Graphical Statistics",
-   doi           = "10.1080/10618600.2023.2231048",
+   # doi           = "10.1080/10618600.2023.2231048",
    year          = "2023",
    month         = "8",
    publisher     = "Taylor & Francis",

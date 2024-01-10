@@ -347,8 +347,7 @@ orsf_vi_permute(fit_custom)
 \item Harrell, E F, Califf, M R, Pryor, B D, Lee, L K, Rosati, A R (1982).
 "Evaluating the yield of medical tests." \emph{Jama}, \emph{247}(18), 2543-2546.
 \item Breiman, Leo (2001). "Random Forests." \emph{Machine Learning}, \emph{45}(1),
-5-32. ISSN 1573-0565, doi:10.1023/A:1010933404324
-\url{https://doi.org/10.1023/A\%3A1010933404324}.
+5-32. ISSN 1573-0565.
 \item Menze, H B, Kelm, Michael B, Splitthoff, N D, Koethe, Ullrich,
 Hamprecht, A F (2011). "On oblique random forests." In \emph{Machine
 Learning and Knowledge Discovery in Databases: European Conference,
@@ -357,7 +356,5 @@ II 22}, 453-469. Springer.
 \item Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski
 NM (2023). "Accelerated and interpretable oblique random survival
 forests." \emph{Journal of Computational and Graphical Statistics}, 1-16.
-doi:10.1080/10618600.2023.2231048
-\url{https://doi.org/10.1080/10618600.2023.2231048}.
 }
 }
