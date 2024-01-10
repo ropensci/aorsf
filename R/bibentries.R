@@ -4,7 +4,7 @@ cite = function(entry){
 
  out <- switch(
   entry,
-  breiman_2001 = bibentry(
+  breiman_2001 = utils::bibentry(
    "article",
    title       = "Random Forests",
    author      = "Breiman, Leo",
@@ -16,7 +16,7 @@ cite = function(entry){
    doi         = "10.1023/A:1010933404324",
    issn        = "1573-0565"
   ),
-  ishwaran_2008 = bibentry(
+  ishwaran_2008 = utils::bibentry(
    "article",
    doi         = "10.1214/08-aoas169",
    url         = "https://doi.org/10.1214/08-aoas169",
@@ -29,7 +29,7 @@ cite = function(entry){
    title       = "Random survival forests",
    journal     = "The Annals of Applied Statistics"
   ),
-  jaeger_2019 = bibentry(
+  jaeger_2019 = utils::bibentry(
    "article",
    doi           = "10.1214/19-aoas1261",
    year          = "2019",
@@ -41,7 +41,7 @@ cite = function(entry){
    title         = "Oblique random survival forests",
    journal       = "The Annals of Applied Statistics"
   ),
-  jaeger_2022 = bibentry(
+  jaeger_2022 = utils::bibentry(
    "article",
    title         = "Accelerated and interpretable oblique random survival forests",
    author        = "Byron C. Jaeger and Sawyer Welden and Kristin Lenoir and Jaime L. Speiser and Matthew W. Segar and Ambarish Pandey and Nicholas M. Pajewski",
@@ -52,7 +52,7 @@ cite = function(entry){
    publisher     = "Taylor & Francis",
    pages         = "1--16"
   ),
-  hooker_2021 = bibentry(
+  hooker_2021 = utils::bibentry(
    "article",
    title     = "Unrestricted permutation forces extrapolation: variable importance requires at least one more model, or there is no free variable importance",
    author    = "Hooker, Giles and Mentch, Lucas and Zhou, Siyu",
@@ -62,7 +62,7 @@ cite = function(entry){
    year      = "2021",
    publisher = "Springer"
   ),
-  harrell_1982 = bibentry(
+  harrell_1982 = utils::bibentry(
    "article",
    title     = "Evaluating the yield of medical tests",
    author    = "Harrell, Frank E and Califf, Robert M and Pryor, David B and Lee, Kerry L and Rosati, Robert A",
@@ -73,7 +73,7 @@ cite = function(entry){
    year      = "1982",
    publisher ="American Medical Association"
   ),
-  menze_2011 = bibentry(
+  menze_2011 = utils::bibentry(
    "inproceedings",
    title        = "On oblique random forests",
    author       = "Menze, Bjoern H and Kelm, B Michael and Splitthoff, Daniel N and Koethe, Ullrich and Hamprecht, Fred A",
@@ -82,9 +82,9 @@ cite = function(entry){
    year         = "2011",
    organization = "Springer"
   ),
-  simon_2011 = bibentry(
+  simon_2011 = utils::bibentry(
    "article",
-   title     = "Regularization paths for Cox’s proportional hazards model via coordinate descent",
+   title     = "Regularization paths for Cox's proportional hazards model via coordinate descent",
    author    = "Simon, Noah and Friedman, Jerome and Hastie, Trevor and Tibshirani, Rob",
    journal   = "Journal of statistical software",
    volume    = "39",
@@ -93,7 +93,7 @@ cite = function(entry){
    year      = "2011",
    publisher = "NIH Public Access"
   ),
-  horst_2022 = bibentry(
+  horst_2022 = utils::bibentry(
    "article",
    title   = "Palmer Archipelago Penguins Data in the palmerpenguins R Package-An Alternative to Anderson's Irises",
    author  = "Horst, Allison M and Hill, Alison Presmanes and Gorman, Kristen B",
@@ -102,7 +102,7 @@ cite = function(entry){
    number  = "1",
    year    = "2022"
   ),
-  penguins_2020 = bibentry(
+  penguins_2020 = utils::bibentry(
    "manual",
    title  = "palmerpenguins: Palmer Archipelago (Antarctica) penguin data",
    author = "Allison Marie Horst and Alison Presmanes Hill and Kristen B Gorman",
@@ -110,7 +110,7 @@ cite = function(entry){
    note   = "R package version 0.1.0",
    url    = "https://allisonhorst.github.io/palmerpenguins/"
   ),
-  greenwell_2018 = bibentry(
+  greenwell_2018 = utils::bibentry(
    "article",
    title   = "A simple and effective model-based variable importance measure",
    author  = "Greenwell, Brandon M and Boehmke, Bradley C and McCarthy, Andrew J",

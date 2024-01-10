@@ -34,7 +34,7 @@ finding a linear combination of those variables.
 \references{
 \enumerate{
 \item Simon, Noah, Friedman, Jerome, Hastie, Trevor, Tibshirani, Rob (2011).
-"Regularization paths for Cox’s proportional hazards model via
+"Regularization paths for Cox's proportional hazards model via
 coordinate descent." \emph{Journal of statistical software}, \emph{39}(5), 1.
 }
 }
