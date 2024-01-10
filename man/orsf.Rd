@@ -388,7 +388,7 @@ penguin_fit
 ##                  N trees: 5
 ##       N predictors total: 7
 ##    N predictors per node: 3
-##  Average leaves per tree: 5.4
+##  Average leaves per tree: 5.8
 ## Min observations in leaf: 5
 ##           OOB stat value: 0.98
 ##            OOB stat type: AUC-ROC
@@ -415,9 +415,9 @@ bill_fit
 ##                  N trees: 5
 ##       N predictors total: 7
 ##    N predictors per node: 3
-##  Average leaves per tree: 49.4
+##  Average leaves per tree: 51.8
 ## Min observations in leaf: 5
-##           OOB stat value: 0.72
+##           OOB stat value: 0.74
 ##            OOB stat type: RSQ
 ##      Variable importance: anova
 ## 
@@ -446,10 +446,10 @@ pbc_fit
 ##                  N trees: 5
 ##       N predictors total: 17
 ##    N predictors per node: 5
-##  Average leaves per tree: 21
+##  Average leaves per tree: 20
 ## Min observations in leaf: 5
 ##       Min events in leaf: 1
-##           OOB stat value: 0.74
+##           OOB stat value: 0.78
 ##            OOB stat type: Harrell's C-index
 ##      Variable importance: anova
 ## 
@@ -496,7 +496,7 @@ take to fit the forest before you commit to it:
  orsf_time_to_train()
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## Time difference of 2.185202 secs
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## Time difference of 4.637623 secs
 }\if{html}{\out{</div>}}
 \enumerate{
 \item If fitting multiple forests, use the blueprint along with
@@ -567,12 +567,12 @@ brier_scores
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 4
 ##   .metric        .estimator .eval_time .estimate
 ##   <chr>          <chr>           <dbl>     <dbl>
-## 1 brier_survival standard          500    0.0569
-## 2 brier_survival standard         1000    0.0884
-## 3 brier_survival standard         1500    0.0888
-## 4 brier_survival standard         2000    0.0682
-## 5 brier_survival standard         2500    0.128 
-## 6 brier_survival standard         3000    0.189
+## 1 brier_survival standard          500    0.0407
+## 2 brier_survival standard         1000    0.109 
+## 3 brier_survival standard         1500    0.105 
+## 4 brier_survival standard         2000    0.106 
+## 5 brier_survival standard         2500    0.147 
+## 6 brier_survival standard         3000    0.160
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{roc_scores <- test_pred \%>\% 
@@ -584,12 +584,12 @@ roc_scores
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 4
 ##   .metric          .estimator .eval_time .estimate
 ##   <chr>            <chr>           <dbl>     <dbl>
-## 1 roc_auc_survival standard          500     0.931
-## 2 roc_auc_survival standard         1000     0.927
-## 3 roc_auc_survival standard         1500     0.945
-## 4 roc_auc_survival standard         2000     0.972
-## 5 roc_auc_survival standard         2500     0.910
-## 6 roc_auc_survival standard         3000     0.877
+## 1 roc_auc_survival standard          500     0.984
+## 2 roc_auc_survival standard         1000     0.871
+## 3 roc_auc_survival standard         1500     0.905
+## 4 roc_auc_survival standard         2000     0.941
+## 5 roc_auc_survival standard         2500     0.860
+## 6 roc_auc_survival standard         3000     0.884
 }\if{html}{\out{</div>}}
 }
 }
@@ -605,5 +605,5 @@ Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random fore
 
 Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA, Howard G, Simon N. Oblique random survival forests. \emph{Annals of applied statistics}. 2019 Sep; 13(3):1847-83. DOI: 10.1214/19-AOAS1261
 
-Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{Journal of Computational and Graphical Statistics}. Published online 08 Aug 2023. DOI: 10.1080/10618600.2023.2231048
+Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{Journal of Computational and Graphical Statistics}. Published online 08 Aug 2023. DOI: 10.1080/10618600
 }
