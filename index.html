@@ -142,7 +142,7 @@
 <span><span class="co">#&gt;                  N trees: 5</span></span>
 <span><span class="co">#&gt;       N predictors total: 7</span></span>
 <span><span class="co">#&gt;    N predictors per node: 3</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 6.2</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 6</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;           OOB stat value: 0.99</span></span>
 <span><span class="co">#&gt;            OOB stat type: AUC-ROC</span></span>
@@ -164,9 +164,9 @@
 <span><span class="co">#&gt;                  N trees: 5</span></span>
 <span><span class="co">#&gt;       N predictors total: 7</span></span>
 <span><span class="co">#&gt;    N predictors per node: 3</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 50.4</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 42.6</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.75</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.76</span></span>
 <span><span class="co">#&gt;            OOB stat type: RSQ</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -187,10 +187,10 @@
 <span><span class="co">#&gt;                  N trees: 5</span></span>
 <span><span class="co">#&gt;       N predictors total: 17</span></span>
 <span><span class="co">#&gt;    N predictors per node: 5</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 19.6</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 20.4</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;       Min events in leaf: 1</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.75</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.79</span></span>
 <span><span class="co">#&gt;            OOB stat type: Harrell's C-index</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -293,32 +293,32 @@
 <p><strong>negation</strong><sup>2</sup>: Each variable is assessed separately by multiplying the variable’s coefficients by -1 and then determining how much the model’s performance changes. The worse the model’s performance after negating coefficients for a given variable, the more important the variable. This technique is promising b/c it does not require permutation and it emphasizes variables with larger coefficients in linear combinations, but it is also relatively new and hasn’t been studied as much as permutation importance. See Jaeger, (2023) for more details on this technique.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">pbc_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          bili        copper       protime       albumin       ascites </span></span>
-<span><span class="co">#&gt;  0.1203848865  0.0592053045  0.0279486559  0.0237897777  0.0147007324 </span></span>
-<span><span class="co">#&gt;           trt           sex      alk.phos          trig       spiders </span></span>
-<span><span class="co">#&gt;  0.0125080750  0.0116880832  0.0105730484  0.0044249987  0.0024722789 </span></span>
-<span><span class="co">#&gt;          chol         edema           age           ast      platelet </span></span>
-<span><span class="co">#&gt;  0.0008840789  0.0004944292  0.0003003666 -0.0012533584 -0.0081733249 </span></span>
-<span><span class="co">#&gt;         stage        hepato </span></span>
-<span><span class="co">#&gt; -0.0091305502 -0.0120281819</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili        copper         stage           sex           age </span></span>
+<span><span class="co">#&gt;  0.1552460736  0.1156218837  0.0796917628  0.0533427094  0.0283132385 </span></span>
+<span><span class="co">#&gt;       albumin           trt          chol      alk.phos      platelet </span></span>
+<span><span class="co">#&gt;  0.0279823814  0.0168238416  0.0153010749  0.0148718669  0.0094582765 </span></span>
+<span><span class="co">#&gt;         edema       ascites       spiders       protime        hepato </span></span>
+<span><span class="co">#&gt;  0.0067975986  0.0065505801  0.0062356214 -0.0004653046 -0.0026664147 </span></span>
+<span><span class="co">#&gt;           ast          trig </span></span>
+<span><span class="co">#&gt; -0.0028902524 -0.0106616501</span></span></code></pre></div>
 </li>
 <li>
 <p><strong>permutation</strong>: Each variable is assessed separately by randomly permuting the variable’s values and then determining how much the model’s performance changes. The worse the model’s performance after permuting the values of a given variable, the more important the variable. This technique is flexible, intuitive, and frequently used. It also has several <a href="https://christophm.github.io/interpretable-ml-book/feature-importance.html#disadvantages-9" class="external-link">known limitations</a></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">penguin_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    bill_length_mm       body_mass_g     bill_depth_mm flipper_length_mm </span></span>
-<span><span class="co">#&gt;       0.210168971       0.079138442       0.061107587       0.050399635 </span></span>
-<span><span class="co">#&gt;            island              year               sex </span></span>
-<span><span class="co">#&gt;       0.042829130       0.001689854      -0.003287019</span></span></code></pre></div>
+<span><span class="co">#&gt;    bill_length_mm     bill_depth_mm       body_mass_g            island </span></span>
+<span><span class="co">#&gt;       0.121351910       0.101846889       0.097822451       0.080772909 </span></span>
+<span><span class="co">#&gt;               sex flipper_length_mm              year </span></span>
+<span><span class="co">#&gt;       0.035053517       0.008270751      -0.008058339</span></span></code></pre></div>
 </li>
 <li>
 <p><strong>analysis of variance (ANOVA)</strong><sup>4</sup>: A p-value is computed for each coefficient in each linear combination of variables in each decision tree. Importance for an individual predictor variable is the proportion of times a p-value for its coefficient is &lt; 0.01. This technique is very efficient computationally, but may not be as effective as permutation or negation in terms of selecting signal over noise variables. See <a href="https://link.springer.com/chapter/10.1007/978-3-642-23783-6_29" class="external-link">Menze, 2011</a> for more details on this technique.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">bill_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;               sex           species            island flipper_length_mm </span></span>
-<span><span class="co">#&gt;        0.37500000        0.33602187        0.09470954        0.05263158 </span></span>
-<span><span class="co">#&gt;     bill_depth_mm       body_mass_g              year </span></span>
-<span><span class="co">#&gt;        0.05000000        0.04918033        0.00000000</span></span></code></pre></div>
+<span><span class="co">#&gt;           species               sex     bill_depth_mm flipper_length_mm </span></span>
+<span><span class="co">#&gt;        0.51652893        0.27906977        0.06315789        0.04950495 </span></span>
+<span><span class="co">#&gt;       body_mass_g            island              year </span></span>
+<span><span class="co">#&gt;        0.04807692        0.02687148        0.00000000</span></span></code></pre></div>
 </li>
 </ul>
 <p>You can supply your own R function to estimate out-of-bag error (see <a href="https://docs.ropensci.org/aorsf/articles/oobag.html" class="external-link">oob vignette</a>) or to estimate out-of-bag variable importance (see <a href="https://docs.ropensci.org/aorsf/reference/orsf_vi.html#examples" class="external-link">orsf_vi examples</a>)</p>
@@ -332,24 +332,24 @@
 <span><span class="fu"><a href="reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">bill_fit</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Adelie"</span>, <span class="st">"Gentoo"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    species     mean      lwr     medn      upr</span></span>
 <span><span class="co">#&gt;     &lt;fctr&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  Adelie 41.54048 35.51625 40.50000 49.89998</span></span>
-<span><span class="co">#&gt; 2:  Gentoo 42.83185 36.01556 42.29556 51.04089</span></span>
+<span><span class="co">#&gt; 1:  Adelie 39.99394 35.76532 39.80782 46.13931</span></span>
+<span><span class="co">#&gt; 2:  Gentoo 46.66565 40.02938 46.88517 51.61367</span></span>
 <span></span>
 <span><span class="co"># let aorsf pick reasonable values for you:</span></span>
 <span><span class="fu"><a href="reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">bill_fit</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bill_depth_mm</span>, <span class="va">island</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     bill_depth_mm    island     mean      lwr     medn      upr</span></span>
 <span><span class="co">#&gt;             &lt;num&gt;    &lt;fctr&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:          14.3    Biscoe 44.53325 37.12446 44.88000 51.00000</span></span>
-<span><span class="co">#&gt;  2:          15.6    Biscoe 44.44897 37.08321 44.75000 51.03689</span></span>
-<span><span class="co">#&gt;  3:          17.3    Biscoe 44.01986 36.14000 44.01250 53.43578</span></span>
-<span><span class="co">#&gt;  4:          18.7    Biscoe 43.66173 35.99644 42.93095 54.32733</span></span>
-<span><span class="co">#&gt;  5:          19.5    Biscoe 44.21056 35.96111 43.99167 54.45133</span></span>
+<span><span class="co">#&gt;  1:          14.3    Biscoe 43.94960 35.90421 45.30159 51.05109</span></span>
+<span><span class="co">#&gt;  2:          15.6    Biscoe 44.24705 36.62759 45.57321 51.08020</span></span>
+<span><span class="co">#&gt;  3:          17.3    Biscoe 44.84757 36.53804 45.62910 53.93833</span></span>
+<span><span class="co">#&gt;  4:          18.7    Biscoe 45.08939 36.35893 46.16893 54.42075</span></span>
+<span><span class="co">#&gt;  5:          19.5    Biscoe 45.13608 36.21033 46.08023 54.42075</span></span>
 <span><span class="co">#&gt; ---                                                            </span></span>
-<span><span class="co">#&gt; 11:          14.3 Torgersen 42.92359 35.77868 42.54875 50.43488</span></span>
-<span><span class="co">#&gt; 12:          15.6 Torgersen 42.82373 35.69733 42.54875 50.19559</span></span>
-<span><span class="co">#&gt; 13:          17.3 Torgersen 42.93715 35.71257 42.40466 51.57472</span></span>
-<span><span class="co">#&gt; 14:          18.7 Torgersen 42.46346 36.00470 41.13466 52.14050</span></span>
-<span><span class="co">#&gt; 15:          19.5 Torgersen 42.88632 36.37587 41.55000 52.84875</span></span></code></pre></div>
+<span><span class="co">#&gt; 11:          14.3 Torgersen 43.55984 35.47143 44.18127 51.05109</span></span>
+<span><span class="co">#&gt; 12:          15.6 Torgersen 43.77317 35.44683 44.28406 51.08020</span></span>
+<span><span class="co">#&gt; 13:          17.3 Torgersen 44.56465 35.84585 44.83694 53.93833</span></span>
+<span><span class="co">#&gt; 14:          18.7 Torgersen 44.68367 35.44010 44.86667 54.42075</span></span>
+<span><span class="co">#&gt; 15:          19.5 Torgersen 44.64605 35.44010 44.86667 54.42075</span></span></code></pre></div>
 <p>The summary function, <code><a href="reference/orsf_summarize_uni.html">orsf_summarize_uni()</a></code>, computes PD for as many variables as you ask it to, using sensible values.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">pbc_fit</span>, n_variables <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
@@ -359,18 +359,22 @@
 <span><span class="co">#&gt;         |----------------- Risk -----------------|</span></span>
 <span><span class="co">#&gt;   Value      Mean     Median     25th %    75th %</span></span>
 <span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;    0.80 0.2039042 0.03907164 0.01204819 0.3547619</span></span>
-<span><span class="co">#&gt;    1.40 0.2264253 0.06060606 0.01323529 0.4090909</span></span>
-<span><span class="co">#&gt;    3.55 0.3281926 0.22379977 0.09090909 0.5000000</span></span>
+<span><span class="co">#&gt;    0.60 0.2098108 0.07168855 0.01138461 0.2860450</span></span>
+<span><span class="co">#&gt;    0.80 0.2117933 0.07692308 0.01709469 0.2884990</span></span>
+<span><span class="co">#&gt;    1.40 0.2326560 0.08445419 0.02100837 0.3563622</span></span>
+<span><span class="co">#&gt;    3.55 0.4265979 0.35820106 0.05128824 0.7342923</span></span>
+<span><span class="co">#&gt;    7.30 0.4724608 0.44746241 0.11759259 0.8039683</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; -- copper (VI Rank: 2) ---------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;         |----------------- Risk -----------------|</span></span>
 <span><span class="co">#&gt;   Value      Mean     Median     25th %    75th %</span></span>
 <span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;    42.5 0.2578622 0.05772203 0.01456808 0.4610507</span></span>
-<span><span class="co">#&gt;    74.0 0.2774388 0.09090909 0.01666667 0.4945813</span></span>
-<span><span class="co">#&gt;     130 0.3241708 0.19790500 0.02409639 0.5384615</span></span>
+<span><span class="co">#&gt;    25.0 0.2332412 0.04425936 0.01587919 0.3888304</span></span>
+<span><span class="co">#&gt;    42.5 0.2535448 0.07417582 0.01754386 0.4151786</span></span>
+<span><span class="co">#&gt;    74.0 0.2825471 0.11111111 0.01988069 0.4770833</span></span>
+<span><span class="co">#&gt;     130 0.3259604 0.18771003 0.04658385 0.5054348</span></span>
+<span><span class="co">#&gt;     217 0.4213303 0.28571429 0.13345865 0.6859423</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Predicted risk at time t = 1788 for top 2 predictors</span></span></code></pre></div>
 <p>For more on PD, see the <a href="https://docs.ropensci.org/aorsf/articles/pd.html" class="external-link">vignette</a></p>
@@ -397,15 +401,15 @@
 <span><span class="va">pbc_interactions</span></span>
 <span><span class="co">#&gt;          interaction      score</span></span>
 <span><span class="co">#&gt;               &lt;char&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1: albumin..protime 1.29270242</span></span>
-<span><span class="co">#&gt;  2:    protime..bili 0.85645437</span></span>
-<span><span class="co">#&gt;  3:    albumin..bili 0.68987446</span></span>
-<span><span class="co">#&gt;  4:    bili..spiders 0.09060722</span></span>
-<span><span class="co">#&gt;  5:        bili..trt 0.09060722</span></span>
-<span><span class="co">#&gt;  6: protime..spiders 0.07798808</span></span>
-<span><span class="co">#&gt;  7:     protime..trt 0.07798808</span></span>
-<span><span class="co">#&gt;  8: albumin..spiders 0.05698401</span></span>
-<span><span class="co">#&gt;  9:     albumin..trt 0.05698401</span></span>
+<span><span class="co">#&gt;  1: albumin..protime 0.97837184</span></span>
+<span><span class="co">#&gt;  2:    protime..bili 0.78999788</span></span>
+<span><span class="co">#&gt;  3:    albumin..bili 0.59128756</span></span>
+<span><span class="co">#&gt;  4:    bili..spiders 0.13192184</span></span>
+<span><span class="co">#&gt;  5:        bili..trt 0.13192184</span></span>
+<span><span class="co">#&gt;  6: albumin..spiders 0.06578222</span></span>
+<span><span class="co">#&gt;  7:     albumin..trt 0.06578222</span></span>
+<span><span class="co">#&gt;  8: protime..spiders 0.03012718</span></span>
+<span><span class="co">#&gt;  9:     protime..trt 0.03012718</span></span>
 <span><span class="co">#&gt; 10:     spiders..trt 0.00000000</span></span></code></pre></div>
 <p>What do the values in <code>score</code> mean? These values are the average of the standard deviation of the standard deviation of PD in one variable conditional on the other variable. They should be interpreted relative to one another, i.e., a higher scoring interaction is more likely to reflect a real interaction between two variables than a lower scoring one.</p>
 <p>Do these interaction scores make sense? Let’s test the top scoring and lowest scoring interactions using <code><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">coxph()</a></code>.</p>
@@ -456,11 +460,11 @@
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <ol style="list-style-type: decimal">
-<li><p>Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA, Howard G, Simon N. Oblique random survival forests. <em>Annals of applied statistics</em>. 2019 Sep; 13(3):1847-83. DOI: 10.1214/19-AOAS1261</p></li>
-<li><p>Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. <em>Journal of Computational and Graphical Statistics</em>. Published online 08 Aug 2023. DOI: 10.1080/10618600.2023.2231048</p></li>
-<li><p>Horst AM, Hill AP, Gorman KB. palmerpenguins: Palmer Archipelago (Antarctica) penguin data. R package version 0.1.0. 2020. DOI: 10.5281/zenodo.3960218</p></li>
-<li><p>Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. <em>Joint European Conference on Machine Learning and Knowledge Discovery in Databases</em>. 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29</p></li>
-<li><p>Greenwell BM, Boehmke BC, McCarthy AJ. A simple and effective model-based variable importance measure. <em>arXiv e-prints</em>. 2018 May 12; arXiv:1805.04755. URL: <a href="https://doi.org/10.48550/arXiv.1805.04755" class="external-link uri">https://doi.org/10.48550/arXiv.1805.04755</a></p></li>
+<li>Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min Y, Mcclure LA, Howard G, Simon N (2019). “Oblique random survival forests.” <em>The Annals of Applied Statistics</em>, <em>13</em>(3). <a href="doi:10.1214/19-aoas1261" class="uri">doi:10.1214/19-aoas1261</a> <a href="https://doi.org/10.1214/19-aoas1261" class="external-link uri">https://doi.org/10.1214/19-aoas1261</a>.</li>
+<li>Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM (2023). “Accelerated and interpretable oblique random survival forests.” <em>Journal of Computational and Graphical Statistics</em>, 1-16. <a href="doi:10.1080/10618600.2023.2231048" class="uri">doi:10.1080/10618600.2023.2231048</a> <a href="https://doi.org/10.1080/10618600.2023.2231048" class="external-link uri">https://doi.org/10.1080/10618600.2023.2231048</a>.</li>
+<li>Horst AM, Hill AP, Gorman KB (2020). <em>palmerpenguins: Palmer Archipelago (Antarctica) penguin data</em>. R package version 0.1.0, <a href="https://allisonhorst.github.io/palmerpenguins/" class="external-link uri">https://allisonhorst.github.io/palmerpenguins/</a>.</li>
+<li>Menze, H B, Kelm, Michael B, Splitthoff, N D, Koethe, Ullrich, Hamprecht, A F (2011). “On oblique random forests.” In <em>Machine Learning and Knowledge Discovery in Databases: European Conference, ECML PKDD 2011, Athens, Greece, September 5-9, 2011, Proceedings, Part II 22</em>, 453-469. Springer.</li>
+<li>Greenwell, M B, Boehmke, C B, McCarthy, J A (2018). “A simple and effective model-based variable importance measure.” <em>arXiv preprint arXiv:1805.04755</em>.</li>
 </ol>
 </div>
 <div class="section level2">
