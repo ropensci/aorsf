@@ -301,22 +301,19 @@
 #'
 #' @references
 #'
-#' `r roxy_cite_harrell_1982()`
-#'
-#' `r roxy_cite_breiman_2001()`
-#'
-#' `r roxy_cite_ishwaran_2008()`
-#'
-#' `r roxy_cite_menze_2011()`
-#'
-#' `r roxy_cite_jaeger_2019()`
-#'
-#' `r roxy_cite_jaeger_2023()`
+#' 1. `r cite("harrell_1982")`
+#' 1. `r cite("breiman_2001")`
+#' 1. `r cite("ishwaran_2008")`
+#' 1. `r cite("menze_2011")`
+#' 1. `r cite("jaeger_2019")`
+#' 1. `r cite("jaeger_2022")`
 #'
 #' @includeRmd Rmd/orsf_examples.Rmd
 #'
 #' @export
 #'
+
+
 
 orsf <- function(data,
                  formula,

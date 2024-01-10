@@ -174,7 +174,7 @@ orsf_control_cph <- function(method = 'efron',
 #'
 #' @references
 #'
-#' `r roxy_cite_simon_2011()`
+#' 1. `r cite("simon_2011")`
 #'
 
 orsf_control_net <- function(alpha = 1/2,

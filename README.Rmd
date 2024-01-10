@@ -294,19 +294,12 @@ For survival analysis, comparisons between `aorsf` and existing software are pre
 
 ## References
 
-```{r results='asis', echo=FALSE}
+1. `r aorsf:::cite("jaeger_2019")`
+1. `r aorsf:::cite("jaeger_2022")`
+1. `r aorsf:::cite("penguins_2020")`
+1. `r aorsf:::cite("menze_2011")`
+1. `r aorsf:::cite("greenwell_2018")`
 
-cat("1. ", aorsf:::roxy_cite_jaeger_2019(), '\n\n')
-
-cat("2. ", aorsf:::roxy_cite_jaeger_2023(), '\n\n')
-
-cat("3. ", aorsf:::roxy_cite_penguins(),  '\n\n')
-
-cat("4. ", aorsf:::roxy_cite_menze_2011(), '\n\n')
-
-cat("5. ", aorsf:::roxy_cite_greenwell_2018())
-
-```
 
 
 ## Funding

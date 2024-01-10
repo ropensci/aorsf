@@ -78,7 +78,7 @@ penguin_fit
 #>                  N trees: 5
 #>       N predictors total: 7
 #>    N predictors per node: 3
-#>  Average leaves per tree: 6.2
+#>  Average leaves per tree: 6
 #> Min observations in leaf: 5
 #>           OOB stat value: 0.99
 #>            OOB stat type: AUC-ROC
@@ -104,9 +104,9 @@ bill_fit
 #>                  N trees: 5
 #>       N predictors total: 7
 #>    N predictors per node: 3
-#>  Average leaves per tree: 50.4
+#>  Average leaves per tree: 42.6
 #> Min observations in leaf: 5
-#>           OOB stat value: 0.75
+#>           OOB stat value: 0.76
 #>            OOB stat type: RSQ
 #>      Variable importance: anova
 #> 
@@ -135,10 +135,10 @@ pbc_fit
 #>                  N trees: 5
 #>       N predictors total: 17
 #>    N predictors per node: 5
-#>  Average leaves per tree: 19.6
+#>  Average leaves per tree: 20.4
 #> Min observations in leaf: 5
 #>       Min events in leaf: 1
-#>           OOB stat value: 0.75
+#>           OOB stat value: 0.79
 #>            OOB stat type: Harrell's C-index
 #>      Variable importance: anova
 #> 
@@ -293,14 +293,14 @@ vector
 
   ``` r
   orsf_vi_negate(pbc_fit)
-  #>          bili        copper       protime       albumin       ascites 
-  #>  0.1203848865  0.0592053045  0.0279486559  0.0237897777  0.0147007324 
-  #>           trt           sex      alk.phos          trig       spiders 
-  #>  0.0125080750  0.0116880832  0.0105730484  0.0044249987  0.0024722789 
-  #>          chol         edema           age           ast      platelet 
-  #>  0.0008840789  0.0004944292  0.0003003666 -0.0012533584 -0.0081733249 
-  #>         stage        hepato 
-  #> -0.0091305502 -0.0120281819
+  #>          bili        copper         stage           sex           age 
+  #>  0.1552460736  0.1156218837  0.0796917628  0.0533427094  0.0283132385 
+  #>       albumin           trt          chol      alk.phos      platelet 
+  #>  0.0279823814  0.0168238416  0.0153010749  0.0148718669  0.0094582765 
+  #>         edema       ascites       spiders       protime        hepato 
+  #>  0.0067975986  0.0065505801  0.0062356214 -0.0004653046 -0.0026664147 
+  #>           ast          trig 
+  #> -0.0028902524 -0.0106616501
   ```
 
 - **permutation**: Each variable is assessed separately by randomly
@@ -313,10 +313,10 @@ vector
 
   ``` r
   orsf_vi_permute(penguin_fit)
-  #>    bill_length_mm       body_mass_g     bill_depth_mm flipper_length_mm 
-  #>       0.210168971       0.079138442       0.061107587       0.050399635 
-  #>            island              year               sex 
-  #>       0.042829130       0.001689854      -0.003287019
+  #>    bill_length_mm     bill_depth_mm       body_mass_g            island 
+  #>       0.121351910       0.101846889       0.097822451       0.080772909 
+  #>               sex flipper_length_mm              year 
+  #>       0.035053517       0.008270751      -0.008058339
   ```
 
 - **analysis of variance (ANOVA)**<sup>4</sup>: A p-value is computed
@@ -331,10 +331,10 @@ vector
 
   ``` r
   orsf_vi_anova(bill_fit)
-  #>               sex           species            island flipper_length_mm 
-  #>        0.37500000        0.33602187        0.09470954        0.05263158 
-  #>     bill_depth_mm       body_mass_g              year 
-  #>        0.05000000        0.04918033        0.00000000
+  #>           species               sex     bill_depth_mm flipper_length_mm 
+  #>        0.51652893        0.27906977        0.06315789        0.04950495 
+  #>       body_mass_g            island              year 
+  #>        0.04807692        0.02687148        0.00000000
   ```
 
 You can supply your own R function to estimate out-of-bag error (see
@@ -357,24 +357,24 @@ or let `aorsf` pick reasonable values for you if you use
 orsf_pd_oob(bill_fit, pred_spec = list(species = c("Adelie", "Gentoo")))
 #>    species     mean      lwr     medn      upr
 #>     <fctr>    <num>    <num>    <num>    <num>
-#> 1:  Adelie 41.54048 35.51625 40.50000 49.89998
-#> 2:  Gentoo 42.83185 36.01556 42.29556 51.04089
+#> 1:  Adelie 39.99394 35.76532 39.80782 46.13931
+#> 2:  Gentoo 46.66565 40.02938 46.88517 51.61367
 
 # let aorsf pick reasonable values for you:
 orsf_pd_oob(bill_fit, pred_spec = pred_spec_auto(bill_depth_mm, island))
 #>     bill_depth_mm    island     mean      lwr     medn      upr
 #>             <num>    <fctr>    <num>    <num>    <num>    <num>
-#>  1:          14.3    Biscoe 44.53325 37.12446 44.88000 51.00000
-#>  2:          15.6    Biscoe 44.44897 37.08321 44.75000 51.03689
-#>  3:          17.3    Biscoe 44.01986 36.14000 44.01250 53.43578
-#>  4:          18.7    Biscoe 43.66173 35.99644 42.93095 54.32733
-#>  5:          19.5    Biscoe 44.21056 35.96111 43.99167 54.45133
+#>  1:          14.3    Biscoe 43.94960 35.90421 45.30159 51.05109
+#>  2:          15.6    Biscoe 44.24705 36.62759 45.57321 51.08020
+#>  3:          17.3    Biscoe 44.84757 36.53804 45.62910 53.93833
+#>  4:          18.7    Biscoe 45.08939 36.35893 46.16893 54.42075
+#>  5:          19.5    Biscoe 45.13608 36.21033 46.08023 54.42075
 #> ---                                                            
-#> 11:          14.3 Torgersen 42.92359 35.77868 42.54875 50.43488
-#> 12:          15.6 Torgersen 42.82373 35.69733 42.54875 50.19559
-#> 13:          17.3 Torgersen 42.93715 35.71257 42.40466 51.57472
-#> 14:          18.7 Torgersen 42.46346 36.00470 41.13466 52.14050
-#> 15:          19.5 Torgersen 42.88632 36.37587 41.55000 52.84875
+#> 11:          14.3 Torgersen 43.55984 35.47143 44.18127 51.05109
+#> 12:          15.6 Torgersen 43.77317 35.44683 44.28406 51.08020
+#> 13:          17.3 Torgersen 44.56465 35.84585 44.83694 53.93833
+#> 14:          18.7 Torgersen 44.68367 35.44010 44.86667 54.42075
+#> 15:          19.5 Torgersen 44.64605 35.44010 44.86667 54.42075
 ```
 
 The summary function, `orsf_summarize_uni()`, computes PD for as many
@@ -388,18 +388,22 @@ orsf_summarize_uni(pbc_fit, n_variables = 2)
 #>         |----------------- Risk -----------------|
 #>   Value      Mean     Median     25th %    75th %
 #>  <char>     <num>      <num>      <num>     <num>
-#>    0.80 0.2039042 0.03907164 0.01204819 0.3547619
-#>    1.40 0.2264253 0.06060606 0.01323529 0.4090909
-#>    3.55 0.3281926 0.22379977 0.09090909 0.5000000
+#>    0.60 0.2098108 0.07168855 0.01138461 0.2860450
+#>    0.80 0.2117933 0.07692308 0.01709469 0.2884990
+#>    1.40 0.2326560 0.08445419 0.02100837 0.3563622
+#>    3.55 0.4265979 0.35820106 0.05128824 0.7342923
+#>    7.30 0.4724608 0.44746241 0.11759259 0.8039683
 #> 
 #> -- copper (VI Rank: 2) ---------------------------
 #> 
 #>         |----------------- Risk -----------------|
 #>   Value      Mean     Median     25th %    75th %
 #>  <char>     <num>      <num>      <num>     <num>
-#>    42.5 0.2578622 0.05772203 0.01456808 0.4610507
-#>    74.0 0.2774388 0.09090909 0.01666667 0.4945813
-#>     130 0.3241708 0.19790500 0.02409639 0.5384615
+#>    25.0 0.2332412 0.04425936 0.01587919 0.3888304
+#>    42.5 0.2535448 0.07417582 0.01754386 0.4151786
+#>    74.0 0.2825471 0.11111111 0.01988069 0.4770833
+#>     130 0.3259604 0.18771003 0.04658385 0.5054348
+#>     217 0.4213303 0.28571429 0.13345865 0.6859423
 #> 
 #>  Predicted risk at time t = 1788 for top 2 predictors
 ```
@@ -437,15 +441,15 @@ pbc_interactions <- pbc_fit %>%
 pbc_interactions
 #>          interaction      score
 #>               <char>      <num>
-#>  1: albumin..protime 1.29270242
-#>  2:    protime..bili 0.85645437
-#>  3:    albumin..bili 0.68987446
-#>  4:    bili..spiders 0.09060722
-#>  5:        bili..trt 0.09060722
-#>  6: protime..spiders 0.07798808
-#>  7:     protime..trt 0.07798808
-#>  8: albumin..spiders 0.05698401
-#>  9:     albumin..trt 0.05698401
+#>  1: albumin..protime 0.97837184
+#>  2:    protime..bili 0.78999788
+#>  3:    albumin..bili 0.59128756
+#>  4:    bili..spiders 0.13192184
+#>  5:        bili..trt 0.13192184
+#>  6: albumin..spiders 0.06578222
+#>  7:     albumin..trt 0.06578222
+#>  8: protime..spiders 0.03012718
+#>  9:     protime..trt 0.03012718
 #> 10:     spiders..trt 0.00000000
 ```
 
@@ -522,29 +526,26 @@ paper](https://doi.org/10.1080/10618600.2023.2231048). The paper:
 
 ## References
 
-1.  Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure
-    LA, Howard G, Simon N. Oblique random survival forests. *Annals of
-    applied statistics*. 2019 Sep; 13(3):1847-83. DOI:
-    10.1214/19-AOAS1261
-
+1.  Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min Y, Mcclure
+    LA, Howard G, Simon N (2019). “Oblique random survival forests.”
+    *The Annals of Applied Statistics*, *13*(3).
+    <doi:10.1214/19-aoas1261> <https://doi.org/10.1214/19-aoas1261>.
 2.  Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A,
-    Pajewski NM. Accelerated and interpretable oblique random survival
-    forests. *Journal of Computational and Graphical Statistics*.
-    Published online 08 Aug 2023. DOI: 10.1080/10618600.2023.2231048
-
-3.  Horst AM, Hill AP, Gorman KB. palmerpenguins: Palmer Archipelago
-    (Antarctica) penguin data. R package version 0.1.0. 2020. DOI:
-    10.5281/zenodo.3960218
-
-4.  Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique
-    random forests. *Joint European Conference on Machine Learning and
-    Knowledge Discovery in Databases*. 2011 Sep 4; pp. 453-469. DOI:
-    10.1007/978-3-642-23783-6_29
-
-5.  Greenwell BM, Boehmke BC, McCarthy AJ. A simple and effective
-    model-based variable importance measure. *arXiv e-prints*. 2018 May
-    12; arXiv:1805.04755. URL:
-    <https://doi.org/10.48550/arXiv.1805.04755>
+    Pajewski NM (2023). “Accelerated and interpretable oblique random
+    survival forests.” *Journal of Computational and Graphical
+    Statistics*, 1-16. <doi:10.1080/10618600.2023.2231048>
+    <https://doi.org/10.1080/10618600.2023.2231048>.
+3.  Horst AM, Hill AP, Gorman KB (2020). *palmerpenguins: Palmer
+    Archipelago (Antarctica) penguin data*. R package version 0.1.0,
+    <https://allisonhorst.github.io/palmerpenguins/>.
+4.  Menze, H B, Kelm, Michael B, Splitthoff, N D, Koethe, Ullrich,
+    Hamprecht, A F (2011). “On oblique random forests.” In *Machine
+    Learning and Knowledge Discovery in Databases: European Conference,
+    ECML PKDD 2011, Athens, Greece, September 5-9, 2011, Proceedings,
+    Part II 22*, 453-469. Springer.
+5.  Greenwell, M B, Boehmke, C B, McCarthy, J A (2018). “A simple and
+    effective model-based variable importance measure.” *arXiv preprint
+    arXiv:1805.04755*.
 
 ## Funding
 

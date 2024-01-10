@@ -343,11 +343,21 @@ orsf_vi_permute(fit_custom)
 }
 
 \references{
-Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. Evaluating the Yield of Medical Tests. \emph{JAMA}. 1982; 247(18):2543-2546. DOI: 10.1001/jama.1982.03320430047030
-
-Breiman L. Random forests. \emph{Machine learning}. 2001 Oct; 45(1):5-32. DOI: 10.1023/A:1010933404324
-
-Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. \emph{Joint European Conference on Machine Learning and Knowledge Discovery in Databases}. 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29
-
-Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{Journal of Computational and Graphical Statistics}. Published online 08 Aug 2023. DOI: 10.1080/10618600
+\enumerate{
+\item Harrell, E F, Califf, M R, Pryor, B D, Lee, L K, Rosati, A R (1982).
+"Evaluating the yield of medical tests." \emph{Jama}, \emph{247}(18), 2543-2546.
+\item Breiman, Leo (2001). "Random Forests." \emph{Machine Learning}, \emph{45}(1),
+5-32. ISSN 1573-0565, doi:10.1023/A:1010933404324
+\url{https://doi.org/10.1023/A\%3A1010933404324}.
+\item Menze, H B, Kelm, Michael B, Splitthoff, N D, Koethe, Ullrich,
+Hamprecht, A F (2011). "On oblique random forests." In \emph{Machine
+Learning and Knowledge Discovery in Databases: European Conference,
+ECML PKDD 2011, Athens, Greece, September 5-9, 2011, Proceedings, Part
+II 22}, 453-469. Springer.
+\item Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski
+NM (2023). "Accelerated and interpretable oblique random survival
+forests." \emph{Journal of Computational and Graphical Statistics}, 1-16.
+doi:10.1080/10618600.2023.2231048
+\url{https://doi.org/10.1080/10618600.2023.2231048}.
+}
 }

@@ -62,5 +62,9 @@ forest <- orsf(data, y ~ ., n_tree = 5)
 orsf_vint(forest)
 }
 \references{
-Greenwell BM, Boehmke BC, McCarthy AJ. A simple and effective model-based variable importance measure. \emph{arXiv e-prints}. 2018 May 12; arXiv:1805.04755. URL: https://doi.org/10.48550/arXiv.1805.04755
+\enumerate{
+\item Greenwell, M B, Boehmke, C B, McCarthy, J A (2018). "A simple and
+effective model-based variable importance measure." \emph{arXiv preprint
+arXiv:1805.04755}.
+}
 }

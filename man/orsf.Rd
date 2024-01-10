@@ -390,7 +390,7 @@ penguin_fit
 ##    N predictors per node: 3
 ##  Average leaves per tree: 5.8
 ## Min observations in leaf: 5
-##           OOB stat value: 0.98
+##           OOB stat value: 0.99
 ##            OOB stat type: AUC-ROC
 ##      Variable importance: anova
 ## 
@@ -415,9 +415,9 @@ bill_fit
 ##                  N trees: 5
 ##       N predictors total: 7
 ##    N predictors per node: 3
-##  Average leaves per tree: 51.8
+##  Average leaves per tree: 50.6
 ## Min observations in leaf: 5
-##           OOB stat value: 0.74
+##           OOB stat value: 0.71
 ##            OOB stat type: RSQ
 ##      Variable importance: anova
 ## 
@@ -449,7 +449,7 @@ pbc_fit
 ##  Average leaves per tree: 20
 ## Min observations in leaf: 5
 ##       Min events in leaf: 1
-##           OOB stat value: 0.78
+##           OOB stat value: 0.79
 ##            OOB stat type: Harrell's C-index
 ##      Variable importance: anova
 ## 
@@ -496,7 +496,7 @@ take to fit the forest before you commit to it:
  orsf_time_to_train()
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## Time difference of 4.637623 secs
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## Time difference of 4.090786 secs
 }\if{html}{\out{</div>}}
 \enumerate{
 \item If fitting multiple forests, use the blueprint along with
@@ -567,12 +567,12 @@ brier_scores
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 4
 ##   .metric        .estimator .eval_time .estimate
 ##   <chr>          <chr>           <dbl>     <dbl>
-## 1 brier_survival standard          500    0.0407
-## 2 brier_survival standard         1000    0.109 
-## 3 brier_survival standard         1500    0.105 
-## 4 brier_survival standard         2000    0.106 
-## 5 brier_survival standard         2500    0.147 
-## 6 brier_survival standard         3000    0.160
+## 1 brier_survival standard          500    0.0522
+## 2 brier_survival standard         1000    0.111 
+## 3 brier_survival standard         1500    0.125 
+## 4 brier_survival standard         2000    0.102 
+## 5 brier_survival standard         2500    0.196 
+## 6 brier_survival standard         3000    0.240
 }\if{html}{\out{</div>}}
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{roc_scores <- test_pred \%>\% 
@@ -584,26 +584,40 @@ roc_scores
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 4
 ##   .metric          .estimator .eval_time .estimate
 ##   <chr>            <chr>           <dbl>     <dbl>
-## 1 roc_auc_survival standard          500     0.984
-## 2 roc_auc_survival standard         1000     0.871
-## 3 roc_auc_survival standard         1500     0.905
-## 4 roc_auc_survival standard         2000     0.941
-## 5 roc_auc_survival standard         2500     0.860
-## 6 roc_auc_survival standard         3000     0.884
+## 1 roc_auc_survival standard          500     0.947
+## 2 roc_auc_survival standard         1000     0.846
+## 3 roc_auc_survival standard         1500     0.885
+## 4 roc_auc_survival standard         2000     0.927
+## 5 roc_auc_survival standard         2500     0.807
+## 6 roc_auc_survival standard         3000     0.787
 }\if{html}{\out{</div>}}
 }
 }
 
 \references{
-Harrell FE, Califf RM, Pryor DB, Lee KL, Rosati RA. Evaluating the Yield of Medical Tests. \emph{JAMA}. 1982; 247(18):2543-2546. DOI: 10.1001/jama.1982.03320430047030
-
-Breiman L. Random forests. \emph{Machine learning}. 2001 Oct; 45(1):5-32. DOI: 10.1023/A:1010933404324
-
-Ishwaran H, Kogalur UB, Blackstone EH, Lauer MS. Random survival forests. \emph{Annals of applied statistics}. 2008 Sep; 2(3):841-60. DOI: 10.1214/08-AOAS169
-
-Menze BH, Kelm BM, Splitthoff DN, Koethe U, Hamprecht FA. On oblique random forests. \emph{Joint European Conference on Machine Learning and Knowledge Discovery in Databases}. 2011 Sep 4; pp. 453-469. DOI: 10.1007/978-3-642-23783-6_29
-
-Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min YI, Mcclure LA, Howard G, Simon N. Oblique random survival forests. \emph{Annals of applied statistics}. 2019 Sep; 13(3):1847-83. DOI: 10.1214/19-AOAS1261
-
-Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski NM. Accelerated and interpretable oblique random survival forests. \emph{Journal of Computational and Graphical Statistics}. Published online 08 Aug 2023. DOI: 10.1080/10618600
+\enumerate{
+\item Harrell, E F, Califf, M R, Pryor, B D, Lee, L K, Rosati, A R (1982).
+"Evaluating the yield of medical tests." \emph{Jama}, \emph{247}(18), 2543-2546.
+\item Breiman, Leo (2001). "Random Forests." \emph{Machine Learning}, \emph{45}(1),
+5-32. ISSN 1573-0565, doi:10.1023/A:1010933404324
+\url{https://doi.org/10.1023/A\%3A1010933404324}.
+\item Ishwaran H, Kogalur UB, Blackstone EH, Lauer MS (2008). "Random
+survival forests." \emph{The Annals of Applied Statistics}, \emph{2}(3).
+doi:10.1214/08-aoas169 \url{https://doi.org/10.1214/08-aoas169},
+\url{https://doi.org/10.1214/08-aoas169}.
+\item Menze, H B, Kelm, Michael B, Splitthoff, N D, Koethe, Ullrich,
+Hamprecht, A F (2011). "On oblique random forests." In \emph{Machine
+Learning and Knowledge Discovery in Databases: European Conference,
+ECML PKDD 2011, Athens, Greece, September 5-9, 2011, Proceedings, Part
+II 22}, 453-469. Springer.
+\item Jaeger BC, Long DL, Long DM, Sims M, Szychowski JM, Min Y, Mcclure LA,
+Howard G, Simon N (2019). "Oblique random survival forests." \emph{The
+Annals of Applied Statistics}, \emph{13}(3). doi:10.1214/19-aoas1261
+\url{https://doi.org/10.1214/19-aoas1261}.
+\item Jaeger BC, Welden S, Lenoir K, Speiser JL, Segar MW, Pandey A, Pajewski
+NM (2023). "Accelerated and interpretable oblique random survival
+forests." \emph{Journal of Computational and Graphical Statistics}, 1-16.
+doi:10.1080/10618600.2023.2231048
+\url{https://doi.org/10.1080/10618600.2023.2231048}.
+}
 }

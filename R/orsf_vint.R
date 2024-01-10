@@ -34,7 +34,7 @@
 #'
 #' @references
 #'
-#' `r roxy_cite_greenwell_2018()`
+#' 1. `r cite("greenwell_2018")`
 #'
 #' @examples
 #'

@@ -531,5 +531,5 @@ From inspection of the figure,
 
 ## References
 
-1. `r aorsf:::roxy_cite_hooker_2021()`
+1. `r aorsf:::cite("hooker_2021")`
 

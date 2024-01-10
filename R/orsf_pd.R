@@ -121,7 +121,7 @@ pred_spec_auto <- function(...){
 #'
 #' @references
 #'
-#' `r roxy_cite_hooker_2021()`
+#' 1. `r cite("hooker_2021")`
 #'
 #' @includeRmd Rmd/orsf_pd_examples.Rmd
 #'

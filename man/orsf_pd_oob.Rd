@@ -407,5 +407,10 @@ for example)
 }
 
 \references{
-Giles Hooker, Lucas Mentch, Siyu Zhou. Unrestricted Permutation forces Extrapolation: Variable Importance Requires at least One More Model, or There Is No Free Variable Importance. \emph{arXiv e-prints}. 2021 Oct; arXiv-1905. URL: https://doi.org/10.48550/arXiv.1905.03151
+\enumerate{
+\item Hooker, Giles, Mentch, Lucas, Zhou, Siyu (2021). "Unrestricted
+permutation forces extrapolation: variable importance requires at least
+one more model, or there is no free variable importance." \emph{Statistics
+and Computing}, \emph{31}, 1-16.
+}
 }
