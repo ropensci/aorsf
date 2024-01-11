@@ -1,5 +1,5 @@
 
-# need to make this to avoid possible memory leak in data.table melt
+# avoid possible memory leak in data.table melt
 
 melt_aorsf <-
  function(data,

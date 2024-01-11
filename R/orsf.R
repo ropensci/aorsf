@@ -442,7 +442,7 @@ orsf_train <- function(object, attach_data = TRUE){
 #'
 #' # specify but do not train the model by setting no_fit = TRUE.
 #' object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
-#'                n_tree = 500, n_thread = 1, no_fit = TRUE)
+#'                n_tree = 10, no_fit = TRUE)
 #'
 #' # approximate the time it will take to grow 500 trees
 #' time_estimated <- orsf_time_to_train(object)

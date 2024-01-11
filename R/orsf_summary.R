@@ -45,13 +45,13 @@
 #' # used for ranking variables in the summary, unless we specify
 #' # a different type of importance
 #'
-#' orsf_summarize_uni(object)
+#' orsf_summarize_uni(object, n_variables = 2)
 #'
 #' # if we want to summarize object according to variables
 #' # ranked by negation importance, we can compute negation
 #' # importance within orsf_summarize_uni() as follows:
 #'
-#' orsf_summarize_uni(object, n_variables = 3, importance = 'negate')
+#' orsf_summarize_uni(object, n_variables = 2, importance = 'negate')
 #'
 #'
 orsf_summarize_uni <- function(object,
@@ -90,9 +90,9 @@ orsf_summarize_uni <- function(object,
 #'
 #' @examples
 #'
-#' object <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+#' object <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 25)
 #'
-#' smry <- orsf_summarize_uni(object, n_variables = 3)
+#' smry <- orsf_summarize_uni(object, n_variables = 2)
 #'
 #' print(smry)
 #'
@@ -272,9 +272,9 @@ print.orsf_summary_uni <- function(x, n_variables = NULL, ...){
 #'
 #' library(data.table)
 #'
-#' object <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+#' object <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 25)
 #'
-#' smry <- orsf_summarize_uni(object, n_variables = 3)
+#' smry <- orsf_summarize_uni(object, n_variables = 2)
 #'
 #' as.data.table(smry)
 #'
