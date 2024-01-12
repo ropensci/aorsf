@@ -21,9 +21,9 @@ Print ORSF summary
 }
 \examples{
 
-object <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+object <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 25)
 
-smry <- orsf_summarize_uni(object, n_variables = 3)
+smry <- orsf_summarize_uni(object, n_variables = 2)
 
 print(smry)
 

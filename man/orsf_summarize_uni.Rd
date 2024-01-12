@@ -91,13 +91,13 @@ object <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 25)
 # used for ranking variables in the summary, unless we specify
 # a different type of importance
 
-orsf_summarize_uni(object)
+orsf_summarize_uni(object, n_variables = 2)
 
 # if we want to summarize object according to variables
 # ranked by negation importance, we can compute negation
 # importance within orsf_summarize_uni() as follows:
 
-orsf_summarize_uni(object, n_variables = 3, importance = 'negate')
+orsf_summarize_uni(object, n_variables = 2, importance = 'negate')
 
 
 }

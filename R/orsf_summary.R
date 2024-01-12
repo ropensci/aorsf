@@ -270,6 +270,8 @@ print.orsf_summary_uni <- function(x, n_variables = NULL, ...){
 #'
 #' @examples
 #'
+#'\dontrun{
+#'
 #' library(data.table)
 #'
 #' object <- orsf(pbc_orsf, Surv(time, status) ~ . - id, n_tree = 25)
@@ -277,6 +279,9 @@ print.orsf_summary_uni <- function(x, n_variables = NULL, ...){
 #' smry <- orsf_summarize_uni(object, n_variables = 2)
 #'
 #' as.data.table(smry)
+#'
+#'}
+#'
 #'
 as.data.table.orsf_summary_uni <- function(x, ...){
  x$dt

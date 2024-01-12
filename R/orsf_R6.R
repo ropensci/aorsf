@@ -2643,6 +2643,7 @@ ObliqueForest <- R6::R6Class(
 
    pd_vals <- do.call(orsf_cpp, cpp_args)$pd_values
 
+
    row_delim <- switch(self$tree_type,
                        "survival" = pred_horizon_ordered,
                        "regression" = 1,
@@ -2658,6 +2659,12 @@ ObliqueForest <- R6::R6Class(
     pd_bind[[i]]$id_variable <- seq(nrow(pd_bind[[i]]))
 
     for(j in seq_along(pd_vals[[i]])){
+
+     nans <- which(is.nan(pd_vals[[i]][[j]]))
+
+     if(!is_empty(nans)){
+      pd_vals[[i]][[j]][nans] <- NA_real_
+     }
 
      pd_vals[[i]][[j]] <- matrix(pd_vals[[i]][[j]],
                                  nrow=length(row_delim),
