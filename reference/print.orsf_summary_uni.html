@@ -92,9 +92,9 @@
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>, n_tree <span class="op">=</span> <span class="fl">25</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">smry</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">object</span>, n_variables <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">smry</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf_summarize_uni.html">orsf_summarize_uni</a></span><span class="op">(</span><span class="va">object</span>, n_variables <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">smry</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -102,28 +102,20 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- Risk ----------------|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0 0.3084041 0.2026152 0.06413054 0.5221018</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      1 0.4746644 0.4105419 0.28789090 0.6549617</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0 0.3087374 0.1859818 0.04183841 0.5614236</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      1 0.4965395 0.4214549 0.30005793 0.7145065</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -- bili (VI Rank: 2) ---------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- Risk ----------------|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.60 0.2371081 0.1576771 0.05532574 0.3816857</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.80 0.2417164 0.1602108 0.05854415 0.3901429</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1.40 0.2631795 0.1807542 0.07423884 0.4246015</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   3.52 0.3694801 0.3029909 0.16740577 0.5464020</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   7.25 0.4824610 0.4472725 0.30453966 0.6401614</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.60 0.2404645 0.1342975 0.03456875 0.3904944</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.80 0.2425520 0.1435297 0.03507037 0.3904944</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1.40 0.2625349 0.1554767 0.04820122 0.4168304</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3.52 0.3795922 0.3167143 0.15794919 0.5811623</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   7.25 0.4682454 0.4348054 0.25161269 0.6726243</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -- edema (VI Rank: 3) --------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- Risk ----------------|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0 0.3023631 0.1934380 0.06136087 0.5172836</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    0.5 0.3639701 0.2793095 0.11211451 0.5832357</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      1 0.4571307 0.3983825 0.26187153 0.6404533</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Predicted risk at time t = 1788 for top 3 predictors </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Predicted risk at time t = 1788 for top 2 predictors </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
