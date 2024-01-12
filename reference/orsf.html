@@ -457,7 +457,7 @@ using <code>penguin</code> data from the magnificent <code>palmerpenguins</code>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##                  N trees: 5</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##       N predictors total: 7</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##    N predictors per node: 3</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  Average leaves per tree: 5.8</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  Average leaves per tree: 5.6</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## Min observations in leaf: 5</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">##           OOB stat value: 0.98</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">##            OOB stat type: AUC-ROC</span></span>
@@ -479,18 +479,19 @@ penguins:</p>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">##                  N trees: 5</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">##       N predictors total: 7</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">##    N predictors per node: 3</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  Average leaves per tree: 52.2</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  Average leaves per tree: 50.8</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## Min observations in leaf: 5</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">##           OOB stat value: 0.75</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">##           OOB stat value: 0.74</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">##            OOB stat type: RSQ</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">##      Variable importance: anova</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="do">## -----------------------------------------</span></span></code></pre><p></p></div>
 <p>My personal favorite is the oblique survival RF with accelerated Cox
 regression because it was the first type of oblique RF that <code>aorsf</code>
-provided (see <a href="https://www.tandfonline.com/doi/full/10.1080/10618600.2023.2231048" class="external-link">JCGS paper</a>).
-Here, we use it to predict mortality risk following diagnosis of primary
-biliary cirrhosis:</p>
+provided (see <a href="https://arxiv.org/abs/2208.01129" class="external-link">ArXiv paper</a>; the paper
+is also published in <em>Journal of Computational and Graphical Statistics</em>
+but is not publicly available there). Here, we use it to predict
+mortality risk following diagnosis of primary biliary cirrhosis:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="co"># An oblique survival RF</span></span>
 <span><span class="va">pbc_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">pbc_orsf</span>, </span>
 <span>                n_tree <span class="op">=</span> <span class="fl">5</span>,</span>
@@ -508,7 +509,7 @@ biliary cirrhosis:</p>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  Average leaves per tree: 21.6</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="do">## Min observations in leaf: 5</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="do">##       Min events in leaf: 1</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">##           OOB stat value: 0.75</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="do">##           OOB stat value: 0.78</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="do">##            OOB stat type: Harrell's C-index</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="do">##      Variable importance: anova</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="do">## </span></span>
@@ -544,7 +545,7 @@ take to fit the forest before you commit to it:</p></li>
 </ol><p></p><div class="sourceCode r"><pre><code><span><span class="va">orsf_spec</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span> <span class="fu"><a href="../reference/orsf_update.html">orsf_update</a></span><span class="op">(</span>n_tree <span class="op">=</span> <span class="fl">10000</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span> <span class="fu"><a href="../reference/orsf_time_to_train.html">orsf_time_to_train</a></span><span class="op">(</span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Time difference of 2.182388 secs</span></span></code></pre><p></p></div><ol><li><p>If fitting multiple forests, use the blueprint along with
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Time difference of 1.9964 secs</span></span></code></pre><p></p></div><ol><li><p>If fitting multiple forests, use the blueprint along with
 <code>orsf_train()</code> and <code><a href="orsf_update.html">orsf_update()</a></code> to simplify your code:</p></li>
 </ol><p></p><div class="sourceCode r"><pre><code><span><span class="va">orsf_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf_train</a></span><span class="op">(</span><span class="va">orsf_spec</span><span class="op">)</span></span>
 <span><span class="va">orsf_fit_10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_update.html">orsf_update</a></span><span class="op">(</span><span class="va">orsf_fit</span>, leaf_min_obs <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
@@ -595,11 +596,11 @@ take to fit the forest before you commit to it:</p></li>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## # A tibble: 6 x 4</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##   .metric        .estimator .eval_time .estimate</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 1 brier_survival standard          500    0.0568</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 2 brier_survival standard         1000    0.0932</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 3 brier_survival standard         1500    0.0942</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 4 brier_survival standard         2000    0.0949</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 5 brier_survival standard         2500    0.135 </span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 1 brier_survival standard          500    0.0452</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 2 brier_survival standard         1000    0.0699</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 3 brier_survival standard         1500    0.0865</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 4 brier_survival standard         2000    0.0930</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 5 brier_survival standard         2500    0.127 </span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 6 brier_survival standard         3000    0.184</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">roc_scores</span> <span class="op">&lt;-</span> <span class="va">test_pred</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu">roc_auc_survival</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">event_time</span>, <span class="va">.pred</span><span class="op">)</span></span>
@@ -608,12 +609,12 @@ take to fit the forest before you commit to it:</p></li>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">## # A tibble: 6 x 4</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##   .metric          .estimator .eval_time .estimate</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">##   &lt;chr&gt;            &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 1 roc_auc_survival standard          500     0.916</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 2 roc_auc_survival standard         1000     0.906</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 3 roc_auc_survival standard         1500     0.937</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 4 roc_auc_survival standard         2000     0.954</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 5 roc_auc_survival standard         2500     0.909</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 6 roc_auc_survival standard         3000     0.855</span></span></code></pre><p></p></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 1 roc_auc_survival standard          500     0.984</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 2 roc_auc_survival standard         1000     0.918</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 3 roc_auc_survival standard         1500     0.912</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 4 roc_auc_survival standard         2000     0.923</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 5 roc_auc_survival standard         2500     0.904</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 6 roc_auc_survival standard         3000     0.842</span></span></code></pre><p></p></div>
 </div>
 
     </div>

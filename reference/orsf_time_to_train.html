@@ -62,7 +62,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orsf_time_to_train</span><span class="op">(</span><span class="va">object</span>, n_tree_subset <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">orsf_time_to_train</span><span class="op">(</span><span class="va">object</span>, n_tree_subset <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -73,8 +73,9 @@
 
 <dt>n_tree_subset</dt>
 <dd><p>(<em>integer</em>)  how many trees should be fit in order
-to estimate the time needed to train <code>object</code>. The default value is 50,
-as this usually gives a good enough approximation.</p></dd>
+to estimate the time needed to train <code>object</code>. The default value is 10%
+of the trees specified in <code>object</code>. I.e., if <code>object</code> has <code>n_tree</code> of
+500, then the default value <code>n_tree_subset</code> is 50.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -91,11 +92,11 @@ as this usually gives a good enough approximation.</p></dd>
 <span class="r-in"><span><span class="va">object</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span><span class="va">pbc_orsf</span>, <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span></span>
 <span class="r-in"><span>               n_tree <span class="op">=</span> <span class="fl">10</span>, no_fit <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># approximate the time it will take to grow 500 trees</span></span></span>
-<span class="r-in"><span><span class="va">time_estimated</span> <span class="op">&lt;-</span> <span class="fu">orsf_time_to_train</span><span class="op">(</span><span class="va">object</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># approximate the time it will take to grow 10 trees</span></span></span>
+<span class="r-in"><span><span class="va">time_estimated</span> <span class="op">&lt;-</span> <span class="fu">orsf_time_to_train</span><span class="op">(</span><span class="va">object</span>, n_tree_subset<span class="op">=</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">time_estimated</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Time difference of 0.04651785 secs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Time difference of 0.0432992 secs</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># let's see how close the approximation was</span></span></span>
 <span class="r-in"><span><span class="va">time_true_start</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span></span>
@@ -105,11 +106,11 @@ as this usually gives a good enough approximation.</p></dd>
 <span class="r-in"><span><span class="va">time_true</span> <span class="op">&lt;-</span> <span class="va">time_true_stop</span> <span class="op">-</span> <span class="va">time_true_start</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">time_true</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Time difference of 0.02991199 secs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Time difference of 0.02891898 secs</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># error</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">time_true</span> <span class="op">-</span> <span class="va">time_estimated</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Time difference of 0.01660585 secs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Time difference of 0.01438022 secs</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
