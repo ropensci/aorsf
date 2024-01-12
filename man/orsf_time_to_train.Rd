@@ -4,14 +4,15 @@
 \alias{orsf_time_to_train}
 \title{Estimate training time}
 \usage{
-orsf_time_to_train(object, n_tree_subset = 50)
+orsf_time_to_train(object, n_tree_subset = NULL)
 }
 \arguments{
 \item{object}{an untrained \code{aorsf} object}
 
 \item{n_tree_subset}{(\emph{integer})  how many trees should be fit in order
-to estimate the time needed to train \code{object}. The default value is 50,
-as this usually gives a good enough approximation.}
+to estimate the time needed to train \code{object}. The default value is 10\%
+of the trees specified in \code{object}. I.e., if \code{object} has \code{n_tree} of
+500, then the default value \code{n_tree_subset} is 50.}
 }
 \value{
 a \link{difftime} object.
@@ -25,8 +26,8 @@ Estimate training time
 object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
                n_tree = 10, no_fit = TRUE)
 
-# approximate the time it will take to grow 500 trees
-time_estimated <- orsf_time_to_train(object)
+# approximate the time it will take to grow 10 trees
+time_estimated <- orsf_time_to_train(object, n_tree_subset=1)
 
 print(time_estimated)
 

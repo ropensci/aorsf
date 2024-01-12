@@ -77,6 +77,7 @@ that would occur if the dynamic outputs were not re-initialized.
 }
 \examples{
 
+\dontrun{
 # initial fit has mtry of 5
 fit <- orsf(pbc_orsf, time + status ~ . -id)
 
@@ -85,6 +86,7 @@ fit_new <- orsf_update(fit, formula = . ~ . - edema, n_tree = 100)
 
 # prevent dynamic updates by specifying inputs you want to freeze.
 fit_newer <- orsf_update(fit_new, mtry = 2)
+}
 
 
 }

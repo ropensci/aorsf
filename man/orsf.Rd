@@ -388,7 +388,7 @@ penguin_fit
 ##                  N trees: 5
 ##       N predictors total: 7
 ##    N predictors per node: 3
-##  Average leaves per tree: 5.8
+##  Average leaves per tree: 5.6
 ## Min observations in leaf: 5
 ##           OOB stat value: 0.98
 ##            OOB stat type: AUC-ROC
@@ -415,9 +415,9 @@ bill_fit
 ##                  N trees: 5
 ##       N predictors total: 7
 ##    N predictors per node: 3
-##  Average leaves per tree: 52.2
+##  Average leaves per tree: 50.8
 ## Min observations in leaf: 5
-##           OOB stat value: 0.75
+##           OOB stat value: 0.74
 ##            OOB stat type: RSQ
 ##      Variable importance: anova
 ## 
@@ -426,9 +426,10 @@ bill_fit
 
 My personal favorite is the oblique survival RF with accelerated Cox
 regression because it was the first type of oblique RF that \code{aorsf}
-provided (see \href{https://www.tandfonline.com/doi/full/10.1080/10618600.2023.2231048}{JCGS paper}).
-Here, we use it to predict mortality risk following diagnosis of primary
-biliary cirrhosis:
+provided (see \href{https://arxiv.org/abs/2208.01129}{ArXiv paper}; the paper
+is also published in \emph{Journal of Computational and Graphical Statistics}
+but is not publicly available there). Here, we use it to predict
+mortality risk following diagnosis of primary biliary cirrhosis:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{# An oblique survival RF
 pbc_fit <- orsf(data = pbc_orsf, 
@@ -449,7 +450,7 @@ pbc_fit
 ##  Average leaves per tree: 21.6
 ## Min observations in leaf: 5
 ##       Min events in leaf: 1
-##           OOB stat value: 0.75
+##           OOB stat value: 0.78
 ##            OOB stat type: Harrell's C-index
 ##      Variable importance: anova
 ## 
@@ -496,7 +497,7 @@ take to fit the forest before you commit to it:
  orsf_time_to_train()
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## Time difference of 2.182388 secs
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## Time difference of 1.9964 secs
 }\if{html}{\out{</div>}}
 \enumerate{
 \item If fitting multiple forests, use the blueprint along with
@@ -567,11 +568,11 @@ brier_scores
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 4
 ##   .metric        .estimator .eval_time .estimate
 ##   <chr>          <chr>           <dbl>     <dbl>
-## 1 brier_survival standard          500    0.0568
-## 2 brier_survival standard         1000    0.0932
-## 3 brier_survival standard         1500    0.0942
-## 4 brier_survival standard         2000    0.0949
-## 5 brier_survival standard         2500    0.135 
+## 1 brier_survival standard          500    0.0452
+## 2 brier_survival standard         1000    0.0699
+## 3 brier_survival standard         1500    0.0865
+## 4 brier_survival standard         2000    0.0930
+## 5 brier_survival standard         2500    0.127 
 ## 6 brier_survival standard         3000    0.184
 }\if{html}{\out{</div>}}
 
@@ -584,12 +585,12 @@ roc_scores
 \if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 4
 ##   .metric          .estimator .eval_time .estimate
 ##   <chr>            <chr>           <dbl>     <dbl>
-## 1 roc_auc_survival standard          500     0.916
-## 2 roc_auc_survival standard         1000     0.906
-## 3 roc_auc_survival standard         1500     0.937
-## 4 roc_auc_survival standard         2000     0.954
-## 5 roc_auc_survival standard         2500     0.909
-## 6 roc_auc_survival standard         3000     0.855
+## 1 roc_auc_survival standard          500     0.984
+## 2 roc_auc_survival standard         1000     0.918
+## 3 roc_auc_survival standard         1500     0.912
+## 4 roc_auc_survival standard         2000     0.923
+## 5 roc_auc_survival standard         2500     0.904
+## 6 roc_auc_survival standard         3000     0.842
 }\if{html}{\out{</div>}}
 }
 }
