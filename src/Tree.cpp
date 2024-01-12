@@ -121,7 +121,6 @@
   this->data = data;
   this->n_cols_total = data->n_cols_x;
   this->n_rows_total = data->n_rows;
-
   this->seed = seed;
   this->mtry = mtry;
   this->sample_with_replacement = sample_with_replacement;
