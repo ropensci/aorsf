@@ -431,8 +431,9 @@ orsf_train <- function(object, attach_data = TRUE){
 #' @param object an untrained `aorsf` object
 #'
 #' @param n_tree_subset (*integer*)  how many trees should be fit in order
-#'   to estimate the time needed to train `object`. The default value is 50,
-#'   as this usually gives a good enough approximation.
+#'   to estimate the time needed to train `object`. The default value is 10%
+#'   of the trees specified in `object`. I.e., if `object` has `n_tree` of
+#'   500, then the default value `n_tree_subset` is 50.
 #'
 #' @return a [difftime] object.
 #'
@@ -444,8 +445,8 @@ orsf_train <- function(object, attach_data = TRUE){
 #' object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
 #'                n_tree = 10, no_fit = TRUE)
 #'
-#' # approximate the time it will take to grow 500 trees
-#' time_estimated <- orsf_time_to_train(object)
+#' # approximate the time it will take to grow 10 trees
+#' time_estimated <- orsf_time_to_train(object, n_tree_subset=1)
 #'
 #' print(time_estimated)
 #'
@@ -462,9 +463,22 @@ orsf_train <- function(object, attach_data = TRUE){
 #' abs(time_true - time_estimated)
 #'
 
-orsf_time_to_train <- function(object, n_tree_subset = 50){
+orsf_time_to_train <- function(object, n_tree_subset = NULL){
 
  n_tree_original <- object$n_tree
+
+ if(n_tree_original == 1){
+  stop("Cannot estimate time to train for a forest with 1 tree.",
+       call. = FALSE)
+ }
+
+ n_tree_subset <- n_tree_subset %||% ceiling(n_tree_original * 0.10)
+
+ if (n_tree_subset >= n_tree_original){
+  msg <- paste0("n_tree_subset (", n_tree_subset, ")",
+                "must be < n_tree_original (", n_tree_original, ").")
+  stop(msg, call. = FALSE)
+ }
 
  time_train_start <- Sys.time()
 

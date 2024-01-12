@@ -67,6 +67,7 @@
 #'
 #' @examples
 #'
+#' \dontrun{
 #' # initial fit has mtry of 5
 #' fit <- orsf(pbc_orsf, time + status ~ . -id)
 #'
@@ -75,6 +76,7 @@
 #'
 #' # prevent dynamic updates by specifying inputs you want to freeze.
 #' fit_newer <- orsf_update(fit_new, mtry = 2)
+#' }
 #'
 #'
 orsf_update <- function(object,
