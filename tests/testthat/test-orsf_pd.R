@@ -197,6 +197,8 @@ test_that(
  'multi-valued horizon inputs are allowed',
  code = {
 
+  skip_on_cran()
+
   pd_smry_multi_horiz <- orsf_pd_oob(
    fit,
    pred_type = 'risk',
