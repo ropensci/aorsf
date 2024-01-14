@@ -12,6 +12,7 @@ test_preds_surv <- function(pred_type){
   surv = length(pred_horizon),
   chf  = length(pred_horizon),
   mort = 1,
+  time = 1,
   leaf = n_tree_test
  )
 
@@ -32,7 +33,7 @@ test_preds_surv <- function(pred_type){
              oobag_pred_horizon = pred_horizon,
              tree_seeds = seeds_standard)
 
- if(pred_type %in% c("mort", "leaf")) pred_horizon <- NULL
+ if(pred_type %in% c("mort", "leaf", "time")) pred_horizon <- NULL
 
  prd_agg <- predict(fit,
                     new_data = pbc_test,
@@ -73,7 +74,7 @@ test_preds_surv <- function(pred_type){
 
  }
 
- if(pred_type == 'mort'){
+ if(pred_type %in% c('mort', 'time')){
 
   test_that(
    desc = "predictions are accurate",
@@ -84,9 +85,13 @@ test_preds_surv <- function(pred_type){
      data = pbc_test
     )
 
-    mort_cstat <- 1 - surv_concord$concordance
+    cstat <- surv_concord$concordance
 
-    expect_true(mort_cstat > 0.60)
+    if(pred_type == 'mort'){
+     cstat <- 1 - cstat
+    }
+
+    expect_true(cstat > 0.60)
 
    }
   )

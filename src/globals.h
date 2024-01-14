@@ -67,7 +67,8 @@
   PRED_MEAN = 5,
   PRED_PROBABILITY = 6,
   PRED_CLASS = 7,
-  PRED_TERMINAL_NODES = 8
+  PRED_TERMINAL_NODES = 8,
+  PRED_TIME = 9
  };
 
  // Default values

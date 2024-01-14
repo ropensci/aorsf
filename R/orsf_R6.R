@@ -2769,7 +2769,7 @@ ObliqueForest <- R6::R6Class(
     out[, pred_row := NULL]
    }
 
-   if(pred_type == 'mort')
+   if(pred_type %in% c('mort', 'time'))
     out[, pred_horizon := NULL]
 
    # not needed for summary
@@ -3095,7 +3095,8 @@ ObliqueForest <- R6::R6Class(
                          "mean" = 5,
                          "prob" = 6,
                          "class" = 7,
-                         "leaf" = 8),
+                         "leaf" = 8,
+                         "time" = 9),
     pred_mode = .dots$pred_mode %||% FALSE,
     pred_aggregate = .dots$pred_aggregate %||% (self$pred_type != 'leaf'),
     pred_horizon = .dots$pred_horizon %||% self$pred_horizon %||% 1,
@@ -3297,12 +3298,12 @@ ObliqueForestSurvival <- R6::R6Class(
    arg_name <- if(oobag) 'oobag_pred_type' else 'pred_type'
 
    if(is.null(context)){
-    valid_options <- c("none", "surv", "risk", "chf", "mort", "leaf")
+    valid_options <- c("none", "surv", "risk", "chf", "mort", "leaf", "time")
    } else {
     valid_options <- switch(
      context,
-     'partial dependence' = c("surv", "risk", "chf", "mort"),
-     'prediction' = c("surv", "risk", "chf", "mort", "leaf")
+     'partial dependence' = c("surv", "risk", "chf", "mort", "time"),
+     'prediction' = c("surv", "risk", "chf", "mort", "leaf", "time")
     )
     context <- paste(context, 'with survival forests')
    }
@@ -3611,7 +3612,7 @@ ObliqueForestSurvival <- R6::R6Class(
 
    if(pred_type_supplied &&
       pred_horizon_supplied &&
-      pred_type %in% c('leaf', 'mort')){
+      pred_type %in% c('leaf', 'mort', 'time')){
 
     extra_text <- if(length(pred_horizon)>1){
      " Predictions at each value of pred_horizon will be identical."
@@ -3744,7 +3745,7 @@ ObliqueForestSurvival <- R6::R6Class(
 
    # mortality predictions should always be 1 column
    # b/c they do not depend on the prediction horizon
-   if(self$pred_type == 'mort'){
+   if(self$pred_type %in% c('mort', 'time')){
 
     self$eval_oobag$stat_values <-
      self$eval_oobag$stat_values[, 1L, drop = FALSE]
@@ -3757,7 +3758,7 @@ ObliqueForestSurvival <- R6::R6Class(
   clean_pred_new_internal = function(preds){
 
    # don't let multiple pred horizon values through for mort
-   if(self$pred_type == 'mort'){
+   if(self$pred_type %in% c('mort', 'time')){
     return(preds[, 1, drop = FALSE])
    }
 
@@ -3801,7 +3802,7 @@ ObliqueForestSurvival <- R6::R6Class(
 
     # all components are the same if pred type is mort
     # (user also gets a warning if they ask for this)
-    if(self$pred_type %in% c('mort', 'leaf')) return(results[[1]])
+    if(self$pred_type %in% c('mort', 'leaf', 'time')) return(results[[1]])
 
     if(simplify){
      results <- simplify2array(results)

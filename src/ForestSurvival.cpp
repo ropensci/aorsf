@@ -182,7 +182,9 @@ void ForestSurvival::compute_prediction_accuracy_internal(
  }
 
  bool pred_is_risklike = true;
- if(pred_type == PRED_SURVIVAL) pred_is_risklike = false;
+ if(pred_type == PRED_SURVIVAL || pred_type == PRED_TIME){
+  pred_is_risklike = false;
+ }
 
  for(arma::uword i = 0; i < oobag_eval.n_cols; ++i){
   vec p = predictions.col(i);

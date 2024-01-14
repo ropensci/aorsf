@@ -211,7 +211,6 @@
    loglik,
    xb,
    risk,
-   n_risk,
    n_events,
    weight_events,
    weight_avg,
@@ -268,7 +267,6 @@
   // do the initial iteration
   denom = 0;
   loglik = 0;
-  n_risk = 0;
 
   person = x_node.n_rows - 1;
 
@@ -296,7 +294,6 @@
    // walk through this set of tied times
    while(y_node.at(person, 0) == temp2){
 
-    n_risk++;
 
     risk = w_node.at(person);
 
@@ -443,7 +440,6 @@
 
     denom = 0;
     loglik = 0;
-    n_risk = 0;
 
     person = x_node.n_rows - 1;
 
@@ -473,7 +469,6 @@
      // walk through this set of tied times
      while(y_node.at(person, 0) == temp2){
 
-      n_risk++;
 
       // xb = XB.at(person);
       // risk = Risk.at(person);

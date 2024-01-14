@@ -158,7 +158,8 @@ pred_types_surv <- c(risk = 'risk',
                      surv = 'surv',
                      chf = 'chf',
                      mort = 'mort',
-                     leaf = 'leaf')
+                     leaf = 'leaf',
+                     time = 'time')
 
 pred_types_clsf <- c(prob = 'prob',
                      class = 'class',
