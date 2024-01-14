@@ -2502,6 +2502,10 @@ ObliqueForest <- R6::R6Class(
    id_variable = NULL
 
    pred_horizon <- pred_horizon %||% self$pred_horizon %||% 1
+
+   # just use first value for these pred_types
+   if(pred_type %in% c("mort", "time")) pred_horizon <- pred_horizon[1]
+
    pred_horizon_order <- order(pred_horizon)
    pred_horizon_ordered <- pred_horizon[pred_horizon_order]
 
@@ -2762,7 +2766,7 @@ ObliqueForest <- R6::R6Class(
    }
 
 
-   if(self$tree_type == 'survival' && pred_type != 'mort')
+   if(self$tree_type == 'survival' && !(pred_type %in% c('mort', 'time')))
     out[, pred_horizon := as.numeric(pred_horizon)]
 
    if(self$tree_type == 'regression'){

@@ -67,6 +67,7 @@ pred_spec_auto <- function(...){
 #'   - 'surv' : 1 - risk.
 #'   - 'chf': cumulative hazard function
 #'   - 'mort': mortality prediction
+#'   - 'time': survival time prediction
 #'
 #'  For classification:
 #'

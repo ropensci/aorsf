@@ -81,6 +81,7 @@ Valid options for survival are:
 \item 'surv' : 1 - risk.
 \item 'chf': cumulative hazard function
 \item 'mort': mortality prediction
+\item 'time': survival time prediction
 }
 
 For classification:
