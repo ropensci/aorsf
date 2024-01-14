@@ -1,5 +1,7 @@
 # aorsf 0.1.2 (unreleased)
 
+* Allowed option `"time"` for `pred_type` in `predict` and partial dependence to predict survival time (see https://github.com/ropensci/aorsf/issues/37).
+
 * Added `pred_spec_auto()` for more convenient specification of variables for partial dependence.
 
 * Partial dependence now runs much faster with multiple threads.
