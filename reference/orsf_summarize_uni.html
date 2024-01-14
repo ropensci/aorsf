@@ -99,6 +99,7 @@ Valid options for survival are:</p><ul><li><p>'risk' : probability of having an 
 <li><p>'surv' : 1 - risk.</p></li>
 <li><p>'chf': cumulative hazard function</p></li>
 <li><p>'mort': mortality prediction</p></li>
+<li><p>'time': survival time prediction</p></li>
 </ul><p>For classification:</p><ul><li><p>'prob': probability for each class</p></li>
 </ul><p>For regression:</p><ul><li><p>'mean': predicted mean, i.e., the expected value</p></li>
 </ul></dd>
@@ -160,18 +161,18 @@ by setting importance = 'none'.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- Risk ----------------|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0 0.2975165 0.2081286 0.04264214 0.4852158</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      1 0.4653873 0.4175782 0.28350747 0.6364335</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0 0.2999993 0.1977979 0.05223943 0.4901793</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      1 0.4023185 0.3508682 0.17449410 0.6130515</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -- bili (VI Rank: 2) ---------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- Risk ----------------|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.60 0.2354453 0.1546670 0.04034387 0.3661877</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.80 0.2380406 0.1558972 0.04057921 0.3696892</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1.40 0.2538457 0.1827571 0.04948994 0.4028344</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   3.52 0.3351518 0.2962892 0.11079457 0.5125014</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   7.25 0.4077817 0.3735901 0.17771744 0.5835317</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.60 0.2267238 0.1480241 0.03944919 0.3581121</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.80 0.2310892 0.1523041 0.04039750 0.3724800</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1.40 0.2563884 0.1782215 0.06519858 0.4027980</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3.52 0.3563507 0.3013748 0.14678414 0.5251135</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   7.25 0.4643547 0.4251404 0.27698209 0.6227684</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Predicted risk at time t = 1788 for top 2 predictors </span>
 <span class="r-in"><span></span></span>
@@ -185,21 +186,21 @@ by setting importance = 'none'.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- Risk ----------------|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.60 0.2354453 0.1546670 0.04034387 0.3661877</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.80 0.2380406 0.1558972 0.04057921 0.3696892</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1.40 0.2538457 0.1827571 0.04948994 0.4028344</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   3.52 0.3351518 0.2962892 0.11079457 0.5125014</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   7.25 0.4077817 0.3735901 0.17771744 0.5835317</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.60 0.2267238 0.1480241 0.03944919 0.3581121</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   0.80 0.2310892 0.1523041 0.04039750 0.3724800</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1.40 0.2563884 0.1782215 0.06519858 0.4027980</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3.52 0.3563507 0.3013748 0.14678414 0.5251135</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   7.25 0.4643547 0.4251404 0.27698209 0.6227684</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> -- copper (VI Rank: 2) -------------------------</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        |---------------- Risk ----------------|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Value      Mean    Median     25th %    75th %</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   25.5 0.2417891 0.1715913 0.03343705 0.3499352</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   42.8 0.2495119 0.1754849 0.03651331 0.3718624</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   74.0 0.2697710 0.1920589 0.05102184 0.4076681</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    129 0.3449428 0.2777299 0.12151110 0.5065128</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    214 0.4427393 0.3986189 0.24899220 0.6020207</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   25.5 0.2610612 0.1683297 0.04491124 0.3982384</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   42.8 0.2652284 0.1641602 0.04224030 0.4314186</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   74.0 0.2799456 0.1846883 0.04565528 0.4318861</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    129 0.3361366 0.2469939 0.10096287 0.5249059</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    214 0.4130271 0.3418681 0.19240686 0.6027780</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  Predicted risk at time t = 1788 for top 2 predictors </span>
 <span class="r-in"><span></span></span>
