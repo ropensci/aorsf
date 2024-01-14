@@ -137,7 +137,7 @@ using <code>penguin</code> data from the magnificent
 <span><span class="co">#&gt;                  N trees: 500</span></span>
 <span><span class="co">#&gt;       N predictors total: 7</span></span>
 <span><span class="co">#&gt;    N predictors per node: 3</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 5.63</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 5.764</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;           OOB stat value: 1.00</span></span>
 <span><span class="co">#&gt;            OOB stat type: AUC-ROC</span></span>
@@ -158,9 +158,9 @@ penguins:</p>
 <span><span class="co">#&gt;                  N trees: 500</span></span>
 <span><span class="co">#&gt;       N predictors total: 7</span></span>
 <span><span class="co">#&gt;    N predictors per node: 3</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 49.54</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 49.68</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.82</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.81</span></span>
 <span><span class="co">#&gt;            OOB stat type: RSQ</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -226,12 +226,12 @@ model.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">pbc_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;         bili          sex       copper      ascites          age          ast </span></span>
-<span><span class="co">#&gt;  0.103466904  0.073240072  0.064891288  0.046221253  0.031911189  0.026359474 </span></span>
-<span><span class="co">#&gt;      albumin         chol      protime          trt         trig     alk.phos </span></span>
-<span><span class="co">#&gt;  0.023283379  0.018844910  0.018130300  0.016648484  0.014157049  0.010973973 </span></span>
-<span><span class="co">#&gt;      spiders        edema       hepato     platelet        stage </span></span>
-<span><span class="co">#&gt;  0.009283279  0.006611332  0.003869852  0.002353365 -0.001864521</span></span></code></pre></div>
+<span><span class="co">#&gt;         bili          sex        stage       copper      protime      spiders </span></span>
+<span><span class="co">#&gt;  0.119016311  0.043758039  0.029210890  0.025773475  0.021368770  0.020124873 </span></span>
+<span><span class="co">#&gt;         chol      ascites        edema          ast          age     platelet </span></span>
+<span><span class="co">#&gt;  0.016683288  0.016169902  0.007257458  0.004123490  0.003765283  0.002563609 </span></span>
+<span><span class="co">#&gt;      albumin     alk.phos       hepato          trt         trig </span></span>
+<span><span class="co">#&gt;  0.002107994 -0.001933449 -0.006596967 -0.008382791 -0.028291337</span></span></code></pre></div>
 </li>
 <li>
 <p>You can also compute variable importance using
@@ -242,9 +242,9 @@ accuracy to be the importance of that predictor.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">penguin_fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    bill_length_mm flipper_length_mm     bill_depth_mm            island </span></span>
-<span><span class="co">#&gt;       0.171491183       0.105535316       0.071996879       0.063776499 </span></span>
+<span><span class="co">#&gt;      0.1662283701      0.1058744336      0.0797825984      0.0603828568 </span></span>
 <span><span class="co">#&gt;       body_mass_g               sex              year </span></span>
-<span><span class="co">#&gt;       0.061427699       0.019161380       0.001434784</span></span></code></pre></div>
+<span><span class="co">#&gt;      0.0582780352      0.0179496454      0.0007410261</span></span></code></pre></div>
 </li>
 <li>
 <p>A faster alternative to permutation and negation importance is
@@ -254,9 +254,9 @@ obtains a low p-value (p &lt; 0.01) while the forest is grown.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">bill_fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           species               sex            island flipper_length_mm </span></span>
-<span><span class="co">#&gt;        0.35538359        0.21205534        0.11605573        0.08442280 </span></span>
+<span><span class="co">#&gt;        0.35099080        0.19724951        0.10995549        0.08471284 </span></span>
 <span><span class="co">#&gt;       body_mass_g     bill_depth_mm              year </span></span>
-<span><span class="co">#&gt;        0.07799350        0.06637355        0.01590170</span></span></code></pre></div>
+<span><span class="co">#&gt;        0.07771892        0.06410147        0.01314730</span></span></code></pre></div>
 </li>
 </ul>
 </div>
