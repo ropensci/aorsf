@@ -554,15 +554,10 @@ quick sanity check with <code>coxph</code> suggests there is.</p>
 <p>Random forests are good at using interactions, but less good at
 telling you about them. Use <code><a href="../reference/orsf_vint.html">orsf_vint()</a></code> to apply the method
 for variable interaction scoring with PD described by Greenwell et al
-(2018). This can take a little while if you have lots of predictors, so
-setting <code>verbose_progress = TRUE</code> may be helpful.</p>
+(2018). This can take a little while if you have lots of predictors.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">vint_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_vint.html">orsf_vint</a></span><span class="op">(</span><span class="va">fit_surv</span>, verbose_progress <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Computing dependence: 28%. ~ time remaining: 5 seconds.</span></span>
-<span><span class="co">#&gt; Computing dependence: 56%. ~ time remaining: 3 seconds.</span></span>
-<span><span class="co">#&gt; Computing dependence: 85%. ~ time remaining: 1 seconds.</span></span>
-<span><span class="co">#&gt; Computing dependence: 100%.</span></span>
+<span><span class="va">vint_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_vint.html">orsf_vint</a></span><span class="op">(</span><span class="va">fit_surv</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">vint_scores</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
 <span><span class="co">#&gt;         interaction     score</span></span>
