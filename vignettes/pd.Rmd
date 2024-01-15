@@ -475,8 +475,6 @@ ice_train
 
 Multi-prediction horizon ice comes with minimal extra computational cost. Use a fine grid of time values and  assess whether predictors have time-varying effects.
 
-
-
 ## Visualizing ICE curves
 
 Inspecting the ICE curves for each observation can help identify whether there is heterogeneity in a model's predictions. I.e., does the effect of the variable follow the same pattern for all the data, or are there groups where the variable impacts risk differently? 
