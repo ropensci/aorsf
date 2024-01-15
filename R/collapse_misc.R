@@ -25,10 +25,21 @@ data_impute <- function(data, cols, values){
 
  for(col in cols){
 
-  if(anyNA(data[[col]]))
+  if(anyNA(data[[col]])){
+
+   value <- values[[col]]
+
+   # coerce mean to integer if col is integer
+   if(is.integer(data[[col]])){
+    value <- as.integer(value)
+   }
+
    data <- collapse::replace_NA(data,
                                 cols = col,
-                                value = values[[col]])
+                                value = value)
+
+  }
+
 
  }
 
