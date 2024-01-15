@@ -105,10 +105,12 @@ print.orsf_summary_uni <- function(x, n_variables = NULL, ...){
  pred_label <- switch(
   x$pred_type,
   'risk' = 'Risk',
-  'surv' = 'Survival',
+  'surv' = 'Survival probability',
   'chf'  = 'Cumulative hazard',
   'mort' = 'Mortality',
-  'prob' = "Probability"
+  'prob' = "Probability",
+  "time" = "Survival time",
+  "mean" = "Expected value"
  )
 
  extra_surv_text <- ""
