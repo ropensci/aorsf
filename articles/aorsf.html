@@ -137,7 +137,7 @@ using <code>penguin</code> data from the magnificent
 <span><span class="co">#&gt;                  N trees: 500</span></span>
 <span><span class="co">#&gt;       N predictors total: 7</span></span>
 <span><span class="co">#&gt;    N predictors per node: 3</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 5.648</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 5.544</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;           OOB stat value: 1.00</span></span>
 <span><span class="co">#&gt;            OOB stat type: AUC-ROC</span></span>
@@ -158,9 +158,9 @@ penguins:</p>
 <span><span class="co">#&gt;                  N trees: 500</span></span>
 <span><span class="co">#&gt;       N predictors total: 7</span></span>
 <span><span class="co">#&gt;    N predictors per node: 3</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 49.674</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 49.872</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.82</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.81</span></span>
 <span><span class="co">#&gt;            OOB stat type: RSQ</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -185,7 +185,7 @@ cirrhosis:</p>
 <span><span class="co">#&gt;                  N trees: 5</span></span>
 <span><span class="co">#&gt;       N predictors total: 17</span></span>
 <span><span class="co">#&gt;    N predictors per node: 5</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 22</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 21.4</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;       Min events in leaf: 1</span></span>
 <span><span class="co">#&gt;           OOB stat value: 0.77</span></span>
@@ -226,14 +226,14 @@ model.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_negate</a></span><span class="op">(</span><span class="va">pbc_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;        copper         stage       protime           sex       ascites </span></span>
-<span><span class="co">#&gt;  0.1188219833  0.0665535400  0.0464884356  0.0384596473  0.0344990821 </span></span>
-<span><span class="co">#&gt;        hepato          bili           ast          trig       albumin </span></span>
-<span><span class="co">#&gt;  0.0317538618  0.0277185671  0.0271787128  0.0246554066  0.0217429643 </span></span>
-<span><span class="co">#&gt;           age          chol      alk.phos           trt       spiders </span></span>
-<span><span class="co">#&gt;  0.0150528840  0.0126460875  0.0026088161  0.0016801827  0.0007598719 </span></span>
-<span><span class="co">#&gt;         edema      platelet </span></span>
-<span><span class="co">#&gt; -0.0006134379 -0.0066584545</span></span></code></pre></div>
+<span><span class="co">#&gt;          bili       spiders        copper       albumin           sex </span></span>
+<span><span class="co">#&gt;  0.1671647745  0.0520379071  0.0432409174  0.0292245433  0.0258174901 </span></span>
+<span><span class="co">#&gt;      alk.phos           trt       protime           ast         stage </span></span>
+<span><span class="co">#&gt;  0.0207262097  0.0196654076  0.0147894928  0.0138953587  0.0094377622 </span></span>
+<span><span class="co">#&gt;           age       ascites          trig         edema      platelet </span></span>
+<span><span class="co">#&gt;  0.0063243985  0.0053495205  0.0021405459  0.0018460367  0.0008203822 </span></span>
+<span><span class="co">#&gt;        hepato          chol </span></span>
+<span><span class="co">#&gt;  0.0004910894 -0.0128635357</span></span></code></pre></div>
 </li>
 <li>
 <p>You can also compute variable importance using
@@ -243,10 +243,10 @@ accuracy to be the importance of that predictor.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">penguin_fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    bill_length_mm flipper_length_mm     bill_depth_mm       body_mass_g </span></span>
-<span><span class="co">#&gt;       0.169789864       0.100880436       0.076946210       0.067635877 </span></span>
-<span><span class="co">#&gt;            island               sex              year </span></span>
-<span><span class="co">#&gt;       0.061011929       0.019879728       0.001228741</span></span></code></pre></div>
+<span><span class="co">#&gt;    bill_length_mm flipper_length_mm     bill_depth_mm            island </span></span>
+<span><span class="co">#&gt;      0.1738256958      0.0898851835      0.0810334484      0.0655328821 </span></span>
+<span><span class="co">#&gt;       body_mass_g               sex              year </span></span>
+<span><span class="co">#&gt;      0.0647936728      0.0191948220      0.0005500798</span></span></code></pre></div>
 </li>
 <li>
 <p>A faster alternative to permutation and negation importance is
@@ -256,9 +256,9 @@ obtains a low p-value (p &lt; 0.01) while the forest is grown.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">bill_fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           species               sex            island flipper_length_mm </span></span>
-<span><span class="co">#&gt;        0.34412460        0.21024699        0.11541213        0.08715245 </span></span>
+<span><span class="co">#&gt;        0.35859861        0.20116912        0.11896429        0.08734940 </span></span>
 <span><span class="co">#&gt;       body_mass_g     bill_depth_mm              year </span></span>
-<span><span class="co">#&gt;        0.07891657        0.06775045        0.01330396</span></span></code></pre></div>
+<span><span class="co">#&gt;        0.08107428        0.06459390        0.01368270</span></span></code></pre></div>
 </li>
 </ul>
 </div>
