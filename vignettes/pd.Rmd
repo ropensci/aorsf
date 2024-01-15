@@ -317,11 +317,11 @@ pbc_orsf$edema_05 <- NULL
 
 ## Find interactions using PD
 
-Random forests are good at using interactions, but less good at telling you about them. Use `orsf_vint()` to apply the method for variable interaction scoring with PD described by Greenwell et al (2018). This can take a little while if you have lots of predictors, so setting `verbose_progress = TRUE` may be helpful.
+Random forests are good at using interactions, but less good at telling you about them. Use `orsf_vint()` to apply the method for variable interaction scoring with PD described by Greenwell et al (2018). This can take a little while if you have lots of predictors.
 
 ```{r}
 
-vint_scores <- orsf_vint(fit_surv, verbose_progress = TRUE)
+vint_scores <- orsf_vint(fit_surv)
 
 vint_scores[1:5]
 
