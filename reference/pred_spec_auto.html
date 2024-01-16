@@ -102,22 +102,22 @@ or not in quotes (see examples).</p></dd>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="orsf.html">orsf</a></span><span class="op">(</span><span class="va">penguins_orsf</span>, <span class="va">species</span> <span class="op">~</span><span class="va">.</span>, n_tree <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit</span>, <span class="fu">pred_spec_auto</span><span class="op">(</span><span class="va">flipper_length_mm</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         class flipper_length_mm      mean lwr       medn       upr</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:    Adelie               185 0.5354109   0 0.50928468 1.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2:    Adelie               190 0.5034360   0 0.47752809 1.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3:    Adelie               197 0.4458775   0 0.11111111 1.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4:    Adelie               213 0.3343601   0 0.07691303 1.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5:    Adelie               221 0.3287078   0 0.07691303 1.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6: Chinstrap               185 0.2630916   0 0.03726345 1.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7: Chinstrap               190 0.2596916   0 0.03208729 1.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8: Chinstrap               197 0.2220773   0 0.02031115 1.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9: Chinstrap               213 0.2559835   0 0.03333333 1.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10: Chinstrap               221 0.2269255   0 0.02970297 0.9711538</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11:    Gentoo               185 0.2014975   0 0.00000000 1.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12:    Gentoo               190 0.2368724   0 0.00000000 1.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13:    Gentoo               197 0.3320452   0 0.00000000 1.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14:    Gentoo               213 0.4096564   0 0.14285714 1.0000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15:    Gentoo               221 0.4443667   0 0.28571429 1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         class flipper_length_mm      mean         lwr       medn upr</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:    Adelie               185 0.6510597 0.008691406 0.93333333   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:    Adelie               190 0.6376856 0.007812500 0.93333333   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:    Adelie               197 0.6051195 0.007812500 0.93170380   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:    Adelie               213 0.4517576 0.007812500 0.48514851   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:    Adelie               221 0.4441207 0.007812500 0.48514851   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6: Chinstrap               185 0.3277862 0.009615385 0.06848291   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7: Chinstrap               190 0.3462555 0.009615385 0.08347478   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8: Chinstrap               197 0.3591037 0.009615385 0.08670635   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9: Chinstrap               213 0.4371854 0.009900990 0.33333333   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10: Chinstrap               221 0.4010776 0.009900990 0.33333333   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:    Gentoo               185 0.5947110 0.057954545 0.50000000   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12:    Gentoo               190 0.6487316 0.062500000 0.65885417   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13:    Gentoo               197 0.8075340 0.071428571 0.99218750   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14:    Gentoo               213 0.6520185 0.047619048 0.95000000   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15:    Gentoo               221 0.6525966 0.047619048 0.93828125   1</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
