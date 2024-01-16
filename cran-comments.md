@@ -1,5 +1,7 @@
 ## Version 0.1.2
 
+Update 1/15. I have made some  adjustments to the pd vignette based on problems shown on https://www.stats.ox.ac.uk/pub/bdr/memtests/clang-UBSAN/aorsf/build_vignettes.log. I really tried to replicate this error locally but I have not been successful yet. From what I can gather in the logs, I think the issue was caused by how an unsigned integer value is created when verbose output is requested from an aorsf function.
+
 I have run R CMD check and have also checked for memory leaks using R CMD check --use-valgrind aorsf_0.1.2.tar.gz.
 
 ### Valgrind check results (abbreviated)

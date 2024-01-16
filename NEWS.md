@@ -1,4 +1,8 @@
-# aorsf 0.1.2 (unreleased)
+# aorsf 0.1.3
+
+* minor changes to partial dependence vignette to resolve code sanitization errors. 
+
+# aorsf 0.1.2
 
 * Allowed option `"time"` for `pred_type` in `predict` and partial dependence to predict survival time (see https://github.com/ropensci/aorsf/issues/37).
 
