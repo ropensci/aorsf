@@ -2664,7 +2664,8 @@ ObliqueForest <- R6::R6Class(
 
     for(j in seq_along(pd_vals[[i]])){
 
-     nans <- which(is.nan(pd_vals[[i]][[j]]))
+     # nans <- which(is.nan(pd_vals[[i]][[j]]))
+     nans <- which(pd_vals[[i]][[j]]==0)
 
      if(!is_empty(nans)){
       pd_vals[[i]][[j]][nans] <- NA_real_

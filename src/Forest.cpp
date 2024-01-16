@@ -540,10 +540,10 @@ std::vector<std::vector<arma::mat>> Forest::compute_dependence(bool oobag){
    thread.join();
   }
 
-  // uvec oobag_zeros = find(oobag_denom == 0);
-  // if(oobag_zeros.size() > 0){
-  //  oobag_denom(oobag_zeros).fill(1.0);
-  // }
+  uvec oobag_zeros = find(oobag_denom == 0);
+  if(oobag_zeros.size() > 0){
+   oobag_denom(oobag_zeros).fill(1.0);
+  }
 
   threads.clear();
 
