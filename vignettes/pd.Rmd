@@ -321,27 +321,23 @@ Random forests are good at using interactions, but less good at telling you abou
 
 ```{r}
 
-vint_scores <- orsf_vint(fit_surv)
+preds <- names(fit_surv$get_means())
 
-vint_scores[1:5]
+vint_scores <- orsf_vint(fit_surv, predictors = preds)
+
+vint_scores[1:10, ]
 
 ```
 
 Again we use a sanity check with `coxph` to see if these interactions are detected using a standard test:
 
 ```{r}
+
 fit_cph <- coxph(Surv(time,status) ~ albumin * protime, 
                  data = pbc_orsf)
 
 anova(fit_cph)
 
-fit_cph <- update(fit_cph, . ~ stage * protime)
-
-anova(fit_cph)
-
-fit_cph <- update(fit_cph, . ~ copper * protime)
-
-anova(fit_cph)
 ```
 
 *Note*: Caution is warranted when interpreting statistical hypotheses that are motivated by the same data they are tested with. Results like the p-values for interaction shown above should be interpreted as exploratory.

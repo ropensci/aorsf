@@ -197,7 +197,7 @@ ObliqueForest <- R6::R6Class(
     leaf_min_obs = "leaf_min_obs",
     split_min_events = "split_min_events",
     split_min_obs = "split_min_obs",
-    importance = "importance",
+    importance_type = "importance",
     importance_max_pvalue = "importance_max_pvalue",
     importance_group_factors = "group_factors",
     na_action = "na_action",
@@ -224,6 +224,8 @@ ObliqueForest <- R6::R6Class(
     }
 
    }
+
+   # browser()
 
    for(i in seq_along(hard_defaults)){
 
@@ -583,6 +585,7 @@ ObliqueForest <- R6::R6Class(
 
     pred_spec <- vector(mode = 'list', length = ncol(pairs))
 
+
     for(i in seq_along(pred_spec)){
 
      pred_spec[[i]] <- expand.grid(
@@ -618,7 +621,7 @@ ObliqueForest <- R6::R6Class(
 
    # oobag=FALSE to match the format of arg in orsf_pd().
    private$check_pred_type(pred_type, oobag = FALSE,
-                        context = 'partial dependence')
+                           context = 'partial dependence')
 
    pred_type <- pred_type %||% self$pred_type
 
@@ -2613,14 +2616,19 @@ ObliqueForest <- R6::R6Class(
 
    } else {
 
-    pd_bind <- pred_spec
+    pd_bind <- pred_spec_new <- pred_spec
 
-    pred_spec_new <- lapply(pred_spec, collapse::qM)
+    for(i in seq_along(pred_spec_new)){
+     pred_spec_new[[i]] <- ref_code(pred_spec_new[[i]], fi = fi,
+                                    names_x_data = names(pred_spec_new[[i]]))
+    }
+
+    pred_spec_new <- lapply(pred_spec_new, collapse::qM)
 
     x_cols <- lapply(
-     pred_spec,
+     pred_spec_new,
      function(x){
-      match(names(x), colnames(private$x)) - 1
+      match(colnames(x), colnames(private$x)) - 1
      }
     )
 
@@ -2646,7 +2654,6 @@ ObliqueForest <- R6::R6Class(
                                      run_forest = TRUE)
 
    pd_vals <- do.call(orsf_cpp, cpp_args)$pd_values
-
 
    row_delim <- switch(self$tree_type,
                        "survival" = pred_horizon_ordered,
@@ -2728,8 +2735,8 @@ ObliqueForest <- R6::R6Class(
 
     if(type_input == 'intr'){
 
-     v1 <- colnames(pred_spec_new[[i]])[1]
-     v2 <- colnames(pred_spec_new[[i]])[2]
+     v1 <- colnames(pred_spec[[i]])[1]
+     v2 <- colnames(pred_spec[[i]])[2]
 
      pd_vals[[i]][['var_1_name']] <- v1
      pd_vals[[i]][['var_2_name']] <- v2
