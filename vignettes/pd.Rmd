@@ -317,15 +317,39 @@ pbc_orsf$edema_05 <- NULL
 
 ## Find interactions using PD
 
-Random forests are good at using interactions, but less good at telling you about them. Use `orsf_vint()` to apply the method for variable interaction scoring with PD described by Greenwell et al (2018). This can take a little while if you have lots of predictors.
+Random forests are good at using interactions, but less good at telling you about them. Use `orsf_vint()` to apply the method for variable interaction scoring with PD described by Greenwell et al (2018). This can take a little while if you have lots of predictors, and it seems to work best with continuous by continuous interactions. Interactions with categorical variables are sometimes over- or under- scored.
 
 ```{r}
 
+# use just the continuous variables
 preds <- names(fit_surv$get_means())
 
 vint_scores <- orsf_vint(fit_surv, predictors = preds)
 
-vint_scores[1:10, ]
+vint_scores
+
+
+```
+
+The scores include partial dependence values that you can pull out and plot:
+
+```{r}
+
+# top scoring interaction
+pd_top <- vint_scores$pd_values[[1]]
+
+# center pd values so it's easier to see the interaction effect
+pd_top[, mean := mean - mean[1], by = var_2_value]
+
+ggplot(pd_top) + 
+ aes(x = var_1_value, 
+     y = mean, 
+     color = factor(var_2_value), 
+     group = factor(var_2_value)) + 
+ geom_line() + 
+ labs(x = "albumin", 
+      y = "predicted mortality (centered)",
+      color = "protime")
 
 ```
 
@@ -333,6 +357,7 @@ Again we use a sanity check with `coxph` to see if these interactions are detect
 
 ```{r}
 
+# test the top score (expect strong interaction)
 fit_cph <- coxph(Surv(time,status) ~ albumin * protime, 
                  data = pbc_orsf)
 
