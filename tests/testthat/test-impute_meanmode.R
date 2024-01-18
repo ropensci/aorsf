@@ -22,6 +22,7 @@ test_that(
  desc = "missingness rule is passed to pd / vi functions and retained in object",
  code = {
 
+  skip_on_cran()
   pd_miss <- orsf_pd_oob(fit_miss, pred_spec_auto(ascites))
   vi_miss <- orsf_vi(fit_miss, importance = 'permute')
 
@@ -101,6 +102,7 @@ test_that(
  desc = 'fit with impute is identical to fit on imputed',
  code = {
   skip_on_os(os = 'linux')
+  skip_on_cran()
   expect_equal_leaf_summary(fit_miss, fit_imputed)
   expect_equal(fit_miss$n_obs, fit_imputed$n_obs)
  }
@@ -183,54 +185,3 @@ test_that(
 
  }
 )
-
-
-
-
-#
-# data <- survival::pbc
-#
-# numeric_cols <- names(which(vapply(data, is.numeric, logical(1))))
-# categorical_cols <- names(which(vapply(data, is.factor, logical(1))))
-#
-# impute_values <- c(get_means(data, numeric_cols),
-#                    get_modes(data, categorical_cols))
-#
-# for(i in names(impute_values)){
-#
-#  if(i %in% numeric_cols)
-#   expect_equal(impute_values[[i]], mean(data[[i]], na.rm = TRUE))
-#
-#  if(i %in% categorical_cols)
-#   expect_equal(impute_values[[i]], mode(data[[i]]))
-#
-# }
-#
-# missing_index <- is.na(data)
-# colnames(missing_index) <- colnames(data)
-#
-# data_imputed <- impute_meanmode(data,
-#                                 cols = names(data),
-#                                 values = impute_values)
-#
-# impute_values_collapse <- impute_values
-# impute_values_collapse$sex <- 2L
-#
-# test_that(
-#  desc = "means and modes are placed into data after imputation",
-#  code = {
-#   for(col in names(data)){
-#
-#    if( any(missing_index[, col]) ){
-#
-#     rows_imputed <- which(missing_index[, col])
-#
-#     expect_equal(
-#      data_imputed[rows_imputed, col],
-#      rep(impute_values[[col]], length(rows_imputed))
-#     )
-#    }
-#   }
-#  }
-# )
-#

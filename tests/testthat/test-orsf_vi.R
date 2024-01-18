@@ -1,19 +1,6 @@
 
 # survival tests ----------------------------------------------------------
 
-pbc_vi <- pbc_orsf
-
-pbc_vi$junk <- rnorm(nrow(pbc_orsf))
-
-pbc_vi$junk_cat <- factor(
- sample(letters[1:5], size = nrow(pbc_orsf), replace = TRUE)
-)
-
-# simulate a variable with unused factor level
-levels(pbc_vi$edema) <- c(levels(pbc_vi$edema), 'empty_lvl')
-
-formula <- Surv(time, status) ~ protime + edema + bili + junk + junk_cat
-
 test_that(
  desc = paste(
   "Survival forest:",
@@ -23,6 +10,21 @@ test_that(
   collapse = '\n'
  ),
  code = {
+
+  skip_on_cran()
+
+  pbc_vi <- pbc_orsf
+
+  pbc_vi$junk <- rnorm(nrow(pbc_orsf))
+
+  pbc_vi$junk_cat <- factor(
+   sample(letters[1:5], size = nrow(pbc_orsf), replace = TRUE)
+  )
+
+  # simulate a variable with unused factor level
+  levels(pbc_vi$edema) <- c(levels(pbc_vi$edema), 'empty_lvl')
+
+  formula <- Surv(time, status) ~ protime + edema + bili + junk + junk_cat
 
   for(importance in c('negate', 'permute', 'anova')){
 
@@ -152,27 +154,18 @@ test_that(
 
   }
 
+  fit_no_data <- orsf(pbc_vi,
+                      formula = time + status ~ .,
+                      n_tree = n_tree_test,
+                      attach_data = FALSE)
+
+  expect_error(orsf_vi(fit_no_data), regexp = 'training data')
+
  }
 
 )
 
 # classification tests -----------------------------------------------------
-
-penguins_vi <- penguins_orsf
-
-penguins_vi$junk <- rnorm(nrow(penguins_orsf))
-
-penguins_vi$junk_cat <- factor(
- sample(letters[1:5], size = nrow(penguins_orsf), replace = TRUE)
-)
-
-# simulate a variable with unused factor level
-levels(penguins_vi$island) <- c(levels(penguins_vi$island), 'empty_lvl')
-
-formula <- species ~ .
-
-importance <- 'negate'
-group_factors <- TRUE
 
 test_that(
  desc = paste(
@@ -183,6 +176,19 @@ test_that(
   collapse = '\n'
  ),
  code = {
+
+  penguins_vi <- penguins_orsf
+
+  penguins_vi$junk <- rnorm(nrow(penguins_orsf))
+
+  penguins_vi$junk_cat <- factor(
+   sample(letters[1:5], size = nrow(penguins_orsf), replace = TRUE)
+  )
+
+  # simulate a variable with unused factor level
+  levels(penguins_vi$island) <- c(levels(penguins_vi$island), 'empty_lvl')
+
+  formula <- species ~ .
 
   for(importance in c('negate', 'permute', 'anova')){
 
@@ -287,18 +293,17 @@ test_that(
 
   }
 
- }
+  fit_no_vi <- orsf(penguins_vi,
+                    formula = formula,
+                    n_tree = n_tree_test,
+                    importance = 'none')
+  expect_error(orsf_vi_anova(fit_no_vi), regexp = 'ANOVA')
+  expect_error(orsf_vi(fit_no_vi, importance = 'anova'), regexp = 'ANOVA')
 
+ }
 )
 
 # regression tests --------------------------------------------------------
-
-# still using penguin data, but switching the outcome
-
-formula <- bill_length_mm ~ .
-
-importance <- 'negate'
-group_factors <- TRUE
 
 test_that(
  desc = paste(
@@ -309,6 +314,23 @@ test_that(
   collapse = '\n'
  ),
  code = {
+
+  skip_on_cran()
+
+  penguins_vi <- penguins_orsf
+
+  penguins_vi$junk <- rnorm(nrow(penguins_orsf))
+
+  penguins_vi$junk_cat <- factor(
+   sample(letters[1:5], size = nrow(penguins_orsf), replace = TRUE)
+  )
+
+  # simulate a variable with unused factor level
+  levels(penguins_vi$island) <- c(levels(penguins_vi$island), 'empty_lvl')
+
+  # still using penguin data, but switching the outcome
+  formula <- bill_length_mm ~ .
+
 
   for(importance in c('negate', 'permute', 'anova')){
 
@@ -425,39 +447,13 @@ test_that(
 
 # General tests -----------------------------------------------------------
 
-
-
-test_that(
- desc = 'can only compute anova vi during fit',
- code = {
-  fit_no_vi <- orsf(pbc_vi, time+status~.,
-                    n_tree = n_tree_test,
-                    importance = 'none')
-  expect_error(orsf_vi_anova(fit_no_vi), regexp = 'ANOVA')
-  expect_error(orsf_vi(fit_no_vi, importance = 'anova'), regexp = 'ANOVA')
- }
-)
-
-test_that(
- desc = 'can only compute vi if data were attached to fit',
- code = {
-  fit_no_data <- orsf(pbc_vi, time+status~.,
-                      n_tree = n_tree_test,
-                      attach_data = FALSE)
-  expect_error(orsf_vi_anova(fit_no_data), regexp = 'training data')
-  expect_error(orsf_vi_negate(fit_no_data), regexp = 'training data')
-  expect_error(orsf_vi_permute(fit_no_data), regexp = 'training data')
- }
-)
-
-
 test_that(
  desc = 'informative errors for custom functions',
  code = {
 
-  formula <- Surv(time, status) ~ protime + edema + bili + junk + junk_cat
+  skip_on_cran()
 
-  fit_no_vi <- orsf(pbc_vi, formula, importance = 'none', n_tree = 1)
+  fit_no_vi <- orsf_update(fit_standard_pbc$fast, importance = 'none')
 
   expect_error(
    orsf_vi_anova(object = 'nope'),

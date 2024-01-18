@@ -3,6 +3,8 @@ test_that(
  desc = 'cutpoints are unique and correct',
  code = {
 
+  skip_on_cran()
+
   for(i in seq_along(mat_list_surv)){
 
    y <- mat_list_surv[[i]]$y
@@ -66,39 +68,6 @@ test_that(
  }
 )
 
-
-
-#
-#  test_that(
-#   desc = "group values are filled corresponding to the given cut-point",
-#   code = {
-#
-#    group_cpp <- rep(0, length(XB))
-#    XB_sorted <- order(XB)-1
-#
-#    for(i in seq_along(cps_true_values)){
-#
-#     group_R = XB <= cps_true_values[i]
-#
-#     if(i == 1) start <- 0 else start <- test_values$cp_index[i-1]+1
-#
-#     node_fill_group_exported(
-#      group = group_cpp,
-#      XB_sorted = XB_sorted,
-#      start = start,
-#      stop = test_values$cp_index[i],
-#      value = 1
-#     )
-#
-#     expect_equal(as.numeric(group_R),
-#                  as.numeric(group_cpp))
-#
-#    }
-#   }
-#  )
-#
-# }
-#
 
 
 

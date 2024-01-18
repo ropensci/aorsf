@@ -4,6 +4,8 @@ test_that(
  desc = "fits from orsf_train() are same as orsf()",
  code = {
 
+  skip_on_cran()
+
   for(i in seq_along(data_list_pbc[c('pbc_standard',
                                      'pbc_status_12',
                                      'pbc_scaled')])){

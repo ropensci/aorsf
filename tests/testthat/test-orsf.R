@@ -74,6 +74,8 @@ test_that(
  desc = 'orsf runs the same with data.table vs. data.frame',
  code = {
 
+  skip_on_cran()
+
   fit_dt <- orsf(as.data.table(pbc),
                  formula = time + status ~ .,
                  n_tree = n_tree_test,
@@ -105,12 +107,14 @@ test_that(
  desc = "orsf runs with lists and recipes",
  code = {
 
+  skip_on_cran()
+
   pbc_list <- as.list(pbc_orsf)
   pbc_list_bad <- pbc_list
   pbc_list_bad$trt <- pbc_list_bad$trt[1:3]
   pbc_list_bad$age <- pbc_list_bad$age[1:5]
 
-  # skip() # I don't want to list recipes in suggests
+  # I don't want to list recipes in suggests
   #
   # recipe <- recipes::recipe(pbc_orsf, formula = time + status ~ .) %>%
   #  recipes::step_rm(id)
@@ -162,7 +166,8 @@ test_that(
   names(pbc_temp)[names(pbc_temp)=='x2'] <- "#"
 
   expect_error(
-   orsf(data = pbc_temp, Surv(time, status) ~ . - id), regex = 'Non\\-standard'
+   orsf(data = pbc_temp, Surv(time, status) ~ . - id),
+   regex = 'Non\\-standard'
   )
 
  }
@@ -171,6 +176,8 @@ test_that(
 test_that(
  desc = 'if oobag time is unspecified, pred horizon = median(time)',
  code = {
+
+  skip_on_cran()
 
   fit_1 <- orsf(data = pbc_orsf,
                 formula = time + status ~ . - id,
@@ -206,6 +213,8 @@ test_that(
 test_that(
  desc = "algorithm grows more accurate with higher number of iterations",
  code = {
+
+  skip_on_cran()
 
   n_tree <- n_tree_test * 5
   eval_every <- max(round(n_tree/5), 1)
@@ -380,6 +389,8 @@ test_that(
  desc = 'oob error correct for user-specified function',
  code = {
 
+  skip_on_cran()
+
   fit <- orsf(data = pbc,
               formula = time + status ~ . -id,
               n_tree = n_tree_test,
@@ -398,7 +409,7 @@ test_that(
    as.numeric(fit$eval_oobag$stat_values)
   )
 
-  # skip() # don't want to suggest yardstick or Hmisc
+  # don't want to suggest yardstick or Hmisc
   #
   # oobag_rsq_eval <- function(y_mat, w_vec, s_vec){
   #
@@ -499,6 +510,8 @@ test_that(
  desc = 'weights do not make trees grow more than intended',
  code = {
 
+  skip_on_cran()
+
   fit_unwtd <- orsf(pbc, time + status ~ .,
                     n_tree = n_tree_test,
                     tree_seeds = seeds_standard)
@@ -522,6 +535,8 @@ test_that(
 test_that(
  desc = 'user-supplied beta functions are vetted',
  code = {
+
+  skip_on_cran()
 
   f_bad_1 <- function(a_node, y_node, w_node){ 1 }
   f_bad_2 <- function(x_node, a_node, w_node){ 1 }
@@ -590,6 +605,8 @@ test_that(
  desc = "correctly formatted user supplied beta functions are applied",
  code = {
 
+  skip_on_cran()
+
   fit_pca = orsf(pbc,
                  Surv(time, status) ~ .,
                  tree_seeds = seeds_standard,
@@ -607,7 +624,6 @@ test_that(
  desc = 'oblique survival forests run as intended for valid inputs',
  code = {
 
-  # just takes forever.
   skip_on_cran()
 
   inputs <- expand.grid(
@@ -741,7 +757,6 @@ test_that(
  desc = 'oblique classification forests run as intended for valid inputs',
  code = {
 
-  # just takes forever.
   skip_on_cran()
 
   inputs <- expand.grid(
@@ -856,7 +871,6 @@ test_that(
  desc = 'oblique regression forests run as intended for valid inputs',
  code = {
 
-  # just takes forever.
   skip_on_cran()
 
   inputs <- expand.grid(

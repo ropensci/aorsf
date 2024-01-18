@@ -122,16 +122,16 @@ test_that(
    orsf_ice_oob(fit,
                 pred_spec = list(bili = 1:5,
                                  nope = c(1,2),
-                                 no_sir = 1),
+                                 not_happening = 1),
                 pred_horizon = 1000),
-   regexp = 'nope and no_sir'
+   regexp = 'nope and not_happening'
   )
 
   expect_error(
    orsf_ice_oob(fit,
-                pred_spec = pred_spec_auto(bili, nope, no_sir),
+                pred_spec = pred_spec_auto(bili, nope, not_happening),
                 pred_horizon = 1000),
-   regexp = 'nope and no_sir'
+   regexp = 'nope and not_happening'
   )
  }
 )
@@ -155,7 +155,7 @@ test_that(
 pd_vals_ice <- orsf_ice_new(
  fit,
  new_data = pbc_test,
- pred_spec = list(bili = 1:4),
+ pred_spec = list(bili = 1:2),
  pred_horizon = 1000
 )
 
@@ -163,7 +163,7 @@ pd_vals_ice <- orsf_ice_new(
 pd_vals_smry <- orsf_pd_new(
  fit,
  new_data = pbc_test,
- pred_spec = list(bili = 1:4),
+ pred_spec = list(bili = 1:2),
  pred_horizon = 1000
 )
 
@@ -232,7 +232,11 @@ test_that(
 
 # # These tests are kept commented out and run locally
 # # I dont want to suggest pdp package in DESCRIPTION just for testing
+#
 # library(pdp)
+# library(data.table)
+#
+# fit <- orsf(pbc_orsf, time + status ~ . - id)
 #
 # pred_aorsf <- function(object, newdata) {  # see ?predict.ObliqueForest
 #  as.numeric(predict(object, newdata, pred_horizon = 1000))

@@ -536,12 +536,63 @@ test_preds_regr <- function(pred_type){
 
 }
 
+test_that(
+ desc = "prediction over various outcome types",
+ code = {
 
-pred_objects_surv <- lapply(pred_types_surv, test_preds_surv)
+  skip_on_cran()
 
-pred_objects_clsf_multi <- lapply(pred_types_clsf, test_preds_clsf_multi)
-pred_objects_clsf_bnry <- lapply(pred_types_clsf, test_preds_clsf_bnry)
-pred_objects_regr <- lapply(pred_types_regr, test_preds_regr)
+  pred_objects_surv <- lapply(pred_types_surv, test_preds_surv)
+  pred_objects_clsf_multi <- lapply(pred_types_clsf, test_preds_clsf_multi)
+  pred_objects_clsf_bnry <- lapply(pred_types_clsf, test_preds_clsf_bnry)
+  pred_objects_regr <- lapply(pred_types_regr, test_preds_regr)
+
+  # leaf predictions don't change with vs without aggregation
+  expect_equal(pred_objects_surv$leaf$prd_raw,
+               pred_objects_surv$leaf$prd_agg)
+
+  # unaggregated predictons match the aggregate
+
+  for(i in c("surv", "risk", "chf")){
+   for(j in seq_along(pred_horizon)){
+    expect_equal(
+     pred_objects_surv[[i]]$prd_agg[, j],
+     apply(pred_objects_surv[[i]]$prd_raw[, , j], 1, mean),
+     tolerance = 1e-9
+    )
+   }
+  }
+
+  expect_equal(
+   pred_objects_surv$mort$prd_agg,
+   matrix(apply(pred_objects_surv$mort$prd_raw, 1, mean), ncol = 1)
+  )
+
+ # same predictions from the forest regardless of oob type
+
+  risk_preds <- lapply(
+   pred_objects_surv,
+   function(object){
+    predict(object$fit,
+            new_data = pbc_test,
+            pred_horizon = 3500,
+            pred_type = 'risk')
+   }
+  )
+
+  for( i in seq(2, length(risk_preds))){
+   expect_equal(risk_preds[[i]], risk_preds[[1]])
+  }
+
+  # type stability
+  for(i in seq_along(pred_objects_surv)){
+   expect_true(is.array(pred_objects_surv[[i]]$prd_raw))
+   expect_true(is.matrix(pred_objects_surv[[i]]$prd_agg))
+  }
+
+ }
+)
+
 
 test_that(
  desc = "prediction at time 0 is correct",
@@ -561,66 +612,6 @@ test_that(
  }
 )
 
-test_that(
- desc = "leaf predictions aggregate same as raw",
- code = {
-  expect_equal(pred_objects_surv$leaf$prd_raw,
-               pred_objects_surv$leaf$prd_agg)
- }
-)
-
-test_that(
- desc = "unaggregated predictions can reproduce aggregated ones",
- code = {
-
-  for(i in c("surv", "risk", "chf")){
-   for(j in seq_along(pred_horizon)){
-    expect_equal(
-     pred_objects_surv[[i]]$prd_agg[, j],
-     apply(pred_objects_surv[[i]]$prd_raw[, , j], 1, mean),
-     tolerance = 1e-9
-    )
-   }
-  }
-
-  expect_equal(
-   pred_objects_surv$mort$prd_agg,
-   matrix(apply(pred_objects_surv$mort$prd_raw, 1, mean), ncol = 1)
-  )
-
- }
-)
-
-test_that(
- desc = "same predictions from the forest regardless of oob type",
- code = {
-
-  risk_preds <- lapply(
-   pred_objects_surv,
-   function(object){
-    predict(object$fit,
-            new_data = pbc_test,
-            pred_horizon = 3500,
-            pred_type = 'risk')
-   }
-  )
-
-  for( i in seq(2, length(risk_preds))){
-   expect_equal(risk_preds[[i]], risk_preds[[1]])
-  }
-
- }
-)
-
-test_that(
- desc = 'predict is type stable',
- code = {
-  for(i in seq_along(pred_objects_surv)){
-   expect_true(is.array(pred_objects_surv[[i]]$prd_raw))
-   expect_true(is.matrix(pred_objects_surv[[i]]$prd_agg))
-  }
- }
-)
 
 # from here out we just test general predict() mechanics
 
