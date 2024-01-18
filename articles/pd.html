@@ -554,22 +554,91 @@ quick sanity check with <code>coxph</code> suggests there is.</p>
 <p>Random forests are good at using interactions, but less good at
 telling you about them. Use <code><a href="../reference/orsf_vint.html">orsf_vint()</a></code> to apply the method
 for variable interaction scoring with PD described by Greenwell et al
-(2018). This can take a little while if you have lots of predictors.</p>
+(2018). This can take a little while if you have lots of predictors, and
+it seems to work best with continuous by continuous interactions.
+Interactions with categorical variables are sometimes over- or under-
+scored.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">vint_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_vint.html">orsf_vint</a></span><span class="op">(</span><span class="va">fit_surv</span><span class="op">)</span></span>
+<span><span class="co"># use just the continuous variables</span></span>
+<span><span class="va">preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">fit_surv</span><span class="op">$</span><span class="fu">get_means</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">vint_scores</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span></span>
-<span><span class="co">#&gt;         interaction     score</span></span>
-<span><span class="co">#&gt; 1: albumin..protime 1.1597307</span></span>
-<span><span class="co">#&gt; 2:   protime..stage 1.0710384</span></span>
-<span><span class="co">#&gt; 3:  copper..protime 0.7958742</span></span>
-<span><span class="co">#&gt; 4:   albumin..stage 0.7672757</span></span>
-<span><span class="co">#&gt; 5:      bili..stage 0.7619507</span></span></code></pre></div>
+<span><span class="va">vint_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_vint.html">orsf_vint</a></span><span class="op">(</span><span class="va">fit_surv</span>, predictors <span class="op">=</span> <span class="va">preds</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">vint_scores</span></span>
+<span><span class="co">#&gt;            interaction      score          pd_values</span></span>
+<span><span class="co">#&gt;  1:   albumin..protime 1.15973071 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt;  2:    copper..protime 0.79587419 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt;  3:         bili..chol 0.74163213 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt;  4:          age..bili 0.74097713 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt;  5:       bili..copper 0.71610872 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt;  6:      bili..albumin 0.67849272 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt;  7:      bili..protime 0.59576252 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt;  8:       albumin..ast 0.59439149 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt;  9:     bili..platelet 0.56627946 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 10:       ast..protime 0.56220910 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 11:    albumin..copper 0.54057277 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 12:         bili..trig 0.52794450 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 13:       copper..trig 0.50661291 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 14:       age..protime 0.45818900 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 15:           age..ast 0.44410913 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 16:      age..platelet 0.42607794 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 17:  albumin..platelet 0.41293884 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 18:      chol..albumin 0.39547725 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 19:  platelet..protime 0.38674364 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 20:        age..copper 0.36230121 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 21:        copper..ast 0.35089611 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 22:      trig..protime 0.29339926 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 23:     bili..alk.phos 0.25729691 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 24:      chol..protime 0.24424042 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 25:   copper..alk.phos 0.22156162 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 26:          bili..ast 0.21483757 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 27:         chol..trig 0.20737852 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 28:     trig..platelet 0.18819009 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 29:      age..alk.phos 0.17844523 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 30:       chol..copper 0.17025610 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 31:   copper..platelet 0.16009542 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 32:       age..albumin 0.15186211 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 33:     alk.phos..trig 0.14212275 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 34:          age..trig 0.12185330 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 35:  albumin..alk.phos 0.12061152 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 36:          chol..ast 0.10767371 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 37:     chol..alk.phos 0.10712377 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 38:      ast..platelet 0.09157413 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 39:  alk.phos..protime 0.08277287 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 40:      alk.phos..ast 0.08062752 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 41:          ast..trig 0.07157470 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 42:          age..chol 0.05564449 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 43:     chol..platelet 0.04813670 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 44: alk.phos..platelet 0.04760897 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt; 45:      albumin..trig 0.04689324 &lt;data.table[25x9]&gt;</span></span>
+<span><span class="co">#&gt;            interaction      score          pd_values</span></span></code></pre></div>
+<p>The scores include partial dependence values that you can pull out
+and plot:</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># top scoring interaction</span></span>
+<span><span class="va">pd_top</span> <span class="op">&lt;-</span> <span class="va">vint_scores</span><span class="op">$</span><span class="va">pd_values</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co"># center pd values so it's easier to see the interaction effect</span></span>
+<span><span class="va">pd_top</span><span class="op">[</span>, <span class="va">mean</span> <span class="op">:=</span> <span class="va">mean</span> <span class="op">-</span> <span class="va">mean</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, by <span class="op">=</span> <span class="va">var_2_value</span><span class="op">]</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">pd_top</span><span class="op">)</span> <span class="op">+</span> </span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">var_1_value</span>, </span>
+<span>     y <span class="op">=</span> <span class="va">mean</span>, </span>
+<span>     color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">var_2_value</span><span class="op">)</span>, </span>
+<span>     group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">var_2_value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"albumin"</span>, </span>
+<span>      y <span class="op">=</span> <span class="st">"predicted mortality (centered)"</span>,</span>
+<span>      color <span class="op">=</span> <span class="st">"protime"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="pd_files/figure-html/unnamed-chunk-25-1.png" width="672"></p>
 <p>Again we use a sanity check with <code>coxph</code> to see if these
 interactions are detected using a standard test:</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fit_cph</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">coxph</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>,<span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">albumin</span> <span class="op">*</span> <span class="va">protime</span>, </span>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># test the top score (expect strong interaction)</span></span>
+<span><span class="va">fit_cph</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">coxph</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>,<span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">albumin</span> <span class="op">*</span> <span class="va">protime</span>, </span>
 <span>                 data <span class="op">=</span> <span class="va">pbc_orsf</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova</a></span><span class="op">(</span><span class="va">fit_cph</span><span class="op">)</span></span>
@@ -582,36 +651,6 @@ interactions are detected using a standard test:</p>
 <span><span class="co">#&gt; albumin         -526.29 47.801  1  4.717e-12 ***</span></span>
 <span><span class="co">#&gt; protime         -514.89 22.806  1  1.792e-06 ***</span></span>
 <span><span class="co">#&gt; albumin:protime -511.76  6.252  1    0.01241 *  </span></span>
-<span><span class="co">#&gt; ---</span></span>
-<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
-<span></span>
-<span><span class="va">fit_cph</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">fit_cph</span>, <span class="va">.</span> <span class="op">~</span> <span class="va">stage</span> <span class="op">*</span> <span class="va">protime</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova</a></span><span class="op">(</span><span class="va">fit_cph</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Analysis of Deviance Table</span></span>
-<span><span class="co">#&gt;  Cox model: response is Surv(time, status)</span></span>
-<span><span class="co">#&gt; Terms added sequentially (first to last)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                loglik   Chisq Df Pr(&gt;|Chi|)    </span></span>
-<span><span class="co">#&gt; NULL          -550.19                          </span></span>
-<span><span class="co">#&gt; stage         -528.61 43.1626  3  2.273e-09 ***</span></span>
-<span><span class="co">#&gt; protime       -516.05 25.1244  1  5.375e-07 ***</span></span>
-<span><span class="co">#&gt; stage:protime -514.06  3.9822  3     0.2634    </span></span>
-<span><span class="co">#&gt; ---</span></span>
-<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
-<span></span>
-<span><span class="va">fit_cph</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">fit_cph</span>, <span class="va">.</span> <span class="op">~</span> <span class="va">copper</span> <span class="op">*</span> <span class="va">protime</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html" class="external-link">anova</a></span><span class="op">(</span><span class="va">fit_cph</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Analysis of Deviance Table</span></span>
-<span><span class="co">#&gt;  Cox model: response is Surv(time, status)</span></span>
-<span><span class="co">#&gt; Terms added sequentially (first to last)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;                 loglik   Chisq Df Pr(&gt;|Chi|)    </span></span>
-<span><span class="co">#&gt; NULL           -550.19                          </span></span>
-<span><span class="co">#&gt; copper         -524.72 50.9444  1  9.502e-13 ***</span></span>
-<span><span class="co">#&gt; protime        -513.02 23.3872  1  1.325e-06 ***</span></span>
-<span><span class="co">#&gt; copper:protime -508.86  8.3216  1   0.003918 ** </span></span>
 <span><span class="co">#&gt; ---</span></span>
 <span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
 <p><em>Note</em>: Caution is warranted when interpreting statistical
@@ -632,7 +671,7 @@ a function of a predictor.</p>
 </h3>
 <p>Compute ICE using out-of-bag data for
 <code>flipper_length_mm = c(190, 210)</code>.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>flipper_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">190</span>, <span class="fl">210</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -662,7 +701,7 @@ original data.</p></li>
 <p>Note that predicted probabilities are returned for each class and
 each observation in the data. Predicted probabilities for a given
 observation and given variable value sum to 1. For example,</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">ice_oob</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span> <span class="va">.</span><span class="op">[</span><span class="va">flipper_length_mm</span> <span class="op">==</span> <span class="fl">190</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
@@ -676,7 +715,7 @@ observation and given variable value sum to 1. For example,</p>
 </h3>
 <p>Compute ICE using new data for
 <code>flipper_length_mm = c(190, 210)</code>.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>flipper_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">190</span>, <span class="fl">210</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -699,7 +738,7 @@ observation and given variable value sum to 1. For example,</p>
 <span><span class="co">#&gt; 366:           2    183               210 48.44774</span></span></code></pre></div>
 <p>You can also let <code>pred_spec_auto</code> pick reasonable values
 like so:</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">pred_spec</span> <span class="op">=</span> <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">species</span>, <span class="va">island</span>, <span class="va">body_mass_g</span><span class="op">)</span></span>
 <span></span>
@@ -722,7 +761,7 @@ like so:</p>
 <span><span class="co">#&gt; 8235:          45    183  Gentoo Torgersen        5300 44.23710</span></span></code></pre></div>
 <p>By default, all combinations of all variables are used. However, you
 can also look at the variables one by one, separately, like so:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">ice_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
 <span>                        expand_grid <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -745,7 +784,7 @@ can also look at the variables one by one, separately, like so:</p>
 <p>And you can also bypass all the bells and whistles by using your own
 <code>data.frame</code> for a <code>pred_spec</code>. (Just make sure
 you request values that exist in the training data.)</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">custom_pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Adelie'</span>, </span>
 <span>                               island <span class="op">=</span> <span class="st">'Biscoe'</span><span class="op">)</span></span>
@@ -773,7 +812,7 @@ you request values that exist in the training data.)</p>
 </h3>
 <p>Compute ICE using in-bag data for
 <code>bili = c(1,2,3,4,5)</code>:</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ice_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">ice_train</span></span>
 <span><span class="co">#&gt;       id_variable id_row pred_horizon bili      pred</span></span>
@@ -790,7 +829,7 @@ you request values that exist in the training data.)</p>
 <span><span class="co">#&gt; 1380:           5    276      1826.25    5 0.3549165</span></span></code></pre></div>
 <p>If you don’t have specific values of a variable in mind, let
 <code>pred_spec_auto</code> pick for you:</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ice_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bili</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">ice_train</span></span>
 <span><span class="co">#&gt;       id_variable id_row pred_horizon bili       pred</span></span>
@@ -806,7 +845,7 @@ you request values that exist in the training data.)</p>
 <span><span class="co">#&gt; 1379:           5    275      1826.25 7.25 0.25301890</span></span>
 <span><span class="co">#&gt; 1380:           5    276      1826.25 7.25 0.44533769</span></span></code></pre></div>
 <p>Specify <code>pred_horizon</code> to get ICE at each value:</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">ice_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bili</span><span class="op">)</span>,</span>
 <span>                          pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">3000</span>, by <span class="op">=</span> <span class="fl">500</span><span class="op">)</span><span class="op">)</span></span>
@@ -838,7 +877,7 @@ there groups where the variable impacts risk differently?</p>
 by setting <code>boundary_checks = FALSE</code>, and this will allow me
 to generate ICE curves that go beyond the 90th percentile of
 <code>bili</code>.</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span>, length.out <span class="op">=</span> <span class="fl">25</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -865,14 +904,14 @@ each observation’s conditional expectation values. So,</p>
 <li>
 <p>The plot shows <em>change</em> in predicted risk as a function of
 <code>bili</code>.</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">ice_oob</span><span class="op">[</span>, <span class="va">pred_subtract</span> <span class="op">:=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="va">pred</span><span class="op">[</span><span class="va">id_variable</span><span class="op">==</span><span class="fl">1</span><span class="op">]</span>, times<span class="op">=</span><span class="fl">25</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="va">ice_oob</span><span class="op">[</span>, <span class="va">pred</span> <span class="op">:=</span> <span class="va">pred</span> <span class="op">-</span> <span class="va">pred_subtract</span><span class="op">]</span></span></code></pre></div>
 </li>
 </ul>
 <p>Now we can visualize the curves.</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">ice_oob</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">bili</span>, </span>
 <span>                    y <span class="op">=</span> <span class="va">pred</span>, </span>

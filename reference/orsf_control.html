@@ -348,23 +348,25 @@ evaluating the out-of-bag survival predictions.</p>
 <span>            times <span class="op">=</span> <span class="va">fit_accel</span><span class="op">$</span><span class="va">pred_horizon</span><span class="op">)</span></span></code></pre><p></p></div>
 <p>The AUC values, from highest to lowest:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">sc</span><span class="op">$</span><span class="va">AUC</span><span class="op">$</span><span class="va">score</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">AUC</span><span class="op">)</span><span class="op">]</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##    model times       AUC         se     lower     upper</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:   net  1788 0.9151649 0.02025057 0.8754745 0.9548553</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:   rlt  1788 0.9136390 0.02013475 0.8741756 0.9531024</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 3: accel  1788 0.9095628 0.02143250 0.8675558 0.9515697</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 4:   cph  1788 0.9095628 0.02143250 0.8675558 0.9515697</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 5: rando  1788 0.9062197 0.02148854 0.8641029 0.9483365</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 6:   pca  1788 0.8999479 0.02226683 0.8563057 0.9435901</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##     model times       AUC         se     lower     upper</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##    &lt;fctr&gt; &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:    net  1788 0.9151649 0.02025057 0.8754745 0.9548553</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:    rlt  1788 0.9119200 0.02090107 0.8709547 0.9528854</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 3:  accel  1788 0.9095628 0.02143250 0.8675558 0.9515697</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 4:    cph  1788 0.9095628 0.02143250 0.8675558 0.9515697</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 5:  rando  1788 0.9062197 0.02148854 0.8641029 0.9483365</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 6:    pca  1788 0.8983266 0.02303267 0.8531834 0.9434698</span></span></code></pre><p></p></div>
 <p>And the indices of prediction accuracy:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">sc</span><span class="op">$</span><span class="va">Brier</span><span class="op">$</span><span class="va">score</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="op">-</span><span class="va">IPA</span><span class="op">)</span>, <span class="fu">.</span><span class="op">(</span><span class="va">model</span>, <span class="va">times</span>, <span class="va">IPA</span><span class="op">)</span><span class="op">]</span></span></code></pre><p></p></div>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##         model times       IPA</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:        net  1788 0.4905777</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:      accel  1788 0.4806065</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 3:        cph  1788 0.4806065</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 4:        rlt  1788 0.4687322</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 5:        pca  1788 0.4383995</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 6:      rando  1788 0.4302814</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 7: Null model  1788 0.0000000</span></span></code></pre><p></p></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="do">##        &lt;fctr&gt; &lt;num&gt;     &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="do">## 1:        net  1788 0.4905777</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="do">## 2:      accel  1788 0.4806649</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="do">## 3:        cph  1788 0.4806649</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="do">## 4:        rlt  1788 0.4675228</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="do">## 5:        pca  1788 0.4369636</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="do">## 6:      rando  1788 0.4302814</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="do">## 7: Null model  1788 0.0000000</span></span></code></pre><p></p></div>
 <p>From inspection,</p><ul><li><p><code>net</code>, <code>accel</code>, and <code>rlt</code> have high discrimination and index of
 prediction accuracy.</p></li>
 <li><p><code>rando</code> and <code>pca</code> do less well, but they aren’t bad.</p></li>
