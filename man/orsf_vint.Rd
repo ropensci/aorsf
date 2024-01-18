@@ -29,7 +29,8 @@ printed in the console. If \code{FALSE} (the default), nothing is printed.}
 The default value of \code{".."} returns names as \code{name1..name2}}
 }
 \value{
-a data.table with variable interaction scores
+a data.table with variable interaction scores and
+partial dependence values.
 }
 \description{
 Use the variable interaction score described in Greenwell et al (2018).
