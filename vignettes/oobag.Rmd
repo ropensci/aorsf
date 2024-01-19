@@ -115,7 +115,7 @@ oobag_brier_surv <- function(y_mat, w_vec, s_vec){
  }
  
  # if not available, use a dummy version
- mean( (y_mat[,2] - s_vec)^2 )
+ mean( (y_mat[,2] - (1-s_vec))^2 )
  
  
 }
