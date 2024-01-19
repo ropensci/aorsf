@@ -20,7 +20,6 @@ knitr::opts_chunk$set(
 
 library(aorsf)
 library(survival)
-library(SurvMetrics)
 
 ```
 
@@ -97,15 +96,27 @@ In some cases, you may want more control over how out-of-bag error is estimated.
 
 oobag_brier_surv <- function(y_mat, w_vec, s_vec){
 
- # output is numeric vector of length 1
- as.numeric(
-  SurvMetrics::Brier(
-   object = Surv(time = y_mat[, 1], event = y_mat[, 2]), 
-   pre_sp = s_vec,
-   # t_star in Brier() should match oob_pred_horizon in orsf()
-   t_star = 2000
+ # use if SurvMetrics is available
+ if(requireNamespace("SurvMetrics")){
+  
+  return(
+   # output is numeric vector of length 1
+   as.numeric(
+    SurvMetrics::Brier(
+     object = Surv(time = y_mat[, 1], event = y_mat[, 2]), 
+     pre_sp = s_vec,
+     # t_star in Brier() should match oob_pred_horizon in orsf()
+     t_star = 2000
+    )
+   )
   )
- )
+  
+  
+ }
+ 
+ # if not available, use a dummy version
+ mean( (y_mat[,2] - s_vec)^2 )
+ 
  
 }
 ```
