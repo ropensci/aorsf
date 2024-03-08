@@ -146,7 +146,9 @@ fairness.</p></li>
 <span><span class="va">pd_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit_clsf</span>, pred_spec <span class="op">=</span> <span class="va">pred_spec</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_oob</span></span>
+<span><span class="co">#&gt; Key: &lt;class&gt;</span></span>
 <span><span class="co">#&gt;        class flipper_length_mm      mean         lwr       medn       upr</span></span>
+<span><span class="co">#&gt;       &lt;fctr&gt;             &lt;num&gt;     &lt;num&gt;       &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1:    Adelie               190 0.6182417 0.206899034 0.75537171 0.9796439</span></span>
 <span><span class="co">#&gt; 2:    Adelie               210 0.4348386 0.019519733 0.56802082 0.8620694</span></span>
 <span><span class="co">#&gt; 3: Chinstrap               190 0.2114905 0.018420139 0.15561560 0.7174734</span></span>
@@ -194,6 +196,7 @@ variables. For example,</p>
 <span></span>
 <span><span class="va">pd_new</span></span>
 <span><span class="co">#&gt;    flipper_length_mm     mean      lwr     medn      upr</span></span>
+<span><span class="co">#&gt;                &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1:               190 42.96571 37.09805 43.69769 48.72301</span></span>
 <span><span class="co">#&gt; 2:               210 45.66012 40.50693 46.31577 51.65163</span></span></code></pre></div>
 <p>You can also let <code>pred_spec_auto</code> pick reasonable values
@@ -208,6 +211,7 @@ like so:</p>
 <span></span>
 <span><span class="va">pd_new</span></span>
 <span><span class="co">#&gt;       species    island body_mass_g     mean      lwr     medn      upr</span></span>
+<span><span class="co">#&gt;        &lt;fctr&gt;    &lt;fctr&gt;       &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
 <span><span class="co">#&gt;  1:    Adelie    Biscoe        3200 40.31374 37.24373 40.31967 44.22824</span></span>
 <span><span class="co">#&gt;  2: Chinstrap    Biscoe        3200 45.10582 42.63342 45.10859 47.60119</span></span>
 <span><span class="co">#&gt;  3:    Gentoo    Biscoe        3200 42.81649 40.19221 42.55664 46.84035</span></span>
@@ -265,6 +269,7 @@ can also look at the variables one by one, separately, like so:</p>
 <span></span>
 <span><span class="va">pd_new</span></span>
 <span><span class="co">#&gt;        variable value     level     mean      lwr     medn      upr</span></span>
+<span><span class="co">#&gt;          &lt;char&gt; &lt;num&gt;    &lt;char&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
 <span><span class="co">#&gt;  1:     species    NA    Adelie 41.90271 37.10417 41.51723 48.51478</span></span>
 <span><span class="co">#&gt;  2:     species    NA Chinstrap 47.11314 42.40419 46.96478 51.51392</span></span>
 <span><span class="co">#&gt;  3:     species    NA    Gentoo 44.37038 39.87306 43.89889 51.21635</span></span>
@@ -290,6 +295,7 @@ you request values that exist in the training data.)</p>
 <span></span>
 <span><span class="va">pd_new</span></span>
 <span><span class="co">#&gt;    species island     mean      lwr     medn      upr</span></span>
+<span><span class="co">#&gt;     &lt;fctr&gt; &lt;fctr&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1:  Adelie Biscoe 41.98024 37.22711 41.65252 48.51478</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -313,18 +319,20 @@ you request values that exist in the training data.)</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pd_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">pd_train</span></span>
-<span><span class="co">#&gt;    pred_horizon bili      mean        lwr      medn       upr</span></span>
-<span><span class="co">#&gt; 1:      1826.25    1 0.2575450 0.02234786 0.1334170 0.8917942</span></span>
-<span><span class="co">#&gt; 2:      1826.25    2 0.3130469 0.06853733 0.1906695 0.9203372</span></span>
-<span><span class="co">#&gt; 3:      1826.25    3 0.3711963 0.11409793 0.2582027 0.9416791</span></span>
-<span><span class="co">#&gt; 4:      1826.25    4 0.4248968 0.15648381 0.3334579 0.9591581</span></span>
-<span><span class="co">#&gt; 5:      1826.25    5 0.4671699 0.20123406 0.3855137 0.9655296</span></span></code></pre></div>
+<span><span class="co">#&gt;    pred_horizon  bili      mean        lwr      medn       upr</span></span>
+<span><span class="co">#&gt;           &lt;num&gt; &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:      1826.25     1 0.2575450 0.02234786 0.1334170 0.8917942</span></span>
+<span><span class="co">#&gt; 2:      1826.25     2 0.3130469 0.06853733 0.1906695 0.9203372</span></span>
+<span><span class="co">#&gt; 3:      1826.25     3 0.3711963 0.11409793 0.2582027 0.9416791</span></span>
+<span><span class="co">#&gt; 4:      1826.25     4 0.4248968 0.15648381 0.3334579 0.9591581</span></span>
+<span><span class="co">#&gt; 5:      1826.25     5 0.4671699 0.20123406 0.3855137 0.9655296</span></span></code></pre></div>
 <p>If you don’t have specific values of a variable in mind, let
 <code>pred_spec_auto</code> pick for you:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pd_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bili</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">pd_train</span></span>
 <span><span class="co">#&gt;    pred_horizon  bili      mean        lwr      medn       upr</span></span>
+<span><span class="co">#&gt;           &lt;num&gt; &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
 <span><span class="co">#&gt; 1:      1826.25 0.590 0.2493753 0.02035041 0.1250263 0.8823385</span></span>
 <span><span class="co">#&gt; 2:      1826.25 0.725 0.2517103 0.02060111 0.1281814 0.8836536</span></span>
 <span><span class="co">#&gt; 3:      1826.25 1.500 0.2807082 0.03964900 0.1601715 0.9040617</span></span>
@@ -337,6 +345,7 @@ you request values that exist in the training data.)</p>
 <span>                        pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">3000</span>, by <span class="op">=</span> <span class="fl">500</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">pd_train</span></span>
 <span><span class="co">#&gt;     pred_horizon  bili       mean          lwr        medn       upr</span></span>
+<span><span class="co">#&gt;            &lt;num&gt; &lt;num&gt;      &lt;num&gt;        &lt;num&gt;       &lt;num&gt;     &lt;num&gt;</span></span>
 <span><span class="co">#&gt;  1:          500 0.590 0.06217164 0.0004433990 0.008765301 0.5918852</span></span>
 <span><span class="co">#&gt;  2:         1000 0.590 0.14282695 0.0057937418 0.056509484 0.7381953</span></span>
 <span><span class="co">#&gt;  3:         1500 0.590 0.20944972 0.0136094784 0.092379507 0.8577223</span></span>
@@ -438,60 +447,66 @@ formatted view of the output:</p>
 <span></span>
 <span><span class="va">pd_smry</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- ascites (VI Rank: 1) ------------------------</span></span>
+<span><span class="co">#&gt; -- ascites (VI Rank: 1) -------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |---------------- Risk ----------------|</span></span>
-<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;      0 0.3083328 0.1985589 0.06581247 0.5241336</span></span>
-<span><span class="co">#&gt;      1 0.4702396 0.3975953 0.27481738 0.6564321</span></span>
+<span><span class="co">#&gt;         |---------------- Risk ----------------|</span></span>
+<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;       0 0.3083328 0.1985589 0.06581247 0.5241336</span></span>
+<span><span class="co">#&gt;       1 0.4702396 0.3975953 0.27481738 0.6564321</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- bili (VI Rank: 2) ---------------------------</span></span>
+<span><span class="co">#&gt; -- bili (VI Rank: 2) ----------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |---------------- Risk ----------------|</span></span>
-<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;   0.60 0.2356543 0.1536301 0.05872720 0.3719578</span></span>
-<span><span class="co">#&gt;   0.80 0.2398021 0.1609720 0.06167673 0.3776136</span></span>
-<span><span class="co">#&gt;   1.40 0.2613612 0.1809950 0.07893386 0.4064484</span></span>
-<span><span class="co">#&gt;   3.52 0.3702763 0.3118827 0.17050712 0.5447088</span></span>
-<span><span class="co">#&gt;   7.25 0.4780580 0.4406202 0.29442977 0.6434075</span></span>
+<span><span class="co">#&gt;         |---------------- Risk ----------------|</span></span>
+<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;    0.60 0.2356543 0.1536301 0.05872720 0.3719578</span></span>
+<span><span class="co">#&gt;    0.80 0.2398021 0.1609720 0.06167673 0.3776136</span></span>
+<span><span class="co">#&gt;    1.40 0.2613612 0.1809950 0.07893386 0.4064484</span></span>
+<span><span class="co">#&gt;    3.52 0.3702763 0.3118827 0.17050712 0.5447088</span></span>
+<span><span class="co">#&gt;    7.25 0.4780580 0.4406202 0.29442977 0.6434075</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- edema (VI Rank: 3) --------------------------</span></span>
+<span><span class="co">#&gt; -- edema (VI Rank: 3) ---------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |---------------- Risk ----------------|</span></span>
-<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;      0 0.3035731 0.1840849 0.06509174 0.5228237</span></span>
-<span><span class="co">#&gt;    0.5 0.3558716 0.2649457 0.11132293 0.5831396</span></span>
-<span><span class="co">#&gt;      1 0.4693915 0.3961470 0.28211662 0.6331870</span></span>
+<span><span class="co">#&gt;         |---------------- Risk ----------------|</span></span>
+<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;       0 0.3035731 0.1840849 0.06509174 0.5228237</span></span>
+<span><span class="co">#&gt;     0.5 0.3558716 0.2649457 0.11132293 0.5831396</span></span>
+<span><span class="co">#&gt;       1 0.4693915 0.3961470 0.28211662 0.6331870</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- copper (VI Rank: 4) -------------------------</span></span>
+<span><span class="co">#&gt; -- copper (VI Rank: 4) --------------------------</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;        |---------------- Risk ----------------|</span></span>
-<span><span class="co">#&gt;  Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt;   25.5 0.2632768 0.1622871 0.05581251 0.4308234</span></span>
-<span><span class="co">#&gt;   42.8 0.2707739 0.1703028 0.05887747 0.4418590</span></span>
-<span><span class="co">#&gt;   74.0 0.2908707 0.1940176 0.07155433 0.4768302</span></span>
-<span><span class="co">#&gt;    129 0.3444258 0.2651729 0.11918406 0.5574967</span></span>
-<span><span class="co">#&gt;    214 0.4245218 0.3577346 0.21408331 0.6238041</span></span>
+<span><span class="co">#&gt;         |---------------- Risk ----------------|</span></span>
+<span><span class="co">#&gt;   Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;  &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;    25.5 0.2632768 0.1622871 0.05581251 0.4308234</span></span>
+<span><span class="co">#&gt;    42.8 0.2707739 0.1703028 0.05887747 0.4418590</span></span>
+<span><span class="co">#&gt;    74.0 0.2908707 0.1940176 0.07155433 0.4768302</span></span>
+<span><span class="co">#&gt;     129 0.3444258 0.2651729 0.11918406 0.5574967</span></span>
+<span><span class="co">#&gt;     214 0.4245218 0.3577346 0.21408331 0.6238041</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  Predicted risk at time t = 1826.25 for top 4 predictors</span></span></code></pre></div>
 <p>This ‘summary’ object can be converted into a <code>data.table</code>
 for downstream plotting and tables.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/as.data.table.html" class="external-link">as.data.table</a></span><span class="op">(</span><span class="va">pd_smry</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    variable importance Value      Mean    Median     25th %    75th %</span></span>
-<span><span class="co">#&gt; 1:  ascites  0.4960630     0 0.3083328 0.1985589 0.06581247 0.5241336</span></span>
-<span><span class="co">#&gt; 2:  ascites  0.4960630     1 0.4702396 0.3975953 0.27481738 0.6564321</span></span>
-<span><span class="co">#&gt; 3:     bili  0.4160074  0.60 0.2356543 0.1536301 0.05872720 0.3719578</span></span>
-<span><span class="co">#&gt; 4:     bili  0.4160074  0.80 0.2398021 0.1609720 0.06167673 0.3776136</span></span>
-<span><span class="co">#&gt; 5:     bili  0.4160074  1.40 0.2613612 0.1809950 0.07893386 0.4064484</span></span>
-<span><span class="co">#&gt; 6:     bili  0.4160074  3.52 0.3702763 0.3118827 0.17050712 0.5447088</span></span>
-<span><span class="co">#&gt;    pred_horizon level</span></span>
-<span><span class="co">#&gt; 1:      1826.25     0</span></span>
-<span><span class="co">#&gt; 2:      1826.25     1</span></span>
-<span><span class="co">#&gt; 3:      1826.25  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 4:      1826.25  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 5:      1826.25  &lt;NA&gt;</span></span>
-<span><span class="co">#&gt; 6:      1826.25  &lt;NA&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt;    variable importance  Value      Mean    Median     25th %    75th %</span></span>
+<span><span class="co">#&gt;      &lt;char&gt;      &lt;num&gt; &lt;char&gt;     &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  ascites  0.4960630      0 0.3083328 0.1985589 0.06581247 0.5241336</span></span>
+<span><span class="co">#&gt; 2:  ascites  0.4960630      1 0.4702396 0.3975953 0.27481738 0.6564321</span></span>
+<span><span class="co">#&gt; 3:     bili  0.4160074   0.60 0.2356543 0.1536301 0.05872720 0.3719578</span></span>
+<span><span class="co">#&gt; 4:     bili  0.4160074   0.80 0.2398021 0.1609720 0.06167673 0.3776136</span></span>
+<span><span class="co">#&gt; 5:     bili  0.4160074   1.40 0.2613612 0.1809950 0.07893386 0.4064484</span></span>
+<span><span class="co">#&gt; 6:     bili  0.4160074   3.52 0.3702763 0.3118827 0.17050712 0.5447088</span></span>
+<span><span class="co">#&gt;    pred_horizon  level</span></span>
+<span><span class="co">#&gt;           &lt;num&gt; &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:      1826.25      0</span></span>
+<span><span class="co">#&gt; 2:      1826.25      1</span></span>
+<span><span class="co">#&gt; 3:      1826.25   &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 4:      1826.25   &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 5:      1826.25   &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 6:      1826.25   &lt;NA&gt;</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="multiple-variables-jointly">Multiple variables, jointly<a class="anchor" aria-label="anchor" href="#multiple-variables-jointly"></a>
@@ -567,6 +582,7 @@ scored.</p>
 <span></span>
 <span><span class="va">vint_scores</span></span>
 <span><span class="co">#&gt;            interaction      score          pd_values</span></span>
+<span><span class="co">#&gt;                 &lt;char&gt;      &lt;num&gt;             &lt;list&gt;</span></span>
 <span><span class="co">#&gt;  1:   albumin..protime 1.15973071 &lt;data.table[25x9]&gt;</span></span>
 <span><span class="co">#&gt;  2:    copper..protime 0.79587419 &lt;data.table[25x9]&gt;</span></span>
 <span><span class="co">#&gt;  3:         bili..chol 0.74163213 &lt;data.table[25x9]&gt;</span></span>
@@ -678,7 +694,9 @@ a function of a predictor.</p>
 <span><span class="va">ice_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_oob</a></span><span class="op">(</span><span class="va">fit_clsf</span>, pred_spec <span class="op">=</span> <span class="va">pred_spec</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ice_oob</span></span>
+<span><span class="co">#&gt; Key: &lt;class&gt;</span></span>
 <span><span class="co">#&gt;      id_variable id_row  class flipper_length_mm       pred</span></span>
+<span><span class="co">#&gt;            &lt;int&gt; &lt;char&gt; &lt;fctr&gt;             &lt;num&gt;      &lt;num&gt;</span></span>
 <span><span class="co">#&gt;   1:           1      1 Adelie               190 0.92045213</span></span>
 <span><span class="co">#&gt;   2:           1      2 Adelie               190 0.80427932</span></span>
 <span><span class="co">#&gt;   3:           1      3 Adelie               190 0.84342550</span></span>
@@ -725,6 +743,7 @@ observation and given variable value sum to 1. For example,</p>
 <span></span>
 <span><span class="va">ice_new</span></span>
 <span><span class="co">#&gt;      id_variable id_row flipper_length_mm     pred</span></span>
+<span><span class="co">#&gt;            &lt;int&gt; &lt;char&gt;             &lt;num&gt;    &lt;num&gt;</span></span>
 <span><span class="co">#&gt;   1:           1      1               190 37.94483</span></span>
 <span><span class="co">#&gt;   2:           1      2               190 37.61595</span></span>
 <span><span class="co">#&gt;   3:           1      3               190 37.53681</span></span>
@@ -748,6 +767,7 @@ like so:</p>
 <span></span>
 <span><span class="va">ice_new</span></span>
 <span><span class="co">#&gt;       id_variable id_row species    island body_mass_g     pred</span></span>
+<span><span class="co">#&gt;             &lt;int&gt; &lt;char&gt;  &lt;fctr&gt;    &lt;fctr&gt;       &lt;num&gt;    &lt;num&gt;</span></span>
 <span><span class="co">#&gt;    1:           1      1  Adelie    Biscoe        3200 37.78339</span></span>
 <span><span class="co">#&gt;    2:           1      2  Adelie    Biscoe        3200 37.73273</span></span>
 <span><span class="co">#&gt;    3:           1      3  Adelie    Biscoe        3200 37.71248</span></span>
@@ -770,6 +790,7 @@ can also look at the variables one by one, separately, like so:</p>
 <span></span>
 <span><span class="va">ice_new</span></span>
 <span><span class="co">#&gt;       id_variable id_row    variable value  level     pred</span></span>
+<span><span class="co">#&gt;             &lt;int&gt; &lt;char&gt;      &lt;char&gt; &lt;num&gt; &lt;char&gt;    &lt;num&gt;</span></span>
 <span><span class="co">#&gt;    1:           1      1     species    NA Adelie 37.74136</span></span>
 <span><span class="co">#&gt;    2:           1      2     species    NA Adelie 37.42367</span></span>
 <span><span class="co">#&gt;    3:           1      3     species    NA Adelie 37.04598</span></span>
@@ -795,6 +816,7 @@ you request values that exist in the training data.)</p>
 <span></span>
 <span><span class="va">ice_new</span></span>
 <span><span class="co">#&gt;      id_variable id_row species island     pred</span></span>
+<span><span class="co">#&gt;            &lt;int&gt; &lt;char&gt;  &lt;fctr&gt; &lt;fctr&gt;    &lt;num&gt;</span></span>
 <span><span class="co">#&gt;   1:           1      1  Adelie Biscoe 38.52327</span></span>
 <span><span class="co">#&gt;   2:           1      2  Adelie Biscoe 38.32073</span></span>
 <span><span class="co">#&gt;   3:           1      3  Adelie Biscoe 37.71248</span></span>
@@ -815,53 +837,56 @@ you request values that exist in the training data.)</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ice_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">ice_train</span></span>
-<span><span class="co">#&gt;       id_variable id_row pred_horizon bili      pred</span></span>
-<span><span class="co">#&gt;    1:           1      1      1826.25    1 0.9015162</span></span>
-<span><span class="co">#&gt;    2:           1      2      1826.25    1 0.1019426</span></span>
-<span><span class="co">#&gt;    3:           1      3      1826.25    1 0.6821646</span></span>
-<span><span class="co">#&gt;    4:           1      4      1826.25    1 0.3623411</span></span>
-<span><span class="co">#&gt;    5:           1      5      1826.25    1 0.1374271</span></span>
-<span><span class="co">#&gt;   ---                                               </span></span>
-<span><span class="co">#&gt; 1376:           5    272      1826.25    5 0.2650957</span></span>
-<span><span class="co">#&gt; 1377:           5    273      1826.25    5 0.3065318</span></span>
-<span><span class="co">#&gt; 1378:           5    274      1826.25    5 0.3503776</span></span>
-<span><span class="co">#&gt; 1379:           5    275      1826.25    5 0.1652897</span></span>
-<span><span class="co">#&gt; 1380:           5    276      1826.25    5 0.3549165</span></span></code></pre></div>
+<span><span class="co">#&gt;       id_variable id_row pred_horizon  bili      pred</span></span>
+<span><span class="co">#&gt;             &lt;int&gt; &lt;char&gt;        &lt;num&gt; &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;    1:           1      1      1826.25     1 0.9015162</span></span>
+<span><span class="co">#&gt;    2:           1      2      1826.25     1 0.1019426</span></span>
+<span><span class="co">#&gt;    3:           1      3      1826.25     1 0.6821646</span></span>
+<span><span class="co">#&gt;    4:           1      4      1826.25     1 0.3623411</span></span>
+<span><span class="co">#&gt;    5:           1      5      1826.25     1 0.1374271</span></span>
+<span><span class="co">#&gt;   ---                                                </span></span>
+<span><span class="co">#&gt; 1376:           5    272      1826.25     5 0.2650957</span></span>
+<span><span class="co">#&gt; 1377:           5    273      1826.25     5 0.3065318</span></span>
+<span><span class="co">#&gt; 1378:           5    274      1826.25     5 0.3503776</span></span>
+<span><span class="co">#&gt; 1379:           5    275      1826.25     5 0.1652897</span></span>
+<span><span class="co">#&gt; 1380:           5    276      1826.25     5 0.3549165</span></span></code></pre></div>
 <p>If you don’t have specific values of a variable in mind, let
 <code>pred_spec_auto</code> pick for you:</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ice_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bili</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">ice_train</span></span>
-<span><span class="co">#&gt;       id_variable id_row pred_horizon bili       pred</span></span>
-<span><span class="co">#&gt;    1:           1      1      1826.25 0.60 0.89210440</span></span>
-<span><span class="co">#&gt;    2:           1      2      1826.25 0.60 0.09186876</span></span>
-<span><span class="co">#&gt;    3:           1      3      1826.25 0.60 0.65503431</span></span>
-<span><span class="co">#&gt;    4:           1      4      1826.25 0.60 0.34622748</span></span>
-<span><span class="co">#&gt;    5:           1      5      1826.25 0.60 0.13310425</span></span>
-<span><span class="co">#&gt;   ---                                                </span></span>
-<span><span class="co">#&gt; 1376:           5    272      1826.25 7.25 0.31258148</span></span>
-<span><span class="co">#&gt; 1377:           5    273      1826.25 7.25 0.35478676</span></span>
-<span><span class="co">#&gt; 1378:           5    274      1826.25 7.25 0.41559176</span></span>
-<span><span class="co">#&gt; 1379:           5    275      1826.25 7.25 0.25301890</span></span>
-<span><span class="co">#&gt; 1380:           5    276      1826.25 7.25 0.44533769</span></span></code></pre></div>
+<span><span class="co">#&gt;       id_variable id_row pred_horizon  bili       pred</span></span>
+<span><span class="co">#&gt;             &lt;int&gt; &lt;char&gt;        &lt;num&gt; &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt;    1:           1      1      1826.25  0.60 0.89210440</span></span>
+<span><span class="co">#&gt;    2:           1      2      1826.25  0.60 0.09186876</span></span>
+<span><span class="co">#&gt;    3:           1      3      1826.25  0.60 0.65503431</span></span>
+<span><span class="co">#&gt;    4:           1      4      1826.25  0.60 0.34622748</span></span>
+<span><span class="co">#&gt;    5:           1      5      1826.25  0.60 0.13310425</span></span>
+<span><span class="co">#&gt;   ---                                                 </span></span>
+<span><span class="co">#&gt; 1376:           5    272      1826.25  7.25 0.31258148</span></span>
+<span><span class="co">#&gt; 1377:           5    273      1826.25  7.25 0.35478676</span></span>
+<span><span class="co">#&gt; 1378:           5    274      1826.25  7.25 0.41559176</span></span>
+<span><span class="co">#&gt; 1379:           5    275      1826.25  7.25 0.25301890</span></span>
+<span><span class="co">#&gt; 1380:           5    276      1826.25  7.25 0.44533769</span></span></code></pre></div>
 <p>Specify <code>pred_horizon</code> to get ICE at each value:</p>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">ice_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bili</span><span class="op">)</span>,</span>
 <span>                          pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">3000</span>, by <span class="op">=</span> <span class="fl">500</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">ice_train</span></span>
-<span><span class="co">#&gt;       id_variable id_row pred_horizon bili      pred</span></span>
-<span><span class="co">#&gt;    1:           1      1          500 0.60 0.5949598</span></span>
-<span><span class="co">#&gt;    2:           1      1         1000 0.60 0.7652137</span></span>
-<span><span class="co">#&gt;    3:           1      1         1500 0.60 0.8751746</span></span>
-<span><span class="co">#&gt;    4:           1      1         2000 0.60 0.9057135</span></span>
-<span><span class="co">#&gt;    5:           1      1         2500 0.60 0.9231915</span></span>
-<span><span class="co">#&gt;   ---                                               </span></span>
-<span><span class="co">#&gt; 8276:           5    276         1000 7.25 0.2111306</span></span>
-<span><span class="co">#&gt; 8277:           5    276         1500 7.25 0.3642278</span></span>
-<span><span class="co">#&gt; 8278:           5    276         2000 7.25 0.4850492</span></span>
-<span><span class="co">#&gt; 8279:           5    276         2500 7.25 0.5720362</span></span>
-<span><span class="co">#&gt; 8280:           5    276         3000 7.25 0.6206786</span></span></code></pre></div>
+<span><span class="co">#&gt;       id_variable id_row pred_horizon  bili      pred</span></span>
+<span><span class="co">#&gt;             &lt;int&gt; &lt;char&gt;        &lt;num&gt; &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;    1:           1      1          500  0.60 0.5949598</span></span>
+<span><span class="co">#&gt;    2:           1      1         1000  0.60 0.7652137</span></span>
+<span><span class="co">#&gt;    3:           1      1         1500  0.60 0.8751746</span></span>
+<span><span class="co">#&gt;    4:           1      1         2000  0.60 0.9057135</span></span>
+<span><span class="co">#&gt;    5:           1      1         2500  0.60 0.9231915</span></span>
+<span><span class="co">#&gt;   ---                                                </span></span>
+<span><span class="co">#&gt; 8276:           5    276         1000  7.25 0.2111306</span></span>
+<span><span class="co">#&gt; 8277:           5    276         1500  7.25 0.3642278</span></span>
+<span><span class="co">#&gt; 8278:           5    276         2000  7.25 0.4850492</span></span>
+<span><span class="co">#&gt; 8279:           5    276         2500  7.25 0.5720362</span></span>
+<span><span class="co">#&gt; 8280:           5    276         3000  7.25 0.6206786</span></span></code></pre></div>
 <p>Multi-prediction horizon ice comes with minimal extra computational
 cost. Use a fine grid of time values and assess whether predictors have
 time-varying effects.</p>
@@ -884,18 +909,19 @@ to generate ICE curves that go beyond the 90th percentile of
 <span><span class="va">ice_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_oob</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="va">pred_spec</span>, boundary_checks <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ice_oob</span></span>
-<span><span class="co">#&gt;       id_variable id_row pred_horizon bili      pred</span></span>
-<span><span class="co">#&gt;    1:           1      1      1826.25    1 0.8790861</span></span>
-<span><span class="co">#&gt;    2:           1      2      1826.25    1 0.8132035</span></span>
-<span><span class="co">#&gt;    3:           1      3      1826.25    1 0.6240238</span></span>
-<span><span class="co">#&gt;    4:           1      4      1826.25    1 0.7461603</span></span>
-<span><span class="co">#&gt;    5:           1      5      1826.25    1 0.5754091</span></span>
-<span><span class="co">#&gt;   ---                                               </span></span>
-<span><span class="co">#&gt; 6896:          25    272      1826.25   10 0.7018976</span></span>
-<span><span class="co">#&gt; 6897:          25    273      1826.25   10 0.4606246</span></span>
-<span><span class="co">#&gt; 6898:          25    274      1826.25   10 0.3347082</span></span>
-<span><span class="co">#&gt; 6899:          25    275      1826.25   10 0.6046024</span></span>
-<span><span class="co">#&gt; 6900:          25    276      1826.25   10 0.2789017</span></span></code></pre></div>
+<span><span class="co">#&gt;       id_variable id_row pred_horizon  bili      pred</span></span>
+<span><span class="co">#&gt;             &lt;int&gt; &lt;char&gt;        &lt;num&gt; &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;    1:           1      1      1826.25     1 0.8790861</span></span>
+<span><span class="co">#&gt;    2:           1      2      1826.25     1 0.8132035</span></span>
+<span><span class="co">#&gt;    3:           1      3      1826.25     1 0.6240238</span></span>
+<span><span class="co">#&gt;    4:           1      4      1826.25     1 0.7461603</span></span>
+<span><span class="co">#&gt;    5:           1      5      1826.25     1 0.5754091</span></span>
+<span><span class="co">#&gt;   ---                                                </span></span>
+<span><span class="co">#&gt; 6896:          25    272      1826.25    10 0.7018976</span></span>
+<span><span class="co">#&gt; 6897:          25    273      1826.25    10 0.4606246</span></span>
+<span><span class="co">#&gt; 6898:          25    274      1826.25    10 0.3347082</span></span>
+<span><span class="co">#&gt; 6899:          25    275      1826.25    10 0.6046024</span></span>
+<span><span class="co">#&gt; 6900:          25    276      1826.25    10 0.2789017</span></span></code></pre></div>
 <p>For plots, it is helpful to scale the ICE data. I subtract the
 initial value of predicted risk (i.e., when <code>bili = 1</code>) from
 each observation’s conditional expectation values. So,</p>
