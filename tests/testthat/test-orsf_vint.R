@@ -31,3 +31,29 @@ test_that(
 
  }
 )
+
+test_that(
+ desc = "vint succeeds on categorical forests",
+ code = {
+
+  skip_on_cran()
+
+  fit <- orsf(species ~ ., data = penguins_orsf)
+
+  vints <- orsf_vint(fit)
+
+  expect_true(all(levels(penguins_orsf$species) %in% vints$class))
+
+  penguins_bnry <- penguins_orsf
+  penguins_bnry$species <- factor(penguins_bnry$species == "Adelie",
+                                  levels = c(FALSE, TRUE),
+                                  labels = c("Other", "adelie"))
+
+  fit <- orsf(species ~ ., data = penguins_bnry)
+
+  vints <- orsf_vint(fit)
+
+  expect_true(all(levels(penguins_bnry$species) %in% vints$class))
+
+ }
+)
