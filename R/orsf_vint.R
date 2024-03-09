@@ -101,6 +101,8 @@ orsf_vint <- function(object,
  pd$id_intr <- paste(pd$var_1_name, pd$var_2_name, sep = sep)
 
  if(object$tree_type == 'classification'){
+  # better to compute interaction scores on the mean scale if
+  # partial dependence is computed using probabilities
   pd[, mean := log(mean+0.01)]
   pd[, class := paste0(class, "._aorsf.split_")]
  }
@@ -141,7 +143,18 @@ orsf_vint <- function(object,
                                  "\\.\\_aorsf\\.split\\_\\.",
                                  keep = 2L)]
 
-  out <- out[, .(score = mean(score)), by = c('interaction')]
+  pd_split <- lapply(pd_split, function(dt){
+
+   dt[, class := gsub(pattern = "\\._aorsf\\.split_",
+                      replacement = '',
+                      x = class)]
+
+   # inverse transform from log taken above
+   dt[, mean := exp(mean) - 0.01]
+
+   dt
+
+  })
 
  }
 
