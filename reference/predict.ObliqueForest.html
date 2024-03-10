@@ -14,7 +14,7 @@ or tree-specific."><meta property="og:image" content="https://bcjaeger.github.io
     
     <a class="navbar-brand me-2" href="../index.html">aorsf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -193,7 +193,8 @@ used for <code>oobag_pred_horizon</code> when <code>object</code> was created (s
 <h3 id="classification">Classification<a class="anchor" aria-label="anchor" href="#classification"></a></h3>
 
 
-<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">index_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">)</span>, <span class="fl">150</span><span class="op">)</span> </span>
 <span></span>
@@ -206,37 +207,40 @@ used for <code>oobag_pred_horizon</code> when <code>object</code> was created (s
 <p></p><div class="sourceCode r"><pre><code><span><span class="co"># predicted probabilities, the default</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_clsf</span>, </span>
 <span>        new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span>,</span>
-<span>        pred_type <span class="op">=</span> <span class="st">'prob'</span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##         Adelie  Chinstrap      Gentoo</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">## [1,] 0.9405310 0.04121955 0.018249405</span></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">## [2,] 0.9628988 0.03455909 0.002542096</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">## [3,] 0.9032074 0.08510528 0.011687309</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">## [4,] 0.9300133 0.05209040 0.017896329</span></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">## [5,] 0.7965703 0.16243492 0.040994821</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode r"><pre><code><span><span class="co"># predicted class (as a matrix by default)</span></span>
+<span>        pred_type <span class="op">=</span> <span class="st">'prob'</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         Adelie  Chinstrap      Gentoo</span></span>
+<span><span class="co">#&gt; [1,] 0.9405310 0.04121955 0.018249405</span></span>
+<span><span class="co">#&gt; [2,] 0.9628988 0.03455909 0.002542096</span></span>
+<span><span class="co">#&gt; [3,] 0.9032074 0.08510528 0.011687309</span></span>
+<span><span class="co">#&gt; [4,] 0.9300133 0.05209040 0.017896329</span></span>
+<span><span class="co">#&gt; [5,] 0.7965703 0.16243492 0.040994821</span></span>
+<span></span>
+<span><span class="co"># predicted class (as a matrix by default)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_clsf</span>, </span>
 <span>        new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span>,</span>
-<span>        pred_type <span class="op">=</span> <span class="st">'class'</span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##      [,1]</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">## [1,]    1</span></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">## [2,]    1</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">## [3,]    1</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">## [4,]    1</span></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">## [5,]    1</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode r"><pre><code><span><span class="co"># predicted class (as a factor if you use simplify)</span></span>
+<span>        pred_type <span class="op">=</span> <span class="st">'class'</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      [,1]</span></span>
+<span><span class="co">#&gt; [1,]    1</span></span>
+<span><span class="co">#&gt; [2,]    1</span></span>
+<span><span class="co">#&gt; [3,]    1</span></span>
+<span><span class="co">#&gt; [4,]    1</span></span>
+<span><span class="co">#&gt; [5,]    1</span></span>
+<span></span>
+<span><span class="co"># predicted class (as a factor if you use simplify)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_clsf</span>, </span>
 <span>        new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span>,</span>
 <span>        pred_type <span class="op">=</span> <span class="st">'class'</span>,</span>
-<span>        pred_simplify <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">## [1] Adelie Adelie Adelie Adelie Adelie</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">## Levels: Adelie Chinstrap Gentoo</span></span></code></pre><p></p></div>
+<span>        pred_simplify <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] Adelie Adelie Adelie Adelie Adelie</span></span>
+<span><span class="co">#&gt; Levels: Adelie Chinstrap Gentoo</span></span></code></pre><p></p></div>
 </div>
 
 <div class="section">
 <h3 id="regression">Regression<a class="anchor" aria-label="anchor" href="#regression"></a></h3>
 
 
-<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">index_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">)</span>, <span class="fl">150</span><span class="op">)</span> </span>
 <span></span>
@@ -246,15 +250,16 @@ used for <code>oobag_pred_horizon</code> when <code>object</code> was created (s
 <span><span class="va">fit_regr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">penguins_orsf_train</span>, </span>
 <span>                 formula <span class="op">=</span> <span class="va">bill_length_mm</span> <span class="op">~</span> <span class="va">.</span><span class="op">)</span></span></code></pre><p></p></div>
 <p>Predict the mean value of the outcome:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
 <span>        new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span>, </span>
-<span>        pred_type <span class="op">=</span> <span class="st">'mean'</span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##          [,1]</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">## [1,] 37.74136</span></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">## [2,] 37.42367</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">## [3,] 37.04598</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">## [4,] 39.89602</span></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">## [5,] 39.14848</span></span></code></pre><p></p></div>
+<span>        pred_type <span class="op">=</span> <span class="st">'mean'</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          [,1]</span></span>
+<span><span class="co">#&gt; [1,] 37.74136</span></span>
+<span><span class="co">#&gt; [2,] 37.42367</span></span>
+<span><span class="co">#&gt; [3,] 37.04598</span></span>
+<span><span class="co">#&gt; [4,] 39.89602</span></span>
+<span><span class="co">#&gt; [5,] 39.14848</span></span></code></pre><p></p></div>
 </div>
 
 <div class="section">
@@ -262,7 +267,8 @@ used for <code>oobag_pred_horizon</code> when <code>object</code> was created (s
 
 
 <p>Begin by fitting an oblique survival random forest:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">index_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">pbc_orsf</span><span class="op">)</span>, <span class="fl">150</span><span class="op">)</span> </span>
 <span></span>
@@ -273,53 +279,57 @@ used for <code>oobag_pred_horizon</code> when <code>object</code> was created (s
 <span>                 formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">id</span>,</span>
 <span>                 oobag_pred_horizon <span class="op">=</span> <span class="fl">365.25</span> <span class="op">*</span> <span class="fl">5</span><span class="op">)</span></span></code></pre><p></p></div>
 <p>Predict risk, survival, or cumulative hazard at one or several times:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="co"># predicted risk, the default</span></span>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="co"># predicted risk, the default</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_surv</span>, </span>
 <span>        new_data <span class="op">=</span> <span class="va">pbc_orsf_test</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span>, </span>
 <span>        pred_type <span class="op">=</span> <span class="st">'risk'</span>, </span>
-<span>        pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1000</span>, <span class="fl">1500</span><span class="op">)</span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##             [,1]        [,2]       [,3]</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">## [1,] 0.013648562 0.058393393 0.11184029</span></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">## [2,] 0.003811413 0.026857586 0.04774151</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">## [3,] 0.030548361 0.100600301 0.14847107</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">## [4,] 0.040381075 0.169596943 0.27018952</span></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">## [5,] 0.001484698 0.006663576 0.01337655</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode r"><pre><code><span><span class="co"># predicted survival, i.e., 1 - risk</span></span>
+<span>        pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1000</span>, <span class="fl">1500</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;             [,1]        [,2]       [,3]</span></span>
+<span><span class="co">#&gt; [1,] 0.013648562 0.058393393 0.11184029</span></span>
+<span><span class="co">#&gt; [2,] 0.003811413 0.026857586 0.04774151</span></span>
+<span><span class="co">#&gt; [3,] 0.030548361 0.100600301 0.14847107</span></span>
+<span><span class="co">#&gt; [4,] 0.040381075 0.169596943 0.27018952</span></span>
+<span><span class="co">#&gt; [5,] 0.001484698 0.006663576 0.01337655</span></span>
+<span></span>
+<span><span class="co"># predicted survival, i.e., 1 - risk</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_surv</span>, </span>
 <span>        new_data <span class="op">=</span> <span class="va">pbc_orsf_test</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span>, </span>
 <span>        pred_type <span class="op">=</span> <span class="st">'surv'</span>,</span>
-<span>        pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1000</span>, <span class="fl">1500</span><span class="op">)</span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##           [,1]      [,2]      [,3]</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">## [1,] 0.9863514 0.9416066 0.8881597</span></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">## [2,] 0.9961886 0.9731424 0.9522585</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">## [3,] 0.9694516 0.8993997 0.8515289</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">## [4,] 0.9596189 0.8304031 0.7298105</span></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">## [5,] 0.9985153 0.9933364 0.9866235</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode r"><pre><code><span><span class="co"># predicted cumulative hazard function</span></span>
+<span>        pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1000</span>, <span class="fl">1500</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;           [,1]      [,2]      [,3]</span></span>
+<span><span class="co">#&gt; [1,] 0.9863514 0.9416066 0.8881597</span></span>
+<span><span class="co">#&gt; [2,] 0.9961886 0.9731424 0.9522585</span></span>
+<span><span class="co">#&gt; [3,] 0.9694516 0.8993997 0.8515289</span></span>
+<span><span class="co">#&gt; [4,] 0.9596189 0.8304031 0.7298105</span></span>
+<span><span class="co">#&gt; [5,] 0.9985153 0.9933364 0.9866235</span></span>
+<span></span>
+<span><span class="co"># predicted cumulative hazard function</span></span>
 <span><span class="co"># (expected number of events for person i at time j)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_surv</span>, </span>
 <span>        new_data <span class="op">=</span> <span class="va">pbc_orsf_test</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span>, </span>
 <span>        pred_type <span class="op">=</span> <span class="st">'chf'</span>,</span>
-<span>        pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1000</span>, <span class="fl">1500</span><span class="op">)</span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##             [,1]        [,2]       [,3]</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">## [1,] 0.015395388 0.067815817 0.14942956</span></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">## [2,] 0.004022524 0.028740305 0.05424314</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">## [3,] 0.034832754 0.127687156 0.20899732</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">## [4,] 0.059978334 0.233048809 0.42562310</span></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">## [5,] 0.001651365 0.007173177 0.01393016</span></span></code></pre><p></p></div>
+<span>        pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">1000</span>, <span class="fl">1500</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;             [,1]        [,2]       [,3]</span></span>
+<span><span class="co">#&gt; [1,] 0.015395388 0.067815817 0.14942956</span></span>
+<span><span class="co">#&gt; [2,] 0.004022524 0.028740305 0.05424314</span></span>
+<span><span class="co">#&gt; [3,] 0.034832754 0.127687156 0.20899732</span></span>
+<span><span class="co">#&gt; [4,] 0.059978334 0.233048809 0.42562310</span></span>
+<span><span class="co">#&gt; [5,] 0.001651365 0.007173177 0.01393016</span></span></code></pre><p></p></div>
 <p>Predict mortality, defined as the number of events in the forest’s
 population if all observations had characteristics like the current
 observation. This type of prediction does not require you to specify a
 prediction horizon</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_surv</span>, </span>
+<p></p><div class="sourceCode r"><pre><code><span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_surv</span>, </span>
 <span>        new_data <span class="op">=</span> <span class="va">pbc_orsf_test</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span>, </span>
-<span>        pred_type <span class="op">=</span> <span class="st">'mort'</span><span class="op">)</span></span></code></pre><p></p></div>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##           [,1]</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">## [1,] 23.405016</span></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">## [2,] 15.362916</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">## [3,] 26.180648</span></span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">## [4,] 36.515629</span></span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">## [5,]  5.856674</span></span></code></pre><p></p></div>
+<span>        pred_type <span class="op">=</span> <span class="st">'mort'</span><span class="op">)</span></span>
+<span><span class="co">#&gt;           [,1]</span></span>
+<span><span class="co">#&gt; [1,] 23.405016</span></span>
+<span><span class="co">#&gt; [2,] 15.362916</span></span>
+<span><span class="co">#&gt; [3,] 26.180648</span></span>
+<span><span class="co">#&gt; [4,] 36.515629</span></span>
+<span><span class="co">#&gt; [5,]  5.856674</span></span></code></pre><p></p></div>
 </div>
 
     </div>
