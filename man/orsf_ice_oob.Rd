@@ -154,7 +154,8 @@ model’s reliability or fairness.
 
 Begin by fitting an oblique classification random forest:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+set.seed(329)
 
 index_train <- sample(nrow(penguins_orsf), 150) 
 
@@ -168,27 +169,26 @@ fit_clsf <- orsf(data = penguins_orsf_train,
 Compute individual conditional expectation using out-of-bag data for
 \code{flipper_length_mm = c(190, 210)}.
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{pred_spec <- list(flipper_length_mm = c(190, 210))
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+pred_spec <- list(flipper_length_mm = c(190, 210))
 
 ice_oob <- orsf_ice_oob(fit_clsf, pred_spec = pred_spec)
 
 ice_oob
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## Key: <class>
-##      id_variable id_row  class flipper_length_mm       pred
-##            <int> <char> <fctr>             <num>      <num>
-##   1:           1      1 Adelie               190 0.92169247
-##   2:           1      2 Adelie               190 0.80944657
-##   3:           1      3 Adelie               190 0.85172955
-##   4:           1      4 Adelie               190 0.93559327
-##   5:           1      5 Adelie               190 0.97708693
-##  ---                                                       
-## 896:           2    146 Gentoo               210 0.26092984
-## 897:           2    147 Gentoo               210 0.04798334
-## 898:           2    148 Gentoo               210 0.07927359
-## 899:           2    149 Gentoo               210 0.84779971
-## 900:           2    150 Gentoo               210 0.11105143
+#> Key: <class>
+#>      id_variable id_row  class flipper_length_mm       pred
+#>            <int> <char> <fctr>             <num>      <num>
+#>   1:           1      1 Adelie               190 0.92169247
+#>   2:           1      2 Adelie               190 0.80944657
+#>   3:           1      3 Adelie               190 0.85172955
+#>   4:           1      4 Adelie               190 0.93559327
+#>   5:           1      5 Adelie               190 0.97708693
+#>  ---                                                       
+#> 896:           2    146 Gentoo               210 0.26092984
+#> 897:           2    147 Gentoo               210 0.04798334
+#> 898:           2    148 Gentoo               210 0.07927359
+#> 899:           2    149 Gentoo               210 0.84779971
+#> 900:           2    150 Gentoo               210 0.11105143
 }\if{html}{\out{</div>}}
 
 There are two identifiers in the output:
@@ -203,14 +203,13 @@ Note that predicted probabilities are returned for each class and each
 observation in the data. Predicted probabilities for a given observation
 and given variable value sum to 1. For example,
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{ice_oob \%>\%
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+ice_oob \%>\%
  .[flipper_length_mm == 190] \%>\% 
  .[id_row == 1] \%>\% 
  .[['pred']] \%>\% 
  sum()
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 1
+#> [1] 1
 }\if{html}{\out{</div>}}
 }
 
@@ -218,7 +217,8 @@ and given variable value sum to 1. For example,
 
 Begin by fitting an oblique regression random forest:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+set.seed(329)
 
 index_train <- sample(nrow(penguins_orsf), 150) 
 
@@ -232,87 +232,85 @@ fit_regr <- orsf(data = penguins_orsf_train,
 Compute individual conditional expectation using new data for
 \code{flipper_length_mm = c(190, 210)}.
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{pred_spec <- list(flipper_length_mm = c(190, 210))
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+pred_spec <- list(flipper_length_mm = c(190, 210))
 
 ice_new <- orsf_ice_new(fit_regr, 
                         pred_spec = pred_spec,
                         new_data = penguins_orsf_test)
 
 ice_new
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##      id_variable id_row flipper_length_mm     pred
-##            <int> <char>             <num>    <num>
-##   1:           1      1               190 37.94483
-##   2:           1      2               190 37.61595
-##   3:           1      3               190 37.53681
-##   4:           1      4               190 39.49476
-##   5:           1      5               190 38.95635
-##  ---                                              
-## 362:           2    179               210 51.80471
-## 363:           2    180               210 47.27183
-## 364:           2    181               210 47.05031
-## 365:           2    182               210 50.39028
-## 366:           2    183               210 48.44774
+#>      id_variable id_row flipper_length_mm     pred
+#>            <int> <char>             <num>    <num>
+#>   1:           1      1               190 37.94483
+#>   2:           1      2               190 37.61595
+#>   3:           1      3               190 37.53681
+#>   4:           1      4               190 39.49476
+#>   5:           1      5               190 38.95635
+#>  ---                                              
+#> 362:           2    179               210 51.80471
+#> 363:           2    180               210 47.27183
+#> 364:           2    181               210 47.05031
+#> 365:           2    182               210 50.39028
+#> 366:           2    183               210 48.44774
 }\if{html}{\out{</div>}}
 
 You can also let \code{pred_spec_auto} pick reasonable values like so:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{pred_spec = pred_spec_auto(species, island, body_mass_g)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+pred_spec = pred_spec_auto(species, island, body_mass_g)
 
 ice_new <- orsf_ice_new(fit_regr, 
                         pred_spec = pred_spec,
                         new_data = penguins_orsf_test)
 
 ice_new
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row species    island body_mass_g     pred
-##             <int> <char>  <fctr>    <fctr>       <num>    <num>
-##    1:           1      1  Adelie    Biscoe        3200 37.78339
-##    2:           1      2  Adelie    Biscoe        3200 37.73273
-##    3:           1      3  Adelie    Biscoe        3200 37.71248
-##    4:           1      4  Adelie    Biscoe        3200 40.25782
-##    5:           1      5  Adelie    Biscoe        3200 40.04074
-##   ---                                                          
-## 8231:          45    179  Gentoo Torgersen        5300 46.14559
-## 8232:          45    180  Gentoo Torgersen        5300 43.98050
-## 8233:          45    181  Gentoo Torgersen        5300 44.59837
-## 8234:          45    182  Gentoo Torgersen        5300 44.85146
-## 8235:          45    183  Gentoo Torgersen        5300 44.23710
+#>       id_variable id_row species    island body_mass_g     pred
+#>             <int> <char>  <fctr>    <fctr>       <num>    <num>
+#>    1:           1      1  Adelie    Biscoe        3200 37.78339
+#>    2:           1      2  Adelie    Biscoe        3200 37.73273
+#>    3:           1      3  Adelie    Biscoe        3200 37.71248
+#>    4:           1      4  Adelie    Biscoe        3200 40.25782
+#>    5:           1      5  Adelie    Biscoe        3200 40.04074
+#>   ---                                                          
+#> 8231:          45    179  Gentoo Torgersen        5300 46.14559
+#> 8232:          45    180  Gentoo Torgersen        5300 43.98050
+#> 8233:          45    181  Gentoo Torgersen        5300 44.59837
+#> 8234:          45    182  Gentoo Torgersen        5300 44.85146
+#> 8235:          45    183  Gentoo Torgersen        5300 44.23710
 }\if{html}{\out{</div>}}
 
 By default, all combinations of all variables are used. However, you can
 also look at the variables one by one, separately, like so:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{ice_new <- orsf_ice_new(fit_regr, 
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+ice_new <- orsf_ice_new(fit_regr, 
                         expand_grid = FALSE,
                         pred_spec = pred_spec,
                         new_data = penguins_orsf_test)
 
 ice_new
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row    variable value  level     pred
-##             <int> <char>      <char> <num> <char>    <num>
-##    1:           1      1     species    NA Adelie 37.74136
-##    2:           1      2     species    NA Adelie 37.42367
-##    3:           1      3     species    NA Adelie 37.04598
-##    4:           1      4     species    NA Adelie 39.89602
-##    5:           1      5     species    NA Adelie 39.14848
-##   ---                                                     
-## 2009:           5    179 body_mass_g  5300   <NA> 51.50196
-## 2010:           5    180 body_mass_g  5300   <NA> 47.27055
-## 2011:           5    181 body_mass_g  5300   <NA> 48.34064
-## 2012:           5    182 body_mass_g  5300   <NA> 48.75828
-## 2013:           5    183 body_mass_g  5300   <NA> 48.11020
+#>       id_variable id_row    variable value  level     pred
+#>             <int> <char>      <char> <num> <char>    <num>
+#>    1:           1      1     species    NA Adelie 37.74136
+#>    2:           1      2     species    NA Adelie 37.42367
+#>    3:           1      3     species    NA Adelie 37.04598
+#>    4:           1      4     species    NA Adelie 39.89602
+#>    5:           1      5     species    NA Adelie 39.14848
+#>   ---                                                     
+#> 2009:           5    179 body_mass_g  5300   <NA> 51.50196
+#> 2010:           5    180 body_mass_g  5300   <NA> 47.27055
+#> 2011:           5    181 body_mass_g  5300   <NA> 48.34064
+#> 2012:           5    182 body_mass_g  5300   <NA> 48.75828
+#> 2013:           5    183 body_mass_g  5300   <NA> 48.11020
 }\if{html}{\out{</div>}}
 
 And you can also bypass all the bells and whistles by using your own
 \code{data.frame} for a \code{pred_spec}. (Just make sure you request values that
 exist in the training data.)
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{custom_pred_spec <- data.frame(species = 'Adelie', 
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+custom_pred_spec <- data.frame(species = 'Adelie', 
                                island = 'Biscoe')
 
 ice_new <- orsf_ice_new(fit_regr, 
@@ -320,21 +318,19 @@ ice_new <- orsf_ice_new(fit_regr,
                         new_data = penguins_orsf_test)
 
 ice_new
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##      id_variable id_row species island     pred
-##            <int> <char>  <fctr> <fctr>    <num>
-##   1:           1      1  Adelie Biscoe 38.52327
-##   2:           1      2  Adelie Biscoe 38.32073
-##   3:           1      3  Adelie Biscoe 37.71248
-##   4:           1      4  Adelie Biscoe 41.68380
-##   5:           1      5  Adelie Biscoe 40.91140
-##  ---                                           
-## 179:           1    179  Adelie Biscoe 43.09493
-## 180:           1    180  Adelie Biscoe 38.79455
-## 181:           1    181  Adelie Biscoe 39.37734
-## 182:           1    182  Adelie Biscoe 40.71952
-## 183:           1    183  Adelie Biscoe 39.34501
+#>      id_variable id_row species island     pred
+#>            <int> <char>  <fctr> <fctr>    <num>
+#>   1:           1      1  Adelie Biscoe 38.52327
+#>   2:           1      2  Adelie Biscoe 38.32073
+#>   3:           1      3  Adelie Biscoe 37.71248
+#>   4:           1      4  Adelie Biscoe 41.68380
+#>   5:           1      5  Adelie Biscoe 40.91140
+#>  ---                                           
+#> 179:           1    179  Adelie Biscoe 43.09493
+#> 180:           1    180  Adelie Biscoe 38.79455
+#> 181:           1    181  Adelie Biscoe 39.37734
+#> 182:           1    182  Adelie Biscoe 40.71952
+#> 183:           1    183  Adelie Biscoe 39.34501
 }\if{html}{\out{</div>}}
 }
 
@@ -342,7 +338,8 @@ ice_new
 
 Begin by fitting an oblique survival random forest:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+set.seed(329)
 
 index_train <- sample(nrow(pbc_orsf), 150) 
 
@@ -359,21 +356,19 @@ Compute individual conditional expectation using in-bag data for
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{ice_train <- orsf_ice_inb(fit_surv, pred_spec = list(bili = 1:5))
 ice_train
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##      id_variable id_row pred_horizon  bili      pred
-##            <int> <char>        <num> <num>     <num>
-##   1:           1      1      1826.25     1 0.1290317
-##   2:           1      2      1826.25     1 0.1242352
-##   3:           1      3      1826.25     1 0.0963452
-##   4:           1      4      1826.25     1 0.1172367
-##   5:           1      5      1826.25     1 0.2030256
-##  ---                                                
-## 746:           5    146      1826.25     5 0.7868537
-## 747:           5    147      1826.25     5 0.2012954
-## 748:           5    148      1826.25     5 0.4893605
-## 749:           5    149      1826.25     5 0.4698220
-## 750:           5    150      1826.25     5 0.9557285
+#>      id_variable id_row pred_horizon  bili      pred
+#>            <int> <char>        <num> <num>     <num>
+#>   1:           1      1      1826.25     1 0.1290317
+#>   2:           1      2      1826.25     1 0.1242352
+#>   3:           1      3      1826.25     1 0.0963452
+#>   4:           1      4      1826.25     1 0.1172367
+#>   5:           1      5      1826.25     1 0.2030256
+#>  ---                                                
+#> 746:           5    146      1826.25     5 0.7868537
+#> 747:           5    147      1826.25     5 0.2012954
+#> 748:           5    148      1826.25     5 0.4893605
+#> 749:           5    149      1826.25     5 0.4698220
+#> 750:           5    150      1826.25     5 0.9557285
 }\if{html}{\out{</div>}}
 
 If you don’t have specific values of a variable in mind, let
@@ -381,44 +376,41 @@ If you don’t have specific values of a variable in mind, let
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{ice_train <- orsf_ice_inb(fit_surv, pred_spec_auto(bili))
 ice_train
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##      id_variable id_row pred_horizon  bili       pred
-##            <int> <char>        <num> <num>      <num>
-##   1:           1      1      1826.25  0.55 0.11728559
-##   2:           1      2      1826.25  0.55 0.11728839
-##   3:           1      3      1826.25  0.55 0.08950739
-##   4:           1      4      1826.25  0.55 0.10064959
-##   5:           1      5      1826.25  0.55 0.18736417
-##  ---                                                 
-## 746:           5    146      1826.25  7.25 0.82600898
-## 747:           5    147      1826.25  7.25 0.29156437
-## 748:           5    148      1826.25  7.25 0.58395919
-## 749:           5    149      1826.25  7.25 0.54202021
-## 750:           5    150      1826.25  7.25 0.96391985
+#>      id_variable id_row pred_horizon  bili       pred
+#>            <int> <char>        <num> <num>      <num>
+#>   1:           1      1      1826.25  0.55 0.11728559
+#>   2:           1      2      1826.25  0.55 0.11728839
+#>   3:           1      3      1826.25  0.55 0.08950739
+#>   4:           1      4      1826.25  0.55 0.10064959
+#>   5:           1      5      1826.25  0.55 0.18736417
+#>  ---                                                 
+#> 746:           5    146      1826.25  7.25 0.82600898
+#> 747:           5    147      1826.25  7.25 0.29156437
+#> 748:           5    148      1826.25  7.25 0.58395919
+#> 749:           5    149      1826.25  7.25 0.54202021
+#> 750:           5    150      1826.25  7.25 0.96391985
 }\if{html}{\out{</div>}}
 
 Specify \code{pred_horizon} to get individual conditional expectation at each
 value:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{ice_train <- orsf_ice_inb(fit_surv, pred_spec_auto(bili),
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{
+ice_train <- orsf_ice_inb(fit_surv, pred_spec_auto(bili),
                           pred_horizon = seq(500, 3000, by = 500))
 ice_train
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##       id_variable id_row pred_horizon  bili        pred
-##             <int> <char>        <num> <num>       <num>
-##    1:           1      1          500  0.55 0.008276627
-##    2:           1      1         1000  0.55 0.055724516
-##    3:           1      1         1500  0.55 0.085091120
-##    4:           1      1         2000  0.55 0.123423352
-##    5:           1      1         2500  0.55 0.166380739
-##   ---                                                  
-## 4496:           5    150         1000  7.25 0.837774757
-## 4497:           5    150         1500  7.25 0.934536379
-## 4498:           5    150         2000  7.25 0.967823286
-## 4499:           5    150         2500  7.25 0.972059574
-## 4500:           5    150         3000  7.25 0.980785643
+#>       id_variable id_row pred_horizon  bili        pred
+#>             <int> <char>        <num> <num>       <num>
+#>    1:           1      1          500  0.55 0.008276627
+#>    2:           1      1         1000  0.55 0.055724516
+#>    3:           1      1         1500  0.55 0.085091120
+#>    4:           1      1         2000  0.55 0.123423352
+#>    5:           1      1         2500  0.55 0.166380739
+#>   ---                                                  
+#> 4496:           5    150         1000  7.25 0.837774757
+#> 4497:           5    150         1500  7.25 0.934536379
+#> 4498:           5    150         2000  7.25 0.967823286
+#> 4499:           5    150         2500  7.25 0.972059574
+#> 4500:           5    150         3000  7.25 0.980785643
 }\if{html}{\out{</div>}}
 
 Multi-prediction horizon ice comes with minimal extra computational
