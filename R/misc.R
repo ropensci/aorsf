@@ -126,6 +126,21 @@ has_units <- function(x){
 contains_vi <- function(object) {!is_empty(object$importance)}
 
 
+#' Restricted mean survival time
+#'
+#' @param probs vector of survival probs
+#' @param times vector of event times
+#'
+#' @return a double
+#' @noRd
+#'
+rmst <- function(probs, times){
+
+ diffs <- collapse::fdiff(times)
+ diffs[1] <- times[1]
+ collapse::fsum(diffs * probs)
+
+}
 
 #' beautify time
 #'
