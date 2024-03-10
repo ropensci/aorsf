@@ -3108,10 +3108,14 @@ ObliqueForest <- R6::R6Class(
                          "prob"  = 6,
                          "class" = 7,
                          "leaf"  = 8,
-                         "time"  = 9),
+                         "time"  = 2), # time=2 is not a typo
     pred_mode = .dots$pred_mode %||% FALSE,
     pred_aggregate = .dots$pred_aggregate %||% (self$pred_type != 'leaf'),
-    pred_horizon = .dots$pred_horizon %||% self$pred_horizon %||% 1,
+    pred_horizon = if(self$pred_type == 'time'){
+     self$event_times
+    } else {
+     .dots$pred_horizon %||% self$pred_horizon %||% 1
+    },
     oobag = .dots$oobag %||% self$oobag_pred_mode,
     oobag_R_function = .dots$oobag_eval_function %||% self$oobag_eval_function,
     oobag_eval_type_R = switch(
@@ -3282,7 +3286,8 @@ ObliqueForestSurvival <- R6::R6Class(
 
   leaf_min_events = NULL,
   split_min_events = NULL,
-  pred_horizon = NULL
+  pred_horizon = NULL,
+  event_times = NULL
 
  ),
 
@@ -3579,6 +3584,10 @@ ObliqueForestSurvival <- R6::R6Class(
    private$max_time <- y[last_value(private$data_row_sort), 1]
    # boundary check for event-based tree parameters
    private$n_events <- collapse::fsum(y[, 2])
+   # unique event times sorted in ascending order
+   self$event_times <- sort(collapse::funique(
+    y[[1]][collapse::whichv(x = y[[2]], value = 1)]
+   ), decreasing = FALSE)
 
    # if pred_horizon is unspecified, provide sensible default
    # if it is specified, check for correctness
@@ -3755,9 +3764,23 @@ ObliqueForestSurvival <- R6::R6Class(
    unsorted <- collapse::radixorder(private$data_row_sort)
    self$pred_oobag <- self$pred_oobag[unsorted, , drop = FALSE]
 
-   # mortality predictions should always be 1 column
+   if(self$pred_type == 'time'){
+
+    self$eval_oobag$stat_values <-
+     self$eval_oobag$stat_values[, ncol(self$pred_oobag), drop = FALSE]
+
+    self$pred_oobag <- apply(self$pred_oobag,
+                             MARGIN = 1,
+                             FUN = rmst,
+                             times = self$event_times)
+
+    self$pred_oobag <- collapse::qM(self$pred_oobag)
+
+   }
+
+   # these predictions should always be 1 column
    # b/c they do not depend on the prediction horizon
-   if(self$pred_type %in% c('mort', 'time')){
+   if(self$pred_type == 'mort'){
 
     self$eval_oobag$stat_values <-
      self$eval_oobag$stat_values[, 1L, drop = FALSE]
@@ -3768,6 +3791,16 @@ ObliqueForestSurvival <- R6::R6Class(
 
   },
   clean_pred_new_internal = function(preds){
+
+   if(self$pred_type == 'time'){
+
+    preds <- apply(preds,
+                   MARGIN = 1,
+                   FUN = rmst,
+                   times = self$event_times)
+    preds <- collapse::qM(preds)
+
+   }
 
    # don't let multiple pred horizon values through for mort
    if(self$pred_type %in% c('mort', 'time')){

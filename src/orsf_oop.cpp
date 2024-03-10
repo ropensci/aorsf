@@ -452,6 +452,11 @@ double compute_mse_exported(arma::vec& y,
 
   case TREE_SURVIVAL:
 
+   // if(pred_type == PRED_TIME){
+   //  pred_type = PRED_SURVIVAL;
+   //  pred_horizon = find_unique_event_times();
+   // }
+
    forest = std::make_unique<ForestSurvival>(leaf_min_events,
                                              split_min_events,
                                              pred_horizon);

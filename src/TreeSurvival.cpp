@@ -562,43 +562,21 @@
 
    } case PRED_TIME: {
 
-    // believe it or not this method seems to be more accurate
-    // than the traditional one commented out beneath it.
-    temp_vec.fill(median(leaf_times));
+    // restricted mean survival time
 
-    // // does the kaplan meier in this node go below 50% chance of survival?
-    // uvec prob_lt_50 = find(leaf_pred_prob[leaf_id] <= 0.5);
-    //
-    // // If yes, then find the time it crosses
-    // if(prob_lt_50.size() >= 1){
-    //
-    //  // index of the first instance where survival prob is < 50
-    //  uword first_row_50 = prob_lt_50[0];
-    //
-    //  // if the survival prob here is exactly 50, or if
-    //  // there is no predicted probability before this point,
-    //  // do nothing.
-    //
-    //  // otherwise, use the predicted time just before the survival
-    //  // probability dips below 50% (think about how kaplan meiers look)
-    //  double tmp_prob = leaf_pred_prob[leaf_id][first_row_50];
-    //
-    //  if(first_row_50 > 0 && tmp_prob < 0.5) first_row_50--;
-    //
-    //  // use the time value at this specific index
-    //  double time_value = leaf_times[first_row_50];
-    //
-    //  temp_vec.fill(time_value);
-    //
-    // } else {
-    //
-    //  // if the probability of survival never goes below 50%,
-    //  // then it is more likely that the observation's time is
-    //  // greater than the max time of this node. For simplicity,
-    //  // use the max time as the prediction.
-    //  temp_vec.fill(leaf_times[leaf_times.size()-1]);
-    //
-    // }
+    leaf_values = vec(leaf_pred_prob[leaf_id].begin(),
+                      leaf_pred_prob[leaf_id].size(),
+                      false);
+
+    double result = leaf_times[0] * leaf_values[0];
+
+    for(uword i = 1; i < leaf_times.size(); i++){
+
+     result += (leaf_times[i] - leaf_times[i-1]) * leaf_values[i];
+
+    }
+
+    temp_vec.fill(result);
 
     break;
 
