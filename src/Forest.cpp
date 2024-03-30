@@ -533,19 +533,16 @@ std::vector<std::vector<arma::mat>> Forest::compute_dependence(bool oobag){
 
   std::vector<std::thread> threads;
   std::vector<std::vector<std::vector<mat>>> result_threads(n_thread);
-  std::vector<vec> oobag_denom_threads(n_thread);
 
   threads.reserve(n_thread);
 
   for (uint i = 0; i < n_thread; ++i) {
 
    resize_pd_mats(result_threads[i]);
-   if(oobag) oobag_denom_threads[i].zeros(data->n_rows);
 
    threads.emplace_back(&Forest::compute_dependence_multi_thread,
                         this, i, data.get(), oobag,
-                        std::ref(result_threads[i]),
-                        std::ref(oobag_denom_threads[i]));
+                        std::ref(result_threads[i]));
   }
 
   if(verbosity == 1){
@@ -617,7 +614,7 @@ void Forest::compute_dependence_single_thread(
 
   trees[i] -> compute_dependence(prediction_data, result,
                                  pd_type, pd_x_vals, pd_x_cols,
-                                 oobag_denom, oobag);
+                                 oobag);
 
   progress++;
 
@@ -666,8 +663,7 @@ void Forest::compute_dependence_multi_thread(
   uint thread_idx,
   Data* prediction_data,
   bool oobag,
-  std::vector<std::vector<arma::mat>>& result_ptr,
-  arma::vec& denom_ptr
+  std::vector<std::vector<arma::mat>>& result_ptr
 ){
 
  if (thread_ranges.size() > thread_idx + 1) {
@@ -676,7 +672,7 @@ void Forest::compute_dependence_multi_thread(
 
    trees[i] -> compute_dependence(prediction_data, result_ptr,
                                   pd_type, pd_x_vals, pd_x_cols,
-                                  denom_ptr, oobag);
+                                  oobag);
 
    // Check for user interrupt
    if (aborted) {
@@ -720,19 +716,16 @@ mat Forest::predict(bool oobag) {
 
   std::vector<std::thread> threads;
   std::vector<mat> result_threads(n_thread);
-  std::vector<vec> oobag_denom_threads(n_thread);
 
   threads.reserve(n_thread);
 
   for (uint i = 0; i < n_thread; ++i) {
 
    resize_pred_mat(result_threads[i], data->n_rows);
-   if(oobag) oobag_denom_threads[i].zeros(data->n_rows);
 
    threads.emplace_back(&Forest::predict_multi_thread,
                         this, i, data.get(), oobag,
-                        std::ref(result_threads[i]),
-                        std::ref(oobag_denom_threads[i]));
+                        std::ref(result_threads[i]));
   }
 
   if(verbosity == 1){
@@ -752,8 +745,6 @@ mat Forest::predict(bool oobag) {
 
    if(oobag){
 
-    oobag_denom += oobag_denom_threads[i];
-
     // evaluate oobag error after joining each thread
     // (only safe to do this when the condition below holds)
     if(grow_mode &&
@@ -772,7 +763,6 @@ mat Forest::predict(bool oobag) {
   }
 
   result_threads.clear();
-  oobag_denom_threads.clear();
 
  }
 
@@ -840,12 +830,12 @@ void Forest::predict_single_thread(Data* prediction_data,
   } else if (!pred_aggregate){
 
    vec col_i = result.unsafe_col(i);
-   trees[i]->predict_value(col_i, oobag_denom, pred_type, oobag);
+   trees[i]->predict_value(col_i, pred_type, oobag);
 
 
   } else {
 
-   trees[i]->predict_value(result, oobag_denom, pred_type, oobag);
+   trees[i]->predict_value(result, pred_type, oobag);
 
   }
 
@@ -897,8 +887,7 @@ void Forest::predict_single_thread(Data* prediction_data,
 void Forest::predict_multi_thread(uint thread_idx,
                                   Data* prediction_data,
                                   bool oobag,
-                                  mat& result_ptr,
-                                  vec& denom_ptr) {
+                                  mat& result_ptr) {
 
  if (thread_ranges.size() > thread_idx + 1) {
 
@@ -913,11 +902,11 @@ void Forest::predict_multi_thread(uint thread_idx,
    } else if (!pred_aggregate){
 
     vec col_i = result_ptr.unsafe_col(i);
-    trees[i]->predict_value(col_i, denom_ptr, pred_type, oobag);
+    trees[i]->predict_value(col_i, pred_type, oobag);
 
    } else {
 
-    trees[i]->predict_value(result_ptr, denom_ptr, pred_type, oobag);
+    trees[i]->predict_value(result_ptr, pred_type, oobag);
 
    }
 

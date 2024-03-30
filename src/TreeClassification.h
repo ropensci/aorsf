@@ -45,7 +45,6 @@
 
   arma::uword predict_value_internal(arma::uvec& pred_leaf_sort,
                                      arma::mat& pred_output,
-                                     arma::vec& pred_denom,
                                      PredType pred_type,
                                      bool oobag) override;
 

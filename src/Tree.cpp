@@ -756,7 +756,6 @@
                                PartialDepType pd_type,
                                std::vector<arma::mat>& pd_x_vals,
                                std::vector<arma::uvec>& pd_x_cols,
-                               arma::vec& oobag_denom,
                                bool oobag) {
 
   // a spec is a mat of x-values and umat of x-columns
@@ -793,7 +792,7 @@
     }
 
     predict_leaf(prediction_data, oobag, x_val_vec, pd_x_cols[k]);
-    predict_value(result[k][j], oobag_denom, pred_type, oobag);
+    predict_value(result[k][j], pred_type, oobag);
 
    }
 
@@ -1285,7 +1284,6 @@
  }
 
  void Tree::predict_value(arma::mat& pred_output,
-                          arma::vec& pred_denom,
                           PredType   pred_type,
                           bool       oobag){
 
@@ -1306,7 +1304,6 @@
 
   uword n_preds_made = predict_value_internal(pred_leaf_sort,
                                               pred_output,
-                                              pred_denom,
                                               pred_type,
                                               oobag);
 

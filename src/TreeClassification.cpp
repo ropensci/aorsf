@@ -99,7 +99,6 @@
  arma::uword TreeClassification::predict_value_internal(
    arma::uvec& pred_leaf_sort,
    arma::mat& pred_output,
-   arma::vec& pred_denom,
    PredType pred_type,
    bool oobag
  ){
@@ -128,8 +127,6 @@
      n_preds_made++;
     }
 
-    // if(oobag) pred_denom[it]++;
-
    }
 
   } else if(pred_type == PRED_CLASS){
@@ -151,8 +148,6 @@
      pred_output.at(it, 0) = leaf_summary[leaf_id];
      n_preds_made++;
     }
-
-    // if(oobag) pred_denom[it]++;
 
    }
 

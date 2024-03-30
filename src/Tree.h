@@ -104,13 +104,11 @@
                     arma::uvec& pd_x_cols);
 
   void predict_value(arma::mat& pred_output,
-                     arma::vec& pred_denom,
                      PredType pred_type,
                      bool oobag);
 
   virtual arma::uword predict_value_internal(arma::uvec& pred_leaf_sort,
                                              arma::mat& pred_output,
-                                             arma::vec& pred_denom,
                                              PredType pred_type,
                                              bool oobag) = 0;
 
@@ -123,7 +121,6 @@
                           PartialDepType pd_type,
                           std::vector<arma::mat>& pd_x_vals,
                           std::vector<arma::uvec>& pd_x_cols,
-                          arma::vec& oobag_denom,
                           bool oobag);
 
   std::vector<arma::uvec>& get_coef_indices() {

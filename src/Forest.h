@@ -229,8 +229,7 @@ public:
    uint thread_idx,
    Data* prediction_data,
    bool oobag,
-   std::vector<std::vector<arma::mat>>& result_ptr,
-   arma::vec& denom_ptr
+   std::vector<std::vector<arma::mat>>& result_ptr
  );
 
 protected:
@@ -253,8 +252,7 @@ protected:
  void predict_multi_thread(uint thread_idx,
                            Data* prediction_data,
                            bool oobag,
-                           mat& result_ptr,
-                           vec& denom_ptr);
+                           mat& result_ptr);
 
  void compute_oobag_vi();
 
