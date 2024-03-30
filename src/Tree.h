@@ -91,7 +91,8 @@
 
   virtual double compute_max_leaves();
 
-  void grow(arma::vec* vi_numer,
+  void grow(arma::vec* oobag_denom,
+            arma::vec* vi_numer,
             arma::uvec* vi_denom);
 
   void predict_leaf(Data* prediction_data,
@@ -240,6 +241,9 @@
  protected:
 
   void resize_oobag_data();
+
+  // pointer to oobag_denom in forest
+  arma::vec* oobag_denom;
 
   // pointers to variable importance in forest
   arma::vec* vi_numer;

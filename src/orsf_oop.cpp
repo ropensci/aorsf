@@ -550,7 +550,7 @@ double compute_mse_exported(arma::vec& y,
     std::vector<std::vector<vec>>    coef_values  = loaded_forest["coef_values"];
     std::vector<std::vector<uvec>>   coef_indices = loaded_forest["coef_indices"];
     std::vector<std::vector<double>> leaf_summary = loaded_forest["leaf_summary"];
-    arma::vec                        oobag_denom  = loaded_forest["oobag_denom"];
+    vec                              oobag_denom  = loaded_forest["oobag_denom"];
 
     if(tree_type == TREE_SURVIVAL){
 
@@ -563,7 +563,7 @@ double compute_mse_exported(arma::vec& y,
      temp.load(n_tree, n_obs, rows_oobag, cutpoint, child_left,
                coef_values, coef_indices, leaf_pred_indx,
                leaf_pred_prob, leaf_pred_chaz, leaf_summary,
-               pd_type, pd_x_vals, pd_x_cols, pd_probs);
+               oobag_denom, pd_type, pd_x_vals, pd_x_cols, pd_probs);
 
     } else if (tree_type == TREE_CLASSIFICATION){
 
@@ -575,7 +575,7 @@ double compute_mse_exported(arma::vec& y,
 
      temp.load(n_tree, n_obs, n_class, rows_oobag, cutpoint, child_left,
                coef_values, coef_indices, leaf_pred_prob, leaf_summary,
-               pd_type, pd_x_vals, pd_x_cols, pd_probs);
+               oobag_denom, pd_type, pd_x_vals, pd_x_cols, pd_probs);
 
 
     } else if (tree_type == TREE_REGRESSION){
@@ -586,7 +586,7 @@ double compute_mse_exported(arma::vec& y,
 
      temp.load(n_tree, n_obs, rows_oobag, cutpoint, child_left,
                coef_values, coef_indices, leaf_pred_prob, leaf_summary,
-               pd_type, pd_x_vals, pd_x_cols, pd_probs);
+               oobag_denom, pd_type, pd_x_vals, pd_x_cols, pd_probs);
 
 
     }

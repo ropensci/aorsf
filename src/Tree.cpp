@@ -815,9 +815,11 @@
  }
  // # nocov end
 
- void Tree::grow(arma::vec* vi_numer,
+ void Tree::grow(arma::vec* oobag_denom,
+                 arma::vec* vi_numer,
                  arma::uvec* vi_denom){
 
+  this->oobag_denom = oobag_denom;
   this->vi_numer = vi_numer;
   this->vi_denom = vi_denom;
 

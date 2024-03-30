@@ -152,6 +152,8 @@ void Forest::run(bool oobag){
 
 void Forest::init_trees(){
 
+ // Rcpp::Rcout << "when init trees called:" << std::endl << oobag_denom << std::endl;
+
  for(uword i = 0; i < n_tree; ++i){
 
   trees[i]->init(data.get(),
@@ -195,7 +197,9 @@ void Forest::grow() {
  if(n_thread == 1){
   // ensure safe usage of R functions and glmnet
   // by growing trees in a single thread.
-  grow_single_thread(&vi_numer, &vi_denom);
+  grow_single_thread(&oobag_denom,
+                     &vi_numer,
+                     &vi_denom);
   return;
  }
 
@@ -205,6 +209,7 @@ void Forest::grow() {
 
  // containers
  std::vector<std::thread> threads;
+ std::vector<vec> oobag_denom_threads(n_thread);
  std::vector<vec> vi_numer_threads(n_thread);
  std::vector<uvec> vi_denom_threads(n_thread);
 
@@ -218,6 +223,7 @@ void Forest::grow() {
   if(vi_type == VI_ANOVA) vi_denom_threads[i].zeros(data->n_cols_x);
 
   threads.emplace_back(&Forest::grow_multi_thread, this, i,
+                       &(oobag_denom_threads[i]),
                        &(vi_numer_threads[i]),
                        &(vi_denom_threads[i]));
  }
@@ -251,7 +257,8 @@ void Forest::grow() {
 
 }
 
-void Forest::grow_single_thread(vec* vi_numer_ptr,
+void Forest::grow_single_thread(vec* oobag_denom_ptr,
+                                vec* vi_numer_ptr,
                                 uvec* vi_denom_ptr){
 
 
@@ -271,7 +278,7 @@ void Forest::grow_single_thread(vec* vi_numer_ptr,
    Rcpp::Rcout << std::endl;
   }
 
-  trees[i]->grow(vi_numer_ptr, vi_denom_ptr);
+  trees[i]->grow(oobag_denom_ptr, vi_numer_ptr, vi_denom_ptr);
 
   ++progress;
 
@@ -310,6 +317,7 @@ void Forest::grow_single_thread(vec* vi_numer_ptr,
 
 
 void Forest::grow_multi_thread(uint thread_idx,
+                               vec* oobag_denom_ptr,
                                vec* vi_numer_ptr,
                                uvec* vi_denom_ptr) {
 
@@ -318,7 +326,7 @@ void Forest::grow_multi_thread(uint thread_idx,
 
   for (uint i = thread_ranges[thread_idx]; i < thread_ranges[thread_idx + 1]; ++i) {
 
-   trees[i]->grow(vi_numer_ptr, vi_denom_ptr);
+   trees[i]->grow(oobag_denom_ptr, vi_numer_ptr, vi_denom_ptr);
 
    // Check for user interrupt
    if (aborted) {
@@ -823,6 +831,8 @@ void Forest::predict_single_thread(Data* prediction_data,
  steady_clock::time_point last_time = steady_clock::now();
  size_t max_progress = n_tree;
 
+ // Rcpp::Rcout << "init oobag_denom" << std::endl << oobag_denom << std::endl;
+
  for (uint i = 0; i < n_tree; ++i) {
 
   if(verbosity > 1){
@@ -834,6 +844,7 @@ void Forest::predict_single_thread(Data* prediction_data,
    Rcpp::Rcout << std::endl;
    Rcpp::Rcout << std::endl;
   }
+
 
   trees[i]->predict_leaf(prediction_data, oobag);
 
@@ -881,6 +892,8 @@ void Forest::predict_single_thread(Data* prediction_data,
    }
 
   }
+
+  // Rcpp::Rcout << "oobag_denom: progress of " << progress << std::endl << oobag_denom << std::endl;
 
   // if tracking oobag error over time:
   if(oobag && grow_mode && (progress%oobag_eval_every==0) && pred_aggregate){

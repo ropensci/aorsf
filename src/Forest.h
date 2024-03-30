@@ -237,10 +237,12 @@ protected:
 
  void init_trees();
 
- void grow_single_thread(vec* vi_numer_ptr,
+ void grow_single_thread(vec* oobag_denom_ptr,
+                         vec* vi_numer_ptr,
                          uvec* vi_denom_ptr);
 
  void grow_multi_thread(uint thread_idx,
+                        vec* oobag_denom_ptr,
                         vec* vi_numer_ptr,
                         uvec* vi_denom_ptr);
 
