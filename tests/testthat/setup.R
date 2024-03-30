@@ -1,8 +1,6 @@
 
 set.seed(329)
 
-#' @srrstats {G5.0} *use pbc/flchain data, standards for survival analysis*
-
 library(survival)
 
 # flchain ----
