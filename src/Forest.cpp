@@ -219,6 +219,7 @@ void Forest::grow() {
  // begin multi-thread grow
  for (uint i = 0; i < n_thread; ++i) {
 
+  oobag_denom_threads[i].zeros(data->n_rows);
   vi_numer_threads[i].zeros(data->n_cols_x);
   if(vi_type == VI_ANOVA) vi_denom_threads[i].zeros(data->n_cols_x);
 
@@ -242,6 +243,12 @@ void Forest::grow() {
  if (aborted_threads > 0) {
   throw std::runtime_error("User interrupt.");
  }
+
+ for(uint i = 0; i < n_thread; ++i){
+  oobag_denom += oobag_denom_threads[i];
+ }
+
+ oobag_denom_threads.clear();
 
  if(vi_type == VI_ANOVA){
 
@@ -278,6 +285,8 @@ void Forest::grow_single_thread(vec* oobag_denom_ptr,
    Rcpp::Rcout << std::endl;
   }
 
+  // all three parameters were initialized in Forest::init,
+  // so initialization isn't needed here.
   trees[i]->grow(oobag_denom_ptr, vi_numer_ptr, vi_denom_ptr);
 
   ++progress;
@@ -592,12 +601,7 @@ void Forest::compute_dependence_single_thread(
  steady_clock::time_point last_time = steady_clock::now();
  size_t max_progress = n_tree;
 
- uword oobag_divby = 0;
  uword n_specs = pd_x_vals.size();
-
- for(uword k = 0; k < n_specs; ++k){
-  oobag_divby+=pd_x_vals[k].n_rows;
- }
 
  for (uint i = 0; i < n_tree; ++i) {
 
@@ -646,13 +650,6 @@ void Forest::compute_dependence_single_thread(
 
  }
 
- if(oobag){
-  oobag_denom /= oobag_divby;
-  if(verbosity > 3){
-   print_vec(oobag_denom, "oobag denom:", 5);
-  }
- }
-
  for(uword k = 0; k < n_specs; ++k){
   for(uword j = 0; j < pd_x_vals[k].n_rows; ++j){
    if(oobag){
@@ -672,13 +669,6 @@ void Forest::compute_dependence_multi_thread(
   std::vector<std::vector<arma::mat>>& result_ptr,
   arma::vec& denom_ptr
 ){
-
- uword oobag_divby = 0;
- uword n_specs = pd_x_vals.size();
-
- for(uword k = 0; k < n_specs; ++k){
-  oobag_divby+=pd_x_vals[k].n_rows;
- }
 
  if (thread_ranges.size() > thread_idx + 1) {
 
@@ -703,11 +693,6 @@ void Forest::compute_dependence_multi_thread(
 
   }
 
- }
-
- if(oobag){
-  denom_ptr /= oobag_divby;
-  oobag_denom += denom_ptr;
  }
 
 }
