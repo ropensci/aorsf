@@ -613,7 +613,7 @@ double compute_mse_exported(arma::vec& y,
 
     List forest_out;
     forest_out.push_back(n_obs, "n_obs");
-    // forest_out.push_back(forest->get_oobag_denom(), "oobag_denom");
+    forest_out.push_back(forest->get_oobag_denom(), "oobag_denom");
     forest_out.push_back(forest->get_rows_oobag(), "rows_oobag");
     forest_out.push_back(forest->get_cutpoint(), "cutpoint");
     forest_out.push_back(forest->get_child_left(), "child_left");
