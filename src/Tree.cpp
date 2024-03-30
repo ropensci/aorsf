@@ -213,6 +213,13 @@
 
   this->rows_inbag = find(w_inbag > 0);
   this->rows_oobag = find(w_inbag == 0);
+
+
+  for(i = 0; i < rows_oobag.size(); i++){
+   (*oobag_denom)[rows_oobag[i]]++;
+  }
+
+
   // shrink the size of w_inbag from n to n wts > 0
   this->w_inbag = w_inbag(rows_inbag);
 
