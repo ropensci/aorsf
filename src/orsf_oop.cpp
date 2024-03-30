@@ -550,6 +550,7 @@ double compute_mse_exported(arma::vec& y,
     std::vector<std::vector<vec>>    coef_values  = loaded_forest["coef_values"];
     std::vector<std::vector<uvec>>   coef_indices = loaded_forest["coef_indices"];
     std::vector<std::vector<double>> leaf_summary = loaded_forest["leaf_summary"];
+    arma::vec                        oobag_denom  = loaded_forest["oobag_denom"];
 
     if(tree_type == TREE_SURVIVAL){
 
