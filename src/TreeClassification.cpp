@@ -128,7 +128,7 @@
      n_preds_made++;
     }
 
-    if(oobag) pred_denom[it]++;
+    // if(oobag) pred_denom[it]++;
 
    }
 
@@ -152,7 +152,7 @@
      n_preds_made++;
     }
 
-    if(oobag) pred_denom[it]++;
+    // if(oobag) pred_denom[it]++;
 
    }
 

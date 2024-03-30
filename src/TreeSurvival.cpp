@@ -647,7 +647,7 @@
 
    pred_output.row(*it) += temp_vec.t();
    n_preds_made++;
-   if(oobag) pred_denom[*it]++;
+   // if(oobag) pred_denom[*it]++;
 
    // Rcout << "npreds: " << n_preds_made << ", ";
    // Rcout << "*it: " << (*it) << std::endl;
@@ -665,7 +665,7 @@
       // if it is, add the value to the pred_output, and be done
       pred_output.row(*it) += temp_vec.t();
       n_preds_made++;
-      if(oobag) pred_denom[*it]++;
+      // if(oobag) pred_denom[*it]++;
       break_loop = true;
       break;
      }
@@ -678,7 +678,7 @@
 
     pred_output.row(*it) += temp_vec.t();
     n_preds_made++;
-    if(oobag) pred_denom[*it]++;
+    // if(oobag) pred_denom[*it]++;
 
     // Rcout << "npreds: " << n_preds_made << ", ";
     // Rcout << "*it (inner loop): " << (*it) << std::endl;
