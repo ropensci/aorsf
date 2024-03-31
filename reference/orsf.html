@@ -16,7 +16,7 @@ forests."><meta property="og:image" content="https://bcjaeger.github.io/aorsf/lo
     
     <a class="navbar-brand me-2" href="../index.html">aorsf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3.9002</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -438,7 +438,12 @@ data that were not used to train it, i.e., testing data.</p>
     <div class="section level2">
     <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a></h2>
     <p></p><div class="sourceCode r"><pre><code><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/aorsf" class="external-link">aorsf</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span> <span class="co"># for %&gt;%</span></span></code></pre><p></p></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span> <span class="co"># for %&gt;%</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'magrittr'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:testthat':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     equals, is_less_than, not</span></span></code></pre><p></p></div>
 <p><code>orsf()</code> is the entry-point of the <code>aorsf</code> package. It can be used to
 fit classification, regression, and survival forests.</p>
 <p>For classification, we fit an oblique RF to predict penguin species
@@ -457,9 +462,9 @@ using <code>penguin</code> data from the magnificent <code>palmerpenguins</code>
 <span><span class="co">#&gt;                  N trees: 5</span></span>
 <span><span class="co">#&gt;       N predictors total: 7</span></span>
 <span><span class="co">#&gt;    N predictors per node: 3</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 5.2</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 4.8</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.99</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.98</span></span>
 <span><span class="co">#&gt;            OOB stat type: AUC-ROC</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -479,9 +484,9 @@ penguins:</p>
 <span><span class="co">#&gt;                  N trees: 5</span></span>
 <span><span class="co">#&gt;       N predictors total: 7</span></span>
 <span><span class="co">#&gt;    N predictors per node: 3</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 51</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 50.4</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.73</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.74</span></span>
 <span><span class="co">#&gt;            OOB stat type: RSQ</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -506,10 +511,10 @@ mortality risk following diagnosis of primary biliary cirrhosis:</p>
 <span><span class="co">#&gt;                  N trees: 5</span></span>
 <span><span class="co">#&gt;       N predictors total: 17</span></span>
 <span><span class="co">#&gt;    N predictors per node: 5</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 22</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 19.6</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;       Min events in leaf: 1</span></span>
-<span><span class="co">#&gt;           OOB stat value: 0.75</span></span>
+<span><span class="co">#&gt;           OOB stat value: 0.78</span></span>
 <span><span class="co">#&gt;            OOB stat type: Harrell's C-index</span></span>
 <span><span class="co">#&gt;      Variable importance: anova</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -546,7 +551,7 @@ take to fit the forest before you commit to it:</p></li>
 <span><span class="va">orsf_spec</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span> <span class="fu"><a href="../reference/orsf_update.html">orsf_update</a></span><span class="op">(</span>n_tree <span class="op">=</span> <span class="fl">10000</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span> <span class="fu"><a href="../reference/orsf_time_to_train.html">orsf_time_to_train</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Time difference of 1.763649 secs</span></span></code></pre><p></p></div><ol><li><p>If fitting multiple forests, use the blueprint along with
+<span><span class="co">#&gt; Time difference of 2.029378 secs</span></span></code></pre><p></p></div><ol><li><p>If fitting multiple forests, use the blueprint along with
 <code>orsf_train()</code> and <code><a href="orsf_update.html">orsf_update()</a></code> to simplify your code:</p></li>
 </ol><p></p><div class="sourceCode r"><pre><code><span></span>
 <span><span class="va">orsf_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf.html">orsf_train</a></span><span class="op">(</span><span class="va">orsf_spec</span><span class="op">)</span></span>
@@ -600,12 +605,12 @@ take to fit the forest before you commit to it:</p></li>
 <span><span class="co">#&gt; # A tibble: 6 x 4</span></span>
 <span><span class="co">#&gt;   .metric        .estimator .eval_time .estimate</span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 brier_survival standard          500    0.0602</span></span>
-<span><span class="co">#&gt; 2 brier_survival standard         1000    0.0839</span></span>
-<span><span class="co">#&gt; 3 brier_survival standard         1500    0.111 </span></span>
-<span><span class="co">#&gt; 4 brier_survival standard         2000    0.124 </span></span>
-<span><span class="co">#&gt; 5 brier_survival standard         2500    0.197 </span></span>
-<span><span class="co">#&gt; 6 brier_survival standard         3000    0.233</span></span>
+<span><span class="co">#&gt; 1 brier_survival standard          500    0.0515</span></span>
+<span><span class="co">#&gt; 2 brier_survival standard         1000    0.0988</span></span>
+<span><span class="co">#&gt; 3 brier_survival standard         1500    0.0830</span></span>
+<span><span class="co">#&gt; 4 brier_survival standard         2000    0.0667</span></span>
+<span><span class="co">#&gt; 5 brier_survival standard         2500    0.102 </span></span>
+<span><span class="co">#&gt; 6 brier_survival standard         3000    0.141</span></span>
 <span></span>
 <span><span class="va">roc_scores</span> <span class="op">&lt;-</span> <span class="va">test_pred</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span>  <span class="fu">roc_auc_survival</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">event_time</span>, <span class="va">.pred</span><span class="op">)</span></span>
@@ -614,12 +619,12 @@ take to fit the forest before you commit to it:</p></li>
 <span><span class="co">#&gt; # A tibble: 6 x 4</span></span>
 <span><span class="co">#&gt;   .metric          .estimator .eval_time .estimate</span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;            &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 roc_auc_survival standard          500     0.900</span></span>
-<span><span class="co">#&gt; 2 roc_auc_survival standard         1000     0.872</span></span>
-<span><span class="co">#&gt; 3 roc_auc_survival standard         1500     0.897</span></span>
-<span><span class="co">#&gt; 4 roc_auc_survival standard         2000     0.884</span></span>
-<span><span class="co">#&gt; 5 roc_auc_survival standard         2500     0.825</span></span>
-<span><span class="co">#&gt; 6 roc_auc_survival standard         3000     0.849</span></span></code></pre><p></p></div>
+<span><span class="co">#&gt; 1 roc_auc_survival standard          500     0.977</span></span>
+<span><span class="co">#&gt; 2 roc_auc_survival standard         1000     0.954</span></span>
+<span><span class="co">#&gt; 3 roc_auc_survival standard         1500     0.965</span></span>
+<span><span class="co">#&gt; 4 roc_auc_survival standard         2000     0.975</span></span>
+<span><span class="co">#&gt; 5 roc_auc_survival standard         2500     0.974</span></span>
+<span><span class="co">#&gt; 6 roc_auc_survival standard         3000     0.955</span></span></code></pre><p></p></div>
 </div>
 
     </div>
