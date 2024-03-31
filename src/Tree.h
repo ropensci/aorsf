@@ -91,7 +91,8 @@
 
   virtual double compute_max_leaves();
 
-  void grow(arma::vec* vi_numer,
+  void grow(arma::vec* oobag_denom,
+            arma::vec* vi_numer,
             arma::uvec* vi_denom);
 
   void predict_leaf(Data* prediction_data,
@@ -103,13 +104,11 @@
                     arma::uvec& pd_x_cols);
 
   void predict_value(arma::mat& pred_output,
-                     arma::vec& pred_denom,
                      PredType pred_type,
                      bool oobag);
 
   virtual arma::uword predict_value_internal(arma::uvec& pred_leaf_sort,
                                              arma::mat& pred_output,
-                                             arma::vec& pred_denom,
                                              PredType pred_type,
                                              bool oobag) = 0;
 
@@ -122,7 +121,6 @@
                           PartialDepType pd_type,
                           std::vector<arma::mat>& pd_x_vals,
                           std::vector<arma::uvec>& pd_x_cols,
-                          arma::vec& oobag_denom,
                           bool oobag);
 
   std::vector<arma::uvec>& get_coef_indices() {
@@ -240,6 +238,9 @@
  protected:
 
   void resize_oobag_data();
+
+  // pointer to oobag_denom in forest
+  arma::vec* oobag_denom;
 
   // pointers to variable importance in forest
   arma::vec* vi_numer;

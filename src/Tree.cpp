@@ -213,6 +213,13 @@
 
   this->rows_inbag = find(w_inbag > 0);
   this->rows_oobag = find(w_inbag == 0);
+
+
+  for(i = 0; i < rows_oobag.size(); i++){
+   (*oobag_denom)[rows_oobag[i]]++;
+  }
+
+
   // shrink the size of w_inbag from n to n wts > 0
   this->w_inbag = w_inbag(rows_inbag);
 
@@ -749,7 +756,6 @@
                                PartialDepType pd_type,
                                std::vector<arma::mat>& pd_x_vals,
                                std::vector<arma::uvec>& pd_x_cols,
-                               arma::vec& oobag_denom,
                                bool oobag) {
 
   // a spec is a mat of x-values and umat of x-columns
@@ -786,7 +792,7 @@
     }
 
     predict_leaf(prediction_data, oobag, x_val_vec, pd_x_cols[k]);
-    predict_value(result[k][j], oobag_denom, pred_type, oobag);
+    predict_value(result[k][j], pred_type, oobag);
 
    }
 
@@ -815,9 +821,11 @@
  }
  // # nocov end
 
- void Tree::grow(arma::vec* vi_numer,
+ void Tree::grow(arma::vec* oobag_denom,
+                 arma::vec* vi_numer,
                  arma::uvec* vi_denom){
 
+  this->oobag_denom = oobag_denom;
   this->vi_numer = vi_numer;
   this->vi_denom = vi_denom;
 
@@ -1276,7 +1284,6 @@
  }
 
  void Tree::predict_value(arma::mat& pred_output,
-                          arma::vec& pred_denom,
                           PredType   pred_type,
                           bool       oobag){
 
@@ -1297,7 +1304,6 @@
 
   uword n_preds_made = predict_value_internal(pred_leaf_sort,
                                               pred_output,
-                                              pred_denom,
                                               pred_type,
                                               oobag);
 

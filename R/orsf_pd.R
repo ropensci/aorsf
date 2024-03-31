@@ -372,6 +372,11 @@ orsf_dependence <- function(object,
 
  check_arg_is(object, arg_name = 'object', expected_class = 'ObliqueForest')
 
+ if(object$sample_fraction > 0.90 && oobag){
+  stop("sample_fraction must be <= 9/10 for out-of-bag dependence calculations",
+       call. = FALSE)
+ }
+
  if(oobag && is.null(object$data))
   stop("no data were found in object. ",
        "did you use attach_data = FALSE when ",

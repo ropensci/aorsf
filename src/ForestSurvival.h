@@ -36,6 +36,7 @@ public:
            std::vector<std::vector<arma::vec>>& forest_leaf_pred_prob,
            std::vector<std::vector<arma::vec>>& forest_leaf_pred_chaz,
            std::vector<std::vector<double>>& forest_leaf_summary,
+           arma::vec& oobag_denom,
            PartialDepType pd_type,
            std::vector<arma::mat>& pd_x_vals,
            std::vector<arma::uvec>& pd_x_cols,

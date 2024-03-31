@@ -35,6 +35,7 @@ void ForestRegression::load(
   std::vector<std::vector<arma::uvec>>& forest_coef_indices,
   std::vector<std::vector<arma::vec>>& forest_leaf_pred_prob,
   std::vector<std::vector<double>>& forest_leaf_summary,
+  arma::vec& oobag_denom,
   PartialDepType pd_type,
   std::vector<arma::mat>& pd_x_vals,
   std::vector<arma::uvec>& pd_x_cols,
@@ -46,6 +47,7 @@ void ForestRegression::load(
  this->pd_x_vals = pd_x_vals;
  this->pd_x_cols = pd_x_cols;
  this->pd_probs  = pd_probs;
+ this->oobag_denom = oobag_denom;
 
  if(verbosity > 2){
   Rcout << "---- loading forest from input list ----";

@@ -364,6 +364,11 @@ data that were not used to train it, i.e., testing data.
 \section{Examples}{
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(aorsf)
 library(magrittr) # for \%>\%
+#> 
+#> Attaching package: 'magrittr'
+#> The following objects are masked from 'package:testthat':
+#> 
+#>     equals, is_less_than, not
 }\if{html}{\out{</div>}}
 
 \code{orsf()} is the entry-point of the \code{aorsf} package. It can be used to
@@ -386,9 +391,9 @@ penguin_fit
 #>                  N trees: 5
 #>       N predictors total: 7
 #>    N predictors per node: 3
-#>  Average leaves per tree: 5.2
+#>  Average leaves per tree: 4.8
 #> Min observations in leaf: 5
-#>           OOB stat value: 0.99
+#>           OOB stat value: 0.98
 #>            OOB stat type: AUC-ROC
 #>      Variable importance: anova
 #> 
@@ -411,9 +416,9 @@ bill_fit
 #>                  N trees: 5
 #>       N predictors total: 7
 #>    N predictors per node: 3
-#>  Average leaves per tree: 51
+#>  Average leaves per tree: 50.4
 #> Min observations in leaf: 5
-#>           OOB stat value: 0.73
+#>           OOB stat value: 0.74
 #>            OOB stat type: RSQ
 #>      Variable importance: anova
 #> 
@@ -441,10 +446,10 @@ pbc_fit
 #>                  N trees: 5
 #>       N predictors total: 17
 #>    N predictors per node: 5
-#>  Average leaves per tree: 22
+#>  Average leaves per tree: 19.6
 #> Min observations in leaf: 5
 #>       Min events in leaf: 1
-#>           OOB stat value: 0.75
+#>           OOB stat value: 0.78
 #>            OOB stat type: Harrell's C-index
 #>      Variable importance: anova
 #> 
@@ -488,7 +493,7 @@ take to fit the forest before you commit to it:
 orsf_spec \%>\% 
  orsf_update(n_tree = 10000) \%>\%
  orsf_time_to_train()
-#> Time difference of 1.763649 secs
+#> Time difference of 2.029378 secs
 }\if{html}{\out{</div>}}
 \enumerate{
 \item If fitting multiple forests, use the blueprint along with
@@ -550,12 +555,12 @@ brier_scores
 #> # A tibble: 6 x 4
 #>   .metric        .estimator .eval_time .estimate
 #>   <chr>          <chr>           <dbl>     <dbl>
-#> 1 brier_survival standard          500    0.0602
-#> 2 brier_survival standard         1000    0.0839
-#> 3 brier_survival standard         1500    0.111 
-#> 4 brier_survival standard         2000    0.124 
-#> 5 brier_survival standard         2500    0.197 
-#> 6 brier_survival standard         3000    0.233
+#> 1 brier_survival standard          500    0.0515
+#> 2 brier_survival standard         1000    0.0988
+#> 3 brier_survival standard         1500    0.0830
+#> 4 brier_survival standard         2000    0.0667
+#> 5 brier_survival standard         2500    0.102 
+#> 6 brier_survival standard         3000    0.141
 
 roc_scores <- test_pred \%>\% 
   roc_auc_survival(truth = event_time, .pred)
@@ -564,12 +569,12 @@ roc_scores
 #> # A tibble: 6 x 4
 #>   .metric          .estimator .eval_time .estimate
 #>   <chr>            <chr>           <dbl>     <dbl>
-#> 1 roc_auc_survival standard          500     0.900
-#> 2 roc_auc_survival standard         1000     0.872
-#> 3 roc_auc_survival standard         1500     0.897
-#> 4 roc_auc_survival standard         2000     0.884
-#> 5 roc_auc_survival standard         2500     0.825
-#> 6 roc_auc_survival standard         3000     0.849
+#> 1 roc_auc_survival standard          500     0.977
+#> 2 roc_auc_survival standard         1000     0.954
+#> 3 roc_auc_survival standard         1500     0.965
+#> 4 roc_auc_survival standard         2000     0.975
+#> 5 roc_auc_survival standard         2500     0.974
+#> 6 roc_auc_survival standard         3000     0.955
 }\if{html}{\out{</div>}}
 }
 }

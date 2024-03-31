@@ -1,3 +1,13 @@
+# aorsf 0.1.4 (unreleased)
+
+* Setting `oobag_pred_type` to `'none'` when growing a forest no longer necessitates the specification of `pred_type` when calling `predict` later (see https://github.com/ropensci/aorsf/pull/48). 
+
+* Setting `sample_fraction` to 1 will no longer result in empty `oobag_rows` in the forest object (this would cause R to crash when the forest was passed to C++; see https://github.com/ropensci/aorsf/pull/48)
+
+* Re-worked the creation and maintenance of `oobag_denom` in C++ routines (see https://github.com/ropensci/aorsf/pull/48).
+
+* Restricted mean survival time is now used for `pred_type = 'time'` instead of median survival time (See https://github.com/ropensci/aorsf/pull/46).
+
 # aorsf 0.1.3
 
 * minor changes to partial dependence vignette to resolve code sanitization errors. 

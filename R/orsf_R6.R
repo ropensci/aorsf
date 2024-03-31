@@ -364,12 +364,27 @@ ObliqueForest <- R6::R6Class(
    self$pred_oobag <- cpp_output$pred_oobag
    self$eval_oobag <- cpp_output$eval_oobag
 
+   # don't let rows_oobag contain an empty vector, otherwise it
+   # will crash R when cpp tries to load the tree later
+   empty_oob_rows <- vapply(self$forest$rows_oobag, is_empty, logical(1))
+
+   if(any(empty_oob_rows)) {
+    for(i in which(empty_oob_rows)){
+     self$forest$rows_oobag[[i]] <- numeric(1)
+    }
+   }
+
    if(self$importance_type != 'none'){
     private$clean_importance()
    }
 
    if(self$pred_type != 'none'){
     private$clean_pred_oobag()
+   } else {
+    # revert pred type to NULL so it is correctly
+    # initialized when this object is passed to
+    # other orsf functions
+    self$pred_type <- NULL
    }
 
    self$trained <- TRUE
@@ -1891,13 +1906,13 @@ ObliqueForest <- R6::R6Class(
 
    input <- verbose_progress %||% self$verbose_progress
 
-   check_arg_type(arg_value = input,
-                  arg_name = 'verbose_progress',
-                  expected_type = 'logical')
-
-   check_arg_length(arg_value = input,
-                    arg_name = 'verbose_progress',
-                    expected_length = 1)
+   # check_arg_type(arg_value = input,
+   #                arg_name = 'verbose_progress',
+   #                expected_type = 'logical')
+   #
+   # check_arg_length(arg_value = input,
+   #                  arg_name = 'verbose_progress',
+   #                  expected_length = 1)
 
   },
   check_units = function(data = NULL){

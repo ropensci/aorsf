@@ -112,7 +112,6 @@
  arma::uword TreeRegression::predict_value_internal(
    arma::uvec& pred_leaf_sort,
    arma::mat& pred_output,
-   arma::vec& pred_denom,
    PredType pred_type,
    bool oobag
  ){
@@ -128,7 +127,6 @@
     pred_output.row(it) += leaf_pred_prob[leaf_id].t();
 
     n_preds_made++;
-    if(oobag) pred_denom[it]++;
 
    }
 
@@ -142,7 +140,6 @@
     pred_output.at(it, 0) += leaf_summary[leaf_id];
 
     n_preds_made++;
-    if(oobag) pred_denom[it]++;
 
    }
 
