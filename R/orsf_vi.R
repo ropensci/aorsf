@@ -246,6 +246,11 @@ orsf_vi_ <- function(object,
 
  }
 
+ if(object$sample_fraction > 0.90 && type_vi %in% c("negate", "permute")){
+  stop("sample_fraction must be <= 9/10 for out-of-bag importance estimates",
+       call. = FALSE)
+ }
+
  out <- switch(
   type_vi,
   'anova' = object$get_importance_raw(),
