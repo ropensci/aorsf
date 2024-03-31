@@ -380,6 +380,11 @@ ObliqueForest <- R6::R6Class(
 
    if(self$pred_type != 'none'){
     private$clean_pred_oobag()
+   } else {
+    # revert pred type to NULL so it is correctly
+    # initialized when this object is passed to
+    # other orsf functions
+    self$pred_type <- NULL
    }
 
    self$trained <- TRUE
