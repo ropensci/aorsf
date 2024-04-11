@@ -43,6 +43,18 @@ test_that(
 )
 
 test_that(
+ desc = 'logical outcomes are allowed',
+ code = {
+
+  pbc$status2 <- as.logical(pbc$status)
+  fit_surv <- orsf(pbc, time + status2 ~ ., no_fit = TRUE)
+  expect_s3_class(fit_surv, "ObliqueForestSurvival")
+  pbc$status2 <- NULL
+
+ }
+)
+
+test_that(
  desc = 'potential user-errors with outcome types are caught',
  code = {
 
