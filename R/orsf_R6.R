@@ -2282,11 +2282,24 @@ ObliqueForest <- R6::R6Class(
                               x_original = names_x_data)
 
 
+   # coerce logicals to 0/1 integers.
+   # only do this for outcomes because changing predictor types here
+   # would cause issues down the road. E.g., if X[,1] is an integer
+   # in the training data and X[,1] is a logical in the testing data.
+   for(.name in c(names_y_data)){
+
+    if(self$get_var_type(.name) == 'logical'){
+     self$data[[.name]] <- as.integer(self$data[[.name]])
+    }
+
+   }
+
    types_y_data <- vapply(names_y_data, self$get_var_type, character(1))
    types_x_data <- vapply(names_x_data, self$get_var_type, character(1))
 
    valid_y_types <- c('numeric', 'integer', 'units', 'factor', "Surv")
    valid_x_types <- c(valid_y_types, 'ordered')
+
 
    private$check_var_types(types_y_data, names_y_data, valid_y_types)
    private$check_var_types(types_x_data, names_x_data, valid_x_types)
