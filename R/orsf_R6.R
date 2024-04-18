@@ -2929,9 +2929,17 @@ ObliqueForest <- R6::R6Class(
     predictor = self$get_names_x(ref_coded = TRUE)
    )
 
-   variable_key <- merge(variable_key, fctr_key,
-                         by = 'predictor',
-                         all.x = TRUE)
+   if(is_empty(fctr_key)){
+
+    variable_key$variable <- variable_key$predictor
+
+   } else {
+
+    variable_key <- merge(variable_key, fctr_key,
+                          by = 'predictor',
+                          all.x = TRUE)
+
+   }
 
    variable_key$variable[is.na(variable_key$variable)] <-
     variable_key$predictor[is.na(variable_key$variable)]
