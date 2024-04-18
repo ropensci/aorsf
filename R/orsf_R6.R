@@ -2883,6 +2883,7 @@ ObliqueForest <- R6::R6Class(
    oob_data <- data.table(
     n_predictors = seq(n_predictors),
     stat_value = rep(NA_real_, n_predictors),
+    variables_included = vector(mode = 'list', length = n_predictors),
     predictors_included = vector(mode = 'list', length = n_predictors),
     predictor_dropped = rep(NA_character_, n_predictors)
    )
@@ -2914,6 +2915,34 @@ ObliqueForest <- R6::R6Class(
                                      oobag_pred = TRUE,
                                      importance_group_factors = TRUE,
                                      write_forest = FALSE)
+
+
+   fctr_key <- lapply(self$get_fctr_info()$keys, function(x) x[-1])
+
+   fctr_key <- data.frame(
+    variable = rep(names(fctr_key), sapply(fctr_key, length)),
+    predictor = unlist(fctr_key),
+    row.names = NULL
+   )
+
+   variable_key <- data.frame(
+    predictor = self$get_names_x(ref_coded = TRUE)
+   )
+
+   if(is_empty(fctr_key)){
+
+    variable_key$variable <- variable_key$predictor
+
+   } else {
+
+    variable_key <- merge(variable_key, fctr_key,
+                          by = 'predictor',
+                          all.x = TRUE)
+
+   }
+
+   variable_key$variable[is.na(variable_key$variable)] <-
+    variable_key$predictor[is.na(variable_key$variable)]
 
    max_progress <- n_predictors - n_predictor_min
    current_progress <- 0
@@ -2963,9 +2992,17 @@ ObliqueForest <- R6::R6Class(
     worst_index <- which.min(cpp_output$importance)
     worst_predictor <- colnames(cpp_args$x)[worst_index]
 
+
+    .variables_included <- with(
+     variable_key,
+     unique(variable[predictor %in% colnames(cpp_args$x)])
+    )
+
+
     oob_data[n_predictors,
              `:=`(n_predictors = n_predictors,
                   stat_value = cpp_output$eval_oobag$stat_values[1,1],
+                  variables_included = .variables_included,
                   predictors_included = colnames(cpp_args$x),
                   predictor_dropped = worst_predictor)]
 

@@ -8,10 +8,18 @@
 #' @return a [data.table][data.table::data.table-package] with four columns:
 #'   - *n_predictors*: the number of predictors used
 #'   - *stat_value*: the out-of-bag statistic
+#'   - *variables_included*: the names of the variables included
 #'   - *predictors_included*: the names of the predictors included
 #'   - *predictor_dropped*: the predictor selected to be dropped
 #'
 #' @details
+#'
+#' The difference between `variables_included` and `predictors_included` is
+#'  referent coding. The `variable` would be the name of a factor variable
+#'  in the training data, while the `predictor` would be the name of that
+#'  same factor with the levels of the factor appended. For example, if
+#'  the variable is `diabetes` with `levels = c("no", "yes")`, then the
+#'  variable name is `diabetes` and the predictor name is `diabetes_yes`.
 #'
 #' `tree_seeds` should be specified in `object` so that each successive run
 #'   of `orsf` will be evaluated in the same out-of-bag samples as the initial
