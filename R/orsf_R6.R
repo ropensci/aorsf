@@ -419,6 +419,7 @@ ObliqueForest <- R6::R6Class(
                      pred_horizon,
                      pred_aggregate,
                      pred_simplify,
+                     oobag,
                      na_action,
                      boundary_checks,
                      n_thread,
@@ -433,6 +434,12 @@ ObliqueForest <- R6::R6Class(
                         verbose_progress = self$verbose_progress)
 
    private_state <- list(data_rows_complete = private$data_rows_complete)
+
+   # assign new_data to original data if user did not supply any.
+   # (this is usually done to compute oobag predictions).
+   # DO NOT skip checking. A user might modify the data in a forest
+   # object and then use this function. We need checks for that case.
+   new_data <- new_data %||% self$data
 
    # run checks before you assign new values to object.
    # otherwise, if a check throws an error, the object will
@@ -469,7 +476,8 @@ ObliqueForest <- R6::R6Class(
      private$y <- matrix(0, nrow = 1, ncol = 1)
      private$w <- rep(1, nrow(private$x))
 
-     private$predict_internal(simplify = pred_simplify)
+     private$predict_internal(simplify = pred_simplify,
+                              oobag = oobag)
 
     },
     silent = TRUE
@@ -3879,10 +3887,14 @@ ObliqueForestSurvival <- R6::R6Class(
 
   },
 
-  predict_internal = function(simplify){
+  predict_internal = function(simplify, oobag){
 
    private$pred_horizon_order <- order(self$pred_horizon)
    pred_horizon_ordered <- self$pred_horizon[private$pred_horizon_order]
+
+   # must sort if oobag b/c when oobag_rows were originally created,
+   # it was after the data had been sorted.
+   if(oobag) private$sort_inputs(sort_y = FALSE)
 
    cpp_args = private$prep_cpp_args(x = private$x,
                                     y = private$y,
@@ -3891,7 +3903,7 @@ ObliqueForestSurvival <- R6::R6Class(
                                     pred_type = self$pred_type,
                                     pred_aggregate = self$pred_aggregate,
                                     pred_horizon = pred_horizon_ordered,
-                                    oobag_pred = FALSE,
+                                    oobag_pred = oobag,
                                     pred_mode = TRUE,
                                     write_forest = FALSE,
                                     run_forest = TRUE)
@@ -3923,6 +3935,12 @@ ObliqueForestSurvival <- R6::R6Class(
    }
 
    out_values <- do.call(orsf_cpp, args = cpp_args)$pred_new
+
+   if(oobag){
+    # put the oob predictions into the same order as the training data.
+    unsorted <- collapse::radixorder(private$data_row_sort)
+    out_values <- out_values[unsorted, , drop = FALSE]
+   }
 
    private$clean_pred_new(out_values)
 
@@ -4159,7 +4177,7 @@ ObliqueForestClassification <- R6::R6Class(
 
   },
 
-  predict_internal = function(simplify){
+  predict_internal = function(simplify, oobag){
 
    # resize y to have the right number of columns
    private$y <- matrix(0, ncol = self$n_class)
@@ -4170,7 +4188,7 @@ ObliqueForestClassification <- R6::R6Class(
                                     importance_type = 'none',
                                     pred_type = self$pred_type,
                                     pred_aggregate = self$pred_aggregate,
-                                    oobag_pred = FALSE,
+                                    oobag_pred = oobag,
                                     pred_mode = TRUE,
                                     write_forest = FALSE,
                                     run_forest = TRUE)
@@ -4411,7 +4429,7 @@ ObliqueForestRegression <- R6::R6Class(
 
   },
 
-  predict_internal = function(simplify){
+  predict_internal = function(simplify, oobag){
 
    # resize y to have the right number of columns
    private$y <- matrix(0, ncol = 1)
@@ -4422,7 +4440,7 @@ ObliqueForestRegression <- R6::R6Class(
                                     importance_type = 'none',
                                     pred_type = self$pred_type,
                                     pred_aggregate = self$pred_aggregate,
-                                    oobag_pred = FALSE,
+                                    oobag_pred = oobag,
                                     pred_mode = TRUE,
                                     write_forest = FALSE,
                                     run_forest = TRUE)
