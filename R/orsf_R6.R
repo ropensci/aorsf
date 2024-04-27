@@ -502,8 +502,8 @@ ObliqueForest <- R6::R6Class(
    if(is_error(out)) stop(out, call. = FALSE)
 
    # NaNs may occur with oobag = TRUE and small n_tree
-   # coerce_nans(out, to = NA_real_)
-   out
+   coerce_nans(out, to = NA_real_)
+   # out
 
   },
 
@@ -4184,13 +4184,13 @@ ObliqueForestClassification <- R6::R6Class(
 
   },
 
-  # clean_pred_oobag_internal = function(){
-  #
-  #  if(self$pred_type %in% c("prob") && is.matrix(self$pred_oobag)){
-  #   colnames(self$pred_oobag) <- self$class_levels
-  #  }
-  #
-  # },
+  clean_pred_oobag_internal = function(){
+
+   if(self$pred_type %in% c("prob") && is.matrix(self$pred_oobag)){
+    colnames(self$pred_oobag) <- self$class_levels
+   }
+
+  },
 
   predict_internal = function(simplify, oobag){
 
