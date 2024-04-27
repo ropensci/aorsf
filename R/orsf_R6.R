@@ -502,8 +502,8 @@ ObliqueForest <- R6::R6Class(
    if(is_error(out)) stop(out, call. = FALSE)
 
    # NaNs may occur with oobag = TRUE and small n_tree
-   coerce_nans(out, to = NA_real_)
-
+   # coerce_nans(out, to = NA_real_)
+   out
 
   },
 
