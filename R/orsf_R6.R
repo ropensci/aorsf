@@ -441,7 +441,10 @@ ObliqueForest <- R6::R6Class(
    # object and then use this function. We need checks for that case.
    new_data <- new_data %||% self$data
 
-   # browser()
+   if(oobag && nrow(new_data) != self$n_obs){
+    stop("input data must have ", self$n_obs, " observations to ",
+         "compute out-of-bag predictions.", call. = FALSE)
+   }
 
    # run checks before you assign new values to object.
    # otherwise, if a check throws an error, the object will
