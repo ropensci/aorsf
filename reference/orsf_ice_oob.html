@@ -7,7 +7,7 @@ using out-of-bag predictions for the training data
 using predictions for a new set of data
 
 
-See examples for more details"><title>Individual Conditional Expectations — orsf_ice_oob • aorsf</title><!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png"><link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png"><link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png"><link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png"><link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png"><link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png"><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Individual Conditional Expectations — orsf_ice_oob"><meta property="og:description" content="Compute individual conditional expectations for an
+See examples for more details"><title>Individual Conditional Expectations — orsf_ice_oob • aorsf</title><!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png"><link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png"><link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png"><link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png"><link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png"><link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png"><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js" integrity="sha512-7O5pXpc0oCRrxk8RUfDYFgn0nO1t+jLuIOQdOMRp4APB7uZ4vSjspzp5y6YDtDs4VzUSTbWzBFZ/LKJhnyFOKw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Individual Conditional Expectations — orsf_ice_oob"><meta property="og:description" content="Compute individual conditional expectations for an
 oblique random forest. Unlike partial dependence, which shows the expected prediction as a function of one or multiple predictors, individual conditional expectations (ICE) show the prediction for an individual observation as a function of a predictor.
 You can compute individual conditional expectations three ways using a random forest:
 using in-bag predictions for the training data
@@ -231,8 +231,7 @@ model’s reliability or fairness.</p></li>
 
 
 <p>Begin by fitting an oblique classification random forest:</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">index_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">)</span>, <span class="fl">150</span><span class="op">)</span> </span>
 <span></span>
@@ -243,26 +242,25 @@ model’s reliability or fairness.</p></li>
 <span>                 formula <span class="op">=</span> <span class="va">species</span> <span class="op">~</span> <span class="va">.</span><span class="op">)</span></span></code></pre><p></p></div>
 <p>Compute individual conditional expectation using out-of-bag data for
 <code>flipper_length_mm = c(190, 210)</code>.</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="va">pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>flipper_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">190</span>, <span class="fl">210</span><span class="op">)</span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>flipper_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">190</span>, <span class="fl">210</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ice_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_oob</a></span><span class="op">(</span><span class="va">fit_clsf</span>, pred_spec <span class="op">=</span> <span class="va">pred_spec</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">ice_oob</span></span>
-<span><span class="co">#&gt; Key: &lt;class&gt;</span></span>
-<span><span class="co">#&gt;      id_variable id_row  class flipper_length_mm       pred</span></span>
-<span><span class="co">#&gt;            &lt;int&gt; &lt;char&gt; &lt;fctr&gt;             &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;   1:           1      1 Adelie               190 0.92169247</span></span>
-<span><span class="co">#&gt;   2:           1      2 Adelie               190 0.80944657</span></span>
-<span><span class="co">#&gt;   3:           1      3 Adelie               190 0.85172955</span></span>
-<span><span class="co">#&gt;   4:           1      4 Adelie               190 0.93559327</span></span>
-<span><span class="co">#&gt;   5:           1      5 Adelie               190 0.97708693</span></span>
-<span><span class="co">#&gt;  ---                                                       </span></span>
-<span><span class="co">#&gt; 896:           2    146 Gentoo               210 0.26092984</span></span>
-<span><span class="co">#&gt; 897:           2    147 Gentoo               210 0.04798334</span></span>
-<span><span class="co">#&gt; 898:           2    148 Gentoo               210 0.07927359</span></span>
-<span><span class="co">#&gt; 899:           2    149 Gentoo               210 0.84779971</span></span>
-<span><span class="co">#&gt; 900:           2    150 Gentoo               210 0.11105143</span></span></code></pre><p></p></div>
+<span><span class="va">ice_oob</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">## Key: &lt;class&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">##      id_variable id_row  class flipper_length_mm       pred</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">##            &lt;int&gt; &lt;char&gt; &lt;fctr&gt;             &lt;num&gt;      &lt;num&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">##   1:           1      1 Adelie               190 0.92169247</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">##   2:           1      2 Adelie               190 0.80944657</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">##   3:           1      3 Adelie               190 0.85172955</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="do">##   4:           1      4 Adelie               190 0.93559327</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="do">##   5:           1      5 Adelie               190 0.97708693</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="do">##  ---                                                       </span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="do">## 896:           2    146 Gentoo               210 0.26092984</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="do">## 897:           2    147 Gentoo               210 0.04798334</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="do">## 898:           2    148 Gentoo               210 0.07927359</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="do">## 899:           2    149 Gentoo               210 0.84779971</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="do">## 900:           2    150 Gentoo               210 0.11105143</span></span></code></pre><p></p></div>
 <p>There are two identifiers in the output:</p><ul><li><p><code>id_variable</code> is an identifier for the current value of the
 variable(s) that are in the data. It is redundant if you only have one
 variable, but helpful if there are multiple variables.</p></li>
@@ -270,13 +268,12 @@ variable, but helpful if there are multiple variables.</p></li>
 </ul><p>Note that predicted probabilities are returned for each class and each
 observation in the data. Predicted probabilities for a given observation
 and given variable value sum to 1. For example,</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="va">ice_oob</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">ice_oob</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span> <span class="va">.</span><span class="op">[</span><span class="va">flipper_length_mm</span> <span class="op">==</span> <span class="fl">190</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span> <span class="va">.</span><span class="op">[</span><span class="va">id_row</span> <span class="op">==</span> <span class="fl">1</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
 <span> <span class="va">.</span><span class="op">[[</span><span class="st">'pred'</span><span class="op">]</span><span class="op">]</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> </span>
-<span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 1</span></span></code></pre><p></p></div>
+<span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="op">)</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">## [1] 1</span></span></code></pre><p></p></div>
 </div>
 
 <div class="section">
@@ -284,8 +281,7 @@ and given variable value sum to 1. For example,</p>
 
 
 <p>Begin by fitting an oblique regression random forest:</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">index_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">)</span>, <span class="fl">150</span><span class="op">)</span> </span>
 <span></span>
@@ -296,96 +292,92 @@ and given variable value sum to 1. For example,</p>
 <span>                 formula <span class="op">=</span> <span class="va">bill_length_mm</span> <span class="op">~</span> <span class="va">.</span><span class="op">)</span></span></code></pre><p></p></div>
 <p>Compute individual conditional expectation using new data for
 <code>flipper_length_mm = c(190, 210)</code>.</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="va">pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>flipper_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">190</span>, <span class="fl">210</span><span class="op">)</span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>flipper_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">190</span>, <span class="fl">210</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ice_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
 <span>                        pred_spec <span class="op">=</span> <span class="va">pred_spec</span>,</span>
 <span>                        new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">ice_new</span></span>
-<span><span class="co">#&gt;      id_variable id_row flipper_length_mm     pred</span></span>
-<span><span class="co">#&gt;            &lt;int&gt; &lt;char&gt;             &lt;num&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt;   1:           1      1               190 37.94483</span></span>
-<span><span class="co">#&gt;   2:           1      2               190 37.61595</span></span>
-<span><span class="co">#&gt;   3:           1      3               190 37.53681</span></span>
-<span><span class="co">#&gt;   4:           1      4               190 39.49476</span></span>
-<span><span class="co">#&gt;   5:           1      5               190 38.95635</span></span>
-<span><span class="co">#&gt;  ---                                              </span></span>
-<span><span class="co">#&gt; 362:           2    179               210 51.80471</span></span>
-<span><span class="co">#&gt; 363:           2    180               210 47.27183</span></span>
-<span><span class="co">#&gt; 364:           2    181               210 47.05031</span></span>
-<span><span class="co">#&gt; 365:           2    182               210 50.39028</span></span>
-<span><span class="co">#&gt; 366:           2    183               210 48.44774</span></span></code></pre><p></p></div>
+<span><span class="va">ice_new</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##      id_variable id_row flipper_length_mm     pred</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">##            &lt;int&gt; &lt;char&gt;             &lt;num&gt;    &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">##   1:           1      1               190 37.94483</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">##   2:           1      2               190 37.61595</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">##   3:           1      3               190 37.53681</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">##   4:           1      4               190 39.49476</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="do">##   5:           1      5               190 38.95635</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="do">##  ---                                              </span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="do">## 362:           2    179               210 51.80471</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="do">## 363:           2    180               210 47.27183</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="do">## 364:           2    181               210 47.05031</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="do">## 365:           2    182               210 50.39028</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="do">## 366:           2    183               210 48.44774</span></span></code></pre><p></p></div>
 <p>You can also let <code>pred_spec_auto</code> pick reasonable values like so:</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="va">pred_spec</span> <span class="op">=</span> <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">species</span>, <span class="va">island</span>, <span class="va">body_mass_g</span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">pred_spec</span> <span class="op">=</span> <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">species</span>, <span class="va">island</span>, <span class="va">body_mass_g</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ice_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
 <span>                        pred_spec <span class="op">=</span> <span class="va">pred_spec</span>,</span>
 <span>                        new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">ice_new</span></span>
-<span><span class="co">#&gt;       id_variable id_row species    island body_mass_g     pred</span></span>
-<span><span class="co">#&gt;             &lt;int&gt; &lt;char&gt;  &lt;fctr&gt;    &lt;fctr&gt;       &lt;num&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt;    1:           1      1  Adelie    Biscoe        3200 37.78339</span></span>
-<span><span class="co">#&gt;    2:           1      2  Adelie    Biscoe        3200 37.73273</span></span>
-<span><span class="co">#&gt;    3:           1      3  Adelie    Biscoe        3200 37.71248</span></span>
-<span><span class="co">#&gt;    4:           1      4  Adelie    Biscoe        3200 40.25782</span></span>
-<span><span class="co">#&gt;    5:           1      5  Adelie    Biscoe        3200 40.04074</span></span>
-<span><span class="co">#&gt;   ---                                                          </span></span>
-<span><span class="co">#&gt; 8231:          45    179  Gentoo Torgersen        5300 46.14559</span></span>
-<span><span class="co">#&gt; 8232:          45    180  Gentoo Torgersen        5300 43.98050</span></span>
-<span><span class="co">#&gt; 8233:          45    181  Gentoo Torgersen        5300 44.59837</span></span>
-<span><span class="co">#&gt; 8234:          45    182  Gentoo Torgersen        5300 44.85146</span></span>
-<span><span class="co">#&gt; 8235:          45    183  Gentoo Torgersen        5300 44.23710</span></span></code></pre><p></p></div>
+<span><span class="va">ice_new</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##       id_variable id_row species    island body_mass_g     pred</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">##             &lt;int&gt; &lt;char&gt;  &lt;fctr&gt;    &lt;fctr&gt;       &lt;num&gt;    &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">##    1:           1      1  Adelie    Biscoe        3200 37.78339</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">##    2:           1      2  Adelie    Biscoe        3200 37.73273</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">##    3:           1      3  Adelie    Biscoe        3200 37.71248</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">##    4:           1      4  Adelie    Biscoe        3200 40.25782</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="do">##    5:           1      5  Adelie    Biscoe        3200 40.04074</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="do">##   ---                                                          </span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="do">## 8231:          45    179  Gentoo Torgersen        5300 46.14559</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="do">## 8232:          45    180  Gentoo Torgersen        5300 43.98050</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="do">## 8233:          45    181  Gentoo Torgersen        5300 44.59837</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="do">## 8234:          45    182  Gentoo Torgersen        5300 44.85146</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="do">## 8235:          45    183  Gentoo Torgersen        5300 44.23710</span></span></code></pre><p></p></div>
 <p>By default, all combinations of all variables are used. However, you can
 also look at the variables one by one, separately, like so:</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="va">ice_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">ice_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
 <span>                        expand_grid <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                        pred_spec <span class="op">=</span> <span class="va">pred_spec</span>,</span>
 <span>                        new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">ice_new</span></span>
-<span><span class="co">#&gt;       id_variable id_row    variable value  level     pred</span></span>
-<span><span class="co">#&gt;             &lt;int&gt; &lt;char&gt;      &lt;char&gt; &lt;num&gt; &lt;char&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt;    1:           1      1     species    NA Adelie 37.74136</span></span>
-<span><span class="co">#&gt;    2:           1      2     species    NA Adelie 37.42367</span></span>
-<span><span class="co">#&gt;    3:           1      3     species    NA Adelie 37.04598</span></span>
-<span><span class="co">#&gt;    4:           1      4     species    NA Adelie 39.89602</span></span>
-<span><span class="co">#&gt;    5:           1      5     species    NA Adelie 39.14848</span></span>
-<span><span class="co">#&gt;   ---                                                     </span></span>
-<span><span class="co">#&gt; 2009:           5    179 body_mass_g  5300   &lt;NA&gt; 51.50196</span></span>
-<span><span class="co">#&gt; 2010:           5    180 body_mass_g  5300   &lt;NA&gt; 47.27055</span></span>
-<span><span class="co">#&gt; 2011:           5    181 body_mass_g  5300   &lt;NA&gt; 48.34064</span></span>
-<span><span class="co">#&gt; 2012:           5    182 body_mass_g  5300   &lt;NA&gt; 48.75828</span></span>
-<span><span class="co">#&gt; 2013:           5    183 body_mass_g  5300   &lt;NA&gt; 48.11020</span></span></code></pre><p></p></div>
+<span><span class="va">ice_new</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##       id_variable id_row    variable value  level     pred</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">##             &lt;int&gt; &lt;char&gt;      &lt;char&gt; &lt;num&gt; &lt;char&gt;    &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">##    1:           1      1     species    NA Adelie 37.74136</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">##    2:           1      2     species    NA Adelie 37.42367</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">##    3:           1      3     species    NA Adelie 37.04598</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">##    4:           1      4     species    NA Adelie 39.89602</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="do">##    5:           1      5     species    NA Adelie 39.14848</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="do">##   ---                                                     </span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="do">## 2009:           5    179 body_mass_g  5300   &lt;NA&gt; 51.50196</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="do">## 2010:           5    180 body_mass_g  5300   &lt;NA&gt; 47.27055</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="do">## 2011:           5    181 body_mass_g  5300   &lt;NA&gt; 48.34064</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="do">## 2012:           5    182 body_mass_g  5300   &lt;NA&gt; 48.75828</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="do">## 2013:           5    183 body_mass_g  5300   &lt;NA&gt; 48.11020</span></span></code></pre><p></p></div>
 <p>And you can also bypass all the bells and whistles by using your own
 <code>data.frame</code> for a <code>pred_spec</code>. (Just make sure you request values that
 exist in the training data.)</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="va">custom_pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Adelie'</span>, </span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">custom_pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Adelie'</span>, </span>
 <span>                               island <span class="op">=</span> <span class="st">'Biscoe'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ice_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
 <span>                        pred_spec <span class="op">=</span> <span class="va">custom_pred_spec</span>,</span>
 <span>                        new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">ice_new</span></span>
-<span><span class="co">#&gt;      id_variable id_row species island     pred</span></span>
-<span><span class="co">#&gt;            &lt;int&gt; &lt;char&gt;  &lt;fctr&gt; &lt;fctr&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt;   1:           1      1  Adelie Biscoe 38.52327</span></span>
-<span><span class="co">#&gt;   2:           1      2  Adelie Biscoe 38.32073</span></span>
-<span><span class="co">#&gt;   3:           1      3  Adelie Biscoe 37.71248</span></span>
-<span><span class="co">#&gt;   4:           1      4  Adelie Biscoe 41.68380</span></span>
-<span><span class="co">#&gt;   5:           1      5  Adelie Biscoe 40.91140</span></span>
-<span><span class="co">#&gt;  ---                                           </span></span>
-<span><span class="co">#&gt; 179:           1    179  Adelie Biscoe 43.09493</span></span>
-<span><span class="co">#&gt; 180:           1    180  Adelie Biscoe 38.79455</span></span>
-<span><span class="co">#&gt; 181:           1    181  Adelie Biscoe 39.37734</span></span>
-<span><span class="co">#&gt; 182:           1    182  Adelie Biscoe 40.71952</span></span>
-<span><span class="co">#&gt; 183:           1    183  Adelie Biscoe 39.34501</span></span></code></pre><p></p></div>
+<span><span class="va">ice_new</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##      id_variable id_row species island     pred</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">##            &lt;int&gt; &lt;char&gt;  &lt;fctr&gt; &lt;fctr&gt;    &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">##   1:           1      1  Adelie Biscoe 38.52327</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">##   2:           1      2  Adelie Biscoe 38.32073</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">##   3:           1      3  Adelie Biscoe 37.71248</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">##   4:           1      4  Adelie Biscoe 41.68380</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="do">##   5:           1      5  Adelie Biscoe 40.91140</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="do">##  ---                                           </span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="do">## 179:           1    179  Adelie Biscoe 43.09493</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="do">## 180:           1    180  Adelie Biscoe 38.79455</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="do">## 181:           1    181  Adelie Biscoe 39.37734</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="do">## 182:           1    182  Adelie Biscoe 40.71952</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="do">## 183:           1    183  Adelie Biscoe 39.34501</span></span></code></pre><p></p></div>
 </div>
 
 <div class="section">
@@ -393,8 +385,7 @@ exist in the training data.)</p>
 
 
 <p>Begin by fitting an oblique survival random forest:</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">index_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">pbc_orsf</span><span class="op">)</span>, <span class="fl">150</span><span class="op">)</span> </span>
 <span></span>
@@ -407,56 +398,55 @@ exist in the training data.)</p>
 <p>Compute individual conditional expectation using in-bag data for
 <code>bili = c(1,2,3,4,5)</code>:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">ice_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">ice_train</span></span>
-<span><span class="co">#&gt;      id_variable id_row pred_horizon  bili      pred</span></span>
-<span><span class="co">#&gt;            &lt;int&gt; &lt;char&gt;        &lt;num&gt; &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;   1:           1      1      1826.25     1 0.1290317</span></span>
-<span><span class="co">#&gt;   2:           1      2      1826.25     1 0.1242352</span></span>
-<span><span class="co">#&gt;   3:           1      3      1826.25     1 0.0963452</span></span>
-<span><span class="co">#&gt;   4:           1      4      1826.25     1 0.1172367</span></span>
-<span><span class="co">#&gt;   5:           1      5      1826.25     1 0.2030256</span></span>
-<span><span class="co">#&gt;  ---                                                </span></span>
-<span><span class="co">#&gt; 746:           5    146      1826.25     5 0.7868537</span></span>
-<span><span class="co">#&gt; 747:           5    147      1826.25     5 0.2012954</span></span>
-<span><span class="co">#&gt; 748:           5    148      1826.25     5 0.4893605</span></span>
-<span><span class="co">#&gt; 749:           5    149      1826.25     5 0.4698220</span></span>
-<span><span class="co">#&gt; 750:           5    150      1826.25     5 0.9557285</span></span></code></pre><p></p></div>
+<span><span class="va">ice_train</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##      id_variable id_row pred_horizon  bili      pred</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">##            &lt;int&gt; &lt;char&gt;        &lt;num&gt; &lt;num&gt;     &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">##   1:           1      1      1826.25     1 0.1290317</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">##   2:           1      2      1826.25     1 0.1242352</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">##   3:           1      3      1826.25     1 0.0963452</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">##   4:           1      4      1826.25     1 0.1172367</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="do">##   5:           1      5      1826.25     1 0.2030256</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="do">##  ---                                                </span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="do">## 746:           5    146      1826.25     5 0.7868537</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="do">## 747:           5    147      1826.25     5 0.2012954</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="do">## 748:           5    148      1826.25     5 0.4893605</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="do">## 749:           5    149      1826.25     5 0.4698220</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="do">## 750:           5    150      1826.25     5 0.9557285</span></span></code></pre><p></p></div>
 <p>If you don’t have specific values of a variable in mind, let
 <code>pred_spec_auto</code> pick for you:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">ice_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bili</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">ice_train</span></span>
-<span><span class="co">#&gt;      id_variable id_row pred_horizon  bili       pred</span></span>
-<span><span class="co">#&gt;            &lt;int&gt; &lt;char&gt;        &lt;num&gt; &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;   1:           1      1      1826.25  0.55 0.11728559</span></span>
-<span><span class="co">#&gt;   2:           1      2      1826.25  0.55 0.11728839</span></span>
-<span><span class="co">#&gt;   3:           1      3      1826.25  0.55 0.08950739</span></span>
-<span><span class="co">#&gt;   4:           1      4      1826.25  0.55 0.10064959</span></span>
-<span><span class="co">#&gt;   5:           1      5      1826.25  0.55 0.18736417</span></span>
-<span><span class="co">#&gt;  ---                                                 </span></span>
-<span><span class="co">#&gt; 746:           5    146      1826.25  7.25 0.82600898</span></span>
-<span><span class="co">#&gt; 747:           5    147      1826.25  7.25 0.29156437</span></span>
-<span><span class="co">#&gt; 748:           5    148      1826.25  7.25 0.58395919</span></span>
-<span><span class="co">#&gt; 749:           5    149      1826.25  7.25 0.54202021</span></span>
-<span><span class="co">#&gt; 750:           5    150      1826.25  7.25 0.96391985</span></span></code></pre><p></p></div>
+<span><span class="va">ice_train</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##      id_variable id_row pred_horizon  bili       pred</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">##            &lt;int&gt; &lt;char&gt;        &lt;num&gt; &lt;num&gt;      &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">##   1:           1      1      1826.25  0.55 0.11728559</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">##   2:           1      2      1826.25  0.55 0.11728839</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">##   3:           1      3      1826.25  0.55 0.08950739</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">##   4:           1      4      1826.25  0.55 0.10064959</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="do">##   5:           1      5      1826.25  0.55 0.18736417</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="do">##  ---                                                 </span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="do">## 746:           5    146      1826.25  7.25 0.82600898</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="do">## 747:           5    147      1826.25  7.25 0.29156437</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="do">## 748:           5    148      1826.25  7.25 0.58395919</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="do">## 749:           5    149      1826.25  7.25 0.54202021</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="do">## 750:           5    150      1826.25  7.25 0.96391985</span></span></code></pre><p></p></div>
 <p>Specify <code>pred_horizon</code> to get individual conditional expectation at each
 value:</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="va">ice_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bili</span><span class="op">)</span>,</span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">ice_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_ice_oob.html">orsf_ice_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bili</span><span class="op">)</span>,</span>
 <span>                          pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">3000</span>, by <span class="op">=</span> <span class="fl">500</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">ice_train</span></span>
-<span><span class="co">#&gt;       id_variable id_row pred_horizon  bili        pred</span></span>
-<span><span class="co">#&gt;             &lt;int&gt; &lt;char&gt;        &lt;num&gt; &lt;num&gt;       &lt;num&gt;</span></span>
-<span><span class="co">#&gt;    1:           1      1          500  0.55 0.008276627</span></span>
-<span><span class="co">#&gt;    2:           1      1         1000  0.55 0.055724516</span></span>
-<span><span class="co">#&gt;    3:           1      1         1500  0.55 0.085091120</span></span>
-<span><span class="co">#&gt;    4:           1      1         2000  0.55 0.123423352</span></span>
-<span><span class="co">#&gt;    5:           1      1         2500  0.55 0.166380739</span></span>
-<span><span class="co">#&gt;   ---                                                  </span></span>
-<span><span class="co">#&gt; 4496:           5    150         1000  7.25 0.837774757</span></span>
-<span><span class="co">#&gt; 4497:           5    150         1500  7.25 0.934536379</span></span>
-<span><span class="co">#&gt; 4498:           5    150         2000  7.25 0.967823286</span></span>
-<span><span class="co">#&gt; 4499:           5    150         2500  7.25 0.972059574</span></span>
-<span><span class="co">#&gt; 4500:           5    150         3000  7.25 0.980785643</span></span></code></pre><p></p></div>
+<span><span class="va">ice_train</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##       id_variable id_row pred_horizon  bili        pred</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">##             &lt;int&gt; &lt;char&gt;        &lt;num&gt; &lt;num&gt;       &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">##    1:           1      1          500  0.55 0.008276627</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">##    2:           1      1         1000  0.55 0.055724516</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">##    3:           1      1         1500  0.55 0.085091120</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">##    4:           1      1         2000  0.55 0.123423352</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="do">##    5:           1      1         2500  0.55 0.166380739</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="do">##   ---                                                  </span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="do">## 4496:           5    150         1000  7.25 0.837774757</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="do">## 4497:           5    150         1500  7.25 0.934536379</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="do">## 4498:           5    150         2000  7.25 0.967823286</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="do">## 4499:           5    150         2500  7.25 0.972059574</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="do">## 4500:           5    150         3000  7.25 0.980785643</span></span></code></pre><p></p></div>
 <p>Multi-prediction horizon ice comes with minimal extra computational
 cost. Use a fine grid of time values and assess whether predictors have
 time-varying effects.</p>
@@ -469,11 +459,11 @@ time-varying effects.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Byron Jaeger.</p>
+  <p>Developed by Byron Jaeger.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.8.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
 </div>
 
     </footer></div>

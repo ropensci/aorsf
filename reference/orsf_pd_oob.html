@@ -7,7 +7,7 @@ using out-of-bag predictions for the training data
 using predictions for a new set of data
 
 
-See examples for more details"><title>Partial dependence — orsf_pd_oob • aorsf</title><!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png"><link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png"><link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png"><link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png"><link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png"><link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png"><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Partial dependence — orsf_pd_oob"><meta property="og:description" content="Compute partial dependence for an oblique random forest.
+See examples for more details"><title>Partial dependence — orsf_pd_oob • aorsf</title><!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png"><link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png"><link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png"><link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png"><link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png"><link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png"><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js" integrity="sha512-7O5pXpc0oCRrxk8RUfDYFgn0nO1t+jLuIOQdOMRp4APB7uZ4vSjspzp5y6YDtDs4VzUSTbWzBFZ/LKJhnyFOKw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Partial dependence — orsf_pd_oob"><meta property="og:description" content="Compute partial dependence for an oblique random forest.
 Partial dependence (PD) shows the expected prediction from a model as a function of a single predictor or multiple predictors. The expectation is marginalized over the values of all other predictors, giving something like a multivariable adjusted estimate of the model's prediction.
 You can compute partial dependence three ways using a random forest:
 using in-bag predictions for the training data
@@ -256,8 +256,7 @@ fairness.</p></li>
 
 
 <p>Begin by fitting an oblique classification random forest:</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">index_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">)</span>, <span class="fl">150</span><span class="op">)</span> </span>
 <span></span>
@@ -268,32 +267,29 @@ fairness.</p></li>
 <span>                 formula <span class="op">=</span> <span class="va">species</span> <span class="op">~</span> <span class="va">.</span><span class="op">)</span></span></code></pre><p></p></div>
 <p>Compute partial dependence using out-of-bag data for
 <code>flipper_length_mm = c(190, 210)</code>.</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="va">pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>flipper_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">190</span>, <span class="fl">210</span><span class="op">)</span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>flipper_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">190</span>, <span class="fl">210</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_oob</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_oob</a></span><span class="op">(</span><span class="va">fit_clsf</span>, pred_spec <span class="op">=</span> <span class="va">pred_spec</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">pd_oob</span></span>
-<span><span class="co">#&gt; Key: &lt;class&gt;</span></span>
-<span><span class="co">#&gt;        class flipper_length_mm      mean         lwr       medn       upr</span></span>
-<span><span class="co">#&gt;       &lt;fctr&gt;             &lt;num&gt;     &lt;num&gt;       &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    Adelie               190 0.6176908 0.202278109 0.75856417 0.9810614</span></span>
-<span><span class="co">#&gt; 2:    Adelie               210 0.4338528 0.019173811 0.56489202 0.8648110</span></span>
-<span><span class="co">#&gt; 3: Chinstrap               190 0.2114979 0.017643385 0.15211271 0.7215181</span></span>
-<span><span class="co">#&gt; 4: Chinstrap               210 0.1803019 0.020108201 0.09679464 0.7035053</span></span>
-<span><span class="co">#&gt; 5:    Gentoo               190 0.1708113 0.001334861 0.02769695 0.5750201</span></span>
-<span><span class="co">#&gt; 6:    Gentoo               210 0.3858453 0.068685035 0.20717073 0.9532853</span></span></code></pre><p></p></div>
+<span><span class="va">pd_oob</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">## Key: &lt;class&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">##        class flipper_length_mm      mean         lwr       medn       upr</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">##       &lt;fctr&gt;             &lt;num&gt;     &lt;num&gt;       &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">## 1:    Adelie               190 0.6176908 0.202278109 0.75856417 0.9810614</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">## 2:    Adelie               210 0.4338528 0.019173811 0.56489202 0.8648110</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">## 3: Chinstrap               190 0.2114979 0.017643385 0.15211271 0.7215181</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="do">## 4: Chinstrap               210 0.1803019 0.020108201 0.09679464 0.7035053</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="do">## 5:    Gentoo               190 0.1708113 0.001334861 0.02769695 0.5750201</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="do">## 6:    Gentoo               210 0.3858453 0.068685035 0.20717073 0.9532853</span></span></code></pre><p></p></div>
 <p>Note that predicted probabilities are returned for each class and
 probabilities in the <code>mean</code> column sum to 1 if you take the sum over
 each class at a specific value of the <code>pred_spec</code> variables. For
 example,</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">pd_oob</span><span class="op">[</span><span class="va">flipper_length_mm</span> <span class="op">==</span> <span class="fl">190</span>, <span class="va">mean</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 1</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">pd_oob</span><span class="op">[</span><span class="va">flipper_length_mm</span> <span class="op">==</span> <span class="fl">190</span>, <span class="va">mean</span><span class="op">]</span><span class="op">)</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">## [1] 1</span></span></code></pre><p></p></div>
 <p>But this isn’t the case for the median predicted probability!</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">pd_oob</span><span class="op">[</span><span class="va">flipper_length_mm</span> <span class="op">==</span> <span class="fl">190</span>, <span class="va">medn</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.9383738</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">pd_oob</span><span class="op">[</span><span class="va">flipper_length_mm</span> <span class="op">==</span> <span class="fl">190</span>, <span class="va">medn</span><span class="op">]</span><span class="op">)</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">## [1] 0.9383738</span></span></code></pre><p></p></div>
 </div>
 
 <div class="section">
@@ -301,8 +297,7 @@ example,</p>
 
 
 <p>Begin by fitting an oblique regression random forest:</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">index_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">penguins_orsf</span><span class="op">)</span>, <span class="fl">150</span><span class="op">)</span> </span>
 <span></span>
@@ -313,77 +308,73 @@ example,</p>
 <span>                 formula <span class="op">=</span> <span class="va">bill_length_mm</span> <span class="op">~</span> <span class="va">.</span><span class="op">)</span></span></code></pre><p></p></div>
 <p>Compute partial dependence using new data for
 <code>flipper_length_mm = c(190, 210)</code>.</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="va">pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>flipper_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">190</span>, <span class="fl">210</span><span class="op">)</span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>flipper_length_mm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">190</span>, <span class="fl">210</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
 <span>                      pred_spec <span class="op">=</span> <span class="va">pred_spec</span>,</span>
 <span>                      new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">pd_new</span></span>
-<span><span class="co">#&gt;    flipper_length_mm     mean      lwr     medn      upr</span></span>
-<span><span class="co">#&gt;                &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:               190 42.96571 37.09805 43.69769 48.72301</span></span>
-<span><span class="co">#&gt; 2:               210 45.66012 40.50693 46.31577 51.65163</span></span></code></pre><p></p></div>
+<span><span class="va">pd_new</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##    flipper_length_mm     mean      lwr     medn      upr</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">##                &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">## 1:               190 42.96571 37.09805 43.69769 48.72301</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">## 2:               210 45.66012 40.50693 46.31577 51.65163</span></span></code></pre><p></p></div>
 <p>You can also let <code>pred_spec_auto</code> pick reasonable values like so:</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="va">pred_spec</span> <span class="op">=</span> <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">species</span>, <span class="va">island</span>, <span class="va">body_mass_g</span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">pred_spec</span> <span class="op">=</span> <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">species</span>, <span class="va">island</span>, <span class="va">body_mass_g</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
 <span>                      pred_spec <span class="op">=</span> <span class="va">pred_spec</span>,</span>
 <span>                      new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">pd_new</span></span>
-<span><span class="co">#&gt;       species    island body_mass_g     mean      lwr     medn      upr</span></span>
-<span><span class="co">#&gt;        &lt;fctr&gt;    &lt;fctr&gt;       &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:    Adelie    Biscoe        3200 40.31374 37.24373 40.31967 44.22824</span></span>
-<span><span class="co">#&gt;  2: Chinstrap    Biscoe        3200 45.10582 42.63342 45.10859 47.60119</span></span>
-<span><span class="co">#&gt;  3:    Gentoo    Biscoe        3200 42.81649 40.19221 42.55664 46.84035</span></span>
-<span><span class="co">#&gt;  4:    Adelie     Dream        3200 40.16219 36.95895 40.34633 43.90681</span></span>
-<span><span class="co">#&gt;  5: Chinstrap     Dream        3200 46.21778 43.53954 45.90929 49.19173</span></span>
-<span><span class="co">#&gt; ---                                                                    </span></span>
-<span><span class="co">#&gt; 41: Chinstrap     Dream        5300 48.48139 46.36282 48.25679 51.02996</span></span>
-<span><span class="co">#&gt; 42:    Gentoo     Dream        5300 45.91819 43.62832 45.54110 49.91622</span></span>
-<span><span class="co">#&gt; 43:    Adelie Torgersen        5300 42.92879 40.66576 42.31072 46.76406</span></span>
-<span><span class="co">#&gt; 44: Chinstrap Torgersen        5300 46.59576 44.80400 46.49196 49.03906</span></span>
-<span><span class="co">#&gt; 45:    Gentoo Torgersen        5300 45.11384 42.95190 44.51289 49.27629</span></span></code></pre><p></p></div>
+<span><span class="va">pd_new</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##       species    island body_mass_g     mean      lwr     medn      upr</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">##        &lt;fctr&gt;    &lt;fctr&gt;       &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">##  1:    Adelie    Biscoe        3200 40.31374 37.24373 40.31967 44.22824</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">##  2: Chinstrap    Biscoe        3200 45.10582 42.63342 45.10859 47.60119</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">##  3:    Gentoo    Biscoe        3200 42.81649 40.19221 42.55664 46.84035</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">##  4:    Adelie     Dream        3200 40.16219 36.95895 40.34633 43.90681</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="do">##  5: Chinstrap     Dream        3200 46.21778 43.53954 45.90929 49.19173</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="do">## ---                                                                    </span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="do">## 41: Chinstrap     Dream        5300 48.48139 46.36282 48.25679 51.02996</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="do">## 42:    Gentoo     Dream        5300 45.91819 43.62832 45.54110 49.91622</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="do">## 43:    Adelie Torgersen        5300 42.92879 40.66576 42.31072 46.76406</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="do">## 44: Chinstrap Torgersen        5300 46.59576 44.80400 46.49196 49.03906</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="do">## 45:    Gentoo Torgersen        5300 45.11384 42.95190 44.51289 49.27629</span></span></code></pre><p></p></div>
 <p>By default, all combinations of all variables are used. However, you can
 also look at the variables one by one, separately, like so:</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="va">pd_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">pd_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
 <span>                      expand_grid <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>                      pred_spec <span class="op">=</span> <span class="va">pred_spec</span>,</span>
 <span>                      new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">pd_new</span></span>
-<span><span class="co">#&gt;        variable value     level     mean      lwr     medn      upr</span></span>
-<span><span class="co">#&gt;          &lt;char&gt; &lt;num&gt;    &lt;char&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:     species    NA    Adelie 41.90271 37.10417 41.51723 48.51478</span></span>
-<span><span class="co">#&gt;  2:     species    NA Chinstrap 47.11314 42.40419 46.96478 51.51392</span></span>
-<span><span class="co">#&gt;  3:     species    NA    Gentoo 44.37038 39.87306 43.89889 51.21635</span></span>
-<span><span class="co">#&gt;  4:      island    NA    Biscoe 44.21332 37.22711 45.27862 51.21635</span></span>
-<span><span class="co">#&gt;  5:      island    NA     Dream 44.43354 37.01471 45.57261 51.51392</span></span>
-<span><span class="co">#&gt;  6:      island    NA Torgersen 43.29539 37.01513 44.26924 49.84391</span></span>
-<span><span class="co">#&gt;  7: body_mass_g  3200      &lt;NA&gt; 42.84625 37.03978 43.95991 49.19173</span></span>
-<span><span class="co">#&gt;  8: body_mass_g  3550      &lt;NA&gt; 43.53326 37.56730 44.43756 50.47092</span></span>
-<span><span class="co">#&gt;  9: body_mass_g  3975      &lt;NA&gt; 44.30431 38.31567 45.22089 51.50683</span></span>
-<span><span class="co">#&gt; 10: body_mass_g  4700      &lt;NA&gt; 45.22559 39.88199 46.34680 51.18955</span></span>
-<span><span class="co">#&gt; 11: body_mass_g  5300      &lt;NA&gt; 45.91412 40.84742 46.95327 51.48851</span></span></code></pre><p></p></div>
+<span><span class="va">pd_new</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##        variable value     level     mean      lwr     medn      upr</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">##          &lt;char&gt; &lt;num&gt;    &lt;char&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">##  1:     species    NA    Adelie 41.90271 37.10417 41.51723 48.51478</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">##  2:     species    NA Chinstrap 47.11314 42.40419 46.96478 51.51392</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">##  3:     species    NA    Gentoo 44.37038 39.87306 43.89889 51.21635</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">##  4:      island    NA    Biscoe 44.21332 37.22711 45.27862 51.21635</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="do">##  5:      island    NA     Dream 44.43354 37.01471 45.57261 51.51392</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="do">##  6:      island    NA Torgersen 43.29539 37.01513 44.26924 49.84391</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="do">##  7: body_mass_g  3200      &lt;NA&gt; 42.84625 37.03978 43.95991 49.19173</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="do">##  8: body_mass_g  3550      &lt;NA&gt; 43.53326 37.56730 44.43756 50.47092</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="do">##  9: body_mass_g  3975      &lt;NA&gt; 44.30431 38.31567 45.22089 51.50683</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="do">## 10: body_mass_g  4700      &lt;NA&gt; 45.22559 39.88199 46.34680 51.18955</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="do">## 11: body_mass_g  5300      &lt;NA&gt; 45.91412 40.84742 46.95327 51.48851</span></span></code></pre><p></p></div>
 <p>And you can also bypass all the bells and whistles by using your own
 <code>data.frame</code> for a <code>pred_spec</code>. (Just make sure you request values that
 exist in the training data.)</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="va">custom_pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Adelie'</span>, </span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">custom_pred_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>species <span class="op">=</span> <span class="st">'Adelie'</span>, </span>
 <span>                               island <span class="op">=</span> <span class="st">'Biscoe'</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pd_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_new</a></span><span class="op">(</span><span class="va">fit_regr</span>, </span>
 <span>                      pred_spec <span class="op">=</span> <span class="va">custom_pred_spec</span>,</span>
 <span>                      new_data <span class="op">=</span> <span class="va">penguins_orsf_test</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">pd_new</span></span>
-<span><span class="co">#&gt;    species island     mean      lwr     medn      upr</span></span>
-<span><span class="co">#&gt;     &lt;fctr&gt; &lt;fctr&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  Adelie Biscoe 41.98024 37.22711 41.65252 48.51478</span></span></code></pre><p></p></div>
+<span><span class="va">pd_new</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##    species island     mean      lwr     medn      upr</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">##     &lt;fctr&gt; &lt;fctr&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">## 1:  Adelie Biscoe 41.98024 37.22711 41.65252 48.51478</span></span></code></pre><p></p></div>
 </div>
 
 <div class="section">
@@ -391,8 +382,7 @@ exist in the training data.)</p>
 
 
 <p>Begin by fitting an oblique survival random forest:</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">329</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">index_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">pbc_orsf</span><span class="op">)</span>, <span class="fl">150</span><span class="op">)</span> </span>
 <span></span>
@@ -404,43 +394,42 @@ exist in the training data.)</p>
 <span>                 oobag_pred_horizon <span class="op">=</span> <span class="fl">365.25</span> <span class="op">*</span> <span class="fl">5</span><span class="op">)</span></span></code></pre><p></p></div>
 <p>Compute partial dependence using in-bag data for <code>bili = c(1,2,3,4,5)</code>:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">pd_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, pred_spec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>bili <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">pd_train</span></span>
-<span><span class="co">#&gt;    pred_horizon  bili      mean        lwr      medn       upr</span></span>
-<span><span class="co">#&gt;           &lt;num&gt; &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      1826.25     1 0.2566200 0.02234786 0.1334170 0.8918909</span></span>
-<span><span class="co">#&gt; 2:      1826.25     2 0.3121392 0.06853733 0.1896849 0.9204338</span></span>
-<span><span class="co">#&gt; 3:      1826.25     3 0.3703242 0.11409793 0.2578505 0.9416791</span></span>
-<span><span class="co">#&gt; 4:      1826.25     4 0.4240692 0.15645214 0.3331057 0.9591581</span></span>
-<span><span class="co">#&gt; 5:      1826.25     5 0.4663670 0.20123406 0.3841700 0.9655296</span></span></code></pre><p></p></div>
+<span><span class="va">pd_train</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##    pred_horizon  bili      mean        lwr      medn       upr</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">##           &lt;num&gt; &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">## 1:      1826.25     1 0.2566200 0.02234786 0.1334170 0.8918909</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">## 2:      1826.25     2 0.3121392 0.06853733 0.1896849 0.9204338</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">## 3:      1826.25     3 0.3703242 0.11409793 0.2578505 0.9416791</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">## 4:      1826.25     4 0.4240692 0.15645214 0.3331057 0.9591581</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="do">## 5:      1826.25     5 0.4663670 0.20123406 0.3841700 0.9655296</span></span></code></pre><p></p></div>
 <p>If you don’t have specific values of a variable in mind, let
 <code>pred_spec_auto</code> pick for you:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="va">pd_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bili</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">pd_train</span></span>
-<span><span class="co">#&gt;    pred_horizon  bili      mean        lwr      medn       upr</span></span>
-<span><span class="co">#&gt;           &lt;num&gt; &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:      1826.25  0.55 0.2481444 0.02035041 0.1242215 0.8801444</span></span>
-<span><span class="co">#&gt; 2:      1826.25  0.70 0.2502831 0.02045039 0.1271039 0.8836536</span></span>
-<span><span class="co">#&gt; 3:      1826.25  1.50 0.2797763 0.03964900 0.1601715 0.9041584</span></span>
-<span><span class="co">#&gt; 4:      1826.25  3.50 0.3959349 0.13431288 0.2920400 0.9501230</span></span>
-<span><span class="co">#&gt; 5:      1826.25  7.25 0.5351935 0.28064629 0.4652185 0.9783000</span></span></code></pre><p></p></div>
+<span><span class="va">pd_train</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##    pred_horizon  bili      mean        lwr      medn       upr</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">##           &lt;num&gt; &lt;num&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;     &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">## 1:      1826.25  0.55 0.2481444 0.02035041 0.1242215 0.8801444</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">## 2:      1826.25  0.70 0.2502831 0.02045039 0.1271039 0.8836536</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">## 3:      1826.25  1.50 0.2797763 0.03964900 0.1601715 0.9041584</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">## 4:      1826.25  3.50 0.3959349 0.13431288 0.2920400 0.9501230</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="do">## 5:      1826.25  7.25 0.5351935 0.28064629 0.4652185 0.9783000</span></span></code></pre><p></p></div>
 <p>Specify <code>pred_horizon</code> to get partial dependence at each value:</p>
-<p></p><div class="sourceCode r"><pre><code><span></span>
-<span><span class="va">pd_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bili</span><span class="op">)</span>,</span>
+<p></p><div class="sourceCode r"><pre><code><span><span class="va">pd_train</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/orsf_pd_oob.html">orsf_pd_inb</a></span><span class="op">(</span><span class="va">fit_surv</span>, <span class="fu"><a href="../reference/pred_spec_auto.html">pred_spec_auto</a></span><span class="op">(</span><span class="va">bili</span><span class="op">)</span>,</span>
 <span>                        pred_horizon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">500</span>, <span class="fl">3000</span>, by <span class="op">=</span> <span class="fl">500</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">pd_train</span></span>
-<span><span class="co">#&gt;     pred_horizon  bili      mean         lwr       medn       upr</span></span>
-<span><span class="co">#&gt;            &lt;num&gt; &lt;num&gt;     &lt;num&gt;       &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:          500  0.55 0.0617199 0.000443399 0.00865419 0.5907104</span></span>
-<span><span class="co">#&gt;  2:         1000  0.55 0.1418501 0.005793742 0.05572853 0.7360749</span></span>
-<span><span class="co">#&gt;  3:         1500  0.55 0.2082505 0.013609478 0.09174558 0.8556319</span></span>
-<span><span class="co">#&gt;  4:         2000  0.55 0.2679017 0.023047689 0.14574169 0.8910549</span></span>
-<span><span class="co">#&gt;  5:         2500  0.55 0.3179617 0.063797305 0.20254500 0.9017710</span></span>
-<span><span class="co">#&gt; ---                                                              </span></span>
-<span><span class="co">#&gt; 26:         1000  7.25 0.3264627 0.135343689 0.25956791 0.8884333</span></span>
-<span><span class="co">#&gt; 27:         1500  7.25 0.4641265 0.218208755 0.38787435 0.9702903</span></span>
-<span><span class="co">#&gt; 28:         2000  7.25 0.5511761 0.293367409 0.48427730 0.9812413</span></span>
-<span><span class="co">#&gt; 29:         2500  7.25 0.6200238 0.371965247 0.56954399 0.9845058</span></span>
-<span><span class="co">#&gt; 30:         3000  7.25 0.6803482 0.425128031 0.64642318 0.9888637</span></span></code></pre><p></p></div>
+<span><span class="va">pd_train</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="do">##     pred_horizon  bili      mean         lwr       medn       upr</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="do">##            &lt;num&gt; &lt;num&gt;     &lt;num&gt;       &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="do">##  1:          500  0.55 0.0617199 0.000443399 0.00865419 0.5907104</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="do">##  2:         1000  0.55 0.1418501 0.005793742 0.05572853 0.7360749</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="do">##  3:         1500  0.55 0.2082505 0.013609478 0.09174558 0.8556319</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="do">##  4:         2000  0.55 0.2679017 0.023047689 0.14574169 0.8910549</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="do">##  5:         2500  0.55 0.3179617 0.063797305 0.20254500 0.9017710</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="do">## ---                                                              </span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="do">## 26:         1000  7.25 0.3264627 0.135343689 0.25956791 0.8884333</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="do">## 27:         1500  7.25 0.4641265 0.218208755 0.38787435 0.9702903</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="do">## 28:         2000  7.25 0.5511761 0.293367409 0.48427730 0.9812413</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="do">## 29:         2500  7.25 0.6200238 0.371965247 0.56954399 0.9845058</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="do">## 30:         3000  7.25 0.6803482 0.425128031 0.64642318 0.9888637</span></span></code></pre><p></p></div>
 <p>vector-valued <code>pred_horizon</code> input comes with minimal extra
 computational cost. Use a fine grid of time values and assess whether
 predictors have time-varying effects. (see partial dependence vignette
@@ -462,11 +451,11 @@ and Computing</em>, <em>31</em>, 1-16.</p></li>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Byron Jaeger.</p>
+  <p>Developed by Byron Jaeger.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.8.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
 </div>
 
     </footer></div>
