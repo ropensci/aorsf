@@ -4184,13 +4184,13 @@ ObliqueForestClassification <- R6::R6Class(
 
   },
 
-  clean_pred_oobag_internal = function(){
-
-   if(self$pred_type %in% c("prob") && is.matrix(self$pred_oobag)){
-    colnames(self$pred_oobag) <- self$class_levels
-   }
-
-  },
+  # clean_pred_oobag_internal = function(){
+  #
+  #  if(self$pred_type %in% c("prob") && is.matrix(self$pred_oobag)){
+  #   colnames(self$pred_oobag) <- self$class_levels
+  #  }
+  #
+  # },
 
   predict_internal = function(simplify, oobag){
 
