@@ -496,7 +496,8 @@ ObliqueForest <- R6::R6Class(
    # object is restored to its original state.
    if(is_error(out)) stop(out, call. = FALSE)
 
-   return(out)
+   # NaNs may occur with oobag = TRUE and small n_tree
+   coerce_nans(out, to = NA_real_)
 
 
   },
@@ -3940,6 +3941,7 @@ ObliqueForestSurvival <- R6::R6Class(
     # put the oob predictions into the same order as the training data.
     unsorted <- collapse::radixorder(private$data_row_sort)
     out_values <- out_values[unsorted, , drop = FALSE]
+
    }
 
    private$clean_pred_new(out_values)
@@ -4174,6 +4176,14 @@ ObliqueForestClassification <- R6::R6Class(
    if(min(y) > 0) stop("y is less than 0")
 
    private$y <- expand_y_clsf(as_matrix(y), n_class)
+
+  },
+
+  clean_pred_oobag_internal = function(){
+
+   if(self$pred_type %in% c("prob") && is.matrix(self$pred_oobag)){
+    colnames(self$pred_oobag) <- self$class_levels
+   }
 
   },
 

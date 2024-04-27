@@ -641,6 +641,28 @@ test_that(
  }
 )
 
+test_that(
+ desc = "oobag predictions match predict with oobag = TRUE",
+ code = {
+
+  expect_equal(
+   fit_standard_pbc$fast$pred_oobag,
+   predict(fit_standard_pbc$fast, oobag = TRUE)
+  )
+
+  expect_equal(
+   fit_standard_penguin_bills$net$pred_oobag,
+   predict(fit_standard_penguin_bills$net, oobag = TRUE)
+  )
+
+  expect_equal(
+   fit_standard_penguin_species$custom$pred_oobag,
+   predict(fit_standard_penguin_species$custom, oobag = TRUE)
+  )
+
+ }
+)
+
 new_data <- pbc_test[1:10, ]
 
 test_that(
