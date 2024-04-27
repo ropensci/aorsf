@@ -8,7 +8,11 @@ coerce_nans.list <- function(x, to){
 
 }
 
-coerce_nans.array <- coerce_nans.matrix <- function(x, to){
+coerce_nans.factor <-
+ coerce_nans.integer <-
+ coerce_nans.double <-
+ coerce_nans.array <-
+ coerce_nans.matrix <- function(x, to){
 
  if(any(is.nan(x))){
   x[is.nan(x)] <- to

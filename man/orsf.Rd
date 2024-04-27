@@ -364,11 +364,6 @@ data that were not used to train it, i.e., testing data.
 \section{Examples}{
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{library(aorsf)
 library(magrittr) # for \%>\%
-#> 
-#> Attaching package: 'magrittr'
-#> The following objects are masked from 'package:testthat':
-#> 
-#>     equals, is_less_than, not
 }\if{html}{\out{</div>}}
 
 \code{orsf()} is the entry-point of the \code{aorsf} package. It can be used to
@@ -383,21 +378,23 @@ penguin_fit <- orsf(data = penguins_orsf,
                     formula = species ~ .)
 
 penguin_fit
-#> ---------- Oblique random classification forest
-#> 
-#>      Linear combinations: Accelerated Logistic regression
-#>           N observations: 333
-#>                N classes: 3
-#>                  N trees: 5
-#>       N predictors total: 7
-#>    N predictors per node: 3
-#>  Average leaves per tree: 4.8
-#> Min observations in leaf: 5
-#>           OOB stat value: 0.98
-#>            OOB stat type: AUC-ROC
-#>      Variable importance: anova
-#> 
-#> -----------------------------------------
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random classification forest
+## 
+##      Linear combinations: Accelerated Logistic regression
+##           N observations: 333
+##                N classes: 3
+##                  N trees: 5
+##       N predictors total: 7
+##    N predictors per node: 3
+##  Average leaves per tree: 6.4
+## Min observations in leaf: 5
+##           OOB stat value: 0.98
+##            OOB stat type: AUC-ROC
+##      Variable importance: anova
+## 
+## -----------------------------------------
 }\if{html}{\out{</div>}}
 
 For regression, we use the same data but predict bill length of
@@ -409,20 +406,22 @@ bill_fit <- orsf(data = penguins_orsf,
                  formula = bill_length_mm ~ .)
 
 bill_fit
-#> ---------- Oblique random regression forest
-#> 
-#>      Linear combinations: Accelerated Linear regression
-#>           N observations: 333
-#>                  N trees: 5
-#>       N predictors total: 7
-#>    N predictors per node: 3
-#>  Average leaves per tree: 50.4
-#> Min observations in leaf: 5
-#>           OOB stat value: 0.74
-#>            OOB stat type: RSQ
-#>      Variable importance: anova
-#> 
-#> -----------------------------------------
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random regression forest
+## 
+##      Linear combinations: Accelerated Linear regression
+##           N observations: 333
+##                  N trees: 5
+##       N predictors total: 7
+##    N predictors per node: 3
+##  Average leaves per tree: 49.2
+## Min observations in leaf: 5
+##           OOB stat value: 0.75
+##            OOB stat type: RSQ
+##      Variable importance: anova
+## 
+## -----------------------------------------
 }\if{html}{\out{</div>}}
 
 My personal favorite is the oblique survival RF with accelerated Cox
@@ -438,22 +437,24 @@ pbc_fit <- orsf(data = pbc_orsf,
                 formula = Surv(time, status) ~ . - id)
 
 pbc_fit
-#> ---------- Oblique random survival forest
-#> 
-#>      Linear combinations: Accelerated Cox regression
-#>           N observations: 276
-#>                 N events: 111
-#>                  N trees: 5
-#>       N predictors total: 17
-#>    N predictors per node: 5
-#>  Average leaves per tree: 19.6
-#> Min observations in leaf: 5
-#>       Min events in leaf: 1
-#>           OOB stat value: 0.78
-#>            OOB stat type: Harrell's C-index
-#>      Variable importance: anova
-#> 
-#> -----------------------------------------
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
+## 
+##      Linear combinations: Accelerated Cox regression
+##           N observations: 276
+##                 N events: 111
+##                  N trees: 5
+##       N predictors total: 17
+##    N predictors per node: 5
+##  Average leaves per tree: 19.4
+## Min observations in leaf: 5
+##       Min events in leaf: 1
+##           OOB stat value: 0.77
+##            OOB stat type: Harrell's C-index
+##      Variable importance: anova
+## 
+## -----------------------------------------
 }\if{html}{\out{</div>}}
 \subsection{More than one way to grow a forest}{
 
@@ -465,22 +466,24 @@ forest instead of a fitted forest.
                   no_fit = TRUE)
 
 orsf_spec
-#> Untrained oblique random survival forest
-#> 
-#>      Linear combinations: Accelerated Cox regression
-#>           N observations: 276
-#>                 N events: 111
-#>                  N trees: 500
-#>       N predictors total: 17
-#>    N predictors per node: 5
-#>  Average leaves per tree: 0
-#> Min observations in leaf: 5
-#>       Min events in leaf: 1
-#>           OOB stat value: none
-#>            OOB stat type: Harrell's C-index
-#>      Variable importance: anova
-#> 
-#> -----------------------------------------
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## Untrained oblique random survival forest
+## 
+##      Linear combinations: Accelerated Cox regression
+##           N observations: 276
+##                 N events: 111
+##                  N trees: 500
+##       N predictors total: 17
+##    N predictors per node: 5
+##  Average leaves per tree: 0
+## Min observations in leaf: 5
+##       Min events in leaf: 1
+##           OOB stat value: none
+##            OOB stat type: Harrell's C-index
+##      Variable importance: anova
+## 
+## -----------------------------------------
 }\if{html}{\out{</div>}}
 
 Why would you do this? Two reasons:
@@ -489,28 +492,38 @@ Why would you do this? Two reasons:
 take to fit the forest before you commit to it:
 }
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-orsf_spec \%>\% 
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_spec \%>\% 
  orsf_update(n_tree = 10000) \%>\%
  orsf_time_to_train()
-#> Time difference of 2.029378 secs
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## Time difference of 2.32199 secs
 }\if{html}{\out{</div>}}
 \enumerate{
 \item If fitting multiple forests, use the blueprint along with
 \code{orsf_train()} and \code{orsf_update()} to simplify your code:
 }
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-orsf_fit <- orsf_train(orsf_spec)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_fit <- orsf_train(orsf_spec)
 orsf_fit_10 <- orsf_update(orsf_fit, leaf_min_obs = 10)
 orsf_fit_20 <- orsf_update(orsf_fit, leaf_min_obs = 20)
 
 orsf_fit$leaf_min_obs
-#> [1] 5
-orsf_fit_10$leaf_min_obs
-#> [1] 10
-orsf_fit_20$leaf_min_obs
-#> [1] 20
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 5
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_fit_10$leaf_min_obs
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 10
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_fit_20$leaf_min_obs
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 20
 }\if{html}{\out{</div>}}
 }
 
@@ -518,8 +531,7 @@ orsf_fit_20$leaf_min_obs
 
 \code{tidymodels} includes support for \code{aorsf} as a computational engine:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-library(tidymodels)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{library(tidymodels)
 library(censored)
 library(yardstick)
 
@@ -541,8 +553,7 @@ orsf_fit <- fit(orsf_spec,
 
 Prediction with \code{aorsf} models at different times is also supported:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-time_points <- seq(500, 3000, by = 500)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{time_points <- seq(500, 3000, by = 500)
 
 test_pred <- augment(orsf_fit, 
                      new_data = testing(split), 
@@ -552,29 +563,34 @@ brier_scores <- test_pred \%>\%
   brier_survival(truth = event_time, .pred)
 
 brier_scores
-#> # A tibble: 6 x 4
-#>   .metric        .estimator .eval_time .estimate
-#>   <chr>          <chr>           <dbl>     <dbl>
-#> 1 brier_survival standard          500    0.0515
-#> 2 brier_survival standard         1000    0.0988
-#> 3 brier_survival standard         1500    0.0830
-#> 4 brier_survival standard         2000    0.0667
-#> 5 brier_survival standard         2500    0.102 
-#> 6 brier_survival standard         3000    0.141
+}\if{html}{\out{</div>}}
 
-roc_scores <- test_pred \%>\% 
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 4
+##   .metric        .estimator .eval_time .estimate
+##   <chr>          <chr>           <dbl>     <dbl>
+## 1 brier_survival standard          500    0.0661
+## 2 brier_survival standard         1000    0.0999
+## 3 brier_survival standard         1500    0.110 
+## 4 brier_survival standard         2000    0.0789
+## 5 brier_survival standard         2500    0.127 
+## 6 brier_survival standard         3000    0.194
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{roc_scores <- test_pred \%>\% 
   roc_auc_survival(truth = event_time, .pred)
 
 roc_scores
-#> # A tibble: 6 x 4
-#>   .metric          .estimator .eval_time .estimate
-#>   <chr>            <chr>           <dbl>     <dbl>
-#> 1 roc_auc_survival standard          500     0.977
-#> 2 roc_auc_survival standard         1000     0.954
-#> 3 roc_auc_survival standard         1500     0.965
-#> 4 roc_auc_survival standard         2000     0.975
-#> 5 roc_auc_survival standard         2500     0.974
-#> 6 roc_auc_survival standard         3000     0.955
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## # A tibble: 6 x 4
+##   .metric          .estimator .eval_time .estimate
+##   <chr>            <chr>           <dbl>     <dbl>
+## 1 roc_auc_survival standard          500     0.941
+## 2 roc_auc_survival standard         1000     0.920
+## 3 roc_auc_survival standard         1500     0.925
+## 4 roc_auc_survival standard         2000     0.967
+## 5 roc_auc_survival standard         2500     0.937
+## 6 roc_auc_survival standard         3000     0.889
 }\if{html}{\out{</div>}}
 }
 }

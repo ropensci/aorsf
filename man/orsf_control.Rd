@@ -155,8 +155,7 @@ balance of computational speed and prediction accuracy. It runs a single
 iteration of Newton Raphson scoring on the Cox partial likelihood
 function to find linear combinations of predictors.
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-fit_accel <- orsf(pbc_orsf, 
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_accel <- orsf(pbc_orsf, 
                   control = orsf_control_survival(),
                   formula = Surv(time, status) ~ . - id,
                   tree_seeds = 329)
@@ -170,8 +169,7 @@ repeat iterations until convergence allows you to run Cox regression in
 each non-terminal node of each survival tree, using the regression
 coefficients to create linear combinations of predictors:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-control_cph <- orsf_control_survival(method = 'glm', 
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{control_cph <- orsf_control_survival(method = 'glm', 
                                      scale_x = TRUE, 
                                      max_iter = 20)
 
@@ -189,8 +187,7 @@ non-terminal node of each survival tree. This can be really helpful if
 you want to do feature selection within the node, but it is a lot slower
 than the \code{'glm'} option.
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-# select 3 predictors out of 5 to be used in
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# select 3 predictors out of 5 to be used in
 # each linear combination of predictors.
 
 control_net <- orsf_control_survival(method = 'net', target_df = 3)
@@ -211,8 +208,7 @@ here.
 \item The first uses random coefficients
 }
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-f_rando <- function(x_node, y_node, w_node)\{
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{f_rando <- function(x_node, y_node, w_node)\{
  matrix(runif(ncol(x_node)), ncol=1) 
 \}
 }\if{html}{\out{</div>}}
@@ -220,8 +216,7 @@ f_rando <- function(x_node, y_node, w_node)\{
 \item The second derives coefficients from principal component analysis
 }
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-f_pca <- function(x_node, y_node, w_node) \{ 
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{f_pca <- function(x_node, y_node, w_node) \{ 
  
  # estimate two principal components.
  pca <- stats::prcomp(x_node, rank. = 2)
@@ -237,8 +232,7 @@ similar to a method known as reinforcement learning trees (see the
 to the method proposed by Zhu et al. 
 }
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-f_rlt <- function(x_node, y_node, w_node)\{
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{f_rlt <- function(x_node, y_node, w_node)\{
  
  colnames(y_node) <- c('time', 'status')
  colnames(x_node) <- paste("x", seq(ncol(x_node)), sep = '')
@@ -277,8 +271,7 @@ f_rlt <- function(x_node, y_node, w_node)\{
 We can plug these functions into \code{orsf_control_custom()}, and then pass
 the result into \code{orsf()}:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-fit_rando <- orsf(pbc_orsf,
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_rando <- orsf(pbc_orsf,
                   Surv(time, status) ~ . - id,
                   control = orsf_control_survival(method = f_rando),
                   tree_seeds = 329)
@@ -296,8 +289,7 @@ fit_rlt <- orsf(pbc_orsf, time + status ~ . - id,
 So which fit seems to work best in this example? Let’s find out by
 evaluating the out-of-bag survival predictions.
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-risk_preds <- list(
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{risk_preds <- list(
  accel = fit_accel$pred_oobag,
  cph   = fit_cph$pred_oobag,
  net   = fit_net$pred_oobag,
@@ -316,28 +308,32 @@ sc <- Score(object = risk_preds,
 The AUC values, from highest to lowest:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{sc$AUC$score[order(-AUC)]
-#>     model times       AUC         se     lower     upper
-#>    <fctr> <num>     <num>      <num>     <num>     <num>
-#> 1:    net  1788 0.9151649 0.02025057 0.8754745 0.9548553
-#> 2:    rlt  1788 0.9119200 0.02090107 0.8709547 0.9528854
-#> 3:  accel  1788 0.9095628 0.02143250 0.8675558 0.9515697
-#> 4:    cph  1788 0.9095628 0.02143250 0.8675558 0.9515697
-#> 5:  rando  1788 0.9062197 0.02148854 0.8641029 0.9483365
-#> 6:    pca  1788 0.8999479 0.02226683 0.8563057 0.9435901
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##     model times       AUC         se     lower     upper
+##    <fctr> <num>     <num>      <num>     <num>     <num>
+## 1:    net  1788 0.9151649 0.02025057 0.8754745 0.9548553
+## 2:    rlt  1788 0.9119200 0.02090107 0.8709547 0.9528854
+## 3:  accel  1788 0.9095628 0.02143250 0.8675558 0.9515697
+## 4:    cph  1788 0.9095628 0.02143250 0.8675558 0.9515697
+## 5:  rando  1788 0.9062197 0.02148854 0.8641029 0.9483365
+## 6:    pca  1788 0.8999479 0.02226683 0.8563057 0.9435901
 }\if{html}{\out{</div>}}
 
 And the indices of prediction accuracy:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{sc$Brier$score[order(-IPA), .(model, times, IPA)]
-#>         model times       IPA
-#>        <fctr> <num>     <num>
-#> 1:        net  1788 0.4905777
-#> 2:      accel  1788 0.4806649
-#> 3:        cph  1788 0.4806649
-#> 4:        rlt  1788 0.4675228
-#> 5:        pca  1788 0.4383995
-#> 6:      rando  1788 0.4302814
-#> 7: Null model  1788 0.0000000
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##         model times       IPA
+##        <fctr> <num>     <num>
+## 1:        net  1788 0.4905777
+## 2:      accel  1788 0.4806649
+## 3:        cph  1788 0.4806649
+## 4:        rlt  1788 0.4675228
+## 5:        pca  1788 0.4383995
+## 6:      rando  1788 0.4302814
+## 7: Null model  1788 0.0000000
 }\if{html}{\out{</div>}}
 
 From inspection,

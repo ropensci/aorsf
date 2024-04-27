@@ -50,6 +50,11 @@
 #'   is `'mort'` for survival or `'class'` for classification, or an array of
 #'   matrices if `length(pred_horizon) > 1`.
 #'
+#' @param oobag (_logical_) If `FALSE` (the default), predictions will
+#'   be computed using all trees for each observation. If `TRUE`, then
+#'   out-of-bag predictions will be computed. This input parameter should
+#'   only be set to `TRUE` if `new_data` is `NULL`.
+#'
 #' @param na_action `r roxy_na_action_header("new_data")`
 #'
 #'   - `r roxy_na_action_fail("new_data")`

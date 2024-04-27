@@ -6,11 +6,12 @@
 \usage{
 \method{predict}{ObliqueForest}(
   object,
-  new_data,
+  new_data = NULL,
   pred_type = NULL,
   pred_horizon = NULL,
   pred_aggregate = TRUE,
   pred_simplify = FALSE,
+  oobag = FALSE,
   na_action = NULL,
   boundary_checks = TRUE,
   n_thread = NULL,
@@ -65,6 +66,11 @@ If \code{TRUE}, predictions may be simplified to a vector, e.g., if \code{pred_t
 is \code{'mort'} for survival or \code{'class'} for classification, or an array of
 matrices if \code{length(pred_horizon) > 1}.}
 
+\item{oobag}{(\emph{logical}) If \code{FALSE} (the default), predictions will
+be computed using all trees for each observation. If \code{TRUE}, then
+out-of-bag predictions will be computed. This input parameter should
+only be set to \code{TRUE} if \code{new_data} is \code{NULL}.}
+
 \item{na_action}{(\emph{character}) what should happen when \code{new_data} contains missing values (i.e., \code{NA} values). Valid options are:
 \itemize{
 \item 'fail' : an error is thrown if \code{new_data} contains \code{NA} values
@@ -118,8 +124,7 @@ used for \code{oobag_pred_horizon} when \code{object} was created (see \link{ors
 }\if{html}{\out{</div>}}
 \subsection{Classification}{
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-set.seed(329)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329)
 
 index_train <- sample(nrow(penguins_orsf), 150) 
 
@@ -136,38 +141,45 @@ Predict probability for each class or the predicted class:
 predict(fit_clsf, 
         new_data = penguins_orsf_test[1:5, ],
         pred_type = 'prob')
-#>         Adelie  Chinstrap      Gentoo
-#> [1,] 0.9405310 0.04121955 0.018249405
-#> [2,] 0.9628988 0.03455909 0.002542096
-#> [3,] 0.9032074 0.08510528 0.011687309
-#> [4,] 0.9300133 0.05209040 0.017896329
-#> [5,] 0.7965703 0.16243492 0.040994821
+}\if{html}{\out{</div>}}
 
-# predicted class (as a matrix by default)
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##         Adelie  Chinstrap      Gentoo
+## [1,] 0.9405310 0.04121955 0.018249405
+## [2,] 0.9628988 0.03455909 0.002542096
+## [3,] 0.9032074 0.08510528 0.011687309
+## [4,] 0.9300133 0.05209040 0.017896329
+## [5,] 0.7965703 0.16243492 0.040994821
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted class (as a matrix by default)
 predict(fit_clsf, 
         new_data = penguins_orsf_test[1:5, ],
         pred_type = 'class')
-#>      [,1]
-#> [1,]    1
-#> [2,]    1
-#> [3,]    1
-#> [4,]    1
-#> [5,]    1
+}\if{html}{\out{</div>}}
 
-# predicted class (as a factor if you use simplify)
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##      [,1]
+## [1,]    1
+## [2,]    1
+## [3,]    1
+## [4,]    1
+## [5,]    1
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted class (as a factor if you use simplify)
 predict(fit_clsf, 
         new_data = penguins_orsf_test[1:5, ],
         pred_type = 'class',
         pred_simplify = TRUE)
-#> [1] Adelie Adelie Adelie Adelie Adelie
-#> Levels: Adelie Chinstrap Gentoo
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] Adelie Adelie Adelie Adelie Adelie
+## Levels: Adelie Chinstrap Gentoo
 }\if{html}{\out{</div>}}
 }
 
 \subsection{Regression}{
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-set.seed(329)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329)
 
 index_train <- sample(nrow(penguins_orsf), 150) 
 
@@ -180,16 +192,17 @@ fit_regr <- orsf(data = penguins_orsf_train,
 
 Predict the mean value of the outcome:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-predict(fit_regr, 
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{predict(fit_regr, 
         new_data = penguins_orsf_test[1:5, ], 
         pred_type = 'mean')
-#>          [,1]
-#> [1,] 37.74136
-#> [2,] 37.42367
-#> [3,] 37.04598
-#> [4,] 39.89602
-#> [5,] 39.14848
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##          [,1]
+## [1,] 37.74136
+## [2,] 37.42367
+## [3,] 37.04598
+## [4,] 39.89602
+## [5,] 39.14848
 }\if{html}{\out{</div>}}
 }
 
@@ -197,8 +210,7 @@ predict(fit_regr,
 
 Begin by fitting an oblique survival random forest:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-set.seed(329)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329)
 
 index_train <- sample(nrow(pbc_orsf), 150) 
 
@@ -212,43 +224,50 @@ fit_surv <- orsf(data = pbc_orsf_train,
 
 Predict risk, survival, or cumulative hazard at one or several times:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-# predicted risk, the default
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted risk, the default
 predict(fit_surv, 
         new_data = pbc_orsf_test[1:5, ], 
         pred_type = 'risk', 
         pred_horizon = c(500, 1000, 1500))
-#>             [,1]        [,2]       [,3]
-#> [1,] 0.013648562 0.058393393 0.11184029
-#> [2,] 0.003811413 0.026857586 0.04774151
-#> [3,] 0.030548361 0.100600301 0.14847107
-#> [4,] 0.040381075 0.169596943 0.27018952
-#> [5,] 0.001484698 0.006663576 0.01337655
+}\if{html}{\out{</div>}}
 
-# predicted survival, i.e., 1 - risk
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##             [,1]        [,2]       [,3]
+## [1,] 0.013648562 0.058393393 0.11184029
+## [2,] 0.003811413 0.026857586 0.04774151
+## [3,] 0.030548361 0.100600301 0.14847107
+## [4,] 0.040381075 0.169596943 0.27018952
+## [5,] 0.001484698 0.006663576 0.01337655
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted survival, i.e., 1 - risk
 predict(fit_surv, 
         new_data = pbc_orsf_test[1:5, ], 
         pred_type = 'surv',
         pred_horizon = c(500, 1000, 1500))
-#>           [,1]      [,2]      [,3]
-#> [1,] 0.9863514 0.9416066 0.8881597
-#> [2,] 0.9961886 0.9731424 0.9522585
-#> [3,] 0.9694516 0.8993997 0.8515289
-#> [4,] 0.9596189 0.8304031 0.7298105
-#> [5,] 0.9985153 0.9933364 0.9866235
+}\if{html}{\out{</div>}}
 
-# predicted cumulative hazard function
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##           [,1]      [,2]      [,3]
+## [1,] 0.9863514 0.9416066 0.8881597
+## [2,] 0.9961886 0.9731424 0.9522585
+## [3,] 0.9694516 0.8993997 0.8515289
+## [4,] 0.9596189 0.8304031 0.7298105
+## [5,] 0.9985153 0.9933364 0.9866235
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# predicted cumulative hazard function
 # (expected number of events for person i at time j)
 predict(fit_surv, 
         new_data = pbc_orsf_test[1:5, ], 
         pred_type = 'chf',
         pred_horizon = c(500, 1000, 1500))
-#>             [,1]        [,2]       [,3]
-#> [1,] 0.015395388 0.067815817 0.14942956
-#> [2,] 0.004022524 0.028740305 0.05424314
-#> [3,] 0.034832754 0.127687156 0.20899732
-#> [4,] 0.059978334 0.233048809 0.42562310
-#> [5,] 0.001651365 0.007173177 0.01393016
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##             [,1]        [,2]       [,3]
+## [1,] 0.015395388 0.067815817 0.14942956
+## [2,] 0.004022524 0.028740305 0.05424314
+## [3,] 0.034832754 0.127687156 0.20899732
+## [4,] 0.059978334 0.233048809 0.42562310
+## [5,] 0.001651365 0.007173177 0.01393016
 }\if{html}{\out{</div>}}
 
 Predict mortality, defined as the number of events in the forest’s
@@ -256,16 +275,17 @@ population if all observations had characteristics like the current
 observation. This type of prediction does not require you to specify a
 prediction horizon
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-predict(fit_surv, 
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{predict(fit_surv, 
         new_data = pbc_orsf_test[1:5, ], 
         pred_type = 'mort')
-#>           [,1]
-#> [1,] 23.405016
-#> [2,] 15.362916
-#> [3,] 26.180648
-#> [4,] 36.515629
-#> [5,]  5.856674
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##           [,1]
+## [1,] 23.405016
+## [2,] 15.362916
+## [3,] 26.180648
+## [4,] 36.515629
+## [5,]  5.856674
 }\if{html}{\out{</div>}}
 }
 }

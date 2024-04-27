@@ -441,6 +441,8 @@ ObliqueForest <- R6::R6Class(
    # object and then use this function. We need checks for that case.
    new_data <- new_data %||% self$data
 
+   # browser()
+
    # run checks before you assign new values to object.
    # otherwise, if a check throws an error, the object will
    # not be restored to its normal state.
