@@ -174,8 +174,7 @@ fairness.
 
 Begin by fitting an oblique classification random forest:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-set.seed(329)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329)
 
 index_train <- sample(nrow(penguins_orsf), 150) 
 
@@ -189,21 +188,22 @@ fit_clsf <- orsf(data = penguins_orsf_train,
 Compute partial dependence using out-of-bag data for
 \code{flipper_length_mm = c(190, 210)}.
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-pred_spec <- list(flipper_length_mm = c(190, 210))
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pred_spec <- list(flipper_length_mm = c(190, 210))
 
 pd_oob <- orsf_pd_oob(fit_clsf, pred_spec = pred_spec)
 
 pd_oob
-#> Key: <class>
-#>        class flipper_length_mm      mean         lwr       medn       upr
-#>       <fctr>             <num>     <num>       <num>      <num>     <num>
-#> 1:    Adelie               190 0.6176908 0.202278109 0.75856417 0.9810614
-#> 2:    Adelie               210 0.4338528 0.019173811 0.56489202 0.8648110
-#> 3: Chinstrap               190 0.2114979 0.017643385 0.15211271 0.7215181
-#> 4: Chinstrap               210 0.1803019 0.020108201 0.09679464 0.7035053
-#> 5:    Gentoo               190 0.1708113 0.001334861 0.02769695 0.5750201
-#> 6:    Gentoo               210 0.3858453 0.068685035 0.20717073 0.9532853
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## Key: <class>
+##        class flipper_length_mm      mean         lwr       medn       upr
+##       <fctr>             <num>     <num>       <num>      <num>     <num>
+## 1:    Adelie               190 0.6176908 0.202278109 0.75856417 0.9810614
+## 2:    Adelie               210 0.4338528 0.019173811 0.56489202 0.8648110
+## 3: Chinstrap               190 0.2114979 0.017643385 0.15211271 0.7215181
+## 4: Chinstrap               210 0.1803019 0.020108201 0.09679464 0.7035053
+## 5:    Gentoo               190 0.1708113 0.001334861 0.02769695 0.5750201
+## 6:    Gentoo               210 0.3858453 0.068685035 0.20717073 0.9532853
 }\if{html}{\out{</div>}}
 
 Note that predicted probabilities are returned for each class and
@@ -211,16 +211,18 @@ probabilities in the \code{mean} column sum to 1 if you take the sum over
 each class at a specific value of the \code{pred_spec} variables. For
 example,
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-sum(pd_oob[flipper_length_mm == 190, mean])
-#> [1] 1
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{sum(pd_oob[flipper_length_mm == 190, mean])
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 1
 }\if{html}{\out{</div>}}
 
 But this isn’t the case for the median predicted probability!
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-sum(pd_oob[flipper_length_mm == 190, medn])
-#> [1] 0.9383738
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{sum(pd_oob[flipper_length_mm == 190, medn])
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## [1] 0.9383738
 }\if{html}{\out{</div>}}
 }
 
@@ -228,8 +230,7 @@ sum(pd_oob[flipper_length_mm == 190, medn])
 
 Begin by fitting an oblique regression random forest:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-set.seed(329)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329)
 
 index_train <- sample(nrow(penguins_orsf), 150) 
 
@@ -243,76 +244,78 @@ fit_regr <- orsf(data = penguins_orsf_train,
 Compute partial dependence using new data for
 \code{flipper_length_mm = c(190, 210)}.
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-pred_spec <- list(flipper_length_mm = c(190, 210))
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pred_spec <- list(flipper_length_mm = c(190, 210))
 
 pd_new <- orsf_pd_new(fit_regr, 
                       pred_spec = pred_spec,
                       new_data = penguins_orsf_test)
 
 pd_new
-#>    flipper_length_mm     mean      lwr     medn      upr
-#>                <num>    <num>    <num>    <num>    <num>
-#> 1:               190 42.96571 37.09805 43.69769 48.72301
-#> 2:               210 45.66012 40.50693 46.31577 51.65163
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    flipper_length_mm     mean      lwr     medn      upr
+##                <num>    <num>    <num>    <num>    <num>
+## 1:               190 42.96571 37.09805 43.69769 48.72301
+## 2:               210 45.66012 40.50693 46.31577 51.65163
 }\if{html}{\out{</div>}}
 
 You can also let \code{pred_spec_auto} pick reasonable values like so:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-pred_spec = pred_spec_auto(species, island, body_mass_g)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pred_spec = pred_spec_auto(species, island, body_mass_g)
 
 pd_new <- orsf_pd_new(fit_regr, 
                       pred_spec = pred_spec,
                       new_data = penguins_orsf_test)
 
 pd_new
-#>       species    island body_mass_g     mean      lwr     medn      upr
-#>        <fctr>    <fctr>       <num>    <num>    <num>    <num>    <num>
-#>  1:    Adelie    Biscoe        3200 40.31374 37.24373 40.31967 44.22824
-#>  2: Chinstrap    Biscoe        3200 45.10582 42.63342 45.10859 47.60119
-#>  3:    Gentoo    Biscoe        3200 42.81649 40.19221 42.55664 46.84035
-#>  4:    Adelie     Dream        3200 40.16219 36.95895 40.34633 43.90681
-#>  5: Chinstrap     Dream        3200 46.21778 43.53954 45.90929 49.19173
-#> ---                                                                    
-#> 41: Chinstrap     Dream        5300 48.48139 46.36282 48.25679 51.02996
-#> 42:    Gentoo     Dream        5300 45.91819 43.62832 45.54110 49.91622
-#> 43:    Adelie Torgersen        5300 42.92879 40.66576 42.31072 46.76406
-#> 44: Chinstrap Torgersen        5300 46.59576 44.80400 46.49196 49.03906
-#> 45:    Gentoo Torgersen        5300 45.11384 42.95190 44.51289 49.27629
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##       species    island body_mass_g     mean      lwr     medn      upr
+##        <fctr>    <fctr>       <num>    <num>    <num>    <num>    <num>
+##  1:    Adelie    Biscoe        3200 40.31374 37.24373 40.31967 44.22824
+##  2: Chinstrap    Biscoe        3200 45.10582 42.63342 45.10859 47.60119
+##  3:    Gentoo    Biscoe        3200 42.81649 40.19221 42.55664 46.84035
+##  4:    Adelie     Dream        3200 40.16219 36.95895 40.34633 43.90681
+##  5: Chinstrap     Dream        3200 46.21778 43.53954 45.90929 49.19173
+## ---                                                                    
+## 41: Chinstrap     Dream        5300 48.48139 46.36282 48.25679 51.02996
+## 42:    Gentoo     Dream        5300 45.91819 43.62832 45.54110 49.91622
+## 43:    Adelie Torgersen        5300 42.92879 40.66576 42.31072 46.76406
+## 44: Chinstrap Torgersen        5300 46.59576 44.80400 46.49196 49.03906
+## 45:    Gentoo Torgersen        5300 45.11384 42.95190 44.51289 49.27629
 }\if{html}{\out{</div>}}
 
 By default, all combinations of all variables are used. However, you can
 also look at the variables one by one, separately, like so:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-pd_new <- orsf_pd_new(fit_regr, 
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_new <- orsf_pd_new(fit_regr, 
                       expand_grid = FALSE,
                       pred_spec = pred_spec,
                       new_data = penguins_orsf_test)
 
 pd_new
-#>        variable value     level     mean      lwr     medn      upr
-#>          <char> <num>    <char>    <num>    <num>    <num>    <num>
-#>  1:     species    NA    Adelie 41.90271 37.10417 41.51723 48.51478
-#>  2:     species    NA Chinstrap 47.11314 42.40419 46.96478 51.51392
-#>  3:     species    NA    Gentoo 44.37038 39.87306 43.89889 51.21635
-#>  4:      island    NA    Biscoe 44.21332 37.22711 45.27862 51.21635
-#>  5:      island    NA     Dream 44.43354 37.01471 45.57261 51.51392
-#>  6:      island    NA Torgersen 43.29539 37.01513 44.26924 49.84391
-#>  7: body_mass_g  3200      <NA> 42.84625 37.03978 43.95991 49.19173
-#>  8: body_mass_g  3550      <NA> 43.53326 37.56730 44.43756 50.47092
-#>  9: body_mass_g  3975      <NA> 44.30431 38.31567 45.22089 51.50683
-#> 10: body_mass_g  4700      <NA> 45.22559 39.88199 46.34680 51.18955
-#> 11: body_mass_g  5300      <NA> 45.91412 40.84742 46.95327 51.48851
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##        variable value     level     mean      lwr     medn      upr
+##          <char> <num>    <char>    <num>    <num>    <num>    <num>
+##  1:     species    NA    Adelie 41.90271 37.10417 41.51723 48.51478
+##  2:     species    NA Chinstrap 47.11314 42.40419 46.96478 51.51392
+##  3:     species    NA    Gentoo 44.37038 39.87306 43.89889 51.21635
+##  4:      island    NA    Biscoe 44.21332 37.22711 45.27862 51.21635
+##  5:      island    NA     Dream 44.43354 37.01471 45.57261 51.51392
+##  6:      island    NA Torgersen 43.29539 37.01513 44.26924 49.84391
+##  7: body_mass_g  3200      <NA> 42.84625 37.03978 43.95991 49.19173
+##  8: body_mass_g  3550      <NA> 43.53326 37.56730 44.43756 50.47092
+##  9: body_mass_g  3975      <NA> 44.30431 38.31567 45.22089 51.50683
+## 10: body_mass_g  4700      <NA> 45.22559 39.88199 46.34680 51.18955
+## 11: body_mass_g  5300      <NA> 45.91412 40.84742 46.95327 51.48851
 }\if{html}{\out{</div>}}
 
 And you can also bypass all the bells and whistles by using your own
 \code{data.frame} for a \code{pred_spec}. (Just make sure you request values that
 exist in the training data.)
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-custom_pred_spec <- data.frame(species = 'Adelie', 
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{custom_pred_spec <- data.frame(species = 'Adelie', 
                                island = 'Biscoe')
 
 pd_new <- orsf_pd_new(fit_regr, 
@@ -320,9 +323,11 @@ pd_new <- orsf_pd_new(fit_regr,
                       new_data = penguins_orsf_test)
 
 pd_new
-#>    species island     mean      lwr     medn      upr
-#>     <fctr> <fctr>    <num>    <num>    <num>    <num>
-#> 1:  Adelie Biscoe 41.98024 37.22711 41.65252 48.51478
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    species island     mean      lwr     medn      upr
+##     <fctr> <fctr>    <num>    <num>    <num>    <num>
+## 1:  Adelie Biscoe 41.98024 37.22711 41.65252 48.51478
 }\if{html}{\out{</div>}}
 }
 
@@ -330,8 +335,7 @@ pd_new
 
 Begin by fitting an oblique survival random forest:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-set.seed(329)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{set.seed(329)
 
 index_train <- sample(nrow(pbc_orsf), 150) 
 
@@ -347,13 +351,15 @@ Compute partial dependence using in-bag data for \code{bili = c(1,2,3,4,5)}:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_train <- orsf_pd_inb(fit_surv, pred_spec = list(bili = 1:5))
 pd_train
-#>    pred_horizon  bili      mean        lwr      medn       upr
-#>           <num> <num>     <num>      <num>     <num>     <num>
-#> 1:      1826.25     1 0.2566200 0.02234786 0.1334170 0.8918909
-#> 2:      1826.25     2 0.3121392 0.06853733 0.1896849 0.9204338
-#> 3:      1826.25     3 0.3703242 0.11409793 0.2578505 0.9416791
-#> 4:      1826.25     4 0.4240692 0.15645214 0.3331057 0.9591581
-#> 5:      1826.25     5 0.4663670 0.20123406 0.3841700 0.9655296
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon  bili      mean        lwr      medn       upr
+##           <num> <num>     <num>      <num>     <num>     <num>
+## 1:      1826.25     1 0.2566200 0.02234786 0.1334170 0.8918909
+## 2:      1826.25     2 0.3121392 0.06853733 0.1896849 0.9204338
+## 3:      1826.25     3 0.3703242 0.11409793 0.2578505 0.9416791
+## 4:      1826.25     4 0.4240692 0.15645214 0.3331057 0.9591581
+## 5:      1826.25     5 0.4663670 0.20123406 0.3841700 0.9655296
 }\if{html}{\out{</div>}}
 
 If you don’t have specific values of a variable in mind, let
@@ -361,34 +367,37 @@ If you don’t have specific values of a variable in mind, let
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_train <- orsf_pd_inb(fit_surv, pred_spec_auto(bili))
 pd_train
-#>    pred_horizon  bili      mean        lwr      medn       upr
-#>           <num> <num>     <num>      <num>     <num>     <num>
-#> 1:      1826.25  0.55 0.2481444 0.02035041 0.1242215 0.8801444
-#> 2:      1826.25  0.70 0.2502831 0.02045039 0.1271039 0.8836536
-#> 3:      1826.25  1.50 0.2797763 0.03964900 0.1601715 0.9041584
-#> 4:      1826.25  3.50 0.3959349 0.13431288 0.2920400 0.9501230
-#> 5:      1826.25  7.25 0.5351935 0.28064629 0.4652185 0.9783000
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    pred_horizon  bili      mean        lwr      medn       upr
+##           <num> <num>     <num>      <num>     <num>     <num>
+## 1:      1826.25  0.55 0.2481444 0.02035041 0.1242215 0.8801444
+## 2:      1826.25  0.70 0.2502831 0.02045039 0.1271039 0.8836536
+## 3:      1826.25  1.50 0.2797763 0.03964900 0.1601715 0.9041584
+## 4:      1826.25  3.50 0.3959349 0.13431288 0.2920400 0.9501230
+## 5:      1826.25  7.25 0.5351935 0.28064629 0.4652185 0.9783000
 }\if{html}{\out{</div>}}
 
 Specify \code{pred_horizon} to get partial dependence at each value:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-pd_train <- orsf_pd_inb(fit_surv, pred_spec_auto(bili),
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{pd_train <- orsf_pd_inb(fit_surv, pred_spec_auto(bili),
                         pred_horizon = seq(500, 3000, by = 500))
 pd_train
-#>     pred_horizon  bili      mean         lwr       medn       upr
-#>            <num> <num>     <num>       <num>      <num>     <num>
-#>  1:          500  0.55 0.0617199 0.000443399 0.00865419 0.5907104
-#>  2:         1000  0.55 0.1418501 0.005793742 0.05572853 0.7360749
-#>  3:         1500  0.55 0.2082505 0.013609478 0.09174558 0.8556319
-#>  4:         2000  0.55 0.2679017 0.023047689 0.14574169 0.8910549
-#>  5:         2500  0.55 0.3179617 0.063797305 0.20254500 0.9017710
-#> ---                                                              
-#> 26:         1000  7.25 0.3264627 0.135343689 0.25956791 0.8884333
-#> 27:         1500  7.25 0.4641265 0.218208755 0.38787435 0.9702903
-#> 28:         2000  7.25 0.5511761 0.293367409 0.48427730 0.9812413
-#> 29:         2500  7.25 0.6200238 0.371965247 0.56954399 0.9845058
-#> 30:         3000  7.25 0.6803482 0.425128031 0.64642318 0.9888637
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##     pred_horizon  bili      mean         lwr       medn       upr
+##            <num> <num>     <num>       <num>      <num>     <num>
+##  1:          500  0.55 0.0617199 0.000443399 0.00865419 0.5907104
+##  2:         1000  0.55 0.1418501 0.005793742 0.05572853 0.7360749
+##  3:         1500  0.55 0.2082505 0.013609478 0.09174558 0.8556319
+##  4:         2000  0.55 0.2679017 0.023047689 0.14574169 0.8910549
+##  5:         2500  0.55 0.3179617 0.063797305 0.20254500 0.9017710
+## ---                                                              
+## 26:         1000  7.25 0.3264627 0.135343689 0.25956791 0.8884333
+## 27:         1500  7.25 0.4641265 0.218208755 0.38787435 0.9702903
+## 28:         2000  7.25 0.5511761 0.293367409 0.48427730 0.9812413
+## 29:         2500  7.25 0.6200238 0.371965247 0.56954399 0.9845058
+## 30:         3000  7.25 0.6803482 0.425128031 0.64642318 0.9888637
 }\if{html}{\out{</div>}}
 
 vector-valued \code{pred_horizon} input comes with minimal extra

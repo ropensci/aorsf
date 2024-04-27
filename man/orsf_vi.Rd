@@ -124,26 +124,27 @@ or not (see examples).
 The default variable importance technique, ANOVA, is calculated while
 you fit an oblique random forest ensemble.
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit <- orsf(pbc_orsf, Surv(time, status) ~ . - id)
 
 fit
-#> ---------- Oblique random survival forest
-#> 
-#>      Linear combinations: Accelerated Cox regression
-#>           N observations: 276
-#>                 N events: 111
-#>                  N trees: 500
-#>       N predictors total: 17
-#>    N predictors per node: 5
-#>  Average leaves per tree: 21.022
-#> Min observations in leaf: 5
-#>       Min events in leaf: 1
-#>           OOB stat value: 0.84
-#>            OOB stat type: Harrell's C-index
-#>      Variable importance: anova
-#> 
-#> -----------------------------------------
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## ---------- Oblique random survival forest
+## 
+##      Linear combinations: Accelerated Cox regression
+##           N observations: 276
+##                 N events: 111
+##                  N trees: 500
+##       N predictors total: 17
+##    N predictors per node: 5
+##  Average leaves per tree: 21.022
+## Min observations in leaf: 5
+##       Min events in leaf: 1
+##           OOB stat value: 0.84
+##            OOB stat type: Harrell's C-index
+##      Variable importance: anova
+## 
+## -----------------------------------------
 }\if{html}{\out{</div>}}
 
 ANOVA is the default because it is fast, but it may not be as decisive
@@ -154,27 +155,28 @@ as the permutation and negation techniques for variable selection.
 
 the ‘raw’ variable importance values can be accessed from the fit object
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-fit$get_importance_raw()
-#>                   [,1]
-#> trt_placebo 0.06355042
-#> age         0.23259259
-#> sex_f       0.14700432
-#> ascites_1   0.46791708
-#> hepato_1    0.14349776
-#> spiders_1   0.17371938
-#> edema_0.5   0.17459191
-#> edema_1     0.51197605
-#> bili        0.40590758
-#> chol        0.17666667
-#> albumin     0.25972156
-#> copper      0.28840580
-#> alk.phos    0.10614251
-#> ast         0.18327491
-#> trig        0.12815626
-#> platelet    0.09265648
-#> protime     0.22656250
-#> stage       0.20264766
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit$get_importance_raw()
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##                   [,1]
+## trt_placebo 0.06355042
+## age         0.23259259
+## sex_f       0.14700432
+## ascites_1   0.46791708
+## hepato_1    0.14349776
+## spiders_1   0.17371938
+## edema_0.5   0.17459191
+## edema_1     0.51197605
+## bili        0.40590758
+## chol        0.17666667
+## albumin     0.25972156
+## copper      0.28840580
+## alk.phos    0.10614251
+## ast         0.18327491
+## trig        0.12815626
+## platelet    0.09265648
+## protime     0.22656250
+## stage       0.20264766
 }\if{html}{\out{</div>}}
 
 these are ‘raw’ because values for factors have not been aggregated into
@@ -192,22 +194,26 @@ To get aggregated values across all levels of each factor,
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{# this assumes you used group_factors = TRUE in orsf()
 fit$importance
-#>    ascites       bili      edema     copper    albumin        age    protime 
-#> 0.46791708 0.40590758 0.31115216 0.28840580 0.25972156 0.23259259 0.22656250 
-#>      stage        ast       chol    spiders        sex     hepato       trig 
-#> 0.20264766 0.18327491 0.17666667 0.17371938 0.14700432 0.14349776 0.12815626 
-#>   alk.phos   platelet        trt 
-#> 0.10614251 0.09265648 0.06355042
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper    albumin        age    protime 
+## 0.46791708 0.40590758 0.31115216 0.28840580 0.25972156 0.23259259 0.22656250 
+##      stage        ast       chol    spiders        sex     hepato       trig 
+## 0.20264766 0.18327491 0.17666667 0.17371938 0.14700432 0.14349776 0.12815626 
+##   alk.phos   platelet        trt 
+## 0.10614251 0.09265648 0.06355042
 }\if{html}{\out{</div>}}
 \item use \code{orsf_vi()} with group_factors set to \code{TRUE} (the default)
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi(fit)
-#>    ascites       bili      edema     copper    albumin        age    protime 
-#> 0.46791708 0.40590758 0.31115216 0.28840580 0.25972156 0.23259259 0.22656250 
-#>      stage        ast       chol    spiders        sex     hepato       trig 
-#> 0.20264766 0.18327491 0.17666667 0.17371938 0.14700432 0.14349776 0.12815626 
-#>   alk.phos   platelet        trt 
-#> 0.10614251 0.09265648 0.06355042
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##    ascites       bili      edema     copper    albumin        age    protime 
+## 0.46791708 0.40590758 0.31115216 0.28840580 0.25972156 0.23259259 0.22656250 
+##      stage        ast       chol    spiders        sex     hepato       trig 
+## 0.20264766 0.18327491 0.17666667 0.17371938 0.14700432 0.14349776 0.12815626 
+##   alk.phos   platelet        trt 
+## 0.10614251 0.09265648 0.06355042
 }\if{html}{\out{</div>}}
 }
 
@@ -220,8 +226,7 @@ by setting \code{group_factors} to \code{FALSE} in the \code{orsf_vi} functions 
 
 You can fit an oblique random forest without VI, then add VI later
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-fit_no_vi <- orsf(pbc_orsf,
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_no_vi <- orsf(pbc_orsf,
                   Surv(time, status) ~ . - id,
                   importance = 'none')
 
@@ -229,22 +234,27 @@ fit_no_vi <- orsf(pbc_orsf,
 # VI can only be computed while the forest is being grown.
 
 orsf_vi_negate(fit_no_vi)
-#>        bili      copper         sex     protime         age       stage 
-#> 0.130439814 0.051880867 0.038308025 0.025115249 0.023826061 0.020354822 
-#>     albumin     ascites        chol         ast     spiders      hepato 
-#> 0.019997729 0.015918292 0.013320469 0.010086726 0.007409116 0.007326714 
-#>       edema         trt    alk.phos        trig    platelet 
-#> 0.006844435 0.003214544 0.002517057 0.002469545 0.001056829
+}\if{html}{\out{</div>}}
 
-orsf_vi_permute(fit_no_vi)
-#>          bili        copper           age       ascites       protime 
-#>  0.0592069141  0.0237362075  0.0136479213  0.0130805894  0.0123091354 
-#>         stage       albumin          chol        hepato           ast 
-#>  0.0117177661  0.0106414724  0.0064501213  0.0058813969  0.0057753740 
-#>         edema       spiders           sex          trig      platelet 
-#>  0.0052171180  0.0048427005  0.0023386947  0.0017883700  0.0013533691 
-#>      alk.phos           trt 
-#>  0.0006492029 -0.0009921507
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##        bili      copper         sex     protime         age       stage 
+## 0.130439814 0.051880867 0.038308025 0.025115249 0.023826061 0.020354822 
+##     albumin     ascites        chol         ast     spiders      hepato 
+## 0.019997729 0.015918292 0.013320469 0.010086726 0.007409116 0.007326714 
+##       edema         trt    alk.phos        trig    platelet 
+## 0.006844435 0.003214544 0.002517057 0.002469545 0.001056829
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi_permute(fit_no_vi)
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili        copper           age       ascites       protime 
+##  0.0592069141  0.0237362075  0.0136479213  0.0130805894  0.0123091354 
+##         stage       albumin          chol        hepato           ast 
+##  0.0117177661  0.0106414724  0.0064501213  0.0058813969  0.0057753740 
+##         edema       spiders           sex          trig      platelet 
+##  0.0052171180  0.0048427005  0.0023386947  0.0017883700  0.0013533691 
+##      alk.phos           trt 
+##  0.0006492029 -0.0009921507
 }\if{html}{\out{</div>}}
 }
 
@@ -252,33 +262,35 @@ orsf_vi_permute(fit_no_vi)
 
 fit an oblique random forest and compute vi at the same time
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-fit_permute_vi <- orsf(pbc_orsf,
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_permute_vi <- orsf(pbc_orsf,
                        Surv(time, status) ~ . - id,
                        importance = 'permute')
 
 # get the vi instantly (i.e., it doesn't need to be computed again)
 orsf_vi_permute(fit_permute_vi)
-#>          bili        copper       ascites       protime       albumin 
-#>  0.0571305446  0.0243657146  0.0138318057  0.0133401675  0.0130746154 
-#>           age         stage          chol           ast       spiders 
-#>  0.0123610374  0.0102963203  0.0077895394  0.0075250059  0.0048628813 
-#>         edema        hepato           sex      platelet          trig 
-#>  0.0046003168  0.0039818730  0.0016891584  0.0012767063  0.0007324402 
-#>      alk.phos           trt 
-#>  0.0005128897 -0.0014443967
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##          bili        copper       ascites       protime       albumin 
+##  0.0571305446  0.0243657146  0.0138318057  0.0133401675  0.0130746154 
+##           age         stage          chol           ast       spiders 
+##  0.0123610374  0.0102963203  0.0077895394  0.0075250059  0.0048628813 
+##         edema        hepato           sex      platelet          trig 
+##  0.0046003168  0.0039818730  0.0016891584  0.0012767063  0.0007324402 
+##      alk.phos           trt 
+##  0.0005128897 -0.0014443967
 }\if{html}{\out{</div>}}
 
 You can still get negation VI from this fit, but it needs to be computed
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-orsf_vi_negate(fit_permute_vi)
-#>        bili      copper         sex     protime       stage         age 
-#> 0.123331760 0.052544318 0.037291358 0.024977898 0.023239189 0.021934511 
-#>     albumin     ascites        chol         ast     spiders       edema 
-#> 0.020586632 0.014229536 0.014053040 0.012227048 0.007643156 0.006832766 
-#>      hepato         trt    alk.phos        trig    platelet 
-#> 0.006301693 0.004348705 0.002371797 0.002309396 0.001347035
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{orsf_vi_negate(fit_permute_vi)
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##        bili      copper         sex     protime       stage         age 
+## 0.123331760 0.052544318 0.037291358 0.024977898 0.023239189 0.021934511 
+##     albumin     ascites        chol         ast     spiders       edema 
+## 0.020586632 0.014229536 0.014053040 0.012227048 0.007643156 0.006832766 
+##      hepato         trt    alk.phos        trig    platelet 
+## 0.006301693 0.004348705 0.002371797 0.002309396 0.001347035
 }\if{html}{\out{</div>}}
 }
 
@@ -286,15 +298,16 @@ orsf_vi_negate(fit_permute_vi)
 
 The default prediction accuracy functions work well most of the time:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-fit_standard <- orsf(penguins_orsf, bill_length_mm ~ ., tree_seeds = 1)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{fit_standard <- orsf(penguins_orsf, bill_length_mm ~ ., tree_seeds = 1)
 
 # Default method for prediction accuracy with VI is R-squared
 orsf_vi_permute(fit_standard)
-#>           species flipper_length_mm       body_mass_g     bill_depth_mm 
-#>      0.3725898166      0.3261834607      0.2225730676      0.1026569498 
-#>            island               sex              year 
-#>      0.0876071687      0.0844807334      0.0006978493
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##           species flipper_length_mm       body_mass_g     bill_depth_mm 
+##      0.3725898166      0.3261834607      0.2225730676      0.1026569498 
+##            island               sex              year 
+##      0.0876071687      0.0844807334      0.0006978493
 }\if{html}{\out{</div>}}
 
 But sometimes you want to do something specific and the defaults just
@@ -305,8 +318,7 @@ values are considered good when \code{aorsf} computes prediction accuracy, so
 we make our function return a pseudo R-squared based on mean absolute
 error:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{
-rsq_mae <- function(y_mat, w_vec, s_vec)\{
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{rsq_mae <- function(y_mat, w_vec, s_vec)\{
  
  mae_standard <- mean(abs((y_mat - mean(y_mat)) * w_vec))
  mae_fit <- mean(abs((y_mat - s_vec) * w_vec))
@@ -320,10 +332,12 @@ fit_custom <- orsf_update(fit_standard, oobag_fun = rsq_mae)
 # not much changes, but the difference between variables shrinks
 # and the ordering of sex and island has swapped
 orsf_vi_permute(fit_custom)
-#>           species flipper_length_mm       body_mass_g     bill_depth_mm 
-#>       0.206951751       0.193248912       0.140899603       0.076759148 
-#>               sex            island              year 
-#>       0.073042331       0.050851073       0.003633365
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##           species flipper_length_mm       body_mass_g     bill_depth_mm 
+##       0.206951751       0.193248912       0.140899603       0.076759148 
+##               sex            island              year 
+##       0.073042331       0.050851073       0.003633365
 }\if{html}{\out{</div>}}
 }
 }

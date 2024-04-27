@@ -50,6 +50,11 @@
 #'   is `'mort'` for survival or `'class'` for classification, or an array of
 #'   matrices if `length(pred_horizon) > 1`.
 #'
+#' @param oobag (_logical_) If `FALSE` (the default), predictions will
+#'   be computed using all trees for each observation. If `TRUE`, then
+#'   out-of-bag predictions will be computed. This input parameter should
+#'   only be set to `TRUE` if `new_data` is `NULL`.
+#'
 #' @param na_action `r roxy_na_action_header("new_data")`
 #'
 #'   - `r roxy_na_action_fail("new_data")`
@@ -97,11 +102,12 @@
 #' @includeRmd Rmd/orsf_predict_examples.Rmd
 #'
 predict.ObliqueForest <- function(object,
-                                  new_data,
+                                  new_data = NULL,
                                   pred_type = NULL,
                                   pred_horizon = NULL,
                                   pred_aggregate = TRUE,
                                   pred_simplify = FALSE,
+                                  oobag = FALSE,
                                   na_action = NULL,
                                   boundary_checks = TRUE,
                                   n_thread = NULL,
@@ -118,6 +124,7 @@ predict.ObliqueForest <- function(object,
   pred_horizon = pred_horizon,
   pred_aggregate = pred_aggregate,
   pred_simplify = pred_simplify,
+  oobag = oobag,
   na_action = na_action %||% object$na_action,
   boundary_checks = boundary_checks,
   n_thread = n_thread %||% object$n_thread,

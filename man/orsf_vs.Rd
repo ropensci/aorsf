@@ -18,6 +18,7 @@ a \link[data.table:data.table]{data.table} with four columns:
 \itemize{
 \item \emph{n_predictors}: the number of predictors used
 \item \emph{stat_value}: the out-of-bag statistic
+\item \emph{variables_included}: the names of the variables included
 \item \emph{predictors_included}: the names of the predictors included
 \item \emph{predictor_dropped}: the predictor selected to be dropped
 }
@@ -26,6 +27,13 @@ a \link[data.table:data.table]{data.table} with four columns:
 Variable selection
 }
 \details{
+The difference between \code{variables_included} and \code{predictors_included} is
+referent coding. The \code{variable} would be the name of a factor variable
+in the training data, while the \code{predictor} would be the name of that
+same factor with the levels of the factor appended. For example, if
+the variable is \code{diabetes} with \code{levels = c("no", "yes")}, then the
+variable name is \code{diabetes} and the predictor name is \code{diabetes_yes}.
+
 \code{tree_seeds} should be specified in \code{object} so that each successive run
 of \code{orsf} will be evaluated in the same out-of-bag samples as the initial
 run.

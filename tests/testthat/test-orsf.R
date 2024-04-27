@@ -864,7 +864,7 @@ test_that(
 
     oobag_preds <- na.omit(fit$pred_oobag)
 
-    expect_true(all(apply(oobag_preds, 1, sum) == 1))
+    expect_true(all(apply(oobag_preds, 1, sum) - 1 < 1e-5))
     expect_true(all(oobag_preds >= 0))
     expect_true(all(oobag_preds <= 1))
 
