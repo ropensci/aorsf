@@ -2503,6 +2503,15 @@ ObliqueForest <- R6::R6Class(
 
    numeric_data <- select_cols(self$data, private$data_names$x_numeric)
 
+   if(is_empty(numeric_data)){
+
+    private$data_bounds <- matrix(NA, nrow=5, ncol=1,
+                                  dimnames = list(c('10%', '25%', '50%', '75%', '90%'),
+                                                  "placeholder"))
+    return()
+
+   }
+
    if(self$na_action == 'omit'){
     numeric_data <- collapse::fsubset(numeric_data, private$data_rows_complete)
    }
