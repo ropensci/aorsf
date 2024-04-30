@@ -988,3 +988,20 @@ test_that(
 
  }
 )
+
+test_that(
+ desc = "data without numerics are allowed",
+ code = {
+
+  fit <- orsf(pbc_orsf, time + status ~ sex + trt, n_tree = n_tree_test)
+
+  expect_true(all(is.na(fit$get_bounds())))
+
+  expect_equal(length(orsf_vi(fit)), 2L)
+
+  skip_on_cran()
+  # don't require too much compute time from cran
+  expect_equal(nrow(orsf_pd_oob(fit, pred_spec_auto(sex, trt))), 4L)
+
+ }
+)
