@@ -14,6 +14,14 @@
 #' - `r roxy_importance_negate()`
 #' - `r roxy_importance_permute()`
 #'
+#' @param class (_character_) only relevant for classification forests.
+#'   If `NULL` (the default), summary statistics are returned for all
+#'   classes in the outcome, and printed summaries will show the last
+#'   class in the class levels. To specify a single class to summarize,
+#'   indicate the name of the class with `class`. E.g., if the categorical
+#'   outcome has class levels A, B,  and C, then using `class = "A"` will
+#'   restrict output to class A.
+#'
 #' For details on these methods, see [orsf_vi].
 #'
 #' @return an object of class 'orsf_summary', which includes data on
