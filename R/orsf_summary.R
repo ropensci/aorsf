@@ -53,12 +53,20 @@
 #'
 #' orsf_summarize_uni(object, n_variables = 2, importance = 'negate')
 #'
+#' # for multi-category fits, you can specify which class
+#' # you want to summarize:
+#'
+#' fit =  orsf(species ~ ., data = penguins_orsf, n_tree = 25)
+#' orsf_summarize_uni(fit, class = "Adelie", n_variables = 1)
+#' orsf_summarize_uni(fit, class = "Gentoo", n_variables = 1)
+#'
 #'
 orsf_summarize_uni <- function(object,
                                n_variables = NULL,
                                pred_horizon = NULL,
                                pred_type = NULL,
                                importance = NULL,
+                               class = NULL,
                                verbose_progress = FALSE,
                                ...){
 
@@ -72,6 +80,7 @@ orsf_summarize_uni <- function(object,
                       pred_horizon    = pred_horizon,
                       pred_type       = pred_type,
                       importance_type = importance,
+                      class           = class,
                       verbose_progress = verbose_progress)
 
 }

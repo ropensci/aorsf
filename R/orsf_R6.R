@@ -732,11 +732,13 @@ ObliqueForest <- R6::R6Class(
                            pred_horizon = NULL,
                            pred_type = NULL,
                            importance_type = NULL,
+                           class = NULL,
                            verbose_progress = FALSE){
 
    # check incoming values if they were specified.
    private$check_n_variables(n_variables)
    private$check_verbose_progress(verbose_progress)
+   private$check_class(class)
 
    if(!is.null(pred_horizon)){
     private$check_pred_horizon(pred_horizon, boundary_checks = TRUE)
@@ -838,6 +840,13 @@ ObliqueForest <- R6::R6Class(
 
    if(self$tree_type == 'classification'){
     new_order <- insert_vals(new_order, 2, 'class')
+    if(!is.null(class)){
+     .class <- class # prevents mix-up with class in dt
+     pd_output <- pd_output[class == .class]
+    } else {
+     # put the highest level class on top
+     pd_output <- pd_output[order(-class)]
+    }
    }
 
    setcolorder(pd_output, new_order)
@@ -2150,6 +2159,27 @@ ObliqueForest <- R6::R6Class(
     bound = mtry,
     append_to_msg = "(number of randomly selected predictors)"
    )
+
+  },
+
+  check_class = function(class = NULL){
+
+   if(!is.null(class)){
+
+    check_arg_is(arg_value = class,
+                 arg_name = "class",
+                 expected_class = "character")
+
+    check_arg_length(arg_value = class,
+                     arg_name = "class",
+                     expected_length = 1L)
+
+    check_arg_is_valid(arg_value = class,
+                       arg_name = "class",
+                       valid_options = self$class_levels)
+
+   }
+
 
   },
 
