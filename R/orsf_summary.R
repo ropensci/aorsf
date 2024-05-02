@@ -14,6 +14,14 @@
 #' - `r roxy_importance_negate()`
 #' - `r roxy_importance_permute()`
 #'
+#' @param class (_character_) only relevant for classification forests.
+#'   If `NULL` (the default), summary statistics are returned for all
+#'   classes in the outcome, and printed summaries will show the last
+#'   class in the class levels. To specify a single class to summarize,
+#'   indicate the name of the class with `class`. E.g., if the categorical
+#'   outcome has class levels A, B,  and C, then using `class = "A"` will
+#'   restrict output to class A.
+#'
 #' For details on these methods, see [orsf_vi].
 #'
 #' @return an object of class 'orsf_summary', which includes data on
@@ -53,12 +61,20 @@
 #'
 #' orsf_summarize_uni(object, n_variables = 2, importance = 'negate')
 #'
+#' # for multi-category fits, you can specify which class
+#' # you want to summarize:
+#'
+#' object =  orsf(species ~ ., data = penguins_orsf, n_tree = 25)
+#'
+#' orsf_summarize_uni(object, class = "Adelie", n_variables = 1)
+#'
 #'
 orsf_summarize_uni <- function(object,
                                n_variables = NULL,
                                pred_horizon = NULL,
                                pred_type = NULL,
                                importance = NULL,
+                               class = NULL,
                                verbose_progress = FALSE,
                                ...){
 
@@ -72,6 +88,7 @@ orsf_summarize_uni <- function(object,
                       pred_horizon    = pred_horizon,
                       pred_type       = pred_type,
                       importance_type = importance,
+                      class           = class,
                       verbose_progress = verbose_progress)
 
 }

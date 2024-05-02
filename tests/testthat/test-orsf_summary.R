@@ -74,3 +74,19 @@ test_that(
  }
 )
 
+test_that(
+ desc = "single class can be specified",
+ code = {
+
+  object <- fit_standard_penguin_species$fast
+
+  smry_all <- orsf_summarize_uni(object, n_variables = 1)
+
+  expect_true(all(object$class_levels %in% smry_all$dt$class))
+
+  smry_adelie <- orsf_summarize_uni(object, class = "Adelie", n_variables = 1)
+
+  expect_true(all(smry_adelie$dt$class == "Adelie"))
+
+ }
+)
