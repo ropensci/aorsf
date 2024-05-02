@@ -91,6 +91,21 @@ test_that(
  }
 )
 
+test_that(
+ desc = "variable selection can go down to 1 predictor",
+ code = {
 
+  fit_cars <- orsf(mpg ~ ., data = mtcars, n_tree = n_tree_test)
+
+  vs <- orsf_vs(fit_cars, n_predictor_min = 1)
+
+  # assert that we eliminated 1 predictor at each step and got down to
+  # 1 remaining predictor
+  expect_equal(nrow(vs), ncol(mtcars) - 1)
+  expect_length(vs$variables_included[[1]], 1)
+  expect_length(vs$predictors_included[[1]], 1)
+
+ }
+)
 
 
