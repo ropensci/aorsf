@@ -3051,7 +3051,6 @@ ObliqueForest <- R6::R6Class(
      unique(variable[predictor %in% colnames(cpp_args$x)])
     )
 
-
     oob_data[n_predictors,
              `:=`(n_predictors = n_predictors,
                   stat_value = cpp_output$eval_oobag$stat_values[1,1],
@@ -3059,7 +3058,7 @@ ObliqueForest <- R6::R6Class(
                   predictors_included = colnames(cpp_args$x),
                   predictor_dropped = worst_predictor)]
 
-    cpp_args$x <- cpp_args$x[, -worst_index]
+    cpp_args$x <- cpp_args$x[, -worst_index, drop = FALSE]
     n_predictors <- n_predictors - 1
     current_progress <- current_progress + 1
 
@@ -3068,6 +3067,7 @@ ObliqueForest <- R6::R6Class(
    if(verbose_progress){
     cat("Selecting variables: 100%\n")
    }
+
 
    collapse::na_omit(oob_data)
 
