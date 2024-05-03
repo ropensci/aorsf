@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">aorsf</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,8 +56,13 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.1.4" id="aorsf-014-unreleased">aorsf 0.1.4 (unreleased)<a class="anchor" aria-label="anchor" href="#aorsf-014-unreleased"></a></h2>
-<ul><li><p>Setting <code>oobag_pred_type</code> to <code>'none'</code> when growing a forest no longer necessitates the specification of <code>pred_type</code> when calling <code>predict</code> later (see <a href="https://github.com/ropensci/aorsf/pull/48" class="external-link uri">https://github.com/ropensci/aorsf/pull/48</a>).</p></li>
+<h2 class="pkg-version" data-toc-text="0.1.4" id="aorsf-014">aorsf 0.1.4<a class="anchor" aria-label="anchor" href="#aorsf-014"></a></h2>
+<ul><li><p><code>orsf_vs</code> now returns a column that contains non-reference coded variable names (see <a href="https://github.com/ropensci/aorsf/pull/52" class="external-link uri">https://github.com/ropensci/aorsf/pull/52</a>).</p></li>
+<li><p><code>orsf_vs</code> no longer throws an error when <code>n_predictor_min = 1</code> is used (see <a href="https://github.com/ropensci/aorsf/pull/58" class="external-link uri">https://github.com/ropensci/aorsf/pull/58</a>).</p></li>
+<li><p><code>orsf_summarize_uni</code> now allows specification of a class to summarize for oblique classification forests (see <a href="https://github.com/ropensci/aorsf/pull/57" class="external-link uri">https://github.com/ropensci/aorsf/pull/57</a>).</p></li>
+<li><p>fixed an issue where <code>orsf</code> would throw an uninformative error when all predictors were categorical (see <a href="https://github.com/ropensci/aorsf/pull/56" class="external-link uri">https://github.com/ropensci/aorsf/pull/56</a>)</p></li>
+<li><p>oblique random forests can now compute out-of-bag predictions on modified versions of their training data (see <a href="https://github.com/ropensci/aorsf/pull/54" class="external-link uri">https://github.com/ropensci/aorsf/pull/54</a>)</p></li>
+<li><p>Setting <code>oobag_pred_type</code> to <code>'none'</code> when growing a forest no longer necessitates the specification of <code>pred_type</code> when calling <code>predict</code> later (see <a href="https://github.com/ropensci/aorsf/pull/48" class="external-link uri">https://github.com/ropensci/aorsf/pull/48</a>).</p></li>
 <li><p>Setting <code>sample_fraction</code> to 1 will no longer result in empty <code>oobag_rows</code> in the forest object (this would cause R to crash when the forest was passed to C++; see <a href="https://github.com/ropensci/aorsf/pull/48" class="external-link uri">https://github.com/ropensci/aorsf/pull/48</a>)</p></li>
 <li><p>Re-worked the creation and maintenance of <code>oobag_denom</code> in C++ routines (see <a href="https://github.com/ropensci/aorsf/pull/48" class="external-link uri">https://github.com/ropensci/aorsf/pull/48</a>).</p></li>
 <li><p>Restricted mean survival time is now used for <code>pred_type = 'time'</code> instead of median survival time (See <a href="https://github.com/ropensci/aorsf/pull/46" class="external-link uri">https://github.com/ropensci/aorsf/pull/46</a>).</p></li>
