@@ -111,3 +111,49 @@ test_that(
 
  })
 
+test_that(
+ desc = "na action of pass works with new preds",
+ code = {
+
+  mtcars_orsf <- mtcars
+  mtcars_orsf$vs <- factor(mtcars_orsf$vs)
+  mtcars_na <- mtcars_orsf
+
+  set_to_miss <- c(1, 4, 18)
+  mtcars_na$cyl[set_to_miss] <- NA
+
+  aorsf_regr_fit <- orsf(
+   data = mtcars_orsf,
+   formula = mpg ~ .,
+   n_tree = n_tree_test,
+   tree_seeds = seeds_standard
+  )
+
+  aorsf_regr_pred <- predict(
+   aorsf_regr_fit,
+   new_data = mtcars_na,
+   na_action = 'pass'
+  )
+
+  expect_equal(which(is.na(aorsf_regr_pred)), set_to_miss)
+
+  aorsf_clsf_fit <- aorsf::orsf(
+   data = mtcars_orsf,
+   formula = vs ~ .,
+   n_tree = n_tree_test,
+   tree_seeds = seeds_standard
+  )
+
+  aorsf_clsf_pred <- predict(
+   aorsf_clsf_fit,
+   new_data = mtcars_na,
+   na_action = 'pass'
+  )
+
+  expect_equal(which(is.na(aorsf_clsf_pred[,1])), set_to_miss)
+  expect_equal(which(is.na(aorsf_clsf_pred[,2])), set_to_miss)
+
+  # this test is already done for survival in test-orsf_predict
+
+ }
+)
