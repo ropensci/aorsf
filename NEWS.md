@@ -1,3 +1,7 @@
+# aorsf 0.1.5 (unreleased)
+
+* fixed an issue where omitting NA values would cause an error in regression forests.
+
 # aorsf 0.1.4
 
 * `orsf_vs` now returns a column that contains non-reference coded variable names (see https://github.com/ropensci/aorsf/pull/52).
