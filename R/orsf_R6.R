@@ -3153,7 +3153,7 @@ ObliqueForest <- R6::R6Class(
    private$y <- select_cols(self$data, private$data_names$y)
 
    if(self$na_action == 'omit' && !placeholder)
-    private$y <- private$y[private$data_rows_complete, ]
+    private$y <- private$y[private$data_rows_complete, , drop = FALSE]
 
    private$prep_y_internal(placeholder)
 
