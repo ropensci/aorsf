@@ -441,10 +441,6 @@ ObliqueForest <- R6::R6Class(
    # object and then use this function. We need checks for that case.
    new_data <- new_data %||% self$data
 
-   if(oobag && nrow(new_data) != self$n_obs){
-    stop("input data must have ", self$n_obs, " observations to ",
-         "compute out-of-bag predictions.", call. = FALSE)
-   }
 
    # run checks before you assign new values to object.
    # otherwise, if a check throws an error, the object will
@@ -476,6 +472,12 @@ ObliqueForest <- R6::R6Class(
 
      private$init_data_rows_complete()
      private$prep_x()
+
+     if(oobag && nrow(private$x) != self$n_obs){
+      stop("input data must have ", self$n_obs, " observations to ",
+           "compute out-of-bag predictions.", call. = FALSE)
+     }
+
      # y and w do not need to be prepped for prediction,
      # but they need to match orsf_cpp()'s expectations
      private$y <- matrix(0, nrow = 1, ncol = 1)
@@ -3877,7 +3879,6 @@ ObliqueForestSurvival <- R6::R6Class(
 
   clean_pred_oobag_internal = function(){
 
-
    # put the oob predictions into the same order as the training data.
    unsorted <- collapse::radixorder(private$data_row_sort)
    self$pred_oobag <- self$pred_oobag[unsorted, , drop = FALSE]
@@ -3939,7 +3940,10 @@ ObliqueForestSurvival <- R6::R6Class(
 
    # must sort if oobag b/c when oobag_rows were originally created,
    # it was after the data had been sorted.
-   if(oobag) private$sort_inputs(sort_y = FALSE)
+   if(oobag){
+    private$sort_inputs(sort_y = FALSE)
+    unsorted <- collapse::radixorder(private$data_row_sort)
+   }
 
    cpp_args = private$prep_cpp_args(x = private$x,
                                     y = private$y,
@@ -3963,6 +3967,12 @@ ObliqueForestSurvival <- R6::R6Class(
 
      results[[i]] <- do.call(orsf_cpp, args = cpp_args)$pred_new
 
+     if(oobag){
+      # put the oob predictions into the same order as the training data.
+      results[[i]] <- results[[i]][unsorted, , drop = FALSE]
+     }
+
+
      results[[i]] <- private$clean_pred_new(results[[i]])
 
     }
@@ -3983,9 +3993,7 @@ ObliqueForestSurvival <- R6::R6Class(
 
    if(oobag){
     # put the oob predictions into the same order as the training data.
-    unsorted <- collapse::radixorder(private$data_row_sort)
     out_values <- out_values[unsorted, , drop = FALSE]
-
    }
 
    private$clean_pred_new(out_values)
