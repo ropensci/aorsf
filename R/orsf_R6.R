@@ -467,6 +467,7 @@ ObliqueForest <- R6::R6Class(
    self$verbose_progress <- verbose_progress
    self$pred_aggregate   <- pred_aggregate
 
+
    out <- try(
     expr = {
 
@@ -4262,6 +4263,8 @@ ObliqueForestClassification <- R6::R6Class(
 
    out <- do.call(orsf_cpp, args = cpp_args)$pred_new
 
+   out <- private$clean_pred_new(out)
+
    if(self$pred_type == 'prob' && self$pred_aggregate){
 
     colnames(out) <- self$class_levels
@@ -4284,6 +4287,12 @@ ObliqueForestClassification <- R6::R6Class(
    }
 
    out
+
+  },
+
+  clean_pred_new_internal = function(preds){
+
+   preds
 
   }
 
@@ -4510,9 +4519,17 @@ ObliqueForestRegression <- R6::R6Class(
 
    out <- do.call(orsf_cpp, args = cpp_args)$pred_new
 
+   out <- private$clean_pred_new(out)
+
    if(simplify) dim(out) <- NULL
 
    out
+
+  },
+
+  clean_pred_new_internal = function(preds){
+
+   preds
 
   }
 
