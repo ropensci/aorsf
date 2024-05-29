@@ -1,2 +1,2 @@
 
-This patch release contains a few minor bug fixes.
+This patch release contains a minor update.
