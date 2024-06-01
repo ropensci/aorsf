@@ -30,3 +30,11 @@ test_that(
  }
 )
 
+# microbenchmark::microbenchmark(
+#  R = {
+#   gini_1 <- gini_impurity(vals = vals_1)
+#   gini_0 <- gini_impurity(vals = vals_0)
+#   target <- gini_1 * sum(w[g==1]) / sum(w) + gini_0 * sum(w[g==0]) / sum(w)
+#  },
+#  cpp = compute_gini_exported(y, w, g)
+# )
