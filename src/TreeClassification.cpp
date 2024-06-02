@@ -57,11 +57,10 @@
   case SPLIT_GINI: {
 
    vec y_i = y_node.unsafe_col(y_col_split);
-   result = compute_gini(y_i, w_node, g_node);
 
    // gini index: lower is better, so
    // transform to make consistent with other stats
-   result = (result-1) * -1;
+   result = 1 - compute_gini(y_i, w_node, g_node);
 
    break;
   }
