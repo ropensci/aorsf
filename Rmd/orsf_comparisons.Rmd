@@ -16,7 +16,7 @@ library(microbenchmark)
 
 ### Computation
 
-We'll use the the `attrition` data from the `modeldata` R package.
+We'll use the `attrition` data from the `modeldata` R package.
 
 ```{r}
 
@@ -142,7 +142,7 @@ library(microbenchmark)
 
 ### Computation
 
-We'll use the the `ames` housing data from the `modeldata` R package.
+We'll use the `ames` housing data from the `modeldata` R package.
 
 ```{r}
 
