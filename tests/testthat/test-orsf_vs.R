@@ -123,4 +123,17 @@ test_that(
  }
 )
 
+test_that(
+ desc = "importance specification is required",
+ code = {
+
+  fit_cars <- orsf(mpg ~ ., data = mtcars,
+                   n_tree = n_tree_test,
+                   importance = 'none')
+
+  expect_error(orsf_vs(fit_cars), regexp = 'must be specified')
+
+ }
+)
+
 

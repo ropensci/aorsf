@@ -42,6 +42,12 @@ orsf_vs <- function(object,
                     n_predictor_drop = 1,
                     verbose_progress = NULL){
 
+ if(object$importance_type == 'none'){
+  stop("object must be specified with importance",
+       "of 'anova', 'negate', or 'permute'",
+       call. = FALSE)
+ }
+
  check_arg_is(arg_value = object,
               arg_name = 'object',
               expected_class = 'ObliqueForest')
