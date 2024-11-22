@@ -3081,7 +3081,7 @@ ObliqueForest <- R6::R6Class(
 
     cpp_args$x <- cpp_args$x[, -worst_index, drop = FALSE]
     n_predictors <- n_predictors - n_drop
-    current_progress <- current_progress + 1
+    current_progress <- current_progress + n_drop
 
    }
 
