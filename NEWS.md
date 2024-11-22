@@ -1,4 +1,8 @@
-# aorsf 0.1.5 (unreleased)
+# aorsf 0.1.6 (unreleased)
+
+* added `n_predictor_drop` to `orsf_vs()`. Dropping one predictor at a time makes `orsf_vs()` slow for data with hundreds of predictors. Using a larger value for `n_predictor_drop` helps speed this up. The default value of `n_predictor_drop` is 1 to maintain backward compatibility.
+
+# aorsf 0.1.5 
 
 * fixed an issue where omitting NA values would cause an error in regression forests.
 
