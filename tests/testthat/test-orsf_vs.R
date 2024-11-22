@@ -108,4 +108,19 @@ test_that(
  }
 )
 
+test_that(
+ desc = "variable selection with step size > 1",
+ code = {
+
+  fit_cars <- orsf(mpg ~ ., data = mtcars, n_tree = n_tree_test)
+
+  vs_size_2 <- orsf_vs(fit_cars, n_predictor_min = 1, n_predictor_drop = 2)
+
+  # assert that we eliminated 2 predictors at each step and got down to
+  # 1 remaining predictor
+  expect_equal(vs_size_2$n_predictors, c(1,2,4,6,8,10))
+
+ }
+)
+
 

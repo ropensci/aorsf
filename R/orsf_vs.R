@@ -57,6 +57,14 @@ orsf_vs <- function(object,
                 arg_name = 'n_predictor_min',
                 bound = 1)
 
+
+ check_arg_type(arg_value = n_predictor_drop,
+                arg_name = 'n_predictor_drop',
+                expected_type = 'numeric')
+
+ check_arg_is_integer(arg_value = n_predictor_drop,
+                      arg_name = 'n_predictor_drop')
+
  check_arg_lt(arg_value = n_predictor_min,
               arg_name = 'n_predictor_min',
               bound = length(object$get_names_x()),
