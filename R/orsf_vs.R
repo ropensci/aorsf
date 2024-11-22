@@ -3,6 +3,7 @@
 #'
 #' @inheritParams predict.ObliqueForest
 #' @param n_predictor_min (*integer*) the minimum number of predictors allowed
+#' @param n_predictor_drop (*integer*) the number of predictors dropped at each step
 #' @param verbose_progress (*logical*) not implemented yet. Should progress be printed to the console?
 #'
 #' @return a [data.table][data.table::data.table-package] with four columns:
@@ -38,6 +39,7 @@
 
 orsf_vs <- function(object,
                     n_predictor_min = 3,
+                    n_predictor_drop = 1,
                     verbose_progress = NULL){
 
  check_arg_is(arg_value = object,
@@ -74,7 +76,9 @@ orsf_vs <- function(object,
                   arg_name = 'verbose_progress',
                   expected_length = 1)
 
- object$select_variables(n_predictor_min, verbose_progress)
+ object$select_variables(n_predictor_min,
+                         n_predictor_drop,
+                         verbose_progress)
 
 }
 

@@ -40,9 +40,9 @@ coordinate descent." \emph{Journal of statistical software}, \emph{39}(5), 1.
 }
 \seealso{
 linear combination control functions
+\code{\link{orsf_control}()},
 \code{\link{orsf_control_cph}()},
 \code{\link{orsf_control_custom}()},
-\code{\link{orsf_control_fast}()},
-\code{\link{orsf_control}()}
+\code{\link{orsf_control_fast}()}
 }
 \concept{orsf_control}

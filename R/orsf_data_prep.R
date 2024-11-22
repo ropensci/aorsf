@@ -1,8 +1,9 @@
-
+#' @noRd
 orsf_data_prep <- function(data, ...){
  UseMethod('orsf_data_prep')
 }
 
+#' @noRd
 orsf_data_prep.list <- function(data, ...){
 
  lengths <- vapply(data, length, integer(1))
@@ -43,12 +44,14 @@ orsf_data_prep.list <- function(data, ...){
 
 }
 
+#' @noRd
 orsf_data_prep.recipe <- function(data, ...){
 
  getElement(data, 'template')
 
 }
 
+#' @noRd
 orsf_data_prep.data.frame <- function(data, ...){
  data
 }

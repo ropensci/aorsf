@@ -1,13 +1,15 @@
+#' @noRd
 coerce_nans <- function(x, to){
  UseMethod('coerce_nans')
 }
 
+#' @noRd
 coerce_nans.list <- function(x, to){
 
  lapply(x, coerce_nans, to = to)
 
 }
-
+#' @noRd
 coerce_nans.factor <-
  coerce_nans.integer <-
  coerce_nans.double <-
