@@ -52,9 +52,9 @@ Springer, New York, NY. DOI: 10.1007/978-1-4757-3294-8_3
 }
 \seealso{
 linear combination control functions
+\code{\link{orsf_control}()},
 \code{\link{orsf_control_custom}()},
 \code{\link{orsf_control_fast}()},
-\code{\link{orsf_control_net}()},
-\code{\link{orsf_control}()}
+\code{\link{orsf_control_net}()}
 }
 \concept{orsf_control}

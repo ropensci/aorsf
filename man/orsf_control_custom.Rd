@@ -32,9 +32,9 @@ an input for the \code{control} argument of \link{orsf}.
 }
 \seealso{
 linear combination control functions
+\code{\link{orsf_control}()},
 \code{\link{orsf_control_cph}()},
 \code{\link{orsf_control_fast}()},
-\code{\link{orsf_control_net}()},
-\code{\link{orsf_control}()}
+\code{\link{orsf_control_net}()}
 }
 \concept{orsf_control}

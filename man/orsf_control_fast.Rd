@@ -38,9 +38,9 @@ on the scale of your data, which is why the default value is \code{TRUE}.
 }
 \seealso{
 linear combination control functions
+\code{\link{orsf_control}()},
 \code{\link{orsf_control_cph}()},
 \code{\link{orsf_control_custom}()},
-\code{\link{orsf_control_net}()},
-\code{\link{orsf_control}()}
+\code{\link{orsf_control_net}()}
 }
 \concept{orsf_control}

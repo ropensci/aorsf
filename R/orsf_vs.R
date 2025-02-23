@@ -3,6 +3,7 @@
 #'
 #' @inheritParams predict.ObliqueForest
 #' @param n_predictor_min (*integer*) the minimum number of predictors allowed
+#' @param n_predictor_drop (*integer*) the number of predictors dropped at each step
 #' @param verbose_progress (*logical*) not implemented yet. Should progress be printed to the console?
 #'
 #' @return a [data.table][data.table::data.table-package] with four columns:
@@ -38,7 +39,14 @@
 
 orsf_vs <- function(object,
                     n_predictor_min = 3,
+                    n_predictor_drop = 1,
                     verbose_progress = NULL){
+
+ if(object$importance_type == 'none'){
+  stop("object must be specified with importance",
+       "of 'anova', 'negate', or 'permute'",
+       call. = FALSE)
+ }
 
  check_arg_is(arg_value = object,
               arg_name = 'object',
@@ -54,6 +62,14 @@ orsf_vs <- function(object,
  check_arg_gteq(arg_value = n_predictor_min,
                 arg_name = 'n_predictor_min',
                 bound = 1)
+
+
+ check_arg_type(arg_value = n_predictor_drop,
+                arg_name = 'n_predictor_drop',
+                expected_type = 'numeric')
+
+ check_arg_is_integer(arg_value = n_predictor_drop,
+                      arg_name = 'n_predictor_drop')
 
  check_arg_lt(arg_value = n_predictor_min,
               arg_name = 'n_predictor_min',
@@ -74,7 +90,9 @@ orsf_vs <- function(object,
                   arg_name = 'verbose_progress',
                   expected_length = 1)
 
- object$select_variables(n_predictor_min, verbose_progress)
+ object$select_variables(n_predictor_min,
+                         n_predictor_drop,
+                         verbose_progress)
 
 }
 

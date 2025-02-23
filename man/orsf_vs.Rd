@@ -4,12 +4,19 @@
 \alias{orsf_vs}
 \title{Variable selection}
 \usage{
-orsf_vs(object, n_predictor_min = 3, verbose_progress = NULL)
+orsf_vs(
+  object,
+  n_predictor_min = 3,
+  n_predictor_drop = 1,
+  verbose_progress = NULL
+)
 }
 \arguments{
 \item{object}{(\emph{ObliqueForest}) a trained oblique random forest object (see \link{orsf}).}
 
 \item{n_predictor_min}{(\emph{integer}) the minimum number of predictors allowed}
+
+\item{n_predictor_drop}{(\emph{integer}) the number of predictors dropped at each step}
 
 \item{verbose_progress}{(\emph{logical}) not implemented yet. Should progress be printed to the console?}
 }
