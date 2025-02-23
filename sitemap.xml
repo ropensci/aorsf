@@ -1,111 +1,39 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/404.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/CONTRIBUTING.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/articles/aorsf.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/articles/fast.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/articles/oobag.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/articles/pd.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/index.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/aorsf-package.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/as.data.table.orsf_summary_uni.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/orsf.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_control.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_control_cph.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_control_custom.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_control_fast.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_control_net.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_ice_oob.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_pd_oob.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_scale_cph.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_summarize_uni.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_time_to_train.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_update.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_vi.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_vint.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/orsf_vs.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/pbc_orsf.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/penguins_orsf.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/pred_spec_auto.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/predict.ObliqueForest.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/print.ObliqueForest.html</loc>
-  </url>
-  <url>
-    <loc>https://bcjaeger.github.io/aorsf/reference/print.orsf_summary_uni.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://bcjaeger.github.io/aorsf/404.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/CONTRIBUTING.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/LICENSE-text.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/LICENSE.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/articles/aorsf.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/articles/fast.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/articles/index.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/articles/oobag.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/articles/pd.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/authors.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/index.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/news/index.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/aorsf-package.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/as.data.table.orsf_summary_uni.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/index.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/orsf.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/orsf_control.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/orsf_control_cph.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/orsf_control_custom.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/orsf_control_fast.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/orsf_control_net.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/orsf_ice_oob.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/orsf_pd_oob.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/orsf_scale_cph.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/orsf_summarize_uni.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/orsf_time_to_train.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/orsf_update.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/orsf_vi.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/orsf_vint.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/orsf_vs.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/pbc_orsf.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/penguins_orsf.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/pred_spec_auto.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/predict.ObliqueForest.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/print.ObliqueForest.html</loc></url>
+<url><loc>https://bcjaeger.github.io/aorsf/reference/print.orsf_summary_uni.html</loc></url>
 </urlset>
+
