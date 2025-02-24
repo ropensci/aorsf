@@ -498,4 +498,23 @@ test_that(
  }
 )
 
+test_that(
+ desc = 'calling convenience vi functions does not change forest data',
+ code = {
+
+  importance_init <- fit_standard_pbc$fast$importance
+  importance_type_init <- fit_standard_pbc$fast$importance_type
+
+  importance_permute <- orsf_vi_permute(fit_standard_pbc$fast)
+
+  expect_equal(importance_init, fit_standard_pbc$fast$importance)
+  expect_equal(importance_type_init, fit_standard_pbc$fast$importance_type)
+
+  importance_negate <- orsf_vi_negate(fit_standard_pbc$fast)
+
+  expect_equal(importance_init, fit_standard_pbc$fast$importance)
+  expect_equal(importance_type_init, fit_standard_pbc$fast$importance_type)
+
+ }
+)
 
