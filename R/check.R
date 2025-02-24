@@ -126,7 +126,8 @@ check_arg_length <- function(arg_value, arg_name, expected_length){
 #' @noRd
 check_arg_bound <- function(arg_value, arg_name, bound,
                             relational_operator,
-                            append_to_msg){
+                            append_to_msg,
+                            error){
 
  .op <- switch(relational_operator,
                'gt' = `>`,
@@ -147,6 +148,8 @@ check_arg_bound <- function(arg_value, arg_name, bound,
                 'lteq' = ">")
 
  fails <- !.op(arg_value, bound)
+
+ error_msg <- "okay"
 
  if(any(fails)){
 
@@ -170,9 +173,13 @@ check_arg_bound <- function(arg_value, arg_name, bound,
 
   }
 
-  stop(error_msg, call. = FALSE)
+  if(error){
+   stop(error_msg, call. = FALSE)
+  }
 
  }
+
+ invisible(error_msg)
 
 }
 
@@ -187,12 +194,17 @@ check_arg_bound <- function(arg_value, arg_name, bound,
 #'   so hopefully nothing is returned.
 #'
 #' @noRd
-check_arg_gt <- function(arg_value, arg_name, bound, append_to_msg = NULL){
+check_arg_gt <- function(arg_value,
+                         arg_name,
+                         bound,
+                         append_to_msg = NULL,
+                         error = TRUE){
  check_arg_bound(arg_value,
                  arg_name,
                  bound,
                  relational_operator = 'gt',
-                 append_to_msg)
+                 append_to_msg,
+                 error)
 }
 
 #' strict checks for inputs
@@ -206,12 +218,17 @@ check_arg_gt <- function(arg_value, arg_name, bound, append_to_msg = NULL){
 #'   so hopefully nothing is returned.
 #'
 #' @noRd
-check_arg_lt <- function(arg_value, arg_name, bound, append_to_msg = NULL){
+check_arg_lt <- function(arg_value,
+                         arg_name,
+                         bound,
+                         append_to_msg = NULL,
+                         error = TRUE){
  check_arg_bound(arg_value,
                  arg_name,
                  bound,
                  relational_operator = 'lt',
-                 append_to_msg)
+                 append_to_msg,
+                 error)
 }
 
 #' strict checks for inputs
@@ -225,12 +242,17 @@ check_arg_lt <- function(arg_value, arg_name, bound, append_to_msg = NULL){
 #'   so hopefully nothing is returned.
 #'
 #' @noRd
-check_arg_gteq <- function(arg_value, arg_name, bound, append_to_msg = NULL){
+check_arg_gteq <- function(arg_value,
+                           arg_name,
+                           bound,
+                           append_to_msg = NULL,
+                           error = TRUE){
  check_arg_bound(arg_value,
                  arg_name,
                  bound,
                  relational_operator = 'gteq',
-                 append_to_msg)
+                 append_to_msg,
+                 error)
 }
 
 #' strict checks for inputs
@@ -245,12 +267,17 @@ check_arg_gteq <- function(arg_value, arg_name, bound, append_to_msg = NULL){
 #'
 #' @noRd
 
-check_arg_lteq <- function(arg_value, arg_name, bound, append_to_msg = NULL){
+check_arg_lteq <- function(arg_value,
+                           arg_name,
+                           bound,
+                           append_to_msg = NULL,
+                           error = TRUE){
  check_arg_bound(arg_value,
                  arg_name,
                  bound,
                  relational_operator = 'lteq',
-                 append_to_msg)
+                 append_to_msg,
+                 error)
 }
 
 #' strict checks for inputs
