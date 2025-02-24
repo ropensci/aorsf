@@ -2,6 +2,8 @@
 
 * added `n_predictor_drop` to `orsf_vs()`. Dropping one predictor at a time makes `orsf_vs()` slow for data with hundreds of predictors. Using a larger value for `n_predictor_drop` helps speed this up. The default value of `n_predictor_drop` is 1 to maintain backward compatibility.
 
+* `orsf` no longer throws hard errors if `leaf_min_obs` or `leaf_min_events` exceed the highest admissible value. Instead, a warning is returned and the input value is replaced by the highest admissible value.
+
 # aorsf 0.1.5 
 
 * fixed an issue where omitting NA values would cause an error in regression forests.
