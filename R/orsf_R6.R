@@ -1532,10 +1532,26 @@ ObliqueForest <- R6::R6Class(
                     arg_name = 'leaf_min_obs',
                     expected_length = 1)
 
-   check_arg_lteq(arg_value = input,
-                  arg_name = "leaf_min_obs",
-                  bound = round(n_obs / 2),
-                  append_to_msg = "(number of observations divided by 2)")
+   .check <- check_arg_lteq(
+    arg_value = input,
+    arg_name = "leaf_min_obs",
+    bound = floor(n_obs / 2),
+    append_to_msg = "(number of observations divided by 2)",
+    error = FALSE
+   )
+
+   if(.check != "okay"){
+
+    warning_msg <-
+     paste0(.check, ". The highest admissible value will be used")
+
+    self$leaf_min_obs <- floor(n_obs / 2)
+
+    warning(warning_msg, call. = FALSE)
+
+   }
+
+
 
   },
   check_split_rule = function(split_rule = NULL){
@@ -3535,12 +3551,29 @@ ObliqueForestSurvival <- R6::R6Class(
                     arg_name = 'leaf_min_events',
                     expected_length = 1)
 
-   check_arg_lteq(
+   .check <- check_arg_lteq(
     arg_value = self$leaf_min_events,
     arg_name = 'leaf_min_events',
-    bound = round(private$n_events / 2),
-    append_to_msg = "(number of events divided by 2)"
+    bound = floor(private$n_events / 2),
+    append_to_msg = "(number of events divided by 2)",
+    error = FALSE
    )
+
+   if(.check != "okay"){
+
+    warning_msg <-
+     paste0(.check, ". The highest admissible value will be used")
+
+    self$leaf_min_events <- floor(private$n_events / 2)
+
+    warning(warning_msg, call. = FALSE)
+
+   }
+
+
+
+
+
 
   },
   check_split_min_events = function(){

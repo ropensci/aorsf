@@ -6,11 +6,10 @@ test_that(
   # correct formula
   f <- time + status ~ .
 
+  # errors
   expect_error(orsf(pbc, f, n_tree = 0), "should be >= 1")
   expect_error(orsf(pbc, f, n_split = "3"), "should have type")
   expect_error(orsf(pbc, f, mtry = 5000), 'should be <=')
-  expect_error(orsf(pbc, f, leaf_min_events = 5000), 'should be <=')
-  expect_error(orsf(pbc, f, leaf_min_obs = 5000), 'should be <=')
   expect_error(orsf(pbc, f, attachData = TRUE), 'attach_data?')
   expect_error(orsf(pbc, f, Control = 0), 'control?')
   expect_error(orsf(pbc, f, tree_seeds = c(1,2,3)), 'number of trees')
@@ -18,6 +17,11 @@ test_that(
                'no samples are out-of-bag')
   expect_error(orsf(pbc, f, split_rule = 'cstat', split_min_stat = 1),
                'should be < 1')
+
+  # warnings
+  expect_warning(orsf(pbc, f, leaf_min_events = 5000), 'should be <=')
+  expect_warning(orsf(pbc, f, leaf_min_obs = 5000), 'should be <=')
+
 
   pbc_orsf$date_var <- Sys.Date()
   expect_error(orsf(pbc_orsf, f), 'unsupported type')
