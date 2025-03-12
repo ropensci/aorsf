@@ -260,7 +260,7 @@ orsf_vi_ <- function(object,
                              n_thread, verbose_progress)
  )
 
- object$get_importance_clean(out, group_factors)
+ object$get_importance_clean(out, group_factors, overwrite = FALSE)
 
 }
 

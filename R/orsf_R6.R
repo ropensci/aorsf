@@ -974,11 +974,23 @@ ObliqueForest <- R6::R6Class(
   },
 
   get_importance_clean = function(importance_raw = NULL,
-                                  group_factors = NULL){
+                                  group_factors = NULL,
+                                  overwrite = TRUE){
 
 
    input <- importance_raw %||% private$importance_raw
    group_factors <- group_factors %||% self$group_factors
+
+   # if an oblique forest is fit with anova, then a user
+   # asks to use the same forest to compute oobag permutation
+   # importance, we don't want to overwrite the initial importance
+   # values in the forest, so we return the cleaned importance values.
+   if(!overwrite){
+    return(private$clean_importance(input,
+                                    group_factors,
+                                    overwrite = overwrite))
+   }
+
    private$clean_importance(input, group_factors)
 
    return(self$importance)
@@ -3304,7 +3316,9 @@ ObliqueForest <- R6::R6Class(
 
   # cleaners
 
-  clean_importance = function(importance = NULL, group_factors = NULL){
+  clean_importance = function(importance = NULL,
+                              group_factors = NULL,
+                              overwrite = TRUE){
 
    out <- importance %||% self$importance
    group_factors <- group_factors %||% self$importance_group_factors
@@ -3350,6 +3364,10 @@ ObliqueForest <- R6::R6Class(
 
     }
 
+   }
+
+   if(!overwrite){
+    return(rev(out[order(out), , drop=TRUE]))
    }
 
    self$importance <- rev(out[order(out), , drop=TRUE])
