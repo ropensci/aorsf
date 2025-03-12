@@ -34,6 +34,8 @@ get_predictors <- function(formula,
 
  if(!is.null(outcomes)){
   stopifnot(is.character(outcomes))
+ } else {
+  outcomes <- all.vars(formula[[2]])
  }
 
  # parse to a character valued vector
