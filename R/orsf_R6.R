@@ -2329,15 +2329,13 @@ ObliqueForest <- R6::R6Class(
 
    if(!is.null(data)) self$data <- data
 
-   formula_terms <- suppressWarnings(
-    stats::terms(x = self$formula, data = self$data)
-   )
-
-   if(attr(formula_terms, 'response') == 0)
+   if(length(self$formula) < 3)
     stop("formula should have a response", call. = FALSE)
 
-   names_x_data <- attr(formula_terms, 'term.labels')
    names_y_data <- all.vars(self$formula[[2]])
+   names_x_data <- get_predictors(self$formula,
+                                  outcomes = names_y_data,
+                                  data = self$data)
 
    # check factors in x data
    fctr_check(self$data, names_x_data)
