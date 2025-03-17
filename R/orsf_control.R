@@ -266,7 +266,6 @@ orsf_control_custom <- function(beta_fun, ...){
 #'
 #'  - 'glm': linear, logistic, and cox regression
 #'  - 'net': same as 'glm' but with penalty terms
-#'  - 'pca': principal component analysis
 #'  - 'random': random draw from uniform distribution
 #'
 #' If `method` is a _function_, it will be used to identify  linear
@@ -360,7 +359,7 @@ orsf_control <- function(tree_type,
 
   check_arg_is_valid(arg_value = method,
                      arg_name = 'method',
-                     valid_options = c("glm", "net", "fast"))
+                     valid_options = c("glm", "net", "random"))
 
   check_arg_length(arg_value = method,
                    arg_name = 'method',
