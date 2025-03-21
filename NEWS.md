@@ -1,5 +1,7 @@
 # aorsf 0.1.6 (unreleased)
 
+* Corrected documentation indicating principal component analysis was a built-in option and fixed an issue where `method="fast"` was not giving the expected error inside of `orsf_control` functions (see https://github.com/ropensci/aorsf/pull/79). Thank you @emilyriederer!
+
 * added `n_predictor_drop` to `orsf_vs()`. Dropping one predictor at a time makes `orsf_vs()` slow for data with hundreds of predictors. Using a larger value for `n_predictor_drop` helps speed this up. The default value of `n_predictor_drop` is 1 to maintain backward compatibility.
 
 * `orsf` no longer throws hard errors if `leaf_min_obs` or `leaf_min_events` exceed the highest admissible value. Instead, a warning is returned and the input value is replaced by the highest admissible value.
