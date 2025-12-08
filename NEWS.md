@@ -1,4 +1,4 @@
-# aorsf 0.1.6 (unreleased)
+# aorsf 0.1.6
 
 * Corrected documentation indicating principal component analysis was a built-in option and fixed an issue where `method="fast"` was not giving the expected error inside of `orsf_control` functions (see https://github.com/ropensci/aorsf/pull/79). Thank you @emilyriederer!
 

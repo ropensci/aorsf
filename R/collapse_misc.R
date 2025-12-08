@@ -11,7 +11,7 @@ as_matrix <- function(x){
 #' @param data data to select columns from
 #' @param col_names names of the columns to select
 #'
-#' @return data[, col_names]
+#' @return data with selected columns
 #' @noRd
 #'
 select_cols <- function(data, col_names){

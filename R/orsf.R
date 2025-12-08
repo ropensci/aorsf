@@ -275,7 +275,7 @@
 #'  variables X1 and X2, but the oblique splits do a better job of separating
 #'  the two classes.
 #'
-#' \if{html}{\figure{tree_axis_v_oblique.png}{options: width=95\%}}
+#' \if{html}{\figure{tree_axis_v_oblique.png}{options: style="width: 95\%;"}}
 #'
 #'
 #' @section What is a random forest?:

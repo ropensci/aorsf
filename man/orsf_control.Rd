@@ -64,7 +64,6 @@ it must be one of:
 \itemize{
 \item 'glm': linear, logistic, and cox regression
 \item 'net': same as 'glm' but with penalty terms
-\item 'pca': principal component analysis
 \item 'random': random draw from uniform distribution
 }
 
@@ -147,6 +146,9 @@ suppressPackageStartupMessages(\{
  library(ranger)
  library(riskRegression)
 \})
+}\if{html}{\out{</div>}}
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{## Warning: package 'riskRegression' was built under R version 4.5.2
 }\if{html}{\out{</div>}}
 \subsection{Accelerated linear combinations}{
 
@@ -313,9 +315,9 @@ The AUC values, from highest to lowest:
 \if{html}{\out{<div class="sourceCode">}}\preformatted{##     model times       AUC         se     lower     upper
 ##    <fctr> <num>     <num>      <num>     <num>     <num>
 ## 1:    net  1788 0.9151649 0.02025057 0.8754745 0.9548553
-## 2:    rlt  1788 0.9119200 0.02090107 0.8709547 0.9528854
-## 3:  accel  1788 0.9095628 0.02143250 0.8675558 0.9515697
-## 4:    cph  1788 0.9095628 0.02143250 0.8675558 0.9515697
+## 2:  accel  1788 0.9095628 0.02143250 0.8675558 0.9515697
+## 3:    cph  1788 0.9095628 0.02143250 0.8675558 0.9515697
+## 4:    rlt  1788 0.9089871 0.02099354 0.8678406 0.9501337
 ## 5:  rando  1788 0.9062197 0.02148854 0.8641029 0.9483365
 ## 6:    pca  1788 0.8999479 0.02226683 0.8563057 0.9435901
 }\if{html}{\out{</div>}}
@@ -325,15 +327,15 @@ And the indices of prediction accuracy:
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{sc$Brier$score[order(-IPA), .(model, times, IPA)]
 }\if{html}{\out{</div>}}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##         model times       IPA
-##        <fctr> <num>     <num>
-## 1:        net  1788 0.4905777
-## 2:      accel  1788 0.4806649
-## 3:        cph  1788 0.4806649
-## 4:        rlt  1788 0.4675228
-## 5:        pca  1788 0.4383995
-## 6:      rando  1788 0.4302814
-## 7: Null model  1788 0.0000000
+\if{html}{\out{<div class="sourceCode">}}\preformatted{##         model times   IPA
+##        <fctr> <num> <num>
+## 1: Null model  1788    NA
+## 2:      accel  1788    NA
+## 3:        cph  1788    NA
+## 4:        net  1788    NA
+## 5:      rando  1788    NA
+## 6:        pca  1788    NA
+## 7:        rlt  1788    NA
 }\if{html}{\out{</div>}}
 
 From inspection,
