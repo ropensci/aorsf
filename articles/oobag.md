@@ -51,12 +51,12 @@ fit$eval_oobag$stat_type
 
 # what is the output from this function?
 fit$eval_oobag$stat_values
-#>           [,1]
-#> [1,] 0.7419135
+#>          [,1]
+#> [1,] 0.741777
 ```
 
 The out-of-bag estimate of Harrell’s C-index (the default method to
-evaluate out-of-bag predictions) is 0.7419135.
+evaluate out-of-bag predictions) is 0.741777.
 
 ## Monitoring out-of-bag error
 

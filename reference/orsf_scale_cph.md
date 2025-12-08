@@ -99,5 +99,5 @@ head(x_unscaled)
 
 # numeric difference in x_mat and x_unscaled should be practically 0
 max(abs(x_mat - x_unscaled))
-#> [1] 3.552714e-15
+#> [1] 8.881784e-16
 ```

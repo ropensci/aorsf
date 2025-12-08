@@ -37,8 +37,8 @@ time_net <- system.time(
 
 # unspecified control is much faster
 time_net['elapsed'] / time_fast['elapsed']
-#>  elapsed 
-#> 46.85714
+#> elapsed 
+#>    47.9
 ```
 
 ## Use `n_thread`
@@ -139,9 +139,9 @@ system.time(
  time_est <- orsf_time_to_train(fit_spec, n_tree_subset = 5)
 )
 #>    user  system elapsed 
-#>   0.283   0.000   0.284
+#>   0.294   0.000   0.294
 
 # the estimated training time:
 time_est
-#> Time difference of 113.1709 secs
+#> Time difference of 117.1861 secs
 ```

@@ -48,7 +48,7 @@ penguin_fit
 #>                  N trees: 500
 #>       N predictors total: 7
 #>    N predictors per node: 3
-#>  Average leaves per tree: 5.542
+#>  Average leaves per tree: 5.522
 #> Min observations in leaf: 5
 #>           OOB stat value: 1.00
 #>            OOB stat type: AUC-ROC
@@ -72,7 +72,7 @@ bill_fit
 #>                  N trees: 500
 #>       N predictors total: 7
 #>    N predictors per node: 3
-#>  Average leaves per tree: 49.958
+#>  Average leaves per tree: 49.806
 #> Min observations in leaf: 5
 #>           OOB stat value: 0.81
 #>            OOB stat type: RSQ
@@ -162,9 +162,9 @@ be applied to any type of oblique forest.
 
   orsf_vi_permute(penguin_fit)
   #>    bill_length_mm flipper_length_mm     bill_depth_mm            island 
-  #>      0.1724983056      0.1024126291      0.0751508005      0.0676077927 
+  #>      0.1718853563      0.1019742036      0.0740207434      0.0707193201 
   #>       body_mass_g               sex              year 
-  #>      0.0626576714      0.0186787401      0.0009286133
+  #>      0.0636020709      0.0179647016      0.0007314716
   ```
 
 - A faster alternative to permutation and negation importance is ANOVA
@@ -175,9 +175,9 @@ be applied to any type of oblique forest.
 
   orsf_vi_anova(bill_fit)
   #>           species               sex            island flipper_length_mm 
-  #>        0.34861430        0.21055730        0.11626929        0.08843136 
+  #>        0.34766885        0.20967742        0.11680487        0.08913484 
   #>       body_mass_g     bill_depth_mm              year 
-  #>        0.07642887        0.06077348        0.01475293
+  #>        0.07659396        0.05951482        0.01587443
   ```
 
 ### Partial dependence (PD)

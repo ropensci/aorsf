@@ -120,7 +120,7 @@ using <code>penguin</code> data from the magnificent
 <span><span class="co">#&gt;                  N trees: 500</span></span>
 <span><span class="co">#&gt;       N predictors total: 7</span></span>
 <span><span class="co">#&gt;    N predictors per node: 3</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 5.542</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 5.522</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;           OOB stat value: 1.00</span></span>
 <span><span class="co">#&gt;            OOB stat type: AUC-ROC</span></span>
@@ -141,7 +141,7 @@ penguins:</p>
 <span><span class="co">#&gt;                  N trees: 500</span></span>
 <span><span class="co">#&gt;       N predictors total: 7</span></span>
 <span><span class="co">#&gt;    N predictors per node: 3</span></span>
-<span><span class="co">#&gt;  Average leaves per tree: 49.958</span></span>
+<span><span class="co">#&gt;  Average leaves per tree: 49.806</span></span>
 <span><span class="co">#&gt; Min observations in leaf: 5</span></span>
 <span><span class="co">#&gt;           OOB stat value: 0.81</span></span>
 <span><span class="co">#&gt;            OOB stat type: RSQ</span></span>
@@ -227,9 +227,9 @@ accuracy to be the importance of that predictor.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_permute</a></span><span class="op">(</span><span class="va">penguin_fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    bill_length_mm flipper_length_mm     bill_depth_mm            island </span></span>
-<span><span class="co">#&gt;      0.1724983056      0.1024126291      0.0751508005      0.0676077927 </span></span>
+<span><span class="co">#&gt;      0.1718853563      0.1019742036      0.0740207434      0.0707193201 </span></span>
 <span><span class="co">#&gt;       body_mass_g               sex              year </span></span>
-<span><span class="co">#&gt;      0.0626576714      0.0186787401      0.0009286133</span></span></code></pre></div>
+<span><span class="co">#&gt;      0.0636020709      0.0179647016      0.0007314716</span></span></code></pre></div>
 </li>
 <li>
 <p>A faster alternative to permutation and negation importance is
@@ -239,9 +239,9 @@ obtains a low p-value (p &lt; 0.01) while the forest is grown.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/orsf_vi.html">orsf_vi_anova</a></span><span class="op">(</span><span class="va">bill_fit</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           species               sex            island flipper_length_mm </span></span>
-<span><span class="co">#&gt;        0.34861430        0.21055730        0.11626929        0.08843136 </span></span>
+<span><span class="co">#&gt;        0.34766885        0.20967742        0.11680487        0.08913484 </span></span>
 <span><span class="co">#&gt;       body_mass_g     bill_depth_mm              year </span></span>
-<span><span class="co">#&gt;        0.07642887        0.06077348        0.01475293</span></span></code></pre></div>
+<span><span class="co">#&gt;        0.07659396        0.05951482        0.01587443</span></span></code></pre></div>
 </li>
 </ul>
 </div>
