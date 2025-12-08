@@ -2,7 +2,7 @@ Package: aorsf
 Title: Accelerated Oblique Random Forests
 Version: 0.1.6
 Authors@R: c(
-    person("Byron", "Jaeger", , "bjaeger@wakehealth.edu", role = c("aut", "cre"),
+    person("Byron", "Jaeger", , "byron.jaeger@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-7399-2299")),
     person("Nicholas", "Pajewski", role = "ctb"),
     person("Sawyer", "Welden", , "swelden@wakehealth.edu", role = "ctb"),
