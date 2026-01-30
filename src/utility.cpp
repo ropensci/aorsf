@@ -767,24 +767,22 @@
 
   double w_sum = sum(w);
   double m = w.size();
+  const double scale_denom = (m - 1) * w_sum / m;
 
-  for(uword i = 0; i < n_vars; i++) {
+  means = ( w.t() * x ).t() / w_sum;
 
-   means.at(i) = sum(w % x.col(i) ) / w_sum;
+  // subtract the mean now so you don't have to do the subtraction
+  // when computing standard deviation.
+  x.each_row() -= means.t();
 
-   // subtract the mean now so you don't have to do the subtraction
-   // when computing standard deviation.
-   x.col(i) -= means.at(i);
+  scales = sqrt(
+   ( w.t() * (x % x) ).t() / scale_denom
+  );
 
-   scales.at(i) = sqrt(
-    sum(w % pow(x.col(i), 2)) / ( (m-1) * w_sum / m )
-   );
+  uvec negative_scales = find(scales <= 0.0);
+  scales(negative_scales).ones(); // constant covariates;
 
-   if(scales(i) <= 0) scales.at(i) = 1.0; // constant covariate;
-
-   x.col(i) /= scales.at(i);
-
-  }
+  x.each_row() /= scales.t();
 
   return(x_transforms);
 
