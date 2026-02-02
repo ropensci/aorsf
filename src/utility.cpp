@@ -767,7 +767,6 @@
 
   double w_sum = sum(w);
   double m = w.size();
-  const double scale_denom = (m - 1) * w_sum / m;
 
   means = ( w.t() * x ).t() / w_sum;
 
@@ -776,7 +775,7 @@
   x.each_row() -= means.t();
 
   scales = sqrt(
-   ( w.t() * (x % x) ).t() / scale_denom
+   ( w.t() * (x % x) ).t() / ( (m - 1) * w_sum / m )
   );
 
   uvec negative_scales = find(scales <= 0.0);
