@@ -36,7 +36,7 @@ object <- orsf(pbc_orsf, Surv(time, status) ~ . - id,
 time_estimated <- orsf_time_to_train(object, n_tree_subset=1)
 
 print(time_estimated)
-#> Time difference of 0.04367828 secs
+#> Time difference of 0.04546881 secs
 
 # let's see how close the approximation was
 time_true_start <- Sys.time()
@@ -46,9 +46,9 @@ time_true_stop <- Sys.time()
 time_true <- time_true_stop - time_true_start
 
 print(time_true)
-#> Time difference of 0.03956723 secs
+#> Time difference of 0.04208875 secs
 
 # error
 abs(time_true - time_estimated)
-#> Time difference of 0.004111052 secs
+#> Time difference of 0.00338006 secs
 ```

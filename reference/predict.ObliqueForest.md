@@ -35,9 +35,8 @@ predict(
 
   a [data.frame](https://rdrr.io/r/base/data.frame.html),
   [tibble](https://tibble.tidyverse.org/reference/tibble-package.html),
-  or
-  [data.table](https://rdatatable.gitlab.io/data.table/reference/data.table.html)
-  to compute predictions in.
+  or [data.table](https://rdrr.io/pkg/data.table/man/data.table.html) to
+  compute predictions in.
 
 - pred_type:
 

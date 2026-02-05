@@ -107,7 +107,7 @@ the ensemble out-of-bag predictions.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">pred_oobag</span>, </span>
 <span>     main <span class="op">=</span> <span class="st">'Out-of-bag survival predictions at t=2,000'</span><span class="op">)</span></span></code></pre></div>
-<p><img src="oobag_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" width="672"></p>
+<p><img src="oobag_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="672"></p>
 <p>Next, let’s check the out-of-bag accuracy of <code>fit</code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
@@ -117,10 +117,10 @@ the ensemble out-of-bag predictions.</p>
 <span></span>
 <span><span class="co"># what is the output from this function?</span></span>
 <span><span class="va">fit</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span></span>
-<span><span class="co">#&gt;          [,1]</span></span>
-<span><span class="co">#&gt; [1,] 0.741777</span></span></code></pre></div>
+<span><span class="co">#&gt;           [,1]</span></span>
+<span><span class="co">#&gt; [1,] 0.7419135</span></span></code></pre></div>
 <p>The out-of-bag estimate of Harrell’s C-index (the default method to
-evaluate out-of-bag predictions) is 0.741777.</p>
+evaluate out-of-bag predictions) is 0.7419135.</p>
 </div>
 <div class="section level2">
 <h2 id="monitoring-out-of-bag-error">Monitoring out-of-bag error<a class="anchor" aria-label="anchor" href="#monitoring-out-of-bag-error"></a>
@@ -152,7 +152,7 @@ trees:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">20</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span><span class="op">)</span></span></code></pre></div>
-<p><img src="oobag_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" width="672"></p>
+<p><img src="oobag_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="672"></p>
 <p>In general, at least 500 trees are recommended for a random forest
 fit. We’re just using 10 for illustration.</p>
 </div>
@@ -217,7 +217,7 @@ will be used in place of Harrell’s C-statistic:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">20</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">fit_brier</span><span class="op">$</span><span class="va">eval_oobag</span><span class="op">$</span><span class="va">stat_values</span><span class="op">)</span></span></code></pre></div>
-<p><img src="oobag_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" width="672"></p>
+<p><img src="oobag_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="672"></p>
 <!-- Although earlier versions of `aorsf` were not compatible with `riskRegression::Score()`, they now work together nicely. Notably, it is a little tricky to make the prediction horizon time pass all tests imposed by `aorsf` and `riskRegression` (see code below). -->
 <!-- ```{r} -->
 <!-- oobag_cstat_surv <- function(y_mat, w_vec, s_vec){ -->

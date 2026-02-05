@@ -2,6 +2,8 @@
 
 ## aorsf 0.1.6
 
+CRAN release: 2025-12-11
+
 - Corrected documentation indicating principal component analysis was a
   built-in option and fixed an issue where `method="fast"` was not
   giving the expected error inside of `orsf_control` functions (see

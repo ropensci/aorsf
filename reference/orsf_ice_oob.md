@@ -148,9 +148,8 @@ orsf_ice_new(
 
   a [data.frame](https://rdrr.io/r/base/data.frame.html),
   [tibble](https://tibble.tidyverse.org/reference/tibble-package.html),
-  or
-  [data.table](https://rdatatable.gitlab.io/data.table/reference/data.table.html)
-  to compute predictions in.
+  or [data.table](https://rdrr.io/pkg/data.table/man/data.table.html) to
+  compute predictions in.
 
 - na_action:
 
@@ -163,8 +162,7 @@ orsf_ice_new(
 
 ## Value
 
-a
-[data.table](https://rdatatable.gitlab.io/data.table/reference/data.table.html)
+a [data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
 containing individual conditional expectations for the specified
 variable(s) and, if relevant, at the specified prediction horizon(s).
 

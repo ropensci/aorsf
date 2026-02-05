@@ -39,7 +39,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.1.6" id="aorsf-016">aorsf 0.1.6<a class="anchor" aria-label="anchor" href="#aorsf-016"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.1.6" id="aorsf-016">aorsf 0.1.6<a class="anchor" aria-label="anchor" href="#aorsf-016"></a></h2><p class="text-muted">CRAN release: 2025-12-11</p>
 <ul><li><p>Corrected documentation indicating principal component analysis was a built-in option and fixed an issue where <code>method="fast"</code> was not giving the expected error inside of <code>orsf_control</code> functions (see <a href="https://github.com/ropensci/aorsf/pull/79" class="external-link uri">https://github.com/ropensci/aorsf/pull/79</a>). Thank you <a href="https://github.com/emilyriederer" class="external-link">@emilyriederer</a>!</p></li>
 <li><p>added <code>n_predictor_drop</code> to <code><a href="../reference/orsf_vs.html">orsf_vs()</a></code>. Dropping one predictor at a time makes <code><a href="../reference/orsf_vs.html">orsf_vs()</a></code> slow for data with hundreds of predictors. Using a larger value for <code>n_predictor_drop</code> helps speed this up. The default value of <code>n_predictor_drop</code> is 1 to maintain backward compatibility.</p></li>
 <li><p><code>orsf</code> no longer throws hard errors if <code>leaf_min_obs</code> or <code>leaf_min_events</code> exceed the highest admissible value. Instead, a warning is returned and the input value is replaced by the highest admissible value.</p></li>

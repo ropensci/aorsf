@@ -21,8 +21,7 @@ as.data.table(x, ...)
 
 ## Value
 
-a
-[data.table](https://rdatatable.gitlab.io/data.table/reference/data.table.html)
+a [data.table](https://rdrr.io/pkg/data.table/man/data.table.html)
 
 ## Examples
 

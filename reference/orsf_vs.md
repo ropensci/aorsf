@@ -35,9 +35,8 @@ orsf_vs(
 
 ## Value
 
-a
-[data.table](https://rdatatable.gitlab.io/data.table/reference/data.table.html)
-with four columns:
+a [data.table](https://rdrr.io/pkg/data.table/man/data.table.html) with
+four columns:
 
 - *n_predictors*: the number of predictors used
 
@@ -71,18 +70,18 @@ object <- orsf(formula = time + status ~ .,
                importance = 'anova')
 
 orsf_vs(object, n_predictor_min = 15)
-#>    n_predictors stat_value                        variables_included
-#>           <int>      <num>                                    <list>
-#> 1:           15  0.8243138     age,albumin,ascites,ast,bili,chol,...
-#> 2:           16  0.8395229 age,albumin,alk.phos,ascites,ast,bili,...
-#> 3:           17  0.8429085 age,albumin,alk.phos,ascites,ast,bili,...
-#> 4:           18  0.8340539 age,albumin,alk.phos,ascites,ast,bili,...
-#> 5:           19  0.8210323 age,albumin,alk.phos,ascites,ast,bili,...
-#>                                  predictors_included predictor_dropped
-#>                                               <list>            <list>
-#> 1: id,age,ascites_1,hepato_1,spiders_1,edema_0.5,...                NA
-#> 2: id,age,ascites_1,hepato_1,spiders_1,edema_0.5,...          alk.phos
-#> 3:     id,age,sex_f,ascites_1,hepato_1,spiders_1,...             sex_f
-#> 4:     id,age,sex_f,ascites_1,hepato_1,spiders_1,...          platelet
-#> 5:   id,trt_placebo,age,sex_f,ascites_1,hepato_1,...       trt_placebo
+#>    n_predictors stat_value                            variables_included
+#>           <int>      <num>                                        <list>
+#> 1:           15  0.8244179     age,albumin,ascites,ast,bili,chol,...[14]
+#> 2:           16  0.8395229 age,albumin,alk.phos,ascites,ast,bili,...[15]
+#> 3:           17  0.8429085 age,albumin,alk.phos,ascites,ast,bili,...[16]
+#> 4:           18  0.8340539 age,albumin,alk.phos,ascites,ast,bili,...[17]
+#> 5:           19  0.8210323 age,albumin,alk.phos,ascites,ast,bili,...[18]
+#>                                      predictors_included predictor_dropped
+#>                                                   <list>            <list>
+#> 1: id,age,ascites_1,hepato_1,spiders_1,edema_0.5,...[15]                NA
+#> 2: id,age,ascites_1,hepato_1,spiders_1,edema_0.5,...[16]          alk.phos
+#> 3:     id,age,sex_f,ascites_1,hepato_1,spiders_1,...[17]             sex_f
+#> 4:     id,age,sex_f,ascites_1,hepato_1,spiders_1,...[18]          platelet
+#> 5:   id,trt_placebo,age,sex_f,ascites_1,hepato_1,...[19]       trt_placebo
 ```
